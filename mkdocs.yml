@@ -1,7 +1,8 @@
 site_name: EUDIPLO
 repo_name: eudi-wallet/eidas-2.0-architekturkonzept
 repo_url: https://github.com/cre8/eudiplo
-docs_dir: doc
+edit_uri: edit/main/docs/
+docs_dir: docs
 copyright: "License: CC BY 4.0"
 theme:
   name: material
@@ -23,6 +24,7 @@ theme:
   features:
   - content.code.copy
   - content.action.view
+  - content.action.edit
   - navigation.expand
   - navigation.footer
   - navigation.indexes
@@ -103,8 +105,7 @@ nav:
   - Architecture:
       - Overview: architecture/overview.md
       - Key Management: architecture/key-management.md
-      - Database: architecture/database.md
-      - Crypto Module: architecture/crypto.md
+      - Database: architecture/database.md      
   - API Reference: api-reference.md
   - Advanced Topics:
       - Extending Key Management: advanced/extending-key-management.md
