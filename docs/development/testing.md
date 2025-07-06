@@ -1,6 +1,6 @@
 # Testing
 
-Eudiplo is designed to be robust and easy to test both in development and CI environments. This guide outlines how to run, write, and automate tests for the project.
+EUDIPLO is designed to be robust and easy to test both in development and CI environments. This guide outlines how to run, write, and automate tests for the project.
 
 ---
 

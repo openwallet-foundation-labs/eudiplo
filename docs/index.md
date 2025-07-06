@@ -1,8 +1,27 @@
-# Eudiplo
+# EUDIPLO
 
-**Eudiplo** is a middleware that simplifies integration with the **EUDI Wallet** ecosystem. It provides a modular and standards-compliant backend for issuing, verifying, and managing verifiable credentials without needing to implement complex protocols directly.
+**EUDIPLO** is a middleware that simplifies integration with the **EUDI Wallet** ecosystem. It provides a modular and standards-compliant backend for issuing, verifying, and managing verifiable credentials without needing to implement complex protocols directly.
 
-Use Eudiplo as a self-contained Docker container in your infrastructure to handle all EUDI-related operations securely and efficiently.
+Use EUDIPLO as a self-contained Docker container in your infrastructure to handle all EUDI-related operations securely and efficiently.
+
+```plantuml
+@startuml
+skinparam participantPadding 20
+skinparam ParticipantStyle rectangle
+skinparam shadowing false
+skinparam defaultTextAlignment center
+
+actor "EUDI Wallet\n(Mobile App)" as Wallet
+participant "EUDIPLO Middleware\n(Protocol Abstraction Layer)" as Middleware
+participant "End Service\n(Custom Backend Logic)" as Service
+
+Wallet <---> Middleware : OID4VCI\nOID4VP\nSD-JWT VC\nAttestations
+Middleware <---> Service : Simple JSON API\nVerified Data / Events
+
+note over Middleware : Handles all EUDI\nprotocol complexity
+
+@enduml
+```
 
 ---
 
@@ -18,7 +37,7 @@ Use Eudiplo as a self-contained Docker container in your infrastructure to handl
 
 ## 🧪 Supported Protocols
 
-Eudiplo supports a range of current and emerging standards in the EUDI Wallet ecosystem:
+EUDIPLO supports a range of current and emerging standards in the EUDI Wallet ecosystem:
 
 - [OpenID for Verifiable Presentation](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html)
 - [OpenID for Credential Issuance](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html)
@@ -29,12 +48,12 @@ Eudiplo supports a range of current and emerging standards in the EUDI Wallet ec
 
 ## 🚀 Get Started
 
-To install and run Eudiplo locally, check out the [Installation Guide](getting-started/installation.md). You can explore the [API Reference](api-reference.md) or learn about how Eudiplo works in the [Architecture Overview](architecture/overview.md).
+To install and run EUDIPLO locally, check out the [Installation Guide](getting-started/installation.md). You can explore the [API Reference](api-reference.md) or learn about how EUDIPLO works in the [Architecture Overview](architecture/overview.md).
 
-Eudiplo helps you integrate modern identity standards with minimal effort.
+EUDIPLO helps you integrate modern identity standards with minimal effort.
 
 ---
 
 ## 🤝 Contributing
 
-Want to contribute? Read the [contribution guidelines](https://github.com/cre8/eudiplo/blob/main/CONTRIBUTING.md).
+Want to contribute? Read the [contribution guidelines](https://github.com/cre8/EUDIPLO/blob/main/CONTRIBUTING.md).

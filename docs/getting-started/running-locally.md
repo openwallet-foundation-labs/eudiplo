@@ -14,8 +14,8 @@ Before you start, make sure you have the following tools installed:
 ## 1. Clone the Repository
 
 ```bash
-git clone https://github.com/cre8/eudiplo
-cd eudiplo
+git clone https://github.com/cre8/EUDIPLO
+cd EUDIPLO
 ```
 
 ## 2. Install Dependencies

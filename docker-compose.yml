@@ -1,12 +1,12 @@
 services:
-  eudiplo:
-    image: eudiplo:latest
+  EUDIPLO:
+    image: EUDIPLO:latest
     restart: always
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        -  APP=eudiplo
+        -  APP=EUDIPLO
     env_file:
       - .env      
     environment:

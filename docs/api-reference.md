@@ -1,6 +1,6 @@
 # API Reference
 
-Eudiplo exposes a REST API based on the OpenAPI 3.0 standard. This interface allows systems to issue credentials, verify presentations, and configure credential behavior through standard HTTP endpoints.
+EUDIPLO exposes a REST API based on the OpenAPI 3.0 standard. This interface allows systems to issue credentials, verify presentations, and configure credential behavior through standard HTTP endpoints.
 
 ## 📍 OpenAPI Endpoints
 

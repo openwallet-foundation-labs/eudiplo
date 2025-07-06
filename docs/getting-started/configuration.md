@@ -6,7 +6,7 @@ Configuration is done via environment variables. You can use the provided `.env`
 
 ## ✅ Minimal Required Configuration
 
-The following variables are required for Eudiplo to start:
+The following variables are required for EUDIPLO to start:
 
 ```env
 PROXY=https://service.eudi-wallet.dev

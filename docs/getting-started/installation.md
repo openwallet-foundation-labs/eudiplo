@@ -1,6 +1,6 @@
 # Installation
 
-Eudiplo is distributed as a Docker image and can be installed quickly by configuring an `.env` file and running the container. This section guides you through the steps to get started.
+EUDIPLO is distributed as a Docker image and can be installed quickly by configuring an `.env` file and running the container. This section guides you through the steps to get started.
 
 ---
 
@@ -36,14 +36,14 @@ KEYCLOAK_CREDENTIALS_SECRET=
 ## 🐳 2. Run the Docker Container
 
 ```bash
-docker run --env-file .env -v $(pwd)/config:/app/config ghcr.io/cre8/eudiplo:latest
+docker run --env-file .env -v $(pwd)/config:/app/config ghcr.io/cre8/EUDIPLO:latest
 ```
 
 ---
 
 ## 🧪 3. Verify It's Running
 
-Once started, Eudiplo exposes several endpoints. For example:
+Once started, EUDIPLO exposes several endpoints. For example:
 
 ```bash
 curl http://localhost:3000/health
@@ -65,7 +65,7 @@ DB_HOST=postgres
 DB_PORT=5432
 DB_USERNAME=youruser
 DB_PASSWORD=yourpassword
-DB_DATABASE=eudiplo
+DB_DATABASE=EUDIPLO
 ```
 
 And add this to your `docker-compose.yml`:
@@ -77,7 +77,7 @@ services:
     environment:
       POSTGRES_USER: youruser
       POSTGRES_PASSWORD: yourpassword
-      POSTGRES_DB: eudiplo
+      POSTGRES_DB: EUDIPLO
     ports:
       - 5432:5432
     volumes:

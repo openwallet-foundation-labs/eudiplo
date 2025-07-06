@@ -1,6 +1,6 @@
 # EUDIPLO – Your Diplomatic Layer for EUDI Wallet Integration
 
-**Eudiplo** is a lightweight, open-source middleware that acts as a **protocol translator** between your backend service and **EUDI Wallets**.
+**EUDIPLO** is a lightweight, open-source middleware that acts as a **protocol translator** between your backend service and **EUDI Wallets**.
 
 ---
 
@@ -17,19 +17,19 @@
 ## 🚀 Quickstart
 
 ```bash
-docker run --env-file .env -v $(pwd)/config:/app/config ghcr.io/cre8/eudiplo:latest
+docker run --env-file .env -v $(pwd)/config:/app/config ghcr.io/cre8/EUDIPLO:latest
 ```
 
-See the full [Installation Guide](https://cre8.github.io/eudiplo/getting-started/installation) for details and environment variables.
+See the full [Installation Guide](https://cre8.github.io/EUDIPLO/getting-started/installation) for details and environment variables.
 
 ---
 
 ## 📚 Documentation
 
-- [Getting Started](https://cre8.github.io/eudiplo/getting-started/)
-- [Configuration](https://cre8.github.io/eudiplo/configuration/)
-- [Supported Protocols](https://cre8.github.io/eudiplo/supported-protocols/)
-- [Credential Flows](https://cre8.github.io/eudiplo/architecture/flows)
+- [Getting Started](https://cre8.github.io/EUDIPLO/getting-started/)
+- [Configuration](https://cre8.github.io/EUDIPLO/configuration/)
+- [Supported Protocols](https://cre8.github.io/EUDIPLO/supported-protocols/)
+- [Credential Flows](https://cre8.github.io/EUDIPLO/architecture/flows)
 
 ---
 

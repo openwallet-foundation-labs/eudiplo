@@ -1,6 +1,6 @@
 # Architecture Overview
 
-**Eudiplo** is a lightweight middleware designed to bridge the gap between existing systems and the emerging ecosystem of **EUDI Wallets**. Instead of implementing complex protocols such as OpenID4VP, SD-JWT, or DIDComm themselves, developers can run Eudiplo as a standalone Docker container and interact with it via simple APIs or configuration files.
+**EUDIPLO** is a lightweight middleware designed to bridge the gap between existing systems and the emerging ecosystem of **EUDI Wallets**. Instead of implementing complex protocols such as OpenID4VP, SD-JWT, or DIDComm themselves, developers can run EUDIPLO as a standalone Docker container and interact with it via simple APIs or configuration files.
 
 It acts as an **adapter** between trusted infrastructure and local applications or web services.
 
@@ -8,7 +8,7 @@ It acts as an **adapter** between trusted infrastructure and local applications 
 
 ## 🧩 Purpose
 
-The EUDI Wallet ecosystem introduces new technical standards and trust models that are non-trivial to implement correctly. Eudiplo handles these standards for you, allowing existing systems to:
+The EUDI Wallet ecosystem introduces new technical standards and trust models that are non-trivial to implement correctly. EUDIPLO handles these standards for you, allowing existing systems to:
 
 - **Issue** verifiable credentials
 - **Verify** presentations
@@ -38,28 +38,28 @@ Here’s a simplified data flow for a verification interaction:
 ```mermaid
 sequenceDiagram
   participant Wallet
-  participant Eudiplo
+  participant EUDIPLO
   participant Verifier System
   participant Vault/DB
 
-  Wallet->>+Eudiplo: Sends presentation
-  Eudiplo->>Verifier System: Validates request intent
-  Eudiplo->>Vault/DB: Verifies signature, stores session
-  Eudiplo-->>Wallet: Returns verification result
+  Wallet->>+EUDIPLO: Sends presentation
+  EUDIPLO->>Verifier System: Validates request intent
+  EUDIPLO->>Vault/DB: Verifies signature, stores session
+  EUDIPLO-->>Wallet: Returns verification result
 ```
 
-Similarly, for issuance, Eudiplo prepares credential data and signs it with a trusted key.
+Similarly, for issuance, EUDIPLO prepares credential data and signs it with a trusted key.
 
 ---
 
 ## ⚙️ Deployment
 
-Eudiplo is shipped as a Docker image. It can be run with minimal setup via a `.env` file. You can mount:
+EUDIPLO is shipped as a Docker image. It can be run with minimal setup via a `.env` file. You can mount:
 
 - a `config/` directory for SQLite data or credential configuration
 - optional integration with Vault for key storage
 
-Eudiplo can be deployed as:
+EUDIPLO can be deployed as:
 
 - a **standalone local service** (e.g., during development)
 - a **backend service** in production (e.g., behind a gateway)
@@ -68,7 +68,7 @@ Eudiplo can be deployed as:
 
 ## 📦 Integration Patterns
 
-You can use Eudiplo as:
+You can use EUDIPLO as:
 
 - An **internal credential issuance service** for your citizen portal, education platform, or company registry
 - A **verifier bridge** to validate wallets without deeply integrating OpenID4VP etc.
@@ -78,7 +78,7 @@ You can use Eudiplo as:
 
 ## 🔄 Extensibility
 
-Eudiplo is modular and extensible:
+EUDIPLO is modular and extensible:
 
 - Add new key management backends (e.g., AWS KMS)
 - Customize issuance templates
