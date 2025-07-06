@@ -36,7 +36,7 @@ KEYCLOAK_CREDENTIALS_SECRET=
 ## 🐳 2. Run the Docker Container
 
 ```bash
-docker run --env-file .env -v $(pwd)/config:/app/config ghcr.io/cre8/EUDIPLO:latest
+docker run --env-file .env -v $(pwd)/config:/app/config ghcr.io/cre8/eudiplo:latest
 ```
 
 ---

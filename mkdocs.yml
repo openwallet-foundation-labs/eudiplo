@@ -1,6 +1,6 @@
 site_name: EUDIPLO
-repo_name: cre8/EUDIPLO
-repo_url: https://github.com/cre8/EUDIPLO
+repo_name: cre8/eudiplo
+repo_url: https://github.com/cre8/eudiplo
 edit_uri: edit/main/docs/
 docs_dir: docs
 copyright: "License: CC BY 4.0"
@@ -99,10 +99,10 @@ plugins:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/cre8/EUDIPLO
+      link: https://github.com/cre8/eudiplo
   legal:
     - text: Contributing
-      link: https://github.com/cre8/EUDIPLO/blob/main/CONTRIBUTING.md
+      link: https://github.com/cre8/eudiplo/blob/main/CONTRIBUTING.md
 
 nav:
   - Home: index.md
