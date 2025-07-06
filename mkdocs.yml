@@ -113,18 +113,15 @@ nav:
       - Flows:
         - Issuance: getting-started/issuance.md
         - Presentation: getting-started/presentation.md
+      - Webhooks: getting-started/webhooks.md
   - Architecture:
       - Overview: architecture/overview.md      
       - Key Management: architecture/key-management.md
       - Database: architecture/database.md      
-  - API Reference: api-reference.md
-  - Advanced Topics:
-      - Extending Key Management: advanced/extending-key-management.md
-      - Using Vault: advanced/vault.md
-      - Security Considerations: advanced/security.md
+  - API Reference: api-reference.md  
   - Development:
       - Contributing Guide: development/contributing.md
       - Code Style: development/code-style.md
       - Testing: development/testing.md
   - FAQ: faq.md
-  - License: license.md
+  - License: https://github.com/cre8/eudiplo/blob/main/LICENSE

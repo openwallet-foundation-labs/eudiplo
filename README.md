@@ -26,10 +26,9 @@ See the full [Installation Guide](https://cre8.github.io/eudiplo/getting-started
 
 ## 📚 Documentation
 
-- [Getting Started](https://cre8.github.io/eudiplo/getting-started/)
-- [Configuration](https://cre8.github.io/eudiplo/configuration/)
+- [Getting Started](https://cre8.github.io/eudiplo/getting-started/installation/)
+- [Architecture](https://cre8.github.io/eudiplo/architecture/overview/)
 - [Supported Protocols](https://cre8.github.io/eudiplo/supported-protocols/)
-- [Credential Flows](https://cre8.github.io/eudiplo/architecture/flows)
 
 ---
 

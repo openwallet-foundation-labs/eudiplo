@@ -56,4 +56,4 @@ EUDIPLO helps you integrate modern identity standards with minimal effort.
 
 ## 🤝 Contributing
 
-Want to contribute? Read the [contribution guidelines](https://github.com/cre8/eudiplo/blob/main/CONTRIBUTING.md).
+Want to contribute? Read the [contribution guidelines](https://github.com/cre8/eudiplo/blob/main/CONTRIBUTING.MD).

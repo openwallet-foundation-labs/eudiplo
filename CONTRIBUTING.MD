@@ -10,7 +10,7 @@ This guide will walk you through the steps to report issues, suggest features, a
 
 If you find a bug, glitch, or unclear behavior:
 
-1. **Search** existing [issues](https://github.com/cre8/EUDIPLO/issues) to avoid duplicates.
+1. **Search** existing [issues](https://github.com/cre8/eudiplo/issues) to avoid duplicates.
 2. If not found, **open a new issue** and include:
    - A short description
    - Steps to reproduce
@@ -23,7 +23,7 @@ If you find a bug, glitch, or unclear behavior:
 
 Have an idea to improve EUDIPLO?
 
-- Check if a [feature request](https://github.com/cre8/EUDIPLO/issues) already exists
+- Check if a [feature request](https://github.com/cre8/eudiplo/issues) already exists
 - Open a new issue with a `feature request` label and describe:
   - The problem you want to solve
   - The proposed solution
@@ -35,7 +35,7 @@ Have an idea to improve EUDIPLO?
 
 1. Fork this repo and clone your fork:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/EUDIPLO
+   git clone https://github.com/YOUR_USERNAME/eudiplo
    cd EUDIPLO
    ```
 
@@ -85,7 +85,7 @@ We follow a [Code of Conduct](CODE_OF_CONDUCT.md) to foster an inclusive and res
 
 ## 💬 Need Help?
 
-- Open a discussion or issue on [GitHub](https://github.com/cre8/EUDIPLO/issues)
+- Open a discussion or issue on [GitHub](https://github.com/cre8/eudiplo/issues)
 - Contact the maintainers for guidance
 
 Thanks for helping improve EUDIPLO!

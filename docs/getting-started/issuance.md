@@ -8,6 +8,9 @@ config/issuance/{id}.json
 
 Each file represents a specific credential type or use case.
 
+TODO: add information how to pass data, so what values can be passed when creating a offer request
+TODO: also an endpoint to request session data.
+
 ---
 
 ## 🔍 Credential Presentation Flow

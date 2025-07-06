@@ -6,7 +6,7 @@ EUDIPLO exposes a REST API based on the OpenAPI 3.0 standard. This interface all
 
 You can access the OpenAPI documentation via:
 
-- 🌐 **Swagger UI**: [http://localhost:3000](http://localhost:3000)
+- 🌐 **Swagger UI**: [http://localhost:3000/api](http://localhost:3000/api)
 - 📄 **OpenAPI Spec (JSON)**: [http://localhost:3000/api-json](http://localhost:3000/api-json)
 
 ## 🔑 Well-Known Endpoints
