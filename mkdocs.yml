@@ -2,7 +2,6 @@ site_name: EUDIPLO
 repo_name: eudi-wallet/eidas-2.0-architekturkonzept
 repo_url: https://github.com/cre8/eudiplo
 docs_dir: doc
-edit_uri: -/blob/main/doc/
 copyright: "License: CC BY 4.0"
 theme:
   name: material
