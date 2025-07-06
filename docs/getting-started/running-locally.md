@@ -84,7 +84,7 @@ You should see the default health endpoint or API response depending on your set
 
 - Double-check `.env` values for typos or missing values.
 - Ensure Docker services are healthy and have finished starting.
-- Clear Node/Nest cache with `rm -rf dist node_modules && npm install`.
+- Clear Node/Nest cache with `rm -rf dist node_modules && pnpm install`.
 - Use `docker-compose logs -f` to inspect logs if something fails.
 
 ---

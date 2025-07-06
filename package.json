@@ -32,6 +32,7 @@
     "@nestjs/schedule": "^6.0.0",
     "@nestjs/serve-static": "^5.0.3",
     "@nestjs/swagger": "^11.2.0",
+    "@nestjs/terminus": "^11.0.0",
     "@nestjs/typeorm": "^11.0.0",
     "@openid4vc/oauth2": "^0.2.0",
     "@openid4vc/openid4vci": "0.3.0-alpha-20250602121005",

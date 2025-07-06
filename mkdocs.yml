@@ -1,5 +1,5 @@
 site_name: EUDIPLO
-repo_name: eudi-wallet/eidas-2.0-architekturkonzept
+repo_name: cre8/eudiplo
 repo_url: https://github.com/cre8/eudiplo
 edit_uri: edit/main/docs/
 docs_dir: docs
@@ -96,14 +96,25 @@ plugins:
     - search
     - glightbox
 
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/cre8/eudiplo
+  legal:
+    - text: Contributing
+      link: https://github.com/cre8/eudiplo/blob/main/CONTRIBUTING.md
+
 nav:
   - Home: index.md
   - Getting Started:
       - Installation: getting-started/installation.md
       - Configuration: getting-started/configuration.md
       - Running Locally: getting-started/running-locally.md
+      - Flows:
+        - Issuance: getting-started/issuance.md
+        - Presentation: getting-started/presentation.md
   - Architecture:
-      - Overview: architecture/overview.md
+      - Overview: architecture/overview.md      
       - Key Management: architecture/key-management.md
       - Database: architecture/database.md      
   - API Reference: api-reference.md

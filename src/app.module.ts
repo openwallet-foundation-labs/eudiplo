@@ -18,6 +18,7 @@ import { SessionModule } from './session/session.module';
 import { LoggerMiddleware } from './logger';
 import { ScheduleModule } from '@nestjs/schedule';
 import { DatabaseModule } from './database/database.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { DatabaseModule } from './database/database.module';
     DatabaseModule,
     SessionModule,
     DatabaseModule,
+    HealthModule,
   ],
   controllers: [WellKnownController, AppController],
 })

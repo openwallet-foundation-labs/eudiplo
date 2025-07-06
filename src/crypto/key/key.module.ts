@@ -30,7 +30,7 @@ export const KEY_VALIDATION_SCHEMA = {
   // File-based config
   KM_FOLDER: Joi.string().when('KM_TYPE', {
     is: 'file',
-    then: Joi.string().default('./config/keys'),
+    then: Joi.string().default('./assets/keys'),
     otherwise: Joi.forbidden(),
   }),
 };

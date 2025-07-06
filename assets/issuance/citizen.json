@@ -29,7 +29,7 @@
   },
   "presentation_during_issuance": {
     "type": "pid",
-    "webhook": "http://localhost:3000/process"
+    "webhook": "http://localhost:3001/process"
   },
   "claims": {
     "town": "Berlin"
