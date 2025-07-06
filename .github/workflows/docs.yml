@@ -30,6 +30,7 @@ jobs:
       - name: Install MkDocs and theme
         run: |
           python3 -m pip install -r requirements.txt
+          mkdocs build --strict
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
