@@ -1,0 +1,119 @@
+site_name: EUDIPLO
+repo_name: eudi-wallet/eidas-2.0-architekturkonzept
+repo_url: https://github.com/cre8/eudiplo
+docs_dir: doc
+edit_uri: -/blob/main/doc/
+copyright: "License: CC BY 4.0"
+theme:
+  name: material
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+  - content.code.copy
+  - content.action.view
+  - navigation.expand
+  - navigation.footer
+  - navigation.indexes
+  - navigation.instant
+  - navigation.instant.prefetch
+  - navigation.path
+  - navigation.sections
+  - navigation.tabs
+  - navigation.tabs.sticky
+  - navigation.top
+  - navigation.tracking
+  - search.highlight
+  - search.suggest
+  - toc.follow  
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.magiclink:
+      repo_url_shorthand: true
+      user: squidfunk
+      repo: mkdocs-material
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+extra_css:
+  - stylesheets/extra.css
+extra_javascript:
+  - javascript/mathjax.js
+  - javascript/puml.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+plugins:
+    - plantuml:
+        puml_url: 'https://www.plantuml.com/plantuml/'
+        puml_keyword: plantuml
+        verify_ssl: false
+        interaction:
+          enabled: false
+        theme:
+          enabled: false
+    - search
+    - glightbox
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      - Configuration: getting-started/configuration.md
+      - Running Locally: getting-started/running-locally.md
+  - Architecture:
+      - Overview: architecture/overview.md
+      - Key Management: architecture/key-management.md
+      - Database: architecture/database.md
+      - Crypto Module: architecture/crypto.md
+  - API Reference: api-reference.md
+  - Advanced Topics:
+      - Extending Key Management: advanced/extending-key-management.md
+      - Using Vault: advanced/vault.md
+      - Security Considerations: advanced/security.md
+  - Development:
+      - Contributing Guide: development/contributing.md
+      - Code Style: development/code-style.md
+      - Testing: development/testing.md
+  - FAQ: faq.md
+  - License: license.md

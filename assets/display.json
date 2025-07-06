@@ -1,0 +1,10 @@
+[
+    {
+      "name": "EUDI Wallet dev",
+      "locale": "de-DE",
+      "logo": {
+        "uri": "https://service.eudi-wallet.dev/issuer.png",
+        "url": "https://service.eudi-wallet.dev/issuer.png"
+      }
+    }
+  ]

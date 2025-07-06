@@ -1,0 +1,20 @@
+services:
+  eudiplo:
+    image: eudiplo:latest
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        -  APP=eudiplo
+    env_file:
+      - .env      
+    environment:
+      - FOLDER=/app/config
+      - PUBLIC_FOLDER=../config/public
+      - KM_FOLDER=./config/keys
+      - PORT=3000
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./assets:/app/config
