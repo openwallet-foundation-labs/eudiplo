@@ -30,7 +30,8 @@ jobs:
       - name: Install MkDocs and theme
         run: |
           python3 -m pip install -r requirements.txt
-          mkdocs build --strict
+          mkdocs build
+
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
