@@ -116,7 +116,7 @@ nav:
       - Overview: architecture/overview.md      
       - Key Management: architecture/key-management.md
       - Database: architecture/database.md      
-      - Compodoc: /compodoc
+      - Compodoc: /eudiplo/compodoc
   - API:
     - Swagger: api/swagger.md
     - Endpoints: api/api.md  
