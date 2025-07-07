@@ -13,6 +13,7 @@ import { v4 } from 'uuid';
 import { SessionService } from '../../session/session.service';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
+import { OfferResponse } from '../../issuer/oid4vci/dto/offer-request.dto';
 
 export interface PresentationRequestOptions {
   session?: string;
@@ -106,7 +107,7 @@ export class Oid4vpService {
   async createRequest(
     requestId: string,
     values: PresentationRequestOptions,
-  ): Promise<string> {
+  ): Promise<OfferResponse> {
     const vpRequest =
       this.presentationsService.getPresentationRequest(requestId);
 
@@ -136,7 +137,10 @@ export class Oid4vpService {
       )
       .join('&');
 
-    return queryString;
+    return {
+      uri: queryString,
+      session: values.session,
+    };
   }
 
   async getResponse(body: AuthorizationResponse) {

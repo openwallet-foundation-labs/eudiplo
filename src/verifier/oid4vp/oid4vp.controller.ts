@@ -7,17 +7,38 @@ import {
   PresentationRequest,
   ResponseType,
 } from './dto/presentation-request.dto';
+import { ApiProduces, ApiResponse } from '@nestjs/swagger';
+import { OfferResponse } from '../../issuer/oid4vci/dto/offer-request.dto';
 
 @Controller('oid4vp')
 export class Oid4vpController {
   constructor(private readonly oid4vpService: Oid4vpService) {}
 
+  /**
+   * Create an offer for a credential. This endpoint may be protected
+   * @param res
+   * @param body
+   */
+  @ApiResponse({
+    description: 'JSON response',
+    status: 201,
+    //TODO: do not use type, otherwhise the response can not deal with both JSON and PNG.
+    type: OfferResponse,
+    content: {
+      'application/json': { schema: { type: 'object' } },
+      'image/png': { schema: { type: 'string', format: 'binary' } },
+    },
+  })
+  @ApiProduces('application/json', 'image/png')
   @Post()
   async getOffer(@Res() res: Response, @Body() body: PresentationRequest) {
-    const url = `openid4vp://?${await this.oid4vpService.createRequest(body.requestId, { webhook: body.webhook })}`;
+    const values = await this.oid4vpService.createRequest(body.requestId, {
+      webhook: body.webhook,
+    });
+    values.uri = `openid4vp://?${values.uri}`;
     if (body.response_type === ResponseType.QRCode) {
       // Generate QR code as a PNG buffer
-      const qrCodeBuffer = await QRCode.toBuffer(url);
+      const qrCodeBuffer = await QRCode.toBuffer(values.uri);
 
       // Set the response content type to image/png
       res.setHeader('Content-Type', 'image/png');
@@ -25,17 +46,16 @@ export class Oid4vpController {
       // Send the QR code image as the response
       res.send(qrCodeBuffer);
     } else {
-      res.send({
-        request: url,
-      });
+      res.send(values);
     }
   }
 
-  @Get('request/:requestId')
-  getRequest(@Param('requestId') requestId: string) {
-    return this.oid4vpService.createAuthorizationRequest(requestId);
-  }
-
+  /**
+   * Returns the authorization request for a given requestId and session.
+   * @param requestId
+   * @param session
+   * @returns
+   */
   @Get('request/:requestId/:session')
   getRequestWithSession(
     @Param('requestId') requestId: string,
@@ -44,6 +64,11 @@ export class Oid4vpController {
     return this.oid4vpService.createAuthorizationRequest(requestId, session);
   }
 
+  /**
+   * Endpoint to receive the response from the wallet.
+   * @param body
+   * @returns
+   */
   @Post('response')
   getResponse(@Body() body: AuthorizationResponse) {
     return this.oid4vpService.getResponse(body);

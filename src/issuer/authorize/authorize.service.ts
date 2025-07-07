@@ -44,7 +44,7 @@ export class AuthorizeService {
       issuer: authServer,
       token_endpoint: `${authServer}/authorize/token`,
       authorization_endpoint: `${authServer}/authorize`,
-      jwks_uri: `${authServer}/authorize/jwks.json`,
+      jwks_uri: `${authServer}/.well-known/jwks.json`,
       dpop_signing_alg_values_supported: ['ES256'],
       // TODO: verify this on the server
       require_pushed_authorization_requests: true,
@@ -55,6 +55,31 @@ export class AuthorizeService {
           SupportedAuthenticationScheme.ClientAttestationJwt,
         ], */
     });
+  }
+
+  async sendAuthorizationResponse(
+    queries: AuthorizeQueries,
+    res: Response<any, Record<string, any>>,
+  ) {
+    let values = queries;
+    if (queries.request_uri) {
+      await this.sessionService
+        .getBy({ request_uri: queries.request_uri })
+        .then((session) => {
+          values = session.auth_queries!;
+        })
+        .catch(() => {
+          throw new ConflictException(
+            'request_uri not found or not provided in the request',
+          );
+        });
+    } else {
+      throw new ConflictException(
+        'request_uri not found or not provided in the request',
+      );
+    }
+    const code = await this.setAuthCode(values.issuer_state);
+    res.redirect(`${values.redirect_uri}?code=${code}`);
   }
 
   async validateTokenRequest(body: any, req: Request) {
@@ -118,10 +143,6 @@ export class AuthorizeService {
         nonce: cNonce,
       },
     });
-  }
-
-  async getJwks() {
-    return this.cryptoService.getJwks();
   }
 
   async parseChallengeRequest(body: AuthorizeQueries, webhook?: string) {

@@ -5,6 +5,10 @@ import {
   TypeOrmHealthIndicator,
 } from '@nestjs/terminus';
 
+/**
+ * HealthController is responsible for providing health check endpoints.
+ * It uses the HealthCheckService to perform checks on the database connection.
+ */
 @Controller('health')
 export class HealthController {
   constructor(
@@ -12,6 +16,10 @@ export class HealthController {
     private db: TypeOrmHealthIndicator,
   ) {}
 
+  /**
+   * Endpoint to check the health of the service.
+   * @returns
+   */
   @Get()
   @HealthCheck()
   check() {

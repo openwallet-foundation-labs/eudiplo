@@ -1,20 +1,16 @@
 import { randomUUID } from 'node:crypto';
-import {
-  Body,
-  ConflictException,
-  Controller,
-  Get,
-  Header,
-  Post,
-  Query,
-  Req,
-  Res,
-} from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, Res } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { AuthorizeService } from './authorize.service';
-import type { AuthorizeQueries } from './dto/authorize-request.dto';
+import { AuthorizeQueries } from './dto/authorize-request.dto';
 import { SessionService } from '../../session/session.service';
+import { ParResponseDto } from './dto/par-response.dto';
+import { ApiBody } from '@nestjs/swagger';
 
+/**
+ * Controller for the OpenID4VCI authorization endpoints.
+ * This controller handles the authorization requests, token requests, and provides the JWKS.
+ */
 @Controller('authorize')
 export class AuthorizeController {
   constructor(
@@ -22,31 +18,27 @@ export class AuthorizeController {
     private sessionService: SessionService,
   ) {}
 
+  /**
+   * Endpoint to handle the Authorization Request.
+   * @param queries
+   * @param res
+   */
   @Get()
   async authorize(@Query() queries: AuthorizeQueries, @Res() res: Response) {
-    let values = queries;
-    if (queries.request_uri) {
-      await this.sessionService
-        .getBy({ request_uri: queries.request_uri })
-        .then((session) => {
-          values = session.auth_queries!;
-        })
-        .catch(() => {
-          throw new ConflictException(
-            'request_uri not found or not provided in the request',
-          );
-        });
-    } else {
-      throw new ConflictException(
-        'request_uri not found or not provided in the request',
-      );
-    }
-    const code = await this.authorizeService.setAuthCode(values.issuer_state);
-    res.redirect(`${values.redirect_uri}?code=${code}`);
+    return this.authorizeService.sendAuthorizationResponse(queries, res);
   }
 
+  /**
+   * Endpoint to handle the Pushed Authorization Request (PAR).
+   * @param body
+   * @returns
+   */
+  @ApiBody({
+    description: 'Pushed Authorization Request',
+    type: AuthorizeQueries,
+  })
   @Post('par')
-  async par(@Body() body: AuthorizeQueries) {
+  async par(@Body() body: AuthorizeQueries): Promise<ParResponseDto> {
     const request_uri = `urn:${randomUUID()}`;
     // save both so we can retrieve the session also via the request_uri in the authorize step.
     await this.sessionService.add(body.issuer_state, {
@@ -59,19 +51,25 @@ export class AuthorizeController {
     };
   }
 
+  /**
+   * Endpoint to validate the token request.
+   * This endpoint is used to exchange the authorization code for an access token.
+   * @param body
+   * @param req
+   * @returns
+   */
   @Post('token')
   async token(@Body() body: any, @Req() req: Request) {
+    //TODO: define body
     return this.authorizeService.validateTokenRequest(body, req);
   }
 
-  @Get('jwks.json')
-  @Header('Content-Type', 'application/jwk-set+json')
-  async getJwks() {
-    return this.authorizeService.getJwks().then((key) => ({
-      keys: [key],
-    }));
-  }
-
+  /**
+   * Endpoint for the authorization challenge.
+   * @param res
+   * @param body
+   * @returns
+   */
   @Post('challenge')
   authorizationChallengeEndpoint(
     @Res() res: Response,

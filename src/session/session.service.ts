@@ -16,14 +16,10 @@ export class SessionService implements OnApplicationBootstrap {
   }
 
   create(session: DeepPartial<Session>) {
-    console.log('create session');
-    console.log(session);
     return this.sessionRepository.save(session);
   }
 
   add(issuer_state: string, values: QueryDeepPartialEntity<Session>) {
-    console.log('update session');
-    console.log(values);
     return this.sessionRepository.update({ id: issuer_state }, values);
   }
 
@@ -40,7 +36,6 @@ export class SessionService implements OnApplicationBootstrap {
    */
   @Interval(60 * 60 * 1000) // every hour
   tidyUpSessions() {
-    console.log('Tidy up sessions');
     return this.sessionRepository.delete({
       createdAt: LessThan(new Date(Date.now() - 60 * 60 * 1000)),
     });

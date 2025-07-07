@@ -1,4 +1,11 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
+import { ApiExcludeController } from '@nestjs/swagger';
 
-@Controller('app')
-export class AppController {}
+@ApiExcludeController()
+@Controller()
+export class AppController {
+  @Get()
+  getHello(): string {
+    return 'EUDIPLO is up and running, more information at <a href="https://cre8.github.io/eudiplo/">https://cre8.github.io/eudiplo/</a>';
+  }
+}

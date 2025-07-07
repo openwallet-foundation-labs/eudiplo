@@ -53,5 +53,8 @@ RUN mkdir config
 
 EXPOSE 3000
 
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+  CMD curl --fail http://localhost:3000/health || exit 1
+
 # Specify the command to run the application
 CMD ["node", "dist/main.js"]

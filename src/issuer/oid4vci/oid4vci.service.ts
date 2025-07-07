@@ -21,7 +21,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { SessionService } from '../../session/session.service';
 import { v4 } from 'uuid';
-import { OfferRequest } from './dto/offer-request.dto';
+import { OfferRequest, OfferResponse } from './dto/offer-request.dto';
 
 @Injectable()
 export class Oid4vciService {
@@ -81,7 +81,7 @@ export class Oid4vciService {
     } as const satisfies IssuerMetadataResult;
   }
 
-  createOffer(body: OfferRequest) {
+  createOffer(body: OfferRequest): Promise<OfferResponse> {
     body.credentialConfigurationIds.forEach((id) => {
       if (
         this.credentialsService.getCredentialConfiguration()[id] === undefined
@@ -107,7 +107,10 @@ export class Oid4vciService {
           offer: offer.credentialOfferObject,
           credentialPayload: body,
         });
-        return offer.credentialOffer;
+        return {
+          session: issuer_state,
+          uri: offer.credentialOffer,
+        } as OfferResponse;
       });
   }
 

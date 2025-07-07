@@ -10,10 +10,11 @@ import {
   clientAuthenticationNone,
 } from '@openid4vc/oauth2';
 import type { Request } from 'express';
-import { type JWK, importJWK, jwtVerify } from 'jose';
+import { type JWK, JWK_EC_Public, importJWK, jwtVerify } from 'jose';
 import { ConfigService } from '@nestjs/config';
 import { join } from 'node:path';
 import { KeyService } from './key/key.service';
+import { EC_Public } from 'src/well-known/dto/jwks-response.dto';
 
 type certificateType = 'access' | 'signing';
 
@@ -146,6 +147,6 @@ export class CryptoService {
   }
 
   getJwks() {
-    return this.keyService.getPublicKey('jwk');
+    return this.keyService.getPublicKey('jwk') as Promise<EC_Public>;
   }
 }
