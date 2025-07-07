@@ -1,6 +1,7 @@
 # Running Locally
 
-This guide will help you run the project locally for development or testing purposes.
+This guide will help you run the project locally for development or testing
+purposes.
 
 ## Prerequisites
 
@@ -54,7 +55,8 @@ DB_DATABASE=mydb
 
 ### With Docker Compose
 
-If you're using Docker Compose to run the full stack (e.g., Vault, PostgreSQL, etc.), you can start everything with:
+If you're using Docker Compose to run the full stack (e.g., Vault, PostgreSQL,
+etc.), you can start everything with:
 
 ```bash
 docker-compose up --build
@@ -66,7 +68,8 @@ This will:
 - Start required services
 - Mount necessary volumes (e.g., keys/config)
 
-Make sure the `docker-compose.yml` includes relevant services and waits for dependencies to become healthy before starting the app.
+Make sure the `docker-compose.yml` includes relevant services and waits for
+dependencies to become healthy before starting the app.
 
 ## 5. Access the Service
 
@@ -76,7 +79,8 @@ Once running, the application is typically accessible at:
 http://localhost:3000
 ```
 
-You should see the default health endpoint or API response depending on your setup.
+You should see the default health endpoint or API response depending on your
+setup.
 
 ---
 
@@ -92,5 +96,6 @@ You should see the default health endpoint or API response depending on your set
 ## Next Steps
 
 - See [Configuration](configuration.md) for all environment variable options.
-- See [Key Management](../architecture/key-management.md) to configure signing keys.
+- See [Key Management](../architecture/key-management.md) to configure signing
+  keys.
 - See [Database](../architecture/database.md) to switch database engines.

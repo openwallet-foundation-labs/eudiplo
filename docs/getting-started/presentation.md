@@ -1,18 +1,23 @@
 # Configuring Presentation Flows
 
-Presentation flow files define what credentials should be requested from the user and which claims must be disclosed. These files are placed in:
+Presentation flow files define what credentials should be requested from the
+user and which claims must be disclosed. These files are placed in:
 
 ```string
 config/presentation/{id}.json
 ```
 
-Each file corresponds to a specific presentation scenario and uses DCQL to define the query.
+Each file corresponds to a specific presentation scenario and uses DCQL to
+define the query. Files are not cached and are loaded dynamically at runtime.
+The `id` is used to reference the presentation configuration in the API.
 
 ---
 
-## 🔍 Credential Presentation Flow
+## Credential Presentation Flow
 
-This flow describes how a backend service requests a credential presentation (e.g., to authorize a user or verify an attribute). EUDIPLO creates the OID4VP request and handles the protocol flow with the wallet.
+This flow describes how a backend service requests a credential presentation
+(e.g., to authorize a user or verify an attribute). EUDIPLO creates the OID4VP
+request and handles the protocol flow with the wallet.
 
 ```plantuml
 @startuml
@@ -31,9 +36,12 @@ Middleware -> End_Service : Send presented data
 
 ---
 
-## 🔁 Credential Presentation During Issuance
+## Credential Presentation During Issuance
 
-This flow describes an advanced scenario where the end-user is required to **present a credential** during the issuance of another credential. This is useful when a prior attribute (e.g. student ID, PID) is needed to qualify for the new credential.
+This flow describes an advanced scenario where the end-user is required to
+**present a credential** during the issuance of another credential. This is
+useful when a prior attribute (e.g. student ID, PID) is needed to qualify for
+the new credential.
 
 ```plantuml
 @startuml
@@ -54,7 +62,7 @@ Middleware -> End_Service : Notify successful issuance
 @enduml
 ```
 
-## ✅ Example Presentation Request
+## Example Presentation Request
 
 ```json
 {
@@ -64,16 +72,11 @@ Middleware -> End_Service : Notify successful issuance
         "id": "pid",
         "format": "dc+sd-jwt",
         "meta": {
-          "vct_values": [
-            "<CREDENTIAL_ISSUER>/credentials/vct/pid"
-          ]
+          "vct_values": ["<CREDENTIAL_ISSUER>/credentials/vct/pid"]
         },
         "claims": [
           {
-            "path": [
-              "address",
-              "locality"
-            ]
+            "path": ["address", "locality"]
           }
         ]
       }
@@ -97,16 +100,11 @@ Middleware -> End_Service : Notify successful issuance
         {
           "format": "dc+sd-jwt",
           "meta": {
-            "vct_values": [
-              "<CREDENTIAL_ISSUER>/credentials/vct/pid"
-            ]
+            "vct_values": ["<CREDENTIAL_ISSUER>/credentials/vct/pid"]
           },
           "claims": [
             {
-              "path": [
-                "address",
-                "locality"
-              ]
+              "path": ["address", "locality"]
             }
           ]
         }
@@ -120,19 +118,25 @@ Middleware -> End_Service : Notify successful issuance
 
 ---
 
-## 📌 Field Breakdown
+## Field Breakdown
 
-| Field              | Description                                                                 |
-|--------------------|-----------------------------------------------------------------------------|
-| `dcql_query`       | Describes required credentials and claims                                   |
-| `registrationCert` | Declares the legal purpose and contact info for processing personal data    |
-| `webhook`          | URL where the verified presentation will be sent                           |
+- `dcql_query`: REQUIRED:
+  [Digital Credentials Query Language](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-digital-credentials-query-l)
+  Defines the credentials and claims to be requested.
+- `registrationCert`: REQUIRED: Contains the legal purpose and contact
+  information for processing personal data aligned with the
+  [Blueprint](https://bmi.usercontent.opencode.de/eudi-wallet/eidas-2.0-architekturkonzept/flows/Wallet-Relying-Party-Authentication/)
+- `webhook`: OPTIONAL: The URL where the verified presentation will be sent
+  after the user completes the flow, for more information, see
+  [Webhook Integration](./webhooks.md). If not provided, the data can be fetched
+  via the session ID returned in the initial request.
 
-> 🔧 `<CREDENTIAL_ISSUER>` is replaced automatically at runtime based on your configured `PROXY` value.
+> 🔧 `<CREDENTIAL_ISSUER>` is replaced automatically at runtime based on your
+> configured `PROXY` value.
 
 ---
 
-## 🧪 How to Test
+## How to Test
 
 1. Place your file in `config/presentations/`
 2. Check it is loaded via `GET /presentations`

@@ -1,10 +1,12 @@
 # Installation
 
-EUDIPLO is distributed as a Docker image and can be installed quickly by configuring an `.env` file and running the container. This section guides you through the steps to get started.
+EUDIPLO is distributed as a Docker image and can be installed quickly by
+configuring an `.env` file and running the container. This section guides you
+through the steps to get started.
 
 ---
 
-## 🛠️ Requirements
+## Requirements
 
 - [Docker](https://www.docker.com/get-started) installed on your system
 - A `.env` file with the necessary configuration
@@ -12,7 +14,7 @@ EUDIPLO is distributed as a Docker image and can be installed quickly by configu
 
 ---
 
-## 📄 1. Prepare Environment Variables
+## 1. Prepare Environment Variables
 
 Create a `.env` file with the following minimal configuration:
 
@@ -29,11 +31,12 @@ KEYCLOAK_RESOURCE=
 KEYCLOAK_CREDENTIALS_SECRET=
 ```
 
-> 💡 For advanced configuration options (e.g., ports, folders, key storage, token endpoints), check out the [Configuration Guide](configuration.md).
+> 💡 For advanced configuration options (e.g., ports, folders, key storage,
+> token endpoints), check out the [Configuration Guide](configuration.md).
 
 ---
 
-## 🐳 2. Run the Docker Container
+## 2. Run the Docker Container
 
 ```bash
 docker run --env-file .env -v $(pwd)/config:/app/config ghcr.io/cre8/eudiplo:latest
@@ -41,7 +44,7 @@ docker run --env-file .env -v $(pwd)/config:/app/config ghcr.io/cre8/eudiplo:lat
 
 ---
 
-## 🧪 3. Verify It's Running
+## 3. Verify It's Running
 
 Once started, EUDIPLO exposes several endpoints. For example:
 
@@ -55,9 +58,10 @@ Or explore the interactive API docs via:
 
 ---
 
-## 🗃️ Using PostgreSQL Instead of SQLite
+## Using PostgreSQL Instead of SQLite
 
-If you want to use PostgreSQL for storing session data, set the following in your `.env`:
+If you want to use PostgreSQL for storing session data, set the following in
+your `.env`:
 
 ```env
 DB_TYPE=postgres
@@ -89,7 +93,7 @@ volumes:
 
 ---
 
-## 🧰 Next Steps
+## Next Steps
 
 - Configure credential templates in the `config/` folder
 - Use the API to issue and verify credentials

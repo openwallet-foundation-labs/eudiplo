@@ -1,6 +1,8 @@
 # Testing
 
-EUDIPLO is designed to be robust and easy to test both in development and CI environments. This guide outlines how to run, write, and automate tests for the project.
+EUDIPLO is designed to be robust and easy to test both in development and CI
+environments. This guide outlines how to run, write, and automate tests for the
+project.
 
 ---
 
@@ -18,7 +20,8 @@ Or with watch mode:
 pnpm run test:watch
 ```
 
-This uses [Jest](https://jestjs.io/) under the hood, which is configured for NestJS.
+This uses [Jest](https://jestjs.io/) under the hood, which is configured for
+NestJS.
 
 ---
 
@@ -30,19 +33,22 @@ To check code coverage:
 pnpm run test:cov
 ```
 
-This generates a report in the `/coverage` folder. Open `coverage/index.html` in your browser to view it.
+This generates a report in the `/coverage` folder. Open `coverage/index.html` in
+your browser to view it.
 
 ---
 
 ## 🐳 Docker-Based Testing
 
-For end-to-end testing with dependent services (e.g., PostgreSQL, Vault), use Docker Compose:
+For end-to-end testing with dependent services (e.g., PostgreSQL, Vault), use
+Docker Compose:
 
 ```bash
 docker compose -f docker-compose.test.yml up --build
 ```
 
-Make sure your `.env` points to the test configuration or override values in `docker-compose.test.yml`.
+Make sure your `.env` points to the test configuration or override values in
+`docker-compose.test.yml`.
 
 ---
 
@@ -73,7 +79,8 @@ pnpm run lint
 
 ## 🔁 GitHub Actions
 
-Tests run automatically on every push to `main` or pull request via GitHub Actions.
+Tests run automatically on every push to `main` or pull request via GitHub
+Actions.
 
 You can find the workflow config in `.github/workflows/ci.yml`.
 
@@ -81,9 +88,12 @@ You can find the workflow config in `.github/workflows/ci.yml`.
 
 ## 💡 Tips
 
-- Keep unit tests isolated; mock dependencies using tools like `jest.mock()` or NestJS's testing module.
-- For HTTP integration tests, use [supertest](https://github.com/visionmedia/supertest).
-- For mocking external APIs (e.g., Vault or Keycloak), consider [`nock`](https://github.com/nock/nock).
+- Keep unit tests isolated; mock dependencies using tools like `jest.mock()` or
+  NestJS's testing module.
+- For HTTP integration tests, use
+  [supertest](https://github.com/visionmedia/supertest).
+- For mocking external APIs (e.g., Vault or Keycloak), consider
+  [`nock`](https://github.com/nock/nock).
 
 ---
 
