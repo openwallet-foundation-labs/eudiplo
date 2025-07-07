@@ -1,5 +1,5 @@
 import { IsObject, IsString } from 'class-validator';
-import { RegistrationCertificateCreation } from 'src/registrar/generated';
+import { RegistrationCertificateCreation } from '../../../registrar/generated';
 
 export class RegistrationCertificateRequest {
   id?: string;

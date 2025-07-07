@@ -16,7 +16,7 @@ async function bootstrap() {
 
   if (process.env.SWAGGER_JSON) {
     const doc = SwaggerModule.createDocument(app, config);
-    writeFileSync('docs/api/swagger.json', JSON.stringify(doc, null, 2));
+    writeFileSync('swagger.json', JSON.stringify(doc, null, 2));
     await app.close();
   } else {
     SwaggerModule.setup('/api', app, documentFactory);

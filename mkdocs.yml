@@ -120,8 +120,6 @@ nav:
     - Swagger: api/swagger.md
     - Endpoints: api/api.md
   - Development:
-      - Contributing Guide: development/contributing.md
-      - Code Style: development/code-style.md
-      - Testing: development/testing.md
-  - FAQ: faq.md
+      - Contributing Guide: development/contributing.md      
+      - Testing: development/testing.md  
   - License: https://github.com/cre8/eudiplo/blob/main/LICENSE

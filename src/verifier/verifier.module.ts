@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { Oid4vpController } from './oid4vp/oid4vp.controller';
 import { Oid4vpService } from './oid4vp/oid4vp.service';
-import { CryptoModule } from 'src/crypto/crypto.module';
-import { RegistrarModule } from 'src/registrar/registrar.module';
+import { CryptoModule } from '../crypto/crypto.module';
+import { RegistrarModule } from '../registrar/registrar.module';
 import { PresentationsModule } from './presentations/presentations.module';
-import { SessionModule } from 'src/session/session.module';
+import { SessionModule } from '../session/session.module';
 import { HttpModule } from '@nestjs/axios';
 
 @Module({

@@ -7,7 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import type { Jwk } from '@openid4vc/oauth2';
 import { digest, generateSalt } from '@sd-jwt/crypto-nodejs';
 import { SDJwtVcInstance } from '@sd-jwt/sd-jwt-vc';
-import { CryptoService } from 'src/crypto/crypto.service';
+import { CryptoService } from '../../crypto/crypto.service';
 import { StatusListService } from '../status-list/status-list.service';
 import {
   existsSync,
@@ -19,7 +19,7 @@ import {
 import { join, posix } from 'path';
 import { CredentialConfigurationSupported } from '@openid4vc/openid4vci';
 import { CredentialConfig } from './dto/credential-config.dto';
-import { Session } from 'src/session/entities/session.entity';
+import { Session } from '../../session/entities/session.entity';
 import { SchemaResponse } from './dto/schema-response.dto';
 
 @Injectable()

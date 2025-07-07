@@ -6,7 +6,7 @@ project.
 
 ---
 
-## 🧪 Running Tests Locally
+## Running Tests Locally
 
 To run all unit and integration tests locally:
 
@@ -25,7 +25,7 @@ NestJS.
 
 ---
 
-## ✅ Test Coverage
+## Test Coverage
 
 To check code coverage:
 
@@ -38,21 +38,7 @@ your browser to view it.
 
 ---
 
-## 🐳 Docker-Based Testing
-
-For end-to-end testing with dependent services (e.g., PostgreSQL, Vault), use
-Docker Compose:
-
-```bash
-docker compose -f docker-compose.test.yml up --build
-```
-
-Make sure your `.env` points to the test configuration or override values in
-`docker-compose.test.yml`.
-
----
-
-## 🧩 Test Structure
+## Test Structure
 
 Tests are located next to their implementation files:
 
@@ -67,7 +53,7 @@ Use `.spec.ts` naming to ensure Jest picks up the test files automatically.
 
 ---
 
-## 🧼 Linting
+## Linting
 
 Before pushing code, check linting rules and fix them:
 
@@ -77,7 +63,7 @@ pnpm run lint
 
 ---
 
-## 🔁 GitHub Actions
+## GitHub Actions
 
 Tests run automatically on every push to `main` or pull request via GitHub
 Actions.

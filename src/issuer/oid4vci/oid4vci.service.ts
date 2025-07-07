@@ -13,13 +13,13 @@ import {
   Openid4vciIssuer,
 } from '@openid4vc/openid4vci';
 import type { Request } from 'express';
-import { CredentialsService } from 'src/issuer/credentials/credentials.service';
-import { CryptoService } from 'src/crypto/crypto.service';
+import { CredentialsService } from '../../issuer/credentials/credentials.service';
+import { CryptoService } from '../../crypto/crypto.service';
 import { AuthorizeService } from '../authorize/authorize.service';
 import { getHeadersFromRequest } from './util';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { SessionService } from 'src/session/session.service';
+import { SessionService } from '../../session/session.service';
 import { v4 } from 'uuid';
 import { OfferRequest } from './dto/offer-request.dto';
 

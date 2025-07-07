@@ -1,3 +1,3 @@
 # Swagger API
 
-[OAD(./swagger.json)]
+[OAD(swagger.json)]

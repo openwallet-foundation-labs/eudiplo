@@ -10,11 +10,11 @@ import {
   PkceCodeChallengeMethod,
 } from '@openid4vc/oauth2';
 import type { Request, Response } from 'express';
-import { CryptoService } from 'src/crypto/crypto.service';
+import { CryptoService } from '../../crypto/crypto.service';
 import { getHeadersFromRequest } from '../oid4vci/util';
 import { AuthorizeQueries } from './dto/authorize-request.dto';
-import { Oid4vpService } from 'src/verifier/oid4vp/oid4vp.service';
-import { SessionService } from 'src/session/session.service';
+import { Oid4vpService } from '../../verifier/oid4vp/oid4vp.service';
+import { SessionService } from '../../session/session.service';
 import { CredentialsService } from '../credentials/credentials.service';
 
 export interface ParsedAccessTokenAuthorizationCodeRequestGrant {

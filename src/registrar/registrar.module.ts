@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { RegistrarService } from './registrar.service';
-import { CryptoModule } from 'src/crypto/crypto.module';
+import { CryptoModule } from '../crypto/crypto.module';
 import * as Joi from 'joi';
-import { PresentationsModule } from 'src/verifier/presentations/presentations.module';
+import { PresentationsModule } from '../verifier/presentations/presentations.module';
 
 export const REGISTRAR_VALIDATION_SCHEMA = {
   REGISTRAR_URL: Joi.string().required(),

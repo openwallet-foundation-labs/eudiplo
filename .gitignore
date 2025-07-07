@@ -3,6 +3,7 @@
 /node_modules
 /build
 /site
+swagger.json
 
 # Logs
 logs

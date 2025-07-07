@@ -4,12 +4,12 @@ import { CredentialsService } from './credentials/credentials.service';
 import { Oid4vciService } from './oid4vci/oid4vci.service';
 import { Oid4vciController } from './oid4vci/oid4vci.controller';
 import { AuthorizeController } from './authorize/authorize.controller';
-import { CryptoModule } from 'src/crypto/crypto.module';
+import { CryptoModule } from '../crypto/crypto.module';
 import { StatusListModule } from './status-list/status-list.module';
 import { CredentialsController } from './credentials/credentials.controller';
 import * as Joi from 'joi';
-import { VerifierModule } from 'src/verifier/verifier.module';
-import { SessionModule } from 'src/session/session.module';
+import { VerifierModule } from '../verifier/verifier.module';
+import { SessionModule } from '../session/session.module';
 
 export const ISSUER_VALIDATION_SCHEMA = {
   CREDENTIAL_ISSUER: Joi.string().default(Joi.ref('PROXY')),

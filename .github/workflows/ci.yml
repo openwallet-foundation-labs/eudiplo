@@ -62,6 +62,15 @@ jobs:
           subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
+      - name: Generate Swagger JSON
+        run: |
+          pnpm run swagger
+
+      - name: Upload Swagger JSON artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: swagger-json
+          path: swagger.json
 
   docs:
     environment:
@@ -71,6 +80,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Download Swagger JSON artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: swagger-json
+          path: ./
 
       - name: Set up Python
         uses: actions/setup-python@v5

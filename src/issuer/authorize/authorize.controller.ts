@@ -13,7 +13,7 @@ import {
 import type { Request, Response } from 'express';
 import { AuthorizeService } from './authorize.service';
 import type { AuthorizeQueries } from './dto/authorize-request.dto';
-import { SessionService } from 'src/session/session.service';
+import { SessionService } from '../../session/session.service';
 
 @Controller('authorize')
 export class AuthorizeController {

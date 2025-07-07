@@ -5,7 +5,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { ResponseType } from 'src/verifier/oid4vp/dto/presentation-request.dto';
+import { ResponseType } from '../../../verifier/oid4vp/dto/presentation-request.dto';
 
 export class OfferRequest {
   @IsEnum(ResponseType)

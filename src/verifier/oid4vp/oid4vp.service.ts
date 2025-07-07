@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'node:crypto';
-import { CryptoService } from 'src/crypto/crypto.service';
+import { CryptoService } from '../../crypto/crypto.service';
 import { AuthorizationResponse } from './dto/authorization-response.dto';
-import { RegistrarService } from 'src/registrar/registrar.service';
+import { RegistrarService } from '../../registrar/registrar.service';
 import {
   AuthResponse,
   PresentationsService,
 } from '../presentations/presentations.service';
-import { EncryptionService } from 'src/crypto/encryption/encryption.service';
+import { EncryptionService } from '../../crypto/encryption/encryption.service';
 import { v4 } from 'uuid';
-import { SessionService } from 'src/session/session.service';
+import { SessionService } from '../../session/session.service';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 

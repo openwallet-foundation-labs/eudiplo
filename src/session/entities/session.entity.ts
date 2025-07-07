@@ -1,7 +1,7 @@
 import { CredentialOfferObject } from '@openid4vc/openid4vci';
 import { VerificationResult } from '@sd-jwt/sd-jwt-vc';
-import { AuthorizeQueries } from 'src/issuer/authorize/dto/authorize-request.dto';
-import { OfferRequest } from 'src/issuer/oid4vci/dto/offer-request.dto';
+import { AuthorizeQueries } from '../../issuer/authorize/dto/authorize-request.dto';
+import { OfferRequest } from '../../issuer/oid4vci/dto/offer-request.dto';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity()

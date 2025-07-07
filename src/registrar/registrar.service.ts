@@ -9,9 +9,9 @@ import {
   registrationCertificateControllerRegister,
   relyingPartyControllerRegister,
 } from './generated';
-import { CryptoService } from 'src/crypto/crypto.service';
-import { RegistrationCertificateRequest } from 'src/verifier/presentations/dto/vp-request.dto';
-import { PresentationsService } from 'src/verifier/presentations/presentations.service';
+import { CryptoService } from '../crypto/crypto.service';
+import { RegistrationCertificateRequest } from '../verifier/presentations/dto/vp-request.dto';
+import { PresentationsService } from '../verifier/presentations/presentations.service';
 @Injectable()
 export class RegistrarService implements OnApplicationBootstrap {
   private oauth2Client: OAuth2Client;

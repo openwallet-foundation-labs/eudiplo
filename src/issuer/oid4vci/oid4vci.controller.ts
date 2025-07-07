@@ -2,9 +2,9 @@ import { Body, Controller, Post, Req, Res } from '@nestjs/common';
 import type { CredentialResponse } from '@openid4vc/openid4vci';
 import type { Request, Response } from 'express';
 import * as QRCode from 'qrcode';
-import { Oid4vciService } from 'src/issuer/oid4vci/oid4vci.service';
+import { Oid4vciService } from '../../issuer/oid4vci/oid4vci.service';
 import { OfferRequest } from './dto/offer-request.dto';
-import { ResponseType } from 'src/verifier/oid4vp/dto/presentation-request.dto';
+import { ResponseType } from '../../verifier/oid4vp/dto/presentation-request.dto';
 
 @Controller('vci')
 export class Oid4vciController {
