@@ -27,36 +27,14 @@ you, allowing existing systems to:
 
 ## Main Components
 
-| Module           | Responsibility                                                |
-| ---------------- | ------------------------------------------------------------- |
-| `KeyModule`      | Manages signing keys (filesystem or Vault)                    |
-| `DatabaseModule` | Stores session information using SQLite or PostgreSQL         |
-| `CryptoModule`   | Provides local encryption utilities for sensitive data        |
-| `IssuerModule`   | Loads and applies credential issuance configurations          |
-| `VerifierModule` | Handles verification of incoming presentations                |
-| `API Module`     | Exposes HTTP endpoints for credential flows and health checks |
-
----
-
-## Typical Flow
-
-Here’s a simplified data flow for a verification interaction:
-
-```mermaid
-sequenceDiagram
-  participant Wallet
-  participant EUDIPLO
-  participant Verifier System
-  participant Vault/DB
-
-  Wallet->>+EUDIPLO: Sends presentation
-  EUDIPLO->>Verifier System: Validates request intent
-  EUDIPLO->>Vault/DB: Verifies signature, stores session
-  EUDIPLO-->>Wallet: Returns verification result
-```
-
-Similarly, for issuance, EUDIPLO prepares credential data and signs it with a
-trusted key.
+| Module           | Responsibility                                        |
+| ---------------- | ----------------------------------------------------- |
+| `KeyModule`      | Manages signing keys (filesystem or Vault)            |
+| `DatabaseModule` | Stores session information using SQLite or PostgreSQL |
+| `CryptoModule`   | Provides cryptographic operations and key management  |
+| `IssuerModule`   | Loads and applies credential issuance configurations  |
+| `VerifierModule` | Handles verification of incoming presentations        |
+| `SessionModule`  | Manages sessions for issuance and presentations       |
 
 ---
 

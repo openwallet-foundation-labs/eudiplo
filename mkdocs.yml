@@ -116,9 +116,10 @@ nav:
       - Overview: architecture/overview.md      
       - Key Management: architecture/key-management.md
       - Database: architecture/database.md      
+      - Compodoc: /compodoc
   - API:
     - Swagger: api/swagger.md
-    - Endpoints: api/api.md
+    - Endpoints: api/api.md  
   - Development:
       - Contributing Guide: development/contributing.md      
       - Testing: development/testing.md  

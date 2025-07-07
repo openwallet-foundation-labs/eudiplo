@@ -91,6 +91,10 @@ jobs:
           cp .env.example .env
           pnpm run swagger
 
+      - name: Generate Compodoc documentation
+        run: |
+          pnpm run overview
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:

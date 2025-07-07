@@ -1,6 +1,7 @@
 # EUDIPLO – Your Diplomatic Layer for EUDI Wallet Integration
 
-**EUDIPLO** is a lightweight, open-source middleware that acts as a **protocol translator** between your backend service and **EUDI Wallets**.
+**EUDIPLO** is a lightweight, open-source middleware that acts as a **protocol
+translator** between your backend service and **EUDI Wallets**.
 
 ---
 
@@ -20,7 +21,9 @@
 docker run --env-file .env -v $(pwd)/config:/app/config ghcr.io/cre8/eudiplo:latest
 ```
 
-See the full [Installation Guide](https://cre8.github.io/eudiplo/getting-started/installation) for details and environment variables.
+See the full
+[Installation Guide](https://cre8.github.io/eudiplo/getting-started/installation)
+for details and environment variables.
 
 ---
 
@@ -28,7 +31,7 @@ See the full [Installation Guide](https://cre8.github.io/eudiplo/getting-started
 
 - [Getting Started](https://cre8.github.io/eudiplo/getting-started/installation/)
 - [Architecture](https://cre8.github.io/eudiplo/architecture/overview/)
-- [Supported Protocols](https://cre8.github.io/eudiplo/supported-protocols/)
+- [Supported Protocols](https://cre8.github.io/eudiplo/#supported-protocols)
 
 ---
 

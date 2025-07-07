@@ -21,7 +21,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "registrar": "npx @hey-api/openapi-ts -i https://funke-wallet.de/-json -o ./src/registrar/generated -c @hey-api/client-fetch",
     "end-rp": "node examples/end-rp.mjs",
-    "swagger": "SWAGGER_JSON=true nest start"
+    "swagger": "SWAGGER_JSON=true nest start",
+    "overview": "compodoc -p tsconfig.json --theme material -d docs/compodoc"
   },
   "dependencies": {
     "@badgateway/oauth2-client": "^3.2.0",
@@ -57,6 +58,7 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
+    "@compodoc/compodoc": "^1.1.26",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.30.0",
     "@hey-api/openapi-ts": "^0.66.7",

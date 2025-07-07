@@ -4,6 +4,7 @@
 /build
 /site
 swagger.json
+docs/compodoc
 
 # Logs
 logs
