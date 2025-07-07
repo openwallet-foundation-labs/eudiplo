@@ -62,31 +62,31 @@ jobs:
           subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
-      - name: Generate Swagger JSON
-        run: |
-          pnpm run swagger
 
-      - name: Upload Swagger JSON artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: swagger-json
-          path: swagger.json
-
-  docs:
-    needs: build-and-push-image
+  docs:    
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4      
 
-      - name: Download Swagger JSON artifact
-        uses: actions/download-artifact@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          name: swagger-json
-          path: ./
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Generate Swagger JSON
+        run: |
+          pnpm run swagger
 
       - name: Set up Python
         uses: actions/setup-python@v5
