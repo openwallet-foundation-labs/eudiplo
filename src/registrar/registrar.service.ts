@@ -43,7 +43,6 @@ export class RegistrarService implements OnApplicationBootstrap {
       baseUrl: this.configService.getOrThrow<string>('REGISTRAR_URL'),
       //should also work
       auth: () => this.accessToken,
-      //auth: this.getAccessToken.bind(this),
     });
   }
 
@@ -52,6 +51,9 @@ export class RegistrarService implements OnApplicationBootstrap {
    * It will refresh the access token and add the relying party and certificates to the registrar.
    */
   async onApplicationBootstrap() {
+    if (process.env.SWAGGER_JSON) {
+      return;
+    }
     await this.refreshAccessToken();
     //check if the rp id is already set. If not, add it.
     const rpid = this.configService.get<string>('REGISTRAR_RP_ID');
