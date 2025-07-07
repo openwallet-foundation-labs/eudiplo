@@ -3,3 +3,5 @@ mkdocs-material
 plantuml
 mkdocs_puml
 mkdocs-glightbox
+pymdown-extensions
+neoteroi-mkdocs

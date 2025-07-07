@@ -1,16 +1,19 @@
 # Contributing to EUDIPLO
 
-Thanks for your interest in contributing to **EUDIPLO** – your help is highly appreciated! 🎉
+Thanks for your interest in contributing to **EUDIPLO** – your help is highly
+appreciated! 🎉
 
-This guide will walk you through the steps to report issues, suggest features, and contribute code or documentation.
+This guide will walk you through the steps to report issues, suggest features,
+and contribute code or documentation.
 
 ---
 
-## 🐛 Reporting Issues
+## Reporting Issues
 
 If you find a bug, glitch, or unclear behavior:
 
-1. **Search** existing [issues](https://github.com/cre8/eudiplo/issues) to avoid duplicates.
+1. **Search** existing [issues](https://github.com/cre8/eudiplo/issues) to avoid
+   duplicates.
 2. If not found, **open a new issue** and include:
    - A short description
    - Steps to reproduce
@@ -19,11 +22,12 @@ If you find a bug, glitch, or unclear behavior:
 
 ---
 
-## 💡 Suggesting Enhancements
+## Suggesting Enhancements
 
 Have an idea to improve EUDIPLO?
 
-- Check if a [feature request](https://github.com/cre8/eudiplo/issues) already exists
+- Check if a [feature request](https://github.com/cre8/eudiplo/issues) already
+  exists
 - Open a new issue with a `feature request` label and describe:
   - The problem you want to solve
   - The proposed solution
@@ -34,26 +38,30 @@ Have an idea to improve EUDIPLO?
 ## 🔧 Development Setup
 
 1. Fork this repo and clone your fork:
+
    ```bash
    git clone https://github.com/YOUR_USERNAME/eudiplo
    cd EUDIPLO
    ```
 
 2. Install dependencies (requires Node.js + Docker):
+
    ```bash
    pnpm install
    ```
 
 3. Run with Docker:
+
    ```bash
    docker compose up
    ```
 
-4. Use a local `.env` file for config. See the [installation guide](docs/getting-started/installation.md) for details.
+4. Use a local `.env` file for config. See the
+   [installation guide](docs/getting-started/installation.md) for details.
 
 ---
 
-## ✅ Pull Request Checklist
+## Pull Request Checklist
 
 Before submitting:
 
@@ -66,24 +74,28 @@ Please **create your PR against the `main` branch**.
 
 ---
 
-## 📚 Documentation Contributions
+## Documentation Contributions
 
-Docs are in the `docs/` folder and use [MkDocs](https://www.mkdocs.org/). To preview locally:
+Docs are in the `docs/` folder and use [MkDocs](https://www.mkdocs.org/). To
+preview locally:
 
 ```bash
-pip install mkdocs
+python3 -m venv venv
+source venv/bin/activate
+python3 -m pip install -r requirements.txt
 mkdocs serve
 ```
 
 ---
 
-## 🙌 Community & Conduct
+## Community & Conduct
 
-We follow a [Code of Conduct](CODE_OF_CONDUCT.md) to foster an inclusive and respectful environment. Please be kind and constructive.
+We follow a [Code of Conduct](CODE_OF_CONDUCT.md) to foster an inclusive and
+respectful environment. Please be kind and constructive.
 
 ---
 
-## 💬 Need Help?
+## Need Help?
 
 - Open a discussion or issue on [GitHub](https://github.com/cre8/eudiplo/issues)
 - Contact the maintainers for guidance

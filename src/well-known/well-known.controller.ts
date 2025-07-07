@@ -1,8 +1,8 @@
 import { Controller, Get } from '@nestjs/common';
 import type { CredentialIssuerMetadata } from '@openid4vc/openid4vci';
-import { AuthorizeService } from 'src/issuer/authorize/authorize.service';
-import { CryptoService } from 'src/crypto/crypto.service';
-import { Oid4vciService } from 'src/issuer/oid4vci/oid4vci.service';
+import { CryptoService } from '../crypto/crypto.service';
+import { AuthorizeService } from '../issuer/authorize/authorize.service';
+import { Oid4vciService } from '../issuer/oid4vci/oid4vci.service';
 
 @Controller('.well-known')
 export class WellKnownController {

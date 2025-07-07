@@ -79,11 +79,7 @@ markdown_extensions:
       custom_checkbox: true
   - pymdownx.tilde
 extra_css:
-  - stylesheets/extra.css
-extra_javascript:
-  - javascript/mathjax.js
-  - javascript/puml.js
-  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+  - stylesheets/neoteroi-mkdocs.min.css
 plugins:
     - plantuml:
         puml_url: 'https://www.plantuml.com/plantuml/'
@@ -95,6 +91,8 @@ plugins:
           enabled: false
     - search
     - glightbox
+    - neoteroi.mkdocsoad:
+        use_pymdownx: true
 
 extra:
   social:
@@ -118,7 +116,9 @@ nav:
       - Overview: architecture/overview.md      
       - Key Management: architecture/key-management.md
       - Database: architecture/database.md      
-  - API Reference: api-reference.md  
+  - API:
+    - Swagger: api/swagger.md
+    - Endpoints: api/api.md
   - Development:
       - Contributing Guide: development/contributing.md
       - Code Style: development/code-style.md
