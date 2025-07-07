@@ -87,8 +87,7 @@ jobs:
         run: pnpm install
 
       - name: Generate Swagger JSON
-        run: |
-          cp .env.example .env
+        run: |          
           pnpm run swagger
 
       - name: Set up Python
