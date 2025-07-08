@@ -55,7 +55,7 @@ ecosystem:
 
 To install and run EUDIPLO locally, check out the
 [Installation Guide](getting-started/installation.md). You can explore the
-[API Reference](api-reference.md) or learn about how EUDIPLO works in the
+[API Reference](api/swagger.md) or learn about how EUDIPLO works in the
 [Architecture Overview](architecture/overview.md).
 
 EUDIPLO helps you integrate modern identity standards with minimal effort.

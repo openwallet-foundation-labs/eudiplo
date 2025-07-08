@@ -11,15 +11,6 @@ The following variables are required for EUDIPLO to start:
 
 ```env
 PROXY=https://service.eudi-wallet.dev
-
-REGISTRAR_URL=https://funke-wallet.de
-REGISTRAR_RP_ID=2100bed8-0d6d-4721-a64f-088955c1fb0d
-REGISTRAR_RP_NAME=EUDI Wallet Test Service
-
-KEYCLOAK_REALM=registrar
-KEYCLOAK_AUTH_SERVER_URL=https://auth.funke-wallet.de
-KEYCLOAK_RESOURCE=test-service
-KEYCLOAK_CREDENTIALS_SECRET=YDWGSXWcZB0qx52mDfZs0Czg46vk0Spv
 ```
 
 ---
@@ -44,16 +35,10 @@ KEYCLOAK_CREDENTIALS_SECRET=YDWGSXWcZB0qx52mDfZs0Czg46vk0Spv
 These values are used to request access and registration certificates from the
 Registrar.
 
-| Variable            | Description                                            |
-| ------------------- | ------------------------------------------------------ |
-| `REGISTRAR_URL`     | URL of the registrar (e.g., `https://funke-wallet.de`) |
-| `REGISTRAR_RP_ID`   | Relying Party ID                                       |
-| `REGISTRAR_RP_NAME` | Display name of the Relying Party                      |
-| `REGISTRAR_RENEW`   | Whether to force renewal of the access certificate     |
-
----
-
-## Keycloak / OAuth Settings
+| Variable            | Description                       |
+| ------------------- | --------------------------------- |
+| `REGISTRAR_URL`     | URL of the registrar              |
+| `REGISTRAR_RP_NAME` | Display name of the Relying Party |
 
 Used to authenticate against the Registrar.
 

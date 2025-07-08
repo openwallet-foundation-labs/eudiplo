@@ -111,6 +111,7 @@ nav:
       - Flows:
         - Issuance: getting-started/issuance.md
         - Presentation: getting-started/presentation.md
+      - Registrar: getting-started/registrar.md
       - Webhooks: getting-started/webhooks.md
   - Architecture:
       - Overview: architecture/overview.md      

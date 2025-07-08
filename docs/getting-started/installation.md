@@ -20,15 +20,6 @@ Create a `.env` file with the following minimal configuration:
 
 ```env
 PROXY=https://example.com
-
-REGISTRAR_URL=https://funke-wallet.de
-REGISTRAR_RP_ID=
-REGISTRAR_RP_NAME=EUDI Wallet Test Service
-
-KEYCLOAK_REALM=registrar
-KEYCLOAK_AUTH_SERVER_URL=https://auth.funke-wallet.de
-KEYCLOAK_RESOURCE=
-KEYCLOAK_CREDENTIALS_SECRET=
 ```
 
 > 💡 For advanced configuration options (e.g., ports, folders, key storage,
@@ -54,7 +45,7 @@ curl http://localhost:3000/health
 
 Or explore the interactive API docs via:
 
-- [http://localhost:3000](http://localhost:3000)
+- [http://localhost:3000/api](http://localhost:3000/api)
 
 ---
 
