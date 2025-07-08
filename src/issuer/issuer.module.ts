@@ -12,11 +12,7 @@ import { VerifierModule } from '../verifier/verifier.module';
 import { SessionModule } from '../session/session.module';
 
 export const ISSUER_VALIDATION_SCHEMA = {
-  CREDENTIAL_ISSUER: Joi.string().default(Joi.ref('PROXY')),
-  AUTH_SERVER: Joi.string().default(Joi.ref('PROXY')),
-  TOKEN_ENDPOINT: Joi.string().default(
-    (parent) => `${parent.CREDENTIAL_ISSUER}/oauth2/token`,
-  ),
+  PUBLIC_URL: Joi.string(),
 };
 
 @Module({

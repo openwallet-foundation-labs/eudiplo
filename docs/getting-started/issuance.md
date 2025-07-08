@@ -54,14 +54,14 @@ Middleware -> End_Service : Notify successful issuance (not implemented yet)
         "name": "Citizen Pass",
         "background_color": "#FFFFFF",
         "background_image": {
-          "uri": "<CREDENTIAL_ISSUER>/mainhall/credential.png",
-          "url": "<CREDENTIAL_ISSUER>/mainhall/credential.png"
+          "uri": "<PUBLIC_URL>/mainhall/credential.png",
+          "url": "<PUBLIC_URL>/mainhall/credential.png"
         },
         "description": "A pass for this citizen",
         "locale": "en-US",
         "logo": {
-          "uri": "<CREDENTIAL_ISSUER>/issuer.png",
-          "url": "<CREDENTIAL_ISSUER>/issuer.png"
+          "uri": "<PUBLIC_URL>/issuer.png",
+          "url": "<PUBLIC_URL>/issuer.png"
         },
         "text_color": "#000000"
       }
@@ -121,8 +121,8 @@ Middleware -> End_Service : Notify successful issuance (not implemented yet)
   [Schema Type Metadata](https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-09.html#name-schema-type-metadata)
   to validate the claims before issuance.
 
-> `<CREDENTIAL_ISSUER>` will be dynamically replaced at runtime with your
-> credential issuer URL.
+> `<PUBLIC_URL>` will be dynamically replaced at runtime with your credential
+> issuer URL.
 
 ---
 

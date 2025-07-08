@@ -153,7 +153,7 @@ export class RegistrarService implements OnApplicationBootstrap {
    */
   private async addAccessCertificate(config: RegistrarConfig): Promise<string> {
     const host = this.configService
-      .getOrThrow<string>('CREDENTIAL_ISSUER')
+      .getOrThrow<string>('PUBLIC_URL')
       .replace('https://', '');
     return accessCertificateControllerRegister({
       client: this.client,

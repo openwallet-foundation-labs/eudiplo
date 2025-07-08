@@ -1,19 +1,16 @@
 services:
   EUDIPLO:
-    image: EUDIPLO:latest
+    image: ghcr.io/cre8/eudiplo:latest
     restart: always
     build:
-      context: .
+      context: ../
       dockerfile: Dockerfile
-      args:
-        -  APP=EUDIPLO
     env_file:
-      - .env      
+      - .env
     environment:
       - FOLDER=/app/config
       - PUBLIC_FOLDER=../config/public
       - KM_FOLDER=./config/keys
-      - PORT=3000
     ports:
       - '3000:3000'
     volumes:

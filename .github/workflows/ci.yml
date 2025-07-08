@@ -93,7 +93,7 @@ jobs:
 
       - name: Generate Compodoc documentation
         run: |
-          pnpm run overview
+          pnpm run compodoc
 
       - name: Set up Python
         uses: actions/setup-python@v5

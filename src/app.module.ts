@@ -10,7 +10,7 @@ import {
   RegistrarModule,
 } from './registrar/registrar.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
+import { join, isAbsolute } from 'path';
 import { KEY_VALIDATION_SCHEMA, KeyModule } from './crypto/key/key.module';
 import { CRYPTO_VALIDATION_SCHEMA } from './crypto/key/crypto/crypto.module';
 import { AppController } from './app/app.controller';
@@ -43,14 +43,17 @@ import { HealthModule } from './health/health.module';
     ServeStaticModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => [
-        {
-          rootPath: join(
-            __dirname,
-            configService.getOrThrow<string>('PUBLIC_FOLDER'),
-          ),
-        },
-      ],
+      useFactory: (configService: ConfigService) => {
+        const folder = configService.getOrThrow<string>('FOLDER');
+        const rootPath = isAbsolute(folder)
+          ? join(folder, 'public')
+          : join(__dirname, '../', folder, 'public');
+        return [
+          {
+            rootPath,
+          },
+        ];
+      },
     }),
     DatabaseModule,
     SessionModule,

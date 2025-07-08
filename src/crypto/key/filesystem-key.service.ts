@@ -101,7 +101,7 @@ export class FileSystemKeyService implements KeyService {
         -key ${join(folder, this.privateKeyPath)} \
         -out ${join(folder, 'signing-certificate.pem')} \
         -subj "/CN=${this.configService.getOrThrow<string>('REGISTRAR_RP_NAME')}" \
-        -addext "subjectAltName=URI:${this.configService.getOrThrow<string>('CREDENTIAL_ISSUER')}"`,
+        -addext "subjectAltName=URI:${this.configService.getOrThrow<string>('PUBLIC_URL')}"`,
       );
     }
 

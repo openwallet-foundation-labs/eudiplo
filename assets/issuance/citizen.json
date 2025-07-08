@@ -14,14 +14,14 @@
         "name": "Citizen Pass",
         "background_color": "#FFFFFF",
         "background_image": {
-          "uri": "<CREDENTIAL_ISSUER>/mainhall/credential.png",
-          "url": "<CREDENTIAL_ISSUER>/mainhall/credential.png"
+          "uri": "<PUBLIC_URL>/mainhall/credential.png",
+          "url": "<PUBLIC_URL>/mainhall/credential.png"
         },
         "description": "A pass for this citizen",
         "locale": "en-US",
         "logo": {
-          "uri": "<CREDENTIAL_ISSUER>/issuer.png",
-          "url": "<CREDENTIAL_ISSUER>/issuer.png"
+          "uri": "<PUBLIC_URL>/issuer.png",
+          "url": "<PUBLIC_URL>/issuer.png"
         },
         "text_color": "#000000"
       }
@@ -65,7 +65,7 @@
       },
       "town": {
         "type": "string"
-      }      
+      }
     },
     "required": ["iss", "vct", "cnf", "town"]
   }

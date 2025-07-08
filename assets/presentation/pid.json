@@ -5,16 +5,11 @@
         "id": "pid",
         "format": "dc+sd-jwt",
         "meta": {
-          "vct_values": [
-            "<CREDENTIAL_ISSUER>/credentials/vct/pid"
-          ]
+          "vct_values": ["<PUBLIC_URL>/credentials/vct/pid"]
         },
         "claims": [
           {
-            "path": [
-              "address",
-              "locality"
-            ]
+            "path": ["address", "locality"]
           }
         ]
       }
@@ -38,16 +33,11 @@
         {
           "format": "dc+sd-jwt",
           "meta": {
-            "vct_values": [
-              "<CREDENTIAL_ISSUER>/credentials/vct/pid"
-            ]
+            "vct_values": ["<PUBLIC_URL>/credentials/vct/pid"]
           },
           "claims": [
             {
-              "path": [
-                "address",
-                "locality"
-              ]
+              "path": ["address", "locality"]
             }
           ]
         }

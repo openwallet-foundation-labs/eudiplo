@@ -54,8 +54,8 @@ export class CredentialsService implements OnModuleInit {
     return files.map((file) => {
       const config = JSON.parse(
         readFileSync(join(this.folder, file), 'utf-8').replace(
-          /<CREDENTIAL_ISSUER>/g,
-          this.configService.getOrThrow<string>('CREDENTIAL_ISSUER'),
+          /<PUBLIC_URL>/g,
+          this.configService.getOrThrow<string>('PUBLIC_URL'),
         ),
       ) as CredentialConfig;
       config.id = file.replace('.json', '');
@@ -115,9 +115,9 @@ export class CredentialsService implements OnModuleInit {
 
     return this.sdjwt.issue(
       {
-        iss: this.configService.getOrThrow<string>('CREDENTIAL_ISSUER'),
+        iss: this.configService.getOrThrow<string>('PUBLIC_URL'),
         iat: Math.round(new Date().getTime() / 1000),
-        vct: `${this.configService.getOrThrow<string>('CREDENTIAL_ISSUER')}/credentials/vct/${vc.id}`,
+        vct: `${this.configService.getOrThrow<string>('PUBLIC_URL')}/credentials/vct/${vc.id}`,
         cnf: {
           jwk: cnf,
         },
@@ -141,7 +141,7 @@ export class CredentialsService implements OnModuleInit {
         `VCT for credential configuration with id ${credentialId} not found`,
       );
     }
-    const host = this.configService.getOrThrow<string>('CREDENTIAL_ISSUER');
+    const host = this.configService.getOrThrow<string>('PUBLIC_URL');
     vc.vct.vct = `${host}/credentials/vct/${vc.id}`;
     return vc.vct;
   }

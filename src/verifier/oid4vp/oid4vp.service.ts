@@ -37,7 +37,7 @@ export class Oid4vpService {
     auth_session?: string,
   ): Promise<string> {
     const host = this.configService
-      .getOrThrow<string>('CREDENTIAL_ISSUER')
+      .getOrThrow<string>('PUBLIC_URL')
       .replace('https://', '');
     const values = this.presentationsService.getPresentationRequest(requestId);
     const regCert = await this.registrarService.addRegistrationCertificate(
@@ -124,11 +124,11 @@ export class Oid4vpService {
     }
 
     const host = this.configService
-      .getOrThrow<string>('CREDENTIAL_ISSUER')
+      .getOrThrow<string>('PUBLIC_URL')
       .replace('https://', '');
     const params = {
       client_id: `x509_san_dns:${host}`,
-      request_uri: `${this.configService.getOrThrow<string>('CREDENTIAL_ISSUER')}/oid4vp/request/${requestId}/${values.session}`,
+      request_uri: `${this.configService.getOrThrow<string>('PUBLIC_URL')}/oid4vp/request/${requestId}/${values.session}`,
     };
     const queryString = Object.entries(params)
       .map(

@@ -102,11 +102,10 @@ extra:
     - text: Contributing
       link: https://github.com/cre8/eudiplo/blob/main/CONTRIBUTING.md
 
-nav:
-  - Home: index.md
+nav:  
   - Getting Started:
-      - Installation: getting-started/installation.md
-      - Configuration: getting-started/configuration.md
+      - What is EUDIPLO: index.md
+      - Quick Start: getting-started/quick-start.md      
       - Running Locally: getting-started/running-locally.md
       - Flows:
         - Issuance: getting-started/issuance.md
@@ -117,11 +116,10 @@ nav:
       - Overview: architecture/overview.md      
       - Key Management: architecture/key-management.md
       - Database: architecture/database.md      
-      - Compodoc: /eudiplo/compodoc
   - API:
     - Swagger: api/swagger.md
     - Endpoints: api/api.md  
   - Development:
+      - development/index.md
       - Contributing Guide: development/contributing.md      
-      - Testing: development/testing.md  
-  - License: https://github.com/cre8/eudiplo/blob/main/LICENSE
+      - Testing: development/testing.md

@@ -72,7 +72,7 @@ Middleware -> End_Service : Notify successful issuance
         "id": "pid",
         "format": "dc+sd-jwt",
         "meta": {
-          "vct_values": ["<CREDENTIAL_ISSUER>/credentials/vct/pid"]
+          "vct_values": ["<PUBLIC_URL>/credentials/vct/pid"]
         },
         "claims": [
           {
@@ -100,7 +100,7 @@ Middleware -> End_Service : Notify successful issuance
         {
           "format": "dc+sd-jwt",
           "meta": {
-            "vct_values": ["<CREDENTIAL_ISSUER>/credentials/vct/pid"]
+            "vct_values": ["<PUBLIC_URL>/credentials/vct/pid"]
           },
           "claims": [
             {
@@ -131,8 +131,8 @@ Middleware -> End_Service : Notify successful issuance
   [Webhook Integration](./webhooks.md). If not provided, the data can be fetched
   via the session ID returned in the initial request.
 
-> 🔧 `<CREDENTIAL_ISSUER>` is replaced automatically at runtime based on your
-> configured `PROXY` value.
+> 🔧 `<PUBLIC_URL>` is replaced automatically at runtime based on your
+> configured `PUBLIC_URL` value.
 
 ---
 

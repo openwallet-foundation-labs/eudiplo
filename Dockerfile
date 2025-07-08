@@ -1,8 +1,6 @@
 # Use Node.js as the base image for building the application
 FROM node:23-alpine AS builder
 
-ARG APP
-
 # Set the working directory
 WORKDIR /app
 
@@ -25,13 +23,13 @@ RUN pnpm install --frozen-lockfile
 COPY . ./
 
 # Build the NestJS application
-#RUN pnpm build $APP
 RUN pnpm build
 
 # Use a smaller base image for the runtime stage
 FROM node:23-alpine AS runner
 
-ARG APP
+# Set the default FOLDER environment variable
+ENV FOLDER=/app/config
 
 # Set the working directory
 WORKDIR /app
@@ -40,7 +38,6 @@ WORKDIR /app
 RUN apk add --no-cache openssl
 
 # Copy only the built application and necessary files
-#COPY --from=builder /app/dist/apps/$APP ./dist/
 COPY --from=builder /app/dist ./dist/
 COPY --from=builder /app/patches ./patches
 

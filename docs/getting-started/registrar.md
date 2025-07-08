@@ -2,33 +2,54 @@
 
 To interact with an EUDI Wallet, two types of certificates are required:
 
-- **Access Certificate**: Used to access the EUDI Wallet.
-- **Registration Certificate**: Used to request data from the EUDI Wallet.
+- **Access Certificate** – Grants access to the EUDI Wallet.
+- **Registration Certificate** – Authorizes data requests from the EUDI Wallet.
 
-## Access to the Registrar
+## Registrar Settings
 
-When EUDIPLO should interact with the registrar, it needs to be configured with
-the required variables that you can find in the
-[configuration guide](configuration.md#registrar-settings).
+These values are used to request access and registration certificates from the
+Registrar.
 
-On startup, EUDIPLO will check if there is already a relying party registered
-based on the `config/registrar.json` file. If no id is provided, a new Relying
-Party will be registered with the registrar using the `REGISTRAR_RP_NAME`.
+| Variable            | Description                       |
+| ------------------- | --------------------------------- |
+| `REGISTRAR_URL`     | URL of the registrar              |
+| `REGISTRAR_RP_NAME` | Display name of the Relying Party |
+
+Used to authenticate against the Registrar.
+
+| Variable                      | Description                                |
+| ----------------------------- | ------------------------------------------ |
+| `KEYCLOAK_REALM`              | Keycloak realm name                        |
+| `KEYCLOAK_AUTH_SERVER_URL`    | URL to the Keycloak authentication server  |
+| `KEYCLOAK_RESOURCE`           | Client ID as configured in Keycloak        |
+| `KEYCLOAK_CREDENTIALS_SECRET` | Secret associated with the Keycloak client |
+
+## Accessing the Registrar
+
+To enable EUDIPLO to communicate with the registrar, you must configure the
+necessary environment variables.
+
+On startup, EUDIPLO checks whether a Relying Party (RP) is already registered
+using the `config/registrar.json` file. If no ID is specified, EUDIPLO will
+automatically register a new Relying Party with the registrar using the
+`REGISTRAR_RP_NAME` value.
 
 ## Access Certificate
 
-The service will look on startup of there is a valid access certificate with the
-`accessCertificateId` in the `config/registrar.json` file. If no valid access
-certificate is found, it will request a new one from the registrar and bind it
-to the `CREDENTIAL_ISSUER` URL. The access certificate id will be stored in the
-`config/registrar.json` file.
+At startup, EUDIPLO checks for a valid access certificate based on the
+`accessCertificateId` in `config/registrar.json`. If no valid certificate is
+found, a new one will be requested from the registrar and bound to the
+`CREDENTIAL_ISSUER` URL. The resulting certificate ID will then be stored in
+`config/registrar.json`.
 
 ## Registration Certificate
 
-The registration certificate is used to request data from the EUDI Wallet. Each
-configuration in the `config/presentation` folder allows to configure the
-payload of the registration certificate. Since the registration certificates are
-bound to a specific type of presentation, they will be managed in in the
-presentation config files and not in the `config/registrar.json` file. When no
-id is provided in the presentation config file, a new registration certificate
-will be requested when a new presentation request is made.
+The registration certificate is required to request data from the EUDI Wallet.
+Each configuration file in the `config/presentation` folder defines the payload
+for the corresponding registration certificate.
+
+Since registration certificates are tied to specific presentation types, they
+are managed within the individual presentation configuration files—not in
+`config/registrar.json`. If no certificate ID is specified in a presentation
+config, a new registration certificate will be requested automatically when a
+presentation request is made.

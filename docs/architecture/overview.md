@@ -25,19 +25,6 @@ you, allowing existing systems to:
 
 ---
 
-## Main Components
-
-| Module           | Responsibility                                        |
-| ---------------- | ----------------------------------------------------- |
-| `KeyModule`      | Manages signing keys (filesystem or Vault)            |
-| `DatabaseModule` | Stores session information using SQLite or PostgreSQL |
-| `CryptoModule`   | Provides cryptographic operations and key management  |
-| `IssuerModule`   | Loads and applies credential issuance configurations  |
-| `VerifierModule` | Handles verification of incoming presentations        |
-| `SessionModule`  | Manages sessions for issuance and presentations       |
-
----
-
 ## Deployment
 
 EUDIPLO is shipped as a Docker image. It can be run with minimal setup via a
@@ -72,5 +59,3 @@ EUDIPLO is modular and extensible:
 - Add new key management backends (e.g., AWS KMS)
 - Customize issuance templates
 - Extend the API layer with business-specific endpoints
-
-Check out the other [architecture docs](./key-management.md) to dive deeper.

@@ -39,7 +39,7 @@ export class AuthorizeService {
   }
 
   authzMetadata(): AuthorizationServerMetadata {
-    const authServer = this.configService.getOrThrow<string>('AUTH_SERVER');
+    const authServer = this.configService.getOrThrow<string>('PUBLIC_URL');
     return this.authorizationServer.createAuthorizationServerMetadata({
       issuer: authServer,
       token_endpoint: `${authServer}/authorize/token`,
@@ -83,7 +83,7 @@ export class AuthorizeService {
   }
 
   async validateTokenRequest(body: any, req: Request) {
-    const url = `${this.configService.getOrThrow<string>('CREDENTIAL_ISSUER')}${req.url}`;
+    const url = `${this.configService.getOrThrow<string>('PUBLIC_URL')}${req.url}`;
 
     const parsedAccessTokenRequest =
       this.authorizationServer.parseAccessTokenRequest({
@@ -124,7 +124,7 @@ export class AuthorizeService {
 
     const cNonce = randomUUID();
     return this.authorizationServer.createAccessTokenResponse({
-      audience: this.configService.getOrThrow<string>('CREDENTIAL_ISSUER'),
+      audience: this.configService.getOrThrow<string>('PUBLIC_URL'),
       signer: {
         method: 'jwk',
         alg: 'ES256',

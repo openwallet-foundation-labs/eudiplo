@@ -29,7 +29,7 @@ export class StatusListService implements OnModuleInit {
     private cryptoService: CryptoService,
   ) {
     this.uri =
-      this.configService.getOrThrow('CREDENTIAL_ISSUER') +
+      this.configService.getOrThrow('PUBLIC_URL') +
       '/status-management/status-list';
     this.file = join(
       this.configService.getOrThrow('KM_FOLDER'),
@@ -66,7 +66,7 @@ export class StatusListService implements OnModuleInit {
   async createList() {
     const file = this.getConfig();
     const list = new StatusList(file.elements, file.bits);
-    const iss = `${this.configService.getOrThrow<string>('CREDENTIAL_ISSUER')}`;
+    const iss = `${this.configService.getOrThrow<string>('PUBLIC_URL')}`;
 
     const prePayload: JwtPayload = {
       iss,

@@ -47,7 +47,7 @@ export class Oid4vciService {
 
   issuerMetadata(): IssuerMetadataResult {
     const credential_issuer = `${this.configService.getOrThrow<string>(
-      'CREDENTIAL_ISSUER',
+      'PUBLIC_URL',
     )}`;
 
     const display = JSON.parse(
@@ -55,8 +55,8 @@ export class Oid4vciService {
         join(this.configService.getOrThrow<string>('FOLDER'), 'display.json'),
         'utf-8',
       ).replace(
-        /<CREDENTIAL_ISSUER>/g,
-        this.configService.getOrThrow<string>('CREDENTIAL_ISSUER'),
+        /<PUBLIC_URL>/g,
+        this.configService.getOrThrow<string>('PUBLIC_URL'),
       ),
     );
 

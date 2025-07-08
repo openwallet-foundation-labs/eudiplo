@@ -14,14 +14,14 @@
         "name": "PID",
         "background_color": "#FFFFFF",
         "background_image": {
-          "uri": "<CREDENTIAL_ISSUER>/bdr/credential.png",
-          "url": "<CREDENTIAL_ISSUER>/bdr/credential.png"
+          "uri": "<PUBLIC_URL>/bdr/credential.png",
+          "url": "<PUBLIC_URL>/bdr/credential.png"
         },
         "description": "PID Credential",
         "locale": "en-US",
         "logo": {
-          "uri": "<CREDENTIAL_ISSUER>/issuer.png",
-          "url": "<CREDENTIAL_ISSUER>/issuer.png"
+          "uri": "<PUBLIC_URL>/issuer.png",
+          "url": "<PUBLIC_URL>/issuer.png"
         },
         "text_color": "#000000"
       }

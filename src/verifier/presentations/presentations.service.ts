@@ -87,8 +87,8 @@ export class PresentationsService {
       join(this.folder, `${requestId}.json`),
       'utf-8',
     ).replace(
-      /<CREDENTIAL_ISSUER>/g,
-      this.configService.getOrThrow<string>('CREDENTIAL_ISSUER'),
+      /<PUBLIC_URL>/g,
+      this.configService.getOrThrow<string>('PUBLIC_URL'),
     );
     return JSON.parse(payload) as VPRequest;
   }
