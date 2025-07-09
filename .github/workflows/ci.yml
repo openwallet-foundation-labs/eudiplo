@@ -22,10 +22,10 @@ jobs:
         runs-on: ubuntu-latest
         # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
         permissions:
-            contents: read
+            contents: write
             packages: write
-            attestations: write
-            id-token: write
+            issues: write
+            pull-requests: write
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
@@ -36,6 +36,8 @@ jobs:
                   registry: ghcr.io
                   username: ${{ github.actor }}
                   password: ${{ secrets.GITHUB_TOKEN }}
+
+            - uses: pnpm/action-setup@v4
 
             - name: Set up Node.js
               uses: actions/setup-node@v4
