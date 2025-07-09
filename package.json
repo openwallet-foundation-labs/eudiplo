@@ -20,7 +20,7 @@
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
         "test:e2e": "jest --config ./test/jest-e2e.json",
         "registrar": "npx @hey-api/openapi-ts -i https://funke-wallet.de/-json -o ./src/registrar/generated -c @hey-api/client-fetch",
-        "end-rp": "ts-node examples/end-rp.ts",
+        "end-rp": "node examples/end-rp.mjs",
         "swagger": "SWAGGER_JSON=true nest start",
         "compodoc": "compodoc -p tsconfig.json --theme material -d docs/compodoc",
         "compodoc:serve": "compodoc -p tsconfig.json --theme material -d docs/compodoc -s -r 3001",
