@@ -9,10 +9,6 @@
             {
                 dockerRegistry: 'ghcr.io',
                 dockerCacheFrom: 'cre8/eudiplo',
-                dockerBuildFlags: {
-                    pull: null,
-                    target: 'release',
-                },
                 dockerArgs: {
                     GITHUB_TOKEN: null,
                 },
