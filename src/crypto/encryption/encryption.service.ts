@@ -12,7 +12,10 @@ export class EncryptionService implements OnModuleInit {
     private publicEncryptionPath: string;
 
     constructor(private configService: ConfigService) {
-        const folder = this.configService.getOrThrow<string>('KM_FOLDER');
+        const folder = join(
+            this.configService.getOrThrow<string>('FOLDER'),
+            'keys',
+        );
         this.privateEnncryptionPath = join(folder, 'private-encryption.json');
         this.publicEncryptionPath = join(folder, 'public-encryption.json');
     }

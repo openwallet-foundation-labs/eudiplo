@@ -10,24 +10,22 @@ ways, depending on the selected key management type (`KM_TYPE`).
 
 ## Configuration Overview
 
-| Variable       | Description                      | Required for | Default         |
-| -------------- | -------------------------------- | ------------ | --------------- |
-| `KM_TYPE`      | Key management engine type       | All          | `file`          |
-| `KM_FOLDER`    | Path to store/read keys locally  | `file`       | `./config/keys` |
-| `VAULT_URL`    | Vault API URL                    | `vault`      | –               |
-| `VAULT_TOKEN`  | Authentication token for Vault   | `vault`      | –               |
-| `VAULT_KEY_ID` | Name or path of the key in Vault | `vault`      | –               |
+| Variable       | Description                      | Required for | Default |
+| -------------- | -------------------------------- | ------------ | ------- |
+| `KM_TYPE`      | Key management engine type       | All          | `file`  |
+| `VAULT_URL`    | Vault API URL                    | `vault`      | –       |
+| `VAULT_TOKEN`  | Authentication token for Vault   | `vault`      | –       |
+| `VAULT_KEY_ID` | Name or path of the key in Vault | `vault`      | –       |
 
-> ✅ When using the default `file` mode, only `KM_FOLDER` is needed. Vault mode
-> requires all `VAULT_*` variables.
+> ✅ When using the default `file` mode, the keys will be stored in the `keys`
+> folder in the config folder. Vault mode requires all `VAULT_*` variables.
 
 ---
 
 ## Local (File-Based) Key Management
 
-When `KM_TYPE=file` (default), keys are stored unencrypted in the directory
-specified by the `KM_FOLDER` variable (`./config/keys` by default). This mode is
-ideal for development or testing.
+When `KM_TYPE=file` (default), keys are stored unencrypted in the `keys`
+directory in the config folder. This mode is ideal for development or testing.
 
 On startup, if no keys are found, the service will generate:
 

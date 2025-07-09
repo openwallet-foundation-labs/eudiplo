@@ -128,7 +128,7 @@ export class CredentialsService implements OnModuleInit {
                 cnf: {
                     jwk: cnf,
                 },
-                ...this.statusListService.createEntry(),
+                ...this.statusListService.createEntry(session.id),
                 ...claims,
             },
             disclosureFrame,

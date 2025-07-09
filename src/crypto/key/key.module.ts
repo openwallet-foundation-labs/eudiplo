@@ -26,13 +26,6 @@ export const KEY_VALIDATION_SCHEMA = {
         then: Joi.required(),
         otherwise: Joi.forbidden(),
     }),
-
-    // File-based config
-    KM_FOLDER: Joi.string().when('KM_TYPE', {
-        is: 'file',
-        then: Joi.string().default('./assets/keys'),
-        otherwise: Joi.forbidden(),
-    }),
 };
 
 @Global()

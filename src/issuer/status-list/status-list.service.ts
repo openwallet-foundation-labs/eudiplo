@@ -32,7 +32,8 @@ export class StatusListService implements OnModuleInit {
             this.configService.getOrThrow('PUBLIC_URL') +
             '/status-management/status-list';
         this.file = join(
-            this.configService.getOrThrow('KM_FOLDER'),
+            this.configService.getOrThrow('FOLDER'),
+            'keys',
             'status-list.json',
         );
     }
@@ -105,7 +106,7 @@ export class StatusListService implements OnModuleInit {
      * Get the next free entry in the status list
      * @returns
      */
-    createEntry(): JWTwithStatusListPayload {
+    createEntry(sessionId: string): JWTwithStatusListPayload {
         const file = this.getConfig();
         // get the last element from the stack
         const idx = file.stack.pop();

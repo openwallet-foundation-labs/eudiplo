@@ -26,7 +26,10 @@ export class CryptoService {
         private readonly configService: ConfigService,
         @Inject('KeyService') public readonly keyService: KeyService,
     ) {
-        this.folder = this.configService.getOrThrow<string>('KM_FOLDER');
+        this.folder = join(
+            this.configService.getOrThrow<string>('FOLDER'),
+            'keys',
+        );
     }
 
     getCertChain(type: certificateType = 'signing') {
