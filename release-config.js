@@ -5,9 +5,17 @@ module.exports = {
         '@semantic-release/release-notes-generator',
         '@semantic-release/changelog',
         [
-            'semantic-release-docker',
+            '@codedependant/semantic-release-docker',
             {
-                name: 'ghcr.io/cr8/eudiplo',
+                dockerRegistry: 'ghcr.io',
+                dockerCacheFrom: 'cre8/eudiplo',
+                dockerBuildFlags: {
+                    pull: null,
+                    target: 'release',
+                },
+                dockerArgs: {
+                    GITHUB_TOKEN: null,
+                },
             },
         ],
         '@semantic-release/github',
