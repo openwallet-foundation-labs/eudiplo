@@ -177,7 +177,14 @@ export class Oid4vpService {
         if (session.webhook) {
             const webhookResponse = await firstValueFrom(
                 this.httpService.post(session.webhook, {
-                    credentials: credentials.map((cred) => cred.payload),
+                    credentials: credentials.map((cred) => {
+                        return {
+                            ...cred,
+                            // remove the status and cnf fields for simplicity
+                            status: undefined,
+                            cnf: undefined,
+                        };
+                    }),
                     session: res.state,
                 }),
             );

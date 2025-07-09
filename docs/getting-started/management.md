@@ -22,3 +22,13 @@ curl -X 'POST' \
 
 Other approaches like using OAuth2 or JWT are not supported at this time, but
 feel free to contribute them.
+
+## Sessions Management
+
+EUDIPLO manages sessions for credential issuance and verification. In case for a
+presentation during issuance, both actions are handled in the same session.
+Sessions are stored in the database and can be managed via the `/sessions`
+endpoint. You can retrieve a specific session via `/sessions/{id}`.
+
+To tidy up old sessions, a cron job runs every hour to delete sessions older
+than 24 hours.

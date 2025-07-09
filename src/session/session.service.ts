@@ -37,12 +37,12 @@ export class SessionService implements OnApplicationBootstrap {
     }
 
     /**
-     * Tidy up sessions that are older than 1 hour.
+     * Tidy up sessions that are older than 1 day.
      */
     @Interval(60 * 60 * 1000) // every hour
     tidyUpSessions() {
         return this.sessionRepository.delete({
-            createdAt: LessThan(new Date(Date.now() - 60 * 60 * 1000)),
+            createdAt: LessThan(new Date(Date.now() - 60 * 60 * 24 * 1000)),
         });
     }
 }

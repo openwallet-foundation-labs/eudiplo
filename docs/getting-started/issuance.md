@@ -148,8 +148,31 @@ the following order:
 If no claims are provided, the credential will be issued with an empty claims
 set.
 
+## Revoking Credentials
+
+TODO: needs to be implemented
+
+To simply the revocation of credentials, the service will persist the indexes of
+the status list together with the session data. You can revoke a credential by
+calling the `/status-management/${session}` endpoint with the session ID of the
+issuance flow. This will revoke all credentials issued in that session.
+
 ## How to Test
 
 1. Place your file in `config/credentials/`
 2. Check it is loaded via `GET /credentials/config`
-3. Trigger issuance via `/vci/offer`
+3. Trigger issuance via `/vci/offer` like
+
+```http
+curl -X 'POST' \
+  'http://localhost:3000/vci/offer' \
+  -H 'accept: application/json' \
+  -H 'x-api-key: 1234' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "response_type": "uri",
+  "credentialConfigurationIds": [
+    "citizen"
+  ]
+}'
+```

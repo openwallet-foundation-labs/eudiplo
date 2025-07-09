@@ -140,4 +140,17 @@ Middleware -> End_Service : Notify successful issuance
 
 1. Place your file in `config/presentations/`
 2. Check it is loaded via `GET /presentations`
-3. Trigger the presentation request (e.g. `/oid4vp`)
+3. Trigger the presentation request vis `/oid4vp` like
+
+```http
+curl -X 'POST' \
+  'http://localhost:3000/oid4vp' \
+  -H 'accept: application/json' \
+  -H 'x-api-key: 1234' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "response_type": "qrcode",
+  "requestId": "pid",
+  "webhook": "http://localhost:3001/consume",
+}'
+```

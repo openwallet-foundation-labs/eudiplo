@@ -1,6 +1,6 @@
 # Webhooks
 
-Eudiplo allows the configuration of webhook endpoints to integrate external
+EUDIPLO allows the configuration of webhook endpoints to integrate external
 services during credential presentation and **presentation during issuance**
 flows.
 
@@ -23,7 +23,7 @@ either for validation or to generate new credentials dynamically.
 You can run a minimal Express server to test webhook interactions locally:
 
 ```bash
-pnpm run end-rp.js
+pnpm run end-rp
 ```
 
 This starts a service on port `3001` with the following endpoints:
@@ -88,14 +88,21 @@ only the **presented claims**.
 {
     "credentials": [
         {
+            "iss": "https://service.eudi-wallet.dev",
+            "iat": 1751884150,
+            "vct": "https://service.eudi-wallet.dev/credentials/vct/pid",
             "address": {
-                "locality": "Berlin"
+                "locality": "KÖLN",
+                "postal_code": "51147",
+                "street_address": "HEIDESTRAẞE 17"
             }
         }
     ],
-    "sessionId": "session-id"
+    "session": "a6318799-dff4-4b60-9d1d-58703611bd23"
 }
 ```
+
+> the fields `status` and `cnf` were removed from the payload for simplicity.
 
 ---
 
