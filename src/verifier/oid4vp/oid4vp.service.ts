@@ -174,6 +174,7 @@ export class Oid4vpService {
         });
 
         // if there a a webook URL, send the response there
+        console.log(session.webhook);
         if (session.webhook) {
             const webhookResponse = await firstValueFrom(
                 this.httpService.post(session.webhook, {
@@ -188,11 +189,14 @@ export class Oid4vpService {
                     session: res.state,
                 }),
             );
-            session.credentialPayload!.values = webhookResponse.data;
-            //store received webhook response
-            await this.sessionService.add(res.state, {
-                credentialPayload: session.credentialPayload,
-            });
+            //TODO: better: just store it when it's a presentation during issuance
+            if (webhookResponse.data) {
+                session.credentialPayload!.values = webhookResponse.data;
+                //store received webhook response
+                await this.sessionService.add(res.state, {
+                    credentialPayload: session.credentialPayload,
+                });
+            }
         }
     }
 }
