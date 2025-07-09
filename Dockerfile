@@ -35,7 +35,7 @@ ENV FOLDER=/app/config
 WORKDIR /app
 
 # Install pnpm globally and openssl
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl curl
 
 # Copy only the built application and necessary files
 COPY --from=builder /app/dist ./dist/
@@ -50,7 +50,7 @@ RUN mkdir config
 
 EXPOSE 3000
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD curl --fail http://localhost:3000/health || exit 1
 
 # Specify the command to run the application
