@@ -48,7 +48,7 @@ file:
 
 ```json
 {
-  "webhook": "http://localhost:3001/consume"
+    "webhook": "http://localhost:3001/consume"
 }
 ```
 
@@ -56,9 +56,9 @@ Alternatively, the webhook can be passed dynamically via `POST /oid4vp`:
 
 ```json
 {
-  "requestId": "pid",
-  "response_type": "uri",
-  "webhook": "http://localhost:3001/consume"
+    "requestId": "pid",
+    "response_type": "uri",
+    "webhook": "http://localhost:3001/consume"
 }
 ```
 
@@ -68,10 +68,10 @@ Configure this in your `issuance/<id>.json`:
 
 ```json
 {
-  "presentation_during_issuance": {
-    "type": "pid",
-    "webhook": "http://localhost:3001/process"
-  }
+    "presentation_during_issuance": {
+        "type": "pid",
+        "webhook": "http://localhost:3001/process"
+    }
 }
 ```
 
@@ -86,14 +86,14 @@ only the **presented claims**.
 
 ```json
 {
-  "credentials": [
-    {
-      "address": {
-        "locality": "Berlin"
-      }
-    }
-  ],
-  "sessionId": "session-id"
+    "credentials": [
+        {
+            "address": {
+                "locality": "Berlin"
+            }
+        }
+    ],
+    "sessionId": "session-id"
 }
 ```
 
@@ -112,9 +112,9 @@ Issuing a credential with the ID `citizen`:
 
 ```json
 {
-  "citizen": {
-    "town": "Berlin"
-  }
+    "citizen": {
+        "town": "Berlin"
+    }
 }
 ```
 

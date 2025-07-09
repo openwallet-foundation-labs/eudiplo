@@ -7,37 +7,42 @@ import { Interval } from '@nestjs/schedule';
 
 @Injectable()
 export class SessionService implements OnApplicationBootstrap {
-  constructor(
-    @InjectRepository(Session) private sessionRepository: Repository<Session>,
-  ) {}
+    constructor(
+        @InjectRepository(Session)
+        private sessionRepository: Repository<Session>,
+    ) {}
 
-  onApplicationBootstrap() {
-    return this.tidyUpSessions();
-  }
+    onApplicationBootstrap() {
+        return this.tidyUpSessions();
+    }
 
-  create(session: DeepPartial<Session>) {
-    return this.sessionRepository.save(session);
-  }
+    create(session: DeepPartial<Session>) {
+        return this.sessionRepository.save(session);
+    }
 
-  add(issuer_state: string, values: QueryDeepPartialEntity<Session>) {
-    return this.sessionRepository.update({ id: issuer_state }, values);
-  }
+    add(issuer_state: string, values: QueryDeepPartialEntity<Session>) {
+        return this.sessionRepository.update({ id: issuer_state }, values);
+    }
 
-  get(state: string) {
-    return this.sessionRepository.findOneByOrFail({ id: state });
-  }
+    getAll(): Promise<Session[]> {
+        return this.sessionRepository.find();
+    }
 
-  getBy(where: FindOptionsWhere<Session>) {
-    return this.sessionRepository.findOneByOrFail(where);
-  }
+    get(state: string) {
+        return this.sessionRepository.findOneByOrFail({ id: state });
+    }
 
-  /**
-   * Tidy up sessions that are older than 1 hour.
-   */
-  @Interval(60 * 60 * 1000) // every hour
-  tidyUpSessions() {
-    return this.sessionRepository.delete({
-      createdAt: LessThan(new Date(Date.now() - 60 * 60 * 1000)),
-    });
-  }
+    getBy(where: FindOptionsWhere<Session>) {
+        return this.sessionRepository.findOneByOrFail(where);
+    }
+
+    /**
+     * Tidy up sessions that are older than 1 hour.
+     */
+    @Interval(60 * 60 * 1000) // every hour
+    tidyUpSessions() {
+        return this.sessionRepository.delete({
+            createdAt: LessThan(new Date(Date.now() - 60 * 60 * 1000)),
+        });
+    }
 }

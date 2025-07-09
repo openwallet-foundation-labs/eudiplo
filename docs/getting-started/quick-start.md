@@ -20,7 +20,11 @@ Create a `.env` file with the following minimal configuration:
 
 ```env
 PUBLIC_URL=https://example.com
+API_KEY=a_very_secure_api_key
 ```
+
+The public URL is the base URL where EUDIPLO will be accessible, and the API key
+is used for [authentication](./management.md#authentication).
 
 ---
 
@@ -31,17 +35,14 @@ the root of your project with the following content:
 
 ```yaml
 services:
-  EUDIPLO:
-    image: ghcr.io/cre8/eudiplo:latest
-    env_file:
-      - .env
-    environment:
-      - FOLDER=/app/config
-      - PUBLIC_FOLDER=../config/public
-    ports:
-      - '3000:3000'
-    volumes:
-      - ./config:/app/config
+    EUDIPLO:
+        image: ghcr.io/cre8/eudiplo:latest
+        env_file:
+            - .env
+        ports:
+            - '3000:3000'
+        volumes:
+            - ./config:/app/config
 ```
 
 ---
@@ -51,12 +52,14 @@ services:
 Once started, EUDIPLO exposes several endpoints. For example:
 
 ```bash
-curl http://localhost:3000/health
+curl https://example.com/health
 ```
 
-Or explore the interactive API docs via:
+The swagger UI is available at:
 
-- [http://localhost:3000/api](http://localhost:3000/api)
+```bash
+https://example.com/api
+```
 
 ---
 

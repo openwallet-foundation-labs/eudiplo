@@ -8,26 +8,26 @@ export type CryptoType = 'ES256' | 'Ed25519';
 
 @Injectable()
 export class CryptoService {
-  constructor(private configServie: ConfigService) {}
+    constructor(private configServie: ConfigService) {}
 
-  /**
-   * Return the algorithm that is used for the crypto operations like signing.
-   * @returns
-   */
-  getAlg(): CryptoType {
-    return this.configServie.get('CRYPTO_ALG') as CryptoType;
-  }
-
-  getCrypto(
-    alg = this.configServie.get<string>('CRYPTO_ALG'),
-  ): CryptoImplementation {
-    switch (alg) {
-      case 'Ed25519':
-        return ED25519;
-      case 'ES256':
-        return ES256;
-      default:
-        throw new Error(`Unsupported algorithm ${alg}`);
+    /**
+     * Return the algorithm that is used for the crypto operations like signing.
+     * @returns
+     */
+    getAlg(): CryptoType {
+        return this.configServie.get('CRYPTO_ALG') as CryptoType;
     }
-  }
+
+    getCrypto(
+        alg = this.configServie.get<string>('CRYPTO_ALG'),
+    ): CryptoImplementation {
+        switch (alg) {
+            case 'Ed25519':
+                return ED25519;
+            case 'ES256':
+                return ES256;
+            default:
+                throw new Error(`Unsupported algorithm ${alg}`);
+        }
+    }
 }

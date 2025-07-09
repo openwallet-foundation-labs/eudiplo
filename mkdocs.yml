@@ -107,6 +107,7 @@ nav:
       - What is EUDIPLO: index.md
       - Quick Start: getting-started/quick-start.md      
       - Running Locally: getting-started/running-locally.md
+      - Management: getting-started/management.md
       - Flows:
         - Issuance: getting-started/issuance.md
         - Presentation: getting-started/presentation.md

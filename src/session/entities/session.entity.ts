@@ -6,25 +6,25 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity()
 export class Session {
-  @PrimaryColumn('uuid')
-  id: string;
-  @Column('json', { nullable: true })
-  credentials?: VerificationResult[];
-  @Column({ nullable: true })
-  authorization_code?: string;
-  @Column({ nullable: true })
-  request_uri?: string;
-  @Column('json', { nullable: true })
-  auth_queries?: AuthorizeQueries;
-  @Column({ nullable: true })
-  vp_nonce?: string;
-  @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date;
-  @Column('json', { nullable: true })
-  offer?: CredentialOfferObject;
-  @Column('json', { nullable: true })
-  credentialPayload?: OfferRequest;
-  // URL to send the response to, if provided
-  @Column({ nullable: true })
-  webhook?: string;
+    @PrimaryColumn('uuid')
+    id: string;
+    @Column('json', { nullable: true })
+    credentials?: VerificationResult[];
+    @Column({ nullable: true })
+    authorization_code?: string;
+    @Column({ nullable: true })
+    request_uri?: string;
+    @Column('json', { nullable: true })
+    auth_queries?: AuthorizeQueries;
+    @Column({ nullable: true })
+    vp_nonce?: string;
+    @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP' })
+    createdAt: Date;
+    @Column('json', { nullable: true })
+    offer?: CredentialOfferObject;
+    @Column('json', { nullable: true })
+    credentialPayload?: OfferRequest;
+    // URL to send the response to, if provided
+    @Column({ nullable: true })
+    webhook?: string;
 }

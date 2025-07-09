@@ -5,15 +5,15 @@ import { ApiTags } from '@nestjs/swagger';
 @ApiTags('status-management')
 @Controller('status-management')
 export class StatusListController {
-  constructor(private statusListService: StatusListService) {}
+    constructor(private statusListService: StatusListService) {}
 
-  /**
-   * Get the status list
-   * @returns
-   */
-  @Get('status-list')
-  @Header('Content-Type', 'application/statuslist+jwt')
-  getList() {
-    return this.statusListService.getList();
-  }
+    /**
+     * Get the status list
+     * @returns
+     */
+    @Get('status-list')
+    @Header('Content-Type', 'application/statuslist+jwt')
+    getList() {
+        return this.statusListService.getList();
+    }
 }

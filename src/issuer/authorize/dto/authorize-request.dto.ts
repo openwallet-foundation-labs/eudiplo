@@ -1,26 +1,37 @@
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class AuthorizeQueries {
-  @IsString()
-  issuer_state: string;
-  @IsString()
-  response_type: string;
-  @IsString()
-  client_id: string;
-  @IsString()
-  redirect_uri: string;
-  @IsString()
-  resource: string;
-  @IsString()
-  scope: string;
-  @IsString()
-  code_challenge: string;
-  @IsString()
-  code_challenge_method: string;
-  @IsString()
-  dpop_jkt: string;
-  @IsString()
-  request_uri: string;
-  @IsString()
-  auth_session?: string;
+    @IsOptional()
+    @IsString()
+    issuer_state?: string;
+    @IsOptional()
+    @IsString()
+    response_type?: string;
+    @IsOptional()
+    @IsString()
+    client_id?: string;
+    @IsOptional()
+    @IsString()
+    redirect_uri?: string;
+    @IsOptional()
+    @IsString()
+    resource?: string;
+    @IsOptional()
+    @IsString()
+    scope?: string;
+    @IsOptional()
+    @IsString()
+    code_challenge?: string;
+    @IsOptional()
+    @IsString()
+    code_challenge_method?: string;
+    @IsOptional()
+    @IsString()
+    dpop_jkt?: string;
+    @IsOptional()
+    @IsString()
+    request_uri?: string;
+    @IsOptional()
+    @IsString()
+    auth_session?: string;
 }

@@ -1,4 +1,4 @@
-import express from 'express';
+import * as express from 'express';
 
 /**
  * This file emulates a relying party receiving data from the EUDIPLO middleware.
@@ -17,8 +17,8 @@ app.post('/process', (req, res) => {
   console.log(JSON.stringify(presented, null, 2));
   res.status(200).send({
     citizen: {
-      town: `You live in ${presented.address.locality}`,
-    }
+      town: `You live in ${presented.credentials[0].address.locality}`,
+    },
   });
 });
 

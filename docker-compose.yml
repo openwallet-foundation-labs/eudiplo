@@ -3,14 +3,10 @@ services:
     image: ghcr.io/cre8/eudiplo:latest
     restart: always
     build:
-      context: ../
+      context: ./
       dockerfile: Dockerfile
     env_file:
       - .env
-    environment:
-      - FOLDER=/app/config
-      - PUBLIC_FOLDER=../config/public
-      - KM_FOLDER=./config/keys
     ports:
       - '3000:3000'
     volumes:

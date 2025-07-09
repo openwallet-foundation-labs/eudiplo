@@ -5,11 +5,16 @@
         "id": "pid",
         "format": "dc+sd-jwt",
         "meta": {
-          "vct_values": ["<PUBLIC_URL>/credentials/vct/pid"]
+          "vct_values": [
+            "<PUBLIC_URL>/credentials/vct/pid"
+          ]
         },
         "claims": [
           {
-            "path": ["address", "locality"]
+            "path": [
+              "address",
+              "locality"
+            ]
           }
         ]
       }
@@ -33,17 +38,22 @@
         {
           "format": "dc+sd-jwt",
           "meta": {
-            "vct_values": ["<PUBLIC_URL>/credentials/vct/pid"]
+            "vct_values": [
+              "<PUBLIC_URL>/credentials/vct/pid"
+            ]
           },
           "claims": [
             {
-              "path": ["address", "locality"]
+              "path": [
+                "address",
+                "locality"
+              ]
             }
           ]
         }
       ]
     },
-    "id": "ea140773-5f7f-4e39-a21c-d2a5f912deb2"
+    "id": "a564e374-042a-495d-ab44-2c1c1ea7cba3"
   },
   "webhook": "http://localhost:3001/consume"
 }

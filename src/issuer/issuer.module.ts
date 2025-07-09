@@ -8,17 +8,23 @@ import { CryptoModule } from '../crypto/crypto.module';
 import { StatusListModule } from './status-list/status-list.module';
 import { CredentialsController } from './credentials/credentials.controller';
 import * as Joi from 'joi';
-import { VerifierModule } from '../verifier/verifier.module';
 import { SessionModule } from '../session/session.module';
+import { IssuerManagmentController } from './issuer-managment/issuer-managment.controller';
+import { Oid4vpModule } from '../verifier/oid4vp/oid4vp.module';
 
 export const ISSUER_VALIDATION_SCHEMA = {
-  PUBLIC_URL: Joi.string(),
+    PUBLIC_URL: Joi.string(),
 };
 
 @Module({
-  imports: [CryptoModule, StatusListModule, VerifierModule, SessionModule],
-  controllers: [Oid4vciController, AuthorizeController, CredentialsController],
-  providers: [AuthorizeService, CredentialsService, Oid4vciService],
-  exports: [AuthorizeService, Oid4vciService],
+    imports: [CryptoModule, StatusListModule, Oid4vpModule, SessionModule],
+    controllers: [
+        Oid4vciController,
+        AuthorizeController,
+        CredentialsController,
+        IssuerManagmentController,
+    ],
+    providers: [AuthorizeService, CredentialsService, Oid4vciService],
+    exports: [AuthorizeService, Oid4vciService],
 })
 export class IssuerModule {}

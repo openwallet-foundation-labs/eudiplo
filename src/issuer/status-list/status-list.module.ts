@@ -4,9 +4,9 @@ import { StatusListService } from './status-list.service';
 import { CryptoModule } from '../../crypto/crypto.module';
 
 @Module({
-  imports: [CryptoModule],
-  controllers: [StatusListController],
-  providers: [StatusListService],
-  exports: [StatusListService],
+    imports: [CryptoModule],
+    controllers: [StatusListController],
+    providers: [StatusListService],
+    exports: [StatusListService],
 })
 export class StatusListModule {}

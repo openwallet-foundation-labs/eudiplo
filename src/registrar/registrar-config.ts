@@ -1,4 +1,4 @@
 export class RegistrarConfig {
-  id?: string;
-  accessCertificateId?: string;
+    id?: string;
+    accessCertificateId?: string;
 }

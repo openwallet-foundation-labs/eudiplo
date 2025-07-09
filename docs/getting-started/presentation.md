@@ -66,53 +66,53 @@ Middleware -> End_Service : Notify successful issuance
 
 ```json
 {
-  "dcql_query": {
-    "credentials": [
-      {
-        "id": "pid",
-        "format": "dc+sd-jwt",
-        "meta": {
-          "vct_values": ["<PUBLIC_URL>/credentials/vct/pid"]
-        },
-        "claims": [
-          {
-            "path": ["address", "locality"]
-          }
-        ]
-      }
-    ]
-  },
-  "registrationCert": {
-    "body": {
-      "privacy_policy": "https://example.com/privacy-policy",
-      "purpose": [
-        {
-          "locale": "en-US",
-          "name": "To register a new user"
-        }
-      ],
-      "contact": {
-        "website": "https://example.com/contact",
-        "e-mail": "privacy@example.com",
-        "phone": "+1234567890"
-      },
-      "credentials": [
-        {
-          "format": "dc+sd-jwt",
-          "meta": {
-            "vct_values": ["<PUBLIC_URL>/credentials/vct/pid"]
-          },
-          "claims": [
+    "dcql_query": {
+        "credentials": [
             {
-              "path": ["address", "locality"]
+                "id": "pid",
+                "format": "dc+sd-jwt",
+                "meta": {
+                    "vct_values": ["<PUBLIC_URL>/credentials/vct/pid"]
+                },
+                "claims": [
+                    {
+                        "path": ["address", "locality"]
+                    }
+                ]
             }
-          ]
-        }
-      ]
+        ]
     },
-    "id": "ea140773-5f7f-4e39-a21c-d2a5f912deb2"
-  },
-  "webhook": "http://localhost:3001/consume"
+    "registrationCert": {
+        "body": {
+            "privacy_policy": "https://example.com/privacy-policy",
+            "purpose": [
+                {
+                    "locale": "en-US",
+                    "name": "To register a new user"
+                }
+            ],
+            "contact": {
+                "website": "https://example.com/contact",
+                "e-mail": "privacy@example.com",
+                "phone": "+1234567890"
+            },
+            "credentials": [
+                {
+                    "format": "dc+sd-jwt",
+                    "meta": {
+                        "vct_values": ["<PUBLIC_URL>/credentials/vct/pid"]
+                    },
+                    "claims": [
+                        {
+                            "path": ["address", "locality"]
+                        }
+                    ]
+                }
+            ]
+        },
+        "id": "ea140773-5f7f-4e39-a21c-d2a5f912deb2"
+    },
+    "webhook": "http://localhost:3001/consume"
 }
 ```
 
