@@ -1,13 +1,13 @@
 services:
-  EUDIPLO:
-    image: ghcr.io/cre8/eudiplo:latest
-    restart: always
-    build:
-      context: ./
-      dockerfile: Dockerfile
-    env_file:
-      - .env
-    ports:
-      - '3000:3000'
-    volumes:
-      - ./assets:/app/config
+    EUDIPLO:
+        image: ghcr.io/cre8/eudiplo:latest
+        restart: always
+        build:
+            context: ./
+            dockerfile: Dockerfile
+        env_file:
+            - .env
+        ports:
+            - '3000:3000'
+        volumes:
+            - ./assets:/app/config
