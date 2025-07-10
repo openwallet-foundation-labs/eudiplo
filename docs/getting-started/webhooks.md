@@ -20,47 +20,45 @@ either for validation or to generate new credentials dynamically.
 
 ## Example Webhook Service
 
-You can run a minimal Express server to test webhook interactions locally:
-
-```bash
-pnpm run end-rp
-```
-
-This starts a service on port `3001` with the following endpoints:
-
-- `POST /consume`: Prints the presentation data — used for **presentation
-  webhooks**.
-- `POST /process`: Accepts a credential presentation and returns values to be
-  issued — used for **presentation during issuance**.
-
-> This example is designed for the local run, not the docker one. When using
-> docker, you need to make sure that EUDIPLO is able to reach the webhook
-> service running on your host machine.
+In the [test/webhook](https://github.com/cre8/eudiplo/test/webhook) directory,
+you can find a simple webhook simulator that can be used to test the webhook
+functionality of the EUDIPLO service. It can be run locally or deployed to a
+cloudflare worker.
 
 ---
 
 ## Webhook Configuration
 
+A webhook object can be configured to pass the required information to the
+EUDIPLO service. The object must contain the following fields:
+
+- `url`: The URL of the webhook endpoint to which the data will be sent. The
+  request will be sent as an HTTP `POST` request.
+- `auth`: Optional authentication information for the webhook endpoint.
+    - `type`: The type of authentication to use. Supported types are:
+        - `apiKey`: API key authentication, where the key is sent in a header.
+
+Here is an example of a webhook configuration:
+
+```json
+{
+    "webhook": {
+        "url": "http://localhost:8787/consume",
+        "auth": {
+            "type": "apiKey",
+            "config": {
+                "headerName": "x-api-key",
+                "value": "your-api-key"
+            }
+        }
+    }
+}
+```
+
 ### 1. Presentation Webhook
 
 You can configure the webhook statically inside your `presentation/<id>.json`
-file:
-
-```json
-{
-    "webhook": "http://localhost:3001/consume"
-}
-```
-
-Alternatively, the webhook can be passed dynamically via `POST /oid4vp`:
-
-```json
-{
-    "requestId": "pid",
-    "response_type": "uri",
-    "webhook": "http://localhost:3001/consume"
-}
-```
+file or passing the webhook dynamically via `POST /oid4vp`:
 
 ### 2. Presentation During Issuance
 
@@ -70,10 +68,19 @@ Configure this in your `issuance/<id>.json`:
 {
     "presentation_during_issuance": {
         "type": "pid",
-        "webhook": "http://localhost:3001/process"
+        "webhook": {
+            "url": "http://localhost:8787/process",
+            "auth": {
+                "type": "basic",
+                "username": "user",
+                "password": "pass"
+            }
+        }
     }
 }
 ```
+
+> TODO: need to add a webhook once notification endpoint is implemented.
 
 ---
 
@@ -82,27 +89,44 @@ Configure this in your `issuance/<id>.json`:
 Webhooks receive an HTTP `POST` request with a simplified payload containing
 only the **presented claims**.
 
+It is structured as follows:
+
+- `credentials`: An array of credential objects, each containing:
+    - `id`: The ID of the DCQL query to identify which was passed for the
+      request.
+    - `values`: The claims presented by the wallet. SD-JWT VC specific fields
+      like cnf and status got removed for simplicity.
+- `session`: The session ID used to identify the request.
+
+In case the verification of a credential fails, an `error` field with a message
+is included instead of the values.
+
 ### Example Payload
 
 ```json
 {
     "credentials": [
         {
-            "iss": "https://service.eudi-wallet.dev",
-            "iat": 1751884150,
-            "vct": "https://service.eudi-wallet.dev/credentials/vct/pid",
-            "address": {
-                "locality": "KÖLN",
-                "postal_code": "51147",
-                "street_address": "HEIDESTRAẞE 17"
+            "id": "pid",
+            "values": {
+                "iss": "https://service.eudi-wallet.dev",
+                "iat": 1751884150,
+                "vct": "https://service.eudi-wallet.dev/credentials/vct/pid",
+                "address": {
+                    "locality": "KÖLN",
+                    "postal_code": "51147",
+                    "street_address": "HEIDESTRAẞE 17"
+                }
             }
+        },
+        {
+            "id": "citizen",
+            "error": "Credential verification failed: invalid signature"
         }
     ],
     "session": "a6318799-dff4-4b60-9d1d-58703611bd23"
 }
 ```
-
-> the fields `status` and `cnf` were removed from the payload for simplicity.
 
 ---
 

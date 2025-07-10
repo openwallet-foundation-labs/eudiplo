@@ -45,5 +45,14 @@
         },
         "id": "a564e374-042a-495d-ab44-2c1c1ea7cba3"
     },
-    "webhook": "https://test-rp.mollik.workers.dev/consume"
+    "webhook": {
+        "url": "http://localhost:8787/consume",
+        "auth": {
+            "type": "apiKey",
+            "config": {
+                "headerName": "x-api-key",
+                "value": "foo-bar"
+            }
+        }
+    }
 }

@@ -1,4 +1,5 @@
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsObject, IsOptional, IsString } from 'class-validator';
+import { WebhookConfig } from '../../../utils/webhook.dto';
 
 export enum ResponseType {
     QRCode = 'qrcode',
@@ -18,7 +19,7 @@ export class PresentationRequest {
     @IsString()
     requestId: string;
 
-    @IsString()
+    @IsObject()
     @IsOptional()
-    webhook?: string;
+    webhook?: WebhookConfig;
 }

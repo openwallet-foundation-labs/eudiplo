@@ -1,5 +1,6 @@
 import { IsObject, IsString } from 'class-validator';
 import { RegistrationCertificateCreation } from '../../../registrar/generated';
+import { WebhookConfig } from 'src/utils/webhook.dto';
 
 export class RegistrationCertificateRequest {
     /**
@@ -33,6 +34,6 @@ export class VPRequest {
     /**
      * Optional webhook URL to receive the response.
      */
-    @IsString()
-    webhook?: string;
+    @IsObject()
+    webhook?: WebhookConfig;
 }
