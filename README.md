@@ -30,26 +30,7 @@ compatible with production-grade EUDI Wallets like **Animo**.
 While still in early development, EUDIPLO is built for production: secure key
 management, scalable database support, and clean API boundaries.
 
-```plantuml
-@startuml
-skinparam participantPadding 20
-skinparam ParticipantStyle rectangle
-skinparam shadowing false
-skinparam defaultTextAlignment center
-
-actor "EUDI Wallet\n(Mobile App)" as Wallet
-participant "EUDIPLO Middleware\n(Protocol Abstraction Layer)" as Middleware
-participant "End Service\n(Custom Backend Logic)" as Service
-
-Wallet <---> Middleware : OID4VCI\nOID4VP\nSD-JWT VC\nAttestations
-Middleware <---> Service : Simple JSON API\nVerified Data / Events
-
-note over Middleware : Handles all EUDI\nprotocol complexity
-
-@enduml
-```
-
----
+## ![Overview](./docs/overview.excalidraw.svg)
 
 ## 🧩 Features
 
