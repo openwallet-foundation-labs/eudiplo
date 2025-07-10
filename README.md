@@ -49,7 +49,7 @@ management, scalable database support, and clean API boundaries.
 ```bash
 docker run -p 3000:3000 \
   -e PUBLIC_URL=https://example.com \
-  -e API_KEY=a_very_secure_api_key \
+  -e AUTH_API_KEY=a_very_secure_api_key \
   -v $(pwd)/config:/app/config \
   ghcr.io/cre8/eudiplo:latest
 ```
