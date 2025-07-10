@@ -1,13 +1,4 @@
-import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    Header,
-    Param,
-    Post,
-    UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Header, Post, UseGuards } from '@nestjs/common';
 import { StatusListService } from './status-list.service';
 import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { ApiKeyGuard } from 'src/auth/api-key-guard';
