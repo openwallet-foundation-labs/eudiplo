@@ -21,6 +21,8 @@ import { CredentialConfigurationSupported } from '@openid4vc/openid4vci';
 import { CredentialConfig } from './dto/credential-config.dto';
 import { Session } from '../../session/entities/session.entity';
 import { SchemaResponse } from './dto/schema-response.dto';
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
 
 @Injectable()
 export class CredentialsService implements OnModuleInit {
@@ -49,22 +51,36 @@ export class CredentialsService implements OnModuleInit {
         });
     }
 
-    public getConfig(): CredentialConfig[] {
+    public getConfig(): Promise<CredentialConfig[]> {
         const files = readdirSync(this.folder);
-        return files.map((file) => {
-            const config = JSON.parse(
-                readFileSync(join(this.folder, file), 'utf-8').replace(
-                    /<PUBLIC_URL>/g,
-                    this.configService.getOrThrow<string>('PUBLIC_URL'),
-                ),
-            ) as CredentialConfig;
-            config.id = file.replace('.json', '');
-            return config;
-        });
+        return Promise.all(
+            files.map(async (file) => {
+                const json = JSON.parse(
+                    readFileSync(join(this.folder, file), 'utf-8').replace(
+                        /<PUBLIC_URL>/g,
+                        this.configService.getOrThrow<string>('PUBLIC_URL'),
+                    ),
+                );
+                json.id = file.replace('.json', '');
+                const configInstance = plainToInstance(CredentialConfig, json);
+                const errors = await validate(configInstance, {
+                    whitelist: true,
+                    forbidNonWhitelisted: true,
+                });
+                if (errors.length > 0) {
+                    throw new ConflictException(
+                        `Invalid credential configuration in file ${file}: ${errors
+                            .map((error) => error.toString())
+                            .join(', ')}`,
+                    );
+                }
+                return configInstance;
+            }),
+        );
     }
 
-    getConfigById(credentialId: string): CredentialConfig {
-        const config = this.getConfig().find(
+    async getConfigById(credentialId: string): Promise<CredentialConfig> {
+        const config = (await this.getConfig()).find(
             (credential) => credential.id === credentialId,
         );
         if (!config) {
@@ -94,27 +110,26 @@ export class CredentialsService implements OnModuleInit {
         rmSync(filePath, { force: true });
     }
 
-    getCredentialConfiguration(): Record<
-        string,
-        CredentialConfigurationSupported
+    async getCredentialConfiguration(): Promise<
+        Record<string, CredentialConfigurationSupported>
     > {
         const credential_configurations_supported: Record<
             string,
             CredentialConfigurationSupported
         > = {};
-        this.getConfig().forEach((credential) => {
+        (await this.getConfig()).forEach((credential) => {
             credential_configurations_supported[credential.id] =
                 credential.config;
         });
         return credential_configurations_supported;
     }
 
-    getCredential(
+    async getCredential(
         credentialConfigurationId: string,
         cnf: Jwk,
         session: Session,
     ) {
-        const vc = this.getConfigById(credentialConfigurationId);
+        const vc = await this.getConfigById(credentialConfigurationId);
         const claims =
             session.credentialPayload?.values?.[credentialConfigurationId] ??
             vc.claims;
@@ -128,7 +143,10 @@ export class CredentialsService implements OnModuleInit {
                 cnf: {
                     jwk: cnf,
                 },
-                ...this.statusListService.createEntry(session.id),
+                ...(await this.statusListService.createEntry(
+                    session.id,
+                    credentialConfigurationId,
+                )),
                 ...claims,
             },
             disclosureFrame,
@@ -141,8 +159,8 @@ export class CredentialsService implements OnModuleInit {
         );
     }
 
-    getVCT(credentialId: string) {
-        const vc = this.getConfigById(credentialId);
+    async getVCT(credentialId: string) {
+        const vc = await this.getConfigById(credentialId);
         if (!vc.vct) {
             throw new ConflictException(
                 `VCT for credential configuration with id ${credentialId} not found`,
@@ -153,8 +171,8 @@ export class CredentialsService implements OnModuleInit {
         return vc.vct;
     }
 
-    getSchema(id: string): SchemaResponse {
-        const vc = this.getConfigById(id);
+    async getSchema(id: string): Promise<SchemaResponse> {
+        const vc = await this.getConfigById(id);
         if (!vc.schema) {
             throw new ConflictException(
                 `Schema for credential configuration with id ${id} not found`,

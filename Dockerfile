@@ -28,6 +28,10 @@ RUN pnpm build
 # Use a smaller base image for the runtime stage
 FROM node:23-alpine AS runner
 
+# Accept VERSION as build argument and set as environment variable
+ARG VERSION=latest
+ENV VERSION=$VERSION
+
 # Set the default FOLDER environment variable
 ENV FOLDER=/app/config
 

@@ -1,12 +1,16 @@
-import { Column, PrimaryColumn } from 'typeorm';
+import { Column, Entity } from 'typeorm';
 
+@Entity()
 export class StatusMapping {
-    @PrimaryColumn()
-    id: string;
+    @Column({ primary: true })
+    sessionId: string;
 
-    @Column()
+    @Column({ primary: true })
     list: string;
 
-    @Column()
+    @Column({ primary: true })
     index: number;
+
+    @Column({ primary: true })
+    credentialConfigurationId: string;
 }

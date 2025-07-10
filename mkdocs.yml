@@ -107,19 +107,18 @@ nav:
       - What is EUDIPLO: index.md
       - Quick Start: getting-started/quick-start.md      
       - Running Locally: getting-started/running-locally.md
-      - Management: getting-started/management.md
       - Flows:
         - Issuance: getting-started/issuance.md
         - Presentation: getting-started/presentation.md
-      - Registrar: getting-started/registrar.md
+      - Management: getting-started/management.md
       - Webhooks: getting-started/webhooks.md
+      - Registrar: getting-started/registrar.md
   - Architecture:
       - Overview: architecture/overview.md      
       - Key Management: architecture/key-management.md
       - Database: architecture/database.md      
-  - API:
-    - Swagger: api/swagger.md
-    - Endpoints: api/api.md  
+  - API:    
+    - api/index.md
   - Development:
       - development/index.md
       - Contributing Guide: development/contributing.md      

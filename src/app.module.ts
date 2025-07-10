@@ -14,7 +14,10 @@ import { join, isAbsolute } from 'path';
 import { KEY_VALIDATION_SCHEMA, KeyModule } from './crypto/key/key.module';
 import { CRYPTO_VALIDATION_SCHEMA } from './crypto/key/crypto/crypto.module';
 import { AppController } from './app/app.controller';
-import { SessionModule } from './session/session.module';
+import {
+    SESSION_VALIDATION_SCHEMA,
+    SessionModule,
+} from './session/session.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { DatabaseModule } from './database/database.module';
 import { HealthModule } from './health/health.module';
@@ -30,6 +33,7 @@ import { AUTH_VALIDATION_SCHEMA, AuthModule } from './auth/auth.module';
                 ...KEY_VALIDATION_SCHEMA,
                 ...CRYPTO_VALIDATION_SCHEMA,
                 ...ISSUER_VALIDATION_SCHEMA,
+                ...SESSION_VALIDATION_SCHEMA,
             }),
             isGlobal: true,
             expandVariables: true,

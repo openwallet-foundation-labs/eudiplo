@@ -23,9 +23,9 @@ export class WellKnownController {
         description: 'Returns the OpenID4VCI issuer metadata.',
     })
     @Get('openid-credential-issuer')
-    issuerMetadata(): CredentialIssuerMetadataDto {
-        return this.oid4vciService.issuerMetadata()
-            .credentialIssuer as unknown as CredentialIssuerMetadataDto;
+    async issuerMetadata() {
+        return (await this.oid4vciService.issuerMetadata())
+            .credentialIssuer as unknown as Promise<CredentialIssuerMetadataDto>;
     }
 
     /**

@@ -13,6 +13,7 @@
                 dockerCacheFrom: 'cre8/eudiplo',
                 dockerArgs: {
                     GITHUB_TOKEN: null,
+                    VERSION: '${nextRelease.version}',
                 },
             },
         ],

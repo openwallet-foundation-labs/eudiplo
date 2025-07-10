@@ -112,7 +112,7 @@ Middleware -> End_Service : Notify successful issuance
         },
         "id": "ea140773-5f7f-4e39-a21c-d2a5f912deb2"
     },
-    "webhook": "http://localhost:3001/consume"
+    "webhook": { "url": "http://localhost:8787/consume" }
 }
 ```
 
@@ -151,6 +151,5 @@ curl -X 'POST' \
   -d '{
   "response_type": "qrcode",
   "requestId": "pid",
-  "webhook": "http://localhost:3001/consume",
 }'
 ```

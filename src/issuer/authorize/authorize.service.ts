@@ -16,6 +16,7 @@ import { AuthorizeQueries } from './dto/authorize-request.dto';
 import { Oid4vpService } from '../../verifier/oid4vp/oid4vp.service';
 import { SessionService } from '../../session/session.service';
 import { CredentialsService } from '../credentials/credentials.service';
+import { WebhookConfig } from 'src/utils/webhook.dto';
 
 export interface ParsedAccessTokenAuthorizationCodeRequestGrant {
     grantType: AuthorizationCodeGrantIdentifier;
@@ -148,7 +149,10 @@ export class AuthorizeService {
         });
     }
 
-    async parseChallengeRequest(body: AuthorizeQueries, webhook?: string) {
+    async parseChallengeRequest(
+        body: AuthorizeQueries,
+        webhook?: WebhookConfig,
+    ) {
         // re using the issuer state as auth session
         const auth_session = body.issuer_state;
         const presentation = `openid4vp://?${(await this.oid4vpService.createRequest('pid', { session: auth_session, webhook })).uri}`;
@@ -185,7 +189,7 @@ export class AuthorizeService {
             throw new Error('Credential offer not found');
         }
         const ids = session.offer!.credential_configuration_ids;
-        const config = this.credentialsService.getConfigById(ids[0]);
+        const config = await this.credentialsService.getConfigById(ids[0]);
         if (config.presentation_during_issuance) {
             const webhook = config.presentation_during_issuance.webhook;
             const response = await this.parseChallengeRequest(body, webhook);

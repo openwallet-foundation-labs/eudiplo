@@ -3,6 +3,7 @@ import { VerificationResult } from '@sd-jwt/sd-jwt-vc';
 import { AuthorizeQueries } from '../../issuer/authorize/dto/authorize-request.dto';
 import { OfferRequest } from '../../issuer/oid4vci/dto/offer-request.dto';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { WebhookConfig } from 'src/utils/webhook.dto';
 
 @Entity()
 export class Session {
@@ -25,6 +26,6 @@ export class Session {
     @Column('json', { nullable: true })
     credentialPayload?: OfferRequest;
     // URL to send the response to, if provided
-    @Column({ nullable: true })
-    webhook?: string;
+    @Column('json', { nullable: true })
+    webhook?: WebhookConfig;
 }

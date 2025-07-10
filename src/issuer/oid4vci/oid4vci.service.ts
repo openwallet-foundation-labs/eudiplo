@@ -45,7 +45,7 @@ export class Oid4vciService {
         });
     }
 
-    issuerMetadata(): IssuerMetadataResult {
+    async issuerMetadata(): Promise<IssuerMetadataResult> {
         const credential_issuer = `${this.configService.getOrThrow<string>(
             'PUBLIC_URL',
         )}`;
@@ -66,7 +66,7 @@ export class Oid4vciService {
         const credentialIssuer = this.issuer.createCredentialIssuerMetadata({
             credential_issuer,
             credential_configurations_supported:
-                this.credentialsService.getCredentialConfiguration(),
+                await this.credentialsService.getCredentialConfiguration(),
             credential_endpoint: `${credential_issuer}/vci/credential`,
             authorization_servers: [this.authzService.authzMetadata().issuer],
             authorization_server: this.authzService.authzMetadata().issuer,
@@ -84,7 +84,7 @@ export class Oid4vciService {
         } as const satisfies IssuerMetadataResult;
     }
 
-    createOffer(body: OfferRequest): Promise<OfferResponse> {
+    async createOffer(body: OfferRequest): Promise<OfferResponse> {
         body.credentialConfigurationIds.forEach((id) => {
             if (
                 this.credentialsService.getCredentialConfiguration()[id] ===
@@ -95,7 +95,7 @@ export class Oid4vciService {
                 );
             }
         });
-
+        const issuerMetadata = await this.issuerMetadata();
         const issuer_state = v4();
         return this.issuer
             .createCredentialOffer({
@@ -105,7 +105,7 @@ export class Oid4vciService {
                         issuer_state,
                     },
                 },
-                issuerMetadata: this.issuerMetadata(),
+                issuerMetadata,
             })
             .then(async (offer) => {
                 await this.sessionService.create({
@@ -121,8 +121,9 @@ export class Oid4vciService {
     }
 
     async getCredential(req: Request): Promise<CredentialResponse> {
+        const issuerMetadata = await this.issuerMetadata();
         const parsedCredentialRequest = this.issuer.parseCredentialRequest({
-            issuerMetadata: this.issuerMetadata(),
+            issuerMetadata,
             credentialRequest: req.body as Record<string, unknown>,
         });
 
@@ -133,15 +134,14 @@ export class Oid4vciService {
         const headers = getHeadersFromRequest(req);
         const { tokenPayload } =
             await this.resourceServer.verifyResourceRequest({
-                authorizationServers:
-                    this.issuerMetadata().authorizationServers,
+                authorizationServers: issuerMetadata.authorizationServers,
                 request: {
                     url: `https://${req.host}${req.url}`,
                     method: req.method as HttpMethod,
                     headers,
                 },
                 resourceServer:
-                    this.issuerMetadata().credentialIssuer.credential_issuer,
+                    issuerMetadata.credentialIssuer.credential_issuer,
                 allowedAuthenticationSchemes: [
                     SupportedAuthenticationScheme.DPoP,
                 ],
@@ -157,7 +157,7 @@ export class Oid4vciService {
                 await this.issuer.verifyCredentialRequestJwtProof({
                     //check if this is correct or if the passed nonce is validated.
                     expectedNonce: tokenPayload.nonce as string,
-                    issuerMetadata: this.issuerMetadata(),
+                    issuerMetadata: await this.issuerMetadata(),
                     jwt,
                 });
             const cnf = verifiedProof.signer.publicJwk;

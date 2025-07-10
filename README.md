@@ -1,3 +1,8 @@
+[![Build Status](https://github.com/cre8/eudiplo/actions/workflows/ci.yml/badge.svg)](https://github.com/cre8/eudiplo/actions)
+![License](https://img.shields.io/github/license/cre8/eudiplo)
+[![Website](https://img.shields.io/badge/website-eudiplo-blue)](https://cre8.github.io/eudiplo/)
+[![Documentation](https://cre8.github.io/eudiplo/compodoc/images/coverage-badge-documentation.svg)](https://cre8.github.io/eudiplo/compodoc/coverage.html)
+
 # EUDIPLO – Your Diplomatic Layer for EUDI Wallet Integration
 
 **EUDIPLO** is a lightweight, open-source middleware that acts as a **protocol

@@ -69,7 +69,9 @@ Middleware -> End_Service : Notify successful issuance (not implemented yet)
     },
     "presentation_during_issuance": {
         "type": "pid",
-        "webhook": "http://localhost:3001/process"
+        "webhook": {
+            "url": "http://localhost:8787/process"
+        }
     },
     "claims": {
         "town": "Berlin"
@@ -150,12 +152,17 @@ set.
 
 ## Revoking Credentials
 
-TODO: needs to be implemented
-
 To simply the revocation of credentials, the service will persist the indexes of
-the status list together with the session data. You can revoke a credential by
-calling the `/status-management/${session}` endpoint with the session ID of the
-issuance flow. This will revoke all credentials issued in that session.
+the status list together with the session data. No other personal data is
+stored, just
+
+- session ID
+- status list URL
+- status list index
+
+You can revoke a credential by calling the `/status-management/${session}`
+endpoint with the session ID of the issuance flow. This will revoke all
+credentials issued in that session.
 
 ## How to Test
 

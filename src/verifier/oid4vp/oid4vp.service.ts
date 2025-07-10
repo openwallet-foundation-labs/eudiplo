@@ -14,10 +14,11 @@ import { SessionService } from '../../session/session.service';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { OfferResponse } from '../../issuer/oid4vci/dto/offer-request.dto';
+import { WebhookConfig } from 'src/utils/webhook.dto';
 
 export interface PresentationRequestOptions {
     session?: string;
-    webhook?: string;
+    webhook?: WebhookConfig;
 }
 
 @Injectable()
@@ -40,7 +41,7 @@ export class Oid4vpService {
             .getOrThrow<string>('PUBLIC_URL')
             .replace('https://', '');
         const values =
-            this.presentationsService.getPresentationRequest(requestId);
+            await this.presentationsService.getPresentationRequest(requestId);
         const regCert = await this.registrarService.addRegistrationCertificate(
             values.registrationCert,
             values.dcql_query,
@@ -122,7 +123,7 @@ export class Oid4vpService {
         values: PresentationRequestOptions,
     ): Promise<OfferResponse> {
         const vpRequest =
-            this.presentationsService.getPresentationRequest(requestId);
+            await this.presentationsService.getPresentationRequest(requestId);
 
         if (!values.session) {
             values.session = v4();
@@ -174,29 +175,45 @@ export class Oid4vpService {
         });
 
         // if there a a webook URL, send the response there
-        console.log(session.webhook);
         if (session.webhook) {
-            const webhookResponse = await firstValueFrom(
-                this.httpService.post(session.webhook, {
-                    credentials: credentials.map((cred) => {
-                        return {
-                            ...cred,
-                            // remove the status and cnf fields for simplicity
-                            status: undefined,
-                            cnf: undefined,
-                        };
-                    }),
-                    session: res.state,
-                }),
-            );
-            //TODO: better: just store it when it's a presentation during issuance
-            if (webhookResponse.data) {
-                session.credentialPayload!.values = webhookResponse.data;
-                //store received webhook response
-                await this.sessionService.add(res.state, {
-                    credentialPayload: session.credentialPayload,
-                });
+            const headers: Record<string, string> = {};
+            if (
+                session.webhook.auhth &&
+                session.webhook.auhth.type === 'apiKey'
+            ) {
+                headers[session.webhook.auhth.config.headerName] =
+                    session.webhook.auhth.config.value;
             }
+            await firstValueFrom(
+                this.httpService.post(
+                    session.webhook.url,
+                    {
+                        credentials,
+                        session: res.state,
+                    },
+                    {
+                        headers,
+                    },
+                ),
+            ).then(
+                async (webhookResponse) => {
+                    //TODO: better: just store it when it's a presentation during issuance
+                    if (webhookResponse.data) {
+                        session.credentialPayload!.values =
+                            webhookResponse.data;
+                        //store received webhook response
+                        await this.sessionService.add(res.state, {
+                            credentialPayload: session.credentialPayload,
+                        });
+                    }
+                },
+                (err) => {
+                    console.error('Error sending webhook:', err);
+                    throw new Error(
+                        `Error sending webhook: ${err.message || err}`,
+                    );
+                },
+            );
         }
     }
 }

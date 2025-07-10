@@ -22,7 +22,7 @@ export class IssuerManagmentController {
      * Returns the credential configuration for all supported credentials.
      * @returns
      */
-    @Get('config')
+    @Get()
     configuration() {
         return this.credentialsService.getConfig();
     }
@@ -32,7 +32,7 @@ export class IssuerManagmentController {
      * @param config
      * @returns
      */
-    @Post('config')
+    @Post()
     storeConfiguration(@Body() config: CredentialConfig) {
         return this.credentialsService.storeCredentialConfiguration(config);
     }
@@ -42,7 +42,7 @@ export class IssuerManagmentController {
      * @param id
      * @returns
      */
-    @Delete('config/:id')
+    @Delete('/:id')
     deleteConfiguration(@Param('id') id: string) {
         return this.credentialsService.deleteCredentialConfiguration(id);
     }

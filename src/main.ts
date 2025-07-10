@@ -10,8 +10,11 @@ async function bootstrap() {
 
     const config = new DocumentBuilder()
         .setTitle('EUDIPLO Service API')
+        .setDescription(
+            'This is the API documentation for the EUDIPLO Service, which provides credential issuance and verification services.',
+        )
         .setExternalDoc('Documentation', 'https://cre8.github.io/eudiplo/')
-        .setVersion('1.0')
+        .setVersion(process.env.npm_package_version ?? '0.0.1')
         .addApiKey(
             {
                 type: 'apiKey',

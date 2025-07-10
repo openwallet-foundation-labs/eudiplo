@@ -67,24 +67,19 @@ jobs:
             - name: Install dependencies
               run: pnpm install
 
-            - name: Generate Swagger JSON
+            - name: Set env
               run: |
                   cp .env.example .env
-                  pnpm run swagger
-
-            - name: Generate Compodoc documentation
-              run: |
-                  pnpm run compodoc
 
             - name: Set up Python
               uses: actions/setup-python@v5
               with:
                   python-version: '3.11'
 
-            - name: Install MkDocs and theme
+            - name: Build documentation
               run: |
                   python3 -m pip install -r requirements.txt
-                  mkdocs build
+                  pnpm run doc:build
 
             - name: Setup Pages
               uses: actions/configure-pages@v5

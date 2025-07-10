@@ -20,5 +20,5 @@ jobs:
 
             - name: Build and push latest image
               run: |
-                  docker build -t ghcr.io/cre8/eudiplo:latest .
+                  docker build -t ghcr.io/cre8/eudiplo:latest --build-arg VERSION=latest .
                   docker push ghcr.io/cre8/eudiplo:latest

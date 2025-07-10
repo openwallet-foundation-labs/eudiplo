@@ -16,6 +16,8 @@ import {
 } from 'node:fs';
 import { join, posix } from 'node:path';
 import { VPRequest } from './dto/vp-request.dto';
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
 
 export interface AuthResponse {
     vp_token: {
@@ -48,13 +50,12 @@ export class PresentationsService {
 
     getPresentations() {
         const files = readdirSync(this.folder);
-        return files.map((file) => {
-            const config = JSON.parse(
-                readFileSync(join(this.folder, file), 'utf-8'),
-            ) as VPRequest;
-            config.id = file.replace('.json', '');
-            return config;
-        });
+        return Promise.all(
+            files.map((file) => {
+                const id = file.replace('.json', '');
+                return this.getPresentationRequest(id);
+            }),
+        );
     }
 
     storePresentationRequest(vprequest: VPRequest) {
@@ -78,7 +79,12 @@ export class PresentationsService {
         rmdirSync(filePath, { recursive: true });
     }
 
-    getPresentationRequest(requestId: string): VPRequest {
+    /**
+     * Get a presentation request by ID. The file is read from the filesystem and parsed into a valid VPRequest object.
+     * @param requestId
+     * @returns
+     */
+    async getPresentationRequest(requestId: string): Promise<VPRequest> {
         const safeId = posix
             .normalize(requestId)
             .replace(/^(\.\.(\/|\\|$))+/, '');
@@ -92,7 +98,21 @@ export class PresentationsService {
             /<PUBLIC_URL>/g,
             this.configService.getOrThrow<string>('PUBLIC_URL'),
         );
-        return JSON.parse(payload) as VPRequest;
+        const json = JSON.parse(payload);
+        json.id = requestId; // Ensure the ID is set correctly
+        const configInstance = plainToInstance(VPRequest, json);
+        const errors = await validate(configInstance, {
+            whitelist: true,
+            forbidNonWhitelisted: true,
+        });
+        if (errors.length > 0) {
+            throw new ConflictException(
+                `Invalid credential configuration in file ${requestId}: ${errors
+                    .map((error) => error.toString())
+                    .join(', ')}`,
+            );
+        }
+        return configInstance;
     }
 
     public storeRCID(id: string, requestId: string) {
@@ -173,10 +193,28 @@ export class PresentationsService {
     ) {
         const attestations = Object.keys(res.vp_token);
         const att = attestations.map((att) =>
-            this.sdjwtInstance.verify(res.vp_token[att], {
-                requiredClaimKeys: requiredFields,
-                keyBindingNonce,
-            }),
+            this.sdjwtInstance
+                .verify(res.vp_token[att], {
+                    requiredClaimKeys: requiredFields,
+                    keyBindingNonce,
+                })
+                .then(
+                    (result) => {
+                        return {
+                            id: att,
+                            values: {
+                                ...result.payload,
+                                cnf: undefined, // remove cnf for simplicity
+                                status: undefined, // remove status for simplicity
+                            },
+                        };
+                    },
+                    (err) => ({
+                        // when the verification fails, it will return an error object                (err) => ({
+                        id: att,
+                        error: err.message,
+                    }),
+                ),
         );
         return Promise.all(att);
     }
