@@ -14,7 +14,7 @@ async function bootstrap() {
             'This is the API documentation for the EUDIPLO Service, which provides credential issuance and verification services.',
         )
         .setExternalDoc('Documentation', 'https://cre8.github.io/eudiplo/')
-        .setVersion(process.env.npm_package_version ?? '0.0.1')
+        .setVersion(process.env.VERSION ?? '0.0.1')
         .addApiKey(
             {
                 type: 'apiKey',
