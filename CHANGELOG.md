@@ -1,3 +1,14 @@
+## [1.0.1](https://github.com/cre8/eudiplo/compare/v1.0.0...v1.0.1) (2025-07-10)
+
+
+### Bug Fixes
+
+* add auth to webhook ([c3b1b48](https://github.com/cre8/eudiplo/commit/c3b1b48da0ba72b112881f9b1df8a352cf7e3a3e))
+* add cloudflare worker example ([6d31de0](https://github.com/cre8/eudiplo/commit/6d31de0e6de9cbe0ce09591489cdfd2696d6cc93))
+* general improvements ([f7e7505](https://github.com/cre8/eudiplo/commit/f7e75055422a31b6bd46c1d9bbfeb6a063dabe8d))
+* make key folder static ([6a6cdb6](https://github.com/cre8/eudiplo/commit/6a6cdb6c7295644903a60f9d15e838b5670633e3))
+* webhook handling ([df29d1e](https://github.com/cre8/eudiplo/commit/df29d1e126b4418fd4eae9a78944a4e1a39b3f8b))
+
 # 1.0.0 (2025-07-09)
 
 
