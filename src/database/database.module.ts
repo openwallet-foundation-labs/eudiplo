@@ -6,7 +6,7 @@ import * as Joi from 'joi';
 
 export const DB_VALIDATION_SCHEMA = {
     DB_TYPE: Joi.string().valid('sqlite', 'postgres').default('sqlite'),
-    DB_PUBLIC_URL: Joi.string().when('DB_TYPE', {
+    DB_HOST: Joi.string().when('DB_TYPE', {
         is: 'sqlite',
         then: Joi.optional(),
         otherwise: Joi.required(),
@@ -53,7 +53,7 @@ export const DB_VALIDATION_SCHEMA = {
                 if (dbType === 'postgres') {
                     return {
                         type: 'postgres',
-                        host: configService.getOrThrow<string>('DB_PUBLIC_URL'),
+                        host: configService.getOrThrow<string>('DB_HOST'),
                         port: configService.getOrThrow<number>('DB_PORT'),
                         username:
                             configService.getOrThrow<string>('DB_USERNAME'),

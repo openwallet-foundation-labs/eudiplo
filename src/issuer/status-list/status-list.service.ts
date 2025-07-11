@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, OnModuleInit } from '@nestjs/common';
+import {
+    ConflictException,
+    Injectable,
+    OnApplicationBootstrap,
+} from '@nestjs/common';
 import { join } from 'path';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import {
@@ -24,7 +28,7 @@ interface StatusListFile {
 }
 
 @Injectable()
-export class StatusListService implements OnModuleInit {
+export class StatusListService implements OnApplicationBootstrap {
     private file: string;
     private uri: string;
 
@@ -43,8 +47,8 @@ export class StatusListService implements OnModuleInit {
             'status-list.json',
         );
     }
-
-    async onModuleInit() {
+    async onApplicationBootstrap() {
+        //TODO: this operation can only be done when the key is already created
         await this.init();
     }
 
