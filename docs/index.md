@@ -60,12 +60,9 @@ docker run -p 3000:3000 \
   ghcr.io/cre8/eudiplo:latest
 ```
 
-➡️ Read the
-[Quickstart Guide](https://cre8.github.io/eudiplo/getting-started/quick-start/)  
-📘
-Learn how to
-[configure credentials](https://cre8.github.io/eudiplo/usage/issuance/) or
-[verify them](https://cre8.github.io/eudiplo/usage/presentation/)
+➡️ Read the [Quickstart Guide](./getting-started/quick-start.md)  
+📘 Learn how to [configure credentials](./getting-started/issuance.md) or
+[verify them](./getting-started/presentation.md)
 
 ---
 
