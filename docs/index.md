@@ -1,64 +1,83 @@
-# EUDIPLO
+# What is EUDIPLO?
 
-**EUDIPLO** is a middleware that simplifies integration with the **EUDI Wallet**
-ecosystem. It provides a modular and standards-compliant backend for issuing,
-verifying, and managing verifiable credentials without needing to implement
-complex protocols directly.
+**EUDIPLO** is a lightweight, open-source **middleware layer** that bridges your
+IT systems with the **European Digital Identity Wallet (EUDI Wallet)**
+ecosystem.
 
-Use EUDIPLO as a self-contained Docker container in your infrastructure to
-handle all EUDI-related operations securely and efficiently.
+Whether you're building services for government, education, healthcare, or the
+private sector—EUDIPLO lets you interact with EUDI Wallets using simple
+JSON-based APIs, without having to implement complex identity protocols
+yourself.
 
-```plantuml
-@startuml
-skinparam participantPadding 20
-skinparam ParticipantStyle rectangle
-skinparam shadowing false
-skinparam defaultTextAlignment center
+---
 
-actor "EUDI Wallet\n(Mobile App)" as Wallet
-participant "EUDIPLO Middleware\n(Protocol Abstraction Layer)" as Middleware
-participant "End Service\n(Custom Backend Logic)" as Service
+## Why EUDIPLO?
 
-Wallet <---> Middleware : OID4VCI\nOID4VP\nSD-JWT VC\nAttestations
-Middleware <---> Service : Simple JSON API\nVerified Data / Events
+Connecting to the EUDI Wallet ecosystem is technically demanding:
 
-note over Middleware : Handles all EUDI\nprotocol complexity
+- You must understand **OID4VCI**, **OID4VP**, **SD-JWT VC**, and **OAuth-based
+  status protocols**.
+- Libraries are scattered, often **incomplete or language-specific**.
+- Hosted services can lead to **vendor lock-in** or obscure how your data is
+  processed.
 
-@enduml
+**EUDIPLO solves these problems** by acting as a protocol abstraction layer you
+can run yourself, integrate over HTTP, and configure via JSON.
+
+---
+
+## Key Capabilities
+
+| Capability                | Description                                                              |
+| ------------------------- | ------------------------------------------------------------------------ |
+| 🛂 **Issuance**           | Issue credentials to users through the EUDI Wallet                       |
+| 🧾 **Presentation**       | Request credentials from users and verify them                           |
+| 🔄 **Cross-Flow Support** | Request credentials as part of an issuance flow                          |
+| 🔐 **Secure by Default**  | Built-in support for secure key handling and OAuth-based status checking |
+| 🧱 **Plug and Play**      | Integrates with your backend over HTTP; no SDK required                  |
+| ⚙️ **JSON Configurable**  | Set up templates, trust roots, and issuers through JSON files            |
+| 🇪🇺 **Wallet Compatible**  | Works with real-world EUDI Wallets like [Animo](https://animo.id)        |
+
+---
+
+## Where Does It Fit?
+
+Here’s how EUDIPLO fits into your infrastructure:
+
+![EUDIPLO Overview](./overview.excalidraw.svg)
+
+---
+
+## How Do I Use It?
+
+EUDIPLO is distributed as a Docker container and can be configured in minutes.
+
+```bash
+docker run -p 3000:3000 \
+  -e PUBLIC_URL=https://example.com \
+  -e API_KEY=a_very_secure_api_key \
+  -v $(pwd)/config:/app/config \
+  ghcr.io/cre8/eudiplo:latest
 ```
 
----
-
-## Key Features
-
-- Acts as a proxy between your backend systems and EUDI Wallets
-- Exposes a full OpenAPI interface for issuing and verifying credentials
-- Supports both file-based and Vault-based key management
-- Stores session and configuration data using SQLite or PostgreSQL
-- Easy to deploy via Docker with `.env`-based configuration
+➡️ Read the
+[Quickstart Guide](https://cre8.github.io/eudiplo/getting-started/quick-start/)  
+📘
+Learn how to
+[configure credentials](https://cre8.github.io/eudiplo/usage/issuance/) or
+[verify them](https://cre8.github.io/eudiplo/usage/presentation/)
 
 ---
 
-## Supported Protocols
+## Who is it For?
 
-EUDIPLO supports a range of current and emerging standards in the EUDI Wallet
-ecosystem:
+EUDIPLO is built for:
 
-- [OpenID for Verifiable Presentation](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html)
-- [OpenID for Credential Issuance](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html)
-- [SD-JWT VC](https://www.ietf.org/archive/id/draft-ietf-oauth-selective-disclosure-jwt-08.html)
-- [Token Status List](https://drafts.oauth.net/draft-ietf-oauth-status-list/draft-ietf-oauth-status-list.html)
+- 🏛️ **Government services** that need to verify official documents.
+- 🎓 **Universities and schools** that issue or validate diplomas.
+- 🏥 **Health systems** managing patient identity or insurance.
+- 🏢 **Private sector apps** that want to integrate trustable identity with
+  minimal complexity.
 
----
-
-## Get Started
-
-Check out the [Quick Start Guide](./getting-started/quick-start.md) to run
-EUDIPLO in minutes.
-
----
-
-## Contributing
-
-Want to contribute? Read the
-[contribution guidelines](https://github.com/cre8/eudiplo/blob/main/CONTRIBUTING.MD).
+If your organization needs to connect to the EUDI Wallet ecosystem—without
+reinventing the wheel—**EUDIPLO is your gateway.**

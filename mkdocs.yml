@@ -115,6 +115,7 @@ nav:
       - Registrar: getting-started/registrar.md
   - Architecture:
       - Overview: architecture/overview.md      
+      - Supported Protocols: architecture/supported-protocols.md
       - Key Management: architecture/key-management.md
       - Database: architecture/database.md      
   - API:    

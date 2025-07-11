@@ -64,7 +64,7 @@ docker run -p 3000:3000 \
 ## 📚 Documentation
 
 - [Architecture](https://cre8.github.io/eudiplo/architecture/overview/)
-- [Supported Protocols](https://cre8.github.io/eudiplo/#supported-protocols)
+- [Supported Protocols](https://cre8.github.io/eudiplo/architecture/supported-protocols/)
 - [Compodoc](https://cre8.github.io/eudiplo/compodoc/)
 
 ---
