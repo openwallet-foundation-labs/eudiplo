@@ -5,6 +5,7 @@
 /site
 swagger.json
 docs/compodoc
+venv/
 
 # Logs
 logs

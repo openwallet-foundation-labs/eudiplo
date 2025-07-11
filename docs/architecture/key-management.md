@@ -10,12 +10,12 @@ ways, depending on the selected key management type (`KM_TYPE`).
 
 ## Configuration Overview
 
-| Variable       | Description                      | Required for | Default |
-| -------------- | -------------------------------- | ------------ | ------- |
-| `KM_TYPE`      | Key management engine type       | All          | `file`  |
-| `VAULT_URL`    | Vault API URL                    | `vault`      | –       |
-| `VAULT_TOKEN`  | Authentication token for Vault   | `vault`      | –       |
-| `VAULT_KEY_ID` | Name or path of the key in Vault | `vault`      | –       |
+| Variable       | Description                                                             | Required for | Default |
+| -------------- | ----------------------------------------------------------------------- | ------------ | ------- |
+| `KM_TYPE`      | Key management engine type                                              | All          | `file`  |
+| `VAULT_URL`    | Vault API URL to the transit engine like `http://vault:8200/v1/transit` | `vault`      | –       |
+| `VAULT_TOKEN`  | Authentication token for Vault                                          | `vault`      | –       |
+| `VAULT_KEY_ID` | Name or path of the key in Vault                                        | `vault`      | –       |
 
 > ✅ When using the default `file` mode, the keys will be stored in the `keys`
 > folder in the config folder. Vault mode requires all `VAULT_*` variables.
@@ -45,10 +45,20 @@ configure the following:
 
 ```env
 KM_TYPE=vault
-VAULT_URL=https://your-vault-instance
+VAULT_URL=http://localhost:8200/v1/transit
 VAULT_TOKEN=your-vault-token
 VAULT_KEY_ID=your-key-id
 ```
+
+The guide assumes that you have a Vault server running with the Transit secrets
+engine enabled. If there is no key with the specified `VAULT_KEY_ID`, the
+service will create it automatically.
+
+To issue credentials, you need to have a signed certificate for the public key
+that is bound to your domain. Right now this functionality to create self signed
+certificates is not offered by vault so you need to run the
+`create-cert-from-pubkey.sh` script manually to generate a self-signed
+certificate from the public key.
 
 In this mode:
 

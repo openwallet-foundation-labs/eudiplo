@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from 'node:crypto';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { Inject, Injectable } from '@nestjs/common';
 import {
     type CallbackContext,
@@ -30,6 +30,9 @@ export class CryptoService {
             this.configService.getOrThrow<string>('FOLDER'),
             'keys',
         );
+        if (!existsSync(this.folder)) {
+            mkdirSync(this.folder, { recursive: true });
+        }
     }
 
     getCertChain(type: certificateType = 'signing') {

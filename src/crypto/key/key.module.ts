@@ -14,17 +14,17 @@ export const KEY_VALIDATION_SCHEMA = {
     VAULT_URL: Joi.string().uri().when('KM_TYPE', {
         is: 'vault',
         then: Joi.required(),
-        otherwise: Joi.forbidden(),
+        otherwise: Joi.optional(),
     }),
     VAULT_TOKEN: Joi.string().when('KM_TYPE', {
         is: 'vault',
         then: Joi.required(),
-        otherwise: Joi.forbidden(),
+        otherwise: Joi.optional(),
     }),
     VAULT_KEY_ID: Joi.string().when('KM_TYPE', {
         is: 'vault',
-        then: Joi.required(),
-        otherwise: Joi.forbidden(),
+        then: Joi.string().default('key-id'),
+        otherwise: Joi.optional(),
     }),
 };
 

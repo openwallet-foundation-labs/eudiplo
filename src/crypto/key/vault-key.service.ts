@@ -6,6 +6,8 @@ import { importSPKI, exportJWK, JWTHeaderParameters, JWK } from 'jose';
 import { ConfigService } from '@nestjs/config';
 import { JwtPayload, Signer } from '@sd-jwt/types';
 import { CryptoService, CryptoType } from './crypto/crypto.service';
+import { existsSync, writeFileSync } from 'fs';
+import { join } from 'path';
 
 @Injectable()
 export class VaultKeyService extends KeyService {
@@ -17,12 +19,19 @@ export class VaultKeyService extends KeyService {
     // headers for the vault api
     private headers: { headers: { 'X-Vault-Token': string } };
 
+    private folder: string;
+
     constructor(
         private httpService: HttpService,
         private configService: ConfigService,
         private cryptoService: CryptoService,
     ) {
         super();
+        this.folder = join(
+            this.configService.getOrThrow<string>('FOLDER'),
+            'keys',
+        );
+
         this.vaultUrl = this.configService.get<string>('VAULT_URL') as string;
         this.headers = {
             headers: {
@@ -38,10 +47,19 @@ export class VaultKeyService extends KeyService {
      * Check if the vault has a key with the given id
      */
     async init() {
-        await this.getPublicKey('jwk').catch(async () => {
-            //TODO: we need to persist this key id
-            await this.create();
-        });
+        await this.getPublicKey('pem')
+            .then((res) => {
+                writeFileSync(join(this.folder, 'public-key.pem'), res);
+            })
+            .catch(async () => this.create());
+        const signerCert = join(this.folder, 'signing-certificate.pem');
+        if (!existsSync(signerCert)) {
+            //TODO: it would be cool to call this script automatically
+            throw new Error(
+                'No signing certificate found. Please run create-cert-from-pubkey.sh',
+            );
+        }
+
         this.signer = async (input: string) => this.sign(input);
     }
 
@@ -74,6 +92,7 @@ export class VaultKeyService extends KeyService {
     }
 
     getKid(): Promise<string> {
+        //TODO: check if this is the right way to get the key id
         return Promise.resolve(this.keyId);
     }
 
@@ -90,11 +109,11 @@ export class VaultKeyService extends KeyService {
                 `${this.vaultUrl}/keys/${this.keyId}`,
                 this.headers,
             ),
-        ).then(async (res) =>
-            type === 'pem'
-                ? (res.data.data.public_key as string)
-                : await this.getJWK(res.data.data.public_key),
-        );
+        ).then(async (res) => {
+            return type === 'pem'
+                ? (res.data.data.keys['1'].public_key as string)
+                : await this.getJWK(res.data.data.keys['1'].public_key);
+        });
     }
 
     private getJWK(key: string): Promise<JWK> {

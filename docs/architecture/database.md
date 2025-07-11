@@ -12,15 +12,15 @@ thanks to TypeORM’s flexible architecture.
 
 ## Configuration Overview
 
-| Variable        | Description                              | Required for | Default    |
-| --------------- | ---------------------------------------- | ------------ | ---------- |
-| `DB_TYPE`       | Database engine (`sqlite` or `postgres`) | All          | `sqlite`   |
-| `FOLDER`        | Path for local SQLite database           | `sqlite`     | `./config` |
-| `DB_PUBLIC_URL` | Hostname for PostgreSQL                  | `postgres`   | –          |
-| `DB_PORT`       | Port for PostgreSQL                      | `postgres`   | –          |
-| `DB_USERNAME`   | PostgreSQL username                      | `postgres`   | –          |
-| `DB_PASSWORD`   | PostgreSQL password                      | `postgres`   | –          |
-| `DB_DATABASE`   | PostgreSQL database name                 | `postgres`   | –          |
+| Variable      | Description                              | Required for | Default    |
+| ------------- | ---------------------------------------- | ------------ | ---------- |
+| `DB_TYPE`     | Database engine (`sqlite` or `postgres`) | All          | `sqlite`   |
+| `FOLDER`      | Path for local SQLite database           | `sqlite`     | `./config` |
+| `DB_HOST`     | Hostname for PostgreSQL                  | `postgres`   | –          |
+| `DB_PORT`     | Port for PostgreSQL                      | `postgres`   | –          |
+| `DB_USERNAME` | PostgreSQL username                      | `postgres`   | –          |
+| `DB_PASSWORD` | PostgreSQL password                      | `postgres`   | –          |
+| `DB_DATABASE` | PostgreSQL database name                 | `postgres`   | –          |
 
 > ✅ If `DB_TYPE=sqlite`, only the `FOLDER` variable is needed. For `postgres`,
 > all `DB_*` variables must be provided.
@@ -47,7 +47,7 @@ To connect to a PostgreSQL instance, set the following environment variables:
 
 ```env
 DB_TYPE=postgres
-DB_PUBLIC_URL=your-hostname
+DB_HOST=your-hostname
 DB_PORT=5432
 DB_USERNAME=your-username
 DB_PASSWORD=your-password

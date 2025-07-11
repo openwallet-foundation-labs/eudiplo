@@ -1,0 +1,49 @@
+services:
+    eudiplo:
+        image: ghcr.io/cre8/eudiplo:latest
+        restart: always
+        env_file:
+            - .env
+        ports:
+            - '3000:3000'
+        volumes:
+            - ./config:/app/config
+        depends_on:
+            - database
+            - vault
+
+    vault:
+        image: hashicorp/vault:latest
+        restart: always
+        ports:
+            - '8200:8200'
+        environment:
+            VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_TOKEN}
+            VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+            VAULT_API_ADDR: http://0.0.0.0:8200
+        cap_add:
+            - IPC_LOCK
+        volumes:
+            - vault_data:/vault/data
+            - vault_logs:/vault/logs
+        command: vault server -dev -dev-listen-address=0.0.0.0:8200
+
+    database:
+        image: postgres:latest
+        restart: always
+        environment:
+            POSTGRES_USER: ${DB_USERNAME}
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
+            POSTGRES_DB: ${DB_DATABASE}
+        volumes:
+            - db_data:/var/lib/postgresql/data
+
+volumes:
+    eudiplo-config:
+        driver: local
+    db_data:
+        driver: local
+    vault_data:
+        driver: local
+    vault_logs:
+        driver: local

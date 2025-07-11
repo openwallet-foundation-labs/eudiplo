@@ -85,11 +85,10 @@ export class Oid4vciService {
     }
 
     async createOffer(body: OfferRequest): Promise<OfferResponse> {
-        body.credentialConfigurationIds.forEach((id) => {
-            if (
-                this.credentialsService.getCredentialConfiguration()[id] ===
-                undefined
-            ) {
+        const configs =
+            await this.credentialsService.getCredentialConfiguration();
+        body.credentialConfigurationIds.map((id) => {
+            if (configs[id] === undefined) {
                 throw new ConflictException(
                     'Invalid credential configuration ID',
                 );
