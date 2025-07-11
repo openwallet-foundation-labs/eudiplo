@@ -1,3 +1,16 @@
+# [1.1.0](https://github.com/cre8/eudiplo/compare/v1.0.1...v1.1.0) (2025-07-11)
+
+
+### Bug Fixes
+
+* set correct version ([91b5499](https://github.com/cre8/eudiplo/commit/91b5499c04c0fcdc08a0d50ae8137477556bce47))
+* update db env ([35f4d1e](https://github.com/cre8/eudiplo/commit/35f4d1e70c862da38f8962252e400f324957905d))
+
+
+### Features
+
+* add deployment options ([937603a](https://github.com/cre8/eudiplo/commit/937603ad043f0d6e883e70444cdda6f69d0e77f4))
+
 ## [1.0.1](https://github.com/cre8/eudiplo/compare/v1.0.0...v1.0.1) (2025-07-10)
 
 
