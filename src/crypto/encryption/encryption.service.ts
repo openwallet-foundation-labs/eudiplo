@@ -11,16 +11,15 @@ export class EncryptionService implements OnModuleInit {
     private privateEnncryptionPath: string;
     private publicEncryptionPath: string;
 
-    constructor(private configService: ConfigService) {
+    constructor(private configService: ConfigService) {}
+
+    async onModuleInit() {
         const folder = join(
             this.configService.getOrThrow<string>('FOLDER'),
             'keys',
         );
         this.privateEnncryptionPath = join(folder, 'private-encryption.json');
         this.publicEncryptionPath = join(folder, 'public-encryption.json');
-    }
-
-    async onModuleInit() {
         if (!existsSync(this.privateEnncryptionPath)) {
             await generateKeyPair('ECDH-ES', {
                 crv: 'P-256',

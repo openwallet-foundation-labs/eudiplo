@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import {
     type CallbackContext,
     HashAlgorithm,
@@ -19,13 +19,14 @@ import { EC_Public } from '../well-known/dto/jwks-response.dto';
 type certificateType = 'access' | 'signing';
 
 @Injectable()
-export class CryptoService {
+export class CryptoService implements OnModuleInit {
     folder: string;
 
     constructor(
         private readonly configService: ConfigService,
         @Inject('KeyService') public readonly keyService: KeyService,
-    ) {
+    ) {}
+    onModuleInit() {
         this.folder = join(
             this.configService.getOrThrow<string>('FOLDER'),
             'keys',

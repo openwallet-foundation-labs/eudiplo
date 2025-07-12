@@ -2,15 +2,15 @@ import { Column, Entity } from 'typeorm';
 
 @Entity()
 export class StatusMapping {
-    @Column({ primary: true })
+    @Column({ type: 'varchar', primary: true })
     sessionId: string;
 
-    @Column({ primary: true })
+    @Column({ type: 'varchar', primary: true })
     list: string;
 
-    @Column({ primary: true })
+    @Column({ type: 'int', primary: true })
     index: number;
 
-    @Column({ primary: true })
+    @Column({ type: 'varchar', primary: true })
     credentialConfigurationId: string;
 }

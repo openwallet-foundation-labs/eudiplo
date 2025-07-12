@@ -1,4 +1,8 @@
-import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import {
+    Injectable,
+    OnApplicationBootstrap,
+    OnModuleInit,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OAuth2Client } from '@badgateway/oauth2-client';
 import { client } from './generated/client.gen';
@@ -22,7 +26,7 @@ interface AccessCertificateResponse {
 }
 
 @Injectable()
-export class RegistrarService implements OnApplicationBootstrap {
+export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
     private oauth2Client: OAuth2Client;
     private client: typeof client;
     private accessToken: string;
@@ -32,7 +36,9 @@ export class RegistrarService implements OnApplicationBootstrap {
         private configService: ConfigService,
         private cryptoService: CryptoService,
         private presentationsService: PresentationsService,
-    ) {
+    ) {}
+
+    onModuleInit() {
         //when not set, we will not use the registrar
         if (!this.configService.get<string>('REGISTRAR_URL')) {
             return;

@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
     type AuthorizationCodeGrantIdentifier,
@@ -24,7 +24,7 @@ export interface ParsedAccessTokenAuthorizationCodeRequestGrant {
 }
 
 @Injectable()
-export class AuthorizeService {
+export class AuthorizeService implements OnModuleInit {
     public authorizationServer: Oauth2AuthorizationServer;
 
     constructor(
@@ -33,7 +33,9 @@ export class AuthorizeService {
         private oid4vpService: Oid4vpService,
         private sessionService: SessionService,
         private credentialsService: CredentialsService,
-    ) {
+    ) {}
+
+    onModuleInit() {
         this.authorizationServer = new Oauth2AuthorizationServer({
             callbacks: this.cryptoService.callbacks,
         });

@@ -18,7 +18,7 @@
         "test:watch": "jest --watch",
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-        "test:e2e": "jest --config ./test/jest-e2e.json",
+        "test:e2e": "vitest run --config test/vitest.config.ts",
         "registrar": "npx @hey-api/openapi-ts -i https://funke-wallet.de/-json -o ./src/registrar/generated -c @hey-api/client-fetch",
         "swagger": "SWAGGER_JSON=true nest start",
         "compodoc": "compodoc -p tsconfig.json --theme material -d docs/compodoc",
@@ -78,6 +78,7 @@
         "@types/jest": "^29.5.14",
         "@types/node": "^22.15.34",
         "@types/supertest": "^6.0.3",
+        "dotenv": "^17.2.0",
         "eslint": "^9.30.0",
         "eslint-config-prettier": "^10.1.5",
         "eslint-plugin-prettier": "^5.5.1",
@@ -93,8 +94,10 @@
         "ts-loader": "^9.5.2",
         "ts-node": "^10.9.2",
         "tsconfig-paths": "^4.2.0",
+        "tsx": "^4.20.3",
         "typescript": "^5.8.3",
-        "typescript-eslint": "^8.35.0"
+        "typescript-eslint": "^8.35.0",
+        "vitest": "^3.2.4"
     },
     "jest": {
         "moduleFileExtensions": [

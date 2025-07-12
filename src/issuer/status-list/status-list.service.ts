@@ -2,6 +2,7 @@ import {
     ConflictException,
     Injectable,
     OnApplicationBootstrap,
+    OnModuleInit,
 } from '@nestjs/common';
 import { join } from 'path';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
@@ -28,7 +29,7 @@ interface StatusListFile {
 }
 
 @Injectable()
-export class StatusListService implements OnApplicationBootstrap {
+export class StatusListService implements OnModuleInit, OnApplicationBootstrap {
     private file: string;
     private uri: string;
 
@@ -37,7 +38,8 @@ export class StatusListService implements OnApplicationBootstrap {
         private cryptoService: CryptoService,
         @InjectRepository(StatusMapping)
         private statusMappingRepository: Repository<StatusMapping>,
-    ) {
+    ) {}
+    onModuleInit() {
         this.uri =
             this.configService.getOrThrow('PUBLIC_URL') +
             '/status-management/status-list';
