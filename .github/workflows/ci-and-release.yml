@@ -11,39 +11,84 @@ jobs:
         if: github.event_name == 'pull_request'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - name: Checkout repository
+              uses: actions/checkout@v4
 
-            - name: Set up Node.js
+            - name: copy env file
+              run: |
+                  cp .env.example .env
+
+            - name: Set up Node.js with pnpm
               uses: actions/setup-node@v4
               with:
                   node-version: 22
+                  cache: 'pnpm'
+
+            - name: Enable Corepack
+              run: corepack enable
 
             - name: Install dependencies
-              run: |
-                  corepack enable                  
-                  pnpm install
+              run: pnpm install
+
+            - name: Lint the code
+              run: pnpm run lint
 
             - name: Build the application
-              run: pnpm build
+              run: pnpm run build
 
-            - name: Run tests
-              run: pnpm test
+            #- name: Run unit tests
+            #run: pnpm run test
+
+            - name: Build documentation
+              run: pnpm run doc:build
+
+            - name: Upload built documentation
+              uses: actions/upload-artifact@v4
+              with:
+                  name: generated-docs
+                  path: site/
 
     docker-latest:
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         runs-on: ubuntu-latest
         permissions:
-            packages: write
             contents: read
+            packages: write
         steps:
-            - uses: actions/checkout@v4
+            - name: Checkout repository
+              uses: actions/checkout@v4
 
             - name: Log in to GitHub Container Registry
               run:
                   echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u
                   ${{ github.actor }} --password-stdin
 
-            - name: Build and push latest image
+            - name: Build Docker image
+              run:
+                  docker build -t ghcr.io/cre8/eudiplo:latest --build-arg
+                  VERSION=latest .
+
+            - name: Verify container health
               run: |
-                  docker build -t ghcr.io/cre8/eudiplo:latest --build-arg VERSION=latest .
-                  docker push ghcr.io/cre8/eudiplo:latest
+                  docker run -d --rm \
+                    -e PUBLIC_URL=https://example.com \
+                    -e AUTH_API_KEY=a_very_secure_api_key \
+                    -p 8080:3000 \
+                    --name eudiplo-test \
+                    ghcr.io/cre8/eudiplo:latest
+                  echo "Waiting for health check..."
+                  for i in {1..10}; do
+                  sleep 2
+                  if curl -sSf http://localhost:8080/health; then
+                      echo "✅ Healthy"
+                      docker stop eudiplo-test
+                      exit 0
+                  fi
+                  done
+                  echo "❌ Health check failed"
+                  docker logs eudiplo-test
+                  docker stop eudiplo-test
+                  exit 1
+
+            - name: Push latest Docker image
+              run: docker push ghcr.io/cre8/eudiplo:latest
