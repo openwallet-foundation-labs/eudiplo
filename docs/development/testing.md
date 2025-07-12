@@ -20,7 +20,7 @@ Or with watch mode:
 pnpm run test:watch
 ```
 
-This uses [Jest](https://jestjs.io/) under the hood, which is configured for
+This uses [Vitest](https://vitest.dev) under the hood, which is configured for
 NestJS.
 
 ---
@@ -49,7 +49,7 @@ src/
     my.service.spec.ts  <-- Test file
 ```
 
-Use `.spec.ts` naming to ensure Jest picks up the test files automatically.
+Use `.spec.ts` naming to ensure Vitest picks up the test files automatically.
 
 ---
 
@@ -74,8 +74,8 @@ You can find the workflow config in `.github/workflows/ci.yml`.
 
 ## 💡 Tips
 
-- Keep unit tests isolated; mock dependencies using tools like `jest.mock()` or
-  NestJS's testing module.
+- Keep unit tests isolated; mock dependencies using tools like `vitest.mock()`
+  or NestJS's testing module.
 - For HTTP integration tests, use
   [supertest](https://github.com/visionmedia/supertest).
 - For mocking external APIs (e.g., Vault or Keycloak), consider

@@ -43,6 +43,7 @@ export class PresentationsService implements OnModuleInit {
             kbVerifier: this.kbVerifier.bind(this),
             statusListFetcher: this.statusListFetcher.bind(this),
         });
+        this.httpService.get('');
         this.folder = join(
             this.configService.getOrThrow<string>('FOLDER'),
             'presentation',
