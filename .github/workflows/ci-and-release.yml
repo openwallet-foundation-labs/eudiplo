@@ -1,0 +1,49 @@
+name: CI / Docker Release
+
+on:
+    push:
+        branches: ['main']
+    pull_request:
+        types: [opened, synchronize, reopened]
+
+jobs:
+    test-and-build:
+        if: github.event_name == 'pull_request'
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+
+            - name: Install dependencies
+              run: |
+                  corepack enable                  
+                  pnpm install
+
+            - name: Build the application
+              run: pnpm build
+
+            - name: Run tests
+              run: pnpm test
+
+    docker-latest:
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        runs-on: ubuntu-latest
+        permissions:
+            packages: write
+            contents: read
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Log in to GitHub Container Registry
+              run:
+                  echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u
+                  ${{ github.actor }} --password-stdin
+
+            - name: Build and push latest image
+              run: |
+                  docker build -t ghcr.io/cre8/eudiplo:latest --build-arg VERSION=latest .
+                  docker push ghcr.io/cre8/eudiplo:latest

@@ -14,7 +14,7 @@ RUN apk add --no-cache openssl
 # Copy package.json and pnpm-lock.yaml
 COPY package.json pnpm-lock.yaml ./
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable
 
 # Install dependencies
 RUN pnpm install --frozen-lockfile
@@ -47,7 +47,7 @@ COPY --from=builder /app/patches ./patches
 
 # install only production dependencies
 COPY package.json pnpm-lock.yaml ./
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable
 RUN pnpm install --frozen-lockfile --prod
 
 RUN mkdir config

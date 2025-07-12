@@ -25,6 +25,7 @@ cd eudiplo
 ## 2. Install Dependencies
 
 ```bash
+corepack enable
 pnpm install
 ```
 
