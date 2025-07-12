@@ -50,10 +50,8 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v4
 
-            - name: setup env
-              run: |
-                  cp .env.example .env
-                  mkdir assets
+            - name: copy env file
+              run: cp .env.example .env
 
             - name: Set up Node.js with pnpm
               uses: actions/setup-node@v4
