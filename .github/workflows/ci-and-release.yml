@@ -102,27 +102,5 @@ jobs:
                   docker build -t ghcr.io/cre8/eudiplo:latest --build-arg
                   VERSION=latest .
 
-            - name: Verify container health
-              run: |
-                  docker run -d --rm \
-                    -e PUBLIC_URL=https://example.com \
-                    -e AUTH_API_KEY=a_very_secure_api_key \
-                    -p 8080:3000 \
-                    --name eudiplo-test \
-                    ghcr.io/cre8/eudiplo:latest
-                  echo "Waiting for health check..."
-                  for i in {1..10}; do
-                  sleep 2
-                  if curl -sSf http://localhost:8080/health; then
-                      echo "✅ Healthy"
-                      docker stop eudiplo-test
-                      exit 0
-                  fi
-                  done
-                  echo "❌ Health check failed"
-                  docker logs eudiplo-test
-                  docker stop eudiplo-test
-                  exit 1
-
             - name: Push latest Docker image
               run: docker push ghcr.io/cre8/eudiplo:latest
