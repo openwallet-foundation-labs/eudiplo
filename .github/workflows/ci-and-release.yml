@@ -43,6 +43,35 @@ jobs:
             #- name: Run unit tests
             #run: pnpm run test
 
+    build-doc:
+        if: github.event_name == 'pull_request'
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: copy env file
+              run: cp .env.example .env
+
+            - name: Set up Node.js with pnpm
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+
+            - name: Enable Corepack
+              run: corepack enable
+
+            - name: Install dependencies
+              run: pnpm install
+
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: '3.11'
+
+            - name: Install Python dependencies
+              run: pip install -r requirements.txt
+
             - name: Build documentation
               run: pnpm run doc:build
 
@@ -54,6 +83,7 @@ jobs:
 
     docker-latest:
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        needs: [test-and-build]
         runs-on: ubuntu-latest
         permissions:
             contents: read
