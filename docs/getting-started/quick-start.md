@@ -30,13 +30,16 @@ is used for [authentication](./management.md#authentication).
 
 ## 2. Run the Docker Container
 
-You can run EUDIPLO using Docker Compose. Create a `docker-compose.yml` file in
-the root of your project with the following content:
+You can run EUDIPLO using Docker Compose. We recommend to use the latest stable
+version available on
+[GitHub Container Registry](https://github.com/cre8/eudiplo/pkgs/container/eudiplo).
+Create a `docker-compose.yml` file in the root of your project with the
+following content:
 
 ```yaml
 services:
     EUDIPLO:
-        image: ghcr.io/cre8/eudiplo:latest
+        image: ghcr.io/cre8/eudiplo:1
         env_file:
             - .env
         ports:
@@ -44,6 +47,9 @@ services:
         volumes:
             - ./config:/app/config
 ```
+
+> Tip: the tag `:latest` is used for build based on the `main` branch that may
+> not be aligned with a stable release or the hosted documentation.
 
 ---
 

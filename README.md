@@ -51,7 +51,7 @@ docker run -p 3000:3000 \
   -e PUBLIC_URL=https://example.com \
   -e AUTH_API_KEY=a_very_secure_api_key \
   -v $(pwd)/config:/app/config \
-  ghcr.io/cre8/eudiplo:latest
+  ghcr.io/cre8/eudiplo:1
 ```
 
 📚 API:
