@@ -1,0 +1,226 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "required": [
+        "dcql_query"
+    ],
+    "properties": {
+        "dcql_query": {
+            "type": "object",
+            "required": [
+                "credentials"
+            ],
+            "properties": {
+                "credentials": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "id",
+                            "format",
+                            "meta"
+                        ],
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "format": {
+                                "type": "string"
+                            },
+                            "meta": {
+                                "type": "object",
+                                "required": [
+                                    "vct_values"
+                                ],
+                                "properties": {
+                                    "vct_values": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "uri"
+                                        }
+                                    }
+                                }
+                            },
+                            "claims": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "path"
+                                    ],
+                                    "properties": {
+                                        "path": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "registrationCert": {
+            "type": "object",
+            "required": [
+                "body",
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "format": "uuid"
+                },
+                "body": {
+                    "type": "object",
+                    "required": [
+                        "privacy_policy",
+                        "purpose",
+                        "contact",
+                        "credentials"
+                    ],
+                    "properties": {
+                        "privacy_policy": {
+                            "type": "string",
+                            "format": "uri"
+                        },
+                        "purpose": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "required": [
+                                    "locale",
+                                    "name"
+                                ],
+                                "properties": {
+                                    "locale": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        },
+                        "contact": {
+                            "type": "object",
+                            "required": [
+                                "website",
+                                "e-mail",
+                                "phone"
+                            ],
+                            "properties": {
+                                "website": {
+                                    "type": "string",
+                                    "format": "uri"
+                                },
+                                "e-mail": {
+                                    "type": "string",
+                                    "format": "email"
+                                },
+                                "phone": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "credentials": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "required": [
+                                    "format",
+                                    "meta",
+                                    "claims"
+                                ],
+                                "properties": {
+                                    "format": {
+                                        "type": "string"
+                                    },
+                                    "meta": {
+                                        "type": "object",
+                                        "required": [
+                                            "vct_values"
+                                        ],
+                                        "properties": {
+                                            "vct_values": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "format": "uri"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "claims": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "required": [
+                                                "path"
+                                            ],
+                                            "properties": {
+                                                "path": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "webhook": {
+            "type": "object",
+            "required": [
+                "url",
+                "auth"
+            ],
+            "properties": {
+                "url": {
+                    "type": "string",
+                    "format": "uri"
+                },
+                "auth": {
+                    "type": "object",
+                    "required": [
+                        "type",
+                        "config"
+                    ],
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "enum": [
+                                "apiKey"
+                            ]
+                        },
+                        "config": {
+                            "type": "object",
+                            "required": [
+                                "headerName",
+                                "value"
+                            ],
+                            "properties": {
+                                "headerName": {
+                                    "type": "string"
+                                },
+                                "value": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

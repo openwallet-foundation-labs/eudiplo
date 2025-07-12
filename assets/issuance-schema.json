@@ -1,0 +1,233 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "required": [
+        "config",
+        "presentation_during_issuance",
+        "claims",
+        "disclosureFrame",
+        "vct",
+        "schema"
+    ],
+    "properties": {
+        "config": {
+            "type": "object",
+            "required": [
+                "format",
+                "vct",
+                "proof_types_supported",
+                "credential_signing_alg_values_supported",
+                "cryptographic_binding_methods_supported",
+                "display"
+            ],
+            "properties": {
+                "format": {
+                    "type": "string"
+                },
+                "vct": {
+                    "type": "string"
+                },
+                "proof_types_supported": {
+                    "type": "object",
+                    "properties": {
+                        "jwt": {
+                            "type": "object",
+                            "properties": {
+                                "proof_signing_alg_values_supported": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "required": [
+                                "proof_signing_alg_values_supported"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "jwt"
+                    ]
+                },
+                "credential_signing_alg_values_supported": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "cryptographic_binding_methods_supported": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "display": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "name",
+                            "background_color",
+                            "background_image",
+                            "description",
+                            "locale",
+                            "logo",
+                            "text_color"
+                        ],
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "background_color": {
+                                "type": "string"
+                            },
+                            "background_image": {
+                                "type": "object",
+                                "required": [
+                                    "uri",
+                                    "url"
+                                ],
+                                "properties": {
+                                    "uri": {
+                                        "type": "string"
+                                    },
+                                    "url": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "description": {
+                                "type": "string"
+                            },
+                            "locale": {
+                                "type": "string"
+                            },
+                            "logo": {
+                                "type": "object",
+                                "required": [
+                                    "uri",
+                                    "url"
+                                ],
+                                "properties": {
+                                    "uri": {
+                                        "type": "string"
+                                    },
+                                    "url": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "text_color": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "presentation_during_issuance": {
+            "type": "object",
+            "required": [
+                "type",
+                "webhook"
+            ],
+            "properties": {
+                "type": {
+                    "type": "string"
+                },
+                "webhook": {
+                    "type": "object",
+                    "required": [
+                        "url"
+                    ],
+                    "properties": {
+                        "url": {
+                            "type": "string",
+                            "format": "uri"
+                        }
+                    }
+                }
+            }
+        },
+        "claims": {
+            "type": "object"
+        },
+        "disclosureFrame": {
+            "type": "object"
+        },
+        "vct": {
+            "type": "object",
+            "required": [
+                "name",
+                "description",
+                "extends",
+                "extends#integrity"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "extends": {
+                    "type": "string",
+                    "format": "uri"
+                },
+                "extends#integrity": {
+                    "type": "string"
+                }
+            }
+        },
+        "schema": {
+            "type": "object",
+            "required": [
+                "$schema",
+                "type",
+                "properties",
+                "required"
+            ],
+            "properties": {
+                "$schema": {
+                    "type": "string",
+                    "format": "uri"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "object"
+                    ]
+                },
+                "properties": {
+                    "type": "object",
+                    "properties": {
+                        "vct": {
+                            "type": "object"
+                        },
+                        "iss": {
+                            "type": "object"
+                        },
+                        "nbf": {
+                            "type": "object"
+                        },
+                        "exp": {
+                            "type": "object"
+                        },
+                        "cnf": {
+                            "type": "object"
+                        },
+                        "status": {
+                            "type": "object"
+                        }
+                    }
+                },
+                "required": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}
