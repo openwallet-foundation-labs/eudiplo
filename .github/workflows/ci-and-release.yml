@@ -136,6 +136,12 @@ jobs:
             - name: Install dependencies
               run: pnpm install
 
+            - name: Set up Docker (for Testcontainers)
+              uses: docker/setup-buildx-action@v3
+
+            - name: Build Docker image for local test use
+              run: docker build -t cre8/eudiplo:latest .
+
             - name: Run E2E tests
               run: pnpm run test:e2e
 
