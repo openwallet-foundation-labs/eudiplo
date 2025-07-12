@@ -141,8 +141,7 @@ export type HealthControllerCheckErrors = {
     };
 };
 
-export type HealthControllerCheckError =
-    HealthControllerCheckErrors[keyof HealthControllerCheckErrors];
+export type HealthControllerCheckError = HealthControllerCheckErrors[keyof HealthControllerCheckErrors];
 
 export type HealthControllerCheckResponses = {
     /**
@@ -171,8 +170,7 @@ export type HealthControllerCheckResponses = {
     };
 };
 
-export type HealthControllerCheckResponse =
-    HealthControllerCheckResponses[keyof HealthControllerCheckResponses];
+export type HealthControllerCheckResponse = HealthControllerCheckResponses[keyof HealthControllerCheckResponses];
 
 export type RelyingPartyControllerFindAllData = {
     body?: never;
@@ -191,8 +189,7 @@ export type RelyingPartyControllerFindAllResponses = {
     200: Array<RelyingParty>;
 };
 
-export type RelyingPartyControllerFindAllResponse =
-    RelyingPartyControllerFindAllResponses[keyof RelyingPartyControllerFindAllResponses];
+export type RelyingPartyControllerFindAllResponse = RelyingPartyControllerFindAllResponses[keyof RelyingPartyControllerFindAllResponses];
 
 export type RelyingPartyControllerRegisterData = {
     body: RelyingPartyRegistration;
@@ -205,8 +202,7 @@ export type RelyingPartyControllerRegisterResponses = {
     201: RelyingParty;
 };
 
-export type RelyingPartyControllerRegisterResponse =
-    RelyingPartyControllerRegisterResponses[keyof RelyingPartyControllerRegisterResponses];
+export type RelyingPartyControllerRegisterResponse = RelyingPartyControllerRegisterResponses[keyof RelyingPartyControllerRegisterResponses];
 
 export type RelyingPartyControllerRemoveData = {
     body?: never;
@@ -232,8 +228,7 @@ export type CryptoControllerOwnCertResponses = {
     200: string;
 };
 
-export type CryptoControllerOwnCertResponse =
-    CryptoControllerOwnCertResponses[keyof CryptoControllerOwnCertResponses];
+export type CryptoControllerOwnCertResponse = CryptoControllerOwnCertResponses[keyof CryptoControllerOwnCertResponses];
 
 export type CryptoControllerOwnCertParsedData = {
     body?: never;
@@ -246,8 +241,7 @@ export type CryptoControllerOwnCertParsedResponses = {
     200: string;
 };
 
-export type CryptoControllerOwnCertParsedResponse =
-    CryptoControllerOwnCertParsedResponses[keyof CryptoControllerOwnCertParsedResponses];
+export type CryptoControllerOwnCertParsedResponse = CryptoControllerOwnCertParsedResponses[keyof CryptoControllerOwnCertParsedResponses];
 
 export type AccessCertificateControllerAccessCertificatesData = {
     body?: never;
@@ -265,8 +259,7 @@ export type AccessCertificateControllerAccessCertificatesResponses = {
     200: Array<AccessCertificate>;
 };
 
-export type AccessCertificateControllerAccessCertificatesResponse =
-    AccessCertificateControllerAccessCertificatesResponses[keyof AccessCertificateControllerAccessCertificatesResponses];
+export type AccessCertificateControllerAccessCertificatesResponse = AccessCertificateControllerAccessCertificatesResponses[keyof AccessCertificateControllerAccessCertificatesResponses];
 
 export type AccessCertificateControllerRegisterData = {
     body: AccessCertificateRegistration;
@@ -284,8 +277,7 @@ export type AccessCertificateControllerRegisterResponses = {
     201: AccessCertificateRegistrationResponse;
 };
 
-export type AccessCertificateControllerRegisterResponse =
-    AccessCertificateControllerRegisterResponses[keyof AccessCertificateControllerRegisterResponses];
+export type AccessCertificateControllerRegisterResponse = AccessCertificateControllerRegisterResponses[keyof AccessCertificateControllerRegisterResponses];
 
 export type AccessCertificateControllerDeleteData = {
     body?: never;
@@ -338,8 +330,7 @@ export type AccessCertificateControllerFindOneParsedResponses = {
     200: string;
 };
 
-export type AccessCertificateControllerFindOneParsedResponse =
-    AccessCertificateControllerFindOneParsedResponses[keyof AccessCertificateControllerFindOneParsedResponses];
+export type AccessCertificateControllerFindOneParsedResponse = AccessCertificateControllerFindOneParsedResponses[keyof AccessCertificateControllerFindOneParsedResponses];
 
 export type RegistrationCertificateControllerAllData = {
     body?: never;
@@ -357,8 +348,7 @@ export type RegistrationCertificateControllerAllResponses = {
     200: Array<RegistrationCertificate>;
 };
 
-export type RegistrationCertificateControllerAllResponse =
-    RegistrationCertificateControllerAllResponses[keyof RegistrationCertificateControllerAllResponses];
+export type RegistrationCertificateControllerAllResponse = RegistrationCertificateControllerAllResponses[keyof RegistrationCertificateControllerAllResponses];
 
 export type RegistrationCertificateControllerRegisterData = {
     body: RegistrationCertificateCreation;
@@ -376,8 +366,7 @@ export type RegistrationCertificateControllerRegisterResponses = {
     201: OmitTypeClass;
 };
 
-export type RegistrationCertificateControllerRegisterResponse =
-    RegistrationCertificateControllerRegisterResponses[keyof RegistrationCertificateControllerRegisterResponses];
+export type RegistrationCertificateControllerRegisterResponse = RegistrationCertificateControllerRegisterResponses[keyof RegistrationCertificateControllerRegisterResponses];
 
 export type RegistrationCertificateControllerDeleteData = {
     body?: never;
@@ -413,15 +402,13 @@ export type RegistrationCertificateControllerFindOneErrors = {
     default: RegistrationCertificate;
 };
 
-export type RegistrationCertificateControllerFindOneError =
-    RegistrationCertificateControllerFindOneErrors[keyof RegistrationCertificateControllerFindOneErrors];
+export type RegistrationCertificateControllerFindOneError = RegistrationCertificateControllerFindOneErrors[keyof RegistrationCertificateControllerFindOneErrors];
 
 export type RegistrationCertificateControllerFindOneResponses = {
     200: RegistrationCertificate;
 };
 
-export type RegistrationCertificateControllerFindOneResponse =
-    RegistrationCertificateControllerFindOneResponses[keyof RegistrationCertificateControllerFindOneResponses];
+export type RegistrationCertificateControllerFindOneResponse = RegistrationCertificateControllerFindOneResponses[keyof RegistrationCertificateControllerFindOneResponses];
 
 export type RegistrationCertificateControllerFindOneDecodedData = {
     body?: never;
@@ -440,8 +427,7 @@ export type RegistrationCertificateControllerFindOneDecodedResponses = {
     200: DecodedJwt;
 };
 
-export type RegistrationCertificateControllerFindOneDecodedResponse =
-    RegistrationCertificateControllerFindOneDecodedResponses[keyof RegistrationCertificateControllerFindOneDecodedResponses];
+export type RegistrationCertificateControllerFindOneDecodedResponse = RegistrationCertificateControllerFindOneDecodedResponses[keyof RegistrationCertificateControllerFindOneDecodedResponses];
 
 export type StatusListControllerGetListData = {
     body?: never;
@@ -454,8 +440,7 @@ export type StatusListControllerGetListResponses = {
     200: string;
 };
 
-export type StatusListControllerGetListResponse =
-    StatusListControllerGetListResponses[keyof StatusListControllerGetListResponses];
+export type StatusListControllerGetListResponse = StatusListControllerGetListResponses[keyof StatusListControllerGetListResponses];
 
 export type StatusListControllerCrlFileData = {
     body?: never;
@@ -471,8 +456,7 @@ export type StatusListControllerCrlFileResponses = {
     200: Blob | File;
 };
 
-export type StatusListControllerCrlFileResponse =
-    StatusListControllerCrlFileResponses[keyof StatusListControllerCrlFileResponses];
+export type StatusListControllerCrlFileResponse = StatusListControllerCrlFileResponses[keyof StatusListControllerCrlFileResponses];
 
 export type Oid4VpControllerGetValidPidData = {
     body?: never;
@@ -504,8 +488,7 @@ export type Oid4VpControllerGetValidRequestWithQueryResponses = {
     200: string;
 };
 
-export type Oid4VpControllerGetValidRequestWithQueryResponse =
-    Oid4VpControllerGetValidRequestWithQueryResponses[keyof Oid4VpControllerGetValidRequestWithQueryResponses];
+export type Oid4VpControllerGetValidRequestWithQueryResponse = Oid4VpControllerGetValidRequestWithQueryResponses[keyof Oid4VpControllerGetValidRequestWithQueryResponses];
 
 export type Oid4VpControllerGetValidRequestData = {
     body?: never;
@@ -522,8 +505,7 @@ export type Oid4VpControllerGetValidRequestResponses = {
     200: string;
 };
 
-export type Oid4VpControllerGetValidRequestResponse =
-    Oid4VpControllerGetValidRequestResponses[keyof Oid4VpControllerGetValidRequestResponses];
+export type Oid4VpControllerGetValidRequestResponse = Oid4VpControllerGetValidRequestResponses[keyof Oid4VpControllerGetValidRequestResponses];
 
 export type Oid4VpControllerResponseData = {
     body?: never;
@@ -547,8 +529,7 @@ export type Oid4VpControllerSuccessResponses = {
     200: string;
 };
 
-export type Oid4VpControllerSuccessResponse =
-    Oid4VpControllerSuccessResponses[keyof Oid4VpControllerSuccessResponses];
+export type Oid4VpControllerSuccessResponse = Oid4VpControllerSuccessResponses[keyof Oid4VpControllerSuccessResponses];
 
 export type ClientOptions = {
     baseUrl: string;

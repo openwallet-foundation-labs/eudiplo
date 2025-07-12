@@ -1,25 +1,36 @@
-import 'reflect-metadata';
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
-import { App } from 'supertest/types';
-import { AppModule } from './../src/app.module';
-import { ConfigService } from '@nestjs/config';
+import { GenericContainer, Wait } from 'testcontainers';
+import { afterAll, beforeAll, expect, test } from 'vitest';
 
-describe('AppController (e2e)', () => {
-    let app: INestApplication<App>;
+let container: Awaited<ReturnType<typeof startContainer>>;
 
-    beforeEach(async () => {
-        process.env.FOLDER = './assets';
-        const moduleFixture: TestingModule = await Test.createTestingModule({
-            imports: [AppModule],
-        }).compile();
+async function startContainer() {
+    return await new GenericContainer('ghcr.io/cre8/eudiplo:latest')
+        .withExposedPorts(3000)
+        .withEnvironment({
+            PUBLIC_URL: 'http://localhost:3000',
+            AUTH_API_KEY: 'test-api-key',
+            RP_NAME: 'EUDIPLO',
+        })
+        .withWaitStrategy(Wait.forHttp('/health', 3000).forStatusCode(200))
+        .start()
+        .then((c) => {
+            console.log(`Container started on port ${c.getMappedPort(3000)}`);
+            return c;
+        });
+}
 
-        app = moduleFixture.createNestApplication();
-        await app.init();
-        const configService = app.get(ConfigService);
-        console.log(configService.get('FOLDER'));
-    });
+beforeAll(async () => {
+    container = await startContainer();
+});
 
-    it('/ (GET)', () => {});
+afterAll(async () => {
+    await container.stop();
+});
+
+test('GET / returns EUDIPLO', async () => {
+    const port = container.getMappedPort(3000);
+    const url = `http://localhost:${port}/`;
+    const response = await fetch(url);
+    const body = await response.text();
+    expect(body).toContain('EUDIPLO');
 });

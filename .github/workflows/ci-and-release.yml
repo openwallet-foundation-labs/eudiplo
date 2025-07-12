@@ -7,56 +7,67 @@ on:
         types: [opened, synchronize, reopened]
 
 jobs:
-    test-and-build:
-        if: github.event_name == 'pull_request'
+    lint:
+        name: Lint Codebase
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+            - uses: actions/checkout@v4
 
-            - name: copy env file
-              run: |
-                  cp .env.example .env
-
-            - name: Set up Node.js with pnpm
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 22
-            - name: Enable Corepack
-              run: corepack enable
-
-            - name: Restore pnpm cache
+            - name: Set up Node.js
               uses: actions/setup-node@v4
               with:
                   node-version: 22
                   cache: 'pnpm'
 
+            - name: Enable Corepack
+              run: corepack enable
+
             - name: Install dependencies
               run: pnpm install
 
-            - name: Lint the code
+            - name: Run linter
               run: pnpm run lint
+
+    build:
+        name: Build Application
+        runs-on: ubuntu-latest
+        needs: [lint]
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Copy env file
+              run: cp .env.example .env
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: 'pnpm'
+
+            - name: Enable Corepack
+              run: corepack enable
+
+            - name: Install dependencies
+              run: pnpm install
 
             - name: Build the application
               run: pnpm run build
 
-            #- name: Run unit tests
-            #run: pnpm run test
-
     build-doc:
-        if: github.event_name == 'pull_request'
+        name: Build Documentation
         runs-on: ubuntu-latest
+        needs: [lint]
         steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+            - uses: actions/checkout@v4
 
-            - name: copy env file
+            - name: Copy env file
               run: cp .env.example .env
 
-            - name: Set up Node.js with pnpm
+            - name: Set up Node.js
               uses: actions/setup-node@v4
               with:
                   node-version: 22
+                  cache: 'pnpm'
 
             - name: Enable Corepack
               run: corepack enable
@@ -81,16 +92,44 @@ jobs:
                   name: generated-docs
                   path: site/
 
+    test-e2e:
+        name: E2E Tests
+        runs-on: ubuntu-latest
+        needs: [build]
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Copy env file
+              run: cp .env.example .env
+
+            - name: Set up Docker (for Testcontainers)
+              uses: docker/setup-buildx-action@v3
+
+            - name: Set up Node.js with pnpm
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: 'pnpm'
+
+            - name: Enable Corepack
+              run: corepack enable
+
+            - name: Install dependencies
+              run: pnpm install
+
+            - name: Run E2E tests
+              run: pnpm run test:e2e
+
     docker-latest:
+        name: Build & Push Docker Image
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        needs: [test-and-build]
+        needs: [test-e2e]
         runs-on: ubuntu-latest
         permissions:
             contents: read
             packages: write
         steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+            - uses: actions/checkout@v4
 
             - name: Log in to GitHub Container Registry
               run:
@@ -102,5 +141,5 @@ jobs:
                   docker build -t ghcr.io/cre8/eudiplo:latest --build-arg
                   VERSION=latest .
 
-            - name: Push latest Docker image
+            - name: Push Docker image
               run: docker push ghcr.io/cre8/eudiplo:latest

@@ -110,9 +110,7 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         return relyingPartyControllerRegister({
             client: this.client,
             body: {
-                name: this.configService.getOrThrow<string>(
-                    'REGISTRAR_RP_NAME',
-                ),
+                name: this.configService.getOrThrow<string>('RP_NAME'),
             },
         }).then((response) => {
             if (response.error) {
@@ -120,9 +118,9 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
                 throw new Error('Error adding RP');
             }
             const config = this.loadConfig();
-            config.id = response.data!.id;
+            config.id = response.data!['id'];
             this.saveConfig(config);
-            return response.data!.id;
+            return response.data!['id'];
         });
     }
 
@@ -182,10 +180,10 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
                 throw new Error('Error adding access certificate');
             }
             //store the cert
-            this.cryptoService.storeAccessCertificate(res.data!.crt);
-            config.accessCertificateId = res.data!.id;
+            this.cryptoService.storeAccessCertificate(res.data!['crt']);
+            config.accessCertificateId = res.data!['id'];
             this.saveConfig(config);
-            return res.data!.id;
+            return res.data!['id'];
         });
     }
 
@@ -235,8 +233,8 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
             }
 
             //TODO: write the ID to the config so its easier to use it. Easier than writing the comparison algorithm (any maybe someone wants to use a different one)
-            this.presentationsService.storeRCID(res.data!.id, requestId);
-            return res.data!.jwt;
+            this.presentationsService.storeRCID(res.data!['id'], requestId);
+            return res.data!['jwt'];
         });
     }
 

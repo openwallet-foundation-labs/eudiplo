@@ -12,7 +12,7 @@ RUN apk add --no-cache openssl
 
 
 # Copy package.json and pnpm-lock.yaml
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 RUN corepack enable
 
@@ -46,7 +46,7 @@ COPY --from=builder /app/dist ./dist/
 COPY --from=builder /app/patches ./patches
 
 # install only production dependencies
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN corepack enable
 RUN pnpm install --frozen-lockfile --prod
 

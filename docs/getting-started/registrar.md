@@ -10,10 +10,9 @@ To interact with an EUDI Wallet, two types of certificates are required:
 These values are used to request access and registration certificates from the
 Registrar.
 
-| Variable            | Description                       |
-| ------------------- | --------------------------------- |
-| `REGISTRAR_URL`     | URL of the registrar              |
-| `REGISTRAR_RP_NAME` | Display name of the Relying Party |
+| Variable        | Description          |
+| --------------- | -------------------- |
+| `REGISTRAR_URL` | URL of the registrar |
 
 Used to authenticate against the Registrar.
 
@@ -32,7 +31,7 @@ necessary environment variables.
 On startup, EUDIPLO checks whether a Relying Party (RP) is already registered
 using the `config/registrar.json` file. If no ID is specified, EUDIPLO will
 automatically register a new Relying Party with the registrar using the
-`REGISTRAR_RP_NAME` value.
+`RP_NAME` value.
 
 ## Access Certificate
 
