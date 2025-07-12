@@ -22,14 +22,14 @@ jobs:
               uses: actions/setup-node@v4
               with:
                   node-version: 22
+            - name: Enable Corepack
+              run: corepack enable
+
             - name: Restore pnpm cache
               uses: actions/setup-node@v4
               with:
                   node-version: 22
                   cache: 'pnpm'
-
-            - name: Enable Corepack
-              run: corepack enable
 
             - name: Install dependencies
               run: pnpm install
