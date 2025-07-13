@@ -1,4 +1,4 @@
-[![Build Status](https://github.com/cre8/eudiplo/actions/workflows/ci.yml/badge.svg)](https://github.com/cre8/eudiplo/actions)
+[![Build Status](https://github.com/cre8/eudiplo/actions/workflows/ci-and-release.yml/badge.svg)](https://github.com/cre8/eudiplo/actions)
 ![License](https://img.shields.io/github/license/cre8/eudiplo)
 [![Website](https://img.shields.io/badge/website-eudiplo-blue)](https://cre8.github.io/eudiplo/)
 [![Documentation Coverage](https://cre8.github.io/eudiplo/compodoc/images/coverage-badge-documentation.svg)](https://cre8.github.io/eudiplo/compodoc/coverage.html)
