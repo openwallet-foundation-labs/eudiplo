@@ -1,160 +1,101 @@
-import { existsSync, mkdirSync, rmSync, createWriteStream } from 'fs';
-import { Readable } from 'stream';
-import { GenericContainer, Wait } from 'testcontainers';
-import { afterAll, beforeAll, expect, test } from 'vitest';
-import axios, { AxiosInstance } from 'axios';
-import { join } from 'path';
+import { beforeAll, describe, expect, test } from 'vitest';
 import { Openid4vciClient } from '@openid4vc/openid4vci';
 import { callbacks, getSignJwtCallback } from './utils';
 import { exportJWK, generateKeyPair } from 'jose';
 import { Jwk, clientAuthenticationAnonymous } from '@openid4vc/oauth2';
+import { Test, TestingModule } from '@nestjs/testing';
+import { AppModule } from 'src/app.module';
+import { INestApplication } from '@nestjs/common';
+import { App } from 'supertest/types';
+import request from 'supertest';
 
-let container: Awaited<ReturnType<typeof startContainer>>;
+describe('EUDIPLO E2E Tests', () => {
+    let app: INestApplication<App>;
 
-export const AUTH_API_KEY = '1234';
-let PUBLIC_URL = 'https://localhost:3000';
+    beforeAll(async () => {
+        const moduleFixture: TestingModule = await Test.createTestingModule({
+            imports: [AppModule],
+        }).compile();
 
-let axiosInstance: AxiosInstance;
-
-/**
- * Writes the logs to a file
- * @param fileName
- * @param stream
- */
-export function saveLogs(fileName: string, stream: Readable) {
-    const logFolder = './logs';
-    if (!existsSync(logFolder)) {
-        mkdirSync(logFolder, { recursive: true });
-    }
-    const filePath = `${logFolder}/${fileName}.log`;
-    if (existsSync(filePath)) {
-        rmSync(filePath);
-    }
-    const writeStream = createWriteStream(filePath, {
-        flags: 'a',
+        app = moduleFixture.createNestApplication();
+        await app.init();
     });
-    stream.pipe(writeStream);
-}
 
-/**
- * Pipes a readable stream directly to stdout
- * @param stream
- */
-export function pipeToConsole(stream: Readable) {
-    stream.pipe(process.stdout);
-}
-
-async function startContainer() {
-    return await new GenericContainer('ghcr.io/cre8/eudiplo:latest')
-        .withExposedPorts(3000)
-        .withEnvironment({
-            PUBLIC_URL,
-            AUTH_API_KEY,
-            RP_NAME: 'EUDIPLO',
-        })
-        .withWaitStrategy(Wait.forHttp('/health', 3000).forStatusCode(200))
-        .withLogConsumer((stream) => saveLogs('eudiplo', stream))
-        .withBindMounts([
-            {
-                source: join(__dirname, '..', 'assets'),
-                target: '/app/config',
-            },
-        ])
-        .start();
-}
-
-beforeAll(async () => {
-    //when dev is set, it will not start the container but test against a running instance like `pnpm run start:dev`
-    if (!process.env.LOCAL) {
-        console.log('Starting EUDIPLO container...');
-        container = await startContainer();
-        PUBLIC_URL = `http://localhost:${container.getMappedPort(3000)}`;
-    }
-    axiosInstance = axios.create({
-        headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': AUTH_API_KEY,
-        },
-        validateStatus: (status) => status >= 200 && status < 300,
+    test('GET / returns EUDIPLO', async () => {
+        return request(app.getHttpServer())
+            .get('/')
+            .expect(200)
+            .expect('Content-Type', /text\/html/)
+            .expect((res) => {
+                expect(res.text).toContain('EUDIPLO');
+            });
     });
-});
 
-afterAll(async () => {
-    if (!process.env.LOCAL) {
-        await container.stop();
-    }
-});
+    test('create oid4vci offer', async () => {
+        const res = await request(app.getHttpServer())
+            .post('/vci/offer')
+            .set('x-api-key', '1234')
+            .send({
+                response_type: 'uri',
+                credentialConfigurationIds: ['pid'],
+            })
+            .expect(201);
 
-test('GET / returns EUDIPLO', async () => {
-    const response = await axios
-        .get<string>(PUBLIC_URL)
-        .then((res) => res.data);
-    expect(response).toContain('EUDIPLO');
-});
+        expect(res.body).toBeDefined();
+        const session = res.body.session;
 
-test('create oid4vci offer', async () => {
-    const res = await axiosInstance
-        .post<{ session: string }>(`${PUBLIC_URL}/vci/offer`, {
-            response_type: 'uri',
-            credentialConfigurationIds: ['pid'],
-        })
-        .then(
-            (res) => res.data,
-            (error) => {
-                console.error('Error creating oid4vci offer:', error);
-                throw error;
-            },
-        );
-    expect(res).toBeDefined();
-    const session = res.session;
-
-    //check if the session exists
-    await axiosInstance.get(`${PUBLIC_URL}/session/${session}`).then((res) => {
-        expect(res.status).toBe(200);
-        expect(res.data.id).toBe(session);
+        //check if the session exists
+        await request(app.getHttpServer())
+            .get(`/session/${session}`)
+            .set('x-api-key', '1234')
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.id).toBe(session);
+            });
     });
-});
 
-test('ask for an invalid oid4vci offer', async () => {
-    await axiosInstance
-        .post(`${PUBLIC_URL}/vci/offer`, {
-            response_type: 'uri',
-            credentialConfigurationIds: ['invalid'],
-        })
-        .then(
-            () => {
-                throw new Error('Expected request to fail');
-            },
-            (error) => {
-                expect(error.response.status).toBe(409);
-                expect(error.response.data.message).toContain(
+    test('ask for an invalid oid4vci offer', async () => {
+        await request(app.getHttpServer())
+            .post('/vci/offer')
+            .set('x-api-key', '1234')
+            .send({
+                response_type: 'uri',
+                credentialConfigurationIds: ['invalid'],
+            })
+            .expect(409)
+            .expect((res) => {
+                expect(res.body.message).toContain(
                     'Invalid credential configuration ID',
                 );
-            },
-        );
-});
-
-test('get credential from oid4vci offer', async () => {
-    const offer = await axiosInstance
-        .post<{ session: string; uri: string }>(`${PUBLIC_URL}/vci/offer`, {
-            response_type: 'uri',
-            credentialConfigurationIds: ['pid'],
-        })
-        .then((res) => res.data.uri);
-
-    const holderPrivateKeyJwk = await generateKeyPair('ES256', {
-        extractable: true,
-    }).then((keyPair) => exportJWK(keyPair.privateKey));
-
-    const client = new Openid4vciClient({
-        callbacks: {
-            ...callbacks,
-            fetch,
-            clientAuthentication: clientAuthenticationAnonymous(),
-            signJwt: getSignJwtCallback([holderPrivateKeyJwk as Jwk]),
-        },
+            });
     });
-    const resolvedOffer = await client.resolveCredentialOffer(offer);
 
-    console.log(resolvedOffer);
+    test('get credential from oid4vci offer', async () => {
+        const offerResponse = await request(app.getHttpServer())
+            .post('/vci/offer')
+            .set('x-api-key', '1234')
+            .send({
+                response_type: 'uri',
+                credentialConfigurationIds: ['pid'],
+            })
+            .expect(201);
+
+        const offer = offerResponse.body.uri;
+
+        const holderPrivateKeyJwk = await generateKeyPair('ES256', {
+            extractable: true,
+        }).then((keyPair) => exportJWK(keyPair.privateKey));
+
+        const client = new Openid4vciClient({
+            callbacks: {
+                ...callbacks,
+                fetch,
+                clientAuthentication: clientAuthenticationAnonymous(),
+                signJwt: getSignJwtCallback([holderPrivateKeyJwk as Jwk]),
+            },
+        });
+        const resolvedOffer = await client.resolveCredentialOffer(offer);
+
+        console.log(resolvedOffer);
+    });
 });
