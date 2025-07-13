@@ -38,7 +38,6 @@ export class Oid4vciService implements OnModuleInit {
     ) {}
     onModuleInit() {
         this.issuer = new Openid4vciIssuer({
-            //@ts-expect-error: callbacks are not typed yet
             callbacks: this.cryptoService.callbacks,
         });
         this.resourceServer = new Oauth2ResourceServer({

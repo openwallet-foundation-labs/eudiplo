@@ -85,7 +85,7 @@ export class AuthorizeService implements OnModuleInit {
         res.redirect(`${values.redirect_uri}?code=${code}`);
     }
 
-    async validateTokenRequest(body: any, req: Request) {
+    async validateTokenRequest(body: any, req: Request): Promise<any> {
         const url = `${this.configService.getOrThrow<string>('PUBLIC_URL')}${req.url}`;
 
         const parsedAccessTokenRequest =
@@ -106,27 +106,26 @@ export class AuthorizeService implements OnModuleInit {
             throw new ConflictException('Authorization code not found');
         }
 
-        const valid =
-            await this.authorizationServer.verifyAuthorizationCodeAccessTokenRequest(
-                {
-                    grant: parsedAccessTokenRequest.grant as ParsedAccessTokenAuthorizationCodeRequestGrant,
-                    accessTokenRequest:
-                        parsedAccessTokenRequest.accessTokenRequest,
-                    expectedCode: session.authorization_code as string,
-                    request: {
-                        method: req.method as HttpMethod,
-                        url,
-                        headers: getHeadersFromRequest(req),
-                    },
-                    dpop: {
-                        required: true,
-                        allowedSigningAlgs:
-                            this.authzMetadata()
-                                .dpop_signing_alg_values_supported,
-                        jwt: parsedAccessTokenRequest.dpopJwt,
-                    },
+        //TODO: handle response
+        await this.authorizationServer.verifyAuthorizationCodeAccessTokenRequest(
+            {
+                grant: parsedAccessTokenRequest.grant as ParsedAccessTokenAuthorizationCodeRequestGrant,
+                accessTokenRequest: parsedAccessTokenRequest.accessTokenRequest,
+                expectedCode: session.authorization_code as string,
+                request: {
+                    method: req.method as HttpMethod,
+                    url,
+                    headers: getHeadersFromRequest(req),
                 },
-            );
+                dpop: {
+                    required: true,
+                    allowedSigningAlgs:
+                        this.authzMetadata().dpop_signing_alg_values_supported,
+                    jwt: parsedAccessTokenRequest.dpop?.jwt,
+                },
+                authorizationServerMetadata: this.authzMetadata(),
+            },
+        );
 
         const cNonce = randomUUID();
         return this.authorizationServer.createAccessTokenResponse({
@@ -144,7 +143,6 @@ export class AuthorizeService implements OnModuleInit {
             cNonce,
             cNonceExpiresIn: 100,
             clientId: 'wallet', // must be same as the client attestation
-            dpopJwk: valid.dpopJwk,
             additionalAccessTokenPayload: {
                 nonce: cNonce,
             },

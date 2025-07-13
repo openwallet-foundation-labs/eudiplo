@@ -7,7 +7,7 @@ import { join } from 'path';
 import { Openid4vciClient } from '@openid4vc/openid4vci';
 import { callbacks, getSignJwtCallback } from './utils';
 import { exportJWK, generateKeyPair } from 'jose';
-import { Jwk } from '@openid4vc/oauth2';
+import { Jwk, clientAuthenticationAnonymous } from '@openid4vc/oauth2';
 
 let container: Awaited<ReturnType<typeof startContainer>>;
 
@@ -144,15 +144,11 @@ test('get credential from oid4vci offer', async () => {
         callbacks: {
             ...callbacks,
             fetch,
-            //@ts-ignore
+            clientAuthentication: clientAuthenticationAnonymous(),
             signJwt: getSignJwtCallback([holderPrivateKeyJwk as Jwk]),
         },
     });
     const resolvedOffer = await client.resolveCredentialOffer(offer);
 
     console.log(resolvedOffer);
-
-    const issuerMetadata = await client.resolveIssuerMetadata(
-        resolvedOffer.credential_issuer,
-    );
 });

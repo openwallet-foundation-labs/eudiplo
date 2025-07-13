@@ -75,13 +75,15 @@ export class CryptoService implements OnModuleInit {
     }
 
     // Callbacks object similar to your utils
-    callbacks: CallbackContext = {
+    callbacks: Omit<CallbackContext, 'encryptJwe' | 'decryptJwe'> = {
         hash: (data, alg) =>
             createHash(alg.replace('-', '').toLowerCase())
                 .update(data)
                 .digest(),
         generateRandom: (bytes) => randomBytes(bytes),
-        clientAuthentication: clientAuthenticationNone(),
+        clientAuthentication: clientAuthenticationNone({
+            clientId: 'some-random',
+        }),
         //clientId: 'some-random-client-id', // TODO: Replace with your real clientId if necessary
         signJwt: this.getSignJwtCallback(),
         verifyJwt: async (signer, { compact, payload }) => {
