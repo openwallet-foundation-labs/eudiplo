@@ -1,4 +1,4 @@
-import { IsObject, IsString } from 'class-validator';
+import { IsObject, IsOptional, IsString } from 'class-validator';
 import { RegistrationCertificateCreation } from '../../../registrar/generated';
 import { WebhookConfig } from 'src/utils/webhook.dto';
 
@@ -16,6 +16,9 @@ export class RegistrationCertificateRequest {
 }
 
 export class VPRequest {
+    @IsString()
+    @IsOptional()
+    '$schema'?: string;
     /**
      * Unique identifier for the VP request.
      */

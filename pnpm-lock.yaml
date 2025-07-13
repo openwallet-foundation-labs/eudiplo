@@ -50,6 +50,9 @@ importers:
       '@openid4vc/openid4vp':
         specifier: 0.3.0-alpha-20250602121005
         version: 0.3.0-alpha-20250602121005
+      '@openid4vc/utils':
+        specifier: ^0.2.0
+        version: 0.2.0(typescript@5.8.3)
       '@sd-jwt/crypto-nodejs':
         specifier: ^0.14.0
         version: 0.14.0
