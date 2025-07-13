@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, OnModuleInit } from '@nestjs/common';
 import { digest, ES256 } from '@sd-jwt/crypto-nodejs';
 import { SDJwtVcInstance } from '@sd-jwt/sd-jwt-vc';
 import { KbVerifier, Verifier } from '@sd-jwt/types';
@@ -27,7 +27,7 @@ export interface AuthResponse {
 }
 
 @Injectable()
-export class PresentationsService {
+export class PresentationsService implements OnModuleInit {
     sdjwtInstance: SDJwtVcInstance;
     private folder: string;
 
@@ -35,13 +35,15 @@ export class PresentationsService {
         private httpService: HttpService,
         private resolverService: ResolverService,
         private configService: ConfigService,
-    ) {
+    ) {}
+    onModuleInit() {
         this.sdjwtInstance = new SDJwtVcInstance({
             hasher: digest,
             verifier: this.verifier.bind(this),
             kbVerifier: this.kbVerifier.bind(this),
             statusListFetcher: this.statusListFetcher.bind(this),
         });
+        this.httpService.get('');
         this.folder = join(
             this.configService.getOrThrow<string>('FOLDER'),
             'presentation',

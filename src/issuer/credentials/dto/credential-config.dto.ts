@@ -28,6 +28,9 @@ export class PresentationDuringIssuance {
 }
 export class CredentialConfig {
     @IsString()
+    @IsOptional()
+    '$schema'?: string;
+    @IsString()
     id: string;
     @IsObject()
     config: CredentialConfigurationSupported;

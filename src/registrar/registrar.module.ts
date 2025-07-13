@@ -6,10 +6,6 @@ import { PresentationsModule } from '../verifier/presentations/presentations.mod
 
 export const REGISTRAR_VALIDATION_SCHEMA = {
     REGISTRAR_URL: Joi.string(),
-    REGISTRAR_RP_NAME: Joi.string().when('REGISTRAR_URL', {
-        is: Joi.exist(),
-        then: Joi.required(),
-    }),
     KEYCLOAK_REALM: Joi.string().when('REGISTRAR_URL', {
         is: Joi.exist(),
         then: Joi.required(),

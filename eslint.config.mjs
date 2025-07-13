@@ -8,7 +8,7 @@ export default tseslint.config(
     {
         ignores: [
             'eslint.config.mjs',
-            'src/registrar/generated/types.gen.ts',
+            'src/registrar/generated/*',
             'test/webhook/.wrangler/*',
             'test/webhook/node_modules/*',
         ],
@@ -20,7 +20,6 @@ export default tseslint.config(
         languageOptions: {
             globals: {
                 ...globals.node,
-                ...globals.jest,
             },
             sourceType: 'commonjs',
             parserOptions: {

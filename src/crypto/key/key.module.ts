@@ -46,7 +46,6 @@ export class KeyModule {
                         const kmType = configService.get<'vault' | 'file'>(
                             'KM_TYPE',
                         );
-
                         if (kmType === 'vault') {
                             return new VaultKeyService(
                                 httpService,

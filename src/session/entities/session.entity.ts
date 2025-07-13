@@ -11,13 +11,13 @@ export class Session {
     id: string;
     @Column('json', { nullable: true })
     credentials?: VerificationResult[];
-    @Column({ nullable: true })
+    @Column('varchar', { nullable: true })
     authorization_code?: string;
-    @Column({ nullable: true })
+    @Column('varchar', { nullable: true })
     request_uri?: string;
     @Column('json', { nullable: true })
     auth_queries?: AuthorizeQueries;
-    @Column({ nullable: true })
+    @Column('varchar', { nullable: true })
     vp_nonce?: string;
     @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date;

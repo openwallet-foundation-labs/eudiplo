@@ -1,0 +1,7 @@
+onlyBuiltDependencies:
+  - '@compodoc/compodoc'
+  - '@nestjs/core'
+  - '@scarf/scarf'
+  - '@swc/core'
+  - esbuild
+  - sqlite3

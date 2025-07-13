@@ -28,6 +28,7 @@ import { AUTH_VALIDATION_SCHEMA, AuthModule } from './auth/auth.module';
         ConfigModule.forRoot({
             validationSchema: Joi.object({
                 FOLDER: Joi.string().default('./assets'),
+                RP_NAME: Joi.string().default('EUDIPLO'),
                 ...AUTH_VALIDATION_SCHEMA,
                 ...REGISTRAR_VALIDATION_SCHEMA,
                 ...KEY_VALIDATION_SCHEMA,

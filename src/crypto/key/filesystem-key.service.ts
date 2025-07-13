@@ -103,7 +103,7 @@ export class FileSystemKeyService implements KeyService {
                 `openssl req -new -x509 \
         -key ${join(folder, this.privateKeyPath)} \
         -out ${join(folder, 'signing-certificate.pem')} \
-        -subj "/CN=${this.configService.getOrThrow<string>('REGISTRAR_RP_NAME')}" \
+        -subj "/CN=${this.configService.getOrThrow<string>('RP_NAME')}" \
         -addext "subjectAltName=URI:${this.configService.getOrThrow<string>('PUBLIC_URL')}"`,
             );
         }

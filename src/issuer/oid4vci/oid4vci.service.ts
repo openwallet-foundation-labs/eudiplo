@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
     type HttpMethod,
@@ -24,7 +24,7 @@ import { v4 } from 'uuid';
 import { OfferRequest, OfferResponse } from './dto/offer-request.dto';
 
 @Injectable()
-export class Oid4vciService {
+export class Oid4vciService implements OnModuleInit {
     private issuer: Openid4vciIssuer;
 
     resourceServer: Oauth2ResourceServer;
@@ -35,9 +35,9 @@ export class Oid4vciService {
         public readonly credentialsService: CredentialsService,
         private readonly configService: ConfigService,
         private readonly sessionService: SessionService,
-    ) {
+    ) {}
+    onModuleInit() {
         this.issuer = new Openid4vciIssuer({
-            //@ts-expect-error: callbacks are not typed yet
             callbacks: this.cryptoService.callbacks,
         });
         this.resourceServer = new Oauth2ResourceServer({

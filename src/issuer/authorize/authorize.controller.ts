@@ -59,7 +59,7 @@ export class AuthorizeController {
      * @returns
      */
     @Post('token')
-    async token(@Body() body: any, @Req() req: Request) {
+    async token(@Body() body: any, @Req() req: Request): Promise<any> {
         //TODO: define body
         return this.authorizeService.validateTokenRequest(body, req);
     }

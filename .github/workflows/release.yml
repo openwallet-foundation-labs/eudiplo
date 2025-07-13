@@ -3,36 +3,24 @@ name: Version release
 # Configures this workflow to run every time a change is pushed to the branch called `release`.
 on:
     workflow_dispatch:
-
-permissions:
-    contents: read
-    pages: write
-    id-token: write
-
-# There is a single job in this workflow. It's configured to run on the latest available version of Ubuntu.
 jobs:
     build-and-push-image:
         runs-on: ubuntu-latest
-        # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
         permissions:
             contents: write
             packages: write
-            issues: write
             pull-requests: write
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
 
-            - uses: pnpm/action-setup@v4
-
-            - name: Set up Node.js
+            - name: Set up Node.js with pnpm
               uses: actions/setup-node@v4
               with:
                   node-version: 22
-                  cache: 'pnpm'
 
-            - name: Install pnpm
-              run: npm install -g pnpm
+            - name: Enable pnpm
+              run: corepack enable
 
             - name: Install dependencies
               run: pnpm install
@@ -45,6 +33,10 @@ jobs:
               run: npx semantic-release
 
     docs:
+        permissions:
+            contents: read
+            pages: write
+            id-token: write
         environment:
             name: github-pages
             url: ${{ steps.deployment.outputs.page_url }}
@@ -53,41 +45,40 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v4
 
-            - uses: pnpm/action-setup@v4
-
-            - name: Set up Node.js
+            - name: Set up Node.js with pnpm
               uses: actions/setup-node@v4
               with:
                   node-version: 22
                   cache: 'pnpm'
 
-            - name: Install pnpm
-              run: npm install -g pnpm
+            - name: Enable corepack
+              run: corepack enable
 
             - name: Install dependencies
               run: pnpm install
 
-            - name: Set env
-              run: |
-                  cp .env.example .env
+            - name: Set environment variables
+              run: cp .env.example .env
 
             - name: Set up Python
               uses: actions/setup-python@v5
               with:
                   python-version: '3.11'
 
-            - name: Build documentation
-              run: |
-                  python3 -m pip install -r requirements.txt
-                  pnpm run doc:build
+            - name: Install Python dependencies
+              run: pip install -r requirements.txt
 
-            - name: Setup Pages
+            - name: Build documentation
+              run: pnpm run doc:build
+
+            - name: Setup GitHub Pages
               uses: actions/configure-pages@v5
+
             - name: Upload artifact
               uses: actions/upload-pages-artifact@v3
               with:
-                  # Upload entire repository
                   path: './site'
+
             - name: Deploy to GitHub Pages
               id: deployment
               uses: actions/deploy-pages@v4

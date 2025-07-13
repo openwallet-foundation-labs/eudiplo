@@ -122,5 +122,6 @@ nav:
     - api/index.md
   - Development:
       - development/index.md
+      - Versioning: development/versioning.md
       - Contributing Guide: development/contributing.md      
       - Testing: development/testing.md
