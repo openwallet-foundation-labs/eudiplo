@@ -113,6 +113,11 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
+            - name: Add entry to /etc/hosts
+              run:
+                  echo "127.0.0.1       host.testcontainers.internal" | sudo tee
+                  -a /etc/hosts
+
             - name: Copy env file
               run: cp .env.example .env
 
