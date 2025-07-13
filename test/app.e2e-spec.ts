@@ -12,7 +12,7 @@ import { Jwk, clientAuthenticationAnonymous } from '@openid4vc/oauth2';
 let container: Awaited<ReturnType<typeof startContainer>>;
 
 export const AUTH_API_KEY = '1234';
-let PUBLIC_URL = 'http://localhost:3000';
+let PUBLIC_URL = 'https://localhost:3000';
 
 let axiosInstance: AxiosInstance;
 
@@ -98,7 +98,13 @@ test('create oid4vci offer', async () => {
             response_type: 'uri',
             credentialConfigurationIds: ['pid'],
         })
-        .then((res) => res.data);
+        .then(
+            (res) => res.data,
+            (error) => {
+                console.error('Error creating oid4vci offer:', error);
+                throw error;
+            },
+        );
     expect(res).toBeDefined();
     const session = res.session;
 
