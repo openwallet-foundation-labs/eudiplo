@@ -7,8 +7,10 @@ export default defineConfig({
         include: ['**/*.e2e-spec.ts'],
         globals: true,
         root: './',
-        reporters: ['junit'],
-        outputFile: './test-report.junit.xml',
+        reporters: [
+            'default',
+            ['junit', { outputFile: 'test-report.junit.xml' }],
+        ],
         coverage: {
             provider: 'v8',
             reporter: ['json'],
