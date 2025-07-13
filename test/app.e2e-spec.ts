@@ -94,8 +94,6 @@ describe('EUDIPLO E2E Tests', () => {
                 signJwt: getSignJwtCallback([holderPrivateKeyJwk as Jwk]),
             },
         });
-        const resolvedOffer = await client.resolveCredentialOffer(offer);
-
-        console.log(resolvedOffer);
+        await client.resolveCredentialOffer(offer);
     });
 });
