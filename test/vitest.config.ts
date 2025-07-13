@@ -1,14 +1,17 @@
 import swc from 'unplugin-swc';
 import { defineConfig } from 'vitest/config';
+import { codecovVitePlugin } from '@codecov/vite-plugin';
 
 export default defineConfig({
     test: {
         include: ['**/*.e2e-spec.ts'],
         globals: true,
         root: './',
+        reporters: ['junit'],
+        outputFile: './test-report.junit.xml',
         coverage: {
             provider: 'v8',
-            reporter: ['text', 'json', 'html'],
+            reporter: ['json'],
             reportsDirectory: './coverage-e2e',
             exclude: [
                 'node_modules/',
@@ -23,5 +26,12 @@ export default defineConfig({
             all: true,
         },
     },
-    plugins: [swc.vite()],
+    plugins: [
+        swc.vite(), // Put the Codecov vite plugin after all other plugins
+        codecovVitePlugin({
+            enableBundleAnalysis: process.env.CODECOV_TOKEN !== undefined,
+            bundleName: 'eudiplo',
+            uploadToken: process.env.CODECOV_TOKEN,
+        }),
+    ],
 });
