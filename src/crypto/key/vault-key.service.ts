@@ -41,7 +41,6 @@ export class VaultKeyService extends KeyService {
             },
         };
         this.keyId = this.configService.get<string>('VAULT_KEY_ID') as string;
-        console.log('loaded');
     }
 
     /**
