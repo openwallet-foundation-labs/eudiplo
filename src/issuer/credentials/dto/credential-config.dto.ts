@@ -1,7 +1,7 @@
 import { CredentialConfigurationSupported } from '@openid4vc/openid4vci';
 import { IsObject, IsOptional, IsString } from 'class-validator';
 import { SchemaResponse } from './schema-response.dto';
-import { WebhookConfig } from 'src/utils/webhook.dto';
+import { WebhookConfig } from '../../../utils/webhook.dto';
 
 export class VCT {
     @IsString()

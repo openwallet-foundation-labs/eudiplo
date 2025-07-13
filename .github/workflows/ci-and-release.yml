@@ -150,12 +150,21 @@ jobs:
             - name: Run E2E tests
               run: pnpm run test:e2e
 
-            - name: Upload E2E test logs
-              if: always()
-              uses: actions/upload-artifact@v4
+            - name: Upload coverage to Codecov
+              uses: codecov/codecov-action@v5
               with:
-                  name: e2e-logs
-                  path: logs/*.log
+                  token: ${{ secrets.CODECOV_TOKEN }}
+                  files: ./coverage-e2e/coverage-final.json
+                  flags: e2e-test
+                  name: codecov-umbrella
+                  fail_ci_if_error: false
+
+    #            - name: Upload E2E test logs
+    #              if: always()
+    #              uses: actions/upload-artifact@v4
+    #              with:
+    #                  name: e2e-logs
+    #                  path: logs/*.log
 
     docker-latest:
         name: Build & Push Docker Image

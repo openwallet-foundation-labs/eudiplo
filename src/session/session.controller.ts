@@ -1,6 +1,6 @@
 import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { ApiSecurity } from '@nestjs/swagger';
-import { ApiKeyGuard } from 'src/auth/api-key-guard';
+import { ApiKeyGuard } from '../auth/api-key-guard';
 import { SessionService } from './session.service';
 import { Session } from './entities/session.entity';
 
