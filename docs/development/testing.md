@@ -16,29 +16,21 @@ the `/test` folder. These tests are designed to verify the overall functionality
 of the application, including interactions with external services like the EUDI
 Wallet.
 
-To run the E2E tests, you need to build the application first:
-
-```bash
-docker compose build
-```
-
-Then, you can run the E2E tests using:
+The following command will run the E2E tests and also provide a coverage report:
 
 ```bash
 pnpm run test:e2e
 ```
 
-It will use [testcontainers](https://www.testcontainers.org/) to start a
-temporary instance of EUDIPLO and run the tests against it.
+It is also accessible via
+[codecov](https://app.codecov.io/github/cre8/eudiplo/tree/main).
 
-To test against an already running instance of EUDIPLO, you can run
+During writing E2E tests, you can use it in watch mode to automatically re-run
+tests on file changes:
 
 ```bash
-pnpm run test:e2e:dev
+pnpm run test:e2e:watch
 ```
-
-This will skip the container setup and makes testing faster. It will also run
-the test in watch mode, so you can see the results in real-time.
 
 ---
 
