@@ -4,6 +4,61 @@ EUDIPLO is designed to be robust and easy to test both in development and CI
 environments. This guide outlines how to run, write, and automate tests for the
 project.
 
+The current focus is on end-to-end (E2E) tests, which verify the overall
+functionality of the application.
+
+---
+
+## E2E Tests
+
+Right now EUDIPLO has only implemented end-to-end (E2E) tests that are stored in
+the `/test` folder. These tests are designed to verify the overall functionality
+of the application, including interactions with external services like the EUDI
+Wallet.
+
+To run the E2E tests, you need to build the application first:
+
+```bash
+docker compose build
+```
+
+Then, you can run the E2E tests using:
+
+```bash
+pnpm run test:e2e
+```
+
+It will use [testcontainers](https://www.testcontainers.org/) to start a
+temporary instance of EUDIPLO and run the tests against it.
+
+To test against an already running instance of EUDIPLO, you can run
+
+```bash
+pnpm run test:e2e:dev
+```
+
+This will skip the container setup and makes testing faster. It will also run
+the test in watch mode, so you can see the results in real-time.
+
+---
+
+## Linting
+
+Before pushing code, check linting rules and fix them:
+
+```bash
+pnpm run lint
+```
+
+---
+
+## GitHub Actions
+
+Tests run automatically on every push to `main` or pull request via GitHub
+Actions.
+
+You can find the workflow config in `.github/workflows/ci.yml`.
+
 ---
 
 ## Running Tests Locally
@@ -50,27 +105,6 @@ src/
 ```
 
 Use `.spec.ts` naming to ensure Vitest picks up the test files automatically.
-
----
-
-## Linting
-
-Before pushing code, check linting rules and fix them:
-
-```bash
-pnpm run lint
-```
-
----
-
-## GitHub Actions
-
-Tests run automatically on every push to `main` or pull request via GitHub
-Actions.
-
-You can find the workflow config in `.github/workflows/ci.yml`.
-
----
 
 ## 💡 Tips
 
