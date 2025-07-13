@@ -45,7 +45,11 @@ async function startContainer() {
         })
         .withWaitStrategy(Wait.forHttp('/health', 3000).forStatusCode(200))
         .withLogConsumer((stream) => saveLogs('eudiplo', stream))
-        .start();
+        .start()
+        .catch((err) => {
+            console.error('Error starting container:', err);
+            throw err;
+        });
 }
 
 beforeAll(async () => {
