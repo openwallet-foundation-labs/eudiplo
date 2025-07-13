@@ -14,7 +14,7 @@ import { SessionService } from '../../session/session.service';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { OfferResponse } from '../../issuer/oid4vci/dto/offer-request.dto';
-import { WebhookConfig } from 'src/utils/webhook.dto';
+import { WebhookConfig } from '../../utils/webhook.dto';
 
 export interface PresentationRequestOptions {
     session?: string;

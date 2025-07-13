@@ -1,6 +1,6 @@
 import { IsObject, IsOptional, IsString } from 'class-validator';
 import { RegistrationCertificateCreation } from '../../../registrar/generated';
-import { WebhookConfig } from 'src/utils/webhook.dto';
+import { WebhookConfig } from '../../../utils/webhook.dto';
 
 export class RegistrationCertificateRequest {
     /**

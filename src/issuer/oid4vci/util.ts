@@ -39,7 +39,7 @@ export function saveLogs(fileName: string, stream: Readable) {
     });
     stream.pipe(writeStream);
 }
-export async function startContainer() {
+export async function startContainer(PUBLIC_URL: string, AUTH_API_KEY: string) {
     return await new GenericContainer('ghcr.io/cre8/eudiplo:latest')
         .withExposedPorts(3000)
         .withEnvironment({

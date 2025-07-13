@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Header, Post, UseGuards } from '@nestjs/common';
 import { StatusListService } from './status-list.service';
 import { ApiSecurity, ApiTags } from '@nestjs/swagger';
-import { ApiKeyGuard } from 'src/auth/api-key-guard';
+import { ApiKeyGuard } from '../../auth/api-key-guard';
 import { StatusUpdateDto } from './dto/status-update.dto';
 
 @ApiTags('status-management')

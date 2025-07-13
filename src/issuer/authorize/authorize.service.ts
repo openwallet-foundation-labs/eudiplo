@@ -16,7 +16,7 @@ import { AuthorizeQueries } from './dto/authorize-request.dto';
 import { Oid4vpService } from '../../verifier/oid4vp/oid4vp.service';
 import { SessionService } from '../../session/session.service';
 import { CredentialsService } from '../credentials/credentials.service';
-import { WebhookConfig } from 'src/utils/webhook.dto';
+import { WebhookConfig } from '../../utils/webhook.dto';
 
 export interface ParsedAccessTokenAuthorizationCodeRequestGrant {
     grantType: AuthorizationCodeGrantIdentifier;
