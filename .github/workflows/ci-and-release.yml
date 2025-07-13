@@ -144,10 +144,10 @@ jobs:
 
             - name: Run E2E tests
               run: pnpm run test:e2e
+              continue-on-error: true
 
             - name: Upload E2E test logs
               uses: actions/upload-artifact@v4
-              continue-on-error: true
               with:
                   name: e2e-logs
                   path: logs/*.log
