@@ -2,6 +2,7 @@
 ![License](https://img.shields.io/github/license/cre8/eudiplo)
 [![Website](https://img.shields.io/badge/website-eudiplo-blue)](https://cre8.github.io/eudiplo/)
 [![Documentation Coverage](https://cre8.github.io/eudiplo/compodoc/images/coverage-badge-documentation.svg)](https://cre8.github.io/eudiplo/compodoc/coverage.html)
+[![codecov](https://codecov.io/github/cre8/eudiplo/graph/badge.svg?token=pt4TLHJYrO)](https://codecov.io/github/cre8/eudiplo)
 
 # EUDIPLO
 

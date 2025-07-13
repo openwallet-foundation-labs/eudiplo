@@ -62,6 +62,7 @@
         "uuid": "^11.1.0"
     },
     "devDependencies": {
+        "@codecov/vite-plugin": "^1.9.1",
         "@codedependant/semantic-release-docker": "^5.1.1",
         "@compodoc/compodoc": "^1.1.26",
         "@eslint/eslintrc": "^3.3.1",

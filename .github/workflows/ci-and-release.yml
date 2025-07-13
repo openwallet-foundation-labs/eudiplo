@@ -159,12 +159,11 @@ jobs:
                   name: codecov-umbrella
                   fail_ci_if_error: false
 
-    #            - name: Upload E2E test logs
-    #              if: always()
-    #              uses: actions/upload-artifact@v4
-    #              with:
-    #                  name: e2e-logs
-    #                  path: logs/*.log
+            - name: Upload test results to Codecov
+              if: ${{ !cancelled() }}
+              uses: codecov/test-results-action@v1
+              with:
+                  token: ${{ secrets.CODECOV_TOKEN }}
 
     docker-latest:
         name: Build & Push Docker Image
