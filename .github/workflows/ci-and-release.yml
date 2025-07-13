@@ -154,24 +154,17 @@ jobs:
               uses: codecov/codecov-action@v5
               with:
                   token: ${{ secrets.CODECOV_TOKEN }}
-                  files: ./coverage/coverage-final.json
+                  files: ./coverage-e2e/coverage-final.json
                   flags: e2e-test
                   name: codecov-umbrella
                   fail_ci_if_error: false
 
-            - name: Upload coverage HTML reports
-              uses: actions/upload-artifact@v4
-              with:
-                  name: coverage-reports
-                  path: coverage/
-                  retention-days: 30
-
-            - name: Upload E2E test logs
-              if: always()
-              uses: actions/upload-artifact@v4
-              with:
-                  name: e2e-logs
-                  path: logs/*.log
+    #            - name: Upload E2E test logs
+    #              if: always()
+    #              uses: actions/upload-artifact@v4
+    #              with:
+    #                  name: e2e-logs
+    #                  path: logs/*.log
 
     docker-latest:
         name: Build & Push Docker Image
