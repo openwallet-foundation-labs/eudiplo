@@ -145,7 +145,7 @@ jobs:
               uses: docker/setup-buildx-action@v3
 
             - name: Build Docker image for local test use
-              run: docker build -t cre8/eudiplo:latest .
+              run: docker build -t ghcr.io/cre8/eudiplo:latest .
 
             - name: Run E2E tests
               run: pnpm run test:e2e
