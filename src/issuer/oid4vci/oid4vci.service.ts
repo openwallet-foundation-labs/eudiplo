@@ -41,7 +41,28 @@ export class Oid4vciService implements OnModuleInit {
             callbacks: this.cryptoService.callbacks,
         });
         this.resourceServer = new Oauth2ResourceServer({
-            callbacks: this.cryptoService.callbacks,
+            callbacks: {
+                ...this.cryptoService.callbacks,
+                fetch: () => {
+                    return this.cryptoService.getJwks().then(
+                        (jwk) =>
+                            // Mock fetch to return empty JSON response. Since we know the JWKs in this service, we do not need to fetch them from an external source.
+                            new Response(
+                                JSON.stringify({
+                                    keys: [jwk],
+                                }),
+                                {
+                                    status: 200,
+                                    statusText: 'OK',
+                                    headers: {
+                                        'Content-Type':
+                                            'application/jwk-set+json',
+                                    },
+                                },
+                            ),
+                    );
+                },
+            },
         });
     }
 

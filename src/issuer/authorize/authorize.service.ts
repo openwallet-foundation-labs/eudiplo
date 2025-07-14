@@ -145,6 +145,10 @@ export class AuthorizeService implements OnModuleInit {
             clientId: 'wallet', // must be same as the client attestation
             additionalAccessTokenPayload: {
                 nonce: cNonce,
+                //TODO: for some reason we need to add the cnf here to work with the test, but it was not required when using the wallet.
+                cnf: {
+                    jkt: 'fooo',
+                },
             },
         });
     }
