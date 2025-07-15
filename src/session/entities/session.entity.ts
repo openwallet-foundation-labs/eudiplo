@@ -1,9 +1,17 @@
-import { CredentialOfferObject } from '@openid4vc/openid4vci';
+import {
+    CredentialOfferObject,
+    NotificationEvent,
+} from '@openid4vc/openid4vci';
 import { VerificationResult } from '@sd-jwt/sd-jwt-vc';
 import { AuthorizeQueries } from '../../issuer/authorize/dto/authorize-request.dto';
 import { OfferRequest } from '../../issuer/oid4vci/dto/offer-request.dto';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { WebhookConfig } from '../../utils/webhook.dto';
+
+type Notification = {
+    id: string; // Unique identifier for the notification
+    event?: NotificationEvent; // Type of event that triggered the notification
+};
 
 @Entity()
 export class Session {
@@ -28,4 +36,6 @@ export class Session {
     // URL to send the response to, if provided
     @Column('json', { nullable: true })
     webhook?: WebhookConfig;
+    @Column('json', { default: '[]' })
+    notifications: Notification[];
 }

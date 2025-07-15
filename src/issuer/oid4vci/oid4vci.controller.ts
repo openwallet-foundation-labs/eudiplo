@@ -7,6 +7,7 @@ import { OfferRequest, OfferResponse } from './dto/offer-request.dto';
 import { ResponseType } from '../../verifier/oid4vp/dto/presentation-request.dto';
 import { ApiProduces, ApiResponse, ApiSecurity } from '@nestjs/swagger';
 import { ApiKeyGuard } from '../../auth/api-key-guard';
+import { NotificationRequestDto } from './dto/notification-request.dto';
 
 @Controller('vci')
 export class Oid4vciController {
@@ -74,10 +75,7 @@ export class Oid4vciController {
      * @returns
      */
     @Post('notification')
-    notifications(@Body() body: any) {
-        //TODO: not implemented in the wallet yet.
-        console.log('Notification received:');
-        console.log(body);
-        return [];
+    notifications(@Body() body: NotificationRequestDto, @Req() req: Request) {
+        return this.oid4vciService.handleNotification(req, body);
     }
 }

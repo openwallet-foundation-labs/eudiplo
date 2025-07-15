@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, OnModuleInit } from '@nestjs/common';
+import {
+    BadRequestException,
+    ConflictException,
+    Injectable,
+    OnModuleInit,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
     type HttpMethod,
@@ -22,6 +27,7 @@ import { join } from 'node:path';
 import { SessionService } from '../../session/session.service';
 import { v4 } from 'uuid';
 import { OfferRequest, OfferResponse } from './dto/offer-request.dto';
+import { NotificationRequestDto } from './dto/notification-request.dto';
 
 @Injectable()
 export class Oid4vciService implements OnModuleInit {
@@ -41,28 +47,7 @@ export class Oid4vciService implements OnModuleInit {
             callbacks: this.cryptoService.callbacks,
         });
         this.resourceServer = new Oauth2ResourceServer({
-            callbacks: {
-                ...this.cryptoService.callbacks,
-                fetch: () => {
-                    return this.cryptoService.getJwks().then(
-                        (jwk) =>
-                            // Mock fetch to return empty JSON response. Since we know the JWKs in this service, we do not need to fetch them from an external source.
-                            new Response(
-                                JSON.stringify({
-                                    keys: [jwk],
-                                }),
-                                {
-                                    status: 200,
-                                    statusText: 'OK',
-                                    headers: {
-                                        'Content-Type':
-                                            'application/jwk-set+json',
-                                    },
-                                },
-                            ),
-                    );
-                },
-            },
+            callbacks: this.cryptoService.callbacks,
         });
     }
 
@@ -189,11 +174,65 @@ export class Oid4vciService implements OnModuleInit {
             credentials.push(cred);
         }
 
+        const notificationId = v4();
+        session.notifications.push({
+            id: notificationId,
+        });
+        await this.sessionService.add(session.id, {
+            notifications: session.notifications,
+        });
+
         return this.issuer.createCredentialResponse({
             credentials,
             credentialRequest: parsedCredentialRequest,
             cNonce: tokenPayload.nonce as string,
             cNonceExpiresInSeconds: 3600,
+            //this should be stored in the session in case this endpoint is requested multiple times, but the response is differnt.
+            notificationId,
+        });
+    }
+
+    /**
+     * Store the notification in the session based on the notitification id.
+     * @param req
+     * @param body
+     */
+    async handleNotification(req: Request, body: NotificationRequestDto) {
+        const issuerMetadata = await this.issuerMetadata();
+        const headers = getHeadersFromRequest(req);
+        const { tokenPayload } =
+            await this.resourceServer.verifyResourceRequest({
+                authorizationServers: issuerMetadata.authorizationServers,
+                request: {
+                    url: `https://${req.host}${req.url}`,
+                    method: req.method as HttpMethod,
+                    headers,
+                },
+                resourceServer:
+                    issuerMetadata.credentialIssuer.credential_issuer,
+                allowedAuthenticationSchemes: [
+                    SupportedAuthenticationScheme.DPoP,
+                ],
+            });
+
+        const session = await this.sessionService.get(
+            tokenPayload.sub as string,
+        );
+        if (session === undefined) {
+            throw new BadRequestException('Session not found');
+        }
+        const index = session.notifications.findIndex(
+            (notification) => notification.id === body.notification_id,
+        );
+        if (index === -1) {
+            throw new BadRequestException('No notifications found in session');
+        }
+        session.notifications[index] = {
+            id: body.notification_id,
+            event: body.event,
+        };
+        await this.sessionService.add(session.id, {
+            notifications: session.notifications,
         });
     }
 }

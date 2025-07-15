@@ -107,25 +107,28 @@ export class AuthorizeService implements OnModuleInit {
         }
 
         //TODO: handle response
-        await this.authorizationServer.verifyAuthorizationCodeAccessTokenRequest(
-            {
-                grant: parsedAccessTokenRequest.grant as ParsedAccessTokenAuthorizationCodeRequestGrant,
-                accessTokenRequest: parsedAccessTokenRequest.accessTokenRequest,
-                expectedCode: session.authorization_code as string,
-                request: {
-                    method: req.method as HttpMethod,
-                    url,
-                    headers: getHeadersFromRequest(req),
+        const { dpop } =
+            await this.authorizationServer.verifyAuthorizationCodeAccessTokenRequest(
+                {
+                    grant: parsedAccessTokenRequest.grant as ParsedAccessTokenAuthorizationCodeRequestGrant,
+                    accessTokenRequest:
+                        parsedAccessTokenRequest.accessTokenRequest,
+                    expectedCode: session.authorization_code as string,
+                    request: {
+                        method: req.method as HttpMethod,
+                        url,
+                        headers: getHeadersFromRequest(req),
+                    },
+                    dpop: {
+                        required: true,
+                        allowedSigningAlgs:
+                            this.authzMetadata()
+                                .dpop_signing_alg_values_supported,
+                        jwt: parsedAccessTokenRequest.dpop?.jwt,
+                    },
+                    authorizationServerMetadata: this.authzMetadata(),
                 },
-                dpop: {
-                    required: true,
-                    allowedSigningAlgs:
-                        this.authzMetadata().dpop_signing_alg_values_supported,
-                    jwt: parsedAccessTokenRequest.dpop?.jwt,
-                },
-                authorizationServerMetadata: this.authzMetadata(),
-            },
-        );
+            );
 
         const cNonce = randomUUID();
         return this.authorizationServer.createAccessTokenResponse({
@@ -143,13 +146,7 @@ export class AuthorizeService implements OnModuleInit {
             cNonce,
             cNonceExpiresIn: 100,
             clientId: 'wallet', // must be same as the client attestation
-            additionalAccessTokenPayload: {
-                nonce: cNonce,
-                //TODO: for some reason we need to add the cnf here to work with the test, but it was not required when using the wallet.
-                cnf: {
-                    jkt: 'fooo',
-                },
-            },
+            dpop,
         });
     }
 

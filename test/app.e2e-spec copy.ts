@@ -12,7 +12,7 @@ import { Jwk, clientAuthenticationAnonymous } from '@openid4vc/oauth2';
 let container: Awaited<ReturnType<typeof startContainer>>;
 
 export const AUTH_API_KEY = '1234';
-let PUBLIC_URL = 'https://localhost:3000';
+let PUBLIC_URL = 'https://127.0.0.1:3000';
 
 let axiosInstance: AxiosInstance;
 

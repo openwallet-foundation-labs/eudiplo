@@ -3,12 +3,7 @@ import {
     extractScopesForCredentialConfigurationIds,
     Openid4vciClient,
 } from '@openid4vc/openid4vci';
-import {
-    callbacks,
-    createSupertestFetch,
-    getSignJwtCallback,
-    loggerMiddleware,
-} from './utils';
+import { callbacks, getSignJwtCallback } from './utils';
 import { exportJWK, generateKeyPair } from 'jose';
 import {
     Jwk,
@@ -21,7 +16,16 @@ import { INestApplication } from '@nestjs/common';
 import { App } from 'supertest/types';
 import request from 'supertest';
 import { ConfigService } from '@nestjs/config';
+import { readFileSync } from 'fs';
+import { fetch, setGlobalDispatcher, Agent } from 'undici';
 
+setGlobalDispatcher(
+    new Agent({
+        connect: {
+            rejectUnauthorized: false,
+        },
+    }),
+);
 describe('Issuance', () => {
     let app: INestApplication<App>;
     let authApiKey: string;
@@ -31,18 +35,26 @@ describe('Issuance', () => {
             imports: [AppModule],
         }).compile();
 
-        app = moduleFixture.createNestApplication();
+        app = moduleFixture.createNestApplication({
+            httpsOptions: {
+                key: readFileSync('test/cert/key.pem'),
+                cert: readFileSync('test/cert/cert.pem'),
+            },
+        });
 
         app.useLogger(['error', 'warn', 'log']);
-        app.use(loggerMiddleware);
+        // Uncomment the next line to enable logger middleware
+        //app.use(loggerMiddleware);
         const configService = app.get(ConfigService);
         authApiKey = configService.getOrThrow('AUTH_API_KEY');
         await app.init();
+        await app.listen(3000);
     });
 
     test('create oid4vci offer', async () => {
         const res = await request(app.getHttpServer())
             .post('/vci/offer')
+            .trustLocalhost()
             .set('x-api-key', authApiKey)
             .send({
                 response_type: 'uri',
@@ -56,6 +68,7 @@ describe('Issuance', () => {
         //check if the session exists
         await request(app.getHttpServer())
             .get(`/session/${session}`)
+            .trustLocalhost()
             .set('x-api-key', authApiKey)
             .expect(200)
             .expect((res) => {
@@ -66,6 +79,7 @@ describe('Issuance', () => {
     test('ask for an invalid oid4vci offer', async () => {
         await request(app.getHttpServer())
             .post('/vci/offer')
+            .trustLocalhost()
             .set('x-api-key', authApiKey)
             .send({
                 response_type: 'uri',
@@ -82,6 +96,7 @@ describe('Issuance', () => {
     test('get credential from oid4vci offer', async () => {
         const offerResponse = await request(app.getHttpServer())
             .post('/vci/offer')
+            .trustLocalhost()
             .set('x-api-key', authApiKey)
             .send({
                 response_type: 'uri',
@@ -98,7 +113,6 @@ describe('Issuance', () => {
         const client = new Openid4vciClient({
             callbacks: {
                 ...callbacks,
-                fetch: createSupertestFetch(app.getHttpServer()),
                 clientAuthentication: clientAuthenticationAnonymous(),
                 signJwt: getSignJwtCallback([holderPrivateKeyJwk as Jwk]),
             },
@@ -111,18 +125,12 @@ describe('Issuance', () => {
             credentialOffer.credential_issuer,
         );
 
-        const clientId = 'random-client-id';
-        const redirectUri = 'https://localhost:3000/callback';
+        const clientId = 'wallet';
+        const redirectUri = 'https://127.0.0.1:3000/callback';
+        //TODO: no real use for this yet, need to check: https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-authorization-endpoint
         const pkceCodeVerifier = 'random-code-verifier';
 
-        //get the auth server metadata
-        const auth = await client.initiateAuthorization({
-            clientId,
-            credentialOffer,
-            issuerMetadata,
-        });
-
-        const { authorizationRequestUrl, pkce, authorizationServer } =
+        const { authorizationRequestUrl, pkce } =
             await client.createAuthorizationRequestUrlFromOffer({
                 clientId,
                 issuerMetadata,
@@ -136,10 +144,9 @@ describe('Issuance', () => {
                 })?.join(' '),
             });
 
-        const fetcher = createSupertestFetch(app.getHttpServer());
-        const result = await fetcher(authorizationRequestUrl);
-        const redirect = result.headers.get('location');
-        const authorizationCode = new URL(redirect!).searchParams.get('code')!;
+        //get the authorization code, in this setup it will return a redirect with the URL
+        const result = await fetch(authorizationRequestUrl);
+        const authorizationCode = new URL(result.url).searchParams.get('code')!;
 
         const dpopSigner = {
             method: 'jwk',
@@ -152,7 +159,7 @@ describe('Issuance', () => {
                 issuerMetadata,
                 authorizationCode,
                 credentialOffer,
-                //pkceCodeVerifier: pkce?.codeVerifier,
+                pkceCodeVerifier: pkce?.codeVerifier,
                 dpop: {
                     nonce: 'random-nonce',
                     signer: dpopSigner,
@@ -187,5 +194,30 @@ describe('Issuance', () => {
                 jwt: proofJwt,
             },
         });
+        await client.sendNotification({
+            issuerMetadata,
+            notification: {
+                //from the credential response
+                notificationId:
+                    credentialResponse.credentialResponse.notification_id!,
+                event: 'credential_accepted',
+            },
+            accessToken: accessTokenResponse.access_token,
+            dpop: {
+                ...dpop,
+                signer: dpopSigner,
+            },
+        });
+        const session = await request(app.getHttpServer())
+            .get(`/session/${offerResponse.body.session}`)
+            .trustLocalhost()
+            .set('x-api-key', authApiKey);
+        const notificationObj = session.body.notifications.find(
+            (notification) =>
+                notification.id ===
+                credentialResponse.credentialResponse.notification_id,
+        );
+        expect(notificationObj).toBeDefined();
+        expect(notificationObj.event).toBe('credential_accepted');
     });
 });
