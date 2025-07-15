@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, test } from 'vitest';
+import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import {
     extractScopesForCredentialConfigurationIds,
     Openid4vciClient,
@@ -49,6 +49,10 @@ describe('Issuance', () => {
         authApiKey = configService.getOrThrow('AUTH_API_KEY');
         await app.init();
         await app.listen(3000);
+    });
+
+    afterAll(async () => {
+        await app.close();
     });
 
     test('create oid4vci offer', async () => {
