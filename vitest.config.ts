@@ -29,6 +29,10 @@ export default defineConfig({
                 },
             },
         },
+        sequence: {
+            // Run tests sequentially to avoid issues with shared state
+            concurrent: false,
+        },
     },
     plugins: [
         // This is required to build the test files with SWC
