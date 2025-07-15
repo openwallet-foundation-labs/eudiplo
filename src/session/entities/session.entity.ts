@@ -36,6 +36,6 @@ export class Session {
     // URL to send the response to, if provided
     @Column('json', { nullable: true })
     webhook?: WebhookConfig;
-    @Column('json', { default: '[]' })
+    @Column('json', { default: JSON.stringify([]) })
     notifications: Notification[];
 }

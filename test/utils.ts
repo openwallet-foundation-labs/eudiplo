@@ -1,4 +1,5 @@
 import { CallbackContext, Jwk, SignJwtCallback } from '@openid4vc/oauth2';
+import { NextFunction, Request } from 'express';
 import {
     calculateJwkThumbprint,
     importJWK,
@@ -89,7 +90,11 @@ export const getSignJwtCallback = (privateJwks: Jwk[]): SignJwtCallback => {
     };
 };
 
-export function loggerMiddleware(req, res, next) {
+export function loggerMiddleware(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) {
     console.log(`[${req.host}] ${req.originalUrl}`);
     if (req.body) {
         console.log(req.body);
