@@ -42,11 +42,14 @@ export class Oid4vpService {
             .replace('https://', '');
         const values =
             await this.presentationsService.getPresentationRequest(requestId);
-        const regCert = await this.registrarService.addRegistrationCertificate(
-            values.registrationCert,
-            values.dcql_query,
-            requestId,
-        );
+        let regCert: string | undefined = undefined;
+        if (this.registrarService.isEnabled()) {
+            regCert = await this.registrarService.addRegistrationCertificate(
+                values.registrationCert,
+                values.dcql_query,
+                requestId,
+            );
+        }
         if (!auth_session) {
             auth_session = v4();
             await this.sessionService.create({ id: auth_session });
@@ -95,12 +98,14 @@ export class Oid4vpService {
                 aud: 'https://' + host,
                 exp: Math.floor(Date.now() / 1000) + 60 * 5,
                 iat: Math.floor(new Date().getTime() / 1000),
-                verifier_attestations: [
-                    {
-                        format: 'jwt',
-                        data: regCert,
-                    },
-                ],
+                verifier_attestations: regCert
+                    ? [
+                          {
+                              format: 'jwt',
+                              data: regCert,
+                          },
+                      ]
+                    : undefined,
             },
             header: {
                 typ: 'oauth-authz-req+jwt',

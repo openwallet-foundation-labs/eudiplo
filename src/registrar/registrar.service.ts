@@ -69,6 +69,10 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         });
     }
 
+    isEnabled() {
+        return !!this.configService.get<string>('REGISTRAR_URL');
+    }
+
     /**
      * This function is called when the module is initialized.
      * It will refresh the access token and add the relying party and certificates to the registrar.
@@ -120,8 +124,8 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
             const config = this.loadConfig();
             config.id = response.data!['id'];
             this.saveConfig(config);
-            return response.data!['id'];
-        });
+            return response.data!['id'] as string;
+        }) as Promise<string>;
     }
 
     /**
@@ -183,8 +187,8 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
             this.cryptoService.storeAccessCertificate(res.data!['crt']);
             config.accessCertificateId = res.data!['id'];
             this.saveConfig(config);
-            return res.data!['id'];
-        });
+            return res.data!['id'] as string;
+        }) as Promise<string>;
     }
 
     /**
@@ -209,12 +213,13 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
                 },
             }).then((res) =>
                 res.data?.filter(
-                    (cert) => cert.revoked == null && cert.id === req.id,
+                    (cert) =>
+                        cert.revoked == null && cert.id === (req.id as string),
                 ),
             )) || [];
 
         if (certs?.length > 0) {
-            return certs[0].jwt;
+            return certs[0].jwt as string;
         }
 
         return registrationCertificateControllerRegister({
@@ -234,8 +239,8 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
 
             //TODO: write the ID to the config so its easier to use it. Easier than writing the comparison algorithm (any maybe someone wants to use a different one)
             this.presentationsService.storeRCID(res.data!['id'], requestId);
-            return res.data!['jwt'];
-        });
+            return res.data!['jwt'] as string;
+        }) as Promise<string>;
     }
 
     /**
