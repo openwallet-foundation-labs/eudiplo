@@ -1,5 +1,5 @@
 import { CallbackContext, Jwk, SignJwtCallback } from '@openid4vc/oauth2';
-import { decodeBase64, encodeToUtf8String } from '@openid4vc/utils';
+import { NextFunction, Request } from 'express';
 import {
     calculateJwkThumbprint,
     importJWK,
@@ -9,7 +9,7 @@ import {
 } from 'jose';
 import crypto from 'node:crypto';
 
-export const callbacks = {
+export const callbacks: any = {
     hash: (data, alg) =>
         crypto
             .createHash(alg.replace('-', '').toLowerCase())
@@ -21,15 +21,7 @@ export const callbacks = {
     }), */
     verifyJwt: async (signer, { compact, payload }) => {
         let jwk: Jwk;
-        if (signer.method === 'did') {
-            jwk = JSON.parse(
-                encodeToUtf8String(
-                    decodeBase64(
-                        signer.didUrl.split('#')[0].replace('did:jwk:', ''),
-                    ),
-                ),
-            );
-        } else if (signer.method === 'jwk') {
+        if (signer.method === 'jwk') {
             jwk = signer.publicJwk;
         } else {
             throw new Error('Signer method not supported');
@@ -58,21 +50,18 @@ export const callbacks = {
 export const getSignJwtCallback = (privateJwks: Jwk[]): SignJwtCallback => {
     return async (signer, { header, payload }) => {
         let jwk: Jwk;
-        if (signer.method === 'did') {
-            jwk = JSON.parse(
-                encodeToUtf8String(
-                    decodeBase64(
-                        signer.didUrl.split('#')[0].replace('did:jwk:', ''),
-                    ),
-                ),
-            );
-        } else if (signer.method === 'jwk') {
+        if (signer.method === 'jwk') {
             jwk = signer.publicJwk;
         } else {
             throw new Error('Signer method not supported');
         }
 
         const jwkThumprint = await calculateJwkThumbprint(jwk as JWK, 'sha256');
+
+        // add cnf
+        payload.cnf = {
+            jkt: jwkThumprint,
+        };
 
         const privateJwk = await Promise.all(
             privateJwks.map(async (jwk) =>
@@ -100,3 +89,15 @@ export const getSignJwtCallback = (privateJwks: Jwk[]): SignJwtCallback => {
         };
     };
 };
+
+export function loggerMiddleware(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) {
+    console.log(`[${req.host}] ${req.originalUrl}`);
+    if (req.body) {
+        console.log(req.body);
+    }
+    next();
+}

@@ -9,7 +9,7 @@ import { ApiBody } from '@nestjs/swagger';
 
 /**
  * Controller for the OpenID4VCI authorization endpoints.
- * This controller handles the authorization requests, token requests, and provides the JWKS.
+ * This controller handles the authorization requests, token requests.
  */
 @Controller('authorize')
 export class AuthorizeController {

@@ -13,7 +13,7 @@ export default defineConfig({
         ],
         coverage: {
             provider: 'v8',
-            reporter: ['json'],
+            reporter: ['json', 'html'],
             reportsDirectory: './coverage-e2e',
             exclude: [
                 'node_modules/',
