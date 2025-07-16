@@ -27,6 +27,8 @@ describe('Presentation', () => {
         configService.set('PUBLIC_URL', 'https://example.com'); // Set a test URL
         host = configService.getOrThrow('PUBLIC_URL');
         await app.init();
+
+        //TODO: tell the app to use the certificates in test/cert
     });
 
     test('create oid4vp offer', async () => {

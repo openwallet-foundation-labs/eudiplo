@@ -37,8 +37,8 @@ describe('Issuance', () => {
 
         app = moduleFixture.createNestApplication({
             httpsOptions: {
-                key: readFileSync('test/cert/key.pem'),
-                cert: readFileSync('test/cert/cert.pem'),
+                key: readFileSync('test/cert/private-key.pem'),
+                cert: readFileSync('test/cert/access-certificate.pem'),
             },
         });
 

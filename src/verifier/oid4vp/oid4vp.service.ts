@@ -112,10 +112,18 @@ export class Oid4vpService {
             },
         };
 
+        let accessCert: string[] | undefined = undefined;
+        try {
+            accessCert = this.cryptoService.getCertChain('access');
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (err: any) {
+            accessCert = this.cryptoService.getCertChain('signing');
+        }
+
         const header = {
             ...request.header,
             alg: 'ES256',
-            x5c: this.cryptoService.getCertChain('access'),
+            x5c: accessCert,
         };
 
         return this.cryptoService.signJwt(header, request.payload);

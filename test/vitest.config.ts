@@ -27,9 +27,7 @@ export default defineConfig({
             include: ['**/src/**/*.ts'],
             all: true,
         },
-        sequence: {
-            concurrent: false, // Run tests sequentially to avoid issues with shared state
-        },
+        fileParallelism: false,
     },
     plugins: [
         swc.vite(), // Put the Codecov vite plugin after all other plugins
