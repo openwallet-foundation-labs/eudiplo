@@ -48,7 +48,7 @@ describe('Presentation', () => {
 
     test('create oid4vp offer', async () => {
         const res = await request(app.getHttpServer())
-            .post('/oid4vp')
+            .post('/presentation-management/request')
             .trustLocalhost()
             .set('Authorization', `Bearer ${authToken}`)
             .send({
@@ -72,7 +72,7 @@ describe('Presentation', () => {
 
     test('ask for an invalid oid4vp offer', async () => {
         await request(app.getHttpServer())
-            .post('/oid4vp')
+            .post('/presentation-management/request')
             .trustLocalhost()
             .set('Authorization', `Bearer ${authToken}`)
             .send({
@@ -89,7 +89,7 @@ describe('Presentation', () => {
 
     test('present credential', async () => {
         const res = await request(app.getHttpServer())
-            .post('/oid4vp')
+            .post('/presentation-management/request')
             .trustLocalhost()
             .set('Authorization', `Bearer ${authToken}`)
             .send({

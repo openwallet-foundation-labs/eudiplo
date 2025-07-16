@@ -262,7 +262,8 @@ export class CryptoService implements OnModuleInit {
         return headers;
     }
 
-    getJwks() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    getJwks(_tenantId: string) {
         return this.keyService.getPublicKey('jwk') as Promise<EC_Public>;
     }
 }

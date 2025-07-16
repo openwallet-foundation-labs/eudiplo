@@ -47,8 +47,15 @@ export class SessionService implements OnApplicationBootstrap {
      * @param values
      * @returns
      */
-    add(issuer_state: string, values: QueryDeepPartialEntity<Session>) {
-        return this.sessionRepository.update({ id: issuer_state }, values);
+    add(
+        issuer_state: string,
+        tenantId: string,
+        values: QueryDeepPartialEntity<Session>,
+    ) {
+        return this.sessionRepository.update(
+            { id: issuer_state, tenantId },
+            values,
+        );
     }
 
     /**

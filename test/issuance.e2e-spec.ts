@@ -73,7 +73,7 @@ describe('Issuance', () => {
 
     test('create oid4vci offer', async () => {
         const res = await request(app.getHttpServer())
-            .post('/vci/offer')
+            .post('/issuer-management/offer')
             .trustLocalhost()
             .set('Authorization', `Bearer ${authToken}`)
             .send({
@@ -98,7 +98,7 @@ describe('Issuance', () => {
 
     test('ask for an invalid oid4vci offer', async () => {
         await request(app.getHttpServer())
-            .post('/vci/offer')
+            .post('/issuer-management/offer')
             .trustLocalhost()
             .set('Authorization', `Bearer ${authToken}`)
             .send({
@@ -115,7 +115,7 @@ describe('Issuance', () => {
 
     test('get credential from oid4vci offer', async () => {
         const offerResponse = await request(app.getHttpServer())
-            .post('/vci/offer')
+            .post('/issuer-management/offer')
             .trustLocalhost()
             .set('Authorization', `Bearer ${authToken}`)
             .send({

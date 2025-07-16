@@ -15,7 +15,6 @@ import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { OfferResponse } from '../../issuer/oid4vci/dto/offer-request.dto';
 import { WebhookConfig } from '../../utils/webhook.dto';
-import { TokenPayload } from '../../auth/token.decorator';
 
 export interface PresentationRequestOptions {
     session?: string;
@@ -36,33 +35,38 @@ export class Oid4vpService {
 
     async createAuthorizationRequest(
         requestId: string,
-        auth_session?: string,
+        tenantId: string,
+        auth_session: string,
     ): Promise<string> {
-        const host = this.configService
-            .getOrThrow<string>('PUBLIC_URL')
-            .replace('https://', '');
-        const values =
-            await this.presentationsService.getPresentationRequest(requestId);
+        const host = this.configService.getOrThrow<string>('PUBLIC_URL');
+
+        const values = await this.presentationsService.getPresentationConfig(
+            requestId,
+            tenantId,
+        );
         let regCert: string | undefined = undefined;
         if (this.registrarService.isEnabled()) {
             regCert = await this.registrarService.addRegistrationCertificate(
                 values.registrationCert,
                 values.dcql_query,
                 requestId,
+                tenantId,
             );
         }
-        if (!auth_session) {
+        /*         if (!auth_session) {
             auth_session = v4();
             await this.sessionService.create({ id: auth_session });
-        }
+        } */
         const nonce = randomUUID();
-        await this.sessionService.add(auth_session, { vp_nonce: nonce });
+        await this.sessionService.add(auth_session, tenantId, {
+            vp_nonce: nonce,
+        });
 
         const request = {
             payload: {
                 response_type: 'vp_token',
-                client_id: 'x509_san_dns:' + host,
-                response_uri: 'https://' + host + '/oid4vp/response',
+                client_id: 'x509_san_dns:' + host.replace('https://', ''),
+                response_uri: `${host}/${tenantId}/oid4vp/response`,
                 response_mode: 'direct_post.jwt',
                 nonce,
                 dcql_query: values.dcql_query,
@@ -133,20 +137,22 @@ export class Oid4vpService {
     async createRequest(
         requestId: string,
         values: PresentationRequestOptions,
-        user?: TokenPayload,
+        tenantId: string,
     ): Promise<OfferResponse> {
-        const vpRequest =
-            await this.presentationsService.getPresentationRequest(requestId);
+        const vpRequest = await this.presentationsService.getPresentationConfig(
+            requestId,
+            tenantId,
+        );
 
         if (!values.session) {
             values.session = v4();
             await this.sessionService.create({
                 id: values.session,
                 webhook: values.webhook ?? vpRequest.webhook,
-                user: user!.sub,
+                tenantId,
             });
         } else {
-            await this.sessionService.add(values.session, {
+            await this.sessionService.add(values.session, tenantId, {
                 webhook: values.webhook ?? vpRequest.webhook,
             });
         }
@@ -156,7 +162,7 @@ export class Oid4vpService {
             .replace('https://', '');
         const params = {
             client_id: `x509_san_dns:${host}`,
-            request_uri: `${this.configService.getOrThrow<string>('PUBLIC_URL')}/oid4vp/request/${requestId}/${values.session}`,
+            request_uri: `${this.configService.getOrThrow<string>('PUBLIC_URL')}/${tenantId}/oid4vp/request/${requestId}/${values.session}`,
         };
         const queryString = Object.entries(params)
             .map(
@@ -171,7 +177,7 @@ export class Oid4vpService {
         };
     }
 
-    async getResponse(body: AuthorizationResponse) {
+    async getResponse(body: AuthorizationResponse, tenantId: string) {
         const res = await this.encryptionService.decryptJwe<AuthResponse>(
             body.response,
         );
@@ -183,7 +189,7 @@ export class Oid4vpService {
             session.vp_nonce as string,
         );
         //tell the auth server the result of the session.
-        await this.sessionService.add(res.state, {
+        await this.sessionService.add(res.state, tenantId, {
             //TODO: not clear why it has to be any
             credentials: credentials as any,
         });
@@ -216,7 +222,7 @@ export class Oid4vpService {
                         session.credentialPayload!.values =
                             webhookResponse.data;
                         //store received webhook response
-                        await this.sessionService.add(res.state, {
+                        await this.sessionService.add(res.state, tenantId, {
                             credentialPayload: session.credentialPayload,
                         });
                     }

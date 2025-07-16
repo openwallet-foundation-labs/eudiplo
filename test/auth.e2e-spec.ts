@@ -66,13 +66,13 @@ describe('Authentication (e2e)', () => {
 
     test('should reject access without token', async () => {
         await request(app.getHttpServer())
-            .post('/vci/offer') // Protected endpoint
+            .get('/session') // Protected endpoint
             .expect(401);
     });
 
     test('should reject access with invalid token', async () => {
         await request(app.getHttpServer())
-            .post('/vci/offer') // Protected endpoint
+            .get('/session') // Protected endpoint
             .set('Authorization', 'Bearer invalid-token')
             .expect(401);
     });

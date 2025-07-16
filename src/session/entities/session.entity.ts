@@ -39,5 +39,5 @@ export class Session {
     @Column('json', { default: JSON.stringify([]) })
     notifications: Notification[];
     @Column('varchar')
-    user: string; // Client ID of the user who created the session
+    tenantId: string; // Tenant ID for multi-tenancy support
 }

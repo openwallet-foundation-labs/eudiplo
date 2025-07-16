@@ -5,12 +5,7 @@ import { ClientService } from './client.service';
 import { Public } from './public.decorator';
 import { ClientCredentialsDto } from './dto/client-credentials.dto';
 import { TokenPayload } from './token.decorator';
-
-export class TokenResponse {
-    access_token: string;
-    token_type: 'Bearer';
-    expires_in: string;
-}
+import { TokenResponse } from './dto/token-response.dto';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -29,6 +24,15 @@ export class AuthController {
     @Post('token')
     @ApiBody({
         type: ClientCredentialsDto,
+        examples: {
+            root: {
+                summary: 'Root demo values',
+                value: {
+                    client_id: 'root',
+                    client_secret: 'root',
+                },
+            },
+        },
     })
     @ApiResponse({
         status: 200,
@@ -61,7 +65,6 @@ export class AuthController {
 
         const payload: TokenPayload = {
             sub: client.id,
-            client_id: client.id,
         };
 
         const token = await this.jwtService.generateToken(payload, {

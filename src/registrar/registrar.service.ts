@@ -124,8 +124,8 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
             const config = this.loadConfig();
             config.id = response.data!['id'];
             this.saveConfig(config);
-            return response.data!['id'] as string;
-        }) as Promise<string>;
+            return response.data!['id'];
+        });
     }
 
     /**
@@ -187,8 +187,8 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
             this.cryptoService.storeAccessCertificate(res.data!['crt']);
             config.accessCertificateId = res.data!['id'];
             this.saveConfig(config);
-            return res.data!['id'] as string;
-        }) as Promise<string>;
+            return res.data!['id'];
+        });
     }
 
     /**
@@ -202,6 +202,7 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         //TODO: check if the dcql_query is covered by the registration certificate. If not, we need to throw an error since we do not know the new purpose for it.
         dcql_query: any,
         requestId: string,
+        tenantId: string,
     ) {
         const rp = this.loadConfig().id;
 
@@ -219,7 +220,7 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
             )) || [];
 
         if (certs?.length > 0) {
-            return certs[0].jwt as string;
+            return certs[0].jwt;
         }
 
         return registrationCertificateControllerRegister({
@@ -228,7 +229,7 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
                 rp,
             },
             body: req.body,
-        }).then((res) => {
+        }).then(async (res) => {
             if (res.error) {
                 console.error(
                     'Error adding registration certificate:',
@@ -238,9 +239,13 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
             }
 
             //TODO: write the ID to the config so its easier to use it. Easier than writing the comparison algorithm (any maybe someone wants to use a different one)
-            this.presentationsService.storeRCID(res.data!['id'], requestId);
-            return res.data!['jwt'] as string;
-        }) as Promise<string>;
+            await this.presentationsService.storeRCID(
+                res.data!['id'],
+                requestId,
+                tenantId,
+            );
+            return res.data!['jwt'];
+        });
     }
 
     /**

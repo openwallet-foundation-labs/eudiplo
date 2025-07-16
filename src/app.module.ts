@@ -22,7 +22,6 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { DatabaseModule } from './database/database.module';
 import { HealthModule } from './health/health.module';
 import { AUTH_VALIDATION_SCHEMA, AuthModule } from './auth/auth.module';
-import { JwtAuthGuard } from './auth/auth.guard';
 
 @Module({
     imports: [
@@ -68,5 +67,6 @@ import { JwtAuthGuard } from './auth/auth.guard';
         AuthModule,
     ],
     controllers: [WellKnownController, AppController],
+    providers: [],
 })
 export class AppModule {}

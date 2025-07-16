@@ -1,98 +1,10 @@
-import {
-    Body,
-    Controller,
-    Get,
-    Param,
-    Post,
-    Res,
-    UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { Oid4vpService } from './oid4vp.service';
-import * as QRCode from 'qrcode';
-import { Response } from 'express';
 import { AuthorizationResponse } from './dto/authorization-response.dto';
-import {
-    PresentationRequest,
-    ResponseType,
-} from './dto/presentation-request.dto';
-import {
-    ApiBody,
-    ApiProduces,
-    ApiResponse,
-    ApiSecurity,
-} from '@nestjs/swagger';
-import { OfferResponse } from '../../issuer/oid4vci/dto/offer-request.dto';
-import { JwtAuthGuard } from '../../auth/auth.guard';
-import { Token, TokenPayload } from './../../auth/token.decorator';
 
-@Controller('oid4vp')
+@Controller(':tenantId/oid4vp')
 export class Oid4vpController {
     constructor(private readonly oid4vpService: Oid4vpService) {}
-
-    /**
-     * Create an offer for a credential. This endpoint may be protected
-     * @param res
-     * @param body
-     */
-    @ApiResponse({
-        description: 'JSON response',
-        status: 201,
-        //TODO: do not use type, otherwhise the response can not deal with both JSON and PNG.
-        type: OfferResponse,
-        content: {
-            'application/json': { schema: { type: 'object' } },
-            'image/png': { schema: { type: 'string', format: 'binary' } },
-        },
-    })
-    @ApiProduces('application/json', 'image/png')
-    @UseGuards(JwtAuthGuard)
-    @ApiSecurity('bearer')
-    @ApiBody({
-        type: PresentationRequest,
-        examples: {
-            qrcode: {
-                summary: 'QR-Code Example',
-                value: {
-                    response_type: ResponseType.QRCode,
-                    requestId: 'pid',
-                },
-            },
-            uri: {
-                summary: 'URI',
-                value: {
-                    response_type: ResponseType.URI,
-                    requestId: 'pid',
-                },
-            },
-        },
-    })
-    @Post()
-    async getOffer(
-        @Res() res: Response,
-        @Body() body: PresentationRequest,
-        @Token() user: TokenPayload,
-    ) {
-        const values = await this.oid4vpService.createRequest(
-            body.requestId,
-            {
-                webhook: body.webhook,
-            },
-            user,
-        );
-        values.uri = `openid4vp://?${values.uri}`;
-        if (body.response_type === ResponseType.QRCode) {
-            // Generate QR code as a PNG buffer
-            const qrCodeBuffer = await QRCode.toBuffer(values.uri);
-
-            // Set the response content type to image/png
-            res.setHeader('Content-Type', 'image/png');
-
-            // Send the QR code image as the response
-            res.send(qrCodeBuffer);
-        } else {
-            res.send(values);
-        }
-    }
 
     /**
      * Returns the authorization request for a given requestId and session.
@@ -102,11 +14,13 @@ export class Oid4vpController {
      */
     @Get('request/:requestId/:session')
     getRequestWithSession(
+        @Param('tenantId') tenantId: string,
         @Param('requestId') requestId: string,
         @Param('session') session: string,
     ) {
         return this.oid4vpService.createAuthorizationRequest(
             requestId,
+            tenantId,
             session,
         );
     }
@@ -117,7 +31,10 @@ export class Oid4vpController {
      * @returns
      */
     @Post('response')
-    getResponse(@Body() body: AuthorizationResponse) {
-        return this.oid4vpService.getResponse(body);
+    getResponse(
+        @Body() body: AuthorizationResponse,
+        @Param('tenantId') tenantId: string,
+    ) {
+        return this.oid4vpService.getResponse(body, tenantId);
     }
 }

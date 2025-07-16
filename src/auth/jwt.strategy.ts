@@ -66,13 +66,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
         if (isMultiTenant) {
             // Multi-tenant: Extract user info from Keycloak token
-            return {
-                userId: payload.sub,
-                username: payload.preferred_username,
-                email: payload.email,
-                tenantId: payload.azp || payload.aud, // Client ID as tenant identifier
-                ...payload,
-            };
+            return payload;
         } else {
             // Single-tenant: Simple JWT validation
             return payload;

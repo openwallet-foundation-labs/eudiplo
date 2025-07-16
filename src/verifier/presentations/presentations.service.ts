@@ -6,18 +6,9 @@ import { KbVerifier, Verifier } from '@sd-jwt/types';
 import { importJWK, JWK, JWTPayload, jwtVerify } from 'jose';
 import { firstValueFrom } from 'rxjs';
 import { ResolverService } from '../resolver/resolver.service';
-import { ConfigService } from '@nestjs/config';
-import {
-    existsSync,
-    readdirSync,
-    readFileSync,
-    rmdirSync,
-    writeFileSync,
-} from 'node:fs';
-import { join, posix } from 'node:path';
-import { VPRequest } from './dto/vp-request.dto';
-import { plainToInstance } from 'class-transformer';
-import { validate } from 'class-validator';
+import { PresentationConfig } from './entities/presentation-config.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm/repository/Repository';
 
 export interface AuthResponse {
     vp_token: {
@@ -29,12 +20,12 @@ export interface AuthResponse {
 @Injectable()
 export class PresentationsService implements OnModuleInit {
     sdjwtInstance: SDJwtVcInstance;
-    private folder: string;
 
     constructor(
         private httpService: HttpService,
         private resolverService: ResolverService,
-        private configService: ConfigService,
+        @InjectRepository(PresentationConfig)
+        private vpRequestRepository: Repository<PresentationConfig>,
     ) {}
     onModuleInit() {
         this.sdjwtInstance = new SDJwtVcInstance({
@@ -43,42 +34,27 @@ export class PresentationsService implements OnModuleInit {
             kbVerifier: this.kbVerifier.bind(this),
             statusListFetcher: this.statusListFetcher.bind(this),
         });
-        this.httpService.get('');
-        this.folder = join(
-            this.configService.getOrThrow<string>('FOLDER'),
-            'presentation',
-        );
     }
 
-    getPresentations() {
-        const files = readdirSync(this.folder);
-        return Promise.all(
-            files.map((file) => {
-                const id = file.replace('.json', '');
-                return this.getPresentationRequest(id);
-            }),
-        );
+    getPresentationConfigs(tenantId: string): Promise<PresentationConfig[]> {
+        return this.vpRequestRepository.find({
+            where: { tenantId },
+            order: { createdAt: 'DESC' },
+        });
     }
 
-    storePresentationRequest(vprequest: VPRequest) {
-        const safeId = posix
-            .normalize(vprequest.id)
-            .replace(/^(\.\.(\/|\\|$))+/, '');
-        writeFileSync(
-            join(this.folder, `${safeId}.json`),
-            JSON.stringify(vprequest, null, 2),
-        );
+    storePresentationConfig(vprequest: PresentationConfig, tenantId: string) {
+        vprequest.tenantId = tenantId;
+        return this.vpRequestRepository.save(vprequest);
     }
 
-    deletePresentationRequest(id: string) {
-        const safeId = posix.normalize(id).replace(/^(\.\.(\/|\\|$))+/, '');
-        const filePath = join(this.folder, `${safeId}.json`);
-        if (!existsSync(filePath)) {
-            throw new ConflictException(
-                `Presentation request with id ${id} not found`,
-            );
-        }
-        rmdirSync(filePath, { recursive: true });
+    /**
+     * @param id
+     * @param tenantId
+     * @returns
+     */
+    deletePresentationConfig(id: string, tenantId: string) {
+        return this.vpRequestRepository.delete({ id, tenantId });
     }
 
     /**
@@ -86,45 +62,32 @@ export class PresentationsService implements OnModuleInit {
      * @param requestId
      * @returns
      */
-    async getPresentationRequest(requestId: string): Promise<VPRequest> {
-        const safeId = posix
-            .normalize(requestId)
-            .replace(/^(\.\.(\/|\\|$))+/, '');
-        if (!existsSync(join(this.folder, `${safeId}.json`))) {
-            throw new ConflictException(`Request ID ${requestId} not found`);
-        }
-        const payload = readFileSync(
-            join(this.folder, `${requestId}.json`),
-            'utf-8',
-        ).replace(
-            /<PUBLIC_URL>/g,
-            this.configService.getOrThrow<string>('PUBLIC_URL'),
-        );
-        const json = JSON.parse(payload);
-        json.id = requestId; // Ensure the ID is set correctly
-        const configInstance = plainToInstance(VPRequest, json);
-        const errors = await validate(configInstance, {
-            whitelist: true,
-            forbidNonWhitelisted: true,
-        });
-        if (errors.length > 0) {
-            throw new ConflictException(
-                `Invalid credential configuration in file ${requestId}: ${errors
-                    .map((error) => error.toString())
-                    .join(', ')}`,
-            );
-        }
-        return configInstance;
+    async getPresentationConfig(
+        id: string,
+        tenantId: string,
+    ): Promise<PresentationConfig> {
+        return this.vpRequestRepository
+            .findOneByOrFail({
+                id,
+                tenantId,
+            })
+            .catch(() => {
+                throw new ConflictException('Request ID invalid not found');
+            });
     }
 
-    public storeRCID(id: string, requestId: string) {
-        const safeId = posix
-            .normalize(requestId)
-            .replace(/^(\.\.(\/|\\|$))+/, '');
-        const file = join(this.folder, `${safeId}.json`);
-        const payload: VPRequest = JSON.parse(readFileSync(file, 'utf-8'));
-        payload.registrationCert.id = id;
-        writeFileSync(join(file), JSON.stringify(payload, null, 2));
+    /**
+     * Stores the new registration certificate.
+     * @param registrationCertId
+     * @param id
+     * @param tenantId
+     * @returns
+     */
+    public storeRCID(registrationCertId: string, id: string, tenantId: string) {
+        return this.vpRequestRepository.update(
+            { id, tenantId },
+            { registrationCert: { id: registrationCertId } },
+        );
     }
 
     /**
