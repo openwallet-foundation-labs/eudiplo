@@ -23,6 +23,7 @@ import {
 } from '@nestjs/swagger';
 import { OfferResponse } from '../../issuer/oid4vci/dto/offer-request.dto';
 import { JwtAuthGuard } from '../../auth/auth.guard';
+import { Token, TokenPayload } from './../../auth/token.decorator';
 
 @Controller('oid4vp')
 export class Oid4vpController {
@@ -45,7 +46,7 @@ export class Oid4vpController {
     })
     @ApiProduces('application/json', 'image/png')
     @UseGuards(JwtAuthGuard)
-    @ApiSecurity('jwt')
+    @ApiSecurity('bearer')
     @ApiBody({
         type: PresentationRequest,
         examples: {
@@ -66,10 +67,18 @@ export class Oid4vpController {
         },
     })
     @Post()
-    async getOffer(@Res() res: Response, @Body() body: PresentationRequest) {
-        const values = await this.oid4vpService.createRequest(body.requestId, {
-            webhook: body.webhook,
-        });
+    async getOffer(
+        @Res() res: Response,
+        @Body() body: PresentationRequest,
+        @Token() user: TokenPayload,
+    ) {
+        const values = await this.oid4vpService.createRequest(
+            body.requestId,
+            {
+                webhook: body.webhook,
+            },
+            user,
+        );
         values.uri = `openid4vp://?${values.uri}`;
         if (body.response_type === ResponseType.QRCode) {
             // Generate QR code as a PNG buffer

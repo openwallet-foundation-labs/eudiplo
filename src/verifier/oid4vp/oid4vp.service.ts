@@ -15,6 +15,7 @@ import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { OfferResponse } from '../../issuer/oid4vci/dto/offer-request.dto';
 import { WebhookConfig } from '../../utils/webhook.dto';
+import { TokenPayload } from '../../auth/token.decorator';
 
 export interface PresentationRequestOptions {
     session?: string;
@@ -132,6 +133,7 @@ export class Oid4vpService {
     async createRequest(
         requestId: string,
         values: PresentationRequestOptions,
+        user?: TokenPayload,
     ): Promise<OfferResponse> {
         const vpRequest =
             await this.presentationsService.getPresentationRequest(requestId);
@@ -141,6 +143,7 @@ export class Oid4vpService {
             await this.sessionService.create({
                 id: values.session,
                 webhook: values.webhook ?? vpRequest.webhook,
+                user: user!.sub,
             });
         } else {
             await this.sessionService.add(values.session, {

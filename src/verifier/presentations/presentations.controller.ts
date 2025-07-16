@@ -13,7 +13,7 @@ import { VPRequest } from './dto/vp-request.dto';
 import { JwtAuthGuard } from '../../auth/auth.guard';
 
 @UseGuards(JwtAuthGuard)
-@ApiSecurity('jwt')
+@ApiSecurity('bearer')
 @Controller('presentation-management')
 export class PresentationManagementController {
     constructor(private readonly presentationsService: PresentationsService) {}

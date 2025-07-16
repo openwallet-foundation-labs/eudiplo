@@ -71,8 +71,8 @@ docker run -p 3000:3000 \
 curl -X POST http://localhost:3000/auth/token \
   -H "Content-Type: application/json" \
   -d '{
-    "client_id": "issuer-service",
-    "client_secret": "your-issuer-secret"
+    "client_id": "root",
+    "client_secret": "root"
   }'
 ```
 

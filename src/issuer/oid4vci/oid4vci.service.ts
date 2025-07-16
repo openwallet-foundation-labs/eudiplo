@@ -28,6 +28,7 @@ import { SessionService } from '../../session/session.service';
 import { v4 } from 'uuid';
 import { OfferRequest, OfferResponse } from './dto/offer-request.dto';
 import { NotificationRequestDto } from './dto/notification-request.dto';
+import { TokenPayload } from 'auth/token.decorator';
 
 @Injectable()
 export class Oid4vciService implements OnModuleInit {
@@ -90,7 +91,10 @@ export class Oid4vciService implements OnModuleInit {
         } as const satisfies IssuerMetadataResult;
     }
 
-    async createOffer(body: OfferRequest): Promise<OfferResponse> {
+    async createOffer(
+        body: OfferRequest,
+        user: TokenPayload,
+    ): Promise<OfferResponse> {
         const configs =
             await this.credentialsService.getCredentialConfiguration();
         body.credentialConfigurationIds.map((id) => {
@@ -117,6 +121,7 @@ export class Oid4vciService implements OnModuleInit {
                     id: issuer_state,
                     offer: offer.credentialOfferObject,
                     credentialPayload: body,
+                    user: user.sub,
                 });
                 return {
                     session: issuer_state,

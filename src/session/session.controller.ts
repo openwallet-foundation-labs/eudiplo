@@ -5,7 +5,7 @@ import { Session } from './entities/session.entity';
 import { JwtAuthGuard } from '../auth/auth.guard';
 
 @UseGuards(JwtAuthGuard)
-@ApiSecurity('jwt')
+@ApiSecurity('bearer')
 @Controller('session')
 export class SessionController {
     constructor(private readonly sessionService: SessionService) {}

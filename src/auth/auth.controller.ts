@@ -1,15 +1,10 @@
-import {
-    Controller,
-    Post,
-    Body,
-    UnauthorizedException,
-    Get,
-} from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
-import { JwtService, TokenPayload } from './jwt.service';
+import { Controller, Post, Body, UnauthorizedException } from '@nestjs/common';
+import { ApiTags, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { JwtService } from './jwt.service';
 import { ClientService } from './client.service';
 import { Public } from './public.decorator';
 import { ClientCredentialsDto } from './dto/client-credentials.dto';
+import { TokenPayload } from './token.decorator';
 
 export class TokenResponse {
     access_token: string;

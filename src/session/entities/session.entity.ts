@@ -38,4 +38,6 @@ export class Session {
     webhook?: WebhookConfig;
     @Column('json', { default: JSON.stringify([]) })
     notifications: Notification[];
+    @Column('varchar')
+    user: string; // Client ID of the user who created the session
 }

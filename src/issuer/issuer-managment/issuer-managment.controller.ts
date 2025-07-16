@@ -13,7 +13,7 @@ import { ApiSecurity } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/auth.guard';
 
 @UseGuards(JwtAuthGuard)
-@ApiSecurity('jwt')
+@ApiSecurity('bearer')
 @Controller('issuer-managment')
 export class IssuerManagmentController {
     constructor(private readonly credentialsService: CredentialsService) {}

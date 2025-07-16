@@ -8,6 +8,7 @@ import { ResponseType } from '../../verifier/oid4vp/dto/presentation-request.dto
 import { ApiProduces, ApiResponse, ApiSecurity } from '@nestjs/swagger';
 import { NotificationRequestDto } from './dto/notification-request.dto';
 import { JwtAuthGuard } from '../../auth/auth.guard';
+import { Token, TokenPayload } from '../../auth/token.decorator';
 
 @Controller('vci')
 export class Oid4vciController {
@@ -32,8 +33,15 @@ export class Oid4vciController {
     @UseGuards(JwtAuthGuard)
     @ApiSecurity('bearer')
     @Post('offer')
-    async getOffer(@Res() res: Response, @Body() body: OfferRequest) {
-        const values = await this.oid4vciService.createOffer(body);
+    async getOffer(
+        @Res() res: Response,
+        @Body() body: OfferRequest,
+        @Token() user: TokenPayload,
+    ) {
+        // For now, we'll just pass the body to the service as before
+        // You can modify the service later to accept user information if needed
+        const values = await this.oid4vciService.createOffer(body, user);
+
         if (body.response_type === ResponseType.QRCode) {
             // Generate QR code as a PNG buffer
             const qrCodeBuffer = await QRCode.toBuffer(values.uri);
