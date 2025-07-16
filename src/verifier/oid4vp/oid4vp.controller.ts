@@ -15,9 +15,14 @@ import {
     PresentationRequest,
     ResponseType,
 } from './dto/presentation-request.dto';
-import { ApiProduces, ApiResponse, ApiSecurity } from '@nestjs/swagger';
+import {
+    ApiBody,
+    ApiProduces,
+    ApiResponse,
+    ApiSecurity,
+} from '@nestjs/swagger';
 import { OfferResponse } from '../../issuer/oid4vci/dto/offer-request.dto';
-import { ApiKeyGuard } from '../../auth/api-key-guard';
+import { JwtAuthGuard } from '../../auth/auth.guard';
 
 @Controller('oid4vp')
 export class Oid4vpController {
@@ -39,8 +44,27 @@ export class Oid4vpController {
         },
     })
     @ApiProduces('application/json', 'image/png')
-    @UseGuards(ApiKeyGuard)
-    @ApiSecurity('apiKey')
+    @UseGuards(JwtAuthGuard)
+    @ApiSecurity('jwt')
+    @ApiBody({
+        type: PresentationRequest,
+        examples: {
+            qrcode: {
+                summary: 'QR-Code Example',
+                value: {
+                    response_type: ResponseType.QRCode,
+                    requestId: 'pid',
+                },
+            },
+            uri: {
+                summary: 'URI',
+                value: {
+                    response_type: ResponseType.URI,
+                    requestId: 'pid',
+                },
+            },
+        },
+    })
     @Post()
     async getOffer(@Res() res: Response, @Body() body: PresentationRequest) {
         const values = await this.oid4vpService.createRequest(body.requestId, {

@@ -10,10 +10,10 @@ import {
 import { CredentialsService } from '../credentials/credentials.service';
 import { CredentialConfig } from '../credentials/dto/credential-config.dto';
 import { ApiSecurity } from '@nestjs/swagger';
-import { ApiKeyGuard } from '../../auth/api-key-guard';
+import { JwtAuthGuard } from '../../auth/auth.guard';
 
-@UseGuards(ApiKeyGuard)
-@ApiSecurity('apiKey')
+@UseGuards(JwtAuthGuard)
+@ApiSecurity('jwt')
 @Controller('issuer-managment')
 export class IssuerManagmentController {
     constructor(private readonly credentialsService: CredentialsService) {}

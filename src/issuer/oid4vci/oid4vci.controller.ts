@@ -6,8 +6,8 @@ import { Oid4vciService } from '../../issuer/oid4vci/oid4vci.service';
 import { OfferRequest, OfferResponse } from './dto/offer-request.dto';
 import { ResponseType } from '../../verifier/oid4vp/dto/presentation-request.dto';
 import { ApiProduces, ApiResponse, ApiSecurity } from '@nestjs/swagger';
-import { ApiKeyGuard } from '../../auth/api-key-guard';
 import { NotificationRequestDto } from './dto/notification-request.dto';
+import { JwtAuthGuard } from '../../auth/auth.guard';
 
 @Controller('vci')
 export class Oid4vciController {
@@ -29,8 +29,8 @@ export class Oid4vciController {
         },
     })
     @ApiProduces('application/json', 'image/png')
-    @UseGuards(ApiKeyGuard)
-    @ApiSecurity('apiKey')
+    @UseGuards(JwtAuthGuard)
+    @ApiSecurity('bearer')
     @Post('offer')
     async getOffer(@Res() res: Response, @Body() body: OfferRequest) {
         const values = await this.oid4vciService.createOffer(body);

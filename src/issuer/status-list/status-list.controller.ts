@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Header, Post, UseGuards } from '@nestjs/common';
 import { StatusListService } from './status-list.service';
 import { ApiSecurity, ApiTags } from '@nestjs/swagger';
-import { ApiKeyGuard } from '../../auth/api-key-guard';
 import { StatusUpdateDto } from './dto/status-update.dto';
+import { JwtAuthGuard } from '../../auth/auth.guard';
 
 @ApiTags('status-management')
 @Controller('status-management')
@@ -24,8 +24,8 @@ export class StatusListController {
      * @param value
      * @returns
      */
-    @UseGuards(ApiKeyGuard)
-    @ApiSecurity('apiKey')
+    @UseGuards(JwtAuthGuard)
+    @ApiSecurity('bearer')
     @Post()
     revokeAll(@Body() value: StatusUpdateDto) {
         return this.statusListService.updateStatus(value);

@@ -20,7 +20,6 @@ Create a `.env` file with the following minimal configuration:
 
 ```env
 PUBLIC_URL=https://example.com
-AUTH_API_KEY=a_very_secure_api_key
 RP_NAME=EUDIPLO
 ```
 

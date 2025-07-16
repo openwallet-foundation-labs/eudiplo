@@ -1,11 +1,11 @@
 import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { ApiSecurity } from '@nestjs/swagger';
-import { ApiKeyGuard } from '../auth/api-key-guard';
 import { SessionService } from './session.service';
 import { Session } from './entities/session.entity';
+import { JwtAuthGuard } from '../auth/auth.guard';
 
-@UseGuards(ApiKeyGuard)
-@ApiSecurity('apiKey')
+@UseGuards(JwtAuthGuard)
+@ApiSecurity('jwt')
 @Controller('session')
 export class SessionController {
     constructor(private readonly sessionService: SessionService) {}

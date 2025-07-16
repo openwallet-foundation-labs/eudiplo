@@ -16,14 +16,11 @@ async function bootstrap() {
         )
         .setExternalDoc('Documentation', 'https://cre8.github.io/eudiplo/')
         .setVersion(process.env.VERSION ?? '0.0.1')
-        .addApiKey(
-            {
-                type: 'apiKey',
-                name: 'x-api-key',
-                in: 'header',
-            },
-            'apiKey',
-        )
+        .addBearerAuth({
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+        })
         .build();
     const documentFactory = () => SwaggerModule.createDocument(app, config);
     if (process.env.SWAGGER_JSON) {

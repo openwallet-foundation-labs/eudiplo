@@ -10,10 +10,10 @@ import {
 import { ApiSecurity } from '@nestjs/swagger';
 import { PresentationsService } from './presentations.service';
 import { VPRequest } from './dto/vp-request.dto';
-import { ApiKeyGuard } from '../../auth/api-key-guard';
+import { JwtAuthGuard } from '../../auth/auth.guard';
 
-@UseGuards(ApiKeyGuard)
-@ApiSecurity('apiKey')
+@UseGuards(JwtAuthGuard)
+@ApiSecurity('jwt')
 @Controller('presentation-management')
 export class PresentationManagementController {
     constructor(private readonly presentationsService: PresentationsService) {}

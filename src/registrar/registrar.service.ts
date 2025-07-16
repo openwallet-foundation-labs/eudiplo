@@ -40,7 +40,7 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
 
     onModuleInit() {
         //when not set, we will not use the registrar
-        if (!this.configService.get<string>('REGISTRAR_URL')) {
+        if (!this.isEnabled()) {
             return;
         }
         this.configFile =

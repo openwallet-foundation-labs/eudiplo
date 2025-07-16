@@ -3,7 +3,7 @@ import {
     extractScopesForCredentialConfigurationIds,
     Openid4vciClient,
 } from '@openid4vc/openid4vci';
-import { callbacks, getSignJwtCallback, loggerMiddleware } from './utils';
+import { callbacks, getSignJwtCallback } from './utils';
 import { exportJWK, generateKeyPair } from 'jose';
 import {
     Jwk,
@@ -15,9 +15,9 @@ import { AppModule } from '../src/app.module';
 import { INestApplication } from '@nestjs/common';
 import { App } from 'supertest/types';
 import request from 'supertest';
-import { ConfigService } from '@nestjs/config';
 import { readFileSync } from 'fs';
 import { fetch, setGlobalDispatcher, Agent } from 'undici';
+import { ConfigService } from '@nestjs/config';
 
 setGlobalDispatcher(
     new Agent({
@@ -28,7 +28,9 @@ setGlobalDispatcher(
 );
 describe('Issuance', () => {
     let app: INestApplication<App>;
-    let authApiKey: string;
+    let authToken: string;
+    let clientId: string;
+    let clientSecret: string;
 
     beforeAll(async () => {
         const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -44,11 +46,25 @@ describe('Issuance', () => {
 
         app.useLogger(['error', 'warn', 'log']);
         // Uncomment the next line to enable logger middleware
-        app.use(loggerMiddleware);
+        //app.use(loggerMiddleware);
         const configService = app.get(ConfigService);
-        authApiKey = configService.getOrThrow('AUTH_API_KEY');
+        clientId = configService.getOrThrow<string>('AUTH_CLIENT_ID');
+        clientSecret = configService.getOrThrow<string>('AUTH_CLIENT_SECRET');
+
         await app.init();
         await app.listen(3000);
+
+        // Get JWT token using client credentials
+        const tokenResponse = await request(app.getHttpServer())
+            .post('/auth/token')
+            .trustLocalhost()
+            .send({
+                client_id: clientId,
+                client_secret: clientSecret,
+            });
+
+        authToken = tokenResponse.body.access_token;
+        expect(authToken).toBeDefined();
     });
 
     afterAll(async () => {
@@ -59,7 +75,7 @@ describe('Issuance', () => {
         const res = await request(app.getHttpServer())
             .post('/vci/offer')
             .trustLocalhost()
-            .set('x-api-key', authApiKey)
+            .set('Authorization', `Bearer ${authToken}`)
             .send({
                 response_type: 'uri',
                 credentialConfigurationIds: ['pid'],
@@ -73,7 +89,7 @@ describe('Issuance', () => {
         await request(app.getHttpServer())
             .get(`/session/${session}`)
             .trustLocalhost()
-            .set('x-api-key', authApiKey)
+            .set('Authorization', `Bearer ${authToken}`)
             .expect(200)
             .expect((res) => {
                 expect(res.body.id).toBe(session);
@@ -84,7 +100,7 @@ describe('Issuance', () => {
         await request(app.getHttpServer())
             .post('/vci/offer')
             .trustLocalhost()
-            .set('x-api-key', authApiKey)
+            .set('Authorization', `Bearer ${authToken}`)
             .send({
                 response_type: 'uri',
                 credentialConfigurationIds: ['invalid'],
@@ -101,7 +117,7 @@ describe('Issuance', () => {
         const offerResponse = await request(app.getHttpServer())
             .post('/vci/offer')
             .trustLocalhost()
-            .set('x-api-key', authApiKey)
+            .set('Authorization', `Bearer ${authToken}`)
             .send({
                 response_type: 'uri',
                 credentialConfigurationIds: ['pid'],
@@ -215,7 +231,7 @@ describe('Issuance', () => {
         const session = await request(app.getHttpServer())
             .get(`/session/${offerResponse.body.session}`)
             .trustLocalhost()
-            .set('x-api-key', authApiKey);
+            .set('Authorization', `Bearer ${authToken}`);
         const notificationObj = session.body.notifications.find(
             (notification) =>
                 notification.id ===

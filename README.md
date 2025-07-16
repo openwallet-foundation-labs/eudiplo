@@ -38,6 +38,7 @@ management, scalable database support, and clean API boundaries.
 - ✅ Supports **OID4VCI**, **OID4VP**, **SD-JWT VC**, and **OAuth Token Status
   List**
 - ✅ JSON-based credential configuration
+- ✅ Client credentials authentication for easy service integration
 - ✅ Runs via Docker with `.env` config
 - ✅ HTTP-based integration with any backend
 - ✅ Secure key management & pluggable storage
@@ -48,11 +49,31 @@ management, scalable database support, and clean API boundaries.
 ## 🚀 Quick Start
 
 ```bash
+# Clone and configure
+git clone https://github.com/cre8/eudiplo.git
+cd eudiplo
+cp .env.example .env
+
+# Configure authentication
+echo "JWT_SECRET=$(openssl rand -base64 32)" >> .env
+echo "AUTH_CLIENT_SECRET=$(openssl rand -base64 24)" >> .env
+
+# Start with Docker
 docker run -p 3000:3000 \
   -e PUBLIC_URL=https://example.com \
-  -e AUTH_API_KEY=a_very_secure_api_key \
+  -e MULTI_TENANT=false \
+  -e JWT_SECRET=your-32-character-secret \
+  -e AUTH_CLIENT_SECRET=your-issuer-secret \
   -v $(pwd)/config:/app/config \
   ghcr.io/cre8/eudiplo:1
+
+# Get a token and start using the API
+curl -X POST http://localhost:3000/auth/token \
+  -H "Content-Type: application/json" \
+  -d '{
+    "client_id": "issuer-service",
+    "client_secret": "your-issuer-secret"
+  }'
 ```
 
 📚 API:
