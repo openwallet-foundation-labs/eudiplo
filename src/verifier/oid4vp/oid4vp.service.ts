@@ -42,11 +42,14 @@ export class Oid4vpService {
             .replace('https://', '');
         const values =
             await this.presentationsService.getPresentationRequest(requestId);
-        const regCert = await this.registrarService.addRegistrationCertificate(
-            values.registrationCert,
-            values.dcql_query,
-            requestId,
-        );
+        let regCert: string | undefined = undefined;
+        if (this.registrarService.isEnabled()) {
+            regCert = await this.registrarService.addRegistrationCertificate(
+                values.registrationCert,
+                values.dcql_query,
+                requestId,
+            );
+        }
         if (!auth_session) {
             auth_session = v4();
             await this.sessionService.create({ id: auth_session });
@@ -95,22 +98,32 @@ export class Oid4vpService {
                 aud: 'https://' + host,
                 exp: Math.floor(Date.now() / 1000) + 60 * 5,
                 iat: Math.floor(new Date().getTime() / 1000),
-                verifier_attestations: [
-                    {
-                        format: 'jwt',
-                        data: regCert,
-                    },
-                ],
+                verifier_attestations: regCert
+                    ? [
+                          {
+                              format: 'jwt',
+                              data: regCert,
+                          },
+                      ]
+                    : undefined,
             },
             header: {
                 typ: 'oauth-authz-req+jwt',
             },
         };
 
+        let accessCert: string[] | undefined = undefined;
+        try {
+            accessCert = this.cryptoService.getCertChain('access');
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (err: any) {
+            accessCert = this.cryptoService.getCertChain('signing');
+        }
+
         const header = {
             ...request.header,
             alg: 'ES256',
-            x5c: this.cryptoService.getCertChain('access'),
+            x5c: accessCert,
         };
 
         return this.cryptoService.signJwt(header, request.payload);

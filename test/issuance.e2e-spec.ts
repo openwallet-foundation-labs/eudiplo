@@ -3,7 +3,7 @@ import {
     extractScopesForCredentialConfigurationIds,
     Openid4vciClient,
 } from '@openid4vc/openid4vci';
-import { callbacks, getSignJwtCallback } from './utils';
+import { callbacks, getSignJwtCallback, loggerMiddleware } from './utils';
 import { exportJWK, generateKeyPair } from 'jose';
 import {
     Jwk,
@@ -37,14 +37,14 @@ describe('Issuance', () => {
 
         app = moduleFixture.createNestApplication({
             httpsOptions: {
-                key: readFileSync('test/cert/key.pem'),
-                cert: readFileSync('test/cert/cert.pem'),
+                key: readFileSync('test/cert/private-key.pem'),
+                cert: readFileSync('test/cert/access-certificate.pem'),
             },
         });
 
         app.useLogger(['error', 'warn', 'log']);
         // Uncomment the next line to enable logger middleware
-        //app.use(loggerMiddleware);
+        app.use(loggerMiddleware);
         const configService = app.get(ConfigService);
         authApiKey = configService.getOrThrow('AUTH_API_KEY');
         await app.init();

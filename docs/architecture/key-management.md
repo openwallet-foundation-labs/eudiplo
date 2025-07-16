@@ -55,10 +55,7 @@ engine enabled. If there is no key with the specified `VAULT_KEY_ID`, the
 service will create it automatically.
 
 To issue credentials, you need to have a signed certificate for the public key
-that is bound to your domain. Right now this functionality to create self signed
-certificates is not offered by vault so you need to run the
-`create-cert-from-pubkey.sh` script manually to generate a self-signed
-certificate from the public key.
+that is bound to your domain.
 
 In this mode:
 

@@ -1,13 +1,15 @@
 import { CallbackContext, Jwk, SignJwtCallback } from '@openid4vc/oauth2';
+import crypto from 'node:crypto';
 import { NextFunction, Request } from 'express';
 import {
     calculateJwkThumbprint,
+    exportJWK,
     importJWK,
+    importX509,
     JWK,
     jwtVerify,
     SignJWT,
 } from 'jose';
-import crypto from 'node:crypto';
 
 export const callbacks: any = {
     hash: (data, alg) =>
@@ -21,15 +23,24 @@ export const callbacks: any = {
     }), */
     verifyJwt: async (signer, { compact, payload }) => {
         let jwk: Jwk;
+        let publicKey: CryptoKey;
         if (signer.method === 'jwk') {
             jwk = signer.publicJwk;
+            publicKey = (await importJWK(jwk as JWK, signer.alg)) as CryptoKey;
+        } else if (signer.method === 'x5c') {
+            const headerB64 = compact.split('.')[0];
+            const header = JSON.parse(
+                Buffer.from(headerB64, 'base64url').toString(),
+            );
+            const certPem = `-----BEGIN CERTIFICATE-----\n${header.x5c}\n-----END CERTIFICATE-----`;
+            publicKey = await importX509(certPem, signer.alg);
+            jwk = (await exportJWK(publicKey)) as Jwk;
         } else {
             throw new Error('Signer method not supported');
         }
 
-        const josePublicKey = await importJWK(jwk as JWK, signer.alg);
         try {
-            await jwtVerify(compact, josePublicKey, {
+            await jwtVerify(compact, publicKey, {
                 currentDate: payload.exp
                     ? new Date((payload.exp - 300) * 1000)
                     : undefined,
@@ -44,6 +55,26 @@ export const callbacks: any = {
                 verified: false,
             };
         }
+    },
+    getX509CertificateMetadata: (
+        certificate: string,
+    ): {
+        sanDnsNames: string[];
+        sanUriNames: string[];
+    } => {
+        const cert1 = new crypto.X509Certificate(
+            `-----BEGIN CERTIFICATE-----\n${certificate}\n-----END CERTIFICATE-----`,
+        );
+        const sanDnsNames = cert1
+            .subjectAltName!.split(',')
+            .map((name) => name.replace('DNS:', '').trim());
+        const sanUriNames = [];
+        sanDnsNames.push('example.com');
+
+        return {
+            sanDnsNames,
+            sanUriNames,
+        };
     },
 } as const satisfies Partial<CallbackContext>;
 

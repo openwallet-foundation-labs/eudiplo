@@ -20,7 +20,6 @@ import { ConfigService } from '@nestjs/config';
 import { CryptoImplementation } from './crypto/crypto-implementation';
 import { CryptoService } from './crypto/crypto.service';
 import { join } from 'node:path';
-import { execSync } from 'node:child_process';
 
 /**
  * The key service is responsible for managing the keys of the issuer.
@@ -98,13 +97,6 @@ export class FileSystemKeyService implements KeyService {
             writeFileSync(
                 join(folder, this.publicKeyPath),
                 await exportSPKI((await importJWK(publicKey)) as CryptoKey),
-            );
-            execSync(
-                `openssl req -new -x509 \
-        -key ${join(folder, this.privateKeyPath)} \
-        -out ${join(folder, 'signing-certificate.pem')} \
-        -subj "/CN=${this.configService.getOrThrow<string>('RP_NAME')}" \
-        -addext "subjectAltName=URI:${this.configService.getOrThrow<string>('PUBLIC_URL')}"`,
             );
         }
 
