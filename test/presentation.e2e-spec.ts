@@ -48,7 +48,8 @@ describe('Presentation', () => {
         const pidCredentialConfiguration = JSON.parse(
             readFileSync('test/pid-presentation.json', 'utf-8'),
         );
-        request(app.getHttpServer())
+        pidCredentialConfiguration.id = 'pid';
+        await request(app.getHttpServer())
             .post('/presentation-management')
             .trustLocalhost()
             .set('Authorization', `Bearer ${authToken}`)

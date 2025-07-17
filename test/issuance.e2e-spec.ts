@@ -70,7 +70,8 @@ describe('Issuance', () => {
         const pidCredentialConfiguration = JSON.parse(
             readFileSync('test/pid-issuance.json', 'utf-8'),
         );
-        request(app.getHttpServer())
+        pidCredentialConfiguration.id = 'pid';
+        await request(app.getHttpServer())
             .post('/issuer-management')
             .trustLocalhost()
             .set('Authorization', `Bearer ${authToken}`)
