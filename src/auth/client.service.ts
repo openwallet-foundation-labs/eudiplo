@@ -21,7 +21,11 @@ export class ClientService implements OnApplicationBootstrap {
     ) {}
 
     onApplicationBootstrap() {
-        this.setUpClient('root');
+        // were are ignoring clients that are not used anymore for now. Need to implement a proper cleanup mechanism later
+        const clients = this.getClients();
+        clients.forEach((client) => {
+            this.setUpClient(client.id);
+        });
     }
 
     /**

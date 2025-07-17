@@ -12,33 +12,19 @@ async function bootstrap() {
     const config = new DocumentBuilder()
         .setTitle('EUDIPLO Service API')
         .setDescription(
-            'This is the API documentation for the EUDIPLO Service, which provides credential issuance and verification services.\n\n' +
-                '## Authentication\n\n' +
-                '1. First, call `/auth/token` with your client credentials to get an access token\n' +
-                '2. Click the **Authorize** button below and enter: `Bearer YOUR_ACCESS_TOKEN`\n' +
-                '3. The token will be automatically included in all subsequent requests\n\n' +
-                '### Quick Start\n' +
-                '```json\n' +
-                '{\n' +
-                '    "client_id": "root",\n' +
-                '    "client_secret": "root"\n' +
-                '}\n' +
-                '```',
+            'This is the API documentation for the EUDIPLO Service, which provides credential issuance and verification services',
         )
         .setExternalDoc('Documentation', 'https://cre8.github.io/eudiplo/')
         .setVersion(process.env.VERSION ?? '0.0.1')
-        .addBearerAuth(
-            {
-                type: 'http',
-                scheme: 'bearer',
-                bearerFormat: 'JWT',
-                description:
-                    'Enter your JWT token obtained from /auth/token endpoint',
-                name: 'Authorization',
-                in: 'header',
-            },
-            'bearer', // This is the key name for the security scheme
-        )
+        .addBearerAuth({
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+            description:
+                'Enter your JWT token obtained from /auth/token endpoint',
+            name: 'Authorization',
+            in: 'header',
+        })
         .build();
     const documentFactory = () => SwaggerModule.createDocument(app, config);
     if (process.env.SWAGGER_JSON) {

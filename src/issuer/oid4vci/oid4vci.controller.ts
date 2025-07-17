@@ -21,17 +21,6 @@ export class Oid4vciController {
         return this.oid4vciService.getCredential(req, tenantId);
     }
 
-    //TODO: this endpoint may be relevant for the wallet attestation.
-    /* @Get('session')
-  session() {
-    console.log('Session requested');
-    //TODO store session and created at
-    const session = randomUUID();
-    return {
-      session_id: session,
-    };
-  } */
-
     /**
      * Notification endpoint
      * @param body
@@ -45,4 +34,15 @@ export class Oid4vciController {
     ) {
         return this.oid4vciService.handleNotification(req, body, tenantId);
     }
+
+    //TODO: this endpoint may be relevant for the wallet attestation.
+    /* @Get('session')
+  session() {
+    console.log('Session requested');
+    //TODO store session and created at
+    const session = randomUUID();
+    return {
+      session_id: session,
+    };
+  } */
 }

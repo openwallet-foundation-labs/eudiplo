@@ -7,7 +7,7 @@ import { ClientCredentialsDto } from './dto/client-credentials.dto';
 import { TokenPayload } from './token.decorator';
 import { TokenResponse } from './dto/token-response.dto';
 
-@ApiTags('Authentication')
+@ApiTags('Authentication', 'Admin')
 @Controller('auth')
 export class AuthController {
     constructor(

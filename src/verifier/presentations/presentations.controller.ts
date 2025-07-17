@@ -13,6 +13,7 @@ import {
     ApiProduces,
     ApiResponse,
     ApiSecurity,
+    ApiTags,
 } from '@nestjs/swagger';
 import { PresentationsService } from './presentations.service';
 import { PresentationConfig } from './entities/presentation-config.entity';
@@ -27,6 +28,7 @@ import { Oid4vpService } from '../oid4vp/oid4vp.service';
 import * as QRCode from 'qrcode';
 import { Response } from 'express';
 
+@ApiTags('Presentation management', 'Admin')
 @UseGuards(JwtAuthGuard)
 @ApiSecurity('bearer')
 @Controller('presentation-management')

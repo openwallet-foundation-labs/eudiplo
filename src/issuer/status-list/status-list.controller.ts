@@ -2,8 +2,8 @@ import { Controller, Get, Header, Param } from '@nestjs/common';
 import { StatusListService } from './status-list.service';
 import { ApiTags } from '@nestjs/swagger';
 
-@ApiTags(':tenantId/status-management')
-@Controller('status-management')
+@ApiTags('Status management')
+@Controller(':tenantId/status-management')
 export class StatusListController {
     constructor(private statusListService: StatusListService) {}
 

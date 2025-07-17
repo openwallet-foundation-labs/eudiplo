@@ -9,7 +9,12 @@ import {
     UseGuards,
 } from '@nestjs/common';
 import { CredentialsService } from '../credentials/credentials.service';
-import { ApiProduces, ApiResponse, ApiSecurity } from '@nestjs/swagger';
+import {
+    ApiProduces,
+    ApiResponse,
+    ApiSecurity,
+    ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/auth.guard';
 import { Token, TokenPayload } from '../../auth/token.decorator';
 import { IssuanceConfig } from '../../issuer/credentials/entities/issuance-config.entity';
@@ -19,6 +24,7 @@ import { ResponseType } from '../../verifier/oid4vp/dto/presentation-request.dto
 import * as QRCode from 'qrcode';
 import { Response } from 'express';
 
+@ApiTags('Issuer management', 'Admin')
 @UseGuards(JwtAuthGuard)
 @ApiSecurity('bearer')
 @Controller('issuer-management')

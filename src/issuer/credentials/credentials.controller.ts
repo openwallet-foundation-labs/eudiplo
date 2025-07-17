@@ -2,7 +2,7 @@ import { Controller, Get, Param } from '@nestjs/common';
 import { CredentialsService } from './credentials.service';
 import { ApiTags } from '@nestjs/swagger';
 
-@ApiTags('credentials')
+@ApiTags('Credentials')
 @Controller('credentials/:tenantId')
 export class CredentialsController {
     constructor(private readonly credentialsService: CredentialsService) {}
