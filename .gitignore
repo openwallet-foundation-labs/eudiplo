@@ -51,6 +51,7 @@ test-report.junit.xml
 # temp directory
 .temp
 .tmp
+tmp/
 
 # Runtime data
 pids

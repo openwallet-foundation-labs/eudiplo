@@ -1,5 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { existsSync, mkdirSync, writeFile, writeFileSync } from 'fs';
+import { join } from 'path';
+import { TENANT_EVENTS } from './tenant-events';
 
 // Client interface for service integration
 export interface Client {
@@ -8,10 +12,17 @@ export interface Client {
 }
 
 @Injectable()
-export class ClientService {
+export class ClientService implements OnApplicationBootstrap {
     private clients: Client[] | null = null;
 
-    constructor(private configService: ConfigService) {}
+    constructor(
+        private configService: ConfigService,
+        private eventEmitter: EventEmitter2,
+    ) {}
+
+    onApplicationBootstrap() {
+        this.setUpClient('root');
+    }
 
     /**
      * Get clients from configuration
@@ -58,5 +69,36 @@ export class ClientService {
      */
     findClientById(clientId: string): Client | null {
         return this.getClients().find((c) => c.id === clientId) || null;
+    }
+
+    /**
+     * Sends an event to set up a client, allowing all other services to listen and react accordingly.
+     * @param id
+     */
+    setUpClient(id: string) {
+        const folder = join(
+            this.configService.getOrThrow<string>('FOLDER'),
+            id,
+        );
+        if (!existsSync(folder)) {
+            mkdirSync(folder, { recursive: true });
+        }
+
+        const displayInfo = [
+            {
+                name: 'EUDI Wallet dev',
+                locale: 'de-DE',
+                logo: {
+                    uri: '<PUBLIC_URL>/issuer.png',
+                    url: '<PUBLIC_URL>/issuer.png',
+                },
+            },
+        ];
+        writeFileSync(
+            join(folder, 'display.json'),
+            JSON.stringify(displayInfo, null, 2),
+        );
+
+        this.eventEmitter.emit(TENANT_EVENTS.TENANT_INIT, id);
     }
 }

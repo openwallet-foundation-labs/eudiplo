@@ -22,12 +22,13 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { DatabaseModule } from './database/database.module';
 import { HealthModule } from './health/health.module';
 import { AUTH_VALIDATION_SCHEMA, AuthModule } from './auth/auth.module';
+import { EventEmitterModule } from '@nestjs/event-emitter/dist/event-emitter.module';
 
 @Module({
     imports: [
         ConfigModule.forRoot({
             validationSchema: Joi.object({
-                FOLDER: Joi.string().default('./assets'),
+                FOLDER: Joi.string().default('./tmp'),
                 RP_NAME: Joi.string().default('EUDIPLO'),
                 ...AUTH_VALIDATION_SCHEMA,
                 ...REGISTRAR_VALIDATION_SCHEMA,
@@ -60,6 +61,7 @@ import { AUTH_VALIDATION_SCHEMA, AuthModule } from './auth/auth.module';
                 ];
             },
         }),
+        EventEmitterModule.forRoot(),
         DatabaseModule,
         SessionModule,
         DatabaseModule,

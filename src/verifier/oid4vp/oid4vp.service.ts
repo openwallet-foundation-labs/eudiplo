@@ -100,7 +100,7 @@ export class Oid4vpService {
                     response_types_supported: ['vp_token'],
                 },
                 state: auth_session,
-                aud: 'https://' + host,
+                aud: host,
                 exp: Math.floor(Date.now() / 1000) + 60 * 5,
                 iat: Math.floor(new Date().getTime() / 1000),
                 verifier_attestations: regCert
@@ -119,10 +119,10 @@ export class Oid4vpService {
 
         let accessCert: string[] | undefined = undefined;
         try {
-            accessCert = this.cryptoService.getCertChain('access');
+            accessCert = this.cryptoService.getCertChain('access', tenantId);
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (err: any) {
-            accessCert = this.cryptoService.getCertChain('signing');
+            accessCert = this.cryptoService.getCertChain('signing', tenantId);
         }
 
         const header = {
@@ -131,7 +131,7 @@ export class Oid4vpService {
             x5c: accessCert,
         };
 
-        return this.cryptoService.signJwt(header, request.payload);
+        return this.cryptoService.signJwt(header, request.payload, tenantId);
     }
 
     async createRequest(
@@ -193,6 +193,7 @@ export class Oid4vpService {
             //TODO: not clear why it has to be any
             credentials: credentials as any,
         });
+        console.log(session);
 
         // if there a a webook URL, send the response there
         if (session.webhook) {
@@ -204,6 +205,7 @@ export class Oid4vpService {
                 headers[session.webhook.auhth.config.headerName] =
                     session.webhook.auhth.config.value;
             }
+            console.log('sending webhook to', session.webhook.url);
             await firstValueFrom(
                 this.httpService.post(
                     session.webhook.url,

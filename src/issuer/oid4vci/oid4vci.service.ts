@@ -44,11 +44,13 @@ export class Oid4vciService implements OnModuleInit {
         private readonly sessionService: SessionService,
     ) {}
     onModuleInit() {
+        //TODO: align for tenant
+        const callbacks = this.cryptoService.getCallbackContext('');
         this.issuer = new Openid4vciIssuer({
-            callbacks: this.cryptoService.callbacks,
+            callbacks,
         });
         this.resourceServer = new Oauth2ResourceServer({
-            callbacks: this.cryptoService.callbacks,
+            callbacks,
         });
     }
 
@@ -61,19 +63,17 @@ export class Oid4vciService implements OnModuleInit {
             readFileSync(
                 join(
                     this.configService.getOrThrow<string>('FOLDER'),
+                    tenantId,
                     'display.json',
                 ),
                 'utf-8',
-            ).replace(
-                /<PUBLIC_URL>/g,
-                this.configService.getOrThrow<string>('PUBLIC_URL'),
             ),
         );
 
         const authorizationServerMetadata =
             this.authzService.authzMetadata(tenantId);
 
-        const credentialIssuer = this.issuer.createCredentialIssuerMetadata({
+        let credentialIssuer = this.issuer.createCredentialIssuerMetadata({
             credential_issuer,
             credential_configurations_supported:
                 await this.credentialsService.getCredentialConfiguration(
@@ -88,6 +88,14 @@ export class Oid4vciService implements OnModuleInit {
             },
             display,
         });
+
+        //replace placeholders in the issuer metadata
+        credentialIssuer = JSON.parse(
+            JSON.stringify(credentialIssuer).replace(
+                /<PUBLIC_URL>/g,
+                this.configService.getOrThrow<string>('PUBLIC_URL'),
+            ),
+        );
 
         return {
             credentialIssuer,

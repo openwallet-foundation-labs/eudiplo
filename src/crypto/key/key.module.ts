@@ -6,6 +6,8 @@ import { CryptoService } from './crypto/crypto.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { HttpModule, HttpService } from '@nestjs/axios';
 import * as Joi from 'joi';
+import { TypeOrmModule } from '@nestjs/typeorm/dist/typeorm.module';
+import { KeyEntity } from './entities/key.entity';
 
 export const KEY_VALIDATION_SCHEMA = {
     KM_TYPE: Joi.string().valid('file', 'vault').default('file'),
@@ -34,7 +36,12 @@ export class KeyModule {
     static forRoot(): DynamicModule {
         return {
             module: KeyModule,
-            imports: [HttpModule, ConfigModule, CryptoModule],
+            imports: [
+                HttpModule,
+                ConfigModule,
+                CryptoModule,
+                TypeOrmModule.forFeature([KeyEntity]),
+            ],
             providers: [
                 {
                     provide: 'KeyService',

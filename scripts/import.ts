@@ -26,7 +26,7 @@ async function run() {
         .then((data: LoginReponse) => data.access_token);
 
     //import issuance
-    readdirSync('demo/issuance').forEach((file) => {
+    readdirSync('issuance').forEach((file) => {
         void import(`./issuance/${file}`).then(async (module) => {
             module.id = file.replace('.json', '');
             await fetch(`${url}/issuer-management`, {
@@ -49,7 +49,7 @@ async function run() {
     });
 
     //import presentation
-    readdirSync('demo/presentation').forEach((file) => {
+    readdirSync('presentation').forEach((file) => {
         void import(`./presentation/${file}`).then(async (module) => {
             module.id = file.replace('.json', '');
             await fetch(`${url}/presentation-management`, {

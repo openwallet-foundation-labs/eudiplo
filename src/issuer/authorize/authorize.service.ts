@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { ConflictException, Injectable, OnModuleInit } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
     type AuthorizationCodeGrantIdentifier,
@@ -24,8 +24,8 @@ export interface ParsedAccessTokenAuthorizationCodeRequestGrant {
 }
 
 @Injectable()
-export class AuthorizeService implements OnModuleInit {
-    public authorizationServer: Oauth2AuthorizationServer;
+export class AuthorizeService {
+    //public authorizationServer: Oauth2AuthorizationServer;
 
     constructor(
         private configService: ConfigService,
@@ -35,9 +35,10 @@ export class AuthorizeService implements OnModuleInit {
         private credentialsService: CredentialsService,
     ) {}
 
-    onModuleInit() {
-        this.authorizationServer = new Oauth2AuthorizationServer({
-            callbacks: this.cryptoService.callbacks,
+    getAuthorizationServer(tenantId: string): Oauth2AuthorizationServer {
+        const callbacks = this.cryptoService.getCallbackContext(tenantId);
+        return new Oauth2AuthorizationServer({
+            callbacks,
         });
     }
 
@@ -45,7 +46,9 @@ export class AuthorizeService implements OnModuleInit {
         const authServer =
             this.configService.getOrThrow<string>('PUBLIC_URL') +
             `/${tenantId}`;
-        return this.authorizationServer.createAuthorizationServerMetadata({
+        return this.getAuthorizationServer(
+            tenantId,
+        ).createAuthorizationServerMetadata({
             issuer: authServer,
             token_endpoint: `${authServer}/authorize/token`,
             authorization_endpoint: `${authServer}/authorize`,
@@ -95,15 +98,16 @@ export class AuthorizeService implements OnModuleInit {
     ): Promise<any> {
         const url = `${this.configService.getOrThrow<string>('PUBLIC_URL')}${req.url}`;
 
-        const parsedAccessTokenRequest =
-            this.authorizationServer.parseAccessTokenRequest({
-                accessTokenRequest: body,
-                request: {
-                    method: req.method as HttpMethod,
-                    url,
-                    headers: getHeadersFromRequest(req),
-                },
-            });
+        const parsedAccessTokenRequest = this.getAuthorizationServer(
+            tenantId,
+        ).parseAccessTokenRequest({
+            accessTokenRequest: body,
+            request: {
+                method: req.method as HttpMethod,
+                url,
+                headers: getHeadersFromRequest(req),
+            },
+        });
 
         const session = await this.sessionService.getBy({
             authorization_code: body.code,
@@ -115,36 +119,35 @@ export class AuthorizeService implements OnModuleInit {
         }
         const authorizationServerMetadata = this.authzMetadata(tenantId);
         //TODO: handle response
-        const { dpop } =
-            await this.authorizationServer.verifyAuthorizationCodeAccessTokenRequest(
-                {
-                    grant: parsedAccessTokenRequest.grant as ParsedAccessTokenAuthorizationCodeRequestGrant,
-                    accessTokenRequest:
-                        parsedAccessTokenRequest.accessTokenRequest,
-                    expectedCode: session.authorization_code as string,
-                    request: {
-                        method: req.method as HttpMethod,
-                        url,
-                        headers: getHeadersFromRequest(req),
-                    },
-                    dpop: {
-                        required: true,
-                        allowedSigningAlgs:
-                            authorizationServerMetadata.dpop_signing_alg_values_supported,
-                        jwt: parsedAccessTokenRequest.dpop?.jwt,
-                    },
-                    authorizationServerMetadata,
-                },
-            );
+        const { dpop } = await this.getAuthorizationServer(
+            tenantId,
+        ).verifyAuthorizationCodeAccessTokenRequest({
+            grant: parsedAccessTokenRequest.grant as ParsedAccessTokenAuthorizationCodeRequestGrant,
+            accessTokenRequest: parsedAccessTokenRequest.accessTokenRequest,
+            expectedCode: session.authorization_code as string,
+            request: {
+                method: req.method as HttpMethod,
+                url,
+                headers: getHeadersFromRequest(req),
+            },
+            dpop: {
+                required: true,
+                allowedSigningAlgs:
+                    authorizationServerMetadata.dpop_signing_alg_values_supported,
+                jwt: parsedAccessTokenRequest.dpop?.jwt,
+            },
+            authorizationServerMetadata,
+        });
 
         const cNonce = randomUUID();
-        return this.authorizationServer.createAccessTokenResponse({
+        return this.getAuthorizationServer(tenantId).createAccessTokenResponse({
             audience: `${this.configService.getOrThrow<string>('PUBLIC_URL')}/${tenantId}`,
             signer: {
                 method: 'jwk',
                 alg: 'ES256',
                 publicJwk: (await this.cryptoService.keyService.getPublicKey(
                     'jwk',
+                    tenantId,
                 )) as Jwk,
             },
             subject: session.id,

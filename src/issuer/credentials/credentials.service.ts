@@ -99,7 +99,9 @@ export class CredentialsService {
         const disclosureFrame = vc.disclosureFrame;
 
         const sdjwt = new SDJwtVcInstance({
-            signer: this.crpytoService.keyService.signer,
+            signer: await this.crpytoService.keyService.signer(
+                session.tenantId,
+            ),
             signAlg: 'ES256',
             hasher: digest,
             hashAlg: 'sha-256',
@@ -111,12 +113,12 @@ export class CredentialsService {
             {
                 iss: this.configService.getOrThrow<string>('PUBLIC_URL'),
                 iat: Math.round(new Date().getTime() / 1000),
-                vct: `${this.configService.getOrThrow<string>('PUBLIC_URL')}/credentials/vct/${vc.id}`,
+                vct: `${this.configService.getOrThrow<string>('PUBLIC_URL')}/${session.tenantId}/credentials/vct/${vc.id}`,
                 cnf: {
                     jwk: cnf,
                 },
                 ...(await this.statusListService.createEntry(
-                    session.id,
+                    session,
                     credentialConfigurationId,
                 )),
                 ...claims,
@@ -124,7 +126,10 @@ export class CredentialsService {
             disclosureFrame,
             {
                 header: {
-                    x5c: this.crpytoService.getCertChain('signing'),
+                    x5c: this.crpytoService.getCertChain(
+                        'signing',
+                        session.tenantId,
+                    ),
                     alg: 'ES256',
                 },
             },
