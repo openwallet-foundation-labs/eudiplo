@@ -65,6 +65,16 @@ describe('Issuance', () => {
 
         authToken = tokenResponse.body.access_token;
         expect(authToken).toBeDefined();
+
+        //import the pid credential configuration
+        const pidCredentialConfiguration = JSON.parse(
+            readFileSync('test/pid-issuance.json', 'utf-8'),
+        );
+        request(app.getHttpServer())
+            .post('/issuer-management')
+            .trustLocalhost()
+            .set('Authorization', `Bearer ${authToken}`)
+            .send(pidCredentialConfiguration);
     });
 
     afterAll(async () => {

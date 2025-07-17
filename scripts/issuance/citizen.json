@@ -1,5 +1,4 @@
 {
-    "$schema": "../issuance-schema.json",
     "config": {
         "format": "dc+sd-jwt",
         "vct": "https://sd-jwt.com",

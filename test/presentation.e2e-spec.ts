@@ -7,6 +7,7 @@ import request from 'supertest';
 import { ConfigService } from '@nestjs/config';
 import { Openid4vpClient } from '@openid4vc/openid4vp';
 import { callbacks } from './utils';
+import { readFileSync } from 'fs';
 
 describe('Presentation', () => {
     let app: INestApplication<App>;
@@ -43,7 +44,15 @@ describe('Presentation', () => {
         authToken = tokenResponse.body.access_token;
         expect(authToken).toBeDefined();
 
-        //TODO: tell the app to use the certificates in test/cert
+        //import the pid credential configuration
+        const pidCredentialConfiguration = JSON.parse(
+            readFileSync('test/pid-presentation.json', 'utf-8'),
+        );
+        request(app.getHttpServer())
+            .post('/presentation-management')
+            .trustLocalhost()
+            .set('Authorization', `Bearer ${authToken}`)
+            .send(pidCredentialConfiguration);
     });
 
     test('create oid4vp offer', async () => {

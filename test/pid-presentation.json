@@ -1,5 +1,4 @@
 {
-  "$schema": "../presentation/pid.json",
   "dcql_query": {
     "credentials": [
       {
