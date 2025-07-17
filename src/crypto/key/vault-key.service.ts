@@ -6,7 +6,7 @@ import { importSPKI, exportJWK, JWTHeaderParameters, JWK } from 'jose';
 import { ConfigService } from '@nestjs/config';
 import { JwtPayload, Signer } from '@sd-jwt/types';
 import { CryptoService, CryptoType } from './crypto/crypto.service';
-import { existsSync, writeFileSync } from 'fs';
+import { writeFileSync } from 'fs';
 import { join } from 'path';
 
 @Injectable()

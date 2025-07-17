@@ -1,4 +1,3 @@
-import { OnModuleInit } from '@nestjs/common';
 import { Signer } from '@sd-jwt/types';
 import { JWK, JWTPayload, JoseHeaderParameters } from 'jose';
 
