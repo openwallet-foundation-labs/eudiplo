@@ -84,6 +84,7 @@ export class StatusListService implements OnModuleInit {
         const sub = join(
             this.configService.getOrThrow<string>('PUBLIC_URL'),
             tenantId,
+            'status-management',
             'status-list',
         );
 
@@ -148,6 +149,7 @@ export class StatusListService implements OnModuleInit {
         const sub = join(
             this.configService.getOrThrow<string>('PUBLIC_URL'),
             session.tenantId,
+            'status-management',
             'status-list',
         );
         // store the index in the status mapping

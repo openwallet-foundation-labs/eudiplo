@@ -124,7 +124,7 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         return relyingPartyControllerRegister({
             client: this.client,
             body: {
-                name: this.configService.getOrThrow<string>('RP_NAME'),
+                name: this.configService.getOrThrow<string>('RP_NAME') + 2,
             },
         }).then((response) => {
             if (response.error) {
@@ -197,7 +197,10 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
                 throw new Error('Error adding access certificate');
             }
             //store the cert
-            this.cryptoService.storeAccessCertificate(res.data!['crt']);
+            this.cryptoService.storeAccessCertificate(
+                res.data!['crt'],
+                tenantId,
+            );
             config.accessCertificateId = res.data!['id'];
             this.saveConfig(config, tenantId);
             return res.data!['id'];

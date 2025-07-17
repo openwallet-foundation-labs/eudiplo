@@ -136,7 +136,12 @@ export class FileSystemKeyService implements KeyService {
     ): Promise<JWK | string> {
         const keys = await this.getKeys(tenantId);
         if (type === 'pem') {
-            return exportSPKI((await importJWK(keys.publicKey)) as CryptoKey);
+            return exportSPKI(
+                (await importJWK(
+                    keys.publicKey,
+                    this.cryptoService.getAlg(),
+                )) as CryptoKey,
+            );
         } else {
             return Promise.resolve(keys.publicKey);
         }

@@ -152,8 +152,11 @@ export class CryptoService implements OnModuleInit {
         return [cert];
     }
 
-    storeAccessCertificate(crt: string) {
-        writeFileSync(join(this.folder, `access-certificate.pem`), crt);
+    storeAccessCertificate(crt: string, tenantId: string) {
+        writeFileSync(
+            join(this.folder, tenantId, 'keys', `access-certificate.pem`),
+            crt,
+        );
     }
 
     async signJwt(

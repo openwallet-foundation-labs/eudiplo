@@ -109,31 +109,36 @@ export class CredentialsService {
             loadTypeMetadataFormat: true,
         });
 
-        return sdjwt.issue(
-            {
-                iss: this.configService.getOrThrow<string>('PUBLIC_URL'),
-                iat: Math.round(new Date().getTime() / 1000),
-                vct: `${this.configService.getOrThrow<string>('PUBLIC_URL')}/${session.tenantId}/credentials/vct/${vc.id}`,
-                cnf: {
-                    jwk: cnf,
+        return sdjwt
+            .issue(
+                {
+                    iss: this.configService.getOrThrow<string>('PUBLIC_URL'),
+                    iat: Math.round(new Date().getTime() / 1000),
+                    vct: `${this.configService.getOrThrow<string>('PUBLIC_URL')}/${session.tenantId}/credentials/vct/${vc.id}`,
+                    cnf: {
+                        jwk: cnf,
+                    },
+                    ...(await this.statusListService.createEntry(
+                        session,
+                        credentialConfigurationId,
+                    )),
+                    ...claims,
                 },
-                ...(await this.statusListService.createEntry(
-                    session,
-                    credentialConfigurationId,
-                )),
-                ...claims,
-            },
-            disclosureFrame,
-            {
-                header: {
-                    x5c: this.crpytoService.getCertChain(
-                        'signing',
-                        session.tenantId,
-                    ),
-                    alg: 'ES256',
+                disclosureFrame,
+                {
+                    header: {
+                        x5c: this.crpytoService.getCertChain(
+                            'signing',
+                            session.tenantId,
+                        ),
+                        alg: 'ES256',
+                    },
                 },
-            },
-        );
+            )
+            .then((jwt) => {
+                console.log(jwt);
+                return jwt;
+            });
     }
 
     /**

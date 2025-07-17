@@ -45,18 +45,25 @@ export class Oid4vpService {
             tenantId,
         );
         let regCert: string | undefined = undefined;
+
+        const dcql_query = JSON.parse(
+            JSON.stringify(values.dcql_query).replace(/<PUBLIC_URL>/g, ''),
+        );
+
         if (this.registrarService.isEnabled()) {
+            const registrationCert = JSON.parse(
+                JSON.stringify(values.registrationCert).replace(
+                    /<PUBLIC_URL>/g,
+                    '',
+                ),
+            );
             regCert = await this.registrarService.addRegistrationCertificate(
-                values.registrationCert,
-                values.dcql_query,
+                registrationCert,
+                dcql_query,
                 requestId,
                 tenantId,
             );
         }
-        /*         if (!auth_session) {
-            auth_session = v4();
-            await this.sessionService.create({ id: auth_session });
-        } */
         const nonce = randomUUID();
         await this.sessionService.add(auth_session, tenantId, {
             vp_nonce: nonce,
@@ -69,7 +76,7 @@ export class Oid4vpService {
                 response_uri: `${host}/${tenantId}/oid4vp/response`,
                 response_mode: 'direct_post.jwt',
                 nonce,
-                dcql_query: values.dcql_query,
+                dcql_query,
                 client_metadata: {
                     jwks: {
                         keys: [this.encryptionService.getEncryptionPublicKey()],
@@ -139,21 +146,22 @@ export class Oid4vpService {
         values: PresentationRequestOptions,
         tenantId: string,
     ): Promise<OfferResponse> {
-        const vpRequest = await this.presentationsService.getPresentationConfig(
-            requestId,
-            tenantId,
-        );
+        const presentationConfig =
+            await this.presentationsService.getPresentationConfig(
+                requestId,
+                tenantId,
+            );
 
         if (!values.session) {
             values.session = v4();
             await this.sessionService.create({
                 id: values.session,
-                webhook: values.webhook ?? vpRequest.webhook,
+                webhook: values.webhook ?? presentationConfig.webhook,
                 tenantId,
             });
         } else {
             await this.sessionService.add(values.session, tenantId, {
-                webhook: values.webhook ?? vpRequest.webhook,
+                webhook: values.webhook ?? presentationConfig.webhook,
             });
         }
 
@@ -193,7 +201,6 @@ export class Oid4vpService {
             //TODO: not clear why it has to be any
             credentials: credentials as any,
         });
-        console.log(session);
 
         // if there a a webook URL, send the response there
         if (session.webhook) {
@@ -205,7 +212,6 @@ export class Oid4vpService {
                 headers[session.webhook.auhth.config.headerName] =
                     session.webhook.auhth.config.value;
             }
-            console.log('sending webhook to', session.webhook.url);
             await firstValueFrom(
                 this.httpService.post(
                     session.webhook.url,
