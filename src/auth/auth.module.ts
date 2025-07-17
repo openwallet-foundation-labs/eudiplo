@@ -9,38 +9,38 @@ import * as Joi from 'joi';
 import { ConfigModule } from '@nestjs/config';
 
 export const AUTH_VALIDATION_SCHEMA = {
-    MULTI_TENANT: Joi.boolean().default(false),
-    KEYCLOAK_INTERNAL_ISSUER_URL: Joi.when('MULTI_TENANT', {
+    OIDC: Joi.boolean().default(false),
+    KEYCLOAK_INTERNAL_ISSUER_URL: Joi.when('OIDC', {
         is: true,
         then: Joi.string().required(),
         otherwise: Joi.string().optional(),
     }),
-    KEYCLOAK_CLIENT_ID: Joi.when('MULTI_TENANT', {
+    KEYCLOAK_CLIENT_ID: Joi.when('OIDC', {
         is: true,
         then: Joi.string().required(),
         otherwise: Joi.string().optional(),
     }),
-    JWT_SECRET: Joi.when('MULTI_TENANT', {
+    JWT_SECRET: Joi.when('OIDC', {
         is: false,
         then: Joi.string().required(),
         otherwise: Joi.string().optional(),
     }),
-    JWT_ISSUER: Joi.when('MULTI_TENANT', {
+    JWT_ISSUER: Joi.when('OIDC', {
         is: false,
         then: Joi.string().optional().default('eudiplo-service'),
         otherwise: Joi.string().optional(),
     }),
-    JWT_EXPIRES_IN: Joi.when('MULTI_TENANT', {
+    JWT_EXPIRES_IN: Joi.when('OIDC', {
         is: false,
-        then: Joi.string().default('1h'),
+        then: Joi.string().default('24h'),
         otherwise: Joi.string().optional(),
     }),
-    AUTH_CLIENT_SECRET: Joi.when('MULTI_TENANT', {
+    AUTH_CLIENT_SECRET: Joi.when('OIDC', {
         is: false,
         then: Joi.string().required(),
         otherwise: Joi.string().optional(),
     }),
-    AUTH_CLIENT_ID: Joi.when('MULTI_TENANT', {
+    AUTH_CLIENT_ID: Joi.when('OIDC', {
         is: false,
         then: Joi.string().required(),
         otherwise: Joi.string().optional(),

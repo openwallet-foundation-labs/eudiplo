@@ -8,10 +8,10 @@ import { TokenPayload } from './token.decorator';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     constructor(private configService: ConfigService) {
-        const isMultiTenant = configService.getOrThrow<boolean>('MULTI_TENANT');
+        const oidc = configService.getOrThrow<boolean>('OIDC');
 
         super(
-            isMultiTenant
+            oidc
                 ? JwtStrategy.getKeycloakConfig(configService)
                 : JwtStrategy.getSimpleJwtConfig(configService),
         );
@@ -61,8 +61,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     }
 
     validate(payload: TokenPayload): unknown {
-        const isMultiTenant =
-            this.configService.getOrThrow<boolean>('MULTI_TENANT');
+        const isMultiTenant = this.configService.getOrThrow<boolean>('OIDC');
 
         if (isMultiTenant) {
             // Multi-tenant: Extract user info from Keycloak token

@@ -20,8 +20,7 @@ export class JwtService {
         payload: TokenPayload,
         options: GenerateTokenOptions = {},
     ): Promise<string> {
-        const isMultiTenant =
-            this.configService.getOrThrow<boolean>('MULTI_TENANT');
+        const isMultiTenant = this.configService.getOrThrow<boolean>('OIDC');
 
         if (isMultiTenant) {
             throw new Error(
@@ -57,8 +56,7 @@ export class JwtService {
      * Verify a JWT token (for additional validation if needed)
      */
     async verifyToken(token: string): Promise<TokenPayload> {
-        const isMultiTenant =
-            this.configService.getOrThrow<boolean>('MULTI_TENANT');
+        const isMultiTenant = this.configService.getOrThrow<boolean>('OIDC');
 
         if (isMultiTenant) {
             throw new Error(
@@ -98,6 +96,6 @@ export class JwtService {
      * Check if the service is in multi-tenant mode
      */
     isMultiTenant(): boolean {
-        return this.configService.getOrThrow<boolean>('MULTI_TENANT');
+        return this.configService.getOrThrow<boolean>('OIDC');
     }
 }
