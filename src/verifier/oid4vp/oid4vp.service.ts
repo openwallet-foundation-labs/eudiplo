@@ -39,6 +39,7 @@ export class Oid4vpService {
         auth_session: string,
     ): Promise<string> {
         const host = this.configService.getOrThrow<string>('PUBLIC_URL');
+        const tenantUrl = `${host}/${tenantId}`;
 
         const values = await this.presentationsService.getPresentationConfig(
             requestId,
@@ -47,14 +48,17 @@ export class Oid4vpService {
         let regCert: string | undefined = undefined;
 
         const dcql_query = JSON.parse(
-            JSON.stringify(values.dcql_query).replace(/<PUBLIC_URL>/g, ''),
+            JSON.stringify(values.dcql_query).replace(
+                /<PUBLIC_URL>/g,
+                tenantUrl,
+            ),
         );
 
         if (this.registrarService.isEnabled()) {
             const registrationCert = JSON.parse(
                 JSON.stringify(values.registrationCert).replace(
                     /<PUBLIC_URL>/g,
-                    '',
+                    tenantUrl,
                 ),
             );
             regCert = await this.registrarService.addRegistrationCertificate(
@@ -146,6 +150,7 @@ export class Oid4vpService {
         values: PresentationRequestOptions,
         tenantId: string,
     ): Promise<OfferResponse> {
+        console.log('id', tenantId);
         const presentationConfig =
             await this.presentationsService.getPresentationConfig(
                 requestId,

@@ -98,7 +98,7 @@ export class AuthorizeController {
     authorizationChallengeEndpoint(
         @Res() res: Response,
         @Body() body: AuthorizeQueries,
-        @Query('tenantId') tenantId: string,
+        @Param('tenantId') tenantId: string,
     ) {
         return this.authorizeService.authorizationChallengeEndpoint(
             res,
