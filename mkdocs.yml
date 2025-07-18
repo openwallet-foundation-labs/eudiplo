@@ -11,12 +11,12 @@ theme:
   palette:
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
-      scheme: default
+      scheme: default      
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     # Palette toggle for dark mode
-    - media: "(prefers-color-scheme: dark)"
+    - media: "(prefers-color-scheme: dark)"          
       scheme: slate
       toggle:
         icon: material/brightness-4
@@ -78,8 +78,6 @@ markdown_extensions:
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.tilde
-extra_css:
-  - stylesheets/styles.css
 plugins:
     - plantuml:
         puml_url: 'https://www.plantuml.com/plantuml/'
@@ -116,10 +114,11 @@ nav:
   - Architecture:
       - Overview: architecture/overview.md      
       - Supported Protocols: architecture/supported-protocols.md
+      - Tenant-Based Architecture: architecture/tenant.md      
       - Key Management: architecture/key-management.md
       - Database: architecture/database.md      
   - API:    
-    - api/index.md
+    - Overview: api/index.md    
   - Development:
       - development/index.md
       - Versioning: development/versioning.md

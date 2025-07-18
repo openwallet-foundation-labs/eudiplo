@@ -28,15 +28,16 @@ can run yourself, integrate over HTTP, and configure via JSON.
 
 ## Key Capabilities
 
-| Capability                | Description                                                              |
-| ------------------------- | ------------------------------------------------------------------------ |
-| 🛂 **Issuance**           | Issue credentials to users through the EUDI Wallet                       |
-| 🧾 **Presentation**       | Request credentials from users and verify them                           |
-| 🔄 **Cross-Flow Support** | Request credentials as part of an issuance flow                          |
-| 🔐 **Secure by Default**  | Built-in support for secure key handling and OAuth-based status checking |
-| 🧱 **Plug and Play**      | Integrates with your backend over HTTP; no SDK required                  |
-| ⚙️ **JSON Configurable**  | Set up templates, trust roots, and issuers through JSON files            |
-| 🇪🇺 **Wallet Compatible**  | Works with real-world EUDI Wallets like [Animo](https://animo.id)        |
+| Capability                  | Description                                                              |
+| --------------------------- | ------------------------------------------------------------------------ |
+| 🛂 **Issuance**             | Issue credentials to users through the EUDI Wallet                       |
+| 🧾 **Presentation**         | Request credentials from users and verify them                           |
+| 🔄 **Cross-Flow Support**   | Request credentials as part of an issuance flow                          |
+| 🔐 **Secure by Default**    | Built-in support for secure key handling and OAuth-based status checking |
+| 🧱 **Plug and Play**        | Integrates with your backend over HTTP; no SDK required                  |
+| ⚙️ **JSON Configurable**    | Set up templates, trust roots, and issuers through JSON files            |
+| 🇪🇺 **Wallet Compatible**    | Works with real-world EUDI Wallets like [Animo](https://animo.id)        |
+| 👥 **Multi-Tenant Support** | Isolate configurations for different tenants or clients                  |
 
 ---
 
@@ -55,7 +56,9 @@ EUDIPLO is distributed as a Docker container and can be configured in minutes.
 ```bash
 docker run -p 3000:3000 \
   -e PUBLIC_URL=https://example.com \
-  -e API_KEY=a_very_secure_api_key \
+  -e JWT_SECRET=your-secret-key-here-minimum-32-characters \
+  -e AUTH_CLIENT_ID=your-tenant-id \
+  -e AUTH_CLIENT_SECRET=your-tenant-secret \
   -v $(pwd)/config:/app/config \
   ghcr.io/cre8/eudiplo:1
 ```

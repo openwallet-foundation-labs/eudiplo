@@ -5,6 +5,9 @@ To interact with an EUDI Wallet, two types of certificates are required:
 - **Access Certificate** – Grants access to the EUDI Wallet.
 - **Registration Certificate** – Authorizes data requests from the EUDI Wallet.
 
+You can still use EUDIPLO without these certificates, but it can end up into
+warnings when making requests to the EUDI Wallet.
+
 ## Registrar Settings
 
 These values are used to request access and registration certificates from the

@@ -1,123 +1,83 @@
-import {
-    ConflictException,
-    Injectable,
-    type OnModuleInit,
-} from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Jwk } from '@openid4vc/oauth2';
 import { digest, generateSalt } from '@sd-jwt/crypto-nodejs';
 import { SDJwtVcInstance } from '@sd-jwt/sd-jwt-vc';
 import { CryptoService } from '../../crypto/crypto.service';
 import { StatusListService } from '../status-list/status-list.service';
-import {
-    existsSync,
-    readdirSync,
-    readFileSync,
-    rmSync,
-    writeFileSync,
-} from 'fs';
-import { join, posix } from 'path';
 import { CredentialConfigurationSupported } from '@openid4vc/openid4vci';
-import { CredentialConfig } from './dto/credential-config.dto';
 import { Session } from '../../session/entities/session.entity';
 import { SchemaResponse } from './dto/schema-response.dto';
-import { plainToInstance } from 'class-transformer';
-import { validate } from 'class-validator';
+import { InjectRepository } from '@nestjs/typeorm';
+import { IssuanceConfig } from './entities/issuance-config.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
-export class CredentialsService implements OnModuleInit {
-    private sdjwt: SDJwtVcInstance;
-    private folder: string;
-
+export class CredentialsService {
     constructor(
         private crpytoService: CryptoService,
         private configService: ConfigService,
         private statusListService: StatusListService,
+        @InjectRepository(IssuanceConfig)
+        private issuanceConfigRepo: Repository<IssuanceConfig>,
     ) {}
 
-    onModuleInit() {
-        this.folder = join(
-            this.configService.getOrThrow<string>('FOLDER'),
-            'issuance',
-        );
+    /**
+     *
+     * @param tenantId
+     * @returns
+     */
+    public getConfig(tenantId: string): Promise<IssuanceConfig[]> {
+        return this.issuanceConfigRepo.findBy({ tenantId });
+    }
 
-        this.sdjwt = new SDJwtVcInstance({
-            signer: this.crpytoService.keyService.signer,
-            signAlg: 'ES256',
-            hasher: digest,
-            hashAlg: 'sha-256',
-            saltGenerator: generateSalt,
-            loadTypeMetadataFormat: true,
+    async getConfigById(
+        credentialId: string,
+        tenantId: string,
+    ): Promise<IssuanceConfig> {
+        return this.issuanceConfigRepo.findOneByOrFail({
+            id: credentialId,
+            tenantId,
         });
     }
 
-    public getConfig(): Promise<CredentialConfig[]> {
-        const files = readdirSync(this.folder);
-        return Promise.all(
-            files.map(async (file) => {
-                const json = JSON.parse(
-                    readFileSync(join(this.folder, file), 'utf-8').replace(
-                        /<PUBLIC_URL>/g,
-                        this.configService.getOrThrow<string>('PUBLIC_URL'),
-                    ),
-                );
-                json.id = file.replace('.json', '');
-                const configInstance = plainToInstance(CredentialConfig, json);
-                const errors = await validate(configInstance, {
-                    whitelist: true,
-                    forbidNonWhitelisted: true,
-                });
-                if (errors.length > 0) {
-                    throw new ConflictException(
-                        `Invalid credential configuration in file ${file}: ${errors
-                            .map((error) => error.toString())
-                            .join(', ')}`,
-                    );
-                }
-                return configInstance;
-            }),
-        );
+    /**
+     * Store the config. If it already exist, overwrite it.
+     * @param tenantId
+     * @param value
+     * @returns
+     */
+    async storeCredentialConfiguration(
+        tenantId: string,
+        value: IssuanceConfig,
+    ) {
+        value.tenantId = tenantId;
+        return this.issuanceConfigRepo.save(value);
     }
 
-    async getConfigById(credentialId: string): Promise<CredentialConfig> {
-        const config = (await this.getConfig()).find(
-            (credential) => credential.id === credentialId,
-        );
-        if (!config) {
-            throw new ConflictException(
-                `Credential configuration with id ${credentialId} not found`,
-            );
-        }
-        return config;
+    /**
+     * Deletes a credential configuration.
+     * @param tenantId
+     * @param id
+     * @returns
+     */
+    deleteCredentialConfiguration(tenantId: string, id: string) {
+        return this.issuanceConfigRepo.delete({ tenantId, id });
     }
 
-    storeCredentialConfiguration(value: CredentialConfig) {
-        const safeId = posix
-            .normalize(value.id)
-            .replace(/^(\.\.(\/|\\|$))+/, '');
-        const filePath = join(this.folder, `${safeId}.json`);
-        writeFileSync(filePath, JSON.stringify(value, null, 2));
-    }
-
-    deleteCredentialConfiguration(id: string) {
-        const safeId = posix.normalize(id).replace(/^(\.\.(\/|\\|$))+/, '');
-        const filePath = join(this.folder, `${safeId}.json`);
-        if (!existsSync(filePath)) {
-            throw new ConflictException(
-                `Credential configuration with id ${id} not found`,
-            );
-        }
-        rmSync(filePath, { force: true });
-    }
-
-    async getCredentialConfiguration(): Promise<
-        Record<string, CredentialConfigurationSupported>
-    > {
+    /**
+     * Returns the credential configuration that is required for oid4vci
+     * @param tenantId
+     * @returns
+     */
+    async getCredentialConfiguration(
+        tenantId: string,
+    ): Promise<Record<string, CredentialConfigurationSupported>> {
         const credential_configurations_supported: Record<
             string,
             CredentialConfigurationSupported
         > = {};
-        (await this.getConfig()).forEach((credential) => {
+        (await this.getConfig(tenantId)).forEach((credential) => {
             credential_configurations_supported[credential.id] =
                 credential.config;
         });
@@ -129,22 +89,36 @@ export class CredentialsService implements OnModuleInit {
         cnf: Jwk,
         session: Session,
     ) {
-        const vc = await this.getConfigById(credentialConfigurationId);
+        const vc = await this.getConfigById(
+            credentialConfigurationId,
+            session.tenantId,
+        );
         const claims =
             session.credentialPayload?.values?.[credentialConfigurationId] ??
             vc.claims;
         const disclosureFrame = vc.disclosureFrame;
 
-        return this.sdjwt.issue(
+        const sdjwt = new SDJwtVcInstance({
+            signer: await this.crpytoService.keyService.signer(
+                session.tenantId,
+            ),
+            signAlg: 'ES256',
+            hasher: digest,
+            hashAlg: 'sha-256',
+            saltGenerator: generateSalt,
+            loadTypeMetadataFormat: true,
+        });
+
+        return sdjwt.issue(
             {
                 iss: this.configService.getOrThrow<string>('PUBLIC_URL'),
                 iat: Math.round(new Date().getTime() / 1000),
-                vct: `${this.configService.getOrThrow<string>('PUBLIC_URL')}/credentials/vct/${vc.id}`,
+                vct: `${this.configService.getOrThrow<string>('PUBLIC_URL')}/${session.tenantId}/credentials/vct/${vc.id}`,
                 cnf: {
                     jwk: cnf,
                 },
                 ...(await this.statusListService.createEntry(
-                    session.id,
+                    session,
                     credentialConfigurationId,
                 )),
                 ...claims,
@@ -152,27 +126,48 @@ export class CredentialsService implements OnModuleInit {
             disclosureFrame,
             {
                 header: {
-                    x5c: this.crpytoService.getCertChain('signing'),
+                    x5c: this.crpytoService.getCertChain(
+                        'signing',
+                        session.tenantId,
+                    ),
                     alg: 'ES256',
                 },
             },
         );
     }
 
-    async getVCT(credentialId: string) {
-        const vc = await this.getConfigById(credentialId);
+    /**
+     * Retrieves the VCT (Verifiable Credential Type) for a specific credential configuration.
+     * @param credentialId
+     * @param tenantId
+     * @returns
+     */
+    async getVCT(credentialId: string, tenantId: string) {
+        const vc = await this.issuanceConfigRepo.findOneByOrFail({
+            id: credentialId,
+            tenantId,
+        });
         if (!vc.vct) {
             throw new ConflictException(
                 `VCT for credential configuration with id ${credentialId} not found`,
             );
         }
         const host = this.configService.getOrThrow<string>('PUBLIC_URL');
-        vc.vct.vct = `${host}/credentials/vct/${vc.id}`;
+        vc.vct.vct = `${host}/${tenantId}/credentials/vct/${vc.id}`;
         return vc.vct;
     }
 
-    async getSchema(id: string): Promise<SchemaResponse> {
-        const vc = await this.getConfigById(id);
+    /**
+     * Retrieves the schema for a specific credential configuration.
+     * @param id
+     * @param tenantId
+     * @returns
+     */
+    async getSchema(id: string, tenantId: string): Promise<SchemaResponse> {
+        const vc = await this.issuanceConfigRepo.findOneByOrFail({
+            id,
+            tenantId,
+        });
         if (!vc.schema) {
             throw new ConflictException(
                 `Schema for credential configuration with id ${id} not found`,

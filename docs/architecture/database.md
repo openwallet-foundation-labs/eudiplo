@@ -12,15 +12,15 @@ thanks to TypeORM’s flexible architecture.
 
 ## Configuration Overview
 
-| Variable      | Description                              | Required for | Default    |
-| ------------- | ---------------------------------------- | ------------ | ---------- |
-| `DB_TYPE`     | Database engine (`sqlite` or `postgres`) | All          | `sqlite`   |
-| `FOLDER`      | Path for local SQLite database           | `sqlite`     | `./config` |
-| `DB_HOST`     | Hostname for PostgreSQL                  | `postgres`   | –          |
-| `DB_PORT`     | Port for PostgreSQL                      | `postgres`   | –          |
-| `DB_USERNAME` | PostgreSQL username                      | `postgres`   | –          |
-| `DB_PASSWORD` | PostgreSQL password                      | `postgres`   | –          |
-| `DB_DATABASE` | PostgreSQL database name                 | `postgres`   | –          |
+| Variable      | Description                                                   | Required for | Default  |
+| ------------- | ------------------------------------------------------------- | ------------ | -------- |
+| `DB_TYPE`     | Database engine (`sqlite` or `postgres`)                      | All          | `sqlite` |
+| `FOLDER`      | Path for local SQLite database. Will be extended by tenant id | `sqlite`     | `./tmp`  |
+| `DB_HOST`     | Hostname for PostgreSQL                                       | `postgres`   | –        |
+| `DB_PORT`     | Port for PostgreSQL                                           | `postgres`   | –        |
+| `DB_USERNAME` | PostgreSQL username                                           | `postgres`   | –        |
+| `DB_PASSWORD` | PostgreSQL password                                           | `postgres`   | –        |
+| `DB_DATABASE` | PostgreSQL database name                                      | `postgres`   | –        |
 
 > ✅ If `DB_TYPE=sqlite`, only the `FOLDER` variable is needed. For `postgres`,
 > all `DB_*` variables must be provided.
@@ -81,3 +81,62 @@ To add support for a new engine:
 - Configure the necessary connection options via environment variables
 
 Let us know if you need help extending support for additional databases.
+
+---
+
+## Multi-Tenant Database Schema
+
+EUDIPLO supports multi-tenancy, allowing multiple tenants to share the same
+database while keeping their data isolated. This is achieved by adding a
+`tenantId` column to relevant entities and filtering all queries by this
+identifier.
+
+### Tenant Isolation in Database
+
+In multi-tenant mode, data isolation is achieved through a `tenantId` column in
+all relevant entities:
+
+#### Core Entities with Tenant Support:
+
+**Session Entity:**
+
+```typescript
+@Entity()
+export class Session {
+    @PrimaryColumn('uuid')
+    id: string;
+
+    @Column('varchar')
+    tenantId: string; // Tenant ID for multi-tenancy support
+
+    // ... other fields
+}
+```
+
+**Issuance Configuration Entity:**
+
+```typescript
+@Entity()
+export class IssuanceConfig {
+    @PrimaryColumn('varchar')
+    id: string;
+
+    @Column('varchar')
+    tenantId: string;
+
+    // ... other fields
+}
+```
+
+### Database Queries
+
+All database operations automatically filter by `tenantId` when in multi-tenant
+mode:
+
+```typescript
+// Example: Get sessions for specific tenant
+return this.sessionRepository.findBy({ tenantId });
+
+// Example: Update session with tenant scope
+return this.sessionRepository.update({ id: sessionId, tenantId }, updateData);
+```

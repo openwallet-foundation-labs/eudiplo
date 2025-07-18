@@ -12,18 +12,19 @@ async function bootstrap() {
     const config = new DocumentBuilder()
         .setTitle('EUDIPLO Service API')
         .setDescription(
-            'This is the API documentation for the EUDIPLO Service, which provides credential issuance and verification services.',
+            'This is the API documentation for the EUDIPLO Service, which provides credential issuance and verification services',
         )
         .setExternalDoc('Documentation', 'https://cre8.github.io/eudiplo/')
         .setVersion(process.env.VERSION ?? '0.0.1')
-        .addApiKey(
-            {
-                type: 'apiKey',
-                name: 'x-api-key',
-                in: 'header',
-            },
-            'apiKey',
-        )
+        .addBearerAuth({
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+            description:
+                'Enter your JWT token obtained from /auth/token endpoint',
+            name: 'Authorization',
+            in: 'header',
+        })
         .build();
     const documentFactory = () => SwaggerModule.createDocument(app, config);
     if (process.env.SWAGGER_JSON) {
@@ -33,7 +34,25 @@ async function bootstrap() {
         );
         process.exit();
     } else {
-        SwaggerModule.setup('/api', app, documentFactory);
+        SwaggerModule.setup('/api', app, documentFactory, {
+            swaggerOptions: {
+                persistAuthorization: true, // Keep authorization between page refreshes
+                displayRequestDuration: true, // Show request duration
+                filter: true, // Enable filtering
+                showExtensions: true,
+                showCommonExtensions: true,
+                tryItOutEnabled: true,
+                // Additional convenience features
+                deepLinking: true, // Enable deep linking for sharing authenticated URLs
+                displayOperationId: false, // Cleaner operation display
+                defaultModelsExpandDepth: 1, // Auto-expand request/response models
+                defaultModelExpandDepth: 1,
+                docExpansion: 'list', // Show all operations collapsed by default
+                operationsSorter: 'alpha', // Sort operations alphabetically
+                tagsSorter: 'alpha', // Sort tags alphabetically
+            },
+            customSiteTitle: 'EUDIPLO API Documentation',
+        });
         await app.listen(process.env.PORT ?? 3000);
     }
 }

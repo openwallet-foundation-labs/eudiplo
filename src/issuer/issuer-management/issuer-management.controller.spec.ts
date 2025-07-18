@@ -1,16 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { IssuerManagmentController } from './issuer-managment.controller';
+import { IssuerManagementController } from './issuer-management.controller';
 
 describe('IssuerManagmentController', () => {
-    let controller: IssuerManagmentController;
+    let controller: IssuerManagementController;
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
-            controllers: [IssuerManagmentController],
+            controllers: [IssuerManagementController],
         }).compile();
 
-        controller = module.get<IssuerManagmentController>(
-            IssuerManagmentController,
+        controller = module.get<IssuerManagementController>(
+            IssuerManagementController,
         );
     });
 

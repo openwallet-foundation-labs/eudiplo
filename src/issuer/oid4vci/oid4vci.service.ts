@@ -28,6 +28,7 @@ import { SessionService } from '../../session/session.service';
 import { v4 } from 'uuid';
 import { OfferRequest, OfferResponse } from './dto/offer-request.dto';
 import { NotificationRequestDto } from './dto/notification-request.dto';
+import { TokenPayload } from '../../auth/token.decorator';
 
 @Injectable()
 export class Oid4vciService implements OnModuleInit {
@@ -43,39 +44,44 @@ export class Oid4vciService implements OnModuleInit {
         private readonly sessionService: SessionService,
     ) {}
     onModuleInit() {
+        //TODO: align for tenant
+        const callbacks = this.cryptoService.getCallbackContext('');
         this.issuer = new Openid4vciIssuer({
-            callbacks: this.cryptoService.callbacks,
+            callbacks,
         });
         this.resourceServer = new Oauth2ResourceServer({
-            callbacks: this.cryptoService.callbacks,
+            callbacks,
         });
     }
 
-    async issuerMetadata(): Promise<IssuerMetadataResult> {
+    async issuerMetadata(tenantId: string): Promise<IssuerMetadataResult> {
         const credential_issuer = `${this.configService.getOrThrow<string>(
             'PUBLIC_URL',
-        )}`;
+        )}/${tenantId}`;
 
         const display = JSON.parse(
             readFileSync(
                 join(
                     this.configService.getOrThrow<string>('FOLDER'),
+                    tenantId,
                     'display.json',
                 ),
                 'utf-8',
-            ).replace(
-                /<PUBLIC_URL>/g,
-                this.configService.getOrThrow<string>('PUBLIC_URL'),
             ),
         );
 
-        const credentialIssuer = this.issuer.createCredentialIssuerMetadata({
+        const authorizationServerMetadata =
+            this.authzService.authzMetadata(tenantId);
+
+        let credentialIssuer = this.issuer.createCredentialIssuerMetadata({
             credential_issuer,
             credential_configurations_supported:
-                await this.credentialsService.getCredentialConfiguration(),
+                await this.credentialsService.getCredentialConfiguration(
+                    tenantId,
+                ),
             credential_endpoint: `${credential_issuer}/vci/credential`,
-            authorization_servers: [this.authzService.authzMetadata().issuer],
-            authorization_server: this.authzService.authzMetadata().issuer,
+            authorization_servers: [authorizationServerMetadata.issuer],
+            authorization_server: authorizationServerMetadata.issuer,
             notification_endpoint: `${credential_issuer}/vci/notification`,
             batch_credential_issuance: {
                 batch_size: 1,
@@ -83,16 +89,28 @@ export class Oid4vciService implements OnModuleInit {
             display,
         });
 
+        //replace placeholders in the issuer metadata
+        credentialIssuer = JSON.parse(
+            JSON.stringify(credentialIssuer).replace(
+                /<PUBLIC_URL>/g,
+                this.configService.getOrThrow<string>('PUBLIC_URL'),
+            ),
+        );
+
         return {
             credentialIssuer,
-            authorizationServers: [this.authzService.authzMetadata()],
+            authorizationServers: [authorizationServerMetadata],
             originalDraftVersion: Openid4vciDraftVersion.Draft14,
         } as const satisfies IssuerMetadataResult;
     }
 
-    async createOffer(body: OfferRequest): Promise<OfferResponse> {
+    async createOffer(
+        body: OfferRequest,
+        user: TokenPayload,
+        tenantId: string,
+    ): Promise<OfferResponse> {
         const configs =
-            await this.credentialsService.getCredentialConfiguration();
+            await this.credentialsService.getCredentialConfiguration(user.sub);
         body.credentialConfigurationIds.map((id) => {
             if (configs[id] === undefined) {
                 throw new ConflictException(
@@ -100,7 +118,7 @@ export class Oid4vciService implements OnModuleInit {
                 );
             }
         });
-        const issuerMetadata = await this.issuerMetadata();
+        const issuerMetadata = await this.issuerMetadata(tenantId);
         const issuer_state = v4();
         return this.issuer
             .createCredentialOffer({
@@ -117,6 +135,7 @@ export class Oid4vciService implements OnModuleInit {
                     id: issuer_state,
                     offer: offer.credentialOfferObject,
                     credentialPayload: body,
+                    tenantId: user.sub,
                 });
                 return {
                     session: issuer_state,
@@ -125,8 +144,11 @@ export class Oid4vciService implements OnModuleInit {
             });
     }
 
-    async getCredential(req: Request): Promise<CredentialResponse> {
-        const issuerMetadata = await this.issuerMetadata();
+    async getCredential(
+        req: Request,
+        tenantId: string,
+    ): Promise<CredentialResponse> {
+        const issuerMetadata = await this.issuerMetadata(tenantId);
         const parsedCredentialRequest = this.issuer.parseCredentialRequest({
             issuerMetadata,
             credentialRequest: req.body as Record<string, unknown>,
@@ -162,7 +184,7 @@ export class Oid4vciService implements OnModuleInit {
                 await this.issuer.verifyCredentialRequestJwtProof({
                     //check if this is correct or if the passed nonce is validated.
                     expectedNonce: tokenPayload.nonce as string,
-                    issuerMetadata: await this.issuerMetadata(),
+                    issuerMetadata: await this.issuerMetadata(tenantId),
                     jwt,
                 });
             const cnf = verifiedProof.signer.publicJwk;
@@ -178,7 +200,7 @@ export class Oid4vciService implements OnModuleInit {
         session.notifications.push({
             id: notificationId,
         });
-        await this.sessionService.add(session.id, {
+        await this.sessionService.add(session.id, tenantId, {
             notifications: session.notifications,
         });
 
@@ -197,8 +219,12 @@ export class Oid4vciService implements OnModuleInit {
      * @param req
      * @param body
      */
-    async handleNotification(req: Request, body: NotificationRequestDto) {
-        const issuerMetadata = await this.issuerMetadata();
+    async handleNotification(
+        req: Request,
+        body: NotificationRequestDto,
+        tenantId: string,
+    ) {
+        const issuerMetadata = await this.issuerMetadata(tenantId);
         const headers = getHeadersFromRequest(req);
         const { tokenPayload } =
             await this.resourceServer.verifyResourceRequest({
@@ -231,7 +257,7 @@ export class Oid4vciService implements OnModuleInit {
             id: body.notification_id,
             event: body.event,
         };
-        await this.sessionService.add(session.id, {
+        await this.sessionService.add(session.id, tenantId, {
             notifications: session.notifications,
         });
     }

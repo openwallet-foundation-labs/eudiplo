@@ -1,4 +1,4 @@
-import { Controller, Get, Header } from '@nestjs/common';
+import { Controller, Get, Header, Param } from '@nestjs/common';
 import { CryptoService } from '../crypto/crypto.service';
 import { AuthorizeService } from '../issuer/authorize/authorize.service';
 import { Oid4vciService } from '../issuer/oid4vci/oid4vci.service';
@@ -10,7 +10,7 @@ import { ApiOperation } from '@nestjs/swagger';
 /**
  * Controller for the OpenID4VCI well-known endpoints.
  */
-@Controller('.well-known')
+@Controller(':tenantId/.well-known')
 export class WellKnownController {
     constructor(
         private readonly oid4vciService: Oid4vciService,
@@ -23,8 +23,8 @@ export class WellKnownController {
         description: 'Returns the OpenID4VCI issuer metadata.',
     })
     @Get('openid-credential-issuer')
-    async issuerMetadata() {
-        return (await this.oid4vciService.issuerMetadata())
+    async issuerMetadata(@Param('tenantId') tenantId: string) {
+        return (await this.oid4vciService.issuerMetadata(tenantId))
             .credentialIssuer as unknown as Promise<CredentialIssuerMetadataDto>;
     }
 
@@ -33,8 +33,12 @@ export class WellKnownController {
      * @returns
      */
     @Get('oauth-authorization-server')
-    authzMetadata(): Oauth2AuthorizationServerResponse {
-        return this.authorizeService.authzMetadata() as Oauth2AuthorizationServerResponse;
+    authzMetadata(
+        @Param('tenantId') tenantId: string,
+    ): Oauth2AuthorizationServerResponse {
+        return this.authorizeService.authzMetadata(
+            tenantId,
+        ) as Oauth2AuthorizationServerResponse;
     }
 
     /**
@@ -43,8 +47,10 @@ export class WellKnownController {
      */
     @Header('Content-Type', 'application/jwk-set+json')
     @Get('jwks.json')
-    async getJwks(): Promise<JwksResponseDto> {
-        return this.cryptoService.getJwks().then((key) => ({
+    async getJwks(
+        @Param('tenantId') tenantId: string,
+    ): Promise<JwksResponseDto> {
+        return this.cryptoService.getJwks(tenantId).then((key) => ({
             keys: [key],
         }));
     }

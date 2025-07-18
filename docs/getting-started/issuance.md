@@ -1,15 +1,20 @@
 # Configuring Credential Issuance Flows
 
 Issuance flow files define how a credential should be generated, signed, and
-formatted. These JSON files are stored in:
+formatted. EUDIPLO uses a tenant-based architecture where each tenant has
+isolated configuration.
 
-```string
-config/issuance/{id}.json
-```
+---
 
-Each file represents a specific credential type. They are not cached and loaded
-dynamically at runtime. The `id` is used to reference the credential
-configuration in the API.
+## API Endpoints
+
+To manage the configs for issuance, you need to interact with the
+`/issuer-management` endpoint. Based on your passed JWT, the endpoint will be
+scoped to the tenant ID of the token. The configurations are internally stored
+in a database.
+
+Via this endpoint you are also able to start the issuance flow for a specific
+flow configuration.
 
 ---
 
@@ -100,9 +105,7 @@ Middleware -> End_Service : Notify successful issuance (not implemented yet)
 }
 ```
 
----
-
-## Field Breakdown
+**Field Breakdown**
 
 - `config`: REQUIRED: entry for
   [credential_configuration_supported](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-credential-issuer-metadata:~:text=the%20logo%20image.-,credential_configurations_supported,-%3A%20REQUIRED.%20Object%20that).
@@ -123,17 +126,16 @@ Middleware -> End_Service : Notify successful issuance (not implemented yet)
   [Schema Type Metadata](https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-09.html#name-schema-type-metadata)
   to validate the claims before issuance.
 
-> `<PUBLIC_URL>` will be dynamically replaced at runtime with your credential
-> issuer URL.
+> `<PUBLIC_URL>` will be dynamically replaced at runtime with your public URL
+> together with with the tenant ID.
 
 ---
 
 ## Display Configuration
 
-Credential images to display the credential in the wallet can be stored in the
-`config/public/` folder to be referenced in credential configuration files. To
-pass information like the logo or name of the issuer, you need to update the
-`config/display.json` file that gets included into the
+TODO: needs to be updated
+
+This display information gets included into the
 [credential issuer metadata](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-credential-issuer-metadata:~:text=2%20or%20greater.-,display,-%3A%20OPTIONAL.%20A%20non).
 
 ---
@@ -148,7 +150,39 @@ the following order:
 - via static claims in the `claims` field of the credential configuration
 
 If no claims are provided, the credential will be issued with an empty claims
-set.
+set. Claims will not be merged with other claims from e.g. the offer or the
+static defined ones.
+
+## Creating a Credential Offer
+
+To start the issuance flow, you need to create a credential offer. This is done
+by calling the `/issuer-management/offer` endpoint. Via the `response_type`
+parameter, you can specify how the response should be formatted:
+
+- `uri`: Returns a URI that the user can open in their wallet to start the
+  issuance flow.
+- `qrcode`: Returns a QR code that the user can scan with their wallet to start
+  the issuance flow.
+
+While the `qrcode` is good for easy testing with the Swagger UI, the `uri` is
+recommended to also receive the session ID in the response that is needed to
+fetch information about the session later on.
+
+```bash
+curl -X 'POST' \
+  'http://localhost:3000/issuer-management/offer' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer eyJhb...npoNk' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "response_type": "uri",
+  "credentialConfigurationIds": [
+    "citizen"
+  ]
+}'
+```
+
+When there is no config with the provided ID, the service will return an error.
 
 ## Revoking Credentials
 
@@ -160,26 +194,21 @@ stored, just
 - status list URL
 - status list index
 
-You can revoke a credential by calling the `/status-management/${session}`
-endpoint with the session ID of the issuance flow. This will revoke all
-credentials issued in that session.
+Sessions can be revoked via the `/session/revoke` endpoint like
 
-## How to Test
-
-1. Place your file in `config/credentials/`
-2. Check it is loaded via `GET /credentials/config`
-3. Trigger issuance via `/vci/offer` like
-
-```http
+```bash
 curl -X 'POST' \
-  'http://localhost:3000/vci/offer' \
-  -H 'accept: application/json' \
-  -H 'x-api-key: 1234' \
+  'http://localhost:3000/session/revoke' \
+  -H 'accept: */*' \
+  -H 'Authorization: Bearer eyJhb...npoNk' \
   -H 'Content-Type: application/json' \
   -d '{
-  "response_type": "uri",
-  "credentialConfigurationIds": [
-    "citizen"
-  ]
+  "sessionId": "59d22466-b403-4b37-b1d0-20163696ade7",
+  "credentialConfigurationId": "pid",
+  "status": 1
 }'
 ```
+
+If no `credentialConfigurationId` is provided, the revocation will be applied to
+all credentials of the session. The update to the status list will be performed
+immediately after the request and the updates status list will be available.

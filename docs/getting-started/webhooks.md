@@ -4,26 +4,23 @@ EUDIPLO allows the configuration of webhook endpoints to integrate external
 services during credential presentation and **presentation during issuance**
 flows.
 
-These webhooks enable you to receive or process data exchanged with the wallet,
-either for validation or to generate new credentials dynamically.
-
 ---
 
 ## Supported Webhook Scenarios
 
-| Flow                             | Purpose                                        | Config Location                            |
-| -------------------------------- | ---------------------------------------------- | ------------------------------------------ |
-| **Presentation Webhook**         | Receives verified claims from the wallet       | `presentation/<id>.json` or `POST /oid4vp` |
-| **Presentation During Issuance** | Receives claims required to issue a credential | `issuance/<id>.json`                       |
+| Flow                             | Purpose                                        |
+| -------------------------------- | ---------------------------------------------- |
+| **Presentation Webhook**         | Receives verified claims from the wallet       |
+| **Presentation During Issuance** | Receives claims required to issue a credential |
 
 ---
 
 ## Example Webhook Service
 
-In the [test/webhook](https://github.com/cre8/eudiplo/test/webhook) directory,
-you can find a simple webhook simulator that can be used to test the webhook
-functionality of the EUDIPLO service. It can be run locally or deployed to a
-cloudflare worker.
+In the [test/webhook](https://github.com/cre8/eudiplo/tree/main/test/webhook)
+directory, you can find a simple webhook simulator that can be used to test the
+webhook functionality of the EUDIPLO service. It can be run locally or deployed
+to a cloudflare worker.
 
 ---
 
@@ -57,12 +54,10 @@ Here is an example of a webhook configuration:
 
 ### 1. Presentation Webhook
 
-You can configure the webhook statically inside your `presentation/<id>.json`
-file or passing the webhook dynamically via `POST /oid4vp`:
+You can configure the webhook statically inside your presentation or issuance
+configuration or passing the webhook dynamically via offer creation:
 
 ### 2. Presentation During Issuance
-
-Configure this in your `issuance/<id>.json`:
 
 ```json
 {
@@ -71,16 +66,18 @@ Configure this in your `issuance/<id>.json`:
         "webhook": {
             "url": "http://localhost:8787/process",
             "auth": {
-                "type": "basic",
-                "username": "user",
-                "password": "pass"
+                "type": "apiKey",
+                "config": {
+                    "headerName": "x-api-key",
+                    "value": "your-api-key"
+                }
             }
         }
     }
 }
 ```
 
-> TODO: need to add a webhook once notification endpoint is implemented.
+> TODO: need to add a webhook for issuance flows.
 
 ---
 

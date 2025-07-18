@@ -1,6 +1,4 @@
-import { CredentialConfigurationSupported } from '@openid4vc/openid4vci';
-import { IsObject, IsOptional, IsString } from 'class-validator';
-import { SchemaResponse } from './schema-response.dto';
+import { IsObject, IsString } from 'class-validator';
 import { WebhookConfig } from '../../../utils/webhook.dto';
 
 export class VCT {
@@ -25,26 +23,4 @@ export class PresentationDuringIssuance {
     type: string;
     @IsObject()
     webhook?: WebhookConfig;
-}
-export class CredentialConfig {
-    @IsString()
-    @IsOptional()
-    '$schema'?: string;
-    @IsString()
-    id: string;
-    @IsObject()
-    config: CredentialConfigurationSupported;
-    @IsObject()
-    claims: Record<string, any>;
-    @IsObject()
-    disclosureFrame: Record<string, any>;
-    @IsObject()
-    @IsOptional()
-    vct?: VCT;
-    @IsObject()
-    @IsOptional()
-    presentation_during_issuance?: PresentationDuringIssuance;
-    @IsObject()
-    @IsOptional()
-    schema: SchemaResponse;
 }

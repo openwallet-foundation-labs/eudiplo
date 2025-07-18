@@ -1,6 +1,5 @@
-import { IsObject, IsOptional, IsString } from 'class-validator';
+import { IsObject, IsString } from 'class-validator';
 import { RegistrationCertificateCreation } from '../../../registrar/generated';
-import { WebhookConfig } from '../../../utils/webhook.dto';
 
 export class RegistrationCertificateRequest {
     /**
@@ -13,30 +12,4 @@ export class RegistrationCertificateRequest {
      */
     @IsObject()
     body: RegistrationCertificateCreation;
-}
-
-export class VPRequest {
-    @IsString()
-    @IsOptional()
-    '$schema'?: string;
-    /**
-     * Unique identifier for the VP request.
-     */
-    @IsString()
-    id: string;
-    /**
-     * The DCQL query to be used for the VP request.
-     */
-    @IsObject()
-    dcql_query: any;
-    @IsObject()
-    /**
-     * The registration certificate request containing the necessary details.
-     */
-    registrationCert: RegistrationCertificateRequest;
-    /**
-     * Optional webhook URL to receive the response.
-     */
-    @IsObject()
-    webhook?: WebhookConfig;
 }

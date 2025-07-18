@@ -6,12 +6,15 @@ import { App } from 'supertest/types';
 import request from 'supertest';
 import { ConfigService } from '@nestjs/config';
 import { Openid4vpClient } from '@openid4vc/openid4vp';
-import { callbacks } from './utils';
+import { callbacks, loggerMiddleware } from './utils';
+import { readFileSync } from 'fs';
 
 describe('Presentation', () => {
     let app: INestApplication<App>;
-    let authApiKey: string;
+    let authToken: string;
     let host: string;
+    let clientId: string;
+    let clientSecret: string;
     beforeAll(async () => {
         const moduleFixture: TestingModule = await Test.createTestingModule({
             imports: [AppModule],
@@ -21,21 +24,43 @@ describe('Presentation', () => {
 
         app.useLogger(['error', 'warn', 'log']);
         // Uncomment the next line to enable logger middleware
-        //app.use(loggerMiddleware);
+        app.use(loggerMiddleware);
         const configService = app.get(ConfigService);
-        authApiKey = configService.getOrThrow('AUTH_API_KEY');
         configService.set('PUBLIC_URL', 'https://example.com'); // Set a test URL
         host = configService.getOrThrow('PUBLIC_URL');
+        clientId = configService.getOrThrow<string>('AUTH_CLIENT_ID');
+        clientSecret = configService.getOrThrow<string>('AUTH_CLIENT_SECRET');
         await app.init();
 
-        //TODO: tell the app to use the certificates in test/cert
+        // Get JWT token using client credentials
+        const tokenResponse = await request(app.getHttpServer())
+            .post('/auth/token')
+            .trustLocalhost()
+            .send({
+                client_id: clientId,
+                client_secret: clientSecret,
+            });
+
+        authToken = tokenResponse.body.access_token;
+        expect(authToken).toBeDefined();
+
+        //import the pid credential configuration
+        const pidCredentialConfiguration = JSON.parse(
+            readFileSync('test/pid-presentation.json', 'utf-8'),
+        );
+        pidCredentialConfiguration.id = 'pid';
+        await request(app.getHttpServer())
+            .post('/presentation-management')
+            .trustLocalhost()
+            .set('Authorization', `Bearer ${authToken}`)
+            .send(pidCredentialConfiguration);
     });
 
     test('create oid4vp offer', async () => {
         const res = await request(app.getHttpServer())
-            .post('/oid4vp')
+            .post('/presentation-management/request')
             .trustLocalhost()
-            .set('x-api-key', authApiKey)
+            .set('Authorization', `Bearer ${authToken}`)
             .send({
                 response_type: 'uri',
                 requestId: 'pid',
@@ -48,7 +73,7 @@ describe('Presentation', () => {
         await request(app.getHttpServer())
             .get(`/session/${session}`)
             .trustLocalhost()
-            .set('x-api-key', authApiKey)
+            .set('Authorization', `Bearer ${authToken}`)
             .expect(200)
             .expect((res) => {
                 expect(res.body.id).toBe(session);
@@ -57,9 +82,9 @@ describe('Presentation', () => {
 
     test('ask for an invalid oid4vp offer', async () => {
         await request(app.getHttpServer())
-            .post('/oid4vp')
+            .post('/presentation-management/request')
             .trustLocalhost()
-            .set('x-api-key', authApiKey)
+            .set('Authorization', `Bearer ${authToken}`)
             .send({
                 response_type: 'uri',
                 requestId: 'invalid',
@@ -74,9 +99,9 @@ describe('Presentation', () => {
 
     test('present credential', async () => {
         const res = await request(app.getHttpServer())
-            .post('/oid4vp')
+            .post('/presentation-management/request')
             .trustLocalhost()
-            .set('x-api-key', authApiKey)
+            .set('Authorization', `Bearer ${authToken}`)
             .send({
                 response_type: 'uri',
                 requestId: 'pid',
@@ -107,5 +132,7 @@ describe('Presentation', () => {
             authorizationRequestPayload: authRequest.params,
         });
         expect(resolved).toBeDefined();
+
+        //TODO: send response
     });
 });

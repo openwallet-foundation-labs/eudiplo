@@ -1,14 +1,21 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
-import { ApiSecurity } from '@nestjs/swagger';
-import { ApiKeyGuard } from '../auth/api-key-guard';
+import { Controller, Get, Param, Post, UseGuards, Body } from '@nestjs/common';
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { SessionService } from './session.service';
 import { Session } from './entities/session.entity';
+import { JwtAuthGuard } from '../auth/auth.guard';
+import { Token, TokenPayload } from '../auth/token.decorator';
+import { StatusUpdateDto } from '../issuer/status-list/dto/status-update.dto';
+import { StatusListService } from '../issuer/status-list/status-list.service';
 
-@UseGuards(ApiKeyGuard)
-@ApiSecurity('apiKey')
+@ApiTags('Session management', 'Admin')
+@UseGuards(JwtAuthGuard)
+@ApiSecurity('bearer')
 @Controller('session')
 export class SessionController {
-    constructor(private readonly sessionService: SessionService) {}
+    constructor(
+        private readonly sessionService: SessionService,
+        private readonly statusListService: StatusListService,
+    ) {}
 
     /**
      * Retrieves all sessions.
@@ -24,5 +31,17 @@ export class SessionController {
     @Get(':id')
     getSession(@Param('id') id: string): Promise<Session> {
         return this.sessionService.get(id);
+    }
+
+    /**
+     * Update the status of the credentials of a specific session.
+     * @param value
+     * @returns
+     */
+    @UseGuards(JwtAuthGuard)
+    @ApiSecurity('bearer')
+    @Post('revoke')
+    revokeAll(@Body() value: StatusUpdateDto, @Token() user: TokenPayload) {
+        return this.statusListService.updateStatus(value, user.sub);
     }
 }

@@ -7,7 +7,9 @@ developers can run EUDIPLO as a standalone Docker container and interact with it
 via simple APIs or configuration files.
 
 It acts as an **adapter** between trusted infrastructure and local applications
-or web services.
+or web services. EUDIPLO handles the complexities of the EUDI Wallet ecosystem,
+allowing you to focus on your core business logic without worrying about the
+underlying protocols.
 
 ---
 

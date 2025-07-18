@@ -2,8 +2,8 @@ import { Controller, Get, Param } from '@nestjs/common';
 import { CredentialsService } from './credentials.service';
 import { ApiTags } from '@nestjs/swagger';
 
-@ApiTags('credentials')
-@Controller('credentials')
+@ApiTags('Credentials')
+@Controller('credentials/:tenantId')
 export class CredentialsController {
     constructor(private readonly credentialsService: CredentialsService) {}
 
@@ -12,8 +12,8 @@ export class CredentialsController {
      * @param id - The identifier of the credential configuration.
      */
     @Get('vct/:id')
-    vct(@Param('id') id: string) {
-        return this.credentialsService.getVCT(id);
+    vct(@Param('id') id: string, @Param('tenantId') tenantId: string) {
+        return this.credentialsService.getVCT(id, tenantId);
     }
 
     /**
@@ -22,7 +22,7 @@ export class CredentialsController {
      * @returns
      */
     @Get('schema/:id')
-    schema(@Param('id') id: string) {
-        return this.credentialsService.getSchema(id);
+    schema(@Param('id') id: string, @Param('tenantId') tenantId: string) {
+        return this.credentialsService.getSchema(id, tenantId);
     }
 }

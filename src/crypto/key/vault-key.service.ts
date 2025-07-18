@@ -6,14 +6,11 @@ import { importSPKI, exportJWK, JWTHeaderParameters, JWK } from 'jose';
 import { ConfigService } from '@nestjs/config';
 import { JwtPayload, Signer } from '@sd-jwt/types';
 import { CryptoService, CryptoType } from './crypto/crypto.service';
-import { existsSync, writeFileSync } from 'fs';
+import { writeFileSync } from 'fs';
 import { join } from 'path';
 
 @Injectable()
 export class VaultKeyService extends KeyService {
-    public signer!: Signer;
-    private keyId: string;
-
     // url to the vault instance
     private vaultUrl: string;
     // headers for the vault api
@@ -40,27 +37,26 @@ export class VaultKeyService extends KeyService {
                 ) as string,
             },
         };
-        this.keyId = this.configService.get<string>('VAULT_KEY_ID') as string;
     }
 
     /**
      * Check if the vault has a key with the given id
      */
-    async init() {
-        await this.getPublicKey('pem')
+    async init(tenantId: string) {
+        //TODO: need to update this since signing cert is not created by the vault
+        await this.getPublicKey('pem', tenantId)
             .then((res) => {
                 writeFileSync(join(this.folder, 'public-key.pem'), res);
             })
-            .catch(async () => this.create());
-        const signerCert = join(this.folder, 'signing-certificate.pem');
-        if (!existsSync(signerCert)) {
-            //TODO: it would be cool to call this script automatically
-            throw new Error(
-                'No signing certificate found. Please run create-cert-from-pubkey.sh',
-            );
-        }
+            .catch(async () => this.create(tenantId));
+    }
 
-        this.signer = async (input: string) => this.sign(input);
+    /**
+     * Get the signer for the key service
+     */
+    signer(tenantId: string): Promise<Signer> {
+        //TODO: validate if this is correct.
+        return Promise.resolve((input: string) => this.sign(input, tenantId));
     }
 
     /**
@@ -69,14 +65,14 @@ export class VaultKeyService extends KeyService {
      * @param user
      * @returns
      */
-    async create() {
+    async create(tenantId: string) {
         const types: Map<CryptoType, string> = new Map();
         types.set('ES256', 'ecdsa-p256');
         types.set('Ed25519', 'ed25519');
 
         const res = await firstValueFrom(
             this.httpService.post(
-                `${this.vaultUrl}/keys/${this.keyId}`,
+                `${this.vaultUrl}/keys/${tenantId}`,
                 {
                     exportable: false,
                     type: types.get(this.cryptoService.getAlg()),
@@ -84,16 +80,16 @@ export class VaultKeyService extends KeyService {
                 this.headers,
             ),
         );
-        const jwk = await this.getPublicKey('jwk');
+        const jwk = await this.getPublicKey('jwk', tenantId);
         return {
             id: res.data.id,
             publicKey: jwk,
         };
     }
 
-    getKid(): Promise<string> {
-        //TODO: check if this is the right way to get the key id
-        return Promise.resolve(this.keyId);
+    getKid(tenantId: string): Promise<string> {
+        //TODO: check if this is the right way to get the key id.
+        return Promise.resolve(tenantId);
     }
 
     /**
@@ -101,26 +97,32 @@ export class VaultKeyService extends KeyService {
      * @param id
      * @returns
      */
-    async getPublicKey(type: 'pem'): Promise<string>;
-    async getPublicKey(type: 'jwk'): Promise<JWK>;
-    async getPublicKey(type: 'jwk' | 'pem'): Promise<JWK | string> {
+    async getPublicKey(type: 'pem', tenantId: string): Promise<string>;
+    async getPublicKey(type: 'jwk', tenantId: string): Promise<JWK>;
+    async getPublicKey(
+        type: 'jwk' | 'pem',
+        tenantId: string,
+    ): Promise<JWK | string> {
         return firstValueFrom(
             this.httpService.get<any>(
-                `${this.vaultUrl}/keys/${this.keyId}`,
+                `${this.vaultUrl}/keys/${tenantId}`,
                 this.headers,
             ),
         ).then(async (res) => {
             return type === 'pem'
                 ? (res.data.data.keys['1'].public_key as string)
-                : await this.getJWK(res.data.data.keys['1'].public_key);
+                : await this.getJWK(
+                      res.data.data.keys['1'].public_key,
+                      tenantId,
+                  );
         });
     }
 
-    private getJWK(key: string): Promise<JWK> {
+    private getJWK(key: string, tenantId: string): Promise<JWK> {
         return importSPKI(key, this.cryptoService.getAlg())
             .then((cryptoKey) => exportJWK(cryptoKey))
-            .then((jwk) => {
-                jwk.kid = this.keyId;
+            .then(async (jwk) => {
+                jwk.kid = await this.getKid(tenantId);
                 return jwk;
             });
     }
@@ -132,10 +134,10 @@ export class VaultKeyService extends KeyService {
      * @param value
      * @returns
      */
-    sign(value: string): Promise<string> {
+    sign(value: string, tenantId: string): Promise<string> {
         return firstValueFrom(
             this.httpService.post(
-                `${this.vaultUrl}/sign/${this.keyId}`,
+                `${this.vaultUrl}/sign/${tenantId}`,
                 {
                     input: Buffer.from(value).toString('base64'),
                 },
@@ -154,6 +156,7 @@ export class VaultKeyService extends KeyService {
     async signJWT(
         payload: JwtPayload,
         header: JWTHeaderParameters,
+        tenantId: string,
     ): Promise<string> {
         // Convert header and payload to Base64 to prepare for Vault
         const encodedHeader = Buffer.from(JSON.stringify(header)).toString(
@@ -166,7 +169,7 @@ export class VaultKeyService extends KeyService {
 
         // Request to Vault for signing
         try {
-            const signature = await this.sign(signingInput);
+            const signature = await this.sign(signingInput, tenantId);
             return `${encodedHeader}.${encodedPayload}.${signature}`;
         } catch (error) {
             console.error('Error signing JWT with Vault:', error);

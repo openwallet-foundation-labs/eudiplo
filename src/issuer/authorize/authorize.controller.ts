@@ -1,5 +1,14 @@
 import { randomUUID } from 'node:crypto';
-import { Body, Controller, Get, Post, Query, Req, Res } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Get,
+    Param,
+    Post,
+    Query,
+    Req,
+    Res,
+} from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { AuthorizeService } from './authorize.service';
 import { AuthorizeQueries } from './dto/authorize-request.dto';
@@ -11,7 +20,7 @@ import { ApiBody } from '@nestjs/swagger';
  * Controller for the OpenID4VCI authorization endpoints.
  * This controller handles the authorization requests, token requests.
  */
-@Controller('authorize')
+@Controller(':tenantId/authorize')
 export class AuthorizeController {
     constructor(
         private readonly authorizeService: AuthorizeService,
@@ -24,8 +33,16 @@ export class AuthorizeController {
      * @param res
      */
     @Get()
-    async authorize(@Query() queries: AuthorizeQueries, @Res() res: Response) {
-        return this.authorizeService.sendAuthorizationResponse(queries, res);
+    async authorize(
+        @Query() queries: AuthorizeQueries,
+        @Res() res: Response,
+        @Param('tenantId') tenantId: string,
+    ) {
+        return this.authorizeService.sendAuthorizationResponse(
+            queries,
+            res,
+            tenantId,
+        );
     }
 
     /**
@@ -38,10 +55,13 @@ export class AuthorizeController {
         type: AuthorizeQueries,
     })
     @Post('par')
-    async par(@Body() body: AuthorizeQueries): Promise<ParResponseDto> {
+    async par(
+        @Body() body: AuthorizeQueries,
+        @Param('tenantId') tenantId: string,
+    ): Promise<ParResponseDto> {
         const request_uri = `urn:${randomUUID()}`;
         // save both so we can retrieve the session also via the request_uri in the authorize step.
-        await this.sessionService.add(body.issuer_state!, {
+        await this.sessionService.add(body.issuer_state!, tenantId, {
             request_uri,
             auth_queries: body,
         });
@@ -59,9 +79,13 @@ export class AuthorizeController {
      * @returns
      */
     @Post('token')
-    async token(@Body() body: any, @Req() req: Request): Promise<any> {
+    async token(
+        @Body() body: any,
+        @Req() req: Request,
+        @Param('tenantId') tenantId: string,
+    ): Promise<any> {
         //TODO: define body
-        return this.authorizeService.validateTokenRequest(body, req);
+        return this.authorizeService.validateTokenRequest(body, req, tenantId);
     }
 
     /**
@@ -74,7 +98,12 @@ export class AuthorizeController {
     authorizationChallengeEndpoint(
         @Res() res: Response,
         @Body() body: AuthorizeQueries,
+        @Query('tenantId') tenantId: string,
     ) {
-        return this.authorizeService.authorizationChallengeEndpoint(res, body);
+        return this.authorizeService.authorizationChallengeEndpoint(
+            res,
+            body,
+            tenantId,
+        );
     }
 }

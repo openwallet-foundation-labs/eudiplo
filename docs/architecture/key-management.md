@@ -91,3 +91,84 @@ KM_TYPE = awskms;
 
 If you need help integrating a new provider, feel free to open an issue or
 contact the maintainers.
+
+---
+
+## Multi-Tenant Key Management
+
+In multi-tenant mode, EUDIPLO provides **complete key isolation** between
+tenants, ensuring cryptographic separation and security.
+
+### Tenant-Specific Key Storage
+
+#### File-Based Key Management
+
+When `KM_TYPE=file` in multi-tenant mode:
+
+```
+config/
+├── tenant-1/
+│   ├── keys/
+│   │   ├── signing-key.json
+│   │   └── encryption-key.json
+│   └── display.json
+├── tenant-2/
+│   ├── keys/
+│   │   ├── signing-key.json
+│   │   └── encryption-key.json
+│   └── display.json
+```
+
+#### Database Key Management
+
+Keys are stored in the `KeyEntity` table with tenant isolation:
+
+```typescript
+@Entity()
+export class KeyEntity {
+    @Column('varchar', { primary: true })
+    tenantId: string; // Primary key includes tenant ID
+
+    @Column('json')
+    privateKey: JsonWebKey;
+}
+```
+
+### Automatic Key Generation
+
+**Tenant Initialization Process:**
+
+1. Client registers with credentials (`client_id`, `client_secret`)
+2. System creates tenant directory: `/config/{tenantId}/`
+3. Cryptographic key pair automatically generated
+4. Keys stored in tenant-specific location
+5. `TENANT_KEYS` event emitted for dependent services
+
+**Event-Driven Key Setup:**
+
+```typescript
+@OnEvent(TENANT_EVENTS.TENANT_KEYS, { async: true })
+async onTenantInit(tenantId: string) {
+    // Services automatically initialize tenant-specific keys
+    await this.cryptoService.initializeKeys(tenantId);
+}
+```
+
+### Key Access Patterns
+
+**Tenant-Scoped Key Retrieval:**
+
+```typescript
+// Get signing keys for specific tenant
+const keys = await this.cryptoService.getJwks(tenantId);
+
+// Get encryption context for tenant
+const context = this.cryptoService.getCallbackContext(tenantId);
+```
+
+**Security Benefits:**
+
+- **Complete isolation**: No cross-tenant key access possible
+- **Independent rotation**: Each tenant can manage keys separately
+- **Audit trail**: All key operations scoped to tenant ID
+- **Scalable**: New tenants automatically provisioned with fresh keys

@@ -36,6 +36,32 @@ export default tseslint.config(
             '@typescript-eslint/no-unsafe-assignment': 'off',
             '@typescript-eslint/no-unsafe-call': 'off',
             '@typescript-eslint/no-unsafe-member-access': 'off',
+            // Enforce relative imports - prevent absolute imports from src directory
+            'no-restricted-imports': [
+                'error',
+                {
+                    patterns: [
+                        {
+                            group: [
+                                'src/*',
+                                'app/*',
+                                'auth/*',
+                                'crypto/*',
+                                'database/*',
+                                'health/*',
+                                'issuer/*',
+                                'registrar/*',
+                                'session/*',
+                                'utils/*',
+                                'verifier/*',
+                                'well-known/*',
+                            ],
+                            message:
+                                'Use relative imports instead of absolute imports. Use "./relative/path" or "../relative/path".',
+                        },
+                    ],
+                },
+            ],
         },
     },
 );

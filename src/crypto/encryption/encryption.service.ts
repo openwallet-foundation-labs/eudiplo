@@ -1,11 +1,13 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { importJWK, exportJWK, generateKeyPair, jwtDecrypt, JWK } from 'jose';
 import { join } from 'path';
+import { TENANT_EVENTS } from '../../auth/tenant-events';
+import { OnEvent } from '@nestjs/event-emitter';
 
 @Injectable()
-export class EncryptionService implements OnModuleInit {
+export class EncryptionService {
     private privateEncryptionKey: CryptoKey;
     private publicEncryptionKey: JWK;
     private privateEnncryptionPath: string;
@@ -13,9 +15,15 @@ export class EncryptionService implements OnModuleInit {
 
     constructor(private configService: ConfigService) {}
 
-    async onModuleInit() {
+    @OnEvent(TENANT_EVENTS.TENANT_INIT, { async: true })
+    async onTenantInit(tenantId: string) {
+        await this.init(tenantId);
+    }
+
+    async init(tenantId: string) {
         const folder = join(
             this.configService.getOrThrow<string>('FOLDER'),
+            tenantId,
             'keys',
         );
         this.privateEnncryptionPath = join(folder, 'private-encryption.json');

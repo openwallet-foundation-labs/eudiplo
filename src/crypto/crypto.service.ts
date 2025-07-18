@@ -22,6 +22,8 @@ import { join } from 'node:path';
 import { KeyService } from './key/key.service';
 import { EC_Public } from '../well-known/dto/jwks-response.dto';
 import { execSync } from 'node:child_process';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { TENANT_EVENTS } from '../auth/tenant-events';
 
 type certificateType = 'access' | 'signing';
 
@@ -32,30 +34,39 @@ export class CryptoService implements OnModuleInit {
     constructor(
         private readonly configService: ConfigService,
         @Inject('KeyService') public readonly keyService: KeyService,
+        private readonly eventEmitter: EventEmitter2,
     ) {}
     onModuleInit() {
-        this.folder = join(
-            this.configService.getOrThrow<string>('FOLDER'),
-            'keys',
-        );
+        this.folder = join(this.configService.getOrThrow<string>('FOLDER'));
         if (!existsSync(this.folder)) {
             mkdirSync(this.folder, { recursive: true });
         }
-        this.hasCerts();
+    }
+
+    @OnEvent(TENANT_EVENTS.TENANT_INIT, { async: true })
+    async onTenantInit(tenantId: string) {
+        const folder = join(this.folder, tenantId, 'keys');
+        if (!existsSync(folder)) {
+            mkdirSync(folder, { recursive: true });
+        }
+        await this.keyService.init(tenantId);
+        this.hasCerts(tenantId);
+        this.eventEmitter.emit(TENANT_EVENTS.TENANT_KEYS, tenantId);
     }
 
     /**
      * Checks if there is a signing certificate and access certificate available.
      * If not it will be created.
      */
-    hasCerts() {
-        const pubkey = join(this.folder, 'public-key.pem');
-        const dummyKey = join(this.folder, 'dummy_key.pem');
-        const dummyCsr = join(this.folder, 'dummy.csr');
-        const issuerKey = join(this.folder, 'issuer_key.pem');
-        const issuerCert = join(this.folder, 'issuer_cert.pem');
-        const certOut = join(this.folder, 'signing-certificate.pem');
-        const sanExt = join(this.folder, 'san.ext');
+    hasCerts(tenantId: string) {
+        const folder = join(this.folder, tenantId, 'keys');
+        const pubkey = join(folder, 'public-key.pem');
+        const dummyKey = join(folder, 'dummy_key.pem');
+        const dummyCsr = join(folder, 'dummy.csr');
+        const issuerKey = join(folder, 'issuer_key.pem');
+        const issuerCert = join(folder, 'issuer_cert.pem');
+        const certOut = join(folder, 'signing-certificate.pem');
+        const sanExt = join(folder, 'san.ext');
         if (!existsSync(certOut)) {
             // === Configurable parameters (you can parameterize these when calling the script) ===
             const subject = this.configService.getOrThrow<string>('RP_NAME');
@@ -73,20 +84,14 @@ export class CryptoService implements OnModuleInit {
 
             // Step 1: Create dummy key pair if public key is missing
             if (!existsSync(dummyKey)) {
-                console.log(
-                    `⚠️  Public key not found. Generating new PKCS#8 key pair.`,
-                );
-
                 // Generate private key (PKCS#8)
                 run(
                     `openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:prime256v1 -out "${dummyKey}"`,
                 );
             } else {
-                console.log(`✅ Found public key at ${pubkey}`);
-
                 if (!existsSync(dummyKey)) {
                     throw new Error(
-                        `❌ Public key exists but ${dummyKey} is missing.`,
+                        `Public key exists but ${dummyKey} is missing.`,
                     );
                 }
             }
@@ -120,30 +125,25 @@ export class CryptoService implements OnModuleInit {
                 issuerCert,
                 dummyCsr,
                 dummyKey,
-                join(this.folder, 'issuer_cert.srl'),
+                join(folder, 'issuer_cert.srl'),
                 sanExt,
             ].forEach((file) => {
                 if (existsSync(file)) unlinkSync(file);
             });
-
-            console.log(`✅ Done! Signed certificate written to: ${certOut}`);
         }
-        if (!existsSync(join(this.folder, 'access-certificate.pem'))) {
+        if (!existsSync(join(folder, 'access-certificate.pem'))) {
             // Create access certificate from signing certificate
             const signingCert = readFileSync(
-                join(this.folder, 'signing-certificate.pem'),
+                join(folder, 'signing-certificate.pem'),
                 'utf-8',
             );
-            writeFileSync(
-                join(this.folder, 'access-certificate.pem'),
-                signingCert,
-            );
+            writeFileSync(join(folder, 'access-certificate.pem'), signingCert);
         }
     }
 
-    getCertChain(type: certificateType = 'signing') {
+    getCertChain(type: certificateType = 'signing', tenantId: string) {
         const cert = readFileSync(
-            join(this.folder, `${type}-certificate.pem`),
+            join(this.folder, tenantId, 'keys', `${type}-certificate.pem`),
             'utf-8',
         )
             .replace('-----BEGIN CERTIFICATE-----', '')
@@ -152,19 +152,27 @@ export class CryptoService implements OnModuleInit {
         return [cert];
     }
 
-    storeAccessCertificate(crt: string) {
-        writeFileSync(join(this.folder, `access-certificate.pem`), crt);
+    storeAccessCertificate(crt: string, tenantId: string) {
+        writeFileSync(
+            join(this.folder, tenantId, 'keys', `access-certificate.pem`),
+            crt,
+        );
     }
 
-    async signJwt(header: any, payload: any): Promise<string> {
-        return this.keyService.signJWT(payload, header);
+    async signJwt(
+        header: any,
+        payload: any,
+        tenantId: string,
+    ): Promise<string> {
+        return this.keyService.signJWT(payload, header, tenantId);
     }
 
     async verifyJwt(
         compact: string,
+        tenantId: string,
         payload?: Record<string, any>,
     ): Promise<{ verified: boolean }> {
-        const publicJwk = await this.keyService.getPublicKey('jwk');
+        const publicJwk = await this.keyService.getPublicKey('jwk', tenantId);
         const publicCryptoKey = await importJWK(publicJwk, 'ES256');
 
         try {
@@ -178,58 +186,63 @@ export class CryptoService implements OnModuleInit {
             return { verified: false };
         }
     }
+    getCallbackContext(
+        tenantId: string,
+    ): Omit<CallbackContext, 'encryptJwe' | 'decryptJwe'> {
+        return {
+            hash: (data, alg) =>
+                createHash(alg.replace('-', '').toLowerCase())
+                    .update(data)
+                    .digest(),
+            generateRandom: (bytes) => randomBytes(bytes),
+            clientAuthentication: clientAuthenticationNone({
+                clientId: 'some-random',
+            }),
+            //clientId: 'some-random-client-id', // TODO: Replace with your real clientId if necessary
+            signJwt: this.getSignJwtCallback(tenantId),
+            verifyJwt: async (signer, { compact, payload }) => {
+                if (signer.method !== 'jwk') {
+                    throw new Error('Signer method not supported');
+                }
 
-    // Callbacks object similar to your utils
-    callbacks: Omit<CallbackContext, 'encryptJwe' | 'decryptJwe'> = {
-        hash: (data, alg) =>
-            createHash(alg.replace('-', '').toLowerCase())
-                .update(data)
-                .digest(),
-        generateRandom: (bytes) => randomBytes(bytes),
-        clientAuthentication: clientAuthenticationNone({
-            clientId: 'some-random',
-        }),
-        //clientId: 'some-random-client-id', // TODO: Replace with your real clientId if necessary
-        signJwt: this.getSignJwtCallback(),
-        verifyJwt: async (signer, { compact, payload }) => {
-            if (signer.method !== 'jwk') {
-                throw new Error('Signer method not supported');
-            }
-
-            const josePublicKey = await importJWK(
-                signer.publicJwk as JWK,
-                signer.alg,
-            );
-            try {
-                await jwtVerify(compact, josePublicKey, {
-                    currentDate: payload?.exp
-                        ? new Date((payload.exp - 300) * 1000)
-                        : undefined,
-                });
-                return { verified: true, signerJwk: signer.publicJwk };
-            } catch {
-                return { verified: false };
-            }
-        },
-    };
+                const josePublicKey = await importJWK(
+                    signer.publicJwk as JWK,
+                    signer.alg,
+                );
+                try {
+                    await jwtVerify(compact, josePublicKey, {
+                        currentDate: payload?.exp
+                            ? new Date((payload.exp - 300) * 1000)
+                            : undefined,
+                    });
+                    return { verified: true, signerJwk: signer.publicJwk };
+                } catch {
+                    return { verified: false };
+                }
+            },
+        };
+    }
 
     // Helper to generate signJwt callback
-    getSignJwtCallback(): SignJwtCallback {
+    getSignJwtCallback(tenantId: string): SignJwtCallback {
         return async (signer, { header, payload }) => {
             if (signer.method !== 'jwk') {
                 throw new Error('Signer method not supported');
             }
-
+            const hashCallback = this.getCallbackContext(tenantId).hash;
             const jwkThumbprint = await calculateJwkThumbprint({
                 jwk: signer.publicJwk,
                 hashAlgorithm: HashAlgorithm.Sha256,
-                hashCallback: this.callbacks.hash,
+                hashCallback,
             });
 
             const privateThumbprint = await calculateJwkThumbprint({
-                jwk: (await this.keyService.getPublicKey('jwk')) as Jwk,
+                jwk: (await this.keyService.getPublicKey(
+                    'jwk',
+                    tenantId,
+                )) as Jwk,
                 hashAlgorithm: HashAlgorithm.Sha256,
-                hashCallback: this.callbacks.hash,
+                hashCallback,
             });
 
             if (jwkThumbprint !== privateThumbprint) {
@@ -238,7 +251,7 @@ export class CryptoService implements OnModuleInit {
                 );
             }
 
-            const jwt = await this.signJwt(header, payload);
+            const jwt = await this.signJwt(header, payload, tenantId);
 
             return {
                 jwt,
@@ -262,7 +275,10 @@ export class CryptoService implements OnModuleInit {
         return headers;
     }
 
-    getJwks() {
-        return this.keyService.getPublicKey('jwk') as Promise<EC_Public>;
+    getJwks(tenantId: string) {
+        return this.keyService.getPublicKey(
+            'jwk',
+            tenantId,
+        ) as Promise<EC_Public>;
     }
 }

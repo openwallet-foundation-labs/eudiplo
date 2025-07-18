@@ -38,4 +38,6 @@ export class Session {
     webhook?: WebhookConfig;
     @Column('json', { default: JSON.stringify([]) })
     notifications: Notification[];
+    @Column('varchar')
+    tenantId: string; // Tenant ID for multi-tenancy support
 }

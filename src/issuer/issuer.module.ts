@@ -9,20 +9,28 @@ import { StatusListModule } from './status-list/status-list.module';
 import { CredentialsController } from './credentials/credentials.controller';
 import * as Joi from 'joi';
 import { SessionModule } from '../session/session.module';
-import { IssuerManagmentController } from './issuer-managment/issuer-managment.controller';
+import { IssuerManagementController } from './issuer-management/issuer-management.controller';
 import { Oid4vpModule } from '../verifier/oid4vp/oid4vp.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { IssuanceConfig } from './credentials/entities/issuance-config.entity';
 
 export const ISSUER_VALIDATION_SCHEMA = {
     PUBLIC_URL: Joi.string(),
 };
 
 @Module({
-    imports: [CryptoModule, StatusListModule, Oid4vpModule, SessionModule],
+    imports: [
+        CryptoModule,
+        StatusListModule,
+        Oid4vpModule,
+        SessionModule,
+        TypeOrmModule.forFeature([IssuanceConfig]),
+    ],
     controllers: [
         Oid4vciController,
         AuthorizeController,
         CredentialsController,
-        IssuerManagmentController,
+        IssuerManagementController,
     ],
     providers: [AuthorizeService, CredentialsService, Oid4vciService],
     exports: [AuthorizeService, Oid4vciService],
