@@ -4,11 +4,17 @@
         "vct": "https://sd-jwt.com",
         "proof_types_supported": {
             "jwt": {
-                "proof_signing_alg_values_supported": ["ES256"]
+                "proof_signing_alg_values_supported": [
+                    "ES256"
+                ]
             }
         },
-        "credential_signing_alg_values_supported": ["ES256"],
-        "cryptographic_binding_methods_supported": ["jwk"],
+        "credential_signing_alg_values_supported": [
+            "ES256"
+        ],
+        "cryptographic_binding_methods_supported": [
+            "jwk"
+        ],
         "display": [
             {
                 "name": "PID",
@@ -52,7 +58,9 @@
             "postal_code": "51147",
             "street_address": "HEIDESTRAẞE 17"
         },
-        "nationalities": ["DE"]
+        "nationalities": [
+            "DE"
+        ]
     },
     "disclosureFrame": {
         "_sd": [
@@ -68,7 +76,14 @@
             "place_of_birth",
             "address",
             "nationalities"
-        ]
+        ],
+        "address": {
+            "_sd": [
+                "locality",
+                "postal_code",
+                "street_address"
+            ]
+        }
     },
     "vct": {}
 }
