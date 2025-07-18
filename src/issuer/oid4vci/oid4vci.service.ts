@@ -28,6 +28,10 @@ import { SessionService } from '../../session/session.service';
 import { v4 } from 'uuid';
 import { OfferRequest, OfferResponse } from './dto/offer-request.dto';
 import { NotificationRequestDto } from './dto/notification-request.dto';
+import {
+    SessionLoggerService,
+    SessionLogContext,
+} from '../../utils/session-logger.service';
 import { TokenPayload } from '../../auth/token.decorator';
 
 @Injectable()
@@ -42,6 +46,7 @@ export class Oid4vciService implements OnModuleInit {
         public readonly credentialsService: CredentialsService,
         private readonly configService: ConfigService,
         private readonly sessionService: SessionService,
+        private readonly sessionLogger: SessionLoggerService,
     ) {}
     onModuleInit() {
         //TODO: align for tenant
@@ -178,40 +183,76 @@ export class Oid4vciService implements OnModuleInit {
             tokenPayload.sub as string,
         );
 
-        const credentials: string[] = [];
-        for (const jwt of parsedCredentialRequest.proofs.jwt) {
-            const verifiedProof =
-                await this.issuer.verifyCredentialRequestJwtProof({
-                    //check if this is correct or if the passed nonce is validated.
-                    expectedNonce: tokenPayload.nonce as string,
-                    issuerMetadata: await this.issuerMetadata(tenantId),
-                    jwt,
-                });
-            const cnf = verifiedProof.signer.publicJwk;
-            const cred = await this.credentialsService.getCredential(
-                parsedCredentialRequest.credentialConfigurationId as string,
-                cnf as any,
-                session,
-            );
-            credentials.push(cred);
+        // Create session logging context
+        const logContext: SessionLogContext = {
+            sessionId: session.id,
+            tenantId,
+            flowType: 'OID4VCI',
+            stage: 'credential_request',
+        };
+
+        this.sessionLogger.logFlowStart(logContext, {
+            credentialConfigurationId:
+                parsedCredentialRequest.credentialConfigurationId,
+            proofCount: parsedCredentialRequest.proofs?.jwt?.length || 0,
+        });
+
+        try {
+            const credentials: string[] = [];
+            for (const jwt of parsedCredentialRequest.proofs.jwt) {
+                const verifiedProof =
+                    await this.issuer.verifyCredentialRequestJwtProof({
+                        //check if this is correct or if the passed nonce is validated.
+                        expectedNonce: tokenPayload.nonce as string,
+                        issuerMetadata: await this.issuerMetadata(tenantId),
+                        jwt,
+                    });
+                const cnf = verifiedProof.signer.publicJwk;
+                const cred = await this.credentialsService.getCredential(
+                    parsedCredentialRequest.credentialConfigurationId as string,
+                    cnf as any,
+                    session,
+                );
+                credentials.push(cred);
+
+                this.sessionLogger.logCredentialIssuance(
+                    logContext,
+                    parsedCredentialRequest.credentialConfigurationId as string,
+                    {
+                        credentialSize: cred.length,
+                        proofVerified: true,
+                    },
+                );
+            }
+
+            const notificationId = v4();
+            session.notifications.push({
+                id: notificationId,
+            });
+            await this.sessionService.add(session.id, tenantId, {
+                notifications: session.notifications,
+            });
+
+            this.sessionLogger.logFlowComplete(logContext, {
+                credentialsIssued: credentials.length,
+                notificationId,
+            });
+
+            return this.issuer.createCredentialResponse({
+                credentials,
+                credentialRequest: parsedCredentialRequest,
+                cNonce: tokenPayload.nonce as string,
+                cNonceExpiresInSeconds: 3600,
+                //this should be stored in the session in case this endpoint is requested multiple times, but the response is differnt.
+                notificationId,
+            });
+        } catch (error) {
+            this.sessionLogger.logFlowError(logContext, error as Error, {
+                credentialConfigurationId:
+                    parsedCredentialRequest.credentialConfigurationId,
+            });
+            throw error;
         }
-
-        const notificationId = v4();
-        session.notifications.push({
-            id: notificationId,
-        });
-        await this.sessionService.add(session.id, tenantId, {
-            notifications: session.notifications,
-        });
-
-        return this.issuer.createCredentialResponse({
-            credentials,
-            credentialRequest: parsedCredentialRequest,
-            cNonce: tokenPayload.nonce as string,
-            cNonceExpiresInSeconds: 3600,
-            //this should be stored in the session in case this endpoint is requested multiple times, but the response is differnt.
-            notificationId,
-        });
     }
 
     /**
@@ -247,18 +288,46 @@ export class Oid4vciService implements OnModuleInit {
         if (session === undefined) {
             throw new BadRequestException('Session not found');
         }
-        const index = session.notifications.findIndex(
-            (notification) => notification.id === body.notification_id,
-        );
-        if (index === -1) {
-            throw new BadRequestException('No notifications found in session');
-        }
-        session.notifications[index] = {
-            id: body.notification_id,
-            event: body.event,
+
+        // Create session logging context
+        const logContext: SessionLogContext = {
+            sessionId: session.id,
+            tenantId,
+            flowType: 'OID4VCI',
+            stage: 'notification',
         };
-        await this.sessionService.add(session.id, tenantId, {
-            notifications: session.notifications,
-        });
+
+        try {
+            const index = session.notifications.findIndex(
+                (notification) => notification.id === body.notification_id,
+            );
+            if (index === -1) {
+                throw new BadRequestException(
+                    'No notifications found in session',
+                );
+            }
+            session.notifications[index] = {
+                id: body.notification_id,
+                event: body.event,
+            };
+            await this.sessionService.add(session.id, tenantId, {
+                notifications: session.notifications,
+            });
+
+            this.sessionLogger.logNotification(logContext, body.event || '', {
+                notificationId: body.notification_id,
+                notificationIndex: index,
+            });
+        } catch (error) {
+            this.sessionLogger.logSessionError(
+                logContext,
+                error as Error,
+                'Failed to handle notification',
+                {
+                    notificationId: body.notification_id,
+                },
+            );
+            throw error;
+        }
     }
 }

@@ -109,6 +109,7 @@ nav:
         - Issuance: getting-started/issuance.md
         - Presentation: getting-started/presentation.md
       - Management: getting-started/management.md
+      - Session Logging: getting-started/session-logging.md
       - Webhooks: getting-started/webhooks.md
       - Registrar: getting-started/registrar.md
   - Architecture:
@@ -124,3 +125,4 @@ nav:
       - Versioning: development/versioning.md
       - Contributing Guide: development/contributing.md      
       - Testing: development/testing.md
+      - Session Logging Implementation: development/session-logging.md

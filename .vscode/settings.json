@@ -8,7 +8,7 @@
             "previewLimit": 50,
             "driver": "SQLite",
             "name": "eudiplo",
-            "database": "assets/service.db"
+            "database": "./tmp/service.db"
         }
     ]
 }

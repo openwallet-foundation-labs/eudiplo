@@ -23,6 +23,7 @@ import { DatabaseModule } from './database/database.module';
 import { HealthModule } from './health/health.module';
 import { AUTH_VALIDATION_SCHEMA, AuthModule } from './auth/auth.module';
 import { EventEmitterModule } from '@nestjs/event-emitter/dist/event-emitter.module';
+import { LoggerModule } from 'nestjs-pino';
 
 @Module({
     imports: [
@@ -30,6 +31,13 @@ import { EventEmitterModule } from '@nestjs/event-emitter/dist/event-emitter.mod
             validationSchema: Joi.object({
                 FOLDER: Joi.string().default('./tmp'),
                 RP_NAME: Joi.string().default('EUDIPLO'),
+                LOG_LEVEL: Joi.string()
+                    .valid('trace', 'debug', 'info', 'warn', 'error', 'fatal')
+                    .default(
+                        process.env.NODE_ENV === 'production'
+                            ? 'warn'
+                            : 'debug',
+                    ),
                 ...AUTH_VALIDATION_SCHEMA,
                 ...REGISTRAR_VALIDATION_SCHEMA,
                 ...KEY_VALIDATION_SCHEMA,
@@ -39,6 +47,56 @@ import { EventEmitterModule } from '@nestjs/event-emitter/dist/event-emitter.mod
             }),
             isGlobal: true,
             expandVariables: true,
+        }),
+        LoggerModule.forRootAsync({
+            imports: [ConfigModule],
+            inject: [ConfigService],
+            useFactory: (configService: ConfigService) => ({
+                pinoHttp: {
+                    level: configService.get('LOG_LEVEL', 'info'),
+                    transport:
+                        process.env.NODE_ENV === 'production'
+                            ? undefined
+                            : {
+                                  target: 'pino-pretty',
+                                  options: {
+                                      colorize: true,
+                                      singleLine: false,
+                                      translateTime: 'yyyy-mm-dd HH:MM:ss',
+                                      ignore: 'pid,hostname',
+                                  },
+                              },
+                    customProps: (req: any) => ({
+                        sessionId:
+                            req.headers['x-session-id'] ||
+                            req.params?.session ||
+                            req.body?.session_id,
+                        tenantId: req.params?.tenantId,
+                        flow: req.url?.includes('/vci')
+                            ? 'OID4VCI'
+                            : req.url?.includes('/oid4vp')
+                              ? 'OID4VP'
+                              : undefined,
+                    }),
+                    serializers: {
+                        req: (req: any) => ({
+                            method: req.method,
+                            url: req.url,
+                            headers: {
+                                'user-agent': req.headers['user-agent'],
+                                'content-type': req.headers['content-type'],
+                            },
+                            sessionId:
+                                req.headers['x-session-id'] ||
+                                req.params?.session,
+                            tenantId: req.params?.tenantId,
+                        }),
+                        res: (res: any) => ({
+                            statusCode: res.statusCode,
+                        }),
+                    },
+                },
+            }),
         }),
         KeyModule.forRoot(),
         CryptoModule,

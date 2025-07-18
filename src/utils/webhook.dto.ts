@@ -24,5 +24,5 @@ export class WebhookConfig {
     @Type(() => WebHookAuthConfig)
     @IsOptional()
     @IsObject()
-    auhth?: WebHookAuthConfig;
+    auth?: WebHookAuthConfig;
 }

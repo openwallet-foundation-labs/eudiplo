@@ -1,4 +1,4 @@
-import { createHash, randomBytes } from 'node:crypto';
+import { createHash, randomBytes, X509Certificate } from 'node:crypto';
 import {
     existsSync,
     mkdirSync,
@@ -145,11 +145,15 @@ export class CryptoService implements OnModuleInit {
         const cert = readFileSync(
             join(this.folder, tenantId, 'keys', `${type}-certificate.pem`),
             'utf-8',
-        )
+        );
+        const crt = new X509Certificate(cert);
+        console.log(crt.subjectAltName);
+
+        const chain = cert
             .replace('-----BEGIN CERTIFICATE-----', '')
             .replace('-----END CERTIFICATE-----', '')
             .replace(/\r?\n|\r/g, '');
-        return [cert];
+        return [chain];
     }
 
     storeAccessCertificate(crt: string, tenantId: string) {

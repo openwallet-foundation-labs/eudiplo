@@ -52,8 +52,7 @@
           ]
         }
       ]
-    },
-    "id": "66382f0a-27b7-4473-a448-c43a38edf8f0"
+    }
   },
   "webhook": {
     "url": "http://localhost:8787/consume",

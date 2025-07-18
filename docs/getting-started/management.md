@@ -74,6 +74,10 @@ provider for authentication.
 
 TODO: needs to be aligned
 
+- when to create all the necessary resources like keys and certificates
+- when to remove them
+- when to check if they are still valid
+
 ## Sessions Management
 
 EUDIPLO manages sessions for credential issuance and verification and are bound
