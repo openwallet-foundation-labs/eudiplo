@@ -9,7 +9,7 @@ import * as Joi from 'joi';
 import { ConfigModule } from '@nestjs/config';
 
 export const AUTH_VALIDATION_SCHEMA = {
-    OIDC: Joi.string(),
+    OIDC: Joi.string().optional(),
     KEYCLOAK_INTERNAL_ISSUER_URL: Joi.when('OIDC', {
         is: true,
         then: Joi.string().required(),

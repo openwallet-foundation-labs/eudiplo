@@ -8,7 +8,7 @@ import { TokenPayload } from './token.decorator';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     constructor(private configService: ConfigService) {
-        const oidc = configService.getOrThrow<boolean>('OIDC');
+        const oidc = configService.get<boolean>('OIDC');
 
         super(
             oidc
