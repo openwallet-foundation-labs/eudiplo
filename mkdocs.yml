@@ -11,12 +11,12 @@ theme:
   palette:
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
-      scheme: default
+      scheme: default      
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     # Palette toggle for dark mode
-    - media: "(prefers-color-scheme: dark)"
+    - media: "(prefers-color-scheme: dark)"          
       scheme: slate
       toggle:
         icon: material/brightness-4
@@ -78,8 +78,6 @@ markdown_extensions:
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.tilde
-extra_css:
-  - stylesheets/styles.css
 plugins:
     - plantuml:
         puml_url: 'https://www.plantuml.com/plantuml/'

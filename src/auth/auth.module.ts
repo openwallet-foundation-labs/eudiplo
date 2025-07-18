@@ -11,39 +11,32 @@ import { ConfigModule } from '@nestjs/config';
 export const AUTH_VALIDATION_SCHEMA = {
     OIDC: Joi.string().optional(),
     KEYCLOAK_INTERNAL_ISSUER_URL: Joi.when('OIDC', {
-        is: true,
         then: Joi.string().required(),
         otherwise: Joi.string().optional(),
     }),
     KEYCLOAK_CLIENT_ID: Joi.when('OIDC', {
-        is: true,
         then: Joi.string().required(),
         otherwise: Joi.string().optional(),
     }),
     JWT_SECRET: Joi.when('OIDC', {
-        is: false,
-        then: Joi.string().required(),
-        otherwise: Joi.string().optional(),
+        then: Joi.string().optional(),
+        otherwise: Joi.string().required(),
     }),
     JWT_ISSUER: Joi.when('OIDC', {
-        is: false,
-        then: Joi.string().optional().default('eudiplo-service'),
-        otherwise: Joi.string().optional(),
+        then: Joi.string().optional(),
+        otherwise: Joi.string().optional().default('eudiplo-service'),
     }),
     JWT_EXPIRES_IN: Joi.when('OIDC', {
-        is: false,
-        then: Joi.string().default('24h'),
-        otherwise: Joi.string().optional(),
+        then: Joi.string().optional(),
+        otherwise: Joi.string().default('24h'),
     }),
     AUTH_CLIENT_SECRET: Joi.when('OIDC', {
-        is: false,
-        then: Joi.string().required(),
-        otherwise: Joi.string().optional(),
+        then: Joi.string().optional(),
+        otherwise: Joi.string().required(),
     }),
     AUTH_CLIENT_ID: Joi.when('OIDC', {
-        is: false,
-        then: Joi.string().required(),
-        otherwise: Joi.string().optional(),
+        then: Joi.string().optional(),
+        otherwise: Joi.string().required(),
     }),
 };
 

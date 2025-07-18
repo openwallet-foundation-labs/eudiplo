@@ -62,9 +62,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     }
 
     validate(payload: TokenPayload): unknown {
-        const isMultiTenant = this.configService.getOrThrow<boolean>('OIDC');
+        const oidc = this.configService.get<boolean>('OIDC') !== undefined;
 
-        if (isMultiTenant) {
+        if (oidc) {
             // Multi-tenant: Extract user info from Keycloak token
             return payload;
         } else {
