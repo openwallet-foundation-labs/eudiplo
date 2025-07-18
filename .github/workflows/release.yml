@@ -42,23 +42,26 @@ jobs:
             url: ${{ steps.deployment.outputs.page_url }}
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+            - uses: actions/checkout@v4
 
-            - name: Set up Node.js with pnpm
+            - name: Copy env file
+              run: cp .env.example .env
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+            - name: Enable Corepack
+              run: corepack enable
+
+            - name: Restore pnpm cache
               uses: actions/setup-node@v4
               with:
                   node-version: 22
                   cache: 'pnpm'
 
-            - name: Enable corepack
-              run: corepack enable
-
             - name: Install dependencies
               run: pnpm install
-
-            - name: Set environment variables
-              run: cp .env.example .env
 
             - name: Set up Python
               uses: actions/setup-python@v5
@@ -71,13 +74,11 @@ jobs:
             - name: Build documentation
               run: pnpm run doc:build
 
-            - name: Setup GitHub Pages
-              uses: actions/configure-pages@v5
-
-            - name: Upload artifact
-              uses: actions/upload-pages-artifact@v3
+            - name: Upload built documentation
+              uses: actions/upload-artifact@v4
               with:
-                  path: './site'
+                  name: generated-docs
+                  path: site/
 
             - name: Deploy to GitHub Pages
               id: deployment
