@@ -7,8 +7,9 @@ developers can run EUDIPLO as a standalone Docker container and interact with it
 via simple APIs or configuration files.
 
 It acts as an **adapter** between trusted infrastructure and local applications
-or web services, supporting both **single-tenant** and **multi-tenant**
-deployments.
+or web services. EUDIPLO handles the complexities of the EUDI Wallet ecosystem,
+allowing you to focus on your core business logic without worrying about the
+underlying protocols.
 
 ---
 
@@ -63,26 +64,3 @@ EUDIPLO is modular and extensible:
 - Add new key management backends (e.g., AWS KMS)
 - Customize issuance templates
 - Extend the API layer with business-specific endpoints
-
----
-
-## Tenant-Based Architecture
-
-EUDIPLO is built on a **tenant-based architecture** that allows you to isolate
-configurations and data for different clients or environments. This means you
-can run multiple instances of EUDIPLO, each serving a different tenant or
-client, while sharing the same codebase.
-
-#### Tenant Isolation
-
-Each tenant has:
-
-- **Separate configurations**: Managed in the database
-- **Isolated database records**: All entities include `tenantId` field
-- **Independent key management**: Tenant-specific cryptographic keys
-- **Dedicated session management**: Sessions scoped to tenant
-- **Individual credential configurations**: Per-tenant issuance and presentation
-  templates
-
-> For now the separation in the database is done by a `tenantId` field in all
-> entities. In the future, we may support separate databases per tenant.

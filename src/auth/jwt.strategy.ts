@@ -18,6 +18,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     }
 
     private static getKeycloakConfig(configService: ConfigService) {
+        //TODO: test it
         return {
             secretOrKeyProvider: passportJwtSecret({
                 cache: true,

@@ -56,7 +56,9 @@ EUDIPLO is distributed as a Docker container and can be configured in minutes.
 ```bash
 docker run -p 3000:3000 \
   -e PUBLIC_URL=https://example.com \
-  -e API_KEY=a_very_secure_api_key \
+  -e JWT_SECRET=your-secret-key-here-minimum-32-characters \
+  -e AUTH_CLIENT_ID=your-tenant-id \
+  -e AUTH_CLIENT_SECRET=your-tenant-secret \
   -v $(pwd)/config:/app/config \
   ghcr.io/cre8/eudiplo:1
 ```

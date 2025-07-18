@@ -43,8 +43,7 @@ JWT_EXPIRES_IN=1h
 ```env
 PUBLIC_URL=https://example.com
 RP_NAME=EUDIPLO
-OIDC=true
-OIDC_ISSUER=https://keycloak.example.com/realms/eudiplo
+OIDC=https://keycloak.example.com/realms/eudiplo
 ```
 
 > TODO: needs to be aligned

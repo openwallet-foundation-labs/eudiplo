@@ -20,9 +20,7 @@ export class JwtService {
         payload: TokenPayload,
         options: GenerateTokenOptions = {},
     ): Promise<string> {
-        const isMultiTenant = this.configService.getOrThrow<boolean>('OIDC');
-
-        if (isMultiTenant) {
+        if (this.isMultiTenant()) {
             throw new Error(
                 'Token generation is not available in multi-tenant mode. Use Keycloak for token generation.',
             );
@@ -56,9 +54,7 @@ export class JwtService {
      * Verify a JWT token (for additional validation if needed)
      */
     async verifyToken(token: string): Promise<TokenPayload> {
-        const isMultiTenant = this.configService.getOrThrow<boolean>('OIDC');
-
-        if (isMultiTenant) {
+        if (this.isMultiTenant()) {
             throw new Error(
                 'Token verification is handled by Keycloak in multi-tenant mode.',
             );
@@ -96,6 +92,6 @@ export class JwtService {
      * Check if the service is in multi-tenant mode
      */
     isMultiTenant(): boolean {
-        return this.configService.getOrThrow<boolean>('OIDC');
+        return this.configService.get<string>('OIDC') !== undefined;
     }
 }

@@ -61,7 +61,6 @@ echo "AUTH_CLIENT_SECRET=$(openssl rand -base64 24)" >> .env
 # Start with Docker
 docker run -p 3000:3000 \
   -e PUBLIC_URL=https://example.com \
-  -e OIDC=false \
   -e JWT_SECRET=your-32-character-secret \
   -e AUTH_CLIENT_SECRET=your-issuer-secret \
   -v $(pwd)/config:/app/config \

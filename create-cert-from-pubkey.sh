@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+# TODO: check if this script is still needed
+
 # Creates a certificate that is signed by a self-signed issuer certificate. Needed for the issuance process.
 
 FOLDER="assets/keys"

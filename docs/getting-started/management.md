@@ -2,12 +2,12 @@
 
 ## Authentication
 
-EUDIPLO uses **Bearer JWT token authentication** for all managementAPI
+EUDIPLO uses **Bearer JWT token authentication** for all management API
 endpoints. The service supports two client management approaches.
 
 Internally, EUDIPLO is using the `sub` claim of the JWT to identify the tenant.
 
-### Self-Managed Clients (Default)
+## Self-Managed Clients (Default)
 
 This approach is recommended when you just want to manage one instance.
 
@@ -25,7 +25,7 @@ curl -X 'POST' \
 
 # Use token with API endpoints
 curl -X 'POST' \
-  'http://localhost:3000/vci/offer' \
+  'http://localhost:3000/issuer-management/offer' \
   -H 'accept: application/json' \
   -H 'Authorization: Bearer YOUR_JWT_TOKEN' \
   -H 'Content-Type: application/json' \
@@ -35,37 +35,11 @@ curl -X 'POST' \
 }'
 ```
 
-### External OIDC Provider
-
-**External IAM (e.g., Keycloak) manages clients and tokens:**
-
-TODO: needs to be aligned
-
-When `OIDC=true`, tokens can be obtained from either:
-
-1. **EUDIPLO's `/auth/token` endpoint** (proxies to OIDC provider)
-2. **Directly from OIDC provider** using standard OAuth2 Client Credentials flow
-
-```bash
-curl -X 'POST' \
-  'https://keycloak.example.com/realms/eudiplo/protocol/openid-connect/token' \
-  -H 'Content-Type: application/x-www-form-urlencoded' \
-  -d 'grant_type=client_credentials&client_id=eudiplo-client&client_secret=secret'
-```
-
-### API Endpoint Patterns
-
-> **Important**: In multi-tenant mode, the `{tenantId}` in the URL must match
-> the tenant associated with your JWT token.
-
-## Client Management
-
-### Self-Managed Client Configuration
+### Client Configuration
 
 Configure clients in your environment or through service configuration:
 
 ```env
-# Default client for single-tenant or multi-tenant
 AUTH_CLIENT_ID=tenant-1
 AUTH_CLIENT_SECRET=secure-random-secret
 
@@ -75,33 +49,28 @@ JWT_ISSUER=https://your-domain.com
 JWT_EXPIRES_IN=1h
 ```
 
-### External OIDC Client Configuration
+!!! danger "Important"
+
+    Don't forget to set a strong `JWT_SECRET` for signing your JWT tokens!!!
+
+## External OIDC Provider
+
+**External IAM (e.g., Keycloak) manages clients and tokens:**
 
 TODO: needs to be aligned
 
-**EUDIPLO Configuration:**
+When using an external OIDC provider like Keycloak, you need to configure the
+EUDIPLO service to use the OIDC issuer URL via the `OIDC` environment variable.
 
-```env
-OIDC=true
-OIDC_ISSUER=https://keycloak.example.com/realms/eudiplo
-```
+This will deactivate the internal client management and use the external OIDC
+provider for authentication.
 
-**Keycloak Client Example:**
+## API Endpoint Patterns
 
-```json
-{
-    "clientId": "eudiplo-tenant-1",
-    "name": "EUDIPLO Tenant 1",
-    "serviceAccountsEnabled": true,
-    "standardFlowEnabled": false,
-    "directAccessGrantsEnabled": false,
-    "attributes": {
-        "eudiplo.tenant.id": "tenant-1"
-    }
-}
-```
+> **Important**: the `{tenantId}` in the URL must match the tenant associated
+> with your JWT token via the `sub` field.
 
-#### Tenant Initialization Process
+### Tenant Initialization Process
 
 TODO: needs to be aligned
 
