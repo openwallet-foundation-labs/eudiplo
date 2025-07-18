@@ -124,7 +124,7 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         return relyingPartyControllerRegister({
             client: this.client,
             body: {
-                name: this.configService.getOrThrow<string>('RP_NAME') + 2,
+                name: this.configService.getOrThrow<string>('RP_NAME'),
             },
         }).then((response) => {
             if (response.error) {

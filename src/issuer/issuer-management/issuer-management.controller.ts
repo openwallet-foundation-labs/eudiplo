@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { CredentialsService } from '../credentials/credentials.service';
 import {
+    ApiBody,
     ApiProduces,
     ApiResponse,
     ApiSecurity,
@@ -50,6 +51,25 @@ export class IssuerManagementController {
         },
     })
     @ApiProduces('application/json', 'image/png')
+    @ApiBody({
+        type: OfferRequest,
+        examples: {
+            qrcode: {
+                summary: 'QR-Code Example',
+                value: {
+                    response_type: ResponseType.QRCode,
+                    credentialConfigurationIds: ['pid'],
+                } as OfferRequest,
+            },
+            uri: {
+                summary: 'URI',
+                value: {
+                    response_type: ResponseType.URI,
+                    credentialConfigurationIds: ['pid'],
+                } as OfferRequest,
+            },
+        },
+    })
     @Post('offer')
     async getOffer(
         @Res() res: Response,

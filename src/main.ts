@@ -3,11 +3,25 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { writeFileSync } from 'fs';
+import { NextFunction, Request, Response } from 'express';
+
+export function loggerMiddleware(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) {
+    console.log(`[${req.host}] ${req.originalUrl}`);
+    if (req.body) {
+        console.log(req.body);
+    }
+    next();
+}
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
     app.enableCors();
     app.useGlobalPipes(new ValidationPipe());
+    app.use(loggerMiddleware);
 
     const config = new DocumentBuilder()
         .setTitle('EUDIPLO Service API')
