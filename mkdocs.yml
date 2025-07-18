@@ -116,10 +116,12 @@ nav:
   - Architecture:
       - Overview: architecture/overview.md      
       - Supported Protocols: architecture/supported-protocols.md
+      - Tenant-Based Architecture: architecture/tenant.md
       - Key Management: architecture/key-management.md
       - Database: architecture/database.md      
   - API:    
-    - api/index.md
+    - Overview: api/index.md
+    - Authentication Guide: api/swagger-authentication-guide.md
   - Development:
       - development/index.md
       - Versioning: development/versioning.md

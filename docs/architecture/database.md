@@ -81,3 +81,81 @@ To add support for a new engine:
 - Configure the necessary connection options via environment variables
 
 Let us know if you need help extending support for additional databases.
+
+---
+
+## Multi-Tenant Database Schema
+
+EUDIPLO supports both single-tenant and multi-tenant deployments with automatic
+database schema adjustments:
+
+### Tenant Isolation in Database
+
+In multi-tenant mode, data isolation is achieved through a `tenantId` column in
+all relevant entities:
+
+#### Core Entities with Tenant Support:
+
+**Session Entity:**
+
+```typescript
+@Entity()
+export class Session {
+    @PrimaryColumn('uuid')
+    id: string;
+
+    @Column('varchar')
+    tenantId: string; // Tenant ID for multi-tenancy support
+
+    // ... other fields
+}
+```
+
+**Issuance Configuration Entity:**
+
+```typescript
+@Entity()
+export class IssuanceConfig {
+    @PrimaryColumn('varchar')
+    id: string;
+
+    @Column('varchar')
+    tenantId: string;
+
+    // ... other fields
+}
+```
+
+**Key Management Entity:**
+
+```typescript
+@Entity()
+export class KeyEntity {
+    @Column('varchar', { primary: true })
+    tenantId: string;
+
+    @Column('json')
+    privateKey: JsonWebKey;
+}
+```
+
+### Database Queries
+
+All database operations automatically filter by `tenantId` when in multi-tenant
+mode:
+
+```typescript
+// Example: Get sessions for specific tenant
+return this.sessionRepository.findBy({ tenantId });
+
+// Example: Update session with tenant scope
+return this.sessionRepository.update({ id: sessionId, tenantId }, updateData);
+```
+
+### Migration Considerations
+
+- **Existing single-tenant deployments**: Can migrate to multi-tenant by setting
+  default `tenantId`
+- **New deployments**: Schema automatically includes tenant support
+- **Data isolation**: Each tenant's data is completely separated at the database
+  level

@@ -103,7 +103,8 @@ https://f8e3-84-123-45-67.ngrok.io
 
 ## 6. Troubleshooting
 
-- Double-check `.env` values for typos or missing entries.
+- Double-check `.env` values for typos or missing entries. Changes in the `.env`
+  file require a restart of the application.
 - Ensure required external services (e.g. Vault, PostgreSQL) are running.
 - Clear NestJS cache with `rm -rf dist node_modules && pnpm install`.
 - If ngrok fails, make sure port 3000 isn't blocked or already in use.

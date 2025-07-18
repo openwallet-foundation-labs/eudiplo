@@ -45,7 +45,7 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         if (!this.isEnabled()) {
             return;
         }
-
+        //TODO: check if only one URL is needed so it is not bound to keycloak, but oidc
         const realm = this.configService.getOrThrow<string>('KEYCLOAK_REALM');
         const authServerUrl = this.configService.getOrThrow<string>(
             'KEYCLOAK_AUTH_SERVER_URL',

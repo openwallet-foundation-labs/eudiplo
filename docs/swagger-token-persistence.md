@@ -1,103 +1,260 @@
-# Swagger UI Token Persistence Guide
+# Swagger Token Persistence Guide
 
-## Overview
+This guide explains how JWT token persistence works in the EUDIPLO Swagger UI
+for multi-tenant deployments.
 
-Your Swagger UI is configured to automatically save and persist JWT access
-tokens, making development and testing much more convenient.
+## Token Persistence Features
 
-## How Token Persistence Works
+### ✅ **Automatic Storage**
 
-### 1. Getting Your Token
+- Tokens are automatically stored in browser localStorage
+- Survives page refreshes and browser restarts
+- Secure client-side storage
 
-```bash
-curl -X POST http://localhost:3000/auth/token \
-  -H "Content-Type: application/json" \
-  -d '{
-    "client_id": "root",
-    "client_secret": "root"
-  }'
+### ✅ **Session Management**
+
+- Multiple tenant tokens can be stored simultaneously
+- Automatic token selection based on current tenant context
+- Clear visual indicators of authentication status
+
+### ✅ **Security Features**
+
+- Tokens are stored with expiration timestamps
+- Automatic cleanup of expired tokens
+- Secure token validation on each request
+
+## How It Works
+
+### Token Storage
+
+When you authenticate via Swagger UI:
+
+1. **Token Retrieval**: Get access token from `/auth/token` endpoint
+2. **Automatic Storage**: Token stored in `localStorage` with metadata:
+    ```json
+    {
+        "token": "eyJhbGciOiJIUzI1NiIs...",
+        "expires_at": 1642694400,
+        "tenant_id": "tenant-123",
+        "issued_at": 1642691400
+    }
+    ```
+3. **Persistence**: Token persists across browser sessions
+
+### Token Usage
+
+- **Automatic Headers**: All API requests include
+  `Authorization: Bearer <token>`
+- **Tenant Scoping**: Token automatically matched to tenant endpoints
+- **Validation**: Real-time token validation and expiry checking
+
+### Token Refresh
+
+- **Expiry Detection**: Automatic detection of expired tokens
+- **Re-authentication**: Prompts for new authentication when needed
+- **Seamless UX**: Minimal interruption to workflow
+
+## Configuration
+
+### Environment Variables
+
+**Multi-Tenant Mode (`OIDC=true`):**
+
+```env
+OIDC=true
+AUTH_CLIENT_ID=your-default-client-id
+AUTH_CLIENT_SECRET=your-default-client-secret
+JWT_EXPIRES_IN=1h
 ```
 
-### 2. Using the Token in Swagger UI
+**Token Expiration:**
 
-1. **Navigate to Swagger UI**: `http://localhost:3000/api`
-2. **Click the "Authorize" button** (🔓 lock icon at the top right)
-3. **Enter your token**: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
-4. **Click "Authorize"**
-5. **Click "Close"**
+- Default: 1 hour (`1h`)
+- Configurable via `JWT_EXPIRES_IN`
+- Supports: `1h`, `30m`, `2h`, `24h`, etc.
 
-### 3. Token Persistence Features
+### Client Configuration
 
-✅ **Automatic persistence**: Token is saved in browser's local storage  
-✅ **Page refresh**: Token survives page refreshes  
-✅ **New tabs**: Token works across multiple Swagger UI tabs  
-✅ **Visual feedback**: Lock icon shows green when authenticated  
-✅ **Auto-inclusion**: All API requests automatically include the Bearer token
+**Register Your Client:**
 
-## Configuration Details
-
-The token persistence is enabled through these Swagger options:
-
-```typescript
-swaggerOptions: {
-    persistAuthorization: true,     // Core persistence feature
-    deepLinking: true,             // Share authenticated URLs
-    displayRequestDuration: true,  // Show API timing
-    filter: true,                  // Search operations
-    tryItOutEnabled: true,         // Enable testing
-    docExpansion: 'list',          // Show all operations
-    operationsSorter: 'alpha',     // Alphabetical sorting
+```json
+{
+    "client_id": "tenant-123",
+    "client_secret": "secure-secret-456",
+    "tenant_name": "My Organization"
 }
 ```
 
-## Visual Indicators
+## Usage Examples
 
-- **🔓 Unlocked**: No authentication token set
-- **🔒 Locked (Green)**: Valid token is active and persisted
-- **Green border**: Authentication section highlighted when active
-- **Request duration**: Shows actual API response times
+### Basic Authentication Flow
+
+1. **Initial Authentication:**
+
+    ```bash
+    # Navigate to /api in browser
+    # Click 🔒 Authorize button
+    # Enter client credentials
+    # Token automatically stored
+    ```
+
+2. **Using Stored Token:**
+
+    ```bash
+    # All subsequent API calls automatically include:
+    # Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
+    ```
+
+3. **Multi-Tenant Switching:**
+    ```bash
+    # Switch between tenants by using different endpoints:
+    # /tenant-1/vci/offer
+    # /tenant-2/vci/offer
+    # Tokens automatically matched to tenant
+    ```
+
+### Manual Token Management
+
+**Check Stored Tokens (Browser Console):**
+
+```javascript
+// View all stored tokens
+localStorage.getItem('eudiplo_tokens');
+
+// Clear all tokens
+localStorage.removeItem('eudiplo_tokens');
+```
+
+**Token Structure:**
+
+```json
+{
+    "tenant-123": {
+        "token": "eyJhbGciOiJIUzI1NiIs...",
+        "expires_at": 1642694400,
+        "issued_at": 1642691400
+    },
+    "tenant-456": {
+        "token": "eyJhbGciOiJSUzI1NiIs...",
+        "expires_at": 1642698000,
+        "issued_at": 1642695000
+    }
+}
+```
+
+## Security Considerations
+
+### Best Practices
+
+**Token Security:**
+
+- Tokens stored in browser localStorage (client-side only)
+- No server-side storage of tokens
+- Automatic expiration handling
+
+**Multi-Tenant Isolation:**
+
+- Each tenant token is isolated
+- No cross-tenant token usage possible
+- Tenant-scoped endpoint validation
+
+**Production Deployment:**
+
+- Use HTTPS for all token transmission
+- Configure appropriate token expiration times
+- Implement proper client secret management
+
+### Limitations
+
+**Browser Storage:**
+
+- Tokens stored per browser/device
+- No cross-device synchronization
+- Cleared when browser data is cleared
+
+**Token Scope:**
+
+- Tokens are tenant-specific
+- Cannot be used across different tenants
+- Require re-authentication for tenant switching
 
 ## Troubleshooting
 
-### Token Not Persisting
+### Common Issues
 
-- Check browser's local storage isn't disabled
-- Ensure you're on the same domain
-- Clear browser cache if issues persist
-
-### Token Expired
-
-- Get a new token from `/auth/token`
-- Click Authorize and update with new token
-- Check token expiration time (default: 24h)
-
-### Authentication Errors
-
-- Verify token format: `Bearer <token>`
-- Ensure no extra spaces
-- Check client credentials are correct
-
-## Pro Tips
-
-1. **Copy full token**: Include the entire JWT string
-2. **Use Bearer prefix**: Always prefix with `Bearer `
-3. **Test endpoints**: Use "Try it out" to verify authentication
-4. **Check responses**: Look for 401 errors if token issues
-5. **Monitor expiration**: Tokens expire after 24 hours by default
-
-## Example Workflow
+**Token Not Persisting:**
 
 ```bash
-# 1. Get token
-TOKEN=$(curl -s -X POST http://localhost:3000/auth/token \
-  -H "Content-Type: application/json" \
-  -d '{"client_id":"root","client_secret":"root"}' \
-  | jq -r '.access_token')
-
-# 2. Use in Swagger UI
-echo "Bearer $TOKEN"
-# Copy this output and paste into Swagger UI Authorize dialog
+# Check browser localStorage support
+# Verify localStorage is enabled
+# Check for browser privacy/security settings
 ```
 
-The token will now be automatically included in all Swagger UI requests and
-persist across sessions!
+**Token Expired:**
+
+```json
+{
+    "statusCode": 401,
+    "message": "Token has expired"
+}
+```
+
+- Click 🔒 Authorize to get new token
+- Check JWT_EXPIRES_IN configuration
+
+**Wrong Tenant Access:**
+
+```json
+{
+    "statusCode": 403,
+    "message": "Access denied for this tenant"
+}
+```
+
+- Verify endpoint URL includes correct tenant ID
+- Check token was issued for the correct tenant
+
+### Debugging
+
+**Enable Debug Mode:**
+
+```javascript
+// Browser console
+localStorage.setItem('eudiplo_debug', 'true');
+// Reload page to see debug information
+```
+
+**Token Inspection:**
+
+```bash
+# Decode JWT payload (browser console)
+JSON.parse(atob(token.split('.')[1]));
+```
+
+## Migration Guide
+
+### From Single-Tenant to Multi-Tenant
+
+**Steps:**
+
+1. Set `OIDC=true` in environment
+2. Configure client credentials
+3. Clear existing localStorage tokens
+4. Re-authenticate with new client credentials
+5. Update API endpoint URLs to include tenant ID
+
+**Example Migration:**
+
+```bash
+# Before (single-tenant)
+POST /vci/offer
+
+# After (multi-tenant)
+POST /tenant-123/vci/offer
+```
+
+### Backward Compatibility
+
+- Single-tenant mode remains unchanged
+- Existing API keys continue to work
+- No breaking changes for single-tenant deployments

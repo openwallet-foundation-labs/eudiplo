@@ -1,12 +1,11 @@
 # Swagger UI Authentication Guide
 
-This guide shows how to use the enhanced Swagger UI with authentication for the
-EUDIPLO Service API.
+This guide shows how to use the enhanced Swagger UI with authentication for
+the EUDIPLO Service API.
 
 ## Authentication Pattern
 
-EUDIPLO uses **OAuth2 Client Credentials flow with Bearer JWT tokens** for all
-API access:
+EUDIPLO uses **OAuth2 Client Credentials flow with Bearer JWT tokens** for all API access:
 
 1. **Get JWT Token**: Call `/auth/token` with client credentials
 2. **Use Token**: Include `Authorization: Bearer <token>` in API requests
@@ -16,23 +15,18 @@ API access:
 
 EUDIPLO can serve multiple tenants with isolated endpoints:
 
-- **Single tenant usage**: Use one tenant with endpoints like
-  `/{tenantId}/vci/credential`
-- **Multi-tenant usage**: Serve multiple tenants, each with their own
-  `/{tenantId}/...` endpoints
-- **Client Management**: Choose between self-managed clients or external OIDC
-  providers
+- **Single tenant usage**: Use one tenant with endpoints like `/{tenantId}/vci/credential`
+- **Multi-tenant usage**: Serve multiple tenants, each with their own `/{tenantId}/...` endpoints
+- **Client Management**: Choose between self-managed clients or external OIDC providers
 
 ### Client Management Options
 
 **Self-Managed Clients (Default)**:
-
 - EUDIPLO manages OAuth2 clients internally
 - Use EUDIPLO's `/auth/token` endpoint to get JWT tokens
 - Configure via environment variables
 
 **External OIDC Provider (`OIDC=true`)**:
-
 - External IAM (e.g., Keycloak) manages clients
 - Get JWT tokens directly from your OIDC provider
 - Use standard OAuth2 Client Credentials flow with your IAM system
@@ -41,7 +35,8 @@ EUDIPLO can serve multiple tenants with isolated endpoints:
 
 ### 1. **Get an Access Token**
 
-**For Self-Managed Clients:** Call EUDIPLO's `/auth/token` endpoint:
+**For Self-Managed Clients:**
+Call EUDIPLO's `/auth/token` endpoint:
 
 1. Navigate to `/api` in your browser (Swagger UI)
 2. Find the **Authentication** section
@@ -59,8 +54,8 @@ EUDIPLO can serve multiple tenants with isolated endpoints:
 6. Click **"Execute"**
 7. Copy the `access_token` from the response
 
-**For External OIDC Providers:** Get your JWT token directly from your OIDC
-provider using standard OAuth2 Client Credentials flow. For example:
+**For External OIDC Providers:**
+Get your JWT token directly from your OIDC provider using standard OAuth2 Client Credentials flow. For example:
 
 ```bash
 curl -X POST https://your-keycloak.com/realms/your-realm/protocol/openid-connect/token \
@@ -79,17 +74,15 @@ curl -X POST https://your-keycloak.com/realms/your-realm/protocol/openid-connect
 
 ### 3. **Use Protected Endpoints**
 
-All API endpoints follow the pattern `/{tenantId}/...` and require your JWT
-token:
+All API endpoints follow the pattern `/{tenantId}/...` and require your JWT token:
 
 ```http
 Authorization: Bearer YOUR_ACCESS_TOKEN
 ```
 
 **Example API calls:**
-
 - `/{tenantId}/vci/credential` - Credential issuance
-- `/{tenantId}/oid4vp/request` - Presentation requests
+- `/{tenantId}/oid4vp/request` - Presentation requests  
 - `/{tenantId}/.well-known/openid-credential-issuer` - Metadata
 
 The `{tenantId}` must match the tenant associated with your client credentials.
@@ -99,7 +92,6 @@ The `{tenantId}` must match the tenant associated with your client credentials.
 ### Self-Managed Clients
 
 **Environment Configuration:**
-
 ```env
 # Single-tenant with self-managed client
 PUBLIC_URL=https://example.com
@@ -109,14 +101,13 @@ JWT_SECRET=your-jwt-secret
 JWT_ISSUER=https://example.com
 JWT_EXPIRES_IN=1h
 
-# Multi-tenant with self-managed clients
+# Multi-tenant with self-managed clients  
 OIDC=false  # Use internal client management
 ```
 
 ### External OIDC Provider
 
 **Environment Configuration:**
-
 ```env
 # Enable external OIDC provider
 OIDC=true
@@ -125,13 +116,12 @@ OIDC_ISSUER=https://keycloak.example.com/realms/eudiplo
 ```
 
 **Keycloak Client Configuration:**
-
 ```json
 {
-    "clientId": "eudiplo-tenant-1",
-    "secret": "keycloak-managed-secret",
-    "serviceAccountsEnabled": true,
-    "authorizationServicesEnabled": false
+  "clientId": "eudiplo-tenant-1",
+  "secret": "keycloak-managed-secret",
+  "serviceAccountsEnabled": true,
+  "authorizationServicesEnabled": false
 }
 ```
 
@@ -157,38 +147,32 @@ OIDC_ISSUER=https://keycloak.example.com/realms/eudiplo
 ### Common Issues
 
 **Invalid Client Credentials**
-
 ```json
 {
-    "error": "invalid_client",
-    "error_description": "Client authentication failed"
+  "error": "invalid_client",
+  "error_description": "Client authentication failed"
 }
 ```
-
 - Check your `client_id` and `client_secret`
 - Ensure your client is configured in the system
 
 **Unauthorized Access**
-
 ```json
 {
-    "statusCode": 401,
-    "message": "Unauthorized"
+  "statusCode": 401,
+  "message": "Unauthorized"
 }
 ```
-
 - Verify your JWT token is valid and not expired
 - Check token was obtained from correct source (EUDIPLO vs OIDC provider)
 
 **Tenant Mismatch**
-
 ```json
 {
-    "statusCode": 403,
-    "message": "Access denied for this tenant"
+  "statusCode": 403,
+  "message": "Access denied for this tenant"
 }
 ```
-
 - Ensure the `{tenantId}` in the URL matches your `client_id`
 - Verify your token hasn't expired
 
@@ -196,8 +180,8 @@ OIDC_ISSUER=https://keycloak.example.com/realms/eudiplo
 
 1. **Check Configuration**: Verify your `.env` file settings
 2. **Test Authentication**: Use the appropriate endpoint to verify credentials
-    - Self-managed: `/auth/token` endpoint
-    - External OIDC: Your OIDC provider's token endpoint
+   - Self-managed: `/auth/token` endpoint
+   - External OIDC: Your OIDC provider's token endpoint
 3. **Check Logs**: Review container logs for detailed error messages
 
 ## Example Requests
@@ -205,7 +189,6 @@ OIDC_ISSUER=https://keycloak.example.com/realms/eudiplo
 ### Self-Managed Clients
 
 **Get Token:**
-
 ```bash
 curl -X POST http://localhost:3000/auth/token \
   -H "Content-Type: application/json" \
@@ -216,7 +199,6 @@ curl -X POST http://localhost:3000/auth/token \
 ```
 
 **Use Protected Endpoint:**
-
 ```bash
 curl -X POST http://localhost:3000/tenant-123/vci/offer \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
@@ -230,7 +212,6 @@ curl -X POST http://localhost:3000/tenant-123/vci/offer \
 ### External OIDC Clients
 
 **Get Token from OIDC Provider:**
-
 ```bash
 curl -X POST https://keycloak.example.com/realms/eudiplo/protocol/openid-connect/token \
   -H "Content-Type: application/x-www-form-urlencoded" \
@@ -238,7 +219,6 @@ curl -X POST https://keycloak.example.com/realms/eudiplo/protocol/openid-connect
 ```
 
 **Use Protected Endpoint:**
-
 ```bash
 curl -X POST http://localhost:3000/tenant-123/vci/offer \
   -H "Authorization: Bearer YOUR_OIDC_ACCESS_TOKEN" \

@@ -16,15 +16,38 @@ through the steps to get started.
 
 ## 1. Prepare Environment Variables
 
-Create a `.env` file with the following minimal configuration:
+EUDIPLO uses **OAuth2 Client Credentials flow with Bearer JWT tokens** for API
+authentication. All endpoints follow the pattern `/{tenantId}/...` for tenant
+isolation.
+
+You can choose how to manage OAuth2 clients:
+
+### Self-Managed Clients (Default)
+
+**EUDIPLO manages clients and issues JWT tokens:**
 
 ```env
 PUBLIC_URL=https://example.com
 RP_NAME=EUDIPLO
+AUTH_CLIENT_ID=your-tenant-id
+AUTH_CLIENT_SECRET=your-tenant-secret
+JWT_SECRET=your-jwt-signing-secret
+JWT_ISSUER=https://example.com
+JWT_EXPIRES_IN=1h
 ```
 
-The public URL is the base URL where EUDIPLO will be accessible, and the API key
-is used for [authentication](./management.md#authentication).
+### External OIDC Provider
+
+**External IAM (e.g., Keycloak) manages clients and tokens:**
+
+```env
+PUBLIC_URL=https://example.com
+RP_NAME=EUDIPLO
+OIDC=true
+OIDC_ISSUER=https://keycloak.example.com/realms/eudiplo
+```
+
+> TODO: needs to be aligned
 
 ---
 
@@ -66,6 +89,21 @@ The swagger UI is available at:
 ```bash
 https://example.com/api
 ```
+
+### API Endpoint Pattern
+
+All tenant-specific endpoints follow the pattern:
+
+```bash
+https://example.com/{tenantId}/vci/credential
+https://example.com/{tenantId}/.well-known/openid-credential-issuer
+https://example.com/{tenantId}/oid4vp/response
+```
+
+Where `{tenantId}` corresponds to your OAuth2 client ID.
+
+All admin endpoints like managing configs of flows or starting issuance flows
+are protected and accessible via the same path.
 
 ---
 

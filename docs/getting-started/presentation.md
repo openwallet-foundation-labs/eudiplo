@@ -1,15 +1,20 @@
 # Configuring Presentation Flows
 
 Presentation flow files define what credentials should be requested from the
-user and which claims must be disclosed. These files are placed in:
+user and which claims must be disclosed. EUDIPLO uses a tenant-based
+architecture where each tenant has isolated configuration.
 
-```string
-config/presentation/{id}.json
-```
+---
 
-Each file corresponds to a specific presentation scenario and uses DCQL to
-define the query. Files are not cached and are loaded dynamically at runtime.
-The `id` is used to reference the presentation configuration in the API.
+## API Endpoints
+
+To manage the configs for presentation, you need to interact with the
+`/presentation-management` endpoint. Based on your passed JWT, the endpoint will
+be scoped to the tenant ID of the token. The configurations are internally
+stored in a database.
+
+Via this endpoint you are also able to start the presentation flow for a
+specific flow configuration.
 
 ---
 
@@ -116,9 +121,7 @@ Middleware -> End_Service : Notify successful issuance
 }
 ```
 
----
-
-## Field Breakdown
+**Field Breakdown**
 
 - `dcql_query`: REQUIRED:
   [Digital Credentials Query Language](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-digital-credentials-query-l)
@@ -131,22 +134,31 @@ Middleware -> End_Service : Notify successful issuance
   [Webhook Integration](./webhooks.md). If not provided, the data can be fetched
   via the session ID returned in the initial request.
 
-> 🔧 `<PUBLIC_URL>` is replaced automatically at runtime based on your
-> configured `PUBLIC_URL` value.
+> `<PUBLIC_URL>` will be dynamically replaced at runtime with your public URL
+> together with with the tenant ID.
 
 ---
 
-## How to Test
+## Creating a Presentation Request
 
-1. Place your file in `config/presentations/`
-2. Check it is loaded via `GET /presentations`
-3. Trigger the presentation request vis `/oid4vp` like
+To start the presentation flow, you need to create a presentation request. This
+is done by calling the `/presentation-management/request` endpoint. Via the
+`response_type` parameter, you can specify how the response should be formatted:
 
-```http
+- `uri`: Returns a URI that the user can open in their wallet to start the
+  presentation flow.
+- `qrcode`: Returns a QR code that the user can scan with their wallet to start
+  the presentation flow.
+
+While the `qrcode` is good for easy testing with the Swagger UI, the `uri` is
+recommended to also receive the session ID in the response that is needed to
+fetch information about the session later on.
+
+```bash
 curl -X 'POST' \
-  'http://localhost:3000/oid4vp' \
+  'http://localhost:3000/presentation-management/offer' \
   -H 'accept: application/json' \
-  -H 'x-api-key: 1234' \
+  -H 'Authorization: Bearer eyJhb...npoNk' \
   -H 'Content-Type: application/json' \
   -d '{
   "response_type": "qrcode",
