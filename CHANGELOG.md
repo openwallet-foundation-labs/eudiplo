@@ -1,3 +1,20 @@
+# [1.2.0](https://github.com/cre8/eudiplo/compare/v1.1.0...v1.2.0) (2025-07-18)
+
+
+### Bug Fixes
+
+* add codecov ([#2](https://github.com/cre8/eudiplo/issues/2)) ([9104df3](https://github.com/cre8/eudiplo/commit/9104df34e55e071d1bcf7fe791909694e3203a44))
+* add test for presentation ([#6](https://github.com/cre8/eudiplo/issues/6)) ([e3e5971](https://github.com/cre8/eudiplo/commit/e3e59716d89d7c7dee0070c8861fc9471cf47323))
+* remove console logs ([32fbd8e](https://github.com/cre8/eudiplo/commit/32fbd8e4615fbd66cf07918d02631c5ecec3fcbb))
+* remove ts file from root ([b989c6c](https://github.com/cre8/eudiplo/commit/b989c6cc04fac2a237927f6ca002d2fcd2b4750e))
+* upload test results ([#3](https://github.com/cre8/eudiplo/issues/3)) ([f75298f](https://github.com/cre8/eudiplo/commit/f75298f400baf4af270ee2a7eb585c8a7deac9a2))
+* vitest config ([beef4d2](https://github.com/cre8/eudiplo/commit/beef4d27339733524c4acf1a439fcd933e2c59af))
+
+
+### Features
+
+* add multi tenant support ([#7](https://github.com/cre8/eudiplo/issues/7)) ([46c9ce6](https://github.com/cre8/eudiplo/commit/46c9ce6083073422c6a1c9b42cb66190e4f90146))
+
 # [1.1.0](https://github.com/cre8/eudiplo/compare/v1.0.1...v1.1.0) (2025-07-11)
 
 
