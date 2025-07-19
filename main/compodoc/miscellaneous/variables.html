@@ -3165,19 +3165,15 @@ Subject is not RFC 4514 conform</p>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
     REGISTRAR_URL: Joi.string(),
-    KEYCLOAK_REALM: Joi.string().when(&#x27;REGISTRAR_URL&#x27;, {
+    OIDC_ISSUER_URL: Joi.string().when(&#x27;REGISTRAR_URL&#x27;, {
         is: Joi.exist(),
         then: Joi.required(),
     }),
-    KEYCLOAK_AUTH_SERVER_URL: Joi.string().when(&#x27;REGISTRAR_URL&#x27;, {
+    OIDC_CLIENT_ID: Joi.string().when(&#x27;REGISTRAR_URL&#x27;, {
         is: Joi.exist(),
         then: Joi.required(),
     }),
-    KEYCLOAK_RESOURCE: Joi.string().when(&#x27;REGISTRAR_URL&#x27;, {
-        is: Joi.exist(),
-        then: Joi.required(),
-    }),
-    KEYCLOAK_CREDENTIALS_SECRET: Joi.string().when(&#x27;REGISTRAR_URL&#x27;, {
+    OIDC_CLIENT_SECRET: Joi.string().when(&#x27;REGISTRAR_URL&#x27;, {
         is: Joi.exist(),
         then: Joi.required(),
     }),

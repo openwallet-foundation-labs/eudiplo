@@ -728,6 +728,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Registrar Settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example Configurations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1239,6 +1254,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Registrar Settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example Configurations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1325,7 +1355,7 @@ Registrar.</p>
 </tr>
 </tbody>
 </table>
-<p>Used to authenticate against the Registrar.</p>
+<p>Used to authenticate against the Registrar using any OIDC-compliant provider.</p>
 <table>
 <thead>
 <tr>
@@ -1335,23 +1365,25 @@ Registrar.</p>
 </thead>
 <tbody>
 <tr>
-<td><code>KEYCLOAK_REALM</code></td>
-<td>Keycloak realm name</td>
+<td><code>OIDC_ISSUER_URL</code></td>
+<td>OIDC issuer URL (e.g., <a href="https://auth.example.com/realms/myrealm">https://auth.example.com/realms/myrealm</a>)</td>
 </tr>
 <tr>
-<td><code>KEYCLOAK_AUTH_SERVER_URL</code></td>
-<td>URL to the Keycloak authentication server</td>
+<td><code>OIDC_CLIENT_ID</code></td>
+<td>Client ID as configured in the OIDC provider</td>
 </tr>
 <tr>
-<td><code>KEYCLOAK_RESOURCE</code></td>
-<td>Client ID as configured in Keycloak</td>
-</tr>
-<tr>
-<td><code>KEYCLOAK_CREDENTIALS_SECRET</code></td>
-<td>Secret associated with the Keycloak client</td>
+<td><code>OIDC_CLIENT_SECRET</code></td>
+<td>Secret associated with the OIDC client</td>
 </tr>
 </tbody>
 </table>
+<h3 id="example-configurations">Example Configurations<a class="headerlink" href="#example-configurations" title="Permanent link">&para;</a></h3>
+<p><strong>Keycloak:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>OIDC_ISSUER_URL=https://keycloak.example.com/realms/registrar
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>OIDC_CLIENT_ID=eudiplo-client
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>OIDC_CLIENT_SECRET=your-client-secret
+</code></pre></div>
 <h2 id="accessing-the-registrar">Accessing the Registrar<a class="headerlink" href="#accessing-the-registrar" title="Permanent link">&para;</a></h2>
 <p>To enable EUDIPLO to communicate with the registrar, you must configure the
 necessary environment variables.</p>
