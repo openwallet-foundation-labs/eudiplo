@@ -1,7 +1,7 @@
 [![Build Status](https://github.com/cre8/eudiplo/actions/workflows/ci-and-release.yml/badge.svg)](https://github.com/cre8/eudiplo/actions)
 ![License](https://img.shields.io/github/license/cre8/eudiplo)
-[![Website](https://img.shields.io/badge/website-eudiplo-blue)](https://cre8.github.io/eudiplo/)
-[![Documentation Coverage](https://cre8.github.io/eudiplo/compodoc/images/coverage-badge-documentation.svg)](https://cre8.github.io/eudiplo/compodoc/coverage.html)
+[![Website](https://img.shields.io/badge/website-eudiplo-blue)](https://cre8.github.io/eudiplo/latest/)
+[![Documentation Coverage](https://cre8.github.io/eudiplo/latest/compodoc/images/coverage-badge-documentation.svg)](https://cre8.github.io/eudiplo/latest/compodoc/coverage.html)
 [![codecov](https://codecov.io/github/cre8/eudiplo/graph/badge.svg?token=pt4TLHJYrO)](https://codecov.io/github/cre8/eudiplo)
 
 # EUDIPLO
@@ -76,17 +76,32 @@ curl -X POST http://localhost:3000/auth/token \
 ```
 
 📚 API:
-[https://cre8.github.io/eudiplo/api/](https://cre8.github.io/eudiplo/api/)  
-📦 Full setup:
-[Quickstart Guide](https://cre8.github.io/eudiplo/getting-started/quick-start/)
+[https://cre8.github.io/eudiplo/latest/api/](https://cre8.github.io/eudiplo/latest/api/)  
+📦
+Full setup:
+[Quickstart Guide](https://cre8.github.io/eudiplo/latest/getting-started/quick-start/)
 
 ---
 
 ## 📚 Documentation
 
-- [Architecture](https://cre8.github.io/eudiplo/architecture/overview/)
-- [Supported Protocols](https://cre8.github.io/eudiplo/architecture/supported-protocols/)
-- [Compodoc](https://cre8.github.io/eudiplo/compodoc/)
+**Choose your documentation version:**
+
+- 🚀 **Latest Stable** (recommended):
+  [https://cre8.github.io/eudiplo/latest/](https://cre8.github.io/eudiplo/latest/) -
+  Documentation for the most recent major release
+- 🔬 **Development**:
+  [https://cre8.github.io/eudiplo/main/](https://cre8.github.io/eudiplo/main/) -
+  Latest features from the main branch
+- 📚 **Specific Major Versions**: [v1](https://cre8.github.io/eudiplo/1/),
+  [v2](https://cre8.github.io/eudiplo/2/), etc.
+
+**Key sections:**
+
+- [Architecture](https://cre8.github.io/eudiplo/latest/architecture/overview/)
+- [Supported Protocols](https://cre8.github.io/eudiplo/latest/architecture/supported-protocols/)
+- [API Reference](https://cre8.github.io/eudiplo/latest/api/)
+- [Code Documentation](https://cre8.github.io/eudiplo/latest/compodoc/)
 
 ---
 

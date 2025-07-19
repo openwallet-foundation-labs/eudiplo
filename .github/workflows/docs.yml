@@ -74,8 +74,16 @@ jobs:
                   # Extract version from release tag (remove 'v' prefix if present)
                   VERSION=${{ github.event.release.tag_name }}
                   VERSION=${VERSION#v}
-                  mike deploy --push --update-aliases $VERSION latest
-                  mike set-default --push $VERSION
+
+                  # Extract major version (e.g., "1.2.3" -> "1")
+                  MAJOR_VERSION=$(echo $VERSION | cut -d. -f1)
+
+                  # Deploy to major version and set as latest
+                  mike deploy --push --update-aliases $MAJOR_VERSION latest
+                  mike set-default --push $MAJOR_VERSION
+
+                  # Also deploy specific version but without showing it in version selector
+                  mike deploy --push $VERSION
 
             - name: Manual deployment
               if: github.event_name == 'workflow_dispatch'

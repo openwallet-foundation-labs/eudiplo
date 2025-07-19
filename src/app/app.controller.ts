@@ -6,6 +6,6 @@ import { ApiExcludeController } from '@nestjs/swagger';
 export class AppController {
     @Get()
     getHello(): string {
-        return 'EUDIPLO is up and running, more information at <a href="https://cre8.github.io/eudiplo/">https://cre8.github.io/eudiplo/</a>';
+        return 'EUDIPLO is up and running, more information at <a href="https://cre8.github.io/eudiplo/latest/">https://cre8.github.io/eudiplo/latest/</a>';
     }
 }

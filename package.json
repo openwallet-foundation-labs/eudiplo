@@ -29,6 +29,7 @@
         "doc:init": "pnpm run swagger && pnpm run compodoc && mike deploy --update-aliases main latest-dev && mike set-default main",
         "doc:serve-versions": "mike serve",
         "doc:deploy-dev": "pnpm run swagger && pnpm run compodoc && mike deploy dev",
+        "doc:deploy-major": "pnpm run swagger && pnpm run compodoc && mike deploy --update-aliases",
         "doc:list-versions": "mike list",
         "doc:delete-version": "mike delete"
     },

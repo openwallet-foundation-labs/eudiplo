@@ -16,7 +16,10 @@ async function bootstrap() {
         .setDescription(
             'This is the API documentation for the EUDIPLO Service, which provides credential issuance and verification services',
         )
-        .setExternalDoc('Documentation', 'https://cre8.github.io/eudiplo/')
+        .setExternalDoc(
+            'Documentation',
+            'https://cre8.github.io/eudiplo/latest/',
+        )
         .setVersion(process.env.VERSION ?? '0.0.1')
         .addBearerAuth({
             type: 'http',
