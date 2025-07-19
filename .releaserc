@@ -11,10 +11,10 @@
                 dockerImage: 'eudiplo',
                 dockerProject: 'cre8',
                 dockerCacheFrom: 'cre8/eudiplo',
-                dockerTags: ['${nextRelease.version}', 'latest'],
+                dockerTags: ['latest', '{{version}}', '{{major}}', '{{major}}.{{minor}}'],
                 dockerArgs: {
                     GITHUB_TOKEN: null,
-                    VERSION: '${nextRelease.version}',
+                    VERSION: '{{version}}',
                 },
             },
         ],
