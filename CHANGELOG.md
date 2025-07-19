@@ -1,3 +1,11 @@
+## [1.2.2](https://github.com/cre8/eudiplo/compare/v1.2.1...v1.2.2) (2025-07-19)
+
+
+### Bug Fixes
+
+* add tmp logger ([6bb4aa9](https://github.com/cre8/eudiplo/commit/6bb4aa919c7a5e47d52cbcd58e43fe36624ea384))
+* set correct url for vp ([295428b](https://github.com/cre8/eudiplo/commit/295428b63a169795ac64e00a64b3bc4767173d53))
+
 ## [1.2.1](https://github.com/cre8/eudiplo/compare/v1.2.0...v1.2.1) (2025-07-18)
 
 
