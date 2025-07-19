@@ -1,0 +1,3683 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>eudiplo documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+        <link rel="stylesheet" href="../styles/material.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">eudiplo documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content miscellaneous-variables">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Miscellaneous</li>
+  <li class="breadcrumb-item">Variables</li>
+</ol>
+
+<section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <ul class="index-list">
+                        <li>
+                            <a href="#accessCertificateControllerAccessCertificates" title="src/registrar/generated/sdk.gen.ts" ><b>accessCertificateControllerAccessCertificates</b>&nbsp;&nbsp;&nbsp;(src/.../sdk.gen.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#accessCertificateControllerDelete" title="src/registrar/generated/sdk.gen.ts" ><b>accessCertificateControllerDelete</b>&nbsp;&nbsp;&nbsp;(src/.../sdk.gen.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#accessCertificateControllerFindOne" title="src/registrar/generated/sdk.gen.ts" ><b>accessCertificateControllerFindOne</b>&nbsp;&nbsp;&nbsp;(src/.../sdk.gen.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#accessCertificateControllerFindOneParsed" title="src/registrar/generated/sdk.gen.ts" ><b>accessCertificateControllerFindOneParsed</b>&nbsp;&nbsp;&nbsp;(src/.../sdk.gen.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#accessCertificateControllerRegister" title="src/registrar/generated/sdk.gen.ts" ><b>accessCertificateControllerRegister</b>&nbsp;&nbsp;&nbsp;(src/.../sdk.gen.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#AUTH_VALIDATION_SCHEMA" title="src/auth/auth.module.ts" ><b>AUTH_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../auth.module.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#buildClientParams" title="src/registrar/generated/core/params.ts" ><b>buildClientParams</b>&nbsp;&nbsp;&nbsp;(src/.../params.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#buildKeyMap" title="src/registrar/generated/core/params.ts" ><b>buildKeyMap</b>&nbsp;&nbsp;&nbsp;(src/.../params.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#buildUrl" title="src/registrar/generated/client/utils.ts" ><b>buildUrl</b>&nbsp;&nbsp;&nbsp;(src/.../utils.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#callbacks" title="test/utils.ts" ><b>callbacks</b>&nbsp;&nbsp;&nbsp;(test/.../utils.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#client" title="src/registrar/generated/client.gen.ts" ><b>client</b>&nbsp;&nbsp;&nbsp;(src/.../client.gen.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#clientId" title="scripts/import.ts" ><b>clientId</b>&nbsp;&nbsp;&nbsp;(scripts/.../import.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#clientSecret" title="scripts/import.ts" ><b>clientSecret</b>&nbsp;&nbsp;&nbsp;(scripts/.../import.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#createClient" title="src/registrar/generated/client/client.ts" ><b>createClient</b>&nbsp;&nbsp;&nbsp;(src/.../client.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#createConfig" title="src/registrar/generated/client/utils.ts" ><b>createConfig</b>&nbsp;&nbsp;&nbsp;(src/.../utils.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#createInterceptors" title="src/registrar/generated/client/utils.ts" ><b>createInterceptors</b>&nbsp;&nbsp;&nbsp;(src/.../utils.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#createQuerySerializer" title="src/registrar/generated/client/utils.ts" ><b>createQuerySerializer</b>&nbsp;&nbsp;&nbsp;(src/.../utils.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#CRYPTO_VALIDATION_SCHEMA" title="src/crypto/key/crypto/crypto.module.ts" ><b>CRYPTO_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../crypto.module.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#cryptoControllerOwnCert" title="src/registrar/generated/sdk.gen.ts" ><b>cryptoControllerOwnCert</b>&nbsp;&nbsp;&nbsp;(src/.../sdk.gen.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#cryptoControllerOwnCertParsed" title="src/registrar/generated/sdk.gen.ts" ><b>cryptoControllerOwnCertParsed</b>&nbsp;&nbsp;&nbsp;(src/.../sdk.gen.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#DB_VALIDATION_SCHEMA" title="src/database/database.module.ts" ><b>DB_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../database.module.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#defaultHeaders" title="src/registrar/generated/client/utils.ts" ><b>defaultHeaders</b>&nbsp;&nbsp;&nbsp;(src/.../utils.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#defaultPathSerializer" title="src/registrar/generated/client/utils.ts" ><b>defaultPathSerializer</b>&nbsp;&nbsp;&nbsp;(src/.../utils.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#defaultQuerySerializer" title="src/registrar/generated/client/utils.ts" ><b>defaultQuerySerializer</b>&nbsp;&nbsp;&nbsp;(src/.../utils.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#ED25519" title="src/crypto/key/crypto/ed25519.ts" ><b>ED25519</b>&nbsp;&nbsp;&nbsp;(src/.../ed25519.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#extraPrefixes" title="src/registrar/generated/core/params.ts" ><b>extraPrefixes</b>&nbsp;&nbsp;&nbsp;(src/.../params.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#extraPrefixesMap" title="src/registrar/generated/core/params.ts" ><b>extraPrefixesMap</b>&nbsp;&nbsp;&nbsp;(src/.../params.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#formDataBodySerializer" title="src/registrar/generated/core/bodySerializer.ts" ><b>formDataBodySerializer</b>&nbsp;&nbsp;&nbsp;(src/.../bodySerializer.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#getAuthToken" title="src/registrar/generated/core/auth.ts" ><b>getAuthToken</b>&nbsp;&nbsp;&nbsp;(src/.../auth.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#getParseAs" title="src/registrar/generated/client/utils.ts" ><b>getParseAs</b>&nbsp;&nbsp;&nbsp;(src/.../utils.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#getSignJwtCallback" title="test/utils.ts" ><b>getSignJwtCallback</b>&nbsp;&nbsp;&nbsp;(test/.../utils.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#getUrl" title="src/registrar/generated/client/utils.ts" ><b>getUrl</b>&nbsp;&nbsp;&nbsp;(src/.../utils.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#healthControllerCheck" title="src/registrar/generated/sdk.gen.ts" ><b>healthControllerCheck</b>&nbsp;&nbsp;&nbsp;(src/.../sdk.gen.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#IS_PUBLIC_KEY" title="src/auth/public.decorator.ts" ><b>IS_PUBLIC_KEY</b>&nbsp;&nbsp;&nbsp;(src/.../public.decorator.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#ISSUER_VALIDATION_SCHEMA" title="src/issuer/issuer.module.ts" ><b>ISSUER_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../issuer.module.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#jsonBodySerializer" title="src/registrar/generated/core/bodySerializer.ts" ><b>jsonBodySerializer</b>&nbsp;&nbsp;&nbsp;(src/.../bodySerializer.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#KEY_VALIDATION_SCHEMA" title="src/crypto/key/key.module.ts" ><b>KEY_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../key.module.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#mergeConfigs" title="src/registrar/generated/client/utils.ts" ><b>mergeConfigs</b>&nbsp;&nbsp;&nbsp;(src/.../utils.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#mergeHeaders" title="src/registrar/generated/client/utils.ts" ><b>mergeHeaders</b>&nbsp;&nbsp;&nbsp;(src/.../utils.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#oid4VpControllerGetValidPid" title="src/registrar/generated/sdk.gen.ts" ><b>oid4VpControllerGetValidPid</b>&nbsp;&nbsp;&nbsp;(src/.../sdk.gen.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#oid4VpControllerGetValidRequest" title="src/registrar/generated/sdk.gen.ts" ><b>oid4VpControllerGetValidRequest</b>&nbsp;&nbsp;&nbsp;(src/.../sdk.gen.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#oid4VpControllerGetValidRequestWithQuery" title="src/registrar/generated/sdk.gen.ts" ><b>oid4VpControllerGetValidRequestWithQuery</b>&nbsp;&nbsp;&nbsp;(src/.../sdk.gen.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#oid4VpControllerResponse" title="src/registrar/generated/sdk.gen.ts" ><b>oid4VpControllerResponse</b>&nbsp;&nbsp;&nbsp;(src/.../sdk.gen.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#oid4VpControllerSuccess" title="src/registrar/generated/sdk.gen.ts" ><b>oid4VpControllerSuccess</b>&nbsp;&nbsp;&nbsp;(src/.../sdk.gen.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#PATH_PARAM_RE" title="src/registrar/generated/client/utils.ts" ><b>PATH_PARAM_RE</b>&nbsp;&nbsp;&nbsp;(src/.../utils.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#Public" title="src/auth/public.decorator.ts" ><b>Public</b>&nbsp;&nbsp;&nbsp;(src/.../public.decorator.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#REGISTRAR_VALIDATION_SCHEMA" title="src/registrar/registrar.module.ts" ><b>REGISTRAR_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../registrar.module.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#registrationCertificateControllerAll" title="src/registrar/generated/sdk.gen.ts" ><b>registrationCertificateControllerAll</b>&nbsp;&nbsp;&nbsp;(src/.../sdk.gen.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#registrationCertificateControllerDelete" title="src/registrar/generated/sdk.gen.ts" ><b>registrationCertificateControllerDelete</b>&nbsp;&nbsp;&nbsp;(src/.../sdk.gen.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#registrationCertificateControllerFindOne" title="src/registrar/generated/sdk.gen.ts" ><b>registrationCertificateControllerFindOne</b>&nbsp;&nbsp;&nbsp;(src/.../sdk.gen.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#registrationCertificateControllerFindOneDecoded" title="src/registrar/generated/sdk.gen.ts" ><b>registrationCertificateControllerFindOneDecoded</b>&nbsp;&nbsp;&nbsp;(src/.../sdk.gen.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#registrationCertificateControllerRegister" title="src/registrar/generated/sdk.gen.ts" ><b>registrationCertificateControllerRegister</b>&nbsp;&nbsp;&nbsp;(src/.../sdk.gen.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#relyingPartyControllerFindAll" title="src/registrar/generated/sdk.gen.ts" ><b>relyingPartyControllerFindAll</b>&nbsp;&nbsp;&nbsp;(src/.../sdk.gen.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#relyingPartyControllerRegister" title="src/registrar/generated/sdk.gen.ts" ><b>relyingPartyControllerRegister</b>&nbsp;&nbsp;&nbsp;(src/.../sdk.gen.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#relyingPartyControllerRemove" title="src/registrar/generated/sdk.gen.ts" ><b>relyingPartyControllerRemove</b>&nbsp;&nbsp;&nbsp;(src/.../sdk.gen.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#separatorArrayExplode" title="src/registrar/generated/core/pathSerializer.ts" ><b>separatorArrayExplode</b>&nbsp;&nbsp;&nbsp;(src/.../pathSerializer.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#separatorArrayNoExplode" title="src/registrar/generated/core/pathSerializer.ts" ><b>separatorArrayNoExplode</b>&nbsp;&nbsp;&nbsp;(src/.../pathSerializer.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#separatorObjectExplode" title="src/registrar/generated/core/pathSerializer.ts" ><b>separatorObjectExplode</b>&nbsp;&nbsp;&nbsp;(src/.../pathSerializer.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#serializeArrayParam" title="src/registrar/generated/core/pathSerializer.ts" ><b>serializeArrayParam</b>&nbsp;&nbsp;&nbsp;(src/.../pathSerializer.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#serializeFormDataPair" title="src/registrar/generated/core/bodySerializer.ts" ><b>serializeFormDataPair</b>&nbsp;&nbsp;&nbsp;(src/.../bodySerializer.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#serializeObjectParam" title="src/registrar/generated/core/pathSerializer.ts" ><b>serializeObjectParam</b>&nbsp;&nbsp;&nbsp;(src/.../pathSerializer.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#serializePrimitiveParam" title="src/registrar/generated/core/pathSerializer.ts" ><b>serializePrimitiveParam</b>&nbsp;&nbsp;&nbsp;(src/.../pathSerializer.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#serializeUrlSearchParamsPair" title="src/registrar/generated/core/bodySerializer.ts" ><b>serializeUrlSearchParamsPair</b>&nbsp;&nbsp;&nbsp;(src/.../bodySerializer.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#SESSION_LOGGER_KEY" title="src/utils/session-logger.decorator.ts" ><b>SESSION_LOGGER_KEY</b>&nbsp;&nbsp;&nbsp;(src/.../session-logger.decorator.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#SESSION_VALIDATION_SCHEMA" title="src/session/session.module.ts" ><b>SESSION_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../session.module.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#SessionLogger" title="src/utils/session-logger.decorator.ts" ><b>SessionLogger</b>&nbsp;&nbsp;&nbsp;(src/.../session-logger.decorator.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#setAuthParams" title="src/registrar/generated/client/utils.ts" ><b>setAuthParams</b>&nbsp;&nbsp;&nbsp;(src/.../utils.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#statusListControllerCrlFile" title="src/registrar/generated/sdk.gen.ts" ><b>statusListControllerCrlFile</b>&nbsp;&nbsp;&nbsp;(src/.../sdk.gen.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#statusListControllerGetList" title="src/registrar/generated/sdk.gen.ts" ><b>statusListControllerGetList</b>&nbsp;&nbsp;&nbsp;(src/.../sdk.gen.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#stripEmptySlots" title="src/registrar/generated/core/params.ts" ><b>stripEmptySlots</b>&nbsp;&nbsp;&nbsp;(src/.../params.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#TENANT_EVENTS" title="src/auth/tenant-events.ts" ><b>TENANT_EVENTS</b>&nbsp;&nbsp;&nbsp;(src/.../tenant-events.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#Token" title="src/auth/token.decorator.ts" ><b>Token</b>&nbsp;&nbsp;&nbsp;(src/.../token.decorator.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#url" title="scripts/import.ts" ><b>url</b>&nbsp;&nbsp;&nbsp;(scripts/.../import.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#urlSearchParamsBodySerializer" title="src/registrar/generated/core/bodySerializer.ts" ><b>urlSearchParamsBodySerializer</b>&nbsp;&nbsp;&nbsp;(src/.../bodySerializer.ts)</a>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+    <h3>src/registrar/generated/sdk.gen.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="accessCertificateControllerAccessCertificates"></a>
+                    <span class="name">
+                        <span ><b>accessCertificateControllerAccessCertificates</b></span>
+                        <a href="#accessCertificateControllerAccessCertificates"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&lt;
+    ThrowOnError extends boolean &#x3D; false,
+&gt;(
+    options: Options&lt;
+        AccessCertificateControllerAccessCertificatesData,
+        ThrowOnError
+    &gt;,
+) &#x3D;&gt; {
+    return (options.client ?? _heyApiClient).get&lt;
+        AccessCertificateControllerAccessCertificatesResponses,
+        unknown,
+        ThrowOnError
+    &gt;({
+        url: &#x27;/relying-parties/{rp}/access-certificates&#x27;,
+        ...options,
+    });
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Get all access certificates by a relying party</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="accessCertificateControllerDelete"></a>
+                    <span class="name">
+                        <span ><b>accessCertificateControllerDelete</b></span>
+                        <a href="#accessCertificateControllerDelete"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&lt;
+    ThrowOnError extends boolean &#x3D; false,
+&gt;(
+    options: Options&lt;AccessCertificateControllerDeleteData, ThrowOnError&gt;,
+) &#x3D;&gt; {
+    return (options.client ?? _heyApiClient).delete&lt;
+        AccessCertificateControllerDeleteResponses,
+        unknown,
+        ThrowOnError
+    &gt;({
+        security: [
+            {
+                scheme: &#x27;bearer&#x27;,
+                type: &#x27;http&#x27;,
+            },
+        ],
+        url: &#x27;/relying-parties/{rp}/access-certificates/{id}&#x27;,
+        ...options,
+    });
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Delete a certificate by id</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="accessCertificateControllerFindOne"></a>
+                    <span class="name">
+                        <span ><b>accessCertificateControllerFindOne</b></span>
+                        <a href="#accessCertificateControllerFindOne"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&lt;
+    ThrowOnError extends boolean &#x3D; false,
+&gt;(
+    options: Options&lt;AccessCertificateControllerFindOneData, ThrowOnError&gt;,
+) &#x3D;&gt; {
+    return (options.client ?? _heyApiClient).get&lt;
+        AccessCertificateControllerFindOneResponses,
+        unknown,
+        ThrowOnError
+    &gt;({
+        url: &#x27;/relying-parties/{rp}/access-certificates/{id}&#x27;,
+        ...options,
+    });
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Get a certificate by id</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="accessCertificateControllerFindOneParsed"></a>
+                    <span class="name">
+                        <span ><b>accessCertificateControllerFindOneParsed</b></span>
+                        <a href="#accessCertificateControllerFindOneParsed"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&lt;
+    ThrowOnError extends boolean &#x3D; false,
+&gt;(
+    options: Options&lt;
+        AccessCertificateControllerFindOneParsedData,
+        ThrowOnError
+    &gt;,
+) &#x3D;&gt; {
+    return (options.client ?? _heyApiClient).get&lt;
+        AccessCertificateControllerFindOneParsedResponses,
+        unknown,
+        ThrowOnError
+    &gt;({
+        url: &#x27;/relying-parties/{rp}/access-certificates/{id}/parsed&#x27;,
+        ...options,
+    });
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Get a certificate by id and parse it via openssl
+Subject is not RFC 4514 conform</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="accessCertificateControllerRegister"></a>
+                    <span class="name">
+                        <span ><b>accessCertificateControllerRegister</b></span>
+                        <a href="#accessCertificateControllerRegister"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&lt;
+    ThrowOnError extends boolean &#x3D; false,
+&gt;(
+    options: Options&lt;AccessCertificateControllerRegisterData, ThrowOnError&gt;,
+) &#x3D;&gt; {
+    return (options.client ?? _heyApiClient).post&lt;
+        AccessCertificateControllerRegisterResponses,
+        unknown,
+        ThrowOnError
+    &gt;({
+        security: [
+            {
+                scheme: &#x27;bearer&#x27;,
+                type: &#x27;http&#x27;,
+            },
+        ],
+        url: &#x27;/relying-parties/{rp}/access-certificates&#x27;,
+        ...options,
+        headers: {
+            &#x27;Content-Type&#x27;: &#x27;application/json&#x27;,
+            ...options.headers,
+        },
+    });
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Add a new access certificate</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="cryptoControllerOwnCert"></a>
+                    <span class="name">
+                        <span ><b>cryptoControllerOwnCert</b></span>
+                        <a href="#cryptoControllerOwnCert"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&lt;ThrowOnError extends boolean &#x3D; false&gt;(
+    options?: Options&lt;CryptoControllerOwnCertData, ThrowOnError&gt;,
+) &#x3D;&gt; {
+    return (options?.client ?? _heyApiClient).get&lt;
+        CryptoControllerOwnCertResponses,
+        unknown,
+        ThrowOnError
+    &gt;({
+        url: &#x27;/ca&#x27;,
+        ...options,
+    });
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Returns the certificate of the RP registrar.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="cryptoControllerOwnCertParsed"></a>
+                    <span class="name">
+                        <span ><b>cryptoControllerOwnCertParsed</b></span>
+                        <a href="#cryptoControllerOwnCertParsed"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&lt;
+    ThrowOnError extends boolean &#x3D; false,
+&gt;(
+    options?: Options&lt;CryptoControllerOwnCertParsedData, ThrowOnError&gt;,
+) &#x3D;&gt; {
+    return (options?.client ?? _heyApiClient).get&lt;
+        CryptoControllerOwnCertParsedResponses,
+        unknown,
+        ThrowOnError
+    &gt;({
+        url: &#x27;/ca/parsed&#x27;,
+        ...options,
+    });
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Returns the certificate of the RP registrar.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="healthControllerCheck"></a>
+                    <span class="name">
+                        <span ><b>healthControllerCheck</b></span>
+                        <a href="#healthControllerCheck"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&lt;ThrowOnError extends boolean &#x3D; false&gt;(
+    options?: Options&lt;HealthControllerCheckData, ThrowOnError&gt;,
+) &#x3D;&gt; {
+    return (options?.client ?? _heyApiClient).get&lt;
+        HealthControllerCheckResponses,
+        HealthControllerCheckErrors,
+        ThrowOnError
+    &gt;({
+        url: &#x27;/health&#x27;,
+        ...options,
+    });
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="oid4VpControllerGetValidPid"></a>
+                    <span class="name">
+                        <span ><b>oid4VpControllerGetValidPid</b></span>
+                        <a href="#oid4VpControllerGetValidPid"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&lt;
+    ThrowOnError extends boolean &#x3D; false,
+&gt;(
+    options: Options&lt;Oid4VpControllerGetValidPidData, ThrowOnError&gt;,
+) &#x3D;&gt; {
+    return (options.client ?? _heyApiClient).get&lt;
+        Oid4VpControllerGetValidPidResponses,
+        unknown,
+        ThrowOnError
+    &gt;({
+        url: &#x27;/oid4vp&#x27;,
+        ...options,
+    });
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Get a valid openid4vp request uri</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="oid4VpControllerGetValidRequest"></a>
+                    <span class="name">
+                        <span ><b>oid4VpControllerGetValidRequest</b></span>
+                        <a href="#oid4VpControllerGetValidRequest"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&lt;
+    ThrowOnError extends boolean &#x3D; false,
+&gt;(
+    options: Options&lt;Oid4VpControllerGetValidRequestData, ThrowOnError&gt;,
+) &#x3D;&gt; {
+    return (options.client ?? _heyApiClient).get&lt;
+        Oid4VpControllerGetValidRequestResponses,
+        unknown,
+        ThrowOnError
+    &gt;({
+        url: &#x27;/oid4vp/{version}/{request}/{querylanguage}&#x27;,
+        ...options,
+    });
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Get an oid4vp authorization request as signed JWT</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="oid4VpControllerGetValidRequestWithQuery"></a>
+                    <span class="name">
+                        <span ><b>oid4VpControllerGetValidRequestWithQuery</b></span>
+                        <a href="#oid4VpControllerGetValidRequestWithQuery"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&lt;
+    ThrowOnError extends boolean &#x3D; false,
+&gt;(
+    options: Options&lt;
+        Oid4VpControllerGetValidRequestWithQueryData,
+        ThrowOnError
+    &gt;,
+) &#x3D;&gt; {
+    return (options.client ?? _heyApiClient).get&lt;
+        Oid4VpControllerGetValidRequestWithQueryResponses,
+        unknown,
+        ThrowOnError
+    &gt;({
+        url: &#x27;/oid4vp/{version}/{request}&#x27;,
+        ...options,
+    });
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>deprecated</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="oid4VpControllerResponse"></a>
+                    <span class="name">
+                        <span ><b>oid4VpControllerResponse</b></span>
+                        <a href="#oid4VpControllerResponse"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&lt;ThrowOnError extends boolean &#x3D; false&gt;(
+    options?: Options&lt;Oid4VpControllerResponseData, ThrowOnError&gt;,
+) &#x3D;&gt; {
+    return (options?.client ?? _heyApiClient).post&lt;
+        Oid4VpControllerResponseResponses,
+        unknown,
+        ThrowOnError
+    &gt;({
+        url: &#x27;/oid4vp/response&#x27;,
+        ...options,
+    });
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Response endpoint</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="oid4VpControllerSuccess"></a>
+                    <span class="name">
+                        <span ><b>oid4VpControllerSuccess</b></span>
+                        <a href="#oid4VpControllerSuccess"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&lt;ThrowOnError extends boolean &#x3D; false&gt;(
+    options?: Options&lt;Oid4VpControllerSuccessData, ThrowOnError&gt;,
+) &#x3D;&gt; {
+    return (options?.client ?? _heyApiClient).get&lt;
+        Oid4VpControllerSuccessResponses,
+        unknown,
+        ThrowOnError
+    &gt;({
+        url: &#x27;/oid4vp/success&#x27;,
+        ...options,
+    });
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Dummy success endpoint</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="registrationCertificateControllerAll"></a>
+                    <span class="name">
+                        <span ><b>registrationCertificateControllerAll</b></span>
+                        <a href="#registrationCertificateControllerAll"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&lt;
+    ThrowOnError extends boolean &#x3D; false,
+&gt;(
+    options: Options&lt;RegistrationCertificateControllerAllData, ThrowOnError&gt;,
+) &#x3D;&gt; {
+    return (options.client ?? _heyApiClient).get&lt;
+        RegistrationCertificateControllerAllResponses,
+        unknown,
+        ThrowOnError
+    &gt;({
+        url: &#x27;/relying-parties/{rp}/registration-certificates&#x27;,
+        ...options,
+    });
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Get all registration certificates by a relying party</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="registrationCertificateControllerDelete"></a>
+                    <span class="name">
+                        <span ><b>registrationCertificateControllerDelete</b></span>
+                        <a href="#registrationCertificateControllerDelete"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&lt;
+    ThrowOnError extends boolean &#x3D; false,
+&gt;(
+    options: Options&lt;RegistrationCertificateControllerDeleteData, ThrowOnError&gt;,
+) &#x3D;&gt; {
+    return (options.client ?? _heyApiClient).delete&lt;
+        RegistrationCertificateControllerDeleteResponses,
+        unknown,
+        ThrowOnError
+    &gt;({
+        security: [
+            {
+                scheme: &#x27;bearer&#x27;,
+                type: &#x27;http&#x27;,
+            },
+        ],
+        url: &#x27;/relying-parties/{rp}/registration-certificates/{id}&#x27;,
+        ...options,
+    });
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Delete a certificate by id</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="registrationCertificateControllerFindOne"></a>
+                    <span class="name">
+                        <span ><b>registrationCertificateControllerFindOne</b></span>
+                        <a href="#registrationCertificateControllerFindOne"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&lt;
+    ThrowOnError extends boolean &#x3D; false,
+&gt;(
+    options: Options&lt;
+        RegistrationCertificateControllerFindOneData,
+        ThrowOnError
+    &gt;,
+) &#x3D;&gt; {
+    return (options.client ?? _heyApiClient).get&lt;
+        RegistrationCertificateControllerFindOneResponses,
+        RegistrationCertificateControllerFindOneErrors,
+        ThrowOnError
+    &gt;({
+        url: &#x27;/relying-parties/{rp}/registration-certificates/{id}&#x27;,
+        ...options,
+    });
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Get a certificate by id</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="registrationCertificateControllerFindOneDecoded"></a>
+                    <span class="name">
+                        <span ><b>registrationCertificateControllerFindOneDecoded</b></span>
+                        <a href="#registrationCertificateControllerFindOneDecoded"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&lt;
+    ThrowOnError extends boolean &#x3D; false,
+&gt;(
+    options: Options&lt;
+        RegistrationCertificateControllerFindOneDecodedData,
+        ThrowOnError
+    &gt;,
+) &#x3D;&gt; {
+    return (options.client ?? _heyApiClient).get&lt;
+        RegistrationCertificateControllerFindOneDecodedResponses,
+        unknown,
+        ThrowOnError
+    &gt;({
+        url: &#x27;/relying-parties/{rp}/registration-certificates/{id}/jws-decoded&#x27;,
+        ...options,
+    });
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Get a certificate by id decoded as jws</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="registrationCertificateControllerRegister"></a>
+                    <span class="name">
+                        <span ><b>registrationCertificateControllerRegister</b></span>
+                        <a href="#registrationCertificateControllerRegister"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&lt;
+    ThrowOnError extends boolean &#x3D; false,
+&gt;(
+    options: Options&lt;
+        RegistrationCertificateControllerRegisterData,
+        ThrowOnError
+    &gt;,
+) &#x3D;&gt; {
+    return (options.client ?? _heyApiClient).post&lt;
+        RegistrationCertificateControllerRegisterResponses,
+        unknown,
+        ThrowOnError
+    &gt;({
+        security: [
+            {
+                scheme: &#x27;bearer&#x27;,
+                type: &#x27;http&#x27;,
+            },
+        ],
+        url: &#x27;/relying-parties/{rp}/registration-certificates&#x27;,
+        ...options,
+        headers: {
+            &#x27;Content-Type&#x27;: &#x27;application/json&#x27;,
+            ...options.headers,
+        },
+    });
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Add a new registration certificate</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="relyingPartyControllerFindAll"></a>
+                    <span class="name">
+                        <span ><b>relyingPartyControllerFindAll</b></span>
+                        <a href="#relyingPartyControllerFindAll"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&lt;
+    ThrowOnError extends boolean &#x3D; false,
+&gt;(
+    options?: Options&lt;RelyingPartyControllerFindAllData, ThrowOnError&gt;,
+) &#x3D;&gt; {
+    return (options?.client ?? _heyApiClient).get&lt;
+        RelyingPartyControllerFindAllResponses,
+        unknown,
+        ThrowOnError
+    &gt;({
+        url: &#x27;/relying-parties&#x27;,
+        ...options,
+    });
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Get all relying parties</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="relyingPartyControllerRegister"></a>
+                    <span class="name">
+                        <span ><b>relyingPartyControllerRegister</b></span>
+                        <a href="#relyingPartyControllerRegister"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&lt;
+    ThrowOnError extends boolean &#x3D; false,
+&gt;(
+    options: Options&lt;RelyingPartyControllerRegisterData, ThrowOnError&gt;,
+) &#x3D;&gt; {
+    return (options.client ?? _heyApiClient).post&lt;
+        RelyingPartyControllerRegisterResponses,
+        unknown,
+        ThrowOnError
+    &gt;({
+        security: [
+            {
+                scheme: &#x27;bearer&#x27;,
+                type: &#x27;http&#x27;,
+            },
+        ],
+        url: &#x27;/relying-parties&#x27;,
+        ...options,
+        headers: {
+            &#x27;Content-Type&#x27;: &#x27;application/json&#x27;,
+            ...options.headers,
+        },
+    });
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Register a new relying party</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="relyingPartyControllerRemove"></a>
+                    <span class="name">
+                        <span ><b>relyingPartyControllerRemove</b></span>
+                        <a href="#relyingPartyControllerRemove"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&lt;
+    ThrowOnError extends boolean &#x3D; false,
+&gt;(
+    options: Options&lt;RelyingPartyControllerRemoveData, ThrowOnError&gt;,
+) &#x3D;&gt; {
+    return (options.client ?? _heyApiClient).delete&lt;
+        RelyingPartyControllerRemoveResponses,
+        unknown,
+        ThrowOnError
+    &gt;({
+        security: [
+            {
+                scheme: &#x27;bearer&#x27;,
+                type: &#x27;http&#x27;,
+            },
+        ],
+        url: &#x27;/relying-parties/{id}&#x27;,
+        ...options,
+    });
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Removes a relying party and it&#39;s associated certificates. Only used to tidy up.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="statusListControllerCrlFile"></a>
+                    <span class="name">
+                        <span ><b>statusListControllerCrlFile</b></span>
+                        <a href="#statusListControllerCrlFile"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&lt;
+    ThrowOnError extends boolean &#x3D; false,
+&gt;(
+    options?: Options&lt;StatusListControllerCrlFileData, ThrowOnError&gt;,
+) &#x3D;&gt; {
+    return (options?.client ?? _heyApiClient).get&lt;
+        StatusListControllerCrlFileResponses,
+        unknown,
+        ThrowOnError
+    &gt;({
+        url: &#x27;/status-management/crl&#x27;,
+        ...options,
+    });
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Returns the crl.der file</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="statusListControllerGetList"></a>
+                    <span class="name">
+                        <span ><b>statusListControllerGetList</b></span>
+                        <a href="#statusListControllerGetList"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&lt;
+    ThrowOnError extends boolean &#x3D; false,
+&gt;(
+    options?: Options&lt;StatusListControllerGetListData, ThrowOnError&gt;,
+) &#x3D;&gt; {
+    return (options?.client ?? _heyApiClient).get&lt;
+        StatusListControllerGetListResponses,
+        unknown,
+        ThrowOnError
+    &gt;({
+        url: &#x27;/status-management/status-list&#x27;,
+        ...options,
+    });
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Get the status list</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/auth/auth.module.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="AUTH_VALIDATION_SCHEMA"></a>
+                    <span class="name">
+                        <span ><b>AUTH_VALIDATION_SCHEMA</b></span>
+                        <a href="#AUTH_VALIDATION_SCHEMA"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object" target="_blank" >object</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>{
+    OIDC: Joi.string().optional(),
+    KEYCLOAK_INTERNAL_ISSUER_URL: Joi.when(&#x27;OIDC&#x27;, {
+        then: Joi.string().required(),
+        otherwise: Joi.string().optional(),
+    }),
+    KEYCLOAK_CLIENT_ID: Joi.when(&#x27;OIDC&#x27;, {
+        then: Joi.string().required(),
+        otherwise: Joi.string().optional(),
+    }),
+    JWT_SECRET: Joi.when(&#x27;OIDC&#x27;, {
+        then: Joi.string().optional(),
+        otherwise: Joi.string().required(),
+    }),
+    JWT_ISSUER: Joi.when(&#x27;OIDC&#x27;, {
+        then: Joi.string().optional(),
+        otherwise: Joi.string().optional().default(&#x27;eudiplo-service&#x27;),
+    }),
+    JWT_EXPIRES_IN: Joi.when(&#x27;OIDC&#x27;, {
+        then: Joi.string().optional(),
+        otherwise: Joi.string().default(&#x27;24h&#x27;),
+    }),
+    AUTH_CLIENT_SECRET: Joi.when(&#x27;OIDC&#x27;, {
+        then: Joi.string().optional(),
+        otherwise: Joi.string().required(),
+    }),
+    AUTH_CLIENT_ID: Joi.when(&#x27;OIDC&#x27;, {
+        then: Joi.string().optional(),
+        otherwise: Joi.string().required(),
+    }),
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/registrar/generated/core/params.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="buildClientParams"></a>
+                    <span class="name">
+                        <span ><b>buildClientParams</b></span>
+                        <a href="#buildClientParams"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>(
+    args: ReadonlyArray&lt;unknown&gt;,
+    fields: FieldsConfig,
+) &#x3D;&gt; {
+    const params: Params &#x3D; {
+        body: {},
+        headers: {},
+        path: {},
+        query: {},
+    };
+
+    const map &#x3D; buildKeyMap(fields);
+
+    let config: FieldsConfig[number] | undefined;
+
+    for (const [index, arg] of args.entries()) {
+        if (fields[index]) {
+            config &#x3D; fields[index];
+        }
+
+        if (!config) {
+            continue;
+        }
+
+        if (&#x27;in&#x27; in config) {
+            if (config.key) {
+                const field &#x3D; map.get(config.key)!;
+                const name &#x3D; field.map || config.key;
+                (params[field.in] as Record&lt;string, unknown&gt;)[name] &#x3D; arg;
+            } else {
+                params.body &#x3D; arg;
+            }
+        } else {
+            for (const [key, value] of Object.entries(arg ?? {})) {
+                const field &#x3D; map.get(key);
+
+                if (field) {
+                    const name &#x3D; field.map || key;
+                    (params[field.in] as Record&lt;string, unknown&gt;)[name] &#x3D; value;
+                } else {
+                    const extra &#x3D; extraPrefixes.find(([prefix]) &#x3D;&gt;
+                        key.startsWith(prefix),
+                    );
+
+                    if (extra) {
+                        const [prefix, slot] &#x3D; extra;
+                        (params[slot] as Record&lt;string, unknown&gt;)[
+                            key.slice(prefix.length)
+                        ] &#x3D; value;
+                    } else {
+                        for (const [slot, allowed] of Object.entries(
+                            config.allowExtra ?? {},
+                        )) {
+                            if (allowed) {
+                                (
+                                    params[slot as Slot] as Record&lt;
+                                        string,
+                                        unknown
+                                    &gt;
+                                )[key] &#x3D; value;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    stripEmptySlots(params);
+
+    return params;
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="buildKeyMap"></a>
+                    <span class="name">
+                        <span ><b>buildKeyMap</b></span>
+                        <a href="#buildKeyMap"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>(fields: FieldsConfig, map?: KeyMap): KeyMap &#x3D;&gt; {
+    if (!map) {
+        map &#x3D; new Map();
+    }
+
+    for (const config of fields) {
+        if (&#x27;in&#x27; in config) {
+            if (config.key) {
+                map.set(config.key, {
+                    in: config.in,
+                    map: config.map,
+                });
+            }
+        } else if (config.args) {
+            buildKeyMap(config.args, map);
+        }
+    }
+
+    return map;
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="extraPrefixes"></a>
+                    <span class="name">
+                        <span ><b>extraPrefixes</b></span>
+                        <a href="#extraPrefixes"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>Object.entries(extraPrefixesMap)</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="extraPrefixesMap"></a>
+                    <span class="name">
+                        <span ><b>extraPrefixesMap</b></span>
+                        <a href="#extraPrefixesMap"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../miscellaneous/typealiases.html#Slot" target="_self" >Record&lt;string, Slot&gt;</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>{
+    $body_: &#x27;body&#x27;,
+    $headers_: &#x27;headers&#x27;,
+    $path_: &#x27;path&#x27;,
+    $query_: &#x27;query&#x27;,
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="stripEmptySlots"></a>
+                    <span class="name">
+                        <span ><b>stripEmptySlots</b></span>
+                        <a href="#stripEmptySlots"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>(params: Params) &#x3D;&gt; {
+    for (const [slot, value] of Object.entries(params)) {
+        if (value &amp;&amp; typeof value &#x3D;&#x3D;&#x3D; &#x27;object&#x27; &amp;&amp; !Object.keys(value).length) {
+            delete params[slot as Slot];
+        }
+    }
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/registrar/generated/client/utils.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="buildUrl"></a>
+                    <span class="name">
+                        <span ><b>buildUrl</b></span>
+                        <a href="#buildUrl"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>(options) &#x3D;&gt; {
+    const url &#x3D; getUrl({
+        baseUrl: options.baseUrl as string,
+        path: options.path,
+        query: options.query,
+        querySerializer:
+            typeof options.querySerializer &#x3D;&#x3D;&#x3D; &#x27;function&#x27;
+                ? options.querySerializer
+                : createQuerySerializer(options.querySerializer),
+        url: options.url,
+    });
+    return url;
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="createConfig"></a>
+                    <span class="name">
+                        <span ><b>createConfig</b></span>
+                        <a href="#createConfig"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&lt;T extends ClientOptions &#x3D; ClientOptions&gt;(
+    override: Config&lt;Omit&lt;ClientOptions, keyof T&gt; &amp; T&gt; &#x3D; {},
+): Config&lt;Omit&lt;ClientOptions, keyof T&gt; &amp; T&gt; &#x3D;&gt; ({
+    ...jsonBodySerializer,
+    headers: defaultHeaders,
+    parseAs: &#x27;auto&#x27;,
+    querySerializer: defaultQuerySerializer,
+    ...override,
+})</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="createInterceptors"></a>
+                    <span class="name">
+                        <span ><b>createInterceptors</b></span>
+                        <a href="#createInterceptors"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&lt;Req, Res, Err, Options&gt;() &#x3D;&gt; ({
+    error: new Interceptors&lt;ErrInterceptor&lt;Err, Res, Req, Options&gt;&gt;(),
+    request: new Interceptors&lt;ReqInterceptor&lt;Req, Options&gt;&gt;(),
+    response: new Interceptors&lt;ResInterceptor&lt;Res, Req, Options&gt;&gt;(),
+})</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="createQuerySerializer"></a>
+                    <span class="name">
+                        <span ><b>createQuerySerializer</b></span>
+                        <a href="#createQuerySerializer"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&lt;T &#x3D; unknown&gt;({
+    allowReserved,
+    array,
+    object,
+}: QuerySerializerOptions &#x3D; {}) &#x3D;&gt; {
+    const querySerializer &#x3D; (queryParams: T) &#x3D;&gt; {
+        const search: string[] &#x3D; [];
+        if (queryParams &amp;&amp; typeof queryParams &#x3D;&#x3D;&#x3D; &#x27;object&#x27;) {
+            for (const name in queryParams) {
+                const value &#x3D; queryParams[name];
+
+                if (value &#x3D;&#x3D;&#x3D; undefined || value &#x3D;&#x3D;&#x3D; null) {
+                    continue;
+                }
+
+                if (Array.isArray(value)) {
+                    const serializedArray &#x3D; serializeArrayParam({
+                        allowReserved,
+                        explode: true,
+                        name,
+                        style: &#x27;form&#x27;,
+                        value,
+                        ...array,
+                    });
+                    if (serializedArray) search.push(serializedArray);
+                } else if (typeof value &#x3D;&#x3D;&#x3D; &#x27;object&#x27;) {
+                    const serializedObject &#x3D; serializeObjectParam({
+                        allowReserved,
+                        explode: true,
+                        name,
+                        style: &#x27;deepObject&#x27;,
+                        value: value as Record&lt;string, unknown&gt;,
+                        ...object,
+                    });
+                    if (serializedObject) search.push(serializedObject);
+                } else {
+                    const serializedPrimitive &#x3D; serializePrimitiveParam({
+                        allowReserved,
+                        name,
+                        value: value as string,
+                    });
+                    if (serializedPrimitive) search.push(serializedPrimitive);
+                }
+            }
+        }
+        return search.join(&#x27;&amp;&#x27;);
+    };
+    return querySerializer;
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="defaultHeaders"></a>
+                    <span class="name">
+                        <span ><b>defaultHeaders</b></span>
+                        <a href="#defaultHeaders"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object" target="_blank" >object</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>{
+    &#x27;Content-Type&#x27;: &#x27;application/json&#x27;,
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="defaultPathSerializer"></a>
+                    <span class="name">
+                        <span ><b>defaultPathSerializer</b></span>
+                        <a href="#defaultPathSerializer"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>({ path, url: _url }: PathSerializer) &#x3D;&gt; {
+    let url &#x3D; _url;
+    const matches &#x3D; _url.match(PATH_PARAM_RE);
+    if (matches) {
+        for (const match of matches) {
+            let explode &#x3D; false;
+            let name &#x3D; match.substring(1, match.length - 1);
+            let style: ArraySeparatorStyle &#x3D; &#x27;simple&#x27;;
+
+            if (name.endsWith(&#x27;*&#x27;)) {
+                explode &#x3D; true;
+                name &#x3D; name.substring(0, name.length - 1);
+            }
+
+            if (name.startsWith(&#x27;.&#x27;)) {
+                name &#x3D; name.substring(1);
+                style &#x3D; &#x27;label&#x27;;
+            } else if (name.startsWith(&#x27;;&#x27;)) {
+                name &#x3D; name.substring(1);
+                style &#x3D; &#x27;matrix&#x27;;
+            }
+
+            const value &#x3D; path[name];
+
+            if (value &#x3D;&#x3D;&#x3D; undefined || value &#x3D;&#x3D;&#x3D; null) {
+                continue;
+            }
+
+            if (Array.isArray(value)) {
+                url &#x3D; url.replace(
+                    match,
+                    serializeArrayParam({ explode, name, style, value }),
+                );
+                continue;
+            }
+
+            if (typeof value &#x3D;&#x3D;&#x3D; &#x27;object&#x27;) {
+                url &#x3D; url.replace(
+                    match,
+                    serializeObjectParam({
+                        explode,
+                        name,
+                        style,
+                        value: value as Record&lt;string, unknown&gt;,
+                        valueOnly: true,
+                    }),
+                );
+                continue;
+            }
+
+            if (style &#x3D;&#x3D;&#x3D; &#x27;matrix&#x27;) {
+                url &#x3D; url.replace(
+                    match,
+                    &#x60;;${serializePrimitiveParam({
+                        name,
+                        value: value as string,
+                    })}&#x60;,
+                );
+                continue;
+            }
+
+            const replaceValue &#x3D; encodeURIComponent(
+                style &#x3D;&#x3D;&#x3D; &#x27;label&#x27; ? &#x60;.${value as string}&#x60; : (value as string),
+            );
+            url &#x3D; url.replace(match, replaceValue);
+        }
+    }
+    return url;
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="defaultQuerySerializer"></a>
+                    <span class="name">
+                        <span ><b>defaultQuerySerializer</b></span>
+                        <a href="#defaultQuerySerializer"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>createQuerySerializer({
+    allowReserved: false,
+    array: {
+        explode: true,
+        style: &#x27;form&#x27;,
+    },
+    object: {
+        explode: true,
+        style: &#x27;deepObject&#x27;,
+    },
+})</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getParseAs"></a>
+                    <span class="name">
+                        <span ><b>getParseAs</b></span>
+                        <a href="#getParseAs"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>(
+    contentType: string | null,
+): Exclude&lt;Config[&#x27;parseAs&#x27;], &#x27;auto&#x27;&gt; &#x3D;&gt; {
+    if (!contentType) {
+        // If no Content-Type header is provided, the best we can do is return the raw response body,
+        // which is effectively the same as the &#x27;stream&#x27; option.
+        return &#x27;stream&#x27;;
+    }
+
+    const cleanContent &#x3D; contentType.split(&#x27;;&#x27;)[0]?.trim();
+
+    if (!cleanContent) {
+        return;
+    }
+
+    if (
+        cleanContent.startsWith(&#x27;application/json&#x27;) ||
+        cleanContent.endsWith(&#x27;+json&#x27;)
+    ) {
+        return &#x27;json&#x27;;
+    }
+
+    if (cleanContent &#x3D;&#x3D;&#x3D; &#x27;multipart/form-data&#x27;) {
+        return &#x27;formData&#x27;;
+    }
+
+    if (
+        [&#x27;application/&#x27;, &#x27;audio/&#x27;, &#x27;image/&#x27;, &#x27;video/&#x27;].some((type) &#x3D;&gt;
+            cleanContent.startsWith(type),
+        )
+    ) {
+        return &#x27;blob&#x27;;
+    }
+
+    if (cleanContent.startsWith(&#x27;text/&#x27;)) {
+        return &#x27;text&#x27;;
+    }
+
+    return;
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Infers parseAs value from provided Content-Type header.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getUrl"></a>
+                    <span class="name">
+                        <span ><b>getUrl</b></span>
+                        <a href="#getUrl"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>({
+    baseUrl,
+    path,
+    query,
+    querySerializer,
+    url: _url,
+}: {
+    baseUrl?: string;
+    path?: Record&lt;string, unknown&gt;;
+    query?: Record&lt;string, unknown&gt;;
+    querySerializer: QuerySerializer;
+    url: string;
+}) &#x3D;&gt; {
+    const pathUrl &#x3D; _url.startsWith(&#x27;/&#x27;) ? _url : &#x60;/${_url}&#x60;;
+    let url &#x3D; (baseUrl ?? &#x27;&#x27;) + pathUrl;
+    if (path) {
+        url &#x3D; defaultPathSerializer({ path, url });
+    }
+    let search &#x3D; query ? querySerializer(query) : &#x27;&#x27;;
+    if (search.startsWith(&#x27;?&#x27;)) {
+        search &#x3D; search.substring(1);
+    }
+    if (search) {
+        url +&#x3D; &#x60;?${search}&#x60;;
+    }
+    return url;
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="mergeConfigs"></a>
+                    <span class="name">
+                        <span ><b>mergeConfigs</b></span>
+                        <a href="#mergeConfigs"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>(a: Config, b: Config): Config &#x3D;&gt; {
+    const config &#x3D; { ...a, ...b };
+    if (config.baseUrl?.endsWith(&#x27;/&#x27;)) {
+        config.baseUrl &#x3D; config.baseUrl.substring(0, config.baseUrl.length - 1);
+    }
+    config.headers &#x3D; mergeHeaders(a.headers, b.headers);
+    return config;
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="mergeHeaders"></a>
+                    <span class="name">
+                        <span ><b>mergeHeaders</b></span>
+                        <a href="#mergeHeaders"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>(
+    ...headers: Array&lt;Required&lt;Config&gt;[&#x27;headers&#x27;] | undefined&gt;
+): Headers &#x3D;&gt; {
+    const mergedHeaders &#x3D; new Headers();
+    for (const header of headers) {
+        if (!header || typeof header !&#x3D;&#x3D; &#x27;object&#x27;) {
+            continue;
+        }
+
+        const iterator &#x3D;
+            header instanceof Headers
+                ? header.entries()
+                : Object.entries(header);
+
+        for (const [key, value] of iterator) {
+            if (value &#x3D;&#x3D;&#x3D; null) {
+                mergedHeaders.delete(key);
+            } else if (Array.isArray(value)) {
+                for (const v of value) {
+                    mergedHeaders.append(key, v as string);
+                }
+            } else if (value !&#x3D;&#x3D; undefined) {
+                // assume object headers are meant to be JSON stringified, i.e. their
+                // content value in OpenAPI specification is &#x27;application/json&#x27;
+                mergedHeaders.set(
+                    key,
+                    typeof value &#x3D;&#x3D;&#x3D; &#x27;object&#x27;
+                        ? JSON.stringify(value)
+                        : (value as string),
+                );
+            }
+        }
+    }
+    return mergedHeaders;
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="PATH_PARAM_RE"></a>
+                    <span class="name">
+                        <span ><b>PATH_PARAM_RE</b></span>
+                        <a href="#PATH_PARAM_RE"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>/\{[^{}]+\}/g</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="setAuthParams"></a>
+                    <span class="name">
+                        <span ><b>setAuthParams</b></span>
+                        <a href="#setAuthParams"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>async ({
+    security,
+    ...options
+}: Pick&lt;Required&lt;RequestOptions&gt;, &#x27;security&#x27;&gt; &amp;
+    Pick&lt;RequestOptions, &#x27;auth&#x27; | &#x27;query&#x27;&gt; &amp; {
+        headers: Headers;
+    }) &#x3D;&gt; {
+    for (const auth of security) {
+        const token &#x3D; await getAuthToken(auth, options.auth);
+
+        if (!token) {
+            continue;
+        }
+
+        const name &#x3D; auth.name ?? &#x27;Authorization&#x27;;
+
+        switch (auth.in) {
+            case &#x27;query&#x27;:
+                if (!options.query) {
+                    options.query &#x3D; {};
+                }
+                options.query[name] &#x3D; token;
+                break;
+            case &#x27;cookie&#x27;:
+                options.headers.append(&#x27;Cookie&#x27;, &#x60;${name}&#x3D;${token}&#x60;);
+                break;
+            case &#x27;header&#x27;:
+            default:
+                options.headers.set(name, token);
+                break;
+        }
+
+        return;
+    }
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>test/utils.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="callbacks"></a>
+                    <span class="name">
+                        <span ><b>callbacks</b></span>
+                        <a href="#callbacks"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>{
+    hash: (data, alg) &#x3D;&gt;
+        crypto
+            .createHash(alg.replace(&#x27;-&#x27;, &#x27;&#x27;).toLowerCase())
+            .update(data)
+            .digest(),
+    generateRandom: (bytes) &#x3D;&gt; crypto.randomBytes(bytes),
+    /* clientAuthentication: clientAuthenticationNone({
+        clientId: &#x27;some-random-client-id&#x27;,
+    }), */
+    verifyJwt: async (signer, { compact, payload }) &#x3D;&gt; {
+        let jwk: Jwk;
+        let publicKey: CryptoKey;
+        if (signer.method &#x3D;&#x3D;&#x3D; &#x27;jwk&#x27;) {
+            jwk &#x3D; signer.publicJwk;
+            publicKey &#x3D; (await importJWK(jwk as JWK, signer.alg)) as CryptoKey;
+        } else if (signer.method &#x3D;&#x3D;&#x3D; &#x27;x5c&#x27;) {
+            const headerB64 &#x3D; compact.split(&#x27;.&#x27;)[0];
+            const header &#x3D; JSON.parse(
+                Buffer.from(headerB64, &#x27;base64url&#x27;).toString(),
+            );
+            const certPem &#x3D; &#x60;-----BEGIN CERTIFICATE-----\n${header.x5c}\n-----END CERTIFICATE-----&#x60;;
+            publicKey &#x3D; await importX509(certPem, signer.alg);
+            jwk &#x3D; (await exportJWK(publicKey)) as Jwk;
+        } else {
+            throw new Error(&#x27;Signer method not supported&#x27;);
+        }
+
+        try {
+            await jwtVerify(compact, publicKey, {
+                currentDate: payload.exp
+                    ? new Date((payload.exp - 300) * 1000)
+                    : undefined,
+            });
+            return {
+                verified: true,
+                signerJwk: jwk,
+            };
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (error) {
+            return {
+                verified: false,
+            };
+        }
+    },
+    getX509CertificateMetadata: (
+        certificate: string,
+    ): {
+        sanDnsNames: string[];
+        sanUriNames: string[];
+    } &#x3D;&gt; {
+        const cert1 &#x3D; new crypto.X509Certificate(
+            &#x60;-----BEGIN CERTIFICATE-----\n${certificate}\n-----END CERTIFICATE-----&#x60;,
+        );
+        const sanDnsNames &#x3D; cert1
+            .subjectAltName!.split(&#x27;,&#x27;)
+            .map((name) &#x3D;&gt; name.replace(&#x27;DNS:&#x27;, &#x27;&#x27;).trim());
+        const sanUriNames &#x3D; [];
+        sanDnsNames.push(&#x27;example.com&#x27;);
+
+        return {
+            sanDnsNames,
+            sanUriNames,
+        };
+    },
+} as const satisfies Partial&lt;CallbackContext&gt;</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getSignJwtCallback"></a>
+                    <span class="name">
+                        <span ><b>getSignJwtCallback</b></span>
+                        <a href="#getSignJwtCallback"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>(privateJwks: Jwk[]): SignJwtCallback &#x3D;&gt; {
+    return async (signer, { header, payload }) &#x3D;&gt; {
+        let jwk: Jwk;
+        if (signer.method &#x3D;&#x3D;&#x3D; &#x27;jwk&#x27;) {
+            jwk &#x3D; signer.publicJwk;
+        } else {
+            throw new Error(&#x27;Signer method not supported&#x27;);
+        }
+
+        const jwkThumprint &#x3D; await calculateJwkThumbprint(jwk as JWK, &#x27;sha256&#x27;);
+
+        // add cnf
+        payload.cnf &#x3D; {
+            jkt: jwkThumprint,
+        };
+
+        const privateJwk &#x3D; await Promise.all(
+            privateJwks.map(async (jwk) &#x3D;&gt;
+                (await calculateJwkThumbprint(jwk as JWK, &#x27;sha256&#x27;)) &#x3D;&#x3D;&#x3D;
+                jwkThumprint
+                    ? jwk
+                    : undefined,
+            ),
+        ).then((jwks) &#x3D;&gt; jwks.find((jwk) &#x3D;&gt; jwk !&#x3D;&#x3D; undefined));
+
+        if (!privateJwk) {
+            throw new Error(
+                &#x60;No private key available for public jwk \n${JSON.stringify(jwk, null, 2)}&#x60;,
+            );
+        }
+
+        const josePrivateKey &#x3D; await importJWK(privateJwk as JWK, signer.alg);
+        const jwt &#x3D; await new SignJWT(payload)
+            .setProtectedHeader(header)
+            .sign(josePrivateKey);
+
+        return {
+            jwt: jwt,
+            signerJwk: jwk,
+        };
+    };
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/registrar/generated/client.gen.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="client"></a>
+                    <span class="name">
+                        <span ><b>client</b></span>
+                        <a href="#client"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>createClient(createConfig&lt;ClientOptions&gt;())</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>scripts/import.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="clientId"></a>
+                    <span class="name">
+                        <span ><b>clientId</b></span>
+                        <a href="#clientId"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&#x27;root&#x27;</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="clientSecret"></a>
+                    <span class="name">
+                        <span ><b>clientSecret</b></span>
+                        <a href="#clientSecret"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&#x27;root&#x27;</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="url"></a>
+                    <span class="name">
+                        <span ><b>url</b></span>
+                        <a href="#url"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&#x27;http://localhost:3000&#x27;</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/registrar/generated/client/client.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="createClient"></a>
+                    <span class="name">
+                        <span ><b>createClient</b></span>
+                        <a href="#createClient"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>(config: Config &#x3D; {}): Client &#x3D;&gt; {
+    let _config &#x3D; mergeConfigs(createConfig(), config);
+
+    const getConfig &#x3D; (): Config &#x3D;&gt; ({ ..._config });
+
+    const setConfig &#x3D; (config: Config): Config &#x3D;&gt; {
+        _config &#x3D; mergeConfigs(_config, config);
+        return getConfig();
+    };
+
+    const interceptors &#x3D; createInterceptors&lt;
+        Request,
+        Response,
+        unknown,
+        RequestOptions
+    &gt;();
+
+    const request: Client[&#x27;request&#x27;] &#x3D; async (options) &#x3D;&gt; {
+        const opts &#x3D; {
+            ..._config,
+            ...options,
+            fetch: options.fetch ?? _config.fetch ?? globalThis.fetch,
+            headers: mergeHeaders(_config.headers, options.headers),
+        };
+
+        if (opts.security) {
+            await setAuthParams({
+                ...opts,
+                security: opts.security,
+            });
+        }
+
+        if (opts.requestValidator) {
+            await opts.requestValidator(opts);
+        }
+
+        if (opts.body &amp;&amp; opts.bodySerializer) {
+            opts.body &#x3D; opts.bodySerializer(opts.body);
+        }
+
+        // remove Content-Type header if body is empty to avoid sending invalid requests
+        if (opts.body &#x3D;&#x3D;&#x3D; undefined || opts.body &#x3D;&#x3D;&#x3D; &#x27;&#x27;) {
+            opts.headers.delete(&#x27;Content-Type&#x27;);
+        }
+
+        const url &#x3D; buildUrl(opts);
+        const requestInit: ReqInit &#x3D; {
+            redirect: &#x27;follow&#x27;,
+            ...opts,
+        };
+
+        let request &#x3D; new Request(url, requestInit);
+
+        for (const fn of interceptors.request._fns) {
+            if (fn) {
+                request &#x3D; await fn(request, opts);
+            }
+        }
+
+        // fetch must be assigned here, otherwise it would throw the error:
+        // TypeError: Failed to execute &#x27;fetch&#x27; on &#x27;Window&#x27;: Illegal invocation
+        const _fetch &#x3D; opts.fetch;
+        let response &#x3D; await _fetch(request);
+
+        for (const fn of interceptors.response._fns) {
+            if (fn) {
+                response &#x3D; await fn(response, request, opts);
+            }
+        }
+
+        const result &#x3D; {
+            request,
+            response,
+        };
+
+        if (response.ok) {
+            if (
+                response.status &#x3D;&#x3D;&#x3D; 204 ||
+                response.headers.get(&#x27;Content-Length&#x27;) &#x3D;&#x3D;&#x3D; &#x27;0&#x27;
+            ) {
+                return opts.responseStyle &#x3D;&#x3D;&#x3D; &#x27;data&#x27;
+                    ? {}
+                    : {
+                          data: {},
+                          ...result,
+                      };
+            }
+
+            const parseAs &#x3D;
+                (opts.parseAs &#x3D;&#x3D;&#x3D; &#x27;auto&#x27;
+                    ? getParseAs(response.headers.get(&#x27;Content-Type&#x27;))
+                    : opts.parseAs) ?? &#x27;json&#x27;;
+
+            let data: any;
+            switch (parseAs) {
+                case &#x27;arrayBuffer&#x27;:
+                case &#x27;blob&#x27;:
+                case &#x27;formData&#x27;:
+                case &#x27;json&#x27;:
+                case &#x27;text&#x27;:
+                    data &#x3D; await response[parseAs]();
+                    break;
+                case &#x27;stream&#x27;:
+                    return opts.responseStyle &#x3D;&#x3D;&#x3D; &#x27;data&#x27;
+                        ? response.body
+                        : {
+                              data: response.body,
+                              ...result,
+                          };
+            }
+
+            if (parseAs &#x3D;&#x3D;&#x3D; &#x27;json&#x27;) {
+                if (opts.responseValidator) {
+                    await opts.responseValidator(data);
+                }
+
+                if (opts.responseTransformer) {
+                    data &#x3D; await opts.responseTransformer(data);
+                }
+            }
+
+            return opts.responseStyle &#x3D;&#x3D;&#x3D; &#x27;data&#x27;
+                ? data
+                : {
+                      data,
+                      ...result,
+                  };
+        }
+
+        const textError &#x3D; await response.text();
+        let jsonError: unknown;
+
+        try {
+            jsonError &#x3D; JSON.parse(textError);
+        } catch {
+            // noop
+        }
+
+        const error &#x3D; jsonError ?? textError;
+        let finalError &#x3D; error;
+
+        for (const fn of interceptors.error._fns) {
+            if (fn) {
+                finalError &#x3D; (await fn(
+                    error,
+                    response,
+                    request,
+                    opts,
+                )) as string;
+            }
+        }
+
+        finalError &#x3D; finalError || ({} as string);
+
+        if (opts.throwOnError) {
+            throw finalError;
+        }
+
+        // TODO: we probably want to return error and improve types
+        return opts.responseStyle &#x3D;&#x3D;&#x3D; &#x27;data&#x27;
+            ? undefined
+            : {
+                  error: finalError,
+                  ...result,
+              };
+    };
+
+    return {
+        buildUrl,
+        connect: (options) &#x3D;&gt; request({ ...options, method: &#x27;CONNECT&#x27; }),
+        delete: (options) &#x3D;&gt; request({ ...options, method: &#x27;DELETE&#x27; }),
+        get: (options) &#x3D;&gt; request({ ...options, method: &#x27;GET&#x27; }),
+        getConfig,
+        head: (options) &#x3D;&gt; request({ ...options, method: &#x27;HEAD&#x27; }),
+        interceptors,
+        options: (options) &#x3D;&gt; request({ ...options, method: &#x27;OPTIONS&#x27; }),
+        patch: (options) &#x3D;&gt; request({ ...options, method: &#x27;PATCH&#x27; }),
+        post: (options) &#x3D;&gt; request({ ...options, method: &#x27;POST&#x27; }),
+        put: (options) &#x3D;&gt; request({ ...options, method: &#x27;PUT&#x27; }),
+        request,
+        setConfig,
+        trace: (options) &#x3D;&gt; request({ ...options, method: &#x27;TRACE&#x27; }),
+    };
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/crypto/key/crypto/crypto.module.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="CRYPTO_VALIDATION_SCHEMA"></a>
+                    <span class="name">
+                        <span ><b>CRYPTO_VALIDATION_SCHEMA</b></span>
+                        <a href="#CRYPTO_VALIDATION_SCHEMA"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object" target="_blank" >object</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>{
+    CRYPTO_ALG: Joi.string().valid(&#x27;ES256&#x27;, &#x27;Ed25519&#x27;).default(&#x27;ES256&#x27;),
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/database/database.module.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="DB_VALIDATION_SCHEMA"></a>
+                    <span class="name">
+                        <span ><b>DB_VALIDATION_SCHEMA</b></span>
+                        <a href="#DB_VALIDATION_SCHEMA"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object" target="_blank" >object</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>{
+    DB_TYPE: Joi.string().valid(&#x27;sqlite&#x27;, &#x27;postgres&#x27;).default(&#x27;sqlite&#x27;),
+    DB_HOST: Joi.string().when(&#x27;DB_TYPE&#x27;, {
+        is: &#x27;sqlite&#x27;,
+        then: Joi.optional(),
+        otherwise: Joi.required(),
+    }),
+    DB_PORT: Joi.number().when(&#x27;DB_TYPE&#x27;, {
+        is: &#x27;sqlite&#x27;,
+        then: Joi.optional(),
+        otherwise: Joi.required(),
+    }),
+    DB_USERNAME: Joi.string().when(&#x27;DB_TYPE&#x27;, {
+        is: &#x27;sqlite&#x27;,
+        then: Joi.optional(),
+        otherwise: Joi.required(),
+    }),
+    DB_PASSWORD: Joi.string().when(&#x27;DB_TYPE&#x27;, {
+        is: &#x27;sqlite&#x27;,
+        then: Joi.optional(),
+        otherwise: Joi.required(),
+    }),
+    DB_DATABASE: Joi.string().when(&#x27;DB_TYPE&#x27;, {
+        is: &#x27;sqlite&#x27;,
+        then: Joi.optional(),
+        otherwise: Joi.required(),
+    }),
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/crypto/key/crypto/ed25519.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ED25519"></a>
+                    <span class="name">
+                        <span ><b>ED25519</b></span>
+                        <a href="#ED25519"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../interfaces/CryptoImplementation.html" target="_self" >CryptoImplementation</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>{
+    alg: &#x27;EdDSA&#x27;,
+    async generateKeyPair() {
+        const keyPair &#x3D; await crypto.webcrypto.subtle.generateKey(
+            {
+                name: &#x27;EdDSA&#x27;,
+                namedCurve: &#x27;Ed25519&#x27;,
+            },
+            true,
+            [&#x27;sign&#x27;, &#x27;verify&#x27;],
+        );
+
+        const publicKey &#x3D; await crypto.webcrypto.subtle.exportKey(
+            &#x27;jwk&#x27;,
+            keyPair.publicKey,
+        );
+        const privateKey &#x3D; await crypto.webcrypto.subtle.exportKey(
+            &#x27;jwk&#x27;,
+            keyPair.privateKey,
+        );
+
+        return { publicKey, privateKey };
+    },
+    async getSigner(privateKeyJWK: object) {
+        const privateKey &#x3D; await crypto.webcrypto.subtle.importKey(
+            &#x27;jwk&#x27;,
+            privateKeyJWK,
+            {
+                name: &#x27;EdDSA&#x27;,
+                namedCurve: &#x27;Ed25519&#x27;,
+            },
+            false,
+            [&#x27;sign&#x27;],
+        );
+
+        return async (data: string) &#x3D;&gt; {
+            const signature &#x3D; await crypto.webcrypto.subtle.sign(
+                &#x27;EdDSA&#x27;,
+                privateKey,
+                new TextEncoder().encode(data),
+            );
+
+            return Buffer.from(signature).toString(&#x27;base64url&#x27;);
+        };
+    },
+    async getVerifier(publicKeyJWK: object) {
+        const publicKey &#x3D; await crypto.webcrypto.subtle.importKey(
+            &#x27;jwk&#x27;,
+            publicKeyJWK,
+            {
+                name: &#x27;EdDSA&#x27;,
+                namedCurve: &#x27;Ed25519&#x27;,
+            },
+            false,
+            [&#x27;verify&#x27;],
+        );
+
+        return async (data: string, signatureBase64url: string) &#x3D;&gt; {
+            const signature &#x3D; Buffer.from(signatureBase64url, &#x27;base64url&#x27;);
+            const isVerified &#x3D; await crypto.webcrypto.subtle.verify(
+                &#x27;EdDSA&#x27;,
+                publicKey,
+                signature,
+                new TextEncoder().encode(data),
+            );
+
+            return isVerified;
+        };
+    },
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/registrar/generated/core/bodySerializer.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="formDataBodySerializer"></a>
+                    <span class="name">
+                        <span ><b>formDataBodySerializer</b></span>
+                        <a href="#formDataBodySerializer"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object" target="_blank" >object</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>{
+    bodySerializer: &lt;
+        T extends Record&lt;string, any&gt; | Array&lt;Record&lt;string, any&gt;&gt;,
+    &gt;(
+        body: T,
+    ): FormData &#x3D;&gt; {
+        const data &#x3D; new FormData();
+
+        Object.entries(body).forEach(([key, value]) &#x3D;&gt; {
+            if (value &#x3D;&#x3D;&#x3D; undefined || value &#x3D;&#x3D;&#x3D; null) {
+                return;
+            }
+            if (Array.isArray(value)) {
+                value.forEach((v) &#x3D;&gt; serializeFormDataPair(data, key, v));
+            } else {
+                serializeFormDataPair(data, key, value);
+            }
+        });
+
+        return data;
+    },
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="jsonBodySerializer"></a>
+                    <span class="name">
+                        <span ><b>jsonBodySerializer</b></span>
+                        <a href="#jsonBodySerializer"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object" target="_blank" >object</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>{
+    bodySerializer: &lt;T&gt;(body: T): string &#x3D;&gt;
+        JSON.stringify(body, (_key, value) &#x3D;&gt;
+            typeof value &#x3D;&#x3D;&#x3D; &#x27;bigint&#x27; ? value.toString() : value,
+        ),
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="serializeFormDataPair"></a>
+                    <span class="name">
+                        <span ><b>serializeFormDataPair</b></span>
+                        <a href="#serializeFormDataPair"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>(
+    data: FormData,
+    key: string,
+    value: unknown,
+): void &#x3D;&gt; {
+    if (typeof value &#x3D;&#x3D;&#x3D; &#x27;string&#x27; || value instanceof Blob) {
+        data.append(key, value);
+    } else {
+        data.append(key, JSON.stringify(value));
+    }
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="serializeUrlSearchParamsPair"></a>
+                    <span class="name">
+                        <span ><b>serializeUrlSearchParamsPair</b></span>
+                        <a href="#serializeUrlSearchParamsPair"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>(
+    data: URLSearchParams,
+    key: string,
+    value: unknown,
+): void &#x3D;&gt; {
+    if (typeof value &#x3D;&#x3D;&#x3D; &#x27;string&#x27;) {
+        data.append(key, value);
+    } else {
+        data.append(key, JSON.stringify(value));
+    }
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="urlSearchParamsBodySerializer"></a>
+                    <span class="name">
+                        <span ><b>urlSearchParamsBodySerializer</b></span>
+                        <a href="#urlSearchParamsBodySerializer"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object" target="_blank" >object</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>{
+    bodySerializer: &lt;
+        T extends Record&lt;string, any&gt; | Array&lt;Record&lt;string, any&gt;&gt;,
+    &gt;(
+        body: T,
+    ): string &#x3D;&gt; {
+        const data &#x3D; new URLSearchParams();
+
+        Object.entries(body).forEach(([key, value]) &#x3D;&gt; {
+            if (value &#x3D;&#x3D;&#x3D; undefined || value &#x3D;&#x3D;&#x3D; null) {
+                return;
+            }
+            if (Array.isArray(value)) {
+                value.forEach((v) &#x3D;&gt;
+                    serializeUrlSearchParamsPair(data, key, v),
+                );
+            } else {
+                serializeUrlSearchParamsPair(data, key, value);
+            }
+        });
+
+        return data.toString();
+    },
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/registrar/generated/core/auth.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getAuthToken"></a>
+                    <span class="name">
+                        <span ><b>getAuthToken</b></span>
+                        <a href="#getAuthToken"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>async (
+    auth: Auth,
+    callback: ((auth: Auth) &#x3D;&gt; Promise&lt;AuthToken&gt; | AuthToken) | AuthToken,
+): Promise&lt;string | undefined&gt; &#x3D;&gt; {
+    const token &#x3D;
+        typeof callback &#x3D;&#x3D;&#x3D; &#x27;function&#x27; ? await callback(auth) : callback;
+
+    if (!token) {
+        return;
+    }
+
+    if (auth.scheme &#x3D;&#x3D;&#x3D; &#x27;bearer&#x27;) {
+        return &#x60;Bearer ${token}&#x60;;
+    }
+
+    if (auth.scheme &#x3D;&#x3D;&#x3D; &#x27;basic&#x27;) {
+        return &#x60;Basic ${btoa(token)}&#x60;;
+    }
+
+    return token;
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/auth/public.decorator.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="IS_PUBLIC_KEY"></a>
+                    <span class="name">
+                        <span ><b>IS_PUBLIC_KEY</b></span>
+                        <a href="#IS_PUBLIC_KEY"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&#x27;isPublic&#x27;</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="Public"></a>
+                    <span class="name">
+                        <span ><b>Public</b></span>
+                        <a href="#Public"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>() &#x3D;&gt; SetMetadata(IS_PUBLIC_KEY, true)</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/issuer/issuer.module.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ISSUER_VALIDATION_SCHEMA"></a>
+                    <span class="name">
+                        <span ><b>ISSUER_VALIDATION_SCHEMA</b></span>
+                        <a href="#ISSUER_VALIDATION_SCHEMA"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object" target="_blank" >object</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>{
+    PUBLIC_URL: Joi.string(),
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/crypto/key/key.module.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="KEY_VALIDATION_SCHEMA"></a>
+                    <span class="name">
+                        <span ><b>KEY_VALIDATION_SCHEMA</b></span>
+                        <a href="#KEY_VALIDATION_SCHEMA"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object" target="_blank" >object</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>{
+    KM_TYPE: Joi.string().valid(&#x27;file&#x27;, &#x27;vault&#x27;).default(&#x27;file&#x27;),
+
+    // Vault-related config
+    VAULT_URL: Joi.string().uri().when(&#x27;KM_TYPE&#x27;, {
+        is: &#x27;vault&#x27;,
+        then: Joi.required(),
+        otherwise: Joi.optional(),
+    }),
+    VAULT_TOKEN: Joi.string().when(&#x27;KM_TYPE&#x27;, {
+        is: &#x27;vault&#x27;,
+        then: Joi.required(),
+        otherwise: Joi.optional(),
+    }),
+    VAULT_KEY_ID: Joi.string().when(&#x27;KM_TYPE&#x27;, {
+        is: &#x27;vault&#x27;,
+        then: Joi.string().default(&#x27;key-id&#x27;),
+        otherwise: Joi.optional(),
+    }),
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/registrar/registrar.module.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="REGISTRAR_VALIDATION_SCHEMA"></a>
+                    <span class="name">
+                        <span ><b>REGISTRAR_VALIDATION_SCHEMA</b></span>
+                        <a href="#REGISTRAR_VALIDATION_SCHEMA"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object" target="_blank" >object</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>{
+    REGISTRAR_URL: Joi.string(),
+    KEYCLOAK_REALM: Joi.string().when(&#x27;REGISTRAR_URL&#x27;, {
+        is: Joi.exist(),
+        then: Joi.required(),
+    }),
+    KEYCLOAK_AUTH_SERVER_URL: Joi.string().when(&#x27;REGISTRAR_URL&#x27;, {
+        is: Joi.exist(),
+        then: Joi.required(),
+    }),
+    KEYCLOAK_RESOURCE: Joi.string().when(&#x27;REGISTRAR_URL&#x27;, {
+        is: Joi.exist(),
+        then: Joi.required(),
+    }),
+    KEYCLOAK_CREDENTIALS_SECRET: Joi.string().when(&#x27;REGISTRAR_URL&#x27;, {
+        is: Joi.exist(),
+        then: Joi.required(),
+    }),
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/registrar/generated/core/pathSerializer.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="separatorArrayExplode"></a>
+                    <span class="name">
+                        <span ><b>separatorArrayExplode</b></span>
+                        <a href="#separatorArrayExplode"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>(style: ArraySeparatorStyle) &#x3D;&gt; {
+    switch (style) {
+        case &#x27;label&#x27;:
+            return &#x27;.&#x27;;
+        case &#x27;matrix&#x27;:
+            return &#x27;;&#x27;;
+        case &#x27;simple&#x27;:
+            return &#x27;,&#x27;;
+        default:
+            return &#x27;&amp;&#x27;;
+    }
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="separatorArrayNoExplode"></a>
+                    <span class="name">
+                        <span ><b>separatorArrayNoExplode</b></span>
+                        <a href="#separatorArrayNoExplode"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>(style: ArraySeparatorStyle) &#x3D;&gt; {
+    switch (style) {
+        case &#x27;form&#x27;:
+            return &#x27;,&#x27;;
+        case &#x27;pipeDelimited&#x27;:
+            return &#x27;|&#x27;;
+        case &#x27;spaceDelimited&#x27;:
+            return &#x27;%20&#x27;;
+        default:
+            return &#x27;,&#x27;;
+    }
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="separatorObjectExplode"></a>
+                    <span class="name">
+                        <span ><b>separatorObjectExplode</b></span>
+                        <a href="#separatorObjectExplode"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>(style: ObjectSeparatorStyle) &#x3D;&gt; {
+    switch (style) {
+        case &#x27;label&#x27;:
+            return &#x27;.&#x27;;
+        case &#x27;matrix&#x27;:
+            return &#x27;;&#x27;;
+        case &#x27;simple&#x27;:
+            return &#x27;,&#x27;;
+        default:
+            return &#x27;&amp;&#x27;;
+    }
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="serializeArrayParam"></a>
+                    <span class="name">
+                        <span ><b>serializeArrayParam</b></span>
+                        <a href="#serializeArrayParam"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>({
+    allowReserved,
+    explode,
+    name,
+    style,
+    value,
+}: SerializeOptions&lt;ArraySeparatorStyle&gt; &amp; {
+    value: unknown[];
+}) &#x3D;&gt; {
+    if (!explode) {
+        const joinedValues &#x3D; (
+            allowReserved
+                ? value
+                : value.map((v) &#x3D;&gt; encodeURIComponent(v as string))
+        ).join(separatorArrayNoExplode(style));
+        switch (style) {
+            case &#x27;label&#x27;:
+                return &#x60;.${joinedValues}&#x60;;
+            case &#x27;matrix&#x27;:
+                return &#x60;;${name}&#x3D;${joinedValues}&#x60;;
+            case &#x27;simple&#x27;:
+                return joinedValues;
+            default:
+                return &#x60;${name}&#x3D;${joinedValues}&#x60;;
+        }
+    }
+
+    const separator &#x3D; separatorArrayExplode(style);
+    const joinedValues &#x3D; value
+        .map((v) &#x3D;&gt; {
+            if (style &#x3D;&#x3D;&#x3D; &#x27;label&#x27; || style &#x3D;&#x3D;&#x3D; &#x27;simple&#x27;) {
+                return allowReserved ? v : encodeURIComponent(v as string);
+            }
+
+            return serializePrimitiveParam({
+                allowReserved,
+                name,
+                value: v as string,
+            });
+        })
+        .join(separator);
+    return style &#x3D;&#x3D;&#x3D; &#x27;label&#x27; || style &#x3D;&#x3D;&#x3D; &#x27;matrix&#x27;
+        ? separator + joinedValues
+        : joinedValues;
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="serializeObjectParam"></a>
+                    <span class="name">
+                        <span ><b>serializeObjectParam</b></span>
+                        <a href="#serializeObjectParam"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>({
+    allowReserved,
+    explode,
+    name,
+    style,
+    value,
+    valueOnly,
+}: SerializeOptions&lt;ObjectSeparatorStyle&gt; &amp; {
+    value: Record&lt;string, unknown&gt; | Date;
+    valueOnly?: boolean;
+}) &#x3D;&gt; {
+    if (value instanceof Date) {
+        return valueOnly
+            ? value.toISOString()
+            : &#x60;${name}&#x3D;${value.toISOString()}&#x60;;
+    }
+
+    if (style !&#x3D;&#x3D; &#x27;deepObject&#x27; &amp;&amp; !explode) {
+        let values: string[] &#x3D; [];
+        Object.entries(value).forEach(([key, v]) &#x3D;&gt; {
+            values &#x3D; [
+                ...values,
+                key,
+                allowReserved ? (v as string) : encodeURIComponent(v as string),
+            ];
+        });
+        const joinedValues &#x3D; values.join(&#x27;,&#x27;);
+        switch (style) {
+            case &#x27;form&#x27;:
+                return &#x60;${name}&#x3D;${joinedValues}&#x60;;
+            case &#x27;label&#x27;:
+                return &#x60;.${joinedValues}&#x60;;
+            case &#x27;matrix&#x27;:
+                return &#x60;;${name}&#x3D;${joinedValues}&#x60;;
+            default:
+                return joinedValues;
+        }
+    }
+
+    const separator &#x3D; separatorObjectExplode(style);
+    const joinedValues &#x3D; Object.entries(value)
+        .map(([key, v]) &#x3D;&gt;
+            serializePrimitiveParam({
+                allowReserved,
+                name: style &#x3D;&#x3D;&#x3D; &#x27;deepObject&#x27; ? &#x60;${name}[${key}]&#x60; : key,
+                value: v as string,
+            }),
+        )
+        .join(separator);
+    return style &#x3D;&#x3D;&#x3D; &#x27;label&#x27; || style &#x3D;&#x3D;&#x3D; &#x27;matrix&#x27;
+        ? separator + joinedValues
+        : joinedValues;
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="serializePrimitiveParam"></a>
+                    <span class="name">
+                        <span ><b>serializePrimitiveParam</b></span>
+                        <a href="#serializePrimitiveParam"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>({
+    allowReserved,
+    name,
+    value,
+}: SerializePrimitiveParam) &#x3D;&gt; {
+    if (value &#x3D;&#x3D;&#x3D; undefined || value &#x3D;&#x3D;&#x3D; null) {
+        return &#x27;&#x27;;
+    }
+
+    if (typeof value &#x3D;&#x3D;&#x3D; &#x27;object&#x27;) {
+        throw new Error(
+            &#x27;Deeply-nested arrays/objects aren’t supported. Provide your own &#x60;querySerializer()&#x60; to handle these.&#x27;,
+        );
+    }
+
+    return &#x60;${name}&#x3D;${allowReserved ? value : encodeURIComponent(value)}&#x60;;
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/utils/session-logger.decorator.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="SESSION_LOGGER_KEY"></a>
+                    <span class="name">
+                        <span ><b>SESSION_LOGGER_KEY</b></span>
+                        <a href="#SESSION_LOGGER_KEY"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&#x27;session-logger&#x27;</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="SessionLogger"></a>
+                    <span class="name">
+                        <span ><b>SessionLogger</b></span>
+                        <a href="#SessionLogger"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>(
+    sessionIdParam: string,
+    flowType: &#x27;OID4VCI&#x27; | &#x27;OID4VP&#x27;,
+) &#x3D;&gt; SetMetadata(SESSION_LOGGER_KEY, { sessionIdParam, flowType })</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Decorator to mark methods that should have session-based logging</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/session/session.module.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="SESSION_VALIDATION_SCHEMA"></a>
+                    <span class="name">
+                        <span ><b>SESSION_VALIDATION_SCHEMA</b></span>
+                        <a href="#SESSION_VALIDATION_SCHEMA"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object" target="_blank" >object</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>{
+    SESSION_TIDY_UP_INTERVAL: Joi.number().default(60 * 60), // default to every hour
+    SESSION_TTL: Joi.number().default(24 * 60 * 60), // default to 24 hours
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/auth/tenant-events.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="TENANT_EVENTS"></a>
+                    <span class="name">
+                        <span ><b>TENANT_EVENTS</b></span>
+                        <a href="#TENANT_EVENTS"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object" target="_blank" >object</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>{
+    TENANT_INIT: &#x27;tenant.init&#x27;,
+    TENANT_KEYS: &#x27;tenant.keys&#x27;,
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/auth/token.decorator.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="Token"></a>
+                    <span class="name">
+                        <span ><b>Token</b></span>
+                        <a href="#Token"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>createParamDecorator(
+    (data: unknown, ctx: ExecutionContext) &#x3D;&gt; {
+        const request &#x3D; ctx.switchToHttp().getRequest();
+        return request.user as TokenPayload; // Access the token payload on the request object
+    },
+)</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'miscellaneous-variables';
+            var COMPODOC_CURRENT_PAGE_URL = 'variables.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>
