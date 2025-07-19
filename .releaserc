@@ -11,6 +11,7 @@
                 dockerImage: 'eudiplo',
                 dockerProject: 'cre8',
                 dockerCacheFrom: 'cre8/eudiplo',
+                dockerTags: ['${nextRelease.version}', 'latest'],
                 dockerArgs: {
                     GITHUB_TOKEN: null,
                     VERSION: '${nextRelease.version}',

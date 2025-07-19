@@ -61,7 +61,7 @@ following content:
 ```yaml
 services:
     EUDIPLO:
-        image: ghcr.io/cre8/eudiplo:1
+        image: ghcr.io/cre8/eudiplo:latest
         env_file:
             - .env
         ports:
@@ -70,8 +70,11 @@ services:
             - ./config:/app/config
 ```
 
-> Tip: the tag `:latest` is used for build based on the `main` branch that may
-> not be aligned with a stable release or the hosted documentation.
+> **Docker Tags:**
+>
+> - `:latest` - Latest stable release (recommended for production)
+> - `:main` - Latest development build from main branch
+> - `:1.2.3` - Specific version tags for pinned deployments
 
 ---
 

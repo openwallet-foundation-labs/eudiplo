@@ -15,28 +15,31 @@ all tagged releases.
 Example: `1.2.3` means the 3rd patch release of the 2nd minor version of the 1st
 major version.
 
-## Latest Builds from `main`
+## Development Builds from `main`
 
 Every push to the `main` branch automatically builds a Docker image and
-publishes it with the `:latest` tag.
+publishes it with the `:main` tag.
 
-Use this tag for staging or development environments:
+Use this tag for development environments:
 
 ```
-ghcr.io/cre8/eudiplo:latest
+ghcr.io/cre8/eudiplo:main
 ```
 
-> ⚠️ `latest` is always moving and may contain untagged or unreleased features.
+> ⚠️ `main` is always moving and may contain untagged or unreleased features.
 
 ## Stable Releases
 
-Stable releases are published via GitHub tags and follow semantic versioning:
+Stable releases are published via GitHub tags and follow semantic versioning.
+Each release creates both a versioned tag and updates the `:latest` tag:
 
 ```
 ghcr.io/cre8/eudiplo:1.2.3
+ghcr.io/cre8/eudiplo:latest
 ```
 
-These are considered production-ready and immutable.
+The `:latest` tag always points to the most recent stable release and is
+recommended for production use.
 
 ## Pre-Releases
 
@@ -66,8 +69,9 @@ specification when contributing to ensure proper versioning.
 
 | Tag                    | Source             | Use Case             |
 | ---------------------- | ------------------ | -------------------- |
-| `latest`               | `main` branch      | Development/Staging  |
-| `x.y.z` (e.g. `1.2.3`) | GitHub tag         | Stable Release       |
+| `main`                 | `main` branch      | Development          |
+| `latest`               | GitHub release     | Production (Latest)  |
+| `x.y.z` (e.g. `1.2.3`) | GitHub release     | Specific Version     |
 | `x.y.z-alpha.N`        | GitHub pre-release | Feature Preview / RC |
 
 ---

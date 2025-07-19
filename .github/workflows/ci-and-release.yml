@@ -169,8 +169,8 @@ jobs:
               with:
                   token: ${{ secrets.CODECOV_TOKEN }}
 
-    docker-latest:
-        name: Build & Push Docker Image
+    docker-main:
+        name: Build & Push Docker Image (main)
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         needs: [test-e2e]
         runs-on: ubuntu-latest
@@ -187,8 +187,8 @@ jobs:
 
             - name: Build Docker image
               run:
-                  docker build -t ghcr.io/cre8/eudiplo:latest --build-arg
-                  VERSION=latest .
+                  docker build -t ghcr.io/cre8/eudiplo:main --build-arg
+                  VERSION=main .
 
             - name: Push Docker image
-              run: docker push ghcr.io/cre8/eudiplo:latest
+              run: docker push ghcr.io/cre8/eudiplo:main

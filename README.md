@@ -64,7 +64,7 @@ docker run -p 3000:3000 \
   -e JWT_SECRET=your-32-character-secret \
   -e AUTH_CLIENT_SECRET=your-issuer-secret \
   -v $(pwd)/config:/app/config \
-  ghcr.io/cre8/eudiplo:1
+  ghcr.io/cre8/eudiplo:latest
 
 # Get a token and start using the API
 curl -X POST http://localhost:3000/auth/token \

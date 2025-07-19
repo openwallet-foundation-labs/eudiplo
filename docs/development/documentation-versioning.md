@@ -5,31 +5,30 @@ versions of the documentation.
 
 ## Available Versions
 
-- **main** (`latest-dev`): Always reflects the current state of the main branch
-- **Major Versions** (`latest`): Documentation for major releases (e.g., `1`,
-  `2`, `3`)
-    - The latest major version is aliased as `latest`
-    - Only major versions appear in the version selector for clarity
+- **main**: Always reflects the current state of the main branch
+- **latest**: Documentation for the most recent stable release
+- **Specific Versions**: Documentation for specific releases (e.g., `1.2.3`)
+  accessible via direct URL
 
 ## How It Works
 
 ### Automatic Deployment
 
 1. **Main Branch Updates**: When code is pushed to `main`, the documentation is
-   automatically built and deployed as the `main` version with alias
-   `latest-dev`
+   automatically built and deployed as the `main` version
 2. **Releases**: When a new release is published:
-    - Documentation is deployed to the **major version** (e.g., `1` for v1.2.3)
-    - The major version is tagged as `latest`
-    - A specific version is also created (e.g., `1.2.3`) but hidden from the
-      version selector
+    - Documentation is deployed as `latest`
+    - `latest` becomes the default/recommended documentation version
+    - The specific version (e.g., `1.2.3`) is also available via direct URL
+      access
 
 ### Version Strategy
 
-- **Version Selector Shows**: `main`, `1`, `2`, `3` (clean and uncluttered)
+- **Version Selector Shows**: `main`, `latest` (clean and simple)
 - **Direct Access Available**: You can still access specific versions like
-  `/v1.2.3/` directly via URL
-- **Latest Points To**: The most recent major version
+  `/1.2.3/` directly via URL
+- **Latest Points To**: The most recent stable release
+- **Default**: `latest` is set as the default documentation version
 
 ### Version Switching
 
