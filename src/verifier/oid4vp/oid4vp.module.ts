@@ -6,6 +6,8 @@ import { RegistrarModule } from '../../registrar/registrar.module';
 import { PresentationsModule } from '../presentations/presentations.module';
 import { SessionModule } from '../../session/session.module';
 import { HttpModule } from '@nestjs/axios';
+import { SessionLoggerService } from '../../utils/session-logger.service';
+import { SessionLoggerInterceptor } from '../../utils/session-logger.interceptor';
 
 @Module({
     imports: [
@@ -16,7 +18,7 @@ import { HttpModule } from '@nestjs/axios';
         HttpModule,
     ],
     controllers: [Oid4vpController],
-    providers: [Oid4vpService],
+    providers: [Oid4vpService, SessionLoggerService, SessionLoggerInterceptor],
     exports: [Oid4vpService],
 })
 export class Oid4vpModule {}

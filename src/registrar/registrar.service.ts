@@ -11,6 +11,7 @@ import {
     accessCertificateControllerRegister,
     registrationCertificateControllerAll,
     registrationCertificateControllerRegister,
+    relyingPartyControllerFindAll,
     relyingPartyControllerRegister,
 } from './generated';
 import { CryptoService } from '../crypto/crypto.service';
@@ -121,20 +122,32 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
      * This is only needed once, when the relying party is created.
      */
     addRp(tenantId: string): Promise<string> {
+        const name = this.configService.getOrThrow<string>('RP_NAME');
         return relyingPartyControllerRegister({
             client: this.client,
             body: {
-                name: this.configService.getOrThrow<string>('RP_NAME'),
+                name,
             },
-        }).then((response) => {
-            if (response.error) {
-                console.error('Error adding RP:', response.error);
-                throw new Error('Error adding RP');
-            }
+        }).then(async (response) => {
             const config = this.loadConfig(tenantId);
-            config.id = response.data!['id'];
+            if (response.error) {
+                config.id = await this.storeExistingRp(name);
+            } else {
+                config.id = response.data!['id'];
+            }
             this.saveConfig(config, tenantId);
             return response.data!['id'];
+        });
+    }
+
+    private storeExistingRp(name: string) {
+        return relyingPartyControllerFindAll({
+            client: this.client,
+            query: {
+                name,
+            },
+        }).then((response) => {
+            return response.data!.find((item) => item.name === name)?.id;
         });
     }
 
@@ -221,6 +234,8 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         tenantId: string,
     ) {
         const rp = this.loadConfig(tenantId).id;
+
+        //TODO: need to check if the access certificate is bound to the access certificate with the subject. Also that the requested fields are matching.
 
         const certs =
             (await registrationCertificateControllerAll({

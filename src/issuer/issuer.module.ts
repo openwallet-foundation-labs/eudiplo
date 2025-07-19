@@ -13,6 +13,8 @@ import { IssuerManagementController } from './issuer-management/issuer-managemen
 import { Oid4vpModule } from '../verifier/oid4vp/oid4vp.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { IssuanceConfig } from './credentials/entities/issuance-config.entity';
+import { SessionLoggerService } from '../utils/session-logger.service';
+import { SessionLoggerInterceptor } from '../utils/session-logger.interceptor';
 
 export const ISSUER_VALIDATION_SCHEMA = {
     PUBLIC_URL: Joi.string(),
@@ -32,7 +34,13 @@ export const ISSUER_VALIDATION_SCHEMA = {
         CredentialsController,
         IssuerManagementController,
     ],
-    providers: [AuthorizeService, CredentialsService, Oid4vciService],
+    providers: [
+        AuthorizeService,
+        CredentialsService,
+        Oid4vciService,
+        SessionLoggerService,
+        SessionLoggerInterceptor,
+    ],
     exports: [AuthorizeService, Oid4vciService],
 })
 export class IssuerModule {}
