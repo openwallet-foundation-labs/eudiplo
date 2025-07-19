@@ -4,7 +4,7 @@ on:
     push:
         branches: ['main']
     release:
-        types: [published]
+        types: [published, released]
     workflow_dispatch:
 
 concurrency:
@@ -20,6 +20,15 @@ jobs:
             id-token: write
 
         steps:
+            - name: Debug release event
+              if: github.event_name == 'release'
+              run: |
+                  echo "Release event detected!"
+                  echo "Event name: ${{ github.event_name }}"
+                  echo "Event action: ${{ github.event.action }}"
+                  echo "Release tag: ${{ github.event.release.tag_name }}"
+                  echo "Release name: ${{ github.event.release.name }}"
+
             - name: Checkout repository
               uses: actions/checkout@v4
               with:
@@ -67,7 +76,9 @@ jobs:
                   mike set-default --push main
 
             - name: Build and deploy release docs
-              if: github.event_name == 'release'
+              if:
+                  github.event_name == 'release' && (github.event.action ==
+                  'published' || github.event.action == 'released')
               run: |
                   pnpm run swagger
                   pnpm run compodoc
