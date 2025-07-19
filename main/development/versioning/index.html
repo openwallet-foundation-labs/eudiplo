@@ -1069,9 +1069,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#latest-builds-from-main" class="md-nav__link">
+  <a href="#development-builds-from-main" class="md-nav__link">
     <span class="md-ellipsis">
-      Latest Builds from main
+      Development Builds from main
     </span>
   </a>
   
@@ -1257,9 +1257,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#latest-builds-from-main" class="md-nav__link">
+  <a href="#development-builds-from-main" class="md-nav__link">
     <span class="md-ellipsis">
-      Latest Builds from main
+      Development Builds from main
     </span>
   </a>
   
@@ -1346,20 +1346,23 @@ all tagged releases.</p>
 </ul>
 <p>Example: <code>1.2.3</code> means the 3<sup>rd</sup> patch release of the 2<sup>nd</sup> minor version of the 1<sup>st</sup>
 major version.</p>
-<h2 id="latest-builds-from-main">Latest Builds from <code>main</code><a class="headerlink" href="#latest-builds-from-main" title="Permanent link">&para;</a></h2>
+<h2 id="development-builds-from-main">Development Builds from <code>main</code><a class="headerlink" href="#development-builds-from-main" title="Permanent link">&para;</a></h2>
 <p>Every push to the <code>main</code> branch automatically builds a Docker image and
-publishes it with the <code>:latest</code> tag.</p>
-<p>Use this tag for staging or development environments:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>ghcr.io/cre8/eudiplo:latest
+publishes it with the <code>:main</code> tag.</p>
+<p>Use this tag for development environments:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>ghcr.io/cre8/eudiplo:main
 </code></pre></div>
 <blockquote>
-<p>⚠️ <code>latest</code> is always moving and may contain untagged or unreleased features.</p>
+<p>⚠️ <code>main</code> is always moving and may contain untagged or unreleased features.</p>
 </blockquote>
 <h2 id="stable-releases">Stable Releases<a class="headerlink" href="#stable-releases" title="Permanent link">&para;</a></h2>
-<p>Stable releases are published via GitHub tags and follow semantic versioning:</p>
+<p>Stable releases are published via GitHub tags and follow semantic versioning.
+Each release creates both a versioned tag and updates the <code>:latest</code> tag:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>ghcr.io/cre8/eudiplo:1.2.3
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>ghcr.io/cre8/eudiplo:latest
 </code></pre></div>
-<p>These are considered production-ready and immutable.</p>
+<p>The <code>:latest</code> tag always points to the most recent stable release and is
+recommended for production use.</p>
 <h2 id="pre-releases">Pre-Releases<a class="headerlink" href="#pre-releases" title="Permanent link">&para;</a></h2>
 <p>Optionally, pre-release tags such as <code>1.3.0-alpha.1</code> may be published for
 testing upcoming features:</p>
@@ -1389,14 +1392,19 @@ specification when contributing to ensure proper versioning.</p>
 </thead>
 <tbody>
 <tr>
-<td><code>latest</code></td>
+<td><code>main</code></td>
 <td><code>main</code> branch</td>
-<td>Development/Staging</td>
+<td>Development</td>
+</tr>
+<tr>
+<td><code>latest</code></td>
+<td>GitHub release</td>
+<td>Production (Latest)</td>
 </tr>
 <tr>
 <td><code>x.y.z</code> (e.g. <code>1.2.3</code>)</td>
-<td>GitHub tag</td>
-<td>Stable Release</td>
+<td>GitHub release</td>
+<td>Specific Version</td>
 </tr>
 <tr>
 <td><code>x.y.z-alpha.N</code></td>

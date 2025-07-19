@@ -1402,34 +1402,31 @@
 versions of the documentation.</p>
 <h2 id="available-versions">Available Versions<a class="headerlink" href="#available-versions" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>main</strong> (<code>latest-dev</code>): Always reflects the current state of the main branch</li>
-<li><strong>Major Versions</strong> (<code>latest</code>): Documentation for major releases (e.g., <code>1</code>,
-  <code>2</code>, <code>3</code>)<ul>
-<li>The latest major version is aliased as <code>latest</code></li>
-<li>Only major versions appear in the version selector for clarity</li>
-</ul>
-</li>
+<li><strong>main</strong>: Always reflects the current state of the main branch</li>
+<li><strong>latest</strong>: Documentation for the most recent stable release</li>
+<li><strong>Specific Versions</strong>: Documentation for specific releases (e.g., <code>1.2.3</code>)
+  accessible via direct URL</li>
 </ul>
 <h2 id="how-it-works">How It Works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h2>
 <h3 id="automatic-deployment">Automatic Deployment<a class="headerlink" href="#automatic-deployment" title="Permanent link">&para;</a></h3>
 <ol>
 <li><strong>Main Branch Updates</strong>: When code is pushed to <code>main</code>, the documentation is
-   automatically built and deployed as the <code>main</code> version with alias
-   <code>latest-dev</code></li>
+   automatically built and deployed as the <code>main</code> version</li>
 <li><strong>Releases</strong>: When a new release is published:<ul>
-<li>Documentation is deployed to the <strong>major version</strong> (e.g., <code>1</code> for v1.2.3)</li>
-<li>The major version is tagged as <code>latest</code></li>
-<li>A specific version is also created (e.g., <code>1.2.3</code>) but hidden from the
-  version selector</li>
+<li>Documentation is deployed as <code>latest</code></li>
+<li><code>latest</code> becomes the default/recommended documentation version</li>
+<li>The specific version (e.g., <code>1.2.3</code>) is also available via direct URL
+  access</li>
 </ul>
 </li>
 </ol>
 <h3 id="version-strategy">Version Strategy<a class="headerlink" href="#version-strategy" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>Version Selector Shows</strong>: <code>main</code>, <code>1</code>, <code>2</code>, <code>3</code> (clean and uncluttered)</li>
+<li><strong>Version Selector Shows</strong>: <code>main</code>, <code>latest</code> (clean and simple)</li>
 <li><strong>Direct Access Available</strong>: You can still access specific versions like
-  <code>/v1.2.3/</code> directly via URL</li>
-<li><strong>Latest Points To</strong>: The most recent major version</li>
+  <code>/1.2.3/</code> directly via URL</li>
+<li><strong>Latest Points To</strong>: The most recent stable release</li>
+<li><strong>Default</strong>: <code>latest</code> is set as the default documentation version</li>
 </ul>
 <h3 id="version-switching">Version Switching<a class="headerlink" href="#version-switching" title="Permanent link">&para;</a></h3>
 <p>Users can switch between documentation versions using the version selector in
