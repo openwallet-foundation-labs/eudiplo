@@ -17,14 +17,23 @@ Registrar.
 | --------------- | -------------------- |
 | `REGISTRAR_URL` | URL of the registrar |
 
-Used to authenticate against the Registrar.
+Used to authenticate against the Registrar using any OIDC-compliant provider.
 
-| Variable                      | Description                                |
-| ----------------------------- | ------------------------------------------ |
-| `KEYCLOAK_REALM`              | Keycloak realm name                        |
-| `KEYCLOAK_AUTH_SERVER_URL`    | URL to the Keycloak authentication server  |
-| `KEYCLOAK_RESOURCE`           | Client ID as configured in Keycloak        |
-| `KEYCLOAK_CREDENTIALS_SECRET` | Secret associated with the Keycloak client |
+| Variable             | Description                                                     |
+| -------------------- | --------------------------------------------------------------- |
+| `OIDC_ISSUER_URL`    | OIDC issuer URL (e.g., https://auth.example.com/realms/myrealm) |
+| `OIDC_CLIENT_ID`     | Client ID as configured in the OIDC provider                    |
+| `OIDC_CLIENT_SECRET` | Secret associated with the OIDC client                          |
+
+### Example Configurations
+
+**Keycloak:**
+
+```env
+OIDC_ISSUER_URL=https://keycloak.example.com/realms/registrar
+OIDC_CLIENT_ID=eudiplo-client
+OIDC_CLIENT_SECRET=your-client-secret
+```
 
 ## Accessing the Registrar
 

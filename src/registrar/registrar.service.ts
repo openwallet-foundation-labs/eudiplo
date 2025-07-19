@@ -46,21 +46,19 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         if (!this.isEnabled()) {
             return;
         }
-        //TODO: check if only one URL is needed so it is not bound to keycloak, but oidc
-        const realm = this.configService.getOrThrow<string>('KEYCLOAK_REALM');
-        const authServerUrl = this.configService.getOrThrow<string>(
-            'KEYCLOAK_AUTH_SERVER_URL',
-        );
+
+        const oidcIssuerUrl =
+            this.configService.getOrThrow<string>('OIDC_ISSUER_URL');
         const clientId =
-            this.configService.getOrThrow<string>('KEYCLOAK_RESOURCE');
-        const clientSecret = this.configService.getOrThrow<string>(
-            'KEYCLOAK_CREDENTIALS_SECRET',
-        );
+            this.configService.getOrThrow<string>('OIDC_CLIENT_ID');
+        const clientSecret =
+            this.configService.getOrThrow<string>('OIDC_CLIENT_SECRET');
+
         this.oauth2Client = new OAuth2Client({
-            server: `${authServerUrl}/realms/${realm}/protocol/openid-connect/token`,
+            server: `${oidcIssuerUrl}/protocol/openid-connect/token`,
             clientId,
             clientSecret,
-            discoveryEndpoint: `${authServerUrl}/realms/${realm}/.well-known/openid-configuration`,
+            discoveryEndpoint: `${oidcIssuerUrl}/.well-known/openid-configuration`,
         });
 
         this.client = client;
@@ -102,7 +100,7 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
     }
 
     /**
-     * Get the access token from Keycloak using client credentials grant.
+     * Get the access token from OIDC provider using client credentials grant.
      */
     async refreshAccessToken() {
         await this.oauth2Client.clientCredentials().then((token) => {
