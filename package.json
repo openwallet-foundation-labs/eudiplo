@@ -25,7 +25,12 @@
         "compodoc": "compodoc -p tsconfig.json --theme material -d docs/compodoc",
         "compodoc:serve": "compodoc -p tsconfig.json --theme material -d docs/compodoc -s -r 3001",
         "doc:watch": "pnpm run swagger && mkdocs serve",
-        "doc:build": "pnpm run swagger && pnpm run compodoc && mkdocs build --strict"
+        "doc:build": "pnpm run swagger && pnpm run compodoc && mkdocs build --strict",
+        "doc:init": "pnpm run swagger && pnpm run compodoc && mike deploy --update-aliases main latest-dev && mike set-default main",
+        "doc:serve-versions": "mike serve",
+        "doc:deploy-dev": "pnpm run swagger && pnpm run compodoc && mike deploy dev",
+        "doc:list-versions": "mike list",
+        "doc:delete-version": "mike delete"
     },
     "dependencies": {
         "@badgateway/oauth2-client": "^3.2.0",

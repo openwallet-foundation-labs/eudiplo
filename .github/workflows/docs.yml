@@ -1,0 +1,92 @@
+name: Deploy Documentation
+
+on:
+    push:
+        branches: ['main']
+    release:
+        types: [published]
+    workflow_dispatch:
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    deploy-docs:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            pages: write
+            id-token: write
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0 # Fetch full history for mike versioning
+
+            - name: Copy env file
+              run: cp .env.example .env
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+
+            - name: Enable Corepack
+              run: corepack enable
+
+            - name: Restore pnpm cache
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: 'pnpm'
+
+            - name: Install dependencies
+              run: pnpm install
+
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: '3.11'
+
+            - name: Install Python dependencies
+              run: pip install -r requirements.txt
+
+            - name: Configure git for mike
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+
+            - name: Build and deploy main branch docs
+              if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+              run: |
+                  pnpm run swagger
+                  pnpm run compodoc
+                  mike deploy --push --update-aliases main latest-dev
+                  mike set-default --push main
+
+            - name: Build and deploy release docs
+              if: github.event_name == 'release'
+              run: |
+                  pnpm run swagger
+                  pnpm run compodoc
+                  # Extract version from release tag (remove 'v' prefix if present)
+                  VERSION=${{ github.event.release.tag_name }}
+                  VERSION=${VERSION#v}
+                  mike deploy --push --update-aliases $VERSION latest
+                  mike set-default --push $VERSION
+
+            - name: Manual deployment
+              if: github.event_name == 'workflow_dispatch'
+              run: |
+                  pnpm run swagger
+                  pnpm run compodoc
+                  if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+                    mike deploy --push --update-aliases main latest-dev
+                    mike set-default --push main
+                  else
+                    # For manual deployment from other branches, use branch name
+                    BRANCH_NAME=${GITHUB_REF#refs/heads/}
+                    mike deploy --push $BRANCH_NAME
+                  fi

@@ -1,5 +1,6 @@
 mkdocs
 mkdocs-material
+mike
 plantuml
 mkdocs_puml
 mkdocs-glightbox
