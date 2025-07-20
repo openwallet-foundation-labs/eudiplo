@@ -1,0 +1,1301 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>eudiplo documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+        <link rel="stylesheet" href="../styles/material.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">eudiplo documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content injectable">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Injectables</li>
+  <li class="breadcrumb-item" >AuthorizeService</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>src/issuer/authorize/authorize.service.ts</code>
+        </p>
+
+
+
+
+
+            <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#authorizationChallengeEndpoint" >authorizationChallengeEndpoint</a>
+                            </li>
+                            <li>
+                                <a href="#authzMetadata" >authzMetadata</a>
+                            </li>
+                            <li>
+                                <a href="#getAuthorizationServer" >getAuthorizationServer</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#parseChallengeRequest" >parseChallengeRequest</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#sendAuthorizationCode" >sendAuthorizationCode</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#sendAuthorizationResponse" >sendAuthorizationResponse</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#setAuthCode" >setAuthCode</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#validateTokenRequest" >validateTokenRequest</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+            <section data-compodoc="block-constructor">
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor(configService: ConfigService, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, oid4vpService: <a href="../injectables/Oid4vpService.html" target="_self">Oid4vpService</a>, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, credentialsService: <a href="../injectables/CredentialsService.html" target="_self">CredentialsService</a>)</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="27" class="link-to-prism">src/issuer/authorize/authorize.service.ts:27</a></div>
+                            </td>
+                        </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>configService</td>
+                                                  
+                                                        <td>
+                                                                    <code>ConfigService</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>cryptoService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/CryptoService.html" target="_self" >CryptoService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>oid4vpService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/Oid4vpService.html" target="_self" >Oid4vpService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>sessionService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/SessionService.html" target="_self" >SessionService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>credentialsService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/CredentialsService.html" target="_self" >CredentialsService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
+            <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="authorizationChallengeEndpoint"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>authorizationChallengeEndpoint</b></span>
+                        <a href="#authorizationChallengeEndpoint"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>authorizationChallengeEndpoint(res: Response<any | Record<string, any>>, body: <a href="../classes/AuthorizeQueries.html" target="_self">AuthorizeQueries</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="181"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:181</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>res</td>
+                                            <td>
+                                                        <code>Response&lt;any | Record&lt;string, any&gt;&gt;</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>body</td>
+                                            <td>
+                                                            <code><a href="../classes/AuthorizeQueries.html" target="_self" >AuthorizeQueries</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="authzMetadata"></a>
+                    <span class="name">
+                        <span ><b>authzMetadata</b></span>
+                        <a href="#authzMetadata"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>authzMetadata(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="45"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:45</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../interfaces/Auth.html" target="_self" >AuthorizationServerMetadata</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getAuthorizationServer"></a>
+                    <span class="name">
+                        <span ><b>getAuthorizationServer</b></span>
+                        <a href="#getAuthorizationServer"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getAuthorizationServer(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="38"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:38</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../interfaces/Auth.html" target="_self" >Oauth2AuthorizationServer</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="parseChallengeRequest"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>parseChallengeRequest</b></span>
+                        <a href="#parseChallengeRequest"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>parseChallengeRequest(body: <a href="../classes/AuthorizeQueries.html" target="_self">AuthorizeQueries</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, webhook?: <a href="../classes/WebhookConfig.html" target="_self">WebhookConfig</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="163"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:163</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>body</td>
+                                            <td>
+                                                            <code><a href="../classes/AuthorizeQueries.html" target="_self" >AuthorizeQueries</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>webhook</td>
+                                            <td>
+                                                            <code><a href="../classes/WebhookConfig.html" target="_self" >WebhookConfig</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>unknown</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="sendAuthorizationCode"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>sendAuthorizationCode</b></span>
+                        <a href="#sendAuthorizationCode"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>sendAuthorizationCode(res: Response, issuer_state: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="222"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:222</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>res</td>
+                                            <td>
+                                                        <code>Response</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>issuer_state</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="sendAuthorizationResponse"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>sendAuthorizationResponse</b></span>
+                        <a href="#sendAuthorizationResponse"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>sendAuthorizationResponse(queries: <a href="../classes/AuthorizeQueries.html" target="_self">AuthorizeQueries</a>, res: Response<any | Record<string, any>>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="68"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:68</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>queries</td>
+                                            <td>
+                                                            <code><a href="../classes/AuthorizeQueries.html" target="_self" >AuthorizeQueries</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>res</td>
+                                            <td>
+                                                        <code>Response&lt;any | Record&lt;string, any&gt;&gt;</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="setAuthCode"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>setAuthCode</b></span>
+                        <a href="#setAuthCode"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>setAuthCode(issuer_state: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="236"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:236</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>issuer_state</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>unknown</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="validateTokenRequest"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>validateTokenRequest</b></span>
+                        <a href="#validateTokenRequest"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>validateTokenRequest(body: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, req: Request, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="94"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:94</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>body</td>
+                                            <td>
+                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>req</td>
+                                            <td>
+                                                        <code>Request</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;any&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { randomUUID } from &#x27;node:crypto&#x27;;
+import { ConflictException, Injectable } from &#x27;@nestjs/common&#x27;;
+import { ConfigService } from &#x27;@nestjs/config&#x27;;
+import {
+    type AuthorizationCodeGrantIdentifier,
+    type AuthorizationServerMetadata,
+    type HttpMethod,
+    Jwk,
+    Oauth2AuthorizationServer,
+    PkceCodeChallengeMethod,
+} from &#x27;@openid4vc/oauth2&#x27;;
+import type { Request, Response } from &#x27;express&#x27;;
+import { CryptoService } from &#x27;../../crypto/crypto.service&#x27;;
+import { getHeadersFromRequest } from &#x27;../oid4vci/util&#x27;;
+import { AuthorizeQueries } from &#x27;./dto/authorize-request.dto&#x27;;
+import { Oid4vpService } from &#x27;../../verifier/oid4vp/oid4vp.service&#x27;;
+import { SessionService } from &#x27;../../session/session.service&#x27;;
+import { CredentialsService } from &#x27;../credentials/credentials.service&#x27;;
+import { WebhookConfig } from &#x27;../../utils/webhook.dto&#x27;;
+
+export interface ParsedAccessTokenAuthorizationCodeRequestGrant {
+    grantType: AuthorizationCodeGrantIdentifier;
+    code: string;
+}
+
+@Injectable()
+export class AuthorizeService {
+    //public authorizationServer: Oauth2AuthorizationServer;
+
+    constructor(
+        private configService: ConfigService,
+        private cryptoService: CryptoService,
+        private oid4vpService: Oid4vpService,
+        private sessionService: SessionService,
+        private credentialsService: CredentialsService,
+    ) {}
+
+    getAuthorizationServer(tenantId: string): Oauth2AuthorizationServer {
+        const callbacks &#x3D; this.cryptoService.getCallbackContext(tenantId);
+        return new Oauth2AuthorizationServer({
+            callbacks,
+        });
+    }
+
+    authzMetadata(tenantId: string): AuthorizationServerMetadata {
+        const authServer &#x3D;
+            this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;) +
+            &#x60;/${tenantId}&#x60;;
+        return this.getAuthorizationServer(
+            tenantId,
+        ).createAuthorizationServerMetadata({
+            issuer: authServer,
+            token_endpoint: &#x60;${authServer}/authorize/token&#x60;,
+            authorization_endpoint: &#x60;${authServer}/authorize&#x60;,
+            jwks_uri: &#x60;${authServer}/.well-known/jwks.json&#x60;,
+            dpop_signing_alg_values_supported: [&#x27;ES256&#x27;],
+            // TODO: verify this on the server
+            require_pushed_authorization_requests: true,
+            pushed_authorization_request_endpoint: &#x60;${authServer}/authorize/par&#x60;,
+            code_challenge_methods_supported: [PkceCodeChallengeMethod.S256],
+            authorization_challenge_endpoint: &#x60;${authServer}/authorize/challenge&#x60;,
+            /*         token_endpoint_auth_methods_supported: [
+          SupportedAuthenticationScheme.ClientAttestationJwt,
+        ], */
+        });
+    }
+
+    async sendAuthorizationResponse(
+        queries: AuthorizeQueries,
+        res: Response&lt;any, Record&lt;string, any&gt;&gt;,
+        tenantId: string,
+    ) {
+        let values &#x3D; queries;
+        if (queries.request_uri) {
+            await this.sessionService
+                .getBy({ request_uri: queries.request_uri })
+                .then((session) &#x3D;&gt; {
+                    values &#x3D; session.auth_queries!;
+                })
+                .catch(() &#x3D;&gt; {
+                    throw new ConflictException(
+                        &#x27;request_uri not found or not provided in the request&#x27;,
+                    );
+                });
+        } else {
+            throw new ConflictException(
+                &#x27;request_uri not found or not provided in the request&#x27;,
+            );
+        }
+        const code &#x3D; await this.setAuthCode(values.issuer_state!, tenantId);
+        res.redirect(&#x60;${values.redirect_uri}?code&#x3D;${code}&#x60;);
+    }
+
+    async validateTokenRequest(
+        body: any,
+        req: Request,
+        tenantId: string,
+    ): Promise&lt;any&gt; {
+        const url &#x3D; &#x60;${this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;)}${req.url}&#x60;;
+
+        const parsedAccessTokenRequest &#x3D; this.getAuthorizationServer(
+            tenantId,
+        ).parseAccessTokenRequest({
+            accessTokenRequest: body,
+            request: {
+                method: req.method as HttpMethod,
+                url,
+                headers: getHeadersFromRequest(req),
+            },
+        });
+
+        const session &#x3D; await this.sessionService.getBy({
+            authorization_code: body.code,
+            tenantId,
+        });
+
+        if (!session) {
+            throw new ConflictException(&#x27;Authorization code not found&#x27;);
+        }
+        const authorizationServerMetadata &#x3D; this.authzMetadata(tenantId);
+        //TODO: handle response
+        const { dpop } &#x3D; await this.getAuthorizationServer(
+            tenantId,
+        ).verifyAuthorizationCodeAccessTokenRequest({
+            grant: parsedAccessTokenRequest.grant as ParsedAccessTokenAuthorizationCodeRequestGrant,
+            accessTokenRequest: parsedAccessTokenRequest.accessTokenRequest,
+            expectedCode: session.authorization_code as string,
+            request: {
+                method: req.method as HttpMethod,
+                url,
+                headers: getHeadersFromRequest(req),
+            },
+            dpop: {
+                required: true,
+                allowedSigningAlgs:
+                    authorizationServerMetadata.dpop_signing_alg_values_supported,
+                jwt: parsedAccessTokenRequest.dpop?.jwt,
+            },
+            authorizationServerMetadata,
+        });
+
+        const cNonce &#x3D; randomUUID();
+        return this.getAuthorizationServer(tenantId).createAccessTokenResponse({
+            audience: &#x60;${this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;)}/${tenantId}&#x60;,
+            signer: {
+                method: &#x27;jwk&#x27;,
+                alg: &#x27;ES256&#x27;,
+                publicJwk: (await this.cryptoService.keyService.getPublicKey(
+                    &#x27;jwk&#x27;,
+                    tenantId,
+                )) as Jwk,
+            },
+            subject: session.id,
+            expiresInSeconds: 300,
+            authorizationServer: authorizationServerMetadata.issuer,
+            cNonce,
+            cNonceExpiresIn: 100,
+            clientId: &#x27;wallet&#x27;, // must be same as the client attestation
+            dpop,
+        });
+    }
+
+    async parseChallengeRequest(
+        body: AuthorizeQueries,
+        tenantId: string,
+        webhook?: WebhookConfig,
+    ) {
+        // re using the issuer state as auth session
+        const auth_session &#x3D; body.issuer_state;
+        const presentation &#x3D; &#x60;openid4vp://?${(await this.oid4vpService.createRequest(&#x27;pid&#x27;, { session: auth_session, webhook }, tenantId)).uri}&#x60;;
+        const res &#x3D; {
+            error: &#x27;insufficient_authorization&#x27;,
+            auth_session,
+            presentation,
+            error_description:
+                &#x27;Presentation of credential required before issuance&#x27;,
+        };
+        return res;
+    }
+
+    async authorizationChallengeEndpoint(
+        res: Response&lt;any, Record&lt;string, any&gt;&gt;,
+        body: AuthorizeQueries,
+        tenantId: string,
+    ) {
+        // auth session and issuer state have the same value
+        if (body.auth_session) {
+            const session &#x3D; await this.sessionService.get(body.auth_session);
+            // if session is not found, we assume that the auth session is the
+            if (!session) {
+                throw new ConflictException(
+                    &#x27;auth_session not found or not provided in the request&#x27;,
+                );
+            }
+            //check if session has valid presentation, we assume for now
+            await this.sendAuthorizationCode(res, body.auth_session, tenantId);
+            return;
+        }
+
+        const session &#x3D; await this.sessionService.get(body.issuer_state!);
+        if (!session) {
+            throw new Error(&#x27;Credential offer not found&#x27;);
+        }
+        const ids &#x3D; session.offer!.credential_configuration_ids;
+        const config &#x3D; await this.credentialsService.getConfigById(
+            ids[0],
+            tenantId,
+        );
+        if (config.presentation_during_issuance) {
+            const webhook &#x3D; config.presentation_during_issuance.webhook;
+            const response &#x3D; await this.parseChallengeRequest(
+                body,
+                tenantId,
+                webhook,
+            );
+            res.status(400).send(response);
+        } else {
+            await this.sendAuthorizationCode(res, body.issuer_state!, tenantId);
+        }
+    }
+
+    private async sendAuthorizationCode(
+        res: Response,
+        issuer_state: string,
+        tenantId: string,
+    ) {
+        const authorization_code &#x3D; await this.setAuthCode(
+            issuer_state,
+            tenantId,
+        );
+        res.send({
+            authorization_code,
+        });
+    }
+
+    async setAuthCode(issuer_state: string, tenantId: string) {
+        const code &#x3D; randomUUID();
+        await this.sessionService.add(issuer_state, tenantId, {
+            authorization_code: code,
+        });
+        return code;
+    }
+}
+</code></pre>
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'injectable';
+            var COMPODOC_CURRENT_PAGE_URL = 'AuthorizeService.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

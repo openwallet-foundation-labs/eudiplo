@@ -1,0 +1,3669 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>eudiplo documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="./images/favicon.ico">
+	   <link rel="stylesheet" href="./styles/style.css">
+        <link rel="stylesheet" href="./styles/dark.css">
+        <link rel="stylesheet" href="./styles/material.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="./" class="navbar-brand">eudiplo documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content coverage">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item">Documentation coverage</li>
+</ol>
+
+<div>
+    <img src="./images/coverage-badge-documentation.svg">
+</div>
+
+<table class="table table-bordered coverage" id="coverage-table">
+    <thead class="coverage-header">
+        <tr>
+            <th>File</th>
+            <th>Type</th>
+            <th>Identifier</th>
+            <th style="text-align:right" class="statements" data-sort-default>Statements</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#run">scripts/import.ts</a>
+            </td>
+            <td>function</td>
+            <td>run</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#clientId">scripts/import.ts</a>
+            </td>
+            <td>variable</td>
+            <td>clientId</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#clientSecret">scripts/import.ts</a>
+            </td>
+            <td>variable</td>
+            <td>clientSecret</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#url">scripts/import.ts</a>
+            </td>
+            <td>variable</td>
+            <td>url</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#LoginReponse">scripts/import.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>LoginReponse</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./controllers/AppController.html">src/app/app.controller.ts</a>
+            </td>
+            <td>controller</td>
+            <td>AppController</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/2)</span>
+            </td>
+        </tr>
+        <tr class="medium">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./controllers/AuthController.html">src/auth/auth.controller.ts</a>
+            </td>
+            <td>controller</td>
+            <td>AuthController</td>
+            <td align="right" data-sort="50">
+                <span class="coverage-percent">50 %</span>
+                <span class="coverage-count">(1/2)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./injectables/JwtAuthGuard.html">src/auth/auth.guard.ts</a>
+            </td>
+            <td>injectable</td>
+            <td>JwtAuthGuard</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/3)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#AUTH_VALIDATION_SCHEMA">src/auth/auth.module.ts</a>
+            </td>
+            <td>variable</td>
+            <td>AUTH_VALIDATION_SCHEMA</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="good">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./injectables/ClientService.html">src/auth/client.service.ts</a>
+            </td>
+            <td>injectable</td>
+            <td>ClientService</td>
+            <td align="right" data-sort="55">
+                <span class="coverage-percent">55 %</span>
+                <span class="coverage-count">(5/9)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./interfaces/Client.html">src/auth/client.service.ts</a>
+            </td>
+            <td>interface</td>
+            <td>Client</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/3)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./classes/ClientCredentialsDto.html">src/auth/dto/client-credentials.dto.ts</a>
+            </td>
+            <td>class</td>
+            <td>ClientCredentialsDto</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/3)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./classes/TokenResponse.html">src/auth/dto/token-response.dto.ts</a>
+            </td>
+            <td>class</td>
+            <td>TokenResponse</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/4)</span>
+            </td>
+        </tr>
+        <tr class="good">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./injectables/JwtService.html">src/auth/jwt.service.ts</a>
+            </td>
+            <td>injectable</td>
+            <td>JwtService</td>
+            <td align="right" data-sort="66">
+                <span class="coverage-percent">66 %</span>
+                <span class="coverage-count">(4/6)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./interfaces/GenerateTokenOptions.html">src/auth/jwt.service.ts</a>
+            </td>
+            <td>interface</td>
+            <td>GenerateTokenOptions</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/4)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./injectables/JwtStrategy.html">src/auth/jwt.strategy.ts</a>
+            </td>
+            <td>injectable</td>
+            <td>JwtStrategy</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/5)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#IS_PUBLIC_KEY">src/auth/public.decorator.ts</a>
+            </td>
+            <td>variable</td>
+            <td>IS_PUBLIC_KEY</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#Public">src/auth/public.decorator.ts</a>
+            </td>
+            <td>variable</td>
+            <td>Public</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#TENANT_EVENTS">src/auth/tenant-events.ts</a>
+            </td>
+            <td>variable</td>
+            <td>TENANT_EVENTS</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="medium">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./interfaces/TokenPayload.html">src/auth/token.decorator.ts</a>
+            </td>
+            <td>interface</td>
+            <td>TokenPayload</td>
+            <td align="right" data-sort="50">
+                <span class="coverage-percent">50 %</span>
+                <span class="coverage-count">(1/2)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#Token">src/auth/token.decorator.ts</a>
+            </td>
+            <td>variable</td>
+            <td>Token</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./injectables/CryptoService.html">src/crypto/crypto.service.ts</a>
+            </td>
+            <td>injectable</td>
+            <td>CryptoService</td>
+            <td align="right" data-sort="6">
+                <span class="coverage-percent">6 %</span>
+                <span class="coverage-count">(1/15)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#certificateType">src/crypto/crypto.service.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>certificateType</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./injectables/EncryptionService.html">src/crypto/encryption/encryption.service.ts</a>
+            </td>
+            <td>injectable</td>
+            <td>EncryptionService</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/10)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./interfaces/CryptoImplementation.html">src/crypto/key/crypto/crypto-implementation.ts</a>
+            </td>
+            <td>interface</td>
+            <td>CryptoImplementation</td>
+            <td align="right" data-sort="80">
+                <span class="coverage-percent">80 %</span>
+                <span class="coverage-count">(4/5)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#KeyPair">src/crypto/key/crypto/crypto-implementation.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>KeyPair</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#Signer">src/crypto/key/crypto/crypto-implementation.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>Signer</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#Verifier">src/crypto/key/crypto/crypto-implementation.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>Verifier</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#CRYPTO_VALIDATION_SCHEMA">src/crypto/key/crypto/crypto.module.ts</a>
+            </td>
+            <td>variable</td>
+            <td>CRYPTO_VALIDATION_SCHEMA</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./injectables/CryptoService.html">src/crypto/key/crypto/crypto.service.ts</a>
+            </td>
+            <td>injectable</td>
+            <td>CryptoService</td>
+            <td align="right" data-sort="25">
+                <span class="coverage-percent">25 %</span>
+                <span class="coverage-count">(1/4)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#CryptoType">src/crypto/key/crypto/crypto.service.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>CryptoType</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#ED25519">src/crypto/key/crypto/ed25519.ts</a>
+            </td>
+            <td>variable</td>
+            <td>ED25519</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./entitys/KeyEntity.html">src/crypto/key/entities/key.entity.ts</a>
+            </td>
+            <td>entity</td>
+            <td>KeyEntity</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="medium">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./injectables/FileSystemKeyService.html">src/crypto/key/filesystem-key.service.ts</a>
+            </td>
+            <td>injectable</td>
+            <td>FileSystemKeyService</td>
+            <td align="right" data-sort="35">
+                <span class="coverage-percent">35 %</span>
+                <span class="coverage-count">(5/14)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#KEY_VALIDATION_SCHEMA">src/crypto/key/key.module.ts</a>
+            </td>
+            <td>variable</td>
+            <td>KEY_VALIDATION_SCHEMA</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="good">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./classes/KeyService.html">src/crypto/key/key.service.ts</a>
+            </td>
+            <td>class</td>
+            <td>KeyService</td>
+            <td align="right" data-sort="62">
+                <span class="coverage-percent">62 %</span>
+                <span class="coverage-count">(5/8)</span>
+            </td>
+        </tr>
+        <tr class="medium">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./injectables/VaultKeyService.html">src/crypto/key/vault-key.service.ts</a>
+            </td>
+            <td>injectable</td>
+            <td>VaultKeyService</td>
+            <td align="right" data-sort="43">
+                <span class="coverage-percent">43 %</span>
+                <span class="coverage-count">(7/16)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#DB_VALIDATION_SCHEMA">src/database/database.module.ts</a>
+            </td>
+            <td>variable</td>
+            <td>DB_VALIDATION_SCHEMA</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./controllers/HealthController.html">src/health/health.controller.ts</a>
+            </td>
+            <td>controller</td>
+            <td>HealthController</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(2/2)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./controllers/AuthorizeController.html">src/issuer/authorize/authorize.controller.ts</a>
+            </td>
+            <td>controller</td>
+            <td>AuthorizeController</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(5/5)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./injectables/AuthorizeService.html">src/issuer/authorize/authorize.service.ts</a>
+            </td>
+            <td>injectable</td>
+            <td>AuthorizeService</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/10)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./interfaces/ParsedAccessTokenAuthorizationCodeRequestGrant.html">src/issuer/authorize/authorize.service.ts</a>
+            </td>
+            <td>interface</td>
+            <td>ParsedAccessTokenAuthorizationCodeRequestGrant</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/3)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./classes/AuthorizeQueries.html">src/issuer/authorize/dto/authorize-request.dto.ts</a>
+            </td>
+            <td>class</td>
+            <td>AuthorizeQueries</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/12)</span>
+            </td>
+        </tr>
+        <tr class="good">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./classes/ParResponseDto.html">src/issuer/authorize/dto/par-response.dto.ts</a>
+            </td>
+            <td>class</td>
+            <td>ParResponseDto</td>
+            <td align="right" data-sort="66">
+                <span class="coverage-percent">66 %</span>
+                <span class="coverage-count">(2/3)</span>
+            </td>
+        </tr>
+        <tr class="good">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./controllers/CredentialsController.html">src/issuer/credentials/credentials.controller.ts</a>
+            </td>
+            <td>controller</td>
+            <td>CredentialsController</td>
+            <td align="right" data-sort="66">
+                <span class="coverage-percent">66 %</span>
+                <span class="coverage-count">(2/3)</span>
+            </td>
+        </tr>
+        <tr class="medium">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./injectables/CredentialsService.html">src/issuer/credentials/credentials.service.ts</a>
+            </td>
+            <td>injectable</td>
+            <td>CredentialsService</td>
+            <td align="right" data-sort="50">
+                <span class="coverage-percent">50 %</span>
+                <span class="coverage-count">(5/10)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./classes/PresentationDuringIssuance.html">src/issuer/credentials/dto/credential-config.dto.ts</a>
+            </td>
+            <td>class</td>
+            <td>PresentationDuringIssuance</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/3)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./classes/VCT.html">src/issuer/credentials/dto/credential-config.dto.ts</a>
+            </td>
+            <td>class</td>
+            <td>VCT</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/8)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./classes/SchemaResponse.html">src/issuer/credentials/dto/schema-response.dto.ts</a>
+            </td>
+            <td>class</td>
+            <td>SchemaResponse</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/5)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./entitys/IssuanceConfig.html">src/issuer/credentials/entities/issuance-config.entity.ts</a>
+            </td>
+            <td>entity</td>
+            <td>IssuanceConfig</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./controllers/IssuerManagementController.html">src/issuer/issuer-management/issuer-management.controller.ts</a>
+            </td>
+            <td>controller</td>
+            <td>IssuerManagementController</td>
+            <td align="right" data-sort="80">
+                <span class="coverage-percent">80 %</span>
+                <span class="coverage-count">(4/5)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#ISSUER_VALIDATION_SCHEMA">src/issuer/issuer.module.ts</a>
+            </td>
+            <td>variable</td>
+            <td>ISSUER_VALIDATION_SCHEMA</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./classes/NotificationRequestDto.html">src/issuer/oid4vci/dto/notification-request.dto.ts</a>
+            </td>
+            <td>class</td>
+            <td>NotificationRequestDto</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/3)</span>
+            </td>
+        </tr>
+        <tr class="medium">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./classes/OfferRequest.html">src/issuer/oid4vci/dto/offer-request.dto.ts</a>
+            </td>
+            <td>class</td>
+            <td>OfferRequest</td>
+            <td align="right" data-sort="50">
+                <span class="coverage-percent">50 %</span>
+                <span class="coverage-count">(2/4)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./classes/OfferResponse.html">src/issuer/oid4vci/dto/offer-request.dto.ts</a>
+            </td>
+            <td>class</td>
+            <td>OfferResponse</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/3)</span>
+            </td>
+        </tr>
+        <tr class="good">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./controllers/Oid4vciController.html">src/issuer/oid4vci/oid4vci.controller.ts</a>
+            </td>
+            <td>controller</td>
+            <td>Oid4vciController</td>
+            <td align="right" data-sort="66">
+                <span class="coverage-percent">66 %</span>
+                <span class="coverage-count">(2/3)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./injectables/Oid4vciService.html">src/issuer/oid4vci/oid4vci.service.ts</a>
+            </td>
+            <td>injectable</td>
+            <td>Oid4vciService</td>
+            <td align="right" data-sort="10">
+                <span class="coverage-percent">10 %</span>
+                <span class="coverage-count">(1/10)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#getHeadersFromRequest">src/issuer/oid4vci/util.ts</a>
+            </td>
+            <td>function</td>
+            <td>getHeadersFromRequest</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="good">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./classes/StatusUpdateDto.html">src/issuer/status-list/dto/status-update.dto.ts</a>
+            </td>
+            <td>class</td>
+            <td>StatusUpdateDto</td>
+            <td align="right" data-sort="75">
+                <span class="coverage-percent">75 %</span>
+                <span class="coverage-count">(3/4)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./entitys/StatusMapping.html">src/issuer/status-list/entities/status-mapping.entity.ts</a>
+            </td>
+            <td>entity</td>
+            <td>StatusMapping</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="medium">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./controllers/StatusListController.html">src/issuer/status-list/status-list.controller.ts</a>
+            </td>
+            <td>controller</td>
+            <td>StatusListController</td>
+            <td align="right" data-sort="50">
+                <span class="coverage-percent">50 %</span>
+                <span class="coverage-count">(1/2)</span>
+            </td>
+        </tr>
+        <tr class="medium">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./injectables/StatusListService.html">src/issuer/status-list/status-list.service.ts</a>
+            </td>
+            <td>injectable</td>
+            <td>StatusListService</td>
+            <td align="right" data-sort="38">
+                <span class="coverage-percent">38 %</span>
+                <span class="coverage-count">(5/13)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./interfaces/StatusListFile.html">src/issuer/status-list/status-list.service.ts</a>
+            </td>
+            <td>interface</td>
+            <td>StatusListFile</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/5)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#bootstrap">src/main.ts</a>
+            </td>
+            <td>function</td>
+            <td>bootstrap</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#client">src/registrar/generated/client.gen.ts</a>
+            </td>
+            <td>variable</td>
+            <td>client</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#CreateClientConfig">src/registrar/generated/client.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>CreateClientConfig</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#createClient">src/registrar/generated/client/client.ts</a>
+            </td>
+            <td>variable</td>
+            <td>createClient</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#ReqInit">src/registrar/generated/client/client.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>ReqInit</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./interfaces/ClientOptions.html">src/registrar/generated/client/types.ts</a>
+            </td>
+            <td>interface</td>
+            <td>ClientOptions</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/4)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./interfaces/Config.html">src/registrar/generated/client/types.ts</a>
+            </td>
+            <td>interface</td>
+            <td>Config</td>
+            <td align="right" data-sort="85">
+                <span class="coverage-percent">85 %</span>
+                <span class="coverage-count">(6/7)</span>
+            </td>
+        </tr>
+        <tr class="medium">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./interfaces/RequestOptions.html">src/registrar/generated/client/types.ts</a>
+            </td>
+            <td>interface</td>
+            <td>RequestOptions</td>
+            <td align="right" data-sort="33">
+                <span class="coverage-percent">33 %</span>
+                <span class="coverage-count">(2/6)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./interfaces/TDataShape.html">src/registrar/generated/client/types.ts</a>
+            </td>
+            <td>interface</td>
+            <td>TDataShape</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/6)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#BuildUrlFn">src/registrar/generated/client/types.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>BuildUrlFn</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#Client">src/registrar/generated/client/types.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>Client</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#CreateClientConfig">src/registrar/generated/client/types.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>CreateClientConfig</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#MethodFn">src/registrar/generated/client/types.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>MethodFn</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#OmitKeys">src/registrar/generated/client/types.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>OmitKeys</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#Options">src/registrar/generated/client/types.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>Options</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#OptionsLegacyParser">src/registrar/generated/client/types.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>OptionsLegacyParser</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RequestFn">src/registrar/generated/client/types.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RequestFn</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RequestResult">src/registrar/generated/client/types.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RequestResult</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#ResponseStyle">src/registrar/generated/client/types.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>ResponseStyle</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./classes/Interceptors.html">src/registrar/generated/client/utils.ts</a>
+            </td>
+            <td>class</td>
+            <td>Interceptors</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/9)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./interfaces/Middleware.html">src/registrar/generated/client/utils.ts</a>
+            </td>
+            <td>interface</td>
+            <td>Middleware</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/4)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./interfaces/PathSerializer.html">src/registrar/generated/client/utils.ts</a>
+            </td>
+            <td>interface</td>
+            <td>PathSerializer</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/3)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#buildUrl">src/registrar/generated/client/utils.ts</a>
+            </td>
+            <td>variable</td>
+            <td>buildUrl</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#createConfig">src/registrar/generated/client/utils.ts</a>
+            </td>
+            <td>variable</td>
+            <td>createConfig</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#createInterceptors">src/registrar/generated/client/utils.ts</a>
+            </td>
+            <td>variable</td>
+            <td>createInterceptors</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#createQuerySerializer">src/registrar/generated/client/utils.ts</a>
+            </td>
+            <td>variable</td>
+            <td>createQuerySerializer</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#defaultHeaders">src/registrar/generated/client/utils.ts</a>
+            </td>
+            <td>variable</td>
+            <td>defaultHeaders</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#defaultPathSerializer">src/registrar/generated/client/utils.ts</a>
+            </td>
+            <td>variable</td>
+            <td>defaultPathSerializer</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#defaultQuerySerializer">src/registrar/generated/client/utils.ts</a>
+            </td>
+            <td>variable</td>
+            <td>defaultQuerySerializer</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#getParseAs">src/registrar/generated/client/utils.ts</a>
+            </td>
+            <td>variable</td>
+            <td>getParseAs</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#getUrl">src/registrar/generated/client/utils.ts</a>
+            </td>
+            <td>variable</td>
+            <td>getUrl</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#mergeConfigs">src/registrar/generated/client/utils.ts</a>
+            </td>
+            <td>variable</td>
+            <td>mergeConfigs</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#mergeHeaders">src/registrar/generated/client/utils.ts</a>
+            </td>
+            <td>variable</td>
+            <td>mergeHeaders</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#PATH_PARAM_RE">src/registrar/generated/client/utils.ts</a>
+            </td>
+            <td>variable</td>
+            <td>PATH_PARAM_RE</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#setAuthParams">src/registrar/generated/client/utils.ts</a>
+            </td>
+            <td>variable</td>
+            <td>setAuthParams</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#ArraySeparatorStyle">src/registrar/generated/client/utils.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>ArraySeparatorStyle</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#ArrayStyle">src/registrar/generated/client/utils.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>ArrayStyle</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#ErrInterceptor">src/registrar/generated/client/utils.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>ErrInterceptor</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#MatrixStyle">src/registrar/generated/client/utils.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>MatrixStyle</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#ReqInterceptor">src/registrar/generated/client/utils.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>ReqInterceptor</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#ResInterceptor">src/registrar/generated/client/utils.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>ResInterceptor</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="medium">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./interfaces/Auth.html">src/registrar/generated/core/auth.ts</a>
+            </td>
+            <td>interface</td>
+            <td>Auth</td>
+            <td align="right" data-sort="40">
+                <span class="coverage-percent">40 %</span>
+                <span class="coverage-count">(2/5)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#getAuthToken">src/registrar/generated/core/auth.ts</a>
+            </td>
+            <td>variable</td>
+            <td>getAuthToken</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#AuthToken">src/registrar/generated/core/auth.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>AuthToken</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./interfaces/QuerySerializerOptions.html">src/registrar/generated/core/bodySerializer.ts</a>
+            </td>
+            <td>interface</td>
+            <td>QuerySerializerOptions</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/4)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#formDataBodySerializer">src/registrar/generated/core/bodySerializer.ts</a>
+            </td>
+            <td>variable</td>
+            <td>formDataBodySerializer</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#jsonBodySerializer">src/registrar/generated/core/bodySerializer.ts</a>
+            </td>
+            <td>variable</td>
+            <td>jsonBodySerializer</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#serializeFormDataPair">src/registrar/generated/core/bodySerializer.ts</a>
+            </td>
+            <td>variable</td>
+            <td>serializeFormDataPair</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#serializeUrlSearchParamsPair">src/registrar/generated/core/bodySerializer.ts</a>
+            </td>
+            <td>variable</td>
+            <td>serializeUrlSearchParamsPair</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#urlSearchParamsBodySerializer">src/registrar/generated/core/bodySerializer.ts</a>
+            </td>
+            <td>variable</td>
+            <td>urlSearchParamsBodySerializer</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#BodySerializer">src/registrar/generated/core/bodySerializer.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>BodySerializer</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#QuerySerializer">src/registrar/generated/core/bodySerializer.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>QuerySerializer</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./interfaces/Fields.html">src/registrar/generated/core/params.ts</a>
+            </td>
+            <td>interface</td>
+            <td>Fields</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/3)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./interfaces/Params.html">src/registrar/generated/core/params.ts</a>
+            </td>
+            <td>interface</td>
+            <td>Params</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/5)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#buildClientParams">src/registrar/generated/core/params.ts</a>
+            </td>
+            <td>variable</td>
+            <td>buildClientParams</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#buildKeyMap">src/registrar/generated/core/params.ts</a>
+            </td>
+            <td>variable</td>
+            <td>buildKeyMap</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#extraPrefixes">src/registrar/generated/core/params.ts</a>
+            </td>
+            <td>variable</td>
+            <td>extraPrefixes</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#extraPrefixesMap">src/registrar/generated/core/params.ts</a>
+            </td>
+            <td>variable</td>
+            <td>extraPrefixesMap</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#stripEmptySlots">src/registrar/generated/core/params.ts</a>
+            </td>
+            <td>variable</td>
+            <td>stripEmptySlots</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#Field">src/registrar/generated/core/params.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>Field</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#FieldsConfig">src/registrar/generated/core/params.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>FieldsConfig</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#KeyMap">src/registrar/generated/core/params.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>KeyMap</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#Slot">src/registrar/generated/core/params.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>Slot</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./interfaces/SerializeOptions.html">src/registrar/generated/core/pathSerializer.ts</a>
+            </td>
+            <td>interface</td>
+            <td>SerializeOptions</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./interfaces/SerializePrimitiveOptions.html">src/registrar/generated/core/pathSerializer.ts</a>
+            </td>
+            <td>interface</td>
+            <td>SerializePrimitiveOptions</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/3)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./interfaces/SerializePrimitiveParam.html">src/registrar/generated/core/pathSerializer.ts</a>
+            </td>
+            <td>interface</td>
+            <td>SerializePrimitiveParam</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/2)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./interfaces/SerializerOptions.html">src/registrar/generated/core/pathSerializer.ts</a>
+            </td>
+            <td>interface</td>
+            <td>SerializerOptions</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/3)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#separatorArrayExplode">src/registrar/generated/core/pathSerializer.ts</a>
+            </td>
+            <td>variable</td>
+            <td>separatorArrayExplode</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#separatorArrayNoExplode">src/registrar/generated/core/pathSerializer.ts</a>
+            </td>
+            <td>variable</td>
+            <td>separatorArrayNoExplode</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#separatorObjectExplode">src/registrar/generated/core/pathSerializer.ts</a>
+            </td>
+            <td>variable</td>
+            <td>separatorObjectExplode</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#serializeArrayParam">src/registrar/generated/core/pathSerializer.ts</a>
+            </td>
+            <td>variable</td>
+            <td>serializeArrayParam</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#serializeObjectParam">src/registrar/generated/core/pathSerializer.ts</a>
+            </td>
+            <td>variable</td>
+            <td>serializeObjectParam</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#serializePrimitiveParam">src/registrar/generated/core/pathSerializer.ts</a>
+            </td>
+            <td>variable</td>
+            <td>serializePrimitiveParam</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#ArraySeparatorStyle">src/registrar/generated/core/pathSerializer.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>ArraySeparatorStyle</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#ArrayStyle">src/registrar/generated/core/pathSerializer.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>ArrayStyle</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#MatrixStyle">src/registrar/generated/core/pathSerializer.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>MatrixStyle</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#ObjectSeparatorStyle">src/registrar/generated/core/pathSerializer.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>ObjectSeparatorStyle</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#ObjectStyle">src/registrar/generated/core/pathSerializer.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>ObjectStyle</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./interfaces/Client.html">src/registrar/generated/core/types.ts</a>
+            </td>
+            <td>interface</td>
+            <td>Client</td>
+            <td align="right" data-sort="7">
+                <span class="coverage-percent">7 %</span>
+                <span class="coverage-count">(1/14)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./interfaces/Config.html">src/registrar/generated/core/types.ts</a>
+            </td>
+            <td>interface</td>
+            <td>Config</td>
+            <td align="right" data-sort="88">
+                <span class="coverage-percent">88 %</span>
+                <span class="coverage-count">(8/9)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#accessCertificateControllerAccessCertificates">src/registrar/generated/sdk.gen.ts</a>
+            </td>
+            <td>variable</td>
+            <td>accessCertificateControllerAccessCertificates</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#accessCertificateControllerDelete">src/registrar/generated/sdk.gen.ts</a>
+            </td>
+            <td>variable</td>
+            <td>accessCertificateControllerDelete</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#accessCertificateControllerFindOne">src/registrar/generated/sdk.gen.ts</a>
+            </td>
+            <td>variable</td>
+            <td>accessCertificateControllerFindOne</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#accessCertificateControllerFindOneParsed">src/registrar/generated/sdk.gen.ts</a>
+            </td>
+            <td>variable</td>
+            <td>accessCertificateControllerFindOneParsed</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#accessCertificateControllerRegister">src/registrar/generated/sdk.gen.ts</a>
+            </td>
+            <td>variable</td>
+            <td>accessCertificateControllerRegister</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#cryptoControllerOwnCert">src/registrar/generated/sdk.gen.ts</a>
+            </td>
+            <td>variable</td>
+            <td>cryptoControllerOwnCert</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#cryptoControllerOwnCertParsed">src/registrar/generated/sdk.gen.ts</a>
+            </td>
+            <td>variable</td>
+            <td>cryptoControllerOwnCertParsed</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#healthControllerCheck">src/registrar/generated/sdk.gen.ts</a>
+            </td>
+            <td>variable</td>
+            <td>healthControllerCheck</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#oid4VpControllerGetValidPid">src/registrar/generated/sdk.gen.ts</a>
+            </td>
+            <td>variable</td>
+            <td>oid4VpControllerGetValidPid</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#oid4VpControllerGetValidRequest">src/registrar/generated/sdk.gen.ts</a>
+            </td>
+            <td>variable</td>
+            <td>oid4VpControllerGetValidRequest</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#oid4VpControllerGetValidRequestWithQuery">src/registrar/generated/sdk.gen.ts</a>
+            </td>
+            <td>variable</td>
+            <td>oid4VpControllerGetValidRequestWithQuery</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#oid4VpControllerResponse">src/registrar/generated/sdk.gen.ts</a>
+            </td>
+            <td>variable</td>
+            <td>oid4VpControllerResponse</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#oid4VpControllerSuccess">src/registrar/generated/sdk.gen.ts</a>
+            </td>
+            <td>variable</td>
+            <td>oid4VpControllerSuccess</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#registrationCertificateControllerAll">src/registrar/generated/sdk.gen.ts</a>
+            </td>
+            <td>variable</td>
+            <td>registrationCertificateControllerAll</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#registrationCertificateControllerDelete">src/registrar/generated/sdk.gen.ts</a>
+            </td>
+            <td>variable</td>
+            <td>registrationCertificateControllerDelete</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#registrationCertificateControllerFindOne">src/registrar/generated/sdk.gen.ts</a>
+            </td>
+            <td>variable</td>
+            <td>registrationCertificateControllerFindOne</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#registrationCertificateControllerFindOneDecoded">src/registrar/generated/sdk.gen.ts</a>
+            </td>
+            <td>variable</td>
+            <td>registrationCertificateControllerFindOneDecoded</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#registrationCertificateControllerRegister">src/registrar/generated/sdk.gen.ts</a>
+            </td>
+            <td>variable</td>
+            <td>registrationCertificateControllerRegister</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#relyingPartyControllerFindAll">src/registrar/generated/sdk.gen.ts</a>
+            </td>
+            <td>variable</td>
+            <td>relyingPartyControllerFindAll</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#relyingPartyControllerRegister">src/registrar/generated/sdk.gen.ts</a>
+            </td>
+            <td>variable</td>
+            <td>relyingPartyControllerRegister</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#relyingPartyControllerRemove">src/registrar/generated/sdk.gen.ts</a>
+            </td>
+            <td>variable</td>
+            <td>relyingPartyControllerRemove</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#statusListControllerCrlFile">src/registrar/generated/sdk.gen.ts</a>
+            </td>
+            <td>variable</td>
+            <td>statusListControllerCrlFile</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#statusListControllerGetList">src/registrar/generated/sdk.gen.ts</a>
+            </td>
+            <td>variable</td>
+            <td>statusListControllerGetList</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#Options">src/registrar/generated/sdk.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>Options</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#AccessCertificate">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>AccessCertificate</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#AccessCertificateControllerAccessCertificatesData">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>AccessCertificateControllerAccessCertificatesData</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#AccessCertificateControllerAccessCertificatesResponse">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>AccessCertificateControllerAccessCertificatesResponse</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#AccessCertificateControllerAccessCertificatesResponses">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>AccessCertificateControllerAccessCertificatesResponses</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#AccessCertificateControllerDeleteData">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>AccessCertificateControllerDeleteData</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#AccessCertificateControllerDeleteResponses">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>AccessCertificateControllerDeleteResponses</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#AccessCertificateControllerFindOneData">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>AccessCertificateControllerFindOneData</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#AccessCertificateControllerFindOneParsedData">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>AccessCertificateControllerFindOneParsedData</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#AccessCertificateControllerFindOneParsedResponse">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>AccessCertificateControllerFindOneParsedResponse</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#AccessCertificateControllerFindOneParsedResponses">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>AccessCertificateControllerFindOneParsedResponses</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#AccessCertificateControllerFindOneResponses">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>AccessCertificateControllerFindOneResponses</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#AccessCertificateControllerRegisterData">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>AccessCertificateControllerRegisterData</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#AccessCertificateControllerRegisterResponse">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>AccessCertificateControllerRegisterResponse</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#AccessCertificateControllerRegisterResponses">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>AccessCertificateControllerRegisterResponses</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#AccessCertificateRegistration">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>AccessCertificateRegistration</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#AccessCertificateRegistrationResponse">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>AccessCertificateRegistrationResponse</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#ClientOptions">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>ClientOptions</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#Contact">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>Contact</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#Credential">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>Credential</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#CryptoControllerOwnCertData">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>CryptoControllerOwnCertData</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#CryptoControllerOwnCertParsedData">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>CryptoControllerOwnCertParsedData</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#CryptoControllerOwnCertParsedResponse">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>CryptoControllerOwnCertParsedResponse</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#CryptoControllerOwnCertParsedResponses">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>CryptoControllerOwnCertParsedResponses</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#CryptoControllerOwnCertResponse">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>CryptoControllerOwnCertResponse</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#CryptoControllerOwnCertResponses">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>CryptoControllerOwnCertResponses</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#DecodedJwt">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>DecodedJwt</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#HealthControllerCheckData">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>HealthControllerCheckData</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#HealthControllerCheckError">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>HealthControllerCheckError</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#HealthControllerCheckErrors">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>HealthControllerCheckErrors</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#HealthControllerCheckResponse">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>HealthControllerCheckResponse</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#HealthControllerCheckResponses">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>HealthControllerCheckResponses</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#IntendedUse">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>IntendedUse</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#MultiLang">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>MultiLang</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#Oid4VpControllerGetValidPidData">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>Oid4VpControllerGetValidPidData</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#Oid4VpControllerGetValidPidResponses">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>Oid4VpControllerGetValidPidResponses</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#Oid4VpControllerGetValidRequestData">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>Oid4VpControllerGetValidRequestData</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#Oid4VpControllerGetValidRequestResponse">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>Oid4VpControllerGetValidRequestResponse</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#Oid4VpControllerGetValidRequestResponses">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>Oid4VpControllerGetValidRequestResponses</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#Oid4VpControllerGetValidRequestWithQueryData">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>Oid4VpControllerGetValidRequestWithQueryData</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#Oid4VpControllerGetValidRequestWithQueryResponse">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>Oid4VpControllerGetValidRequestWithQueryResponse</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#Oid4VpControllerGetValidRequestWithQueryResponses">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>Oid4VpControllerGetValidRequestWithQueryResponses</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#Oid4VpControllerResponseData">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>Oid4VpControllerResponseData</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#Oid4VpControllerResponseResponses">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>Oid4VpControllerResponseResponses</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#Oid4VpControllerSuccessData">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>Oid4VpControllerSuccessData</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#Oid4VpControllerSuccessResponse">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>Oid4VpControllerSuccessResponse</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#Oid4VpControllerSuccessResponses">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>Oid4VpControllerSuccessResponses</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#OmitTypeClass">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>OmitTypeClass</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RegistrationCertificate">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RegistrationCertificate</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RegistrationCertificateControllerAllData">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RegistrationCertificateControllerAllData</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RegistrationCertificateControllerAllResponse">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RegistrationCertificateControllerAllResponse</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RegistrationCertificateControllerAllResponses">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RegistrationCertificateControllerAllResponses</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RegistrationCertificateControllerDeleteData">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RegistrationCertificateControllerDeleteData</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RegistrationCertificateControllerDeleteResponses">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RegistrationCertificateControllerDeleteResponses</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RegistrationCertificateControllerFindOneData">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RegistrationCertificateControllerFindOneData</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RegistrationCertificateControllerFindOneDecodedData">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RegistrationCertificateControllerFindOneDecodedData</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RegistrationCertificateControllerFindOneDecodedResponse">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RegistrationCertificateControllerFindOneDecodedResponse</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RegistrationCertificateControllerFindOneDecodedResponses">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RegistrationCertificateControllerFindOneDecodedResponses</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RegistrationCertificateControllerFindOneError">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RegistrationCertificateControllerFindOneError</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RegistrationCertificateControllerFindOneErrors">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RegistrationCertificateControllerFindOneErrors</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RegistrationCertificateControllerFindOneResponse">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RegistrationCertificateControllerFindOneResponse</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RegistrationCertificateControllerFindOneResponses">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RegistrationCertificateControllerFindOneResponses</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RegistrationCertificateControllerRegisterData">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RegistrationCertificateControllerRegisterData</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RegistrationCertificateControllerRegisterResponse">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RegistrationCertificateControllerRegisterResponse</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RegistrationCertificateControllerRegisterResponses">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RegistrationCertificateControllerRegisterResponses</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RegistrationCertificateCreation">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RegistrationCertificateCreation</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RelyingParty">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RelyingParty</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RelyingPartyControllerFindAllData">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RelyingPartyControllerFindAllData</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RelyingPartyControllerFindAllResponse">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RelyingPartyControllerFindAllResponse</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RelyingPartyControllerFindAllResponses">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RelyingPartyControllerFindAllResponses</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RelyingPartyControllerRegisterData">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RelyingPartyControllerRegisterData</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RelyingPartyControllerRegisterResponse">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RelyingPartyControllerRegisterResponse</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RelyingPartyControllerRegisterResponses">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RelyingPartyControllerRegisterResponses</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RelyingPartyControllerRemoveData">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RelyingPartyControllerRemoveData</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RelyingPartyControllerRemoveResponses">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RelyingPartyControllerRemoveResponses</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#RelyingPartyRegistration">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>RelyingPartyRegistration</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#StatusListControllerCrlFileData">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>StatusListControllerCrlFileData</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#StatusListControllerCrlFileResponse">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>StatusListControllerCrlFileResponse</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#StatusListControllerCrlFileResponses">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>StatusListControllerCrlFileResponses</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#StatusListControllerGetListData">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>StatusListControllerGetListData</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#StatusListControllerGetListResponse">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>StatusListControllerGetListResponse</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#StatusListControllerGetListResponses">src/registrar/generated/types.gen.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>StatusListControllerGetListResponses</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./classes/RegistrarConfig.html">src/registrar/registrar-config.ts</a>
+            </td>
+            <td>class</td>
+            <td>RegistrarConfig</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/3)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#REGISTRAR_VALIDATION_SCHEMA">src/registrar/registrar.module.ts</a>
+            </td>
+            <td>variable</td>
+            <td>REGISTRAR_VALIDATION_SCHEMA</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="good">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./injectables/RegistrarService.html">src/registrar/registrar.service.ts</a>
+            </td>
+            <td>injectable</td>
+            <td>RegistrarService</td>
+            <td align="right" data-sort="52">
+                <span class="coverage-percent">52 %</span>
+                <span class="coverage-count">(9/17)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./interfaces/AccessCertificateResponse.html">src/registrar/registrar.service.ts</a>
+            </td>
+            <td>interface</td>
+            <td>AccessCertificateResponse</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/4)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./entitys/Session.html">src/session/entities/session.entity.ts</a>
+            </td>
+            <td>entity</td>
+            <td>Session</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#Notification">src/session/entities/session.entity.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>Notification</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="good">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./controllers/SessionController.html">src/session/session.controller.ts</a>
+            </td>
+            <td>controller</td>
+            <td>SessionController</td>
+            <td align="right" data-sort="75">
+                <span class="coverage-percent">75 %</span>
+                <span class="coverage-count">(3/4)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#SESSION_VALIDATION_SCHEMA">src/session/session.module.ts</a>
+            </td>
+            <td>variable</td>
+            <td>SESSION_VALIDATION_SCHEMA</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./injectables/SessionService.html">src/session/session.service.ts</a>
+            </td>
+            <td>injectable</td>
+            <td>SessionService</td>
+            <td align="right" data-sort="77">
+                <span class="coverage-percent">77 %</span>
+                <span class="coverage-count">(7/9)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#SESSION_LOGGER_KEY">src/utils/session-logger.decorator.ts</a>
+            </td>
+            <td>variable</td>
+            <td>SESSION_LOGGER_KEY</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#SessionLogger">src/utils/session-logger.decorator.ts</a>
+            </td>
+            <td>variable</td>
+            <td>SessionLogger</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(1/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./injectables/SessionLoggerInterceptor.html">src/utils/session-logger.interceptor.ts</a>
+            </td>
+            <td>injectable</td>
+            <td>SessionLoggerInterceptor</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/4)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./injectables/SessionLoggerService.html">src/utils/session-logger.service.ts</a>
+            </td>
+            <td>injectable</td>
+            <td>SessionLoggerService</td>
+            <td align="right" data-sort="83">
+                <span class="coverage-percent">83 %</span>
+                <span class="coverage-count">(10/12)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./interfaces/SessionLogContext.html">src/utils/session-logger.service.ts</a>
+            </td>
+            <td>interface</td>
+            <td>SessionLogContext</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/5)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./classes/ApiKeyConfig.html">src/utils/webhook.dto.ts</a>
+            </td>
+            <td>class</td>
+            <td>ApiKeyConfig</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/3)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./classes/WebHookAuthConfig.html">src/utils/webhook.dto.ts</a>
+            </td>
+            <td>class</td>
+            <td>WebHookAuthConfig</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/3)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./classes/WebhookConfig.html">src/utils/webhook.dto.ts</a>
+            </td>
+            <td>class</td>
+            <td>WebhookConfig</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/3)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#AuthConfig">src/utils/webhook.dto.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>AuthConfig</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="medium">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./classes/AuthorizationResponse.html">src/verifier/oid4vp/dto/authorization-response.dto.ts</a>
+            </td>
+            <td>class</td>
+            <td>AuthorizationResponse</td>
+            <td align="right" data-sort="50">
+                <span class="coverage-percent">50 %</span>
+                <span class="coverage-count">(1/2)</span>
+            </td>
+        </tr>
+        <tr class="medium">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./classes/PresentationRequest.html">src/verifier/oid4vp/dto/presentation-request.dto.ts</a>
+            </td>
+            <td>class</td>
+            <td>PresentationRequest</td>
+            <td align="right" data-sort="50">
+                <span class="coverage-percent">50 %</span>
+                <span class="coverage-count">(2/4)</span>
+            </td>
+        </tr>
+        <tr class="good">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./controllers/Oid4vpController.html">src/verifier/oid4vp/oid4vp.controller.ts</a>
+            </td>
+            <td>controller</td>
+            <td>Oid4vpController</td>
+            <td align="right" data-sort="66">
+                <span class="coverage-percent">66 %</span>
+                <span class="coverage-count">(2/3)</span>
+            </td>
+        </tr>
+        <tr class="good">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./injectables/Oid4vpService.html">src/verifier/oid4vp/oid4vp.service.ts</a>
+            </td>
+            <td>injectable</td>
+            <td>Oid4vpService</td>
+            <td align="right" data-sort="60">
+                <span class="coverage-percent">60 %</span>
+                <span class="coverage-count">(3/5)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./interfaces/PresentationRequestOptions.html">src/verifier/oid4vp/oid4vp.service.ts</a>
+            </td>
+            <td>interface</td>
+            <td>PresentationRequestOptions</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/3)</span>
+            </td>
+        </tr>
+        <tr class="good">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./classes/RegistrationCertificateRequest.html">src/verifier/presentations/dto/vp-request.dto.ts</a>
+            </td>
+            <td>class</td>
+            <td>RegistrationCertificateRequest</td>
+            <td align="right" data-sort="66">
+                <span class="coverage-percent">66 %</span>
+                <span class="coverage-count">(2/3)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./entitys/PresentationConfig.html">src/verifier/presentations/entities/presentation-config.entity.ts</a>
+            </td>
+            <td>entity</td>
+            <td>PresentationConfig</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./controllers/PresentationManagementController.html">src/verifier/presentations/presentations.controller.ts</a>
+            </td>
+            <td>controller</td>
+            <td>PresentationManagementController</td>
+            <td align="right" data-sort="80">
+                <span class="coverage-percent">80 %</span>
+                <span class="coverage-count">(4/5)</span>
+            </td>
+        </tr>
+        <tr class="medium">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./injectables/PresentationsService.html">src/verifier/presentations/presentations.service.ts</a>
+            </td>
+            <td>injectable</td>
+            <td>PresentationsService</td>
+            <td align="right" data-sort="46">
+                <span class="coverage-percent">46 %</span>
+                <span class="coverage-count">(6/13)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./interfaces/AuthResponse.html">src/verifier/presentations/presentations.service.ts</a>
+            </td>
+            <td>interface</td>
+            <td>AuthResponse</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/3)</span>
+            </td>
+        </tr>
+        <tr class="medium">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./injectables/ResolverService.html">src/verifier/resolver/resolver.service.ts</a>
+            </td>
+            <td>injectable</td>
+            <td>ResolverService</td>
+            <td align="right" data-sort="33">
+                <span class="coverage-percent">33 %</span>
+                <span class="coverage-count">(1/3)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./interfaces/IssuerMetadata.html">src/verifier/resolver/resolver.service.ts</a>
+            </td>
+            <td>interface</td>
+            <td>IssuerMetadata</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/3)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./classes/CredentialIssuerMetadataDto.html">src/well-known/dto/credential-issuer-metadata.dto.ts</a>
+            </td>
+            <td>class</td>
+            <td>CredentialIssuerMetadataDto</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/9)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./classes/EC_Public.html">src/well-known/dto/jwks-response.dto.ts</a>
+            </td>
+            <td>class</td>
+            <td>EC_Public</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/5)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./classes/JwksResponseDto.html">src/well-known/dto/jwks-response.dto.ts</a>
+            </td>
+            <td>class</td>
+            <td>JwksResponseDto</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/2)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./classes/Oauth2AuthorizationServerResponse.html">src/well-known/dto/oauth-authorization-server-response.dto.ts</a>
+            </td>
+            <td>class</td>
+            <td>Oauth2AuthorizationServerResponse</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/10)</span>
+            </td>
+        </tr>
+        <tr class="good">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./controllers/WellKnownController.html">src/well-known/well-known.controller.ts</a>
+            </td>
+            <td>controller</td>
+            <td>WellKnownController</td>
+            <td align="right" data-sort="75">
+                <span class="coverage-percent">75 %</span>
+                <span class="coverage-count">(3/4)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#loggerMiddleware">test/utils.ts</a>
+            </td>
+            <td>function</td>
+            <td>loggerMiddleware</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#callbacks">test/utils.ts</a>
+            </td>
+            <td>variable</td>
+            <td>callbacks</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#getSignJwtCallback">test/utils.ts</a>
+            </td>
+            <td>variable</td>
+            <td>getSignJwtCallback</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="medium">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./interfaces/PresentedData.html">test/webhook/src/index.ts</a>
+            </td>
+            <td>interface</td>
+            <td>PresentedData</td>
+            <td align="right" data-sort="50">
+                <span class="coverage-percent">50 %</span>
+                <span class="coverage-count">(1/2)</span>
+            </td>
+        </tr>
+        <tr class="medium">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./interfaces/ProcessResponse.html">test/webhook/src/index.ts</a>
+            </td>
+            <td>interface</td>
+            <td>ProcessResponse</td>
+            <td align="right" data-sort="50">
+                <span class="coverage-percent">50 %</span>
+                <span class="coverage-count">(1/2)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#handleRequest">test/webhook/src/index.ts</a>
+            </td>
+            <td>function</td>
+            <td>handleRequest</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<script src="js/libs/tablesort.min.js"></script>
+<script src="js/libs/tablesort.number.min.js"></script>
+<script>
+    new Tablesort(document.getElementById('coverage-table'));
+</script>
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 0;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'coverage';
+            var COMPODOC_CURRENT_PAGE_URL = 'coverage.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="./js/libs/custom-elements.min.js"></script>
+       <script src="./js/libs/lit-html.js"></script>
+
+       <script src="./js/menu-wc.js" defer></script>
+       <script nomodule src="./js/menu-wc_es5.js" defer></script>
+
+       <script src="./js/libs/bootstrap-native.js"></script>
+
+       <script src="./js/libs/es6-shim.min.js"></script>
+       <script src="./js/libs/EventDispatcher.js"></script>
+       <script src="./js/libs/promise.min.js"></script>
+
+       <script src="./js/compodoc.js"></script>
+
+       <script src="./js/tabs.js"></script>
+       <script src="./js/menu.js"></script>
+       <script src="./js/libs/clipboard.min.js"></script>
+       <script src="./js/libs/prism.js"></script>
+       <script src="./js/sourceCode.js"></script>
+          <script src="./js/search/search.js"></script>
+          <script src="./js/search/lunr.min.js"></script>
+          <script src="./js/search/search-lunr.js"></script>
+          <script src="./js/search/search_index.js"></script>
+       <script src="./js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

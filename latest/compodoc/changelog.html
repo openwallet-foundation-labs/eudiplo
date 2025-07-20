@@ -1,0 +1,255 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>eudiplo documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="./images/favicon.ico">
+	   <link rel="stylesheet" href="./styles/style.css">
+        <link rel="stylesheet" href="./styles/dark.css">
+        <link rel="stylesheet" href="./styles/material.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="./" class="navbar-brand">eudiplo documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content getting-started">
+                   <div class="content-data">
+
+<h2><a href="https://github.com/cre8/eudiplo/compare/v1.2.2...v1.2.3">1.2.3</a> (2025-07-20)</h2>
+<h3>Bug Fixes</h3>
+<ul>
+<li>ci deploy with version generation (<a href="https://github.com/cre8/eudiplo/commit/259ab3915c9dda6344a7adab1c8c09742aa122db">259ab39</a>)</li>
+<li>release pipeline (<a href="https://github.com/cre8/eudiplo/commit/7a6a69c7890289e30ea9b921f2fdbaf357a5a865">7a6a69c</a>)</li>
+<li>set correct way for deployment (<a href="https://github.com/cre8/eudiplo/commit/2aa727ab06078f4403261e8c06e9d6bfdcbef387">2aa727a</a>)</li>
+<li>use oidc url instead of keycloak one (<a href="https://github.com/cre8/eudiplo/commit/2913417e55def489e5372ac7875d6023aead0162">2913417</a>)</li>
+</ul>
+<h2><a href="https://github.com/cre8/eudiplo/compare/v1.2.1...v1.2.2">1.2.2</a> (2025-07-19)</h2>
+<h3>Bug Fixes</h3>
+<ul>
+<li>add tmp logger (<a href="https://github.com/cre8/eudiplo/commit/6bb4aa919c7a5e47d52cbcd58e43fe36624ea384">6bb4aa9</a>)</li>
+<li>set correct url for vp (<a href="https://github.com/cre8/eudiplo/commit/295428b63a169795ac64e00a64b3bc4767173d53">295428b</a>)</li>
+</ul>
+<h2><a href="https://github.com/cre8/eudiplo/compare/v1.2.0...v1.2.1">1.2.1</a> (2025-07-18)</h2>
+<h3>Bug Fixes</h3>
+<ul>
+<li>ci (<a href="https://github.com/cre8/eudiplo/commit/8f9498ab1c7f62a8578f9bacf508b86ce99cecc5">8f9498a</a>)</li>
+<li>ci (<a href="https://github.com/cre8/eudiplo/commit/905e17ca615f28171358a39dfca95a5519404a10">905e17c</a>)</li>
+</ul>
+<h2><a href="https://github.com/cre8/eudiplo/compare/v1.2.0...v1.2.1">1.2.1</a> (2025-07-18)</h2>
+<h3>Bug Fixes</h3>
+<ul>
+<li>ci (<a href="https://github.com/cre8/eudiplo/commit/905e17ca615f28171358a39dfca95a5519404a10">905e17c</a>)</li>
+</ul>
+<h1><a href="https://github.com/cre8/eudiplo/compare/v1.1.0...v1.2.0">1.2.0</a> (2025-07-18)</h1>
+<h3>Bug Fixes</h3>
+<ul>
+<li>add codecov (<a href="https://github.com/cre8/eudiplo/issues/2">#2</a>) (<a href="https://github.com/cre8/eudiplo/commit/9104df34e55e071d1bcf7fe791909694e3203a44">9104df3</a>)</li>
+<li>add test for presentation (<a href="https://github.com/cre8/eudiplo/issues/6">#6</a>) (<a href="https://github.com/cre8/eudiplo/commit/e3e59716d89d7c7dee0070c8861fc9471cf47323">e3e5971</a>)</li>
+<li>remove console logs (<a href="https://github.com/cre8/eudiplo/commit/32fbd8e4615fbd66cf07918d02631c5ecec3fcbb">32fbd8e</a>)</li>
+<li>remove ts file from root (<a href="https://github.com/cre8/eudiplo/commit/b989c6cc04fac2a237927f6ca002d2fcd2b4750e">b989c6c</a>)</li>
+<li>upload test results (<a href="https://github.com/cre8/eudiplo/issues/3">#3</a>) (<a href="https://github.com/cre8/eudiplo/commit/f75298f400baf4af270ee2a7eb585c8a7deac9a2">f75298f</a>)</li>
+<li>vitest config (<a href="https://github.com/cre8/eudiplo/commit/beef4d27339733524c4acf1a439fcd933e2c59af">beef4d2</a>)</li>
+</ul>
+<h3>Features</h3>
+<ul>
+<li>add multi tenant support (<a href="https://github.com/cre8/eudiplo/issues/7">#7</a>) (<a href="https://github.com/cre8/eudiplo/commit/46c9ce6083073422c6a1c9b42cb66190e4f90146">46c9ce6</a>)</li>
+</ul>
+<h1><a href="https://github.com/cre8/eudiplo/compare/v1.0.1...v1.1.0">1.1.0</a> (2025-07-11)</h1>
+<h3>Bug Fixes</h3>
+<ul>
+<li>set correct version (<a href="https://github.com/cre8/eudiplo/commit/91b5499c04c0fcdc08a0d50ae8137477556bce47">91b5499</a>)</li>
+<li>update db env (<a href="https://github.com/cre8/eudiplo/commit/35f4d1e70c862da38f8962252e400f324957905d">35f4d1e</a>)</li>
+</ul>
+<h3>Features</h3>
+<ul>
+<li>add deployment options (<a href="https://github.com/cre8/eudiplo/commit/937603ad043f0d6e883e70444cdda6f69d0e77f4">937603a</a>)</li>
+</ul>
+<h2><a href="https://github.com/cre8/eudiplo/compare/v1.0.0...v1.0.1">1.0.1</a> (2025-07-10)</h2>
+<h3>Bug Fixes</h3>
+<ul>
+<li>add auth to webhook (<a href="https://github.com/cre8/eudiplo/commit/c3b1b48da0ba72b112881f9b1df8a352cf7e3a3e">c3b1b48</a>)</li>
+<li>add cloudflare worker example (<a href="https://github.com/cre8/eudiplo/commit/6d31de0e6de9cbe0ce09591489cdfd2696d6cc93">6d31de0</a>)</li>
+<li>general improvements (<a href="https://github.com/cre8/eudiplo/commit/f7e75055422a31b6bd46c1d9bbfeb6a063dabe8d">f7e7505</a>)</li>
+<li>make key folder static (<a href="https://github.com/cre8/eudiplo/commit/6a6cdb6c7295644903a60f9d15e838b5670633e3">6a6cdb6</a>)</li>
+<li>webhook handling (<a href="https://github.com/cre8/eudiplo/commit/df29d1e126b4418fd4eae9a78944a4e1a39b3f8b">df29d1e</a>)</li>
+</ul>
+<h1>1.0.0 (2025-07-09)</h1>
+<h3>Bug Fixes</h3>
+<ul>
+<li>add semantic release (<a href="https://github.com/cre8/eudiplo/commit/c80543921eb60bab61d3336d595c04a190d21029">c805439</a>)</li>
+<li>adjust release pipeline (<a href="https://github.com/cre8/eudiplo/commit/3ac47ecf33b1966a6e362e8e8648427ed3f6775b">3ac47ec</a>)</li>
+<li>ci (<a href="https://github.com/cre8/eudiplo/commit/892b30e9bac108ab4208a52d64894acf43532edf">892b30e</a>)</li>
+<li>ci (<a href="https://github.com/cre8/eudiplo/commit/40ccd3270e1c96ee98c9f49db7b043c89e054711">40ccd32</a>)</li>
+<li>ci (<a href="https://github.com/cre8/eudiplo/commit/12395c89dc3ad72a5a6197da53b99d6b885821ae">12395c8</a>)</li>
+<li>ci (<a href="https://github.com/cre8/eudiplo/commit/45f3f7fa2deaa152cd0bc4b9ce280a58c74bfb59">45f3f7f</a>)</li>
+<li>ci (<a href="https://github.com/cre8/eudiplo/commit/4be01718394db2c7db4b5ae06257458d2cf7ffba">4be0171</a>)</li>
+<li>ci (<a href="https://github.com/cre8/eudiplo/commit/2f07af20685268dbf807812583d91f06986bcc9f">2f07af2</a>)</li>
+<li>ci (<a href="https://github.com/cre8/eudiplo/commit/2a718501eeab5d242c139648c5883490f48849cc">2a71850</a>)</li>
+<li>ci nameing (<a href="https://github.com/cre8/eudiplo/commit/33ac2c7a017c1cb38829a7b01b45c219987abd51">33ac2c7</a>)</li>
+<li>ci, install pnpm (<a href="https://github.com/cre8/eudiplo/commit/ac4ee248118e595f5998e0e6946c39186f760632">ac4ee24</a>)</li>
+<li>ci, remove version (<a href="https://github.com/cre8/eudiplo/commit/54e8a4e4370884d4dc57ea50e53a40ba3af9ffca">54e8a4e</a>)</li>
+<li>docker deploy (<a href="https://github.com/cre8/eudiplo/commit/98303c10630c2765912f207f06b95b9f5273ded1">98303c1</a>)</li>
+<li>main (<a href="https://github.com/cre8/eudiplo/commit/d6205da5156ca707a00dca639a2a53ce60b67227">d6205da</a>)</li>
+<li>page build (<a href="https://github.com/cre8/eudiplo/commit/b3abd577bd74215150afcaad48d4e55943f82058">b3abd57</a>)</li>
+<li>split jobs (<a href="https://github.com/cre8/eudiplo/commit/2742ec4adf41b55223c15ff7a67e40096c574c3a">2742ec4</a>)</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 0;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'getting-started';
+            var COMPODOC_CURRENT_PAGE_URL = 'changelog.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="./js/libs/custom-elements.min.js"></script>
+       <script src="./js/libs/lit-html.js"></script>
+
+       <script src="./js/menu-wc.js" defer></script>
+       <script nomodule src="./js/menu-wc_es5.js" defer></script>
+
+       <script src="./js/libs/bootstrap-native.js"></script>
+
+       <script src="./js/libs/es6-shim.min.js"></script>
+       <script src="./js/libs/EventDispatcher.js"></script>
+       <script src="./js/libs/promise.min.js"></script>
+
+       <script src="./js/compodoc.js"></script>
+
+       <script src="./js/tabs.js"></script>
+       <script src="./js/menu.js"></script>
+       <script src="./js/libs/clipboard.min.js"></script>
+       <script src="./js/libs/prism.js"></script>
+       <script src="./js/sourceCode.js"></script>
+          <script src="./js/search/search.js"></script>
+          <script src="./js/search/lunr.min.js"></script>
+          <script src="./js/search/search-lunr.js"></script>
+          <script src="./js/search/search_index.js"></script>
+       <script src="./js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>
