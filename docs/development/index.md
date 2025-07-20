@@ -32,7 +32,7 @@ Each module typically contains its own:
 
 ## Additional Documentation
 
-- [API Authentication](api-authentication.md) - Guide for using JWT and OAuth2
+- [API Authentication](../api/authentication.md) - Guide for using OAuth2
   authentication with the API
 - [Contributing Guidelines](contributing.md) - How to contribute to the project
 - [Testing Guide](testing.md) - How to run and write tests

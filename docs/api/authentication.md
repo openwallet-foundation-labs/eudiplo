@@ -1,15 +1,8 @@
 # API Authentication
 
-The EUDIP1. **Swagger UI Authentication:**
-
-- Navigate to the Swagger UI at `/api`
-- Click the "Authorize" button
-- Select "oauth2"
-- Enter client ID and secret (default: `root`/`root`)
-- The Swagger UI will automatically send credentials in the Authorization header
-  (Basic auth)rvice API uses OAuth2 client credentials flow for all
-  authentication, providing a unified approach that works with both integrated
-  OAuth2 server and external OIDC providers.
+The EUDIPLO Service API uses OAuth2 client credentials flow for all
+authentication, providing a unified approach that works with both integrated
+OAuth2 server and external OIDC providers.
 
 ## OAuth2 Client Credentials Authentication
 
@@ -42,6 +35,8 @@ When using the built-in OAuth2 server:
     - Click the "Authorize" button
     - Select "oauth2"
     - Enter client ID and secret (default: `root`/`root`)
+    - The Swagger UI will automatically send credentials in the Authorization
+      header (Basic auth)
 
 2. **Programmatic Access (Client Credentials Flow):**
 
@@ -100,14 +95,6 @@ All administrative endpoints require OAuth2 authentication:
 - **Presentation Management** (`/presentation-management/*`) - Presentation
   verification management
 - **Session Management** (`/session/*`) - Session lifecycle management
-
-## Migration from Bearer Tokens
-
-If you were previously using the `/auth/token` endpoint for JWT tokens, no
-changes are required - this endpoint now internally uses the OAuth2 client
-credentials flow for backward compatibility.
-
-## Troubleshooting
 
 ## Troubleshooting
 
