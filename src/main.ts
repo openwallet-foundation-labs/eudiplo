@@ -4,6 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { writeFileSync } from 'fs';
 import { Logger } from 'nestjs-pino';
+import { ConfigService } from '@nestjs/config';
 
 /**
  * Bootstrap function to initialize the NestJS application.
@@ -14,6 +15,8 @@ async function bootstrap() {
     app.enableCors();
     app.useGlobalPipes(new ValidationPipe());
 
+    const configService = app.get(ConfigService);
+
     const config = new DocumentBuilder()
         .setTitle('EUDIPLO Service API')
         .setDescription(
@@ -23,18 +26,47 @@ async function bootstrap() {
             'Documentation',
             'https://cre8.github.io/eudiplo/latest/',
         )
-        .setVersion(process.env.VERSION ?? '0.0.1')
-        .addBearerAuth({
-            type: 'http',
-            scheme: 'bearer',
-            bearerFormat: 'JWT',
-            description:
-                'Enter your JWT token obtained from /auth/token endpoint',
-            name: 'Authorization',
-            in: 'header',
-        })
-        .build();
-    const documentFactory = () => SwaggerModule.createDocument(app, config);
+        .setVersion(process.env.VERSION ?? '0.0.1');
+    // Add OAuth2 configuration - either external OIDC or integrated OAuth2 server
+    const useExternalOIDC = configService.get<string>('OIDC');
+    const publicUrl = configService.getOrThrow<string>('PUBLIC_URL');
+
+    if (useExternalOIDC) {
+        // External OIDC provider (e.g., Keycloak)
+        const oidcIssuerUrl = configService.get<string>(
+            'KEYCLOAK_INTERNAL_ISSUER_URL',
+        );
+        if (oidcIssuerUrl) {
+            config.addOAuth2(
+                {
+                    type: 'openIdConnect',
+                    openIdConnectUrl: `${oidcIssuerUrl}/.well-known/openid-configuration`,
+                },
+                'oauth2',
+            );
+        }
+    } else {
+        // Integrated OAuth2 server (Client Credentials Flow Only)
+        if (publicUrl) {
+            config.addOAuth2(
+                {
+                    type: 'oauth2',
+                    flows: {
+                        clientCredentials: {
+                            tokenUrl: `${publicUrl}/auth/oauth2/token`,
+                            scopes: {},
+                        },
+                    },
+                },
+                'oauth2',
+            );
+        }
+    }
+
+    const documentConfig = config.build();
+    const documentFactory = () =>
+        SwaggerModule.createDocument(app, documentConfig);
+
     if (process.env.SWAGGER_JSON) {
         writeFileSync(
             'swagger.json',
@@ -42,7 +74,7 @@ async function bootstrap() {
         );
         process.exit();
     } else {
-        SwaggerModule.setup('/api', app, documentFactory, {
+        const swaggerOptions: any = {
             swaggerOptions: {
                 persistAuthorization: true, // Keep authorization between page refreshes
                 displayRequestDuration: true, // Show request duration
@@ -60,7 +92,9 @@ async function bootstrap() {
                 tagsSorter: 'alpha', // Sort tags alphabetically
             },
             customSiteTitle: 'EUDIPLO API Documentation',
-        });
+        };
+
+        SwaggerModule.setup('/api', app, documentFactory, swaggerOptions);
         await app.listen(process.env.PORT ?? 3000);
     }
 }

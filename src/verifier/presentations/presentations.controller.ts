@@ -30,7 +30,7 @@ import { Response } from 'express';
 
 @ApiTags('Presentation management', 'Admin')
 @UseGuards(JwtAuthGuard)
-@ApiSecurity('bearer')
+@ApiSecurity('oauth2', ['api:read', 'api:write'])
 @Controller('presentation-management')
 export class PresentationManagementController {
     constructor(
@@ -55,7 +55,7 @@ export class PresentationManagementController {
     })
     @ApiProduces('application/json', 'image/png')
     @UseGuards(JwtAuthGuard)
-    @ApiSecurity('bearer')
+    @ApiSecurity('oauth2')
     @ApiBody({
         type: PresentationRequest,
         examples: {
