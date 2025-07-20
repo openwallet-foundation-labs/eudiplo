@@ -39,6 +39,7 @@ describe('Presentation', () => {
             .send({
                 client_id: clientId,
                 client_secret: clientSecret,
+                grant_type: 'client_credentials',
             });
 
         authToken = tokenResponse.body.access_token;
