@@ -11,7 +11,7 @@ type LoginReponse = {
 };
 
 async function run() {
-    const accessToken = await fetch(`${url}/auth/token`, {
+    const accessToken = await fetch(`${url}/auth/oauth2/token`, {
         method: 'POST',
         headers: {
             accept: 'application/json',

@@ -34,7 +34,7 @@ describe('Presentation', () => {
 
         // Get JWT token using client credentials
         const tokenResponse = await request(app.getHttpServer())
-            .post('/auth/token')
+            .post('/auth/oauth2/token')
             .trustLocalhost()
             .send({
                 client_id: clientId,
