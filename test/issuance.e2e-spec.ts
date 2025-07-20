@@ -56,11 +56,12 @@ describe('Issuance', () => {
 
         // Get JWT token using client credentials
         const tokenResponse = await request(app.getHttpServer())
-            .post('/auth/token')
+            .post('/auth/oauth2/token')
             .trustLocalhost()
             .send({
                 client_id: clientId,
                 client_secret: clientSecret,
+                grant_type: 'client_credentials',
             });
 
         authToken = tokenResponse.body.access_token;

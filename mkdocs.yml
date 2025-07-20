@@ -122,6 +122,7 @@ nav:
       - Database: architecture/database.md      
   - API:    
     - Overview: api/index.md    
+    - Authentication: api/authentication.md
   - Development:
       - development/index.md
       - Versioning: development/versioning.md

@@ -30,6 +30,14 @@ Each module typically contains its own:
 - `dto/` — Data Transfer Objects
 - `entities/` — TypeORM entities (if needed)
 
+## Additional Documentation
+
+- [API Authentication](../api/authentication.md) - Guide for using OAuth2
+  authentication with the API
+- [Contributing Guidelines](contributing.md) - How to contribute to the project
+- [Testing Guide](testing.md) - How to run and write tests
+- [Session Logging](session-logging.md) - Understanding session logging
+
 ## Scripts
 
 Useful development scripts:

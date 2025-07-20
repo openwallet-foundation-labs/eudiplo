@@ -26,10 +26,11 @@ describe('Authentication (e2e)', () => {
         await app.close();
     });
 
-    test('should get JWT token with valid client credentials', async () => {
+    test('should get OAuth2 token with valid client credentials in request body', async () => {
         const response = await request(app.getHttpServer())
-            .post('/auth/token')
+            .post('/auth/oauth2/token')
             .send({
+                grant_type: 'client_credentials',
                 client_id: clientId,
                 client_secret: clientSecret,
             })
@@ -37,14 +38,34 @@ describe('Authentication (e2e)', () => {
 
         expect(response.body).toHaveProperty('access_token');
         expect(response.body).toHaveProperty('token_type', 'Bearer');
-        expect(response.body).toHaveProperty('expires_in', '24h');
+        expect(response.body).toHaveProperty('expires_in', 86400);
+        expect(typeof response.body.access_token).toBe('string');
+    });
+
+    test('should get OAuth2 token with valid client credentials in Authorization header', async () => {
+        const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString(
+            'base64',
+        );
+
+        const response = await request(app.getHttpServer())
+            .post('/auth/oauth2/token')
+            .set('Authorization', `Basic ${credentials}`)
+            .send({
+                grant_type: 'client_credentials',
+            })
+            .expect(201);
+
+        expect(response.body).toHaveProperty('access_token');
+        expect(response.body).toHaveProperty('token_type', 'Bearer');
+        expect(response.body).toHaveProperty('expires_in', 86400);
         expect(typeof response.body.access_token).toBe('string');
     });
 
     test('should reject invalid client credentials', async () => {
         await request(app.getHttpServer())
-            .post('/auth/token')
+            .post('/auth/oauth2/token')
             .send({
+                grant_type: 'client_credentials',
                 client_id: 'invalid-client',
                 client_secret: 'invalid-secret',
             })
@@ -54,10 +75,43 @@ describe('Authentication (e2e)', () => {
             });
     });
 
+    test('should reject missing grant_type', async () => {
+        await request(app.getHttpServer())
+            .post('/auth/oauth2/token')
+            .send({
+                client_id: clientId,
+                client_secret: clientSecret,
+                // Missing grant_type
+            })
+            .expect(401)
+            .expect((res) => {
+                expect(res.body.message).toBe(
+                    'Only client_credentials grant type is supported',
+                );
+            });
+    });
+
+    test('should reject unsupported grant type', async () => {
+        await request(app.getHttpServer())
+            .post('/auth/oauth2/token')
+            .send({
+                grant_type: 'authorization_code',
+                client_id: clientId,
+                client_secret: clientSecret,
+            })
+            .expect(401)
+            .expect((res) => {
+                expect(res.body.message).toBe(
+                    'Only client_credentials grant type is supported',
+                );
+            });
+    });
+
     test('should reject missing client credentials', async () => {
         await request(app.getHttpServer())
-            .post('/auth/token')
+            .post('/auth/oauth2/token')
             .send({
+                grant_type: 'client_credentials',
                 client_id: clientId,
                 // Missing client_secret
             })

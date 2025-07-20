@@ -8,16 +8,16 @@ import { TokenPayload } from './token.decorator';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     constructor(private configService: ConfigService) {
-        const oidc = configService.get<boolean>('OIDC');
+        const useExternalOIDC = configService.get<boolean>('OIDC');
 
         super(
-            oidc
-                ? JwtStrategy.getKeycloakConfig(configService)
-                : JwtStrategy.getSimpleJwtConfig(configService),
+            useExternalOIDC
+                ? JwtStrategy.getExternalOIDCConfig(configService)
+                : JwtStrategy.getIntegratedOAuth2Config(configService),
         );
     }
 
-    private static getKeycloakConfig(configService: ConfigService) {
+    private static getExternalOIDCConfig(configService: ConfigService) {
         //TODO: test it
         return {
             secretOrKeyProvider: passportJwtSecret({
@@ -44,11 +44,13 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         };
     }
 
-    private static getSimpleJwtConfig(configService: ConfigService): any {
+    private static getIntegratedOAuth2Config(
+        configService: ConfigService,
+    ): any {
         const config = {
             secretOrKey: configService.get('JWT_SECRET'),
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            algorithms: ['HS256'], // Using symmetric key for simple JWT
+            algorithms: ['HS256'], // Using symmetric key for integrated OAuth2
             ignoreExpiration: false, // Ensure tokens expire
         };
 
@@ -62,13 +64,14 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     }
 
     validate(payload: TokenPayload): unknown {
-        const oidc = this.configService.get<boolean>('OIDC') !== undefined;
+        const useExternalOIDC =
+            this.configService.get<boolean>('OIDC') !== undefined;
 
-        if (oidc) {
-            // Multi-tenant: Extract user info from Keycloak token
+        if (useExternalOIDC) {
+            // External OIDC: Extract user info from external provider token
             return payload;
         } else {
-            // Single-tenant: Simple JWT validation
+            // Integrated OAuth2: Use integrated server token validation
             return payload;
         }
     }

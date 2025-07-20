@@ -27,7 +27,7 @@ import { Response } from 'express';
 
 @ApiTags('Issuer management', 'Admin')
 @UseGuards(JwtAuthGuard)
-@ApiSecurity('bearer')
+@ApiSecurity('oauth2')
 @Controller('issuer-management')
 export class IssuerManagementController {
     constructor(

@@ -16,7 +16,7 @@ This approach is recommended when you just want to manage one instance.
 ```bash
 # Get JWT token from EUDIPLO
 curl -X 'POST' \
-  'http://localhost:3000/auth/token' \
+  'http://localhost:3000/auth/oauth2/token' \
   -H 'Content-Type: application/json' \
   -d '{
     "client_id": "your-tenant-id",

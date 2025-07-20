@@ -67,7 +67,7 @@ docker run -p 3000:3000 \
   ghcr.io/cre8/eudiplo:latest
 
 # Get a token and start using the API
-curl -X POST http://localhost:3000/auth/token \
+curl -X POST http://localhost:3000/auth/oauth2/token \
   -H "Content-Type: application/json" \
   -d '{
     "client_id": "root",

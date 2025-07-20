@@ -9,7 +9,7 @@ import { StatusListService } from '../issuer/status-list/status-list.service';
 
 @ApiTags('Session management', 'Admin')
 @UseGuards(JwtAuthGuard)
-@ApiSecurity('bearer')
+@ApiSecurity('oauth2')
 @Controller('session')
 export class SessionController {
     constructor(
@@ -38,8 +38,6 @@ export class SessionController {
      * @param value
      * @returns
      */
-    @UseGuards(JwtAuthGuard)
-    @ApiSecurity('bearer')
     @Post('revoke')
     revokeAll(@Body() value: StatusUpdateDto, @Token() user: TokenPayload) {
         return this.statusListService.updateStatus(value, user.sub);
