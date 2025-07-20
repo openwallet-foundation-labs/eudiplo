@@ -8,36 +8,85 @@ import { OfferRequest } from '../../issuer/oid4vci/dto/offer-request.dto';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { WebhookConfig } from '../../utils/webhook.dto';
 
+/**
+ * Represents a session entity for managing user sessions in the application.
+ */
 type Notification = {
-    id: string; // Unique identifier for the notification
-    event?: NotificationEvent; // Type of event that triggered the notification
+    /**
+     * Unique identifier for the notification.
+     */
+    id: string;
+    /**
+     * The type of notification.
+     */
+    event?: NotificationEvent;
 };
 
+/**
+ * Entity representing a user session in the application.
+ * It includes various properties such as credentials, authorization code,
+ * request URI, authorization queries, and more.
+ */
 @Entity()
 export class Session {
+    /**
+     * Unique identifier for the session.
+     */
     @PrimaryColumn('uuid')
     id: string;
+    /**
+     * Verified credentials from the verification process.
+     */
     @Column('json', { nullable: true })
     credentials?: VerificationResult[];
+    /**
+     * Authorization code for the session.
+     */
     @Column('varchar', { nullable: true })
     authorization_code?: string;
+    /**
+     * Request URI from the authorization request.
+     */
     @Column('varchar', { nullable: true })
     request_uri?: string;
+    /**
+     * Authorization queries associated with the session.
+     */
     @Column('json', { nullable: true })
     auth_queries?: AuthorizeQueries;
+    /**
+     * Noncce from the Verifiable Presentation request.
+     */
     @Column('varchar', { nullable: true })
     vp_nonce?: string;
+    /**
+     * Credential offer object containing details about the credential offer or presentation request.
+     */
     @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date;
+    /**
+     * Credential offer object containing details about the credential offer or presentation request.
+     */
     @Column('json', { nullable: true })
     offer?: CredentialOfferObject;
+    /**
+     * Credential payload containing the offer request details.
+     */
     @Column('json', { nullable: true })
     credentialPayload?: OfferRequest;
-    // URL to send the response to, if provided
+    /**
+     * Webhook configuration to send result and may receive further information.
+     */
     @Column('json', { nullable: true })
     webhook?: WebhookConfig;
+    /**
+     * Notifications associated with the session.
+     */
     @Column('json', { default: JSON.stringify([]) })
     notifications: Notification[];
+    /**
+     * Tenant ID for multi-tenancy support.
+     */
     @Column('varchar')
-    tenantId: string; // Tenant ID for multi-tenancy support
+    tenantId: string;
 }

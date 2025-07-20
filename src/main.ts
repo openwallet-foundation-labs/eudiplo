@@ -5,6 +5,9 @@ import { AppModule } from './app.module';
 import { writeFileSync } from 'fs';
 import { Logger } from 'nestjs-pino';
 
+/**
+ * Bootstrap function to initialize the NestJS application.
+ */
 async function bootstrap() {
     const app = await NestFactory.create(AppModule, { bufferLogs: true });
     app.useLogger(app.get(Logger));

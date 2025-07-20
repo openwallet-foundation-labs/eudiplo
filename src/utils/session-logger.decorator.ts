@@ -1,5 +1,8 @@
 import { SetMetadata } from '@nestjs/common';
 
+/**
+ * Key for session logger metadata.
+ */
 export const SESSION_LOGGER_KEY = 'session-logger';
 
 /**

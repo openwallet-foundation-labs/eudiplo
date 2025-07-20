@@ -11,9 +11,16 @@ import { AuthorizationResponse } from './dto/authorization-response.dto';
 import { SessionLogger } from '../../utils/session-logger.decorator';
 import { SessionLoggerInterceptor } from '../../utils/session-logger.interceptor';
 
+/**
+ * Controller for handling OID4VP (OpenID for Verifiable Presentations) requests.
+ */
 @Controller(':tenantId/oid4vp')
 @UseInterceptors(SessionLoggerInterceptor)
 export class Oid4vpController {
+    /**
+     * Constructor for the Oid4vpController.
+     * @param oid4vpService - Instance of Oid4vpService for handling OID4VP operations.
+     */
     constructor(private readonly oid4vpService: Oid4vpService) {}
 
     /**

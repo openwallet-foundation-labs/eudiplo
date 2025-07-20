@@ -4,26 +4,17 @@ import { randomUUID } from 'node:crypto';
 import { CryptoService } from '../../crypto/crypto.service';
 import { AuthorizationResponse } from './dto/authorization-response.dto';
 import { RegistrarService } from '../../registrar/registrar.service';
-import {
-    AuthResponse,
-    PresentationsService,
-} from '../presentations/presentations.service';
+import { PresentationsService } from '../presentations/presentations.service';
+import { AuthResponse } from '../presentations/dto/auth-response.dto';
 import { EncryptionService } from '../../crypto/encryption/encryption.service';
 import { v4 } from 'uuid';
 import { SessionService } from '../../session/session.service';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { OfferResponse } from '../../issuer/oid4vci/dto/offer-request.dto';
-import { WebhookConfig } from '../../utils/webhook.dto';
-import {
-    SessionLoggerService,
-    SessionLogContext,
-} from '../../utils/session-logger.service';
-
-export interface PresentationRequestOptions {
-    session?: string;
-    webhook?: WebhookConfig;
-}
+import { SessionLoggerService } from '../../utils/session-logger.service';
+import { SessionLogContext } from '../../utils/session-logger-context';
+import { PresentationRequestOptions } from './dto/presentation-request-options.dto';
 
 @Injectable()
 export class Oid4vpService {

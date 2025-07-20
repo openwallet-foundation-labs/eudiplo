@@ -9,24 +9,34 @@ import { ResolverService } from '../resolver/resolver.service';
 import { PresentationConfig } from './entities/presentation-config.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm/repository/Repository';
+import { AuthResponse } from './dto/auth-response.dto';
 
-export interface AuthResponse {
-    vp_token: {
-        [key: string]: string;
-    };
-    state: string;
-}
-
+/**
+ * Service for managing Verifiable Presentations (VPs) and handling SD-JWT-VCs.
+ */
 @Injectable()
 export class PresentationsService implements OnModuleInit {
+    /**
+     * Instance of SDJwtVcInstance for handling SD-JWT-VCs.
+     */
     sdjwtInstance: SDJwtVcInstance;
 
+    /**
+     * Constructor for the PresentationsService.
+     * @param httpService - Instance of HttpService for making HTTP requests.
+     * @param resolverService - Instance of ResolverService for resolving DID documents.
+     * @param vpRequestRepository - Repository for managing VP request configurations.
+     */
     constructor(
         private httpService: HttpService,
         private resolverService: ResolverService,
         @InjectRepository(PresentationConfig)
         private vpRequestRepository: Repository<PresentationConfig>,
     ) {}
+
+    /**
+     * Initializes the SDJwtVcInstance with the necessary configurations.
+     */
     onModuleInit() {
         this.sdjwtInstance = new SDJwtVcInstance({
             hasher: digest,
@@ -36,6 +46,11 @@ export class PresentationsService implements OnModuleInit {
         });
     }
 
+    /**
+     * Retrieves all presentation configurations for a given tenant.
+     * @param tenantId - The ID of the tenant for which to retrieve configurations.
+     * @returns A promise that resolves to an array of PresentationConfig entities.
+     */
     getPresentationConfigs(tenantId: string): Promise<PresentationConfig[]> {
         return this.vpRequestRepository.find({
             where: { tenantId },
@@ -43,24 +58,32 @@ export class PresentationsService implements OnModuleInit {
         });
     }
 
+    /**
+     * Stores a new presentation configuration.
+     * @param vprequest - The PresentationConfig entity to store.
+     * @param tenantId - The ID of the tenant for which to store the configuration.
+     * @returns A promise that resolves to the stored PresentationConfig entity.
+     */
     storePresentationConfig(vprequest: PresentationConfig, tenantId: string) {
         vprequest.tenantId = tenantId;
         return this.vpRequestRepository.save(vprequest);
     }
 
     /**
-     * @param id
-     * @param tenantId
-     * @returns
+     * Deletes a presentation configuration by its ID and tenant ID.
+     * @param id - The ID of the presentation configuration to delete.
+     * @param tenantId - The ID of the tenant for which to delete the configuration.
+     * @returns A promise that resolves when the deletion is complete.
      */
     deletePresentationConfig(id: string, tenantId: string) {
         return this.vpRequestRepository.delete({ id, tenantId });
     }
 
     /**
-     * Get a presentation request by ID. The file is read from the filesystem and parsed into a valid VPRequest object.
-     * @param requestId
-     * @returns
+     * Retrieves a presentation configuration by its ID and tenant ID.
+     * @param id - The ID of the presentation configuration to retrieve.
+     * @param tenantId - The ID of the tenant for which to retrieve the configuration.
+     * @returns A promise that resolves to the requested PresentationConfig entity.
      */
     async getPresentationConfig(
         id: string,
@@ -78,9 +101,9 @@ export class PresentationsService implements OnModuleInit {
 
     /**
      * Stores the new registration certificate.
-     * @param registrationCertId
-     * @param id
-     * @param tenantId
+     * @param registrationCertId - The ID of the registration certificate to store.
+     * @param id - The ID of the presentation configuration to update.
+     * @param tenantId - The ID of the tenant for which to store the registration certificate.
      * @returns
      */
     public storeRCID(registrationCertId: string, id: string, tenantId: string) {
@@ -92,8 +115,8 @@ export class PresentationsService implements OnModuleInit {
 
     /**
      * Verifier for SD-JWT-VCs. It will verify the signature of the SD-JWT-VC and return true if it is valid.
-     * @param data
-     * @param signature
+     * @param data - The data part of the SD-JWT-VC.
+     * @param signature - The signature of the SD-JWT-VC.
      * @returns
      */
     verifier: Verifier = async (data, signature) => {

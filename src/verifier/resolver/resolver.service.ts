@@ -3,13 +3,11 @@ import { JWK, JWTPayload } from 'jose';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { X509Certificate } from 'node:crypto';
+import { IssuerMetadata } from './dto/issuer-metadata.dto';
 
-interface IssuerMetadata {
-    issuer: string;
-    jwks: {
-        keys: JWK[];
-    };
-}
+/**
+ * Service for resolving public keys from JWT payloads and headers.
+ */
 @Injectable()
 export class ResolverService {
     constructor(private httpService: HttpService) {}

@@ -28,10 +28,8 @@ import { SessionService } from '../../session/session.service';
 import { v4 } from 'uuid';
 import { OfferRequest, OfferResponse } from './dto/offer-request.dto';
 import { NotificationRequestDto } from './dto/notification-request.dto';
-import {
-    SessionLoggerService,
-    SessionLogContext,
-} from '../../utils/session-logger.service';
+import { SessionLoggerService } from '../../utils/session-logger.service';
+import { SessionLogContext } from '../../utils/session-logger-context';
 import { TokenPayload } from '../../auth/token.decorator';
 
 @Injectable()

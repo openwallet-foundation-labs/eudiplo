@@ -4,6 +4,9 @@ import { RegistrationCertificateRequest } from '../dto/vp-request.dto';
 import { Column, Entity } from 'typeorm';
 import { ApiHideProperty } from '@nestjs/swagger';
 
+/**
+ * Entity representing a configuration for a Verifiable Presentation (VP) request.
+ */
 @Entity()
 export class PresentationConfig {
     /**

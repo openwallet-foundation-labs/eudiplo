@@ -23,7 +23,7 @@
         "registrar": "npx @hey-api/openapi-ts -i https://funke-wallet.de/-json -o ./src/registrar/generated -c @hey-api/client-fetch",
         "swagger": "SWAGGER_JSON=true nest start",
         "compodoc": "compodoc -p tsconfig.json --theme material -d docs/compodoc",
-        "compodoc:serve": "compodoc -p tsconfig.json --theme material -d docs/compodoc -s -r 3001",
+        "compodoc:serve": "compodoc -p tsconfig.doc.json --theme material -d docs/compodoc -s -r 3001 -w",
         "doc:watch": "pnpm run swagger && mkdocs serve",
         "doc:build": "pnpm run swagger && pnpm run compodoc && mkdocs build --strict",
         "doc:init": "pnpm run swagger && pnpm run compodoc && mike deploy --update-aliases main latest-dev && mike set-default main",

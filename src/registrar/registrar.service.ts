@@ -23,24 +23,58 @@ import { join } from 'node:path';
 import { OnEvent } from '@nestjs/event-emitter';
 import { TENANT_EVENTS } from '../auth/tenant-events';
 
+/**
+ * Repsonse of access certificate request.
+ */
 interface AccessCertificateResponse {
+    /**
+     * Unique identifier of the access certificate.
+     */
     id: string;
+    /**
+     * The public key in PEM format.
+     */
     crt: string;
+    /**
+     * Indicates if the access certificate is revoked.
+     */
     revoked?: boolean;
 }
 
+/**
+ * RegistrarService is responsible for managing the interaction with the registrar,
+ * including adding relying parties, access certificates, and registration certificates.
+ */
 @Injectable()
 export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
+    /**
+     * OAuth2 client for interacting with the OIDC provider.
+     */
     private oauth2Client: OAuth2Client;
+    /**
+     * Client for interacting with the registrar API.
+     */
     private client: typeof client;
+    /**
+     * Access token for authenticating requests to the registrar.
+     */
     private accessToken: string;
 
+    /**
+     * Constructor for the RegistrarService.
+     * @param configService - Instance of ConfigService for accessing configuration values.
+     * @param cryptoService - Instance of CryptoService for cryptographic operations.
+     * @param presentationsService - Instance of PresentationsService for handling presentations.
+     */
     constructor(
         private configService: ConfigService,
         private cryptoService: CryptoService,
         private presentationsService: PresentationsService,
     ) {}
 
+    /**
+     * Initializes the OAuth2 client and registrar client with the necessary configurations.
+     */
     onModuleInit() {
         //when not set, we will not use the registrar
         if (!this.isEnabled()) {
@@ -68,13 +102,17 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         });
     }
 
+    /**
+     * Checks if the registrar service is enabled based on the configuration.
+     * @returns True if the registrar service is enabled, false otherwise.
+     */
     isEnabled() {
         return !!this.configService.get<string>('REGISTRAR_URL');
     }
 
     /**
-     * This function is called when the module is initialized.
-     * It will refresh the access token and add the relying party and certificates to the registrar.
+     * This function is called when the application starts.
+     * It will refresh the access token for the registrar.
      */
     async onApplicationBootstrap() {
         if (!this.configService.get<string>('REGISTRAR_URL')) {
@@ -100,7 +138,8 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
     }
 
     /**
-     * Get the access token from OIDC provider using client credentials grant.
+     * Refreshes the access token for the registrar using client credentials.
+     * This method is called periodically to ensure the access token is valid.
      */
     async refreshAccessToken() {
         await this.oauth2Client.clientCredentials().then((token) => {
@@ -116,7 +155,7 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
     }
 
     /**
-     * Add a new relying party to the registrar.
+     * Adds a new relying party to the registrar.
      * This is only needed once, when the relying party is created.
      */
     addRp(tenantId: string): Promise<string> {
@@ -138,6 +177,12 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         });
     }
 
+    /**
+     * Stores the existing relying party ID based on the name.
+     * This is used when the relying party already exists in the registrar.
+     * @param name - The name of the relying party.
+     * @returns The ID of the existing relying party.
+     */
     private storeExistingRp(name: string) {
         return relyingPartyControllerFindAll({
             client: this.client,

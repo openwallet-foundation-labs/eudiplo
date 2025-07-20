@@ -10,13 +10,27 @@ import { tap, catchError } from 'rxjs/operators';
 import { PinoLogger } from 'nestjs-pino';
 import { SESSION_LOGGER_KEY } from './session-logger.decorator';
 
+/**
+ * Interceptor for logging session-related requests and responses.
+ */
 @Injectable()
 export class SessionLoggerInterceptor implements NestInterceptor {
+    /**
+     * Constructor for SessionLoggerInterceptor.
+     * @param reflector - Reflector instance for accessing metadata.
+     * @param logger - PinoLogger instance for logging.
+     */
     constructor(
         private readonly reflector: Reflector,
         private readonly logger: PinoLogger,
     ) {}
 
+    /**
+     * Intercepts the request and logs session-related information.
+     * @param context - Execution context of the request.
+     * @param next - Call handler to proceed with the request.
+     * @returns An observable that emits the response data.
+     */
     intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
         const metadata = this.reflector.get(
             SESSION_LOGGER_KEY,
@@ -109,6 +123,11 @@ export class SessionLoggerInterceptor implements NestInterceptor {
         );
     }
 
+    /**
+     * Sanitizes the request body to remove sensitive information.
+     * @param body - The request body to sanitize.
+     * @returns Sanitized body.
+     */
     private sanitizeBody(body: any): any {
         if (!body) return body;
 

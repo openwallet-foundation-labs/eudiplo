@@ -1,16 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
+import { SessionLogContext } from './session-logger-context';
 
-export interface SessionLogContext {
-    sessionId: string;
-    tenantId: string;
-    flowType: 'OID4VCI' | 'OID4VP';
-    stage?: string;
-    [key: string]: any;
-}
-
+/**
+ * Service for logging session-related events and errors.
+ * Uses PinoLogger for structured logging.
+ */
 @Injectable()
 export class SessionLoggerService {
+    /**
+     * Constructor for SessionLoggerService.
+     * @param logger - PinoLogger instance for logging.
+     */
     constructor(private readonly logger: PinoLogger) {
         this.logger.setContext('SessionLoggerService');
     }
