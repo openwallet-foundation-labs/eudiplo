@@ -123,10 +123,17 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/verifier/oid4vp/oid4vp.service.ts</code>
+            <code>src/verifier/oid4vp/dto/presentation-request-options.dto.ts</code>
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>PresentationRequestOptions DTO</p>
+
+            </p>
 
 
         <section data-compodoc="block-index">
@@ -202,6 +209,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Optional session identifier for tracking the request.</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -240,6 +253,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Optional webhook configuration to receive the response.</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
             </section>
@@ -247,400 +266,20 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &#x27;@nestjs/common&#x27;;
-import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { randomUUID } from &#x27;node:crypto&#x27;;
-import { CryptoService } from &#x27;../../crypto/crypto.service&#x27;;
-import { AuthorizationResponse } from &#x27;./dto/authorization-response.dto&#x27;;
-import { RegistrarService } from &#x27;../../registrar/registrar.service&#x27;;
-import {
-    AuthResponse,
-    PresentationsService,
-} from &#x27;../presentations/presentations.service&#x27;;
-import { EncryptionService } from &#x27;../../crypto/encryption/encryption.service&#x27;;
-import { v4 } from &#x27;uuid&#x27;;
-import { SessionService } from &#x27;../../session/session.service&#x27;;
-import { HttpService } from &#x27;@nestjs/axios&#x27;;
-import { firstValueFrom } from &#x27;rxjs&#x27;;
-import { OfferResponse } from &#x27;../../issuer/oid4vci/dto/offer-request.dto&#x27;;
-import { WebhookConfig } from &#x27;../../utils/webhook.dto&#x27;;
-import {
-    SessionLoggerService,
-    SessionLogContext,
-} from &#x27;../../utils/session-logger.service&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { WebhookConfig } from &#x27;../../../utils/webhook.dto&#x27;;
 
+/**
+ * PresentationRequestOptions DTO
+ */
 export interface PresentationRequestOptions {
+    /**
+     * Optional session identifier for tracking the request.
+     */
     session?: string;
+    /**
+     * Optional webhook configuration to receive the response.
+     */
     webhook?: WebhookConfig;
-}
-
-@Injectable()
-export class Oid4vpService {
-    constructor(
-        private cryptoService: CryptoService,
-        private encryptionService: EncryptionService,
-        private configService: ConfigService,
-        private registrarService: RegistrarService,
-        private presentationsService: PresentationsService,
-        private sessionService: SessionService,
-        private httpService: HttpService,
-        private sessionLogger: SessionLoggerService,
-    ) {}
-
-    /**
-     * Creates an authorization request for the OID4VP flow.
-     * This method generates a JWT that includes the necessary parameters for the authorization request.
-     * It initializes the session logging context and logs the start of the flow.
-     * @param requestId
-     * @param tenantId
-     * @param auth_session
-     * @returns
-     */
-    async createAuthorizationRequest(
-        requestId: string,
-        tenantId: string,
-        auth_session: string,
-    ): Promise&lt;string&gt; {
-        // Create session logging context
-        const logContext: SessionLogContext &#x3D; {
-            sessionId: auth_session,
-            tenantId,
-            flowType: &#x27;OID4VP&#x27;,
-            stage: &#x27;authorization_request&#x27;,
-        };
-
-        this.sessionLogger.logFlowStart(logContext, {
-            requestId,
-            action: &#x27;create_authorization_request&#x27;,
-        });
-
-        try {
-            const host &#x3D; this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;);
-            const tenantUrl &#x3D; &#x60;${host}/${tenantId}&#x60;;
-
-            const values &#x3D;
-                await this.presentationsService.getPresentationConfig(
-                    requestId,
-                    tenantId,
-                );
-            let regCert: string | undefined &#x3D; undefined;
-
-            const dcql_query &#x3D; JSON.parse(
-                JSON.stringify(values.dcql_query).replace(
-                    /&lt;PUBLIC_URL&gt;/g,
-                    tenantUrl,
-                ),
-            );
-
-            if (this.registrarService.isEnabled()) {
-                const registrationCert &#x3D; JSON.parse(
-                    JSON.stringify(values.registrationCert).replace(
-                        /&lt;PUBLIC_URL&gt;/g,
-                        tenantUrl,
-                    ),
-                );
-                regCert &#x3D;
-                    await this.registrarService.addRegistrationCertificate(
-                        registrationCert,
-                        dcql_query,
-                        requestId,
-                        tenantId,
-                    );
-            }
-            const nonce &#x3D; randomUUID();
-            await this.sessionService.add(auth_session, tenantId, {
-                vp_nonce: nonce,
-            });
-
-            this.sessionLogger.logAuthorizationRequest(logContext, {
-                requestId,
-                nonce,
-                regCert,
-                dcqlQueryCount: Array.isArray(dcql_query)
-                    ? dcql_query.length
-                    : 1,
-            });
-
-            const request &#x3D; {
-                payload: {
-                    response_type: &#x27;vp_token&#x27;,
-                    client_id: &#x27;x509_san_dns:&#x27; + host.replace(&#x27;https://&#x27;, &#x27;&#x27;),
-                    response_uri: &#x60;${host}/${tenantId}/oid4vp/response&#x60;,
-                    response_mode: &#x27;direct_post.jwt&#x27;,
-                    nonce,
-                    dcql_query,
-                    client_metadata: {
-                        jwks: {
-                            keys: [
-                                this.encryptionService.getEncryptionPublicKey(),
-                            ],
-                        },
-                        vp_formats: {
-                            mso_mdoc: {
-                                alg: [&#x27;EdDSA&#x27;, &#x27;ES256&#x27;, &#x27;ES384&#x27;],
-                            },
-                            &#x27;dc+sd-jwt&#x27;: {
-                                &#x27;kb-jwt_alg_values&#x27;: [
-                                    &#x27;EdDSA&#x27;,
-                                    &#x27;ES256&#x27;,
-                                    &#x27;ES384&#x27;,
-                                    &#x27;ES256K&#x27;,
-                                ],
-                                &#x27;sd-jwt_alg_values&#x27;: [
-                                    &#x27;EdDSA&#x27;,
-                                    &#x27;ES256&#x27;,
-                                    &#x27;ES384&#x27;,
-                                    &#x27;ES256K&#x27;,
-                                ],
-                            },
-                        },
-                        authorization_encrypted_response_alg: &#x27;ECDH-ES&#x27;,
-                        authorization_encrypted_response_enc: &#x27;A128GCM&#x27;,
-                        client_name:
-                            this.configService.getOrThrow&lt;string&gt;(&#x27;RP_NAME&#x27;),
-                        response_types_supported: [&#x27;vp_token&#x27;],
-                    },
-                    state: auth_session,
-                    aud: host,
-                    exp: Math.floor(Date.now() / 1000) + 60 * 5,
-                    iat: Math.floor(new Date().getTime() / 1000),
-                    verifier_attestations: regCert
-                        ? [
-                              {
-                                  format: &#x27;jwt&#x27;,
-                                  data: regCert,
-                              },
-                          ]
-                        : undefined,
-                },
-                header: {
-                    typ: &#x27;oauth-authz-req+jwt&#x27;,
-                },
-            };
-
-            let accessCert: string[] | undefined &#x3D; undefined;
-            try {
-                accessCert &#x3D; this.cryptoService.getCertChain(
-                    &#x27;access&#x27;,
-                    tenantId,
-                );
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            } catch (err: any) {
-                accessCert &#x3D; this.cryptoService.getCertChain(
-                    &#x27;signing&#x27;,
-                    tenantId,
-                );
-            }
-
-            const header &#x3D; {
-                ...request.header,
-                alg: &#x27;ES256&#x27;,
-                x5c: accessCert,
-            };
-
-            const signedJwt &#x3D; await this.cryptoService.signJwt(
-                header,
-                request.payload,
-                tenantId,
-            );
-
-            this.sessionLogger.logSession(
-                logContext,
-                &#x27;Authorization request created successfully&#x27;,
-                {
-                    signedJwtLength: signedJwt.length,
-                    certificateChainLength: accessCert?.length || 0,
-                },
-            );
-
-            return signedJwt;
-        } catch (error) {
-            this.sessionLogger.logFlowError(logContext, error as Error, {
-                requestId,
-                action: &#x27;create_authorization_request&#x27;,
-            });
-            throw error;
-        }
-    }
-
-    /**
-     * Creates a request for the OID4VP flow.
-     * @param requestId
-     * @param values
-     * @param tenantId
-     * @returns
-     */
-    async createRequest(
-        requestId: string,
-        values: PresentationRequestOptions,
-        tenantId: string,
-    ): Promise&lt;OfferResponse&gt; {
-        const presentationConfig &#x3D;
-            await this.presentationsService.getPresentationConfig(
-                requestId,
-                tenantId,
-            );
-
-        if (!values.session) {
-            values.session &#x3D; v4();
-            await this.sessionService.create({
-                id: values.session,
-                webhook: values.webhook ?? presentationConfig.webhook,
-                tenantId,
-            });
-        } else {
-            await this.sessionService.add(values.session, tenantId, {
-                webhook: values.webhook ?? presentationConfig.webhook,
-            });
-        }
-
-        const host &#x3D; this.configService
-            .getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;)
-            .replace(&#x27;https://&#x27;, &#x27;&#x27;);
-        const params &#x3D; {
-            client_id: &#x60;x509_san_dns:${host}&#x60;,
-            request_uri: &#x60;${this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;)}/${tenantId}/oid4vp/request/${requestId}/${values.session}&#x60;,
-        };
-        const queryString &#x3D; Object.entries(params)
-            .map(
-                ([key, value]) &#x3D;&gt;
-                    &#x60;${encodeURIComponent(key)}&#x3D;${encodeURIComponent(value)}&#x60;,
-            )
-            .join(&#x27;&amp;&#x27;);
-
-        return {
-            uri: queryString,
-            session: values.session,
-        };
-    }
-
-    /**
-     * Processes the response from the wallet.
-     * @param body
-     * @param tenantId
-     */
-    async getResponse(body: AuthorizationResponse, tenantId: string) {
-        const res &#x3D; await this.encryptionService.decryptJwe&lt;AuthResponse&gt;(
-            body.response,
-        );
-        const session &#x3D; await this.sessionService.get(res.state);
-
-        // Create session logging context
-        const logContext: SessionLogContext &#x3D; {
-            sessionId: res.state,
-            tenantId,
-            flowType: &#x27;OID4VP&#x27;,
-            stage: &#x27;response_processing&#x27;,
-        };
-
-        this.sessionLogger.logFlowStart(logContext, {
-            action: &#x27;process_presentation_response&#x27;,
-            hasWebhook: !!session.webhook,
-        });
-
-        try {
-            //TODO: load required fields from the config
-            const credentials &#x3D; await this.presentationsService.parseResponse(
-                res,
-                [],
-                session.vp_nonce as string,
-            );
-
-            this.sessionLogger.logCredentialVerification(
-                logContext,
-                !!credentials &amp;&amp; credentials.length &gt; 0,
-                {
-                    credentialCount: credentials?.length || 0,
-                    nonce: session.vp_nonce,
-                },
-            );
-
-            //tell the auth server the result of the session.
-            await this.sessionService.add(res.state, tenantId, {
-                //TODO: not clear why it has to be any
-                credentials: credentials as any,
-            });
-            // if there a a webook URL, send the response there
-            if (session.webhook) {
-                const headers: Record&lt;string, string&gt; &#x3D; {};
-                if (
-                    session.webhook.auth &amp;&amp;
-                    session.webhook.auth.type &#x3D;&#x3D;&#x3D; &#x27;apiKey&#x27;
-                ) {
-                    headers[session.webhook.auth.config.headerName] &#x3D;
-                        session.webhook.auth.config.value;
-                }
-
-                console.log(headers);
-
-                this.sessionLogger.logSession(
-                    logContext,
-                    &#x27;Sending webhook notification&#x27;,
-                    {
-                        webhookUrl: session.webhook.url,
-                        authType: session.webhook.auth?.type || &#x27;none&#x27;,
-                    },
-                );
-
-                await firstValueFrom(
-                    this.httpService.post(
-                        session.webhook.url,
-                        {
-                            credentials,
-                            session: res.state,
-                        },
-                        {
-                            headers,
-                        },
-                    ),
-                ).then(
-                    async (webhookResponse) &#x3D;&gt; {
-                        //TODO: better: just store it when it&#x27;s a presentation during issuance
-                        if (webhookResponse.data) {
-                            session.credentialPayload!.values &#x3D;
-                                webhookResponse.data;
-                            //store received webhook response
-                            await this.sessionService.add(res.state, tenantId, {
-                                credentialPayload: session.credentialPayload,
-                            });
-                        }
-
-                        this.sessionLogger.logSession(
-                            logContext,
-                            &#x27;Webhook notification sent successfully&#x27;,
-                            {
-                                responseStatus: webhookResponse.status,
-                                hasResponseData: !!webhookResponse.data,
-                            },
-                        );
-                    },
-                    (err) &#x3D;&gt; {
-                        this.sessionLogger.logSessionError(
-                            logContext,
-                            err,
-                            &#x27;Error sending webhook&#x27;,
-                            {
-                                webhookUrl: session.webhook!.url,
-                            },
-                        );
-                        throw new Error(
-                            &#x60;Error sending webhook: ${err.message || err}&#x60;,
-                        );
-                    },
-                );
-            }
-
-            this.sessionLogger.logFlowComplete(logContext, {
-                credentialCount: credentials?.length || 0,
-                webhookSent: !!session.webhook,
-            });
-        } catch (error) {
-            this.sessionLogger.logFlowError(logContext, error as Error, {
-                action: &#x27;process_presentation_response&#x27;,
-            });
-            throw error;
-        }
-    }
 }
 </code></pre>
     </div>

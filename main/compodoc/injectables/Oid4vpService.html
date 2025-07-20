@@ -171,7 +171,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="29" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:29</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="20" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:20</a></div>
                             </td>
                         </tr>
 
@@ -320,8 +320,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="50"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:50</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="41"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:41</a></div>
                         </td>
                     </tr>
 
@@ -417,8 +417,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="224"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:224</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="215"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:215</a></div>
                         </td>
                     </tr>
 
@@ -512,8 +512,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="273"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:273</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="264"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:264</a></div>
                         </td>
                     </tr>
 
@@ -585,26 +585,17 @@ import { randomUUID } from &#x27;node:crypto&#x27;;
 import { CryptoService } from &#x27;../../crypto/crypto.service&#x27;;
 import { AuthorizationResponse } from &#x27;./dto/authorization-response.dto&#x27;;
 import { RegistrarService } from &#x27;../../registrar/registrar.service&#x27;;
-import {
-    AuthResponse,
-    PresentationsService,
-} from &#x27;../presentations/presentations.service&#x27;;
+import { PresentationsService } from &#x27;../presentations/presentations.service&#x27;;
+import { AuthResponse } from &#x27;../presentations/dto/auth-response.dto&#x27;;
 import { EncryptionService } from &#x27;../../crypto/encryption/encryption.service&#x27;;
 import { v4 } from &#x27;uuid&#x27;;
 import { SessionService } from &#x27;../../session/session.service&#x27;;
 import { HttpService } from &#x27;@nestjs/axios&#x27;;
 import { firstValueFrom } from &#x27;rxjs&#x27;;
 import { OfferResponse } from &#x27;../../issuer/oid4vci/dto/offer-request.dto&#x27;;
-import { WebhookConfig } from &#x27;../../utils/webhook.dto&#x27;;
-import {
-    SessionLoggerService,
-    SessionLogContext,
-} from &#x27;../../utils/session-logger.service&#x27;;
-
-export interface PresentationRequestOptions {
-    session?: string;
-    webhook?: WebhookConfig;
-}
+import { SessionLoggerService } from &#x27;../../utils/session-logger.service&#x27;;
+import { SessionLogContext } from &#x27;../../utils/session-logger-context&#x27;;
+import { PresentationRequestOptions } from &#x27;./dto/presentation-request-options.dto&#x27;;
 
 @Injectable()
 export class Oid4vpService {

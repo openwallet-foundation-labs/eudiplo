@@ -123,10 +123,17 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/utils/session-logger.service.ts</code>
+            <code>src/utils/session-logger-context.ts</code>
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Context for session logging, including session ID, tenant ID, flow type, and optional stage.</p>
+
+            </p>
 
 
         <section data-compodoc="block-index">
@@ -186,9 +193,15 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="8" class="link-to-prism">src/utils/session-logger.service.ts:8</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="21" class="link-to-prism">src/utils/session-logger-context.ts:21</a></div>
                             </td>
                         </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Additional context information for the session.</p>
+</div>
+                    </td>
+                </tr>
             </tbody>
         </table>
 </section>
@@ -226,6 +239,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Type of flow being logged (e.g., OID4VCI, OID4VP).</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -259,6 +278,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Unique identifier for the session.</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -297,6 +322,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Optional stage of the flow, useful for tracking progress.</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -330,6 +361,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Identifier for the tenant associated with the session.</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
             </section>
@@ -337,211 +374,27 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &#x27;@nestjs/common&#x27;;
-import { PinoLogger } from &#x27;nestjs-pino&#x27;;
-
-export interface SessionLogContext {
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">export interface SessionLogContext {
+    /**
+     * Unique identifier for the session.
+     */
     sessionId: string;
+    /**
+     * Identifier for the tenant associated with the session.
+     */
     tenantId: string;
+    /**
+     * Type of flow being logged (e.g., OID4VCI, OID4VP).
+     */
     flowType: &#x27;OID4VCI&#x27; | &#x27;OID4VP&#x27;;
+    /**
+     * Optional stage of the flow, useful for tracking progress.
+     */
     stage?: string;
+    /**
+     * Additional context information for the session.
+     */
     [key: string]: any;
-}
-
-@Injectable()
-export class SessionLoggerService {
-    constructor(private readonly logger: PinoLogger) {
-        this.logger.setContext(&#x27;SessionLoggerService&#x27;);
-    }
-
-    /**
-     * Log session flow start
-     */
-    logFlowStart(context: SessionLogContext, additionalData?: any) {
-        const message &#x3D; &#x60;[${context.flowType}] Flow started for session ${context.sessionId} in tenant ${context.tenantId}&#x60;;
-
-        this.logger.info(
-            {
-                ...context,
-                event: &#x27;flow_start&#x27;,
-                stage: &#x27;initialization&#x27;,
-                ...additionalData,
-            },
-            message,
-        );
-    }
-
-    /**
-     * Log session flow completion
-     */
-    logFlowComplete(context: SessionLogContext, additionalData?: any) {
-        const message &#x3D; &#x60;[${context.flowType}] Flow completed for session ${context.sessionId}&#x60;;
-
-        this.logger.info(
-            {
-                ...context,
-                event: &#x27;flow_complete&#x27;,
-                stage: &#x27;completion&#x27;,
-                ...additionalData,
-            },
-            message,
-        );
-    }
-
-    /**
-     * Log session flow error
-     */
-    logFlowError(
-        context: SessionLogContext,
-        error: Error,
-        additionalData?: any,
-    ) {
-        const message &#x3D; &#x60;[${context.flowType}] Flow error for session ${context.sessionId}: ${error.message}&#x60;;
-
-        this.logger.error(
-            {
-                ...context,
-                event: &#x27;flow_error&#x27;,
-                error: {
-                    name: error.name,
-                    message: error.message,
-                    stack: error.stack,
-                },
-                ...additionalData,
-            },
-            message,
-        );
-    }
-
-    /**
-     * Log credential issuance step
-     */
-    logCredentialIssuance(
-        context: SessionLogContext,
-        credentialType: string,
-        additionalData?: any,
-    ) {
-        this.logger.info(
-            {
-                ...context,
-                event: &#x27;credential_issuance&#x27;,
-                stage: &#x27;credential_creation&#x27;,
-                credentialType,
-                ...additionalData,
-            },
-            &#x60;[${context.flowType}] Issuing credential of type ${credentialType} for session ${context.sessionId}&#x60;,
-        );
-    }
-
-    /**
-     * Log credential presentation verification
-     */
-    logCredentialVerification(
-        context: SessionLogContext,
-        verificationResult: boolean,
-        additionalData?: any,
-    ) {
-        this.logger.info(
-            {
-                ...context,
-                event: &#x27;credential_verification&#x27;,
-                stage: &#x27;verification&#x27;,
-                verificationResult,
-                ...additionalData,
-            },
-            &#x60;[${context.flowType}] Credential verification ${verificationResult ? &#x27;succeeded&#x27; : &#x27;failed&#x27;} for session ${context.sessionId}&#x60;,
-        );
-    }
-
-    /**
-     * Log authorization request
-     */
-    logAuthorizationRequest(context: SessionLogContext, additionalData?: any) {
-        this.logger.info(
-            {
-                ...context,
-                event: &#x27;authorization_request&#x27;,
-                stage: &#x27;authorization&#x27;,
-                ...additionalData,
-            },
-            &#x60;[${context.flowType}] Authorization request created for session ${context.sessionId}&#x60;,
-        );
-    }
-
-    /**
-     * Log token exchange
-     */
-    logTokenExchange(context: SessionLogContext, additionalData?: any) {
-        this.logger.info(
-            {
-                ...context,
-                event: &#x27;token_exchange&#x27;,
-                stage: &#x27;token_exchange&#x27;,
-                ...additionalData,
-            },
-            &#x60;[${context.flowType}] Token exchange for session ${context.sessionId}&#x60;,
-        );
-    }
-
-    /**
-     * Log notification events
-     */
-    logNotification(
-        context: SessionLogContext,
-        notificationEvent: string,
-        additionalData?: any,
-    ) {
-        this.logger.info(
-            {
-                ...context,
-                event: &#x27;notification&#x27;,
-                stage: &#x27;notification&#x27;,
-                notificationEvent,
-                ...additionalData,
-            },
-            &#x60;[${context.flowType}] Notification ${notificationEvent} for session ${context.sessionId}&#x60;,
-        );
-    }
-
-    /**
-     * Generic session log method
-     */
-    logSession(
-        context: SessionLogContext,
-        message: string,
-        additionalData?: any,
-    ) {
-        this.logger.info(
-            {
-                ...context,
-                ...additionalData,
-            },
-            &#x60;[${context.flowType}] ${message}&#x60;,
-        );
-    }
-
-    /**
-     * Generic session error log method
-     */
-    logSessionError(
-        context: SessionLogContext,
-        error: Error,
-        message: string,
-        additionalData?: any,
-    ) {
-        this.logger.error(
-            {
-                ...context,
-                error: {
-                    name: error.name,
-                    message: error.message,
-                    stack: error.stack,
-                },
-                ...additionalData,
-            },
-            &#x60;[${context.flowType}] ${message}: ${error.message}&#x60;,
-        );
-    }
 }
 </code></pre>
     </div>

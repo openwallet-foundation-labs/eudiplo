@@ -123,10 +123,17 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/verifier/resolver/resolver.service.ts</code>
+            <code>src/verifier/resolver/dto/issuer-metadata.dto.ts</code>
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Interface representing the issuer metadata.</p>
+
+            </p>
 
 
         <section data-compodoc="block-index">
@@ -195,6 +202,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>The issuer identifier, typically a URL.</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -228,6 +241,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>The JSON Web Key Set (JWKS) containing the public keys for the issuer.</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
             </section>
@@ -235,65 +254,25 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ConflictException, Injectable } from &#x27;@nestjs/common&#x27;;
-import { JWK, JWTPayload } from &#x27;jose&#x27;;
-import { HttpService } from &#x27;@nestjs/axios&#x27;;
-import { firstValueFrom } from &#x27;rxjs&#x27;;
-import { X509Certificate } from &#x27;node:crypto&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { JWK } from &#x27;jose&#x27;;
 
-interface IssuerMetadata {
+/**
+ * Interface representing the issuer metadata.
+ */
+export interface IssuerMetadata {
+    /**
+     * The issuer identifier, typically a URL.
+     */
     issuer: string;
+    /**
+     * The JSON Web Key Set (JWKS) containing the public keys for the issuer.
+     */
     jwks: {
+        /**
+         * List of keys in the JWKS.
+         */
         keys: JWK[];
     };
-}
-@Injectable()
-export class ResolverService {
-    constructor(private httpService: HttpService) {}
-
-    /**
-     * Resolve the public key from the issuer, the function will first check for the x5c header, then for the did document and finally for the issuer metadata.
-     * @param payload
-     * @param header
-     * @returns
-     */
-    async resolvePublicKey(payload: JWTPayload, header: JWK): Promise&lt;JWK&gt; {
-        if (!payload.iss) {
-            throw new Error(&#x27;Issuer not found&#x27;);
-        }
-
-        if (header.x5c) {
-            //TODO: validate the certificate and the chain of trust!
-            const certs &#x3D; header.x5c.map(
-                (cert) &#x3D;&gt; new X509Certificate(Buffer.from(cert, &#x27;base64&#x27;)),
-            );
-            const cert &#x3D; certs[0];
-            if (!cert.subjectAltName?.includes(payload.iss.split(&#x27;://&#x27;)[1])) {
-                throw new Error(&#x27;Subject and issuer do not match&#x27;);
-            }
-            return cert.publicKey.export({ format: &#x27;jwk&#x27; }) as JWK;
-        }
-        //checl if the key is in the header as jwk
-        if (header[&#x27;jwk&#x27;]) {
-            return header[&#x27;jwk&#x27;] as JWK;
-        }
-
-        const response &#x3D; await firstValueFrom(
-            this.httpService.get&lt;IssuerMetadata&gt;(
-                &#x60;${payload.iss}/.well-known/jwt-vc-issuer&#x60;,
-            ),
-        ).then(
-            (r) &#x3D;&gt; r.data,
-            () &#x3D;&gt; {
-                throw new ConflictException(&#x27;Issuer not reachable&#x27;);
-            },
-        );
-        const key &#x3D; response.jwks.keys.find((key) &#x3D;&gt; key.kid &#x3D;&#x3D;&#x3D; header.kid);
-        if (!key) {
-            throw new Error(&#x27;Key not found&#x27;);
-        }
-        return key;
-    }
 }
 </code></pre>
     </div>

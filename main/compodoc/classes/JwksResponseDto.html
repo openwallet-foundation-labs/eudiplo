@@ -124,6 +124,13 @@
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Represents a JSON Web Key Set (JWKS) response containing an array of EC public keys.</p>
+
+            </p>
 
 
 
@@ -181,10 +188,16 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="11" class="link-to-prism">src/well-known/dto/jwks-response.dto.ts:11</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="33" class="link-to-prism">src/well-known/dto/jwks-response.dto.ts:33</a></div>
                         </td>
                     </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>An array of EC public keys in JWK format.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -202,14 +215,36 @@
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { JWK_EC_Public } from &#x27;jose&#x27;;
 
+/**
+ * Represents a JSON Web Key (JWK) for an Elliptic Curve (EC) public key.
+ * This class is used to define the structure of EC public keys in JWK format.
+ */
 export class EC_Public implements JWK_EC_Public {
+    /**
+     * The key type, which is always &#x27;EC&#x27; for Elliptic Curve keys.
+     */
     kty: &#x27;EC&#x27;;
+    /**
+     * The algorithm intended for use with the key, such as &#x27;ES256&#x27;.
+     */
     crv: string;
+    /**
+     * The x coordinate of the EC public key.
+     */
     x: string;
+    /**
+     * The y coordinate of the EC public key.
+     */
     y: string;
 }
 
+/**
+ * Represents a JSON Web Key Set (JWKS) response containing an array of EC public keys.
+ */
 export class JwksResponseDto {
+    /**
+     * An array of EC public keys in JWK format.
+     */
     keys: Array&lt;EC_Public&gt;;
 }
 </code></pre>

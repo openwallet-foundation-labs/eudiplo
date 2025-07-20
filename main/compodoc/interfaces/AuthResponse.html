@@ -123,10 +123,17 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/verifier/presentations/presentations.service.ts</code>
+            <code>src/verifier/presentations/dto/auth-response.dto.ts</code>
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>AuthResponse DTO</p>
+
+            </p>
 
 
         <section data-compodoc="block-index">
@@ -195,6 +202,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>The state parameter to maintain state between the request and callback.</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -228,6 +241,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>The VP token containing the presentation data.</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
             </section>
@@ -235,191 +254,20 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { HttpService } from &#x27;@nestjs/axios&#x27;;
-import { ConflictException, Injectable, OnModuleInit } from &#x27;@nestjs/common&#x27;;
-import { digest, ES256 } from &#x27;@sd-jwt/crypto-nodejs&#x27;;
-import { SDJwtVcInstance } from &#x27;@sd-jwt/sd-jwt-vc&#x27;;
-import { KbVerifier, Verifier } from &#x27;@sd-jwt/types&#x27;;
-import { importJWK, JWK, JWTPayload, jwtVerify } from &#x27;jose&#x27;;
-import { firstValueFrom } from &#x27;rxjs&#x27;;
-import { ResolverService } from &#x27;../resolver/resolver.service&#x27;;
-import { PresentationConfig } from &#x27;./entities/presentation-config.entity&#x27;;
-import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
-import { Repository } from &#x27;typeorm/repository/Repository&#x27;;
-
-export interface AuthResponse {
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">export interface AuthResponse {
+    /**
+     * The VP token containing the presentation data.
+     */
     vp_token: {
+        /**
+         * Key-value pairs representing the VP token data.
+         */
         [key: string]: string;
     };
+    /**
+     * The state parameter to maintain state between the request and callback.
+     */
     state: string;
-}
-
-@Injectable()
-export class PresentationsService implements OnModuleInit {
-    sdjwtInstance: SDJwtVcInstance;
-
-    constructor(
-        private httpService: HttpService,
-        private resolverService: ResolverService,
-        @InjectRepository(PresentationConfig)
-        private vpRequestRepository: Repository&lt;PresentationConfig&gt;,
-    ) {}
-    onModuleInit() {
-        this.sdjwtInstance &#x3D; new SDJwtVcInstance({
-            hasher: digest,
-            verifier: this.verifier.bind(this),
-            kbVerifier: this.kbVerifier.bind(this),
-            statusListFetcher: this.statusListFetcher.bind(this),
-        });
-    }
-
-    getPresentationConfigs(tenantId: string): Promise&lt;PresentationConfig[]&gt; {
-        return this.vpRequestRepository.find({
-            where: { tenantId },
-            order: { createdAt: &#x27;DESC&#x27; },
-        });
-    }
-
-    storePresentationConfig(vprequest: PresentationConfig, tenantId: string) {
-        vprequest.tenantId &#x3D; tenantId;
-        return this.vpRequestRepository.save(vprequest);
-    }
-
-    /**
-     * @param id
-     * @param tenantId
-     * @returns
-     */
-    deletePresentationConfig(id: string, tenantId: string) {
-        return this.vpRequestRepository.delete({ id, tenantId });
-    }
-
-    /**
-     * Get a presentation request by ID. The file is read from the filesystem and parsed into a valid VPRequest object.
-     * @param requestId
-     * @returns
-     */
-    async getPresentationConfig(
-        id: string,
-        tenantId: string,
-    ): Promise&lt;PresentationConfig&gt; {
-        return this.vpRequestRepository
-            .findOneByOrFail({
-                id,
-                tenantId,
-            })
-            .catch(() &#x3D;&gt; {
-                throw new ConflictException(&#x27;Request ID invalid not found&#x27;);
-            });
-    }
-
-    /**
-     * Stores the new registration certificate.
-     * @param registrationCertId
-     * @param id
-     * @param tenantId
-     * @returns
-     */
-    public storeRCID(registrationCertId: string, id: string, tenantId: string) {
-        return this.vpRequestRepository.update(
-            { id, tenantId },
-            { registrationCert: { id: registrationCertId } },
-        );
-    }
-
-    /**
-     * Verifier for SD-JWT-VCs. It will verify the signature of the SD-JWT-VC and return true if it is valid.
-     * @param data
-     * @param signature
-     * @returns
-     */
-    verifier: Verifier &#x3D; async (data, signature) &#x3D;&gt; {
-        const instance &#x3D; new SDJwtVcInstance({
-            hasher: digest,
-        });
-        const decodedVC &#x3D; await instance.decode(&#x60;${data}.${signature}&#x60;);
-        const payload &#x3D; decodedVC.jwt?.payload as JWTPayload;
-        const header &#x3D; decodedVC.jwt?.header as JWK;
-        const publicKey &#x3D; await this.resolverService.resolvePublicKey(
-            payload,
-            header,
-        );
-        const verify &#x3D; await ES256.getVerifier(publicKey);
-        return verify(data, signature).catch((err) &#x3D;&gt; {
-            console.log(err);
-            return false;
-        });
-    };
-
-    /**
-     * Fetch the status list from the uri.
-     * @param uri
-     * @returns
-     */
-    private statusListFetcher: (uri: string) &#x3D;&gt; Promise&lt;string&gt; &#x3D; async (
-        uri: string,
-    ) &#x3D;&gt; {
-        return firstValueFrom(this.httpService.get&lt;string&gt;(uri)).then(
-            (res) &#x3D;&gt; res.data,
-        );
-    };
-
-    /**
-     * Verifier for keybindings. It will verify the signature of the keybinding and return true if it is valid.
-     * @param data
-     * @param signature
-     * @param payload
-     * @returns
-     */
-    private kbVerifier: KbVerifier &#x3D; async (data, signature, payload) &#x3D;&gt; {
-        if (!payload.cnf) {
-            throw new Error(&#x27;No cnf found in the payload&#x27;);
-        }
-        const key &#x3D; await importJWK(payload.cnf.jwk as JWK, &#x27;ES256&#x27;);
-        return jwtVerify(&#x60;${data}.${signature}&#x60;, key).then(
-            () &#x3D;&gt; true,
-            () &#x3D;&gt; false,
-        );
-    };
-
-    /**
-     * Parse the response from the wallet. It will verify the SD-JWT-VCs in the vp_token and return the parsed attestations.
-     * @param res
-     * @param requiredFields
-     * @returns
-     */
-    parseResponse(
-        res: AuthResponse,
-        requiredFields: string[],
-        keyBindingNonce: string,
-    ) {
-        const attestations &#x3D; Object.keys(res.vp_token);
-        const att &#x3D; attestations.map((att) &#x3D;&gt;
-            this.sdjwtInstance
-                .verify(res.vp_token[att], {
-                    requiredClaimKeys: requiredFields,
-                    keyBindingNonce,
-                })
-                .then(
-                    (result) &#x3D;&gt; {
-                        return {
-                            id: att,
-                            values: {
-                                ...result.payload,
-                                cnf: undefined, // remove cnf for simplicity
-                                status: undefined, // remove status for simplicity
-                            },
-                        };
-                    },
-                    (err) &#x3D;&gt; ({
-                        // when the verification fails, it will return an error object                (err) &#x3D;&gt; ({
-                        id: att,
-                        error: err.message,
-                    }),
-                ),
-        );
-        return Promise.all(att);
-    }
 }
 </code></pre>
     </div>
