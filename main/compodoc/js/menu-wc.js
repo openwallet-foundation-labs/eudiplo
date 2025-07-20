@@ -525,6 +525,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                     <a href="injectables/FileSystemKeyService.html" data-type="entity-link" >FileSystemKeyService</a>
                                 </li>
                                 <li class="link">
+                                    <a href="injectables/LoggerConfigService.html" data-type="entity-link" >LoggerConfigService</a>
+                                </li>
+                                <li class="link">
                                     <a href="injectables/VaultKeyService.html" data-type="entity-link" >VaultKeyService</a>
                                 </li>
                             </ul>
@@ -572,6 +575,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             </li>
                             <li class="link">
                                 <a href="interfaces/IssuerMetadata.html" data-type="entity-link" >IssuerMetadata</a>
+                            </li>
+                            <li class="link">
+                                <a href="interfaces/LoggerConfiguration.html" data-type="entity-link" >LoggerConfiguration</a>
                             </li>
                             <li class="link">
                                 <a href="interfaces/Middleware.html" data-type="entity-link" >Middleware</a>
