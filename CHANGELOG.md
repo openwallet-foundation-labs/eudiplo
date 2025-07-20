@@ -1,3 +1,13 @@
+## [1.2.3](https://github.com/cre8/eudiplo/compare/v1.2.2...v1.2.3) (2025-07-20)
+
+
+### Bug Fixes
+
+* ci deploy with version generation ([259ab39](https://github.com/cre8/eudiplo/commit/259ab3915c9dda6344a7adab1c8c09742aa122db))
+* release pipeline ([7a6a69c](https://github.com/cre8/eudiplo/commit/7a6a69c7890289e30ea9b921f2fdbaf357a5a865))
+* set correct way for deployment ([2aa727a](https://github.com/cre8/eudiplo/commit/2aa727ab06078f4403261e8c06e9d6bfdcbef387))
+* use oidc url instead of keycloak one ([2913417](https://github.com/cre8/eudiplo/commit/2913417e55def489e5372ac7875d6023aead0162))
+
 ## [1.2.2](https://github.com/cre8/eudiplo/compare/v1.2.1...v1.2.2) (2025-07-19)
 
 
