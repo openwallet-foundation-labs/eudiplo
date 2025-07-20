@@ -121,6 +121,7 @@ export class Oid4vciService implements OnModuleInit {
                 );
             }
         });
+
         const issuerMetadata = await this.issuerMetadata(tenantId);
         const issuer_state = v4();
         return this.issuer

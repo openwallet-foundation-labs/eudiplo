@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
+import { ConfigService } from '@nestjs/config';
 import { SessionLogContext } from './session-logger-context';
 
 /**
@@ -8,18 +9,34 @@ import { SessionLogContext } from './session-logger-context';
  */
 @Injectable()
 export class SessionLoggerService {
+    private readonly isEnabled: boolean;
+
     /**
      * Constructor for SessionLoggerService.
      * @param logger - PinoLogger instance for logging.
+     * @param configService - ConfigService for accessing environment configuration.
      */
-    constructor(private readonly logger: PinoLogger) {
+    constructor(
+        private readonly logger: PinoLogger,
+        private readonly configService: ConfigService,
+    ) {
         this.logger.setContext('SessionLoggerService');
+        this.isEnabled = !this.configService.get<boolean>(
+            'LOG_DISABLE_SESSION_LOGGER',
+            false,
+        );
+    }
+
+    private shouldLog(): boolean {
+        return this.isEnabled;
     }
 
     /**
      * Log session flow start
      */
     logFlowStart(context: SessionLogContext, additionalData?: any) {
+        if (!this.shouldLog()) return;
+
         const message = `[${context.flowType}] Flow started for session ${context.sessionId} in tenant ${context.tenantId}`;
 
         this.logger.info(
@@ -37,6 +54,8 @@ export class SessionLoggerService {
      * Log session flow completion
      */
     logFlowComplete(context: SessionLogContext, additionalData?: any) {
+        if (!this.shouldLog()) return;
+
         const message = `[${context.flowType}] Flow completed for session ${context.sessionId}`;
 
         this.logger.info(
@@ -58,6 +77,8 @@ export class SessionLoggerService {
         error: Error,
         additionalData?: any,
     ) {
+        if (!this.shouldLog()) return;
+
         const message = `[${context.flowType}] Flow error for session ${context.sessionId}: ${error.message}`;
 
         this.logger.error(
@@ -83,6 +104,8 @@ export class SessionLoggerService {
         credentialType: string,
         additionalData?: any,
     ) {
+        if (!this.shouldLog()) return;
+
         this.logger.info(
             {
                 ...context,
@@ -103,6 +126,8 @@ export class SessionLoggerService {
         verificationResult: boolean,
         additionalData?: any,
     ) {
+        if (!this.shouldLog()) return;
+
         this.logger.info(
             {
                 ...context,
@@ -119,6 +144,8 @@ export class SessionLoggerService {
      * Log authorization request
      */
     logAuthorizationRequest(context: SessionLogContext, additionalData?: any) {
+        if (!this.shouldLog()) return;
+
         this.logger.info(
             {
                 ...context,
@@ -134,6 +161,8 @@ export class SessionLoggerService {
      * Log token exchange
      */
     logTokenExchange(context: SessionLogContext, additionalData?: any) {
+        if (!this.shouldLog()) return;
+
         this.logger.info(
             {
                 ...context,
@@ -153,6 +182,8 @@ export class SessionLoggerService {
         notificationEvent: string,
         additionalData?: any,
     ) {
+        if (!this.shouldLog()) return;
+
         this.logger.info(
             {
                 ...context,
@@ -173,6 +204,8 @@ export class SessionLoggerService {
         message: string,
         additionalData?: any,
     ) {
+        if (!this.shouldLog()) return;
+
         this.logger.info(
             {
                 ...context,
@@ -191,6 +224,8 @@ export class SessionLoggerService {
         message: string,
         additionalData?: any,
     ) {
+        if (!this.shouldLog()) return;
+
         this.logger.error(
             {
                 ...context,

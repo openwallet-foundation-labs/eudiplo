@@ -128,5 +128,6 @@ nav:
       - Versioning: development/versioning.md
       - Contributing Guide: development/contributing.md      
       - Testing: development/testing.md
+      - Loggging: development/logging-configuration.md
       - Session Logging Implementation: development/session-logging.md
       - Documentation Versioning: development/documentation-versioning.md
