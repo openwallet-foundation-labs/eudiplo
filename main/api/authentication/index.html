@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../supported-protocols/">
+        <link rel="prev" href="../">
       
       
-        <link rel="next" href="../key-management/">
+        <link rel="next" href="../../development/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -20,7 +20,7 @@
     
     
       
-        <title>Tenant-Based Architecture - EUDIPLO</title>
+        <title>Authentication - EUDIPLO</title>
       
     
     
@@ -83,7 +83,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#tenant-based-architecture" class="md-skip">
+        <a href="#api-authentication" class="md-skip">
           Skip to content
         </a>
       
@@ -123,7 +123,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Tenant-Based Architecture
+              Authentication
             
           </span>
         </div>
@@ -250,13 +250,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../overview/" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../architecture/overview/" class="md-tabs__link">
           
   
   
@@ -274,11 +272,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../api/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
           
   
   
@@ -693,10 +693,8 @@
       
   
   
-    
   
   
-  
     
     
       
@@ -714,22 +712,21 @@
     
     
       
-        
-        
-      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
             
   
   
@@ -742,7 +739,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             Architecture
@@ -756,7 +753,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../overview/" class="md-nav__link">
+      <a href="../../architecture/overview/" class="md-nav__link">
         
   
   
@@ -779,7 +776,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../supported-protocols/" class="md-nav__link">
+      <a href="../../architecture/supported-protocols/" class="md-nav__link">
         
   
   
@@ -799,32 +796,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Tenant-Based Architecture
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../architecture/tenant/" class="md-nav__link">
         
   
   
@@ -835,44 +810,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#tenant-isolation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Tenant Isolation
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#tenant-management" class="md-nav__link">
-    <span class="md-ellipsis">
-      Tenant Management
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -885,7 +822,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../key-management/" class="md-nav__link">
+      <a href="../../architecture/key-management/" class="md-nav__link">
         
   
   
@@ -908,7 +845,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../database/" class="md-nav__link">
+      <a href="../../architecture/database/" class="md-nav__link">
         
   
   
@@ -935,6 +872,8 @@
       
   
   
+    
+  
   
   
     
@@ -950,22 +889,23 @@
     
     
       
+        
+        
+      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../api/" class="md-nav__link ">
+            <a href="../" class="md-nav__link ">
               
   
   
@@ -978,13 +918,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             API
@@ -997,10 +937,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../api/authentication/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Authentication
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1011,6 +973,143 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#oauth2-client-credentials-authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      OAuth2 Client Credentials Authentication
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OAuth2 Client Credentials Authentication">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#external-oidc-provider-eg-keycloak" class="md-nav__link">
+    <span class="md-ellipsis">
+      External OIDC Provider (e.g., Keycloak)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integrated-oauth2-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      Integrated OAuth2 Server
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#external-oidc-provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      External OIDC Provider
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integrated-oauth2-server_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Integrated OAuth2 Server
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#protected-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      Protected Endpoints
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#token-validation-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      Token Validation Errors
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integrated-oauth2-server-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Integrated OAuth2 Server Issues
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security Considerations
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1242,18 +1341,117 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#tenant-isolation" class="md-nav__link">
+  <a href="#oauth2-client-credentials-authentication" class="md-nav__link">
     <span class="md-ellipsis">
-      Tenant Isolation
+      OAuth2 Client Credentials Authentication
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OAuth2 Client Credentials Authentication">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#external-oidc-provider-eg-keycloak" class="md-nav__link">
+    <span class="md-ellipsis">
+      External OIDC Provider (e.g., Keycloak)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integrated-oauth2-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      Integrated OAuth2 Server
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#external-oidc-provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      External OIDC Provider
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integrated-oauth2-server_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Integrated OAuth2 Server
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#protected-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      Protected Endpoints
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#tenant-management" class="md-nav__link">
+  <a href="#troubleshooting" class="md-nav__link">
     <span class="md-ellipsis">
-      Tenant Management
+      Troubleshooting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#token-validation-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      Token Validation Errors
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integrated-oauth2-server-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      Integrated OAuth2 Server Issues
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security Considerations
     </span>
   </a>
   
@@ -1275,7 +1473,7 @@
 
 
   
-    <a href="https://github.com/cre8/eudiplo/edit/main/docs/architecture/tenant.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/cre8/eudiplo/edit/main/docs/api/authentication.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -1284,36 +1482,125 @@
     
       
     
-    <a href="https://github.com/cre8/eudiplo/raw/main/docs/architecture/tenant.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/cre8/eudiplo/raw/main/docs/api/authentication.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
   
 
 
-<h1 id="tenant-based-architecture">Tenant-Based Architecture<a class="headerlink" href="#tenant-based-architecture" title="Permanent link">&para;</a></h1>
-<p>EUDIPLO is built on a <strong>tenant-based architecture</strong> that allows you to isolate
-configurations and data for different clients or environments. This means you
-can run multiple instances of EUDIPLO, each serving a different tenant or
-client, while sharing the same codebase.</p>
-<p>Each tenant is accessible via a client, more information can be found in the
-<a href="../../getting-started/management/">Management</a> section.</p>
-<h2 id="tenant-isolation">Tenant Isolation<a class="headerlink" href="#tenant-isolation" title="Permanent link">&para;</a></h2>
-<p>Each tenant has:</p>
+<h1 id="api-authentication">API Authentication<a class="headerlink" href="#api-authentication" title="Permanent link">&para;</a></h1>
+<p>The EUDIPLO Service API uses OAuth2 client credentials flow for all
+authentication, providing a unified approach that works with both integrated
+OAuth2 server and external OIDC providers.</p>
+<h2 id="oauth2-client-credentials-authentication">OAuth2 Client Credentials Authentication<a class="headerlink" href="#oauth2-client-credentials-authentication" title="Permanent link">&para;</a></h2>
+<p>This API exclusively uses the OAuth2 client credentials flow, which is designed
+for service-to-service authentication where no user interaction is required.</p>
+<h3 id="external-oidc-provider-eg-keycloak">External OIDC Provider (e.g., Keycloak)<a class="headerlink" href="#external-oidc-provider-eg-keycloak" title="Permanent link">&para;</a></h3>
+<p>When configured with an external OIDC provider:</p>
+<ol>
+<li>
+<p><strong>Swagger UI Authentication:</strong></p>
 <ul>
-<li><strong>Separate configurations</strong>: Managed in the database</li>
-<li><strong>Isolated database records</strong>: All entities include <code>tenantId</code> field</li>
-<li><strong>Independent key management</strong>: Tenant-specific cryptographic keys</li>
-<li><strong>Dedicated session management</strong>: Sessions scoped to tenant</li>
-<li><strong>Individual credential configurations</strong>: Per-tenant issuance and presentation
-  templates</li>
+<li>Navigate to the Swagger UI at <code>/api</code></li>
+<li>Click the "Authorize" button</li>
+<li>Select "oauth2"</li>
+<li>Enter your client ID and client secret</li>
+<li>Click "Authorize"</li>
+<li>The Swagger UI will automatically send credentials in the Authorization
+  header (Basic auth)</li>
 </ul>
-<blockquote>
-<p>For now the separation in the database is done by a <code>tenantId</code> field in all
-entities. In the future, we may support separate databases per tenant.</p>
-</blockquote>
-<h2 id="tenant-management">Tenant Management<a class="headerlink" href="#tenant-management" title="Permanent link">&para;</a></h2>
-<p>TODO: needs to be aligned</p>
+</li>
+<li>
+<p><strong>Programmatic Access:</strong></p>
+<ul>
+<li>Use your OIDC provider's token endpoint with client credentials flow</li>
+<li>Include the access token in API requests: <code>Authorization: Bearer &lt;token&gt;</code></li>
+</ul>
+</li>
+</ol>
+<h3 id="integrated-oauth2-server">Integrated OAuth2 Server<a class="headerlink" href="#integrated-oauth2-server" title="Permanent link">&para;</a></h3>
+<p>When using the built-in OAuth2 server:</p>
+<ol>
+<li>
+<p><strong>Swagger UI Authentication:</strong></p>
+<ul>
+<li>Navigate to the Swagger UI at <code>/api</code></li>
+<li>Click the "Authorize" button</li>
+<li>Select "oauth2"</li>
+<li>Enter client ID and secret (default: <code>root</code>/<code>root</code>)</li>
+<li>The Swagger UI will automatically send credentials in the Authorization
+  header (Basic auth)</li>
+</ul>
+</li>
+<li>
+<p><strong>Programmatic Access (Client Credentials Flow):</strong></p>
+<p><strong>Option 1: Credentials in Authorization Header (Recommended for OAuth2
+compliance):</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3000/auth/oauth2/token<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Basic </span><span class="k">$(</span><span class="nb">echo</span><span class="w"> </span>-n<span class="w"> </span><span class="s1">&#39;root:root&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="s1">    &quot;grant_type&quot;: &quot;client_credentials&quot;</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="s1">  }&#39;</span>
+</code></pre></div>
+<p><strong>Option 2: Credentials in Request Body:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3000/auth/oauth2/token<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="s1">    &quot;grant_type&quot;: &quot;client_credentials&quot;,</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="s1">    &quot;client_id&quot;: &quot;root&quot;,</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="s1">    &quot;client_secret&quot;: &quot;root&quot;</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="s1">  }&#39;</span>
+</code></pre></div>
+</li>
+</ol>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
+<h3 id="external-oidc-provider">External OIDC Provider<a class="headerlink" href="#external-oidc-provider" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Enable external OIDC</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nv">OIDC</span><span class="o">=</span><span class="nb">true</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nv">KEYCLOAK_INTERNAL_ISSUER_URL</span><span class="o">=</span>https://your-keycloak.example.com/realms/your-realm
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="nv">KEYCLOAK_CLIENT_ID</span><span class="o">=</span>your-client-id
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nv">PUBLIC_URL</span><span class="o">=</span>https://your-api.example.com
+</code></pre></div>
+<h3 id="integrated-oauth2-server_1">Integrated OAuth2 Server<a class="headerlink" href="#integrated-oauth2-server_1" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Leave OIDC undefined for integrated OAuth2 server</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nv">PUBLIC_URL</span><span class="o">=</span>https://your-api.example.com
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nv">JWT_SECRET</span><span class="o">=</span>your-secret-key-here-minimum-32-characters
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="nv">AUTH_CLIENT_ID</span><span class="o">=</span>root
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="nv">AUTH_CLIENT_SECRET</span><span class="o">=</span>root
+</code></pre></div>
+<h2 id="protected-endpoints">Protected Endpoints<a class="headerlink" href="#protected-endpoints" title="Permanent link">&para;</a></h2>
+<p>All administrative endpoints require OAuth2 authentication:</p>
+<ul>
+<li><strong>Issuer Management</strong> (<code>/issuer-management/*</code>) - Credential issuance
+  management</li>
+<li><strong>Presentation Management</strong> (<code>/presentation-management/*</code>) - Presentation
+  verification management</li>
+<li><strong>Session Management</strong> (<code>/session/*</code>) - Session lifecycle management</li>
+</ul>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="token-validation-errors">Token Validation Errors<a class="headerlink" href="#token-validation-errors" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Verify that tokens include the correct audience (<code>eudiplo-service</code>)</li>
+<li>Ensure clock synchronization between client and server</li>
+<li>Check token expiration times</li>
+</ol>
+<h3 id="integrated-oauth2-server-issues">Integrated OAuth2 Server Issues<a class="headerlink" href="#integrated-oauth2-server-issues" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Verify <code>JWT_SECRET</code> is at least 32 characters</li>
+<li>Ensure client credentials (<code>AUTH_CLIENT_ID</code>/<code>AUTH_CLIENT_SECRET</code>) are
+   configured correctly</li>
+<li>Check that <code>PUBLIC_URL</code> is accessible for OAuth2 flows</li>
+</ol>
+<h2 id="security-considerations">Security Considerations<a class="headerlink" href="#security-considerations" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Token Lifetime</strong>: Tokens expire after 24 hours for client credentials flow</li>
+<li><strong>Secure Storage</strong>: Store client credentials and tokens securely and never
+  expose them in logs or URLs</li>
+<li><strong>Service-to-Service</strong>: This API is designed for service-to-service
+  authentication without user interaction</li>
+</ul>
 
 
 
@@ -1349,7 +1636,7 @@ entities. In the future, we may support separate databases per tenant.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../supported-protocols/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Supported Protocols">
+          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: Overview">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1359,20 +1646,20 @@ entities. In the future, we may support separate databases per tenant.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Supported Protocols
+                Overview
               </div>
             </div>
           </a>
         
         
           
-          <a href="../key-management/" class="md-footer__link md-footer__link--next" aria-label="Next: Key Management">
+          <a href="../../development/" class="md-footer__link md-footer__link--next" aria-label="Next: Development">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Key Management
+                Development
               </div>
             </div>
             <div class="md-footer__button md-icon">

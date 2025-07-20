@@ -148,7 +148,7 @@
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier">Async</span>
-                                <a href="#getToken" >getToken</a>
+                                <a href="#getOAuth2Token" >getOAuth2Token</a>
                             </li>
                         </ul>
                     </td>
@@ -171,7 +171,7 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getToken"></a>
+                    <a name="getOAuth2Token"></a>
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
@@ -179,15 +179,15 @@
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier">Async</span>
-                        <span ><b>getToken</b></span>
-                        <a href="#getToken"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>getOAuth2Token</b></span>
+                        <a href="#getOAuth2Token"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getToken(body: <a href="../classes/ClientCredentialsDto.html" target="_self">ClientCredentialsDto</a>)</code>
+                    <code>getOAuth2Token(body: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, headers: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
                 </td>
             </tr>
 
@@ -195,21 +195,22 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Public()<br />@Post(&#x27;token&#x27;)<br />@ApiBody({type: ClientCredentialsDto, examples: undefined})<br />@ApiResponse({status: 200, description: &#x27;JWT token generated successfully&#x27;, type: TokenResponse, example: undefined})<br />@ApiResponse({status: 401, description: &#x27;Invalid client credentials or multi-tenant mode enabled&#x27;})<br /></code>
+                    <code>@Public()<br />@Post(&#x27;oauth2/token&#x27;)<br />@ApiBody({type: ClientCredentialsDto, examples: undefined})<br />@ApiResponse({status: 200, description: &#x27;OAuth2 token response&#x27;, type: TokenResponse, example: undefined})<br />@ApiResponse({status: 401, description: &#x27;Invalid client credentials&#x27;})<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="51"
-                                    class="link-to-prism">src/auth/auth.controller.ts:51</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="60"
+                                    class="link-to-prism">src/auth/auth.controller.ts:60</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Get JWT token using client credentials</p>
+                        <div class="io-description"><p>OAuth2 Token endpoint - supports client credentials flow only
+Accepts client credentials either in Authorization header (Basic auth) or request body</p>
 </div>
 
                             <div class="io-description">
@@ -227,7 +228,19 @@
                                         <tr>
                                                 <td>body</td>
                                             <td>
-                                                            <code><a href="../classes/ClientCredentialsDto.html" target="_self" >ClientCredentialsDto</a></code>
+                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>headers</td>
+                                            <td>
+                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
                                             </td>
 
                                             <td>
@@ -254,7 +267,13 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Controller, Post, Body, UnauthorizedException } from &#x27;@nestjs/common&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+    Controller,
+    Post,
+    Body,
+    UnauthorizedException,
+    Headers,
+} from &#x27;@nestjs/common&#x27;;
 import { ApiTags, ApiResponse, ApiBody } from &#x27;@nestjs/swagger&#x27;;
 import { JwtService } from &#x27;./jwt.service&#x27;;
 import { ClientService } from &#x27;./client.service&#x27;;
@@ -272,18 +291,21 @@ export class AuthController {
     ) {}
 
     /**
-     * Get JWT token using client credentials
+     * OAuth2 Token endpoint - supports client credentials flow only
+     * Accepts client credentials either in Authorization header (Basic auth) or request body
      * @param body
+     * @param headers
      * @returns
      */
     @Public()
-    @Post(&#x27;token&#x27;)
+    @Post(&#x27;oauth2/token&#x27;)
     @ApiBody({
         type: ClientCredentialsDto,
         examples: {
-            root: {
-                summary: &#x27;Root demo values&#x27;,
+            client_credentials: {
+                summary: &#x27;Client Credentials Flow&#x27;,
                 value: {
+                    grant_type: &#x27;client_credentials&#x27;,
                     client_id: &#x27;root&#x27;,
                     client_secret: &#x27;root&#x27;,
                 },
@@ -292,28 +314,70 @@ export class AuthController {
     })
     @ApiResponse({
         status: 200,
-        description: &#x27;JWT token generated successfully&#x27;,
+        description: &#x27;OAuth2 token response&#x27;,
         type: TokenResponse,
         example: {
             access_token: &#x27;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...&#x27;,
             token_type: &#x27;Bearer&#x27;,
-            expires_in: &#x27;24h&#x27;,
+            expires_in: 86400,
         },
     })
     @ApiResponse({
         status: 401,
-        description: &#x27;Invalid client credentials or multi-tenant mode enabled&#x27;,
+        description: &#x27;Invalid client credentials&#x27;,
     })
-    async getToken(@Body() body: ClientCredentialsDto): Promise&lt;TokenResponse&gt; {
-        if (this.jwtService.isMultiTenant()) {
+    async getOAuth2Token(
+        @Body() body: any,
+        @Headers() headers: any,
+    ): Promise&lt;TokenResponse&gt; {
+        if (this.jwtService.isUsingExternalOIDC()) {
             throw new UnauthorizedException(
-                &#x27;Client credentials flow is not available in multi-tenant mode. Use your existing Keycloak/OIDC provider for authentication.&#x27;,
+                &#x27;OAuth2 token endpoint is not available when using external OIDC provider. Use your external OIDC provider for authentication.&#x27;,
+            );
+        }
+
+        // Only support client credentials flow
+        if (body.grant_type !&#x3D;&#x3D; &#x27;client_credentials&#x27;) {
+            throw new UnauthorizedException(
+                &#x27;Only client_credentials grant type is supported&#x27;,
+            );
+        }
+
+        let clientId: string;
+        let clientSecret: string;
+
+        // Try to extract credentials from Authorization header (Basic auth)
+        const authHeader &#x3D; headers.authorization;
+        if (authHeader &amp;&amp; authHeader.startsWith(&#x27;Basic &#x27;)) {
+            try {
+                const base64Credentials &#x3D; authHeader.substring(6);
+                const credentials &#x3D; Buffer.from(
+                    base64Credentials,
+                    &#x27;base64&#x27;,
+                ).toString(&#x27;ascii&#x27;);
+                const [id, secret] &#x3D; credentials.split(&#x27;:&#x27;);
+                clientId &#x3D; id;
+                clientSecret &#x3D; secret;
+            } catch {
+                throw new UnauthorizedException(
+                    &#x27;Invalid Authorization header format&#x27;,
+                );
+            }
+        } else {
+            // Fall back to request body
+            clientId &#x3D; body.client_id;
+            clientSecret &#x3D; body.client_secret;
+        }
+
+        if (!clientId || !clientSecret) {
+            throw new UnauthorizedException(
+                &#x27;Client credentials must be provided either in Authorization header (Basic auth) or request body&#x27;,
             );
         }
 
         const client &#x3D; this.clientService.validateClient(
-            body.client_id,
-            body.client_secret,
+            clientId,
+            clientSecret,
         );
         if (!client) {
             throw new UnauthorizedException(&#x27;Invalid client credentials&#x27;);
@@ -324,14 +388,14 @@ export class AuthController {
         };
 
         const token &#x3D; await this.jwtService.generateToken(payload, {
-            expiresIn: &#x27;24h&#x27;, // Longer expiration for service accounts
+            expiresIn: &#x27;24h&#x27;,
             audience: &#x27;eudiplo-service&#x27;,
         });
 
         return {
             access_token: token,
             token_type: &#x27;Bearer&#x27;,
-            expires_in: &#x27;24h&#x27;,
+            expires_in: 86400, // 24 hours in seconds
         };
     }
 }

@@ -377,7 +377,7 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@ApiResponse({description: &#x27;JSON response&#x27;, status: 201, type: OfferResponse, content: undefined})<br />@ApiProduces(&#x27;application/json&#x27;, &#x27;image/png&#x27;)<br />@UseGuards(JwtAuthGuard)<br />@ApiSecurity(&#x27;bearer&#x27;)<br />@ApiBody({type: PresentationRequest, examples: undefined})<br />@Post(&#x27;request&#x27;)<br /></code>
+                    <code>@ApiResponse({description: &#x27;JSON response&#x27;, status: 201, type: OfferResponse, content: undefined})<br />@ApiProduces(&#x27;application/json&#x27;, &#x27;image/png&#x27;)<br />@UseGuards(JwtAuthGuard)<br />@ApiSecurity(&#x27;oauth2&#x27;)<br />@ApiBody({type: PresentationRequest, examples: undefined})<br />@Post(&#x27;request&#x27;)<br /></code>
                 </td>
             </tr>
 
@@ -582,7 +582,7 @@ import { Response } from &#x27;express&#x27;;
 
 @ApiTags(&#x27;Presentation management&#x27;, &#x27;Admin&#x27;)
 @UseGuards(JwtAuthGuard)
-@ApiSecurity(&#x27;bearer&#x27;)
+@ApiSecurity(&#x27;oauth2&#x27;, [&#x27;api:read&#x27;, &#x27;api:write&#x27;])
 @Controller(&#x27;presentation-management&#x27;)
 export class PresentationManagementController {
     constructor(
@@ -607,7 +607,7 @@ export class PresentationManagementController {
     })
     @ApiProduces(&#x27;application/json&#x27;, &#x27;image/png&#x27;)
     @UseGuards(JwtAuthGuard)
-    @ApiSecurity(&#x27;bearer&#x27;)
+    @ApiSecurity(&#x27;oauth2&#x27;)
     @ApiBody({
         type: PresentationRequest,
         examples: {

@@ -575,7 +575,7 @@ import { Response } from &#x27;express&#x27;;
 
 @ApiTags(&#x27;Issuer management&#x27;, &#x27;Admin&#x27;)
 @UseGuards(JwtAuthGuard)
-@ApiSecurity(&#x27;bearer&#x27;)
+@ApiSecurity(&#x27;oauth2&#x27;)
 @Controller(&#x27;issuer-management&#x27;)
 export class IssuerManagementController {
     constructor(
