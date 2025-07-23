@@ -13,7 +13,7 @@ import { ClientCredentialsDto } from './dto/client-credentials.dto';
 import { TokenPayload } from './token.decorator';
 import { TokenResponse } from './dto/token-response.dto';
 
-@ApiTags('Authentication', 'Admin')
+@ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
     constructor(

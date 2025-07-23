@@ -7,7 +7,7 @@ import { Token, TokenPayload } from '../auth/token.decorator';
 import { StatusUpdateDto } from '../issuer/status-list/dto/status-update.dto';
 import { StatusListService } from '../issuer/status-list/status-list.service';
 
-@ApiTags('Session management', 'Admin')
+@ApiTags('Session management')
 @UseGuards(JwtAuthGuard)
 @ApiSecurity('oauth2')
 @Controller('session')

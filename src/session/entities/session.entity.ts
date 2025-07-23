@@ -34,6 +34,9 @@ export class Session {
      */
     @PrimaryColumn('uuid')
     id: string;
+
+    @Column('varchar', { nullable: true })
+    issuanceId?: string;
     /**
      * Verified credentials from the verification process.
      */

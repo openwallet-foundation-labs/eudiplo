@@ -1,5 +1,6 @@
 import {
     ArrayNotEmpty,
+    IsArray,
     IsEnum,
     IsObject,
     IsOptional,
@@ -20,11 +21,17 @@ export class OfferRequest {
     response_type: ResponseType;
 
     /**
+     * @example "pid"
+     */
+    @IsString()
+    issuanceId: string;
+
+    /**
      * @example ["pid"]
      */
-    @ArrayNotEmpty()
-    @IsString({ each: true })
-    credentialConfigurationIds: string[];
+    @IsArray()
+    @IsOptional()
+    credentialConfigurationIds?: string[];
 
     @IsObject()
     @IsOptional()

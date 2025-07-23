@@ -44,6 +44,16 @@ import { LoggerModule } from 'nestjs-pino';
                 ...CRYPTO_VALIDATION_SCHEMA,
                 ...ISSUER_VALIDATION_SCHEMA,
                 ...SESSION_VALIDATION_SCHEMA,
+                LOG_DISABLE_HTTP_LOGGER: Joi.boolean().default(false),
+                LOG_DISABLE_SESSION_LOGGER: Joi.boolean().default(false),
+                LOG_DEBUG_MODE: Joi.boolean().default(false),
+                LOG_FORMAT: Joi.string()
+                    .valid('json', 'pretty')
+                    .default(
+                        process.env.NODE_ENV === 'production'
+                            ? 'json'
+                            : 'pretty',
+                    ),
             }),
             isGlobal: true,
             expandVariables: true,
@@ -54,6 +64,7 @@ import { LoggerModule } from 'nestjs-pino';
             useFactory: (configService: ConfigService) => ({
                 pinoHttp: {
                     level: configService.get('LOG_LEVEL', 'info'),
+                    //autoLogging: false,
                     transport:
                         process.env.NODE_ENV === 'production'
                             ? undefined

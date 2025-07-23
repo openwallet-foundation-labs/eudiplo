@@ -69,14 +69,32 @@ describe('Issuance', () => {
 
         //import the pid credential configuration
         const pidCredentialConfiguration = JSON.parse(
-            readFileSync('test/pid-issuance.json', 'utf-8'),
+            readFileSync('test/import/issuance/credentials/pid.json', 'utf-8'),
         );
         pidCredentialConfiguration.id = 'pid';
         await request(app.getHttpServer())
-            .post('/issuer-management')
+            .post('/issuer-management/credentials')
             .trustLocalhost()
             .set('Authorization', `Bearer ${authToken}`)
             .send(pidCredentialConfiguration);
+
+        //import the pid credential configuration
+        const pidIssuanceConfiguration = JSON.parse(
+            readFileSync('test/import/issuance/issuance/pid.json', 'utf-8'),
+        );
+        pidIssuanceConfiguration.id = 'pid';
+        const res = await request(app.getHttpServer())
+            .post('/issuer-management/issuance')
+            .trustLocalhost()
+            .set('Authorization', `Bearer ${authToken}`)
+            .send(pidIssuanceConfiguration);
+        console.log(res.body);
+
+        const issuance = await request(app.getHttpServer())
+            .get('/issuer-management/issuance')
+            .trustLocalhost()
+            .set('Authorization', `Bearer ${authToken}`);
+        console.log(issuance.body);
     });
 
     afterAll(async () => {

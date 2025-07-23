@@ -1,28 +1,64 @@
-import { Controller, Get, Param } from '@nestjs/common';
-import { CredentialsService } from './credentials.service';
-import { ApiTags } from '@nestjs/swagger';
+import {
+    Controller,
+    Delete,
+    Get,
+    Param,
+    Post,
+    Body,
+    UseGuards,
+} from '@nestjs/common';
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { Token, TokenPayload } from '../../auth/token.decorator';
+import { CredentialConfigService } from './credential-config/credential-config.service';
+import { CredentialConfig } from './entities/credential.entity';
+import { JwtAuthGuard } from '../../auth/auth.guard';
 
-@ApiTags('Credentials')
-@Controller('credentials/:tenantId')
+/**
+ * Controller for managing credential configurations.
+ */
+@ApiTags('Issuer management')
+@UseGuards(JwtAuthGuard)
+@ApiSecurity('oauth2')
+@Controller('issuer-management/credentials')
 export class CredentialsController {
-    constructor(private readonly credentialsService: CredentialsService) {}
+    /**
+     * Initializes the CredentialsController with the CredentialConfigService.
+     * @param credentialsService
+     */
+    constructor(private readonly credentialsService: CredentialConfigService) {}
 
     /**
-     * Retrieves the VCT (Verifiable Credential Type) from the credentials service.
-     * @param id - The identifier of the credential configuration.
+     * Returns the credential configurations for this tenant.
+     * @returns
      */
-    @Get('vct/:id')
-    vct(@Param('id') id: string, @Param('tenantId') tenantId: string) {
-        return this.credentialsService.getVCT(id, tenantId);
+    @Get()
+    getConfigs(@Token() user: TokenPayload) {
+        return this.credentialsService.get(user.sub);
     }
 
     /**
-     * Retrieves the schema for a specific credential
+     * Stores the credential configuration for this tenant.
+     * @param config
+     * @returns
+     */
+    @Post()
+    storeCredentialConfiguration(
+        @Body() config: CredentialConfig,
+        @Token() user: TokenPayload,
+    ) {
+        return this.credentialsService.store(user.sub, config);
+    }
+
+    /**
+     * Deletes an credential configuration.
      * @param id
      * @returns
      */
-    @Get('schema/:id')
-    schema(@Param('id') id: string, @Param('tenantId') tenantId: string) {
-        return this.credentialsService.getSchema(id, tenantId);
+    @Delete(':id')
+    deleteIssuanceConfiguration(
+        @Param('id') id: string,
+        @Token() user: TokenPayload,
+    ) {
+        return this.credentialsService.delete(user.sub, id);
     }
 }

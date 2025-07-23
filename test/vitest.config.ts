@@ -7,6 +7,7 @@ export default defineConfig({
         include: ['**/*.e2e-spec.ts'],
         globals: true,
         root: './',
+        // globalSetup: './test/global-setup.ts', // Optional - tests handle their own imports
         reporters: [
             'default',
             ['junit', { outputFile: 'test-report.junit.xml' }],

@@ -6,7 +6,7 @@ import { App } from 'supertest/types';
 import request from 'supertest';
 import { ConfigService } from '@nestjs/config';
 import { Openid4vpClient } from '@openid4vc/openid4vp';
-import { callbacks, loggerMiddleware } from './utils';
+import { callbacks } from './utils';
 import { readFileSync } from 'fs';
 
 describe('Presentation', () => {
@@ -23,8 +23,6 @@ describe('Presentation', () => {
         app = moduleFixture.createNestApplication();
 
         app.useLogger(['error', 'warn', 'log']);
-        // Uncomment the next line to enable logger middleware
-        app.use(loggerMiddleware);
         const configService = app.get(ConfigService);
         configService.set('PUBLIC_URL', 'https://example.com'); // Set a test URL
         host = configService.getOrThrow('PUBLIC_URL');
@@ -47,7 +45,7 @@ describe('Presentation', () => {
 
         //import the pid credential configuration
         const pidCredentialConfiguration = JSON.parse(
-            readFileSync('test/pid-presentation.json', 'utf-8'),
+            readFileSync('test/import/presentation/pid.json', 'utf-8'),
         );
         pidCredentialConfiguration.id = 'pid';
         await request(app.getHttpServer())

@@ -5,6 +5,7 @@ import {
     CallHandler,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { ConfigService } from '@nestjs/config';
 import { Observable } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { PinoLogger } from 'nestjs-pino';
@@ -15,15 +16,24 @@ import { SESSION_LOGGER_KEY } from './session-logger.decorator';
  */
 @Injectable()
 export class SessionLoggerInterceptor implements NestInterceptor {
+    private readonly isEnabled: boolean;
+
     /**
      * Constructor for SessionLoggerInterceptor.
      * @param reflector - Reflector instance for accessing metadata.
      * @param logger - PinoLogger instance for logging.
+     * @param configService - ConfigService for accessing configuration.
      */
     constructor(
         private readonly reflector: Reflector,
         private readonly logger: PinoLogger,
-    ) {}
+        private readonly configService: ConfigService,
+    ) {
+        this.isEnabled = !this.configService.get<boolean>(
+            'LOG_DISABLE_SESSION_LOGGER',
+            false,
+        );
+    }
 
     /**
      * Intercepts the request and logs session-related information.
@@ -37,7 +47,7 @@ export class SessionLoggerInterceptor implements NestInterceptor {
             context.getHandler(),
         );
 
-        if (!metadata) {
+        if (!metadata || !this.isEnabled) {
             return next.handle();
         }
 
