@@ -26,7 +26,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { SessionService } from '../../session/session.service';
 import { v4 } from 'uuid';
-import { OfferRequest, OfferResponse } from './dto/offer-request.dto';
+import { OfferRequestDto, OfferResponse } from './dto/offer-request.dto';
 import { NotificationRequestDto } from './dto/notification-request.dto';
 import { SessionLoggerService } from '../../utils/session-logger.service';
 import { SessionLogContext } from '../../utils/session-logger-context';
@@ -110,15 +110,17 @@ export class Oid4vciService implements OnModuleInit {
     }
 
     async createOffer(
-        body: OfferRequest,
+        body: OfferRequestDto,
         user: TokenPayload,
         tenantId: string,
     ): Promise<OfferResponse> {
-        const issuanceConfig =
-            await this.issuanceService.getIssuanceConfigurationById(
-                body.issuanceId,
-                tenantId,
-            );
+        const issuanceConfig = await this.issuanceService
+            .getIssuanceConfigurationById(body.issuanceId, tenantId)
+            .catch(() => {
+                throw new BadRequestException(
+                    `Issuance configuration with ID ${body.issuanceId} not found`,
+                );
+            });
         const credentialConfigurationIds =
             body.credentialConfigurationIds ||
             issuanceConfig.credentialConfigs.map((config) => config.id);

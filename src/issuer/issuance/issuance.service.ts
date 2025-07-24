@@ -64,7 +64,6 @@ export class IssuanceService {
             tenantId,
             credentialConfigs: credentials,
         });
-        console.log('store issuance config', issuanceConfig);
         return this.issuanceConfigRepo.save(issuanceConfig);
     }
 

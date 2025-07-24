@@ -9,7 +9,10 @@ import {
 import { JwtAuthGuard } from '../../auth/auth.guard';
 import { Token, TokenPayload } from '../../auth/token.decorator';
 import { Oid4vciService } from '../../issuer/oid4vci/oid4vci.service';
-import { OfferResponse, OfferRequest } from '../oid4vci/dto/offer-request.dto';
+import {
+    OfferResponse,
+    OfferRequestDto,
+} from '../oid4vci/dto/offer-request.dto';
 import { ResponseType } from '../../verifier/oid4vp/dto/presentation-request.dto';
 import * as QRCode from 'qrcode';
 import { Response } from 'express';
@@ -38,28 +41,28 @@ export class IssuerManagementController {
     })
     @ApiProduces('application/json', 'image/png')
     @ApiBody({
-        type: OfferRequest,
+        type: OfferRequestDto,
         examples: {
             qrcode: {
                 summary: 'QR-Code Example',
                 value: {
                     response_type: ResponseType.QRCode,
                     credentialConfigurationIds: ['pid'],
-                } as OfferRequest,
+                } as OfferRequestDto,
             },
             uri: {
                 summary: 'URI',
                 value: {
                     response_type: ResponseType.URI,
                     credentialConfigurationIds: ['pid'],
-                } as OfferRequest,
+                } as OfferRequestDto,
             },
         },
     })
     @Post('offer')
     async getOffer(
         @Res() res: Response,
-        @Body() body: OfferRequest,
+        @Body() body: OfferRequestDto,
         @Token() user: TokenPayload,
     ) {
         // For now, we'll just pass the body to the service as before

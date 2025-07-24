@@ -4,7 +4,7 @@ import {
 } from '@openid4vc/openid4vci';
 import { VerificationResult } from '@sd-jwt/sd-jwt-vc';
 import { AuthorizeQueries } from '../../issuer/authorize/dto/authorize-request.dto';
-import { OfferRequest } from '../../issuer/oid4vci/dto/offer-request.dto';
+import { OfferRequestDto } from '../../issuer/oid4vci/dto/offer-request.dto';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { WebhookConfig } from '../../utils/webhook.dto';
 
@@ -76,7 +76,7 @@ export class Session {
      * Credential payload containing the offer request details.
      */
     @Column('json', { nullable: true })
-    credentialPayload?: OfferRequest;
+    credentialPayload?: OfferRequestDto;
     /**
      * Webhook configuration to send result and may receive further information.
      */

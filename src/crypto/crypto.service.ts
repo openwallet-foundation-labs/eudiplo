@@ -146,8 +146,6 @@ export class CryptoService implements OnModuleInit {
             join(this.folder, tenantId, 'keys', `${type}-certificate.pem`),
             'utf-8',
         );
-        const crt = new X509Certificate(cert);
-        console.log(crt.subjectAltName);
 
         const chain = cert
             .replace('-----BEGIN CERTIFICATE-----', '')

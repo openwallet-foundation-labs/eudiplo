@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, test } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { App } from 'supertest/types';
 import request from 'supertest';
 import { ConfigService } from '@nestjs/config';
@@ -22,12 +22,13 @@ describe('Presentation', () => {
 
         app = moduleFixture.createNestApplication();
 
-        app.useLogger(['error', 'warn', 'log']);
         const configService = app.get(ConfigService);
         configService.set('PUBLIC_URL', 'https://example.com'); // Set a test URL
         host = configService.getOrThrow('PUBLIC_URL');
         clientId = configService.getOrThrow<string>('AUTH_CLIENT_ID');
         clientSecret = configService.getOrThrow<string>('AUTH_CLIENT_SECRET');
+        app.useGlobalPipes(new ValidationPipe());
+
         await app.init();
 
         // Get JWT token using client credentials

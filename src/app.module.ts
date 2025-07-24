@@ -61,53 +61,60 @@ import { LoggerModule } from 'nestjs-pino';
         LoggerModule.forRootAsync({
             imports: [ConfigModule],
             inject: [ConfigService],
-            useFactory: (configService: ConfigService) => ({
-                pinoHttp: {
-                    level: configService.get('LOG_LEVEL', 'info'),
-                    //autoLogging: false,
-                    transport:
-                        process.env.NODE_ENV === 'production'
-                            ? undefined
-                            : {
-                                  target: 'pino-pretty',
-                                  options: {
-                                      colorize: true,
-                                      singleLine: false,
-                                      translateTime: 'yyyy-mm-dd HH:MM:ss',
-                                      ignore: 'pid,hostname',
+            useFactory: (configService: ConfigService) => {
+                const disableHttpLogger = configService.get<boolean>(
+                    'LOG_DISABLE_HTTP_LOGGER',
+                    false,
+                );
+
+                return {
+                    pinoHttp: {
+                        level: configService.get('LOG_LEVEL', 'info'),
+                        autoLogging: !disableHttpLogger,
+                        transport:
+                            process.env.NODE_ENV === 'production'
+                                ? undefined
+                                : {
+                                      target: 'pino-pretty',
+                                      options: {
+                                          colorize: true,
+                                          singleLine: false,
+                                          translateTime: 'yyyy-mm-dd HH:MM:ss',
+                                          ignore: 'pid,hostname',
+                                      },
                                   },
-                              },
-                    customProps: (req: any) => ({
-                        sessionId:
-                            req.headers['x-session-id'] ||
-                            req.params?.session ||
-                            req.body?.session_id,
-                        tenantId: req.params?.tenantId,
-                        flow: req.url?.includes('/vci')
-                            ? 'OID4VCI'
-                            : req.url?.includes('/oid4vp')
-                              ? 'OID4VP'
-                              : undefined,
-                    }),
-                    serializers: {
-                        req: (req: any) => ({
-                            method: req.method,
-                            url: req.url,
-                            headers: {
-                                'user-agent': req.headers['user-agent'],
-                                'content-type': req.headers['content-type'],
-                            },
+                        customProps: (req: any) => ({
                             sessionId:
                                 req.headers['x-session-id'] ||
-                                req.params?.session,
+                                req.params?.session ||
+                                req.body?.session_id,
                             tenantId: req.params?.tenantId,
+                            flow: req.url?.includes('/vci')
+                                ? 'OID4VCI'
+                                : req.url?.includes('/oid4vp')
+                                  ? 'OID4VP'
+                                  : undefined,
                         }),
-                        res: (res: any) => ({
-                            statusCode: res.statusCode,
-                        }),
+                        serializers: {
+                            req: (req: any) => ({
+                                method: req.method,
+                                url: req.url,
+                                headers: {
+                                    'user-agent': req.headers['user-agent'],
+                                    'content-type': req.headers['content-type'],
+                                },
+                                sessionId:
+                                    req.headers['x-session-id'] ||
+                                    req.params?.session,
+                                tenantId: req.params?.tenantId,
+                            }),
+                            res: (res: any) => ({
+                                statusCode: res.statusCode,
+                            }),
+                        },
                     },
-                },
-            }),
+                };
+            },
         }),
         KeyModule.forRoot(),
         CryptoModule,

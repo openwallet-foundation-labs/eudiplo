@@ -27,13 +27,14 @@ of credential types, their formats, claims, and display properties.
 
 To manage issuance flows (which credentials to issue together and authentication
 requirements), use the `/issuer-management/issuance` endpoint. This endpoint
-handles grouping credentials and defining presentation requirements.
+handles grouping credentials and defining authorizations or webhooks.
 
 Based on your passed JWT, both endpoints will be scoped to the tenant ID of the
 token. The configurations are internally stored in a database.
 
 Via the `/issuer-management/offer` endpoint you can start the issuance flow for
-a specific issuance configuration.
+a specific issuance configuration. Some of the defined information can be
+overridden when creating the credential offer.
 
 ---
 
@@ -43,18 +44,17 @@ This flow describes how a backend service starts an issuance flow of an
 attestation. EUDIPLO creates the OID4VCI request and handles the protocol flow
 with the wallet.
 
-```plantuml
-@startuml
+```mermaid
+sequenceDiagram
 actor EUDI_Wallet
 participant Middleware
 participant End_Service
 
-End_Service -> Middleware : Request OID4VCI presentation request
-Middleware --> End_Service : Return credential offer link
-End_Service -> EUDI_Wallet : Present link to user
-Middleware <-> EUDI_Wallet : OID4VCI
-Middleware -> End_Service : Notify successful issuance (not implemented yet)
-@enduml
+End_Service ->> Middleware : Request OID4VCI presentation request
+Middleware -->> End_Service : Return credential offer link
+End_Service ->> EUDI_Wallet : Present link to user
+Middleware -> EUDI_Wallet : OID4VCI
+Middleware ->> End_Service : Notify successful issuance (not implemented yet)
 ```
 
 ---
@@ -160,7 +160,8 @@ credentials. Each credential type has its own configuration file.
   provided via the `/credentials/vct/{id}` endpoint.
 - `schema`: **OPTIONAL** -
   [Schema Type Metadata](https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-09.html#name-schema-type-metadata)
-  to validate the claims before issuance.
+  to validate the claims before issuance. The schema will be added into the vct
+  values.
 
 ### Issuance Configuration
 
@@ -178,14 +179,6 @@ authentication requirements.
         }
     },
     "credentialConfigs": ["citizen"]
-}
-```
-
-**Simple Issuance Configuration (PID only):**
-
-```json
-{
-    "credentialConfigs": ["pid"]
 }
 ```
 

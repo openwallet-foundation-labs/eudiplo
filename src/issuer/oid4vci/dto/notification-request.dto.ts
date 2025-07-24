@@ -5,6 +5,6 @@ export class NotificationRequestDto {
     @IsString()
     notification_id: string;
 
-    @IsEnum(['credential_issued', 'credential_revoked'])
+    @IsEnum(['credential_accepted', 'credential_revoked'])
     event: NotificationEvent;
 }

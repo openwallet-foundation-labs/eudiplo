@@ -8,7 +8,7 @@ import {
 import { ResponseType } from '../../../verifier/oid4vp/dto/presentation-request.dto';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class OfferRequest {
+export class OfferRequestDto {
     /**
      * @example "qrcode"
      */

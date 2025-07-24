@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeAll, afterAll } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { ConfigService } from '@nestjs/config';
 
@@ -16,6 +16,8 @@ describe('Authentication (e2e)', () => {
         }).compile();
 
         app = moduleFixture.createNestApplication();
+        app.useGlobalPipes(new ValidationPipe());
+
         await app.init();
         const configService = app.get(ConfigService);
         clientId = configService.getOrThrow<string>('AUTH_CLIENT_ID');
