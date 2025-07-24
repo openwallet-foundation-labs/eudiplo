@@ -1,6 +1,5 @@
 import { CallbackContext, Jwk, SignJwtCallback } from '@openid4vc/oauth2';
 import crypto from 'node:crypto';
-import { NextFunction, Request } from 'express';
 import {
     calculateJwkThumbprint,
     exportJWK,
