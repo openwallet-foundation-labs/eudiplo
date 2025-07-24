@@ -80,7 +80,7 @@
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
-               <div class="content miscellaneous-functions">
+               <div class="content injectable">
                    <div class="content-data">
 
 
@@ -90,149 +90,177 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
 <ol class="breadcrumb">
-  <li class="breadcrumb-item">Miscellaneous</li>
-  <li class="breadcrumb-item">Functions</li>
+  <li class="breadcrumb-item">Injectables</li>
+  <li class="breadcrumb-item" >IssuanceService</li>
 </ol>
 
-<section data-compodoc="block-index">
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>src/issuer/issuance/issuance.service.ts</code>
+        </p>
+
+
+
+
+
+            <section data-compodoc="block-index">
     <h3 id="index">Index</h3>
     <table class="table table-sm table-bordered index-table">
         <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <ul class="index-list">
-                        <li>
-                            <a href="#bootstrap" title="src/main.ts" ><b>bootstrap</b>&nbsp;&nbsp;&nbsp;(src/.../main.ts)</a>
-                        </li>
-                        <li>
-                            <a href="#getAccessToken" title="test/import/import.ts" ><b>getAccessToken</b>&nbsp;&nbsp;&nbsp;(test/.../import.ts)</a>
-                        </li>
-                        <li>
-                            <a href="#getHeadersFromRequest" title="src/issuer/oid4vci/util.ts" ><b>getHeadersFromRequest</b>&nbsp;&nbsp;&nbsp;(src/.../util.ts)</a>
-                        </li>
-                        <li>
-                            <a href="#handleRequest" title="test/webhook/src/index.ts" ><b>handleRequest</b>&nbsp;&nbsp;&nbsp;(test/.../index.ts)</a>
-                        </li>
-                        <li>
-                            <a href="#importDirectory" title="test/import/import.ts" ><b>importDirectory</b>&nbsp;&nbsp;&nbsp;(test/.../import.ts)</a>
-                        </li>
-                        <li>
-                            <a href="#importFileWithRetry" title="test/import/import.ts" ><b>importFileWithRetry</b>&nbsp;&nbsp;&nbsp;(test/.../import.ts)</a>
-                        </li>
-                        <li>
-                            <a href="#run" title="test/import/import.ts" ><b>run</b>&nbsp;&nbsp;&nbsp;(test/.../import.ts)</a>
-                        </li>
-                        <li>
-                            <a href="#sleep" title="test/import/import.ts" ><b>sleep</b>&nbsp;&nbsp;&nbsp;(test/.../import.ts)</a>
-                        </li>
-                        <li>
-                            <a href="#validateJsonFile" title="test/import/import.ts" ><b>validateJsonFile</b>&nbsp;&nbsp;&nbsp;(test/.../import.ts)</a>
-                        </li>
-                    </ul>
-                </td>
-            </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#deleteIssuanceConfiguration" >deleteIssuanceConfiguration</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#getIssuanceConfiguration" >getIssuanceConfiguration</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#getIssuanceConfigurationById" >getIssuanceConfigurationById</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#storeIssuanceConfiguration" >storeIssuanceConfiguration</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
         </tbody>
     </table>
 </section>
 
-    <h3>src/main.ts</h3>
-    <section data-compodoc="block-methods">
-    <h3></h3>    <table class="table table-sm table-bordered">
+            <section data-compodoc="block-constructor">
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor(issuanceConfigRepo: <a href="../entitys/IssuanceConfig.html" target="_self">Repository&lt;IssuanceConfig&gt;</a>, credentialsConfigService: <a href="../injectables/CredentialConfigService.html" target="_self">CredentialConfigService</a>)</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="10" class="link-to-prism">src/issuer/issuance/issuance.service.ts:10</a></div>
+                            </td>
+                        </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>issuanceConfigRepo</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../entitys/IssuanceConfig.html" target="_self" >Repository&lt;IssuanceConfig&gt;</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>credentialsConfigService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/CredentialConfigService.html" target="_self" >CredentialConfigService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
+            <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="bootstrap"></a>
+                    <a name="deleteIssuanceConfiguration"></a>
                     <span class="name">
-                        <span ><b>bootstrap</b></span>
-                        <a href="#bootstrap"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>deleteIssuanceConfiguration</b></span>
+                        <a href="#deleteIssuanceConfiguration"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>bootstrap()</code>
+<code>deleteIssuanceConfiguration(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="76"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:76</a></div>
+                        </td>
+                    </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Bootstrap function to initialize the NestJS application.</p>
+                        <div class="io-description"><p>Deletes a credential configuration.</p>
 </div>
 
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</section>    <h3>test/import/import.ts</h3>
-    <section data-compodoc="block-methods">
-    <h3></h3>    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getAccessToken"></a>
-                    <span class="name">
-                        <span ><b>getAccessToken</b></span>
-                        <a href="#getAccessToken"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getAccessToken()</code>
-                </td>
-            </tr>
-
-
-
-
-            <tr>
-                <td class="col-md-4">
-
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
-
-                        </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="importDirectory"></a>
-                    <span class="name">
-                        <span ><b>importDirectory</b></span>
-                        <a href="#importDirectory"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>importDirectory(config: <a href="../undefineds/ImportConfig.html" target="_self">ImportConfig</a>, accessToken: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-
-
-            <tr>
-                <td class="col-md-4">
-
                             <div class="io-description">
                                 <b>Parameters :</b>
                                 
@@ -246,9 +274,9 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>config</td>
+                                                <td>tenantId</td>
                                             <td>
-                                                            <code><a href="../miscellaneous/typealiases.html#ImportConfig" target="_self" >ImportConfig</a></code>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
 
                                             <td>
@@ -258,7 +286,7 @@
 
                                         </tr>
                                         <tr>
-                                                <td>accessToken</td>
+                                                <td>id</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -273,7 +301,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#ImportStats" target="_self" >Promise&lt;ImportStats&gt;</a></code>
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
 
                         </div>
                             <div class="io-description">
@@ -287,24 +315,35 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="importFileWithRetry"></a>
+                    <a name="getIssuanceConfiguration"></a>
                     <span class="name">
-                        <span ><b>importFileWithRetry</b></span>
-                        <a href="#importFileWithRetry"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>getIssuanceConfiguration</b></span>
+                        <a href="#getIssuanceConfiguration"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>importFileWithRetry(filePath: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, endpoint: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, accessToken: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, fileName: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getIssuanceConfiguration(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="22"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:22</a></div>
+                        </td>
+                    </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Returns the issuance configurations for this tenant.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -319,43 +358,7 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>filePath</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>endpoint</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>accessToken</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>fileName</td>
+                                                <td>tenantId</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -370,7 +373,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#ImportResult" target="_self" >Promise&lt;ImportResult&gt;</a></code>
+                            <b>Returns : </b>    <code>unknown</code>
 
                         </div>
                             <div class="io-description">
@@ -384,55 +387,34 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="run"></a>
+                    <a name="getIssuanceConfigurationById"></a>
                     <span class="name">
-                        <span ><b>run</b></span>
-                        <a href="#run"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier">Async</span>
+                        <span ><b>getIssuanceConfigurationById</b></span>
+                        <a href="#getIssuanceConfigurationById"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>run()</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getIssuanceConfigurationById(issuanceConfigId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="35"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:35</a></div>
+                        </td>
+                    </tr>
 
 
             <tr>
                 <td class="col-md-4">
-
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
-
-                        </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="sleep"></a>
-                    <span class="name">
-                        <span ><b>sleep</b></span>
-                        <a href="#sleep"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>sleep(ms: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
-                </td>
-            </tr>
-
-
-
-
-            <tr>
-                <td class="col-md-4">
+                        <div class="io-description"><p>Returns the issuance configuration by ID for a given tenant.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -447,9 +429,9 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>ms</td>
+                                                <td>issuanceConfigId</td>
                                             <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
 
                                             <td>
@@ -458,57 +440,8 @@
 
 
                                         </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="validateJsonFile"></a>
-                    <span class="name">
-                        <span ><b>validateJsonFile</b></span>
-                        <a href="#validateJsonFile"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>validateJsonFile(filePath: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-
-
-            <tr>
-                <td class="col-md-4">
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
                                         <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>filePath</td>
+                                                <td>tenantId</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -523,7 +456,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+                            <b>Returns : </b>        <code><a href="../entitys/IssuanceConfig.html" target="_self" >Promise&lt;IssuanceConfig&gt;</a></code>
 
                         </div>
                             <div class="io-description">
@@ -533,30 +466,38 @@
             </tr>
         </tbody>
     </table>
-</section>    <h3>src/issuer/oid4vci/util.ts</h3>
-    <section data-compodoc="block-methods">
-    <h3></h3>    <table class="table table-sm table-bordered">
+    <table class="table table-sm table-bordered">
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getHeadersFromRequest"></a>
+                    <a name="storeIssuanceConfiguration"></a>
                     <span class="name">
-                        <span ><b>getHeadersFromRequest</b></span>
-                        <a href="#getHeadersFromRequest"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier">Async</span>
+                        <span ><b>storeIssuanceConfiguration</b></span>
+                        <a href="#storeIssuanceConfiguration"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>getHeadersFromRequest(req: Request)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>storeIssuanceConfiguration(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, value: <a href="../classes/IssuanceDto.html" target="_self">IssuanceDto</a>)</code>
                 </td>
             </tr>
 
 
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="51"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:51</a></div>
+                        </td>
+                    </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Store the config. If it already exist, overwrite it.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -571,9 +512,21 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>req</td>
+                                                <td>tenantId</td>
                                             <td>
-                                                        <code>Request</code>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>value</td>
+                                            <td>
+                                                            <code><a href="../classes/IssuanceDto.html" target="_self" >IssuanceDto</a></code>
                                             </td>
 
                                             <td>
@@ -586,70 +539,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>globalThis.Headers</code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</section>    <h3>test/webhook/src/index.ts</h3>
-    <section data-compodoc="block-methods">
-    <h3></h3>    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="handleRequest"></a>
-                    <span class="name">
-                        <span ><b>handleRequest</b></span>
-                        <a href="#handleRequest"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>handleRequest(request: Request)</code>
-                </td>
-            </tr>
-
-
-
-
-            <tr>
-                <td class="col-md-4">
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>request</td>
-                                            <td>
-                                                        <code>Request</code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;Response&gt;</code>
+                            <b>Returns : </b>    <code>unknown</code>
 
                         </div>
                             <div class="io-description">
@@ -660,6 +550,105 @@
         </tbody>
     </table>
 </section>
+
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &#x27;@nestjs/common&#x27;;
+import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
+import { Repository } from &#x27;typeorm&#x27;;
+import { IssuanceConfig } from &#x27;./entities/issuance-config.entity&#x27;;
+import { CredentialConfigService } from &#x27;../credentials/credential-config/credential-config.service&#x27;;
+import { IssuanceDto } from &#x27;./dto/issuance.dto&#x27;;
+import { CredentialConfig } from &#x27;../credentials/entities/credential.entity&#x27;;
+
+@Injectable()
+export class IssuanceService {
+    constructor(
+        @InjectRepository(IssuanceConfig)
+        private issuanceConfigRepo: Repository&lt;IssuanceConfig&gt;,
+        private credentialsConfigService: CredentialConfigService,
+    ) {}
+
+    /**
+     * Returns the issuance configurations for this tenant.
+     * @param tenantId
+     * @returns
+     */
+    public async getIssuanceConfiguration(tenantId: string) {
+        return this.issuanceConfigRepo.find({
+            where: { tenantId },
+            relations: [&#x27;credentialConfigs&#x27;],
+        });
+    }
+
+    /**
+     * Returns the issuance configuration by ID for a given tenant.
+     * @param issuanceConfigId
+     * @param tenantId
+     * @returns
+     */
+    async getIssuanceConfigurationById(
+        issuanceConfigId: string,
+        tenantId: string,
+    ): Promise&lt;IssuanceConfig&gt; {
+        return this.issuanceConfigRepo.findOneOrFail({
+            where: { id: issuanceConfigId, tenantId },
+            relations: [&#x27;credentialConfigs&#x27;],
+        });
+    }
+
+    /**
+     * Store the config. If it already exist, overwrite it.
+     * @param tenantId
+     * @param value
+     * @returns
+     */
+    async storeIssuanceConfiguration(tenantId: string, value: IssuanceDto) {
+        const credentials: CredentialConfig[] &#x3D; [];
+        for (const credentialConfigId of value.credentialConfigs) {
+            const credential &#x3D; await this.credentialsConfigService.getById(
+                tenantId,
+                credentialConfigId,
+            );
+            if (credential) {
+                credentials.push(credential);
+            }
+        }
+        const issuanceConfig &#x3D; this.issuanceConfigRepo.create({
+            ...value,
+            tenantId,
+            credentialConfigs: credentials,
+        });
+        return this.issuanceConfigRepo.save(issuanceConfig);
+    }
+
+    /**
+     * Deletes a credential configuration.
+     * @param tenantId
+     * @param id
+     * @returns
+     */
+    deleteIssuanceConfiguration(tenantId: string, id: string) {
+        return this.issuanceConfigRepo.delete({ tenantId, id });
+    }
+}
+</code></pre>
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
 
 
                    </div><div class="search-results">
@@ -687,8 +676,8 @@
 
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'miscellaneous-functions';
-            var COMPODOC_CURRENT_PAGE_URL = 'functions.html';
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'injectable';
+            var COMPODOC_CURRENT_PAGE_URL = 'IssuanceService.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

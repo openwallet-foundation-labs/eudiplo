@@ -406,7 +406,7 @@ import { Token, TokenPayload } from &#x27;../auth/token.decorator&#x27;;
 import { StatusUpdateDto } from &#x27;../issuer/status-list/dto/status-update.dto&#x27;;
 import { StatusListService } from &#x27;../issuer/status-list/status-list.service&#x27;;
 
-@ApiTags(&#x27;Session management&#x27;, &#x27;Admin&#x27;)
+@ApiTags(&#x27;Session management&#x27;)
 @UseGuards(JwtAuthGuard)
 @ApiSecurity(&#x27;oauth2&#x27;)
 @Controller(&#x27;session&#x27;)

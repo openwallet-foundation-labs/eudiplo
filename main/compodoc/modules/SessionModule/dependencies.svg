@@ -24,10 +24,6 @@
 <title>cluster_SessionModule</title>
 <polygon fill="none" stroke="black" stroke-dasharray="1,5" points="93,-70 93,-268 403,-268 403,-70 93,-70"/>
 </g>
-<g id="clust4" class="cluster">
-<title>cluster_SessionModule_exports</title>
-<polygon fill="none" stroke="black" points="193,-208 193,-260 313,-260 313,-208 193,-208"/>
-</g>
 <g id="clust3" class="cluster">
 <title>cluster_SessionModule_imports</title>
 <polygon fill="none" stroke="black" points="263,-78 263,-130 395,-130 395,-78 263,-78"/>
@@ -35,6 +31,10 @@
 <g id="clust6" class="cluster">
 <title>cluster_SessionModule_providers</title>
 <polygon fill="none" stroke="black" points="101,-78 101,-130 255,-130 255,-78 101,-78"/>
+</g>
+<g id="clust4" class="cluster">
+<title>cluster_SessionModule_exports</title>
+<polygon fill="none" stroke="black" points="193,-208 193,-260 313,-260 313,-208 193,-208"/>
 </g>
 <!-- StatusListModule -->
 <g id="node1" class="node">

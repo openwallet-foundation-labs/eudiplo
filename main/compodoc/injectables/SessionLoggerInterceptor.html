@@ -134,6 +134,22 @@
     <h3 id="index">Index</h3>
     <table class="table table-sm table-bordered index-table">
         <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Readonly</span>
+                                <a href="#isEnabled" >isEnabled</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
 
                 <tr>
                     <td class="col-md-4">
@@ -168,12 +184,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(reflector: Reflector, logger: PinoLogger)</code>
+<code>constructor(reflector: Reflector, logger: PinoLogger, configService: ConfigService)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="17" class="link-to-prism">src/utils/session-logger.interceptor.ts:17</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/utils/session-logger.interceptor.ts:19</a></div>
                             </td>
                         </tr>
 
@@ -229,6 +245,24 @@
 
                                                         </td>
                                                 </tr>
+                                                <tr>
+                                                        <td>configService</td>
+                                                  
+                                                        <td>
+                                                                    <code>ConfigService</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                        <td>
+                                                                <ul>
+<li>ConfigService for accessing configuration.</li>
+</ul>
+
+                                                        </td>
+                                                </tr>
                                         </tbody>
                                     </table>
                             </div>
@@ -263,8 +297,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="34"
-                                    class="link-to-prism">src/utils/session-logger.interceptor.ts:34</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="44"
+                                    class="link-to-prism">src/utils/session-logger.interceptor.ts:44</a></div>
                         </td>
                     </tr>
 
@@ -360,8 +394,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="131"
-                                    class="link-to-prism">src/utils/session-logger.interceptor.ts:131</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="141"
+                                    class="link-to-prism">src/utils/session-logger.interceptor.ts:141</a></div>
                         </td>
                     </tr>
 
@@ -418,6 +452,40 @@
         </tbody>
     </table>
 </section>
+            <section data-compodoc="block-properties">
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="isEnabled"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Readonly</span>
+                        <span ><b>isEnabled</b></span>
+                        <a href="#isEnabled"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/utils/session-logger.interceptor.ts:19</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+</section>
 
     </div>
 
@@ -430,6 +498,7 @@
     CallHandler,
 } from &#x27;@nestjs/common&#x27;;
 import { Reflector } from &#x27;@nestjs/core&#x27;;
+import { ConfigService } from &#x27;@nestjs/config&#x27;;
 import { Observable } from &#x27;rxjs&#x27;;
 import { tap, catchError } from &#x27;rxjs/operators&#x27;;
 import { PinoLogger } from &#x27;nestjs-pino&#x27;;
@@ -440,15 +509,24 @@ import { SESSION_LOGGER_KEY } from &#x27;./session-logger.decorator&#x27;;
  */
 @Injectable()
 export class SessionLoggerInterceptor implements NestInterceptor {
+    private readonly isEnabled: boolean;
+
     /**
      * Constructor for SessionLoggerInterceptor.
      * @param reflector - Reflector instance for accessing metadata.
      * @param logger - PinoLogger instance for logging.
+     * @param configService - ConfigService for accessing configuration.
      */
     constructor(
         private readonly reflector: Reflector,
         private readonly logger: PinoLogger,
-    ) {}
+        private readonly configService: ConfigService,
+    ) {
+        this.isEnabled &#x3D; !this.configService.get&lt;boolean&gt;(
+            &#x27;LOG_DISABLE_SESSION_LOGGER&#x27;,
+            false,
+        );
+    }
 
     /**
      * Intercepts the request and logs session-related information.
@@ -462,7 +540,7 @@ export class SessionLoggerInterceptor implements NestInterceptor {
             context.getHandler(),
         );
 
-        if (!metadata) {
+        if (!metadata || !this.isEnabled) {
             return next.handle();
         }
 

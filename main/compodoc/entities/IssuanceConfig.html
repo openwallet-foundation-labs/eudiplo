@@ -114,7 +114,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/issuer/credentials/entities/issuance-config.entity.ts</code>
+            <code>src/issuer/issuance/entities/issuance-config.entity.ts</code>
         </p>
 
 
@@ -134,25 +134,14 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                <a href="#claims" >claims</a>
-                            </li>
-                            <li>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                <a href="#config" >config</a>
-                            </li>
-                            <li>
-                                    <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
                                 <a href="#createdAt" >createdAt</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                <a href="#disclosureFrame" >disclosureFrame</a>
+                                <a href="#credentialConfigs" >credentialConfigs</a>
                             </li>
                             <li>
-                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                 <a href="#id" >id</a>
                             </li>
@@ -166,21 +155,7 @@
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier">Optional</span>
-                                <a href="#schema" >schema</a>
-                            </li>
-                            <li>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
                                 <a href="#tenantId" >tenantId</a>
-                            </li>
-                            <li>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier">Optional</span>
-                                <a href="#vct" >vct</a>
                             </li>
                         </ul>
                     </td>
@@ -204,83 +179,10 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="claims"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                        <span ><b>claims</b></span>
-                        <a href="#claims"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>    <code>Record&lt;string | any&gt;</code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @Column(&#x27;json&#x27;)<br />@IsObject()<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="22" class="link-to-prism">src/issuer/credentials/entities/issuance-config.entity.ts:22</a></div>
-                        </td>
-                    </tr>
-
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="config"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                        <span ><b>config</b></span>
-                        <a href="#config"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../miscellaneous/typealiases.html#Credential" target="_self" >CredentialConfigurationSupported</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @Column(&#x27;json&#x27;)<br />@IsObject()<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="18" class="link-to-prism">src/issuer/credentials/entities/issuance-config.entity.ts:18</a></div>
-                        </td>
-                    </tr>
-
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
                     <a name="createdAt"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
                         <span ><b>createdAt</b></span>
                         <a href="#createdAt"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -303,7 +205,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/issuer/credentials/entities/issuance-config.entity.ts:42</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="39" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:39</a></div>
                         </td>
                     </tr>
 
@@ -320,18 +222,17 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="disclosureFrame"></a>
+                    <a name="credentialConfigs"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                            <span class="modifier"></span>
-                        <span ><b>disclosureFrame</b></span>
-                        <a href="#disclosureFrame"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>credentialConfigs</b></span>
+                        <a href="#credentialConfigs"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>    <code>Record&lt;string | any&gt;</code>
+                        <i>Type : </i>        <code><a href="../entitys/CredentialConfig.html" target="_self" >CredentialConfig[]</a></code>
 
                     </td>
                 </tr>
@@ -340,13 +241,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @Column(&#x27;json&#x27;)<br />@IsObject()<br />
+                            @ManyToMany(undefined, credentialConfig &#x3D;&gt; credentialConfig.issuanceConfig)<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/issuer/credentials/entities/issuance-config.entity.ts:25</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:25</a></div>
                         </td>
                     </tr>
 
@@ -359,7 +260,6 @@
                 <td class="col-md-4">
                     <a name="id"></a>
                     <span class="name">
-                            <span class="modifier"></span>
                             <span class="modifier"></span>
                         <span ><b>id</b></span>
                         <a href="#id"><span class="icon ion-ios-link"></span></a>
@@ -377,16 +277,22 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @Column(&#x27;varchar&#x27;, {primary: true})<br />@IsString()<br />
+                            @PrimaryGeneratedColumn(&#x27;uuid&#x27;)<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="12" class="link-to-prism">src/issuer/credentials/entities/issuance-config.entity.ts:12</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="13" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:13</a></div>
                         </td>
                     </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Unique identifier for the issuance configuration.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -416,55 +322,23 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @Column(&#x27;json&#x27;, {nullable: true})<br />@IsObject()<br />@IsOptional()<br />
+                            @IsObject()<br />@IsOptional()<br />@Column(&#x27;json&#x27;, {nullable: true})<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="33" class="link-to-prism">src/issuer/credentials/entities/issuance-config.entity.ts:33</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="34" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:34</a></div>
                         </td>
                     </tr>
 
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="schema"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier">Optional</span>
-                        <span ><b>schema</b></span>
-                        <a href="#schema"><span class="icon ion-ios-link"></span></a>
-                    </span>
+                    <div class="io-description"><p>Presentation during issuance configuration.
+This is optional and can be used to specify how the presentation should be handled during the issuance process.</p>
+</div>
                 </td>
             </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../classes/SchemaResponse.html" target="_self" >SchemaResponse</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @Column(&#x27;json&#x27;, {nullable: true})<br />@IsObject()<br />@IsOptional()<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="37" class="link-to-prism">src/issuer/credentials/entities/issuance-config.entity.ts:37</a></div>
-                        </td>
-                    </tr>
-
 
         </tbody>
     </table>
@@ -492,55 +366,22 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ApiHideProperty()<br />@Column(&#x27;varchar&#x27;, {primary: true})<br />
+                            @ApiHideProperty()<br />@Column(&#x27;varchar&#x27;)<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/issuer/credentials/entities/issuance-config.entity.ts:15</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:19</a></div>
                         </td>
                     </tr>
 
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="vct"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier">Optional</span>
-                        <span ><b>vct</b></span>
-                        <a href="#vct"><span class="icon ion-ios-link"></span></a>
-                    </span>
+                    <div class="io-description"><p>Tenant ID for the issuance configuration.</p>
+</div>
                 </td>
             </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../classes/VCT.html" target="_self" >VCT</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @Column(&#x27;json&#x27;, {nullable: true})<br />@IsObject()<br />@IsOptional()<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="29" class="link-to-prism">src/issuer/credentials/entities/issuance-config.entity.ts:29</a></div>
-                        </td>
-                    </tr>
-
 
         </tbody>
     </table>
@@ -549,48 +390,45 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { CredentialConfigurationSupported } from &#x27;@openid4vc/openid4vci&#x27;;
-import { IsString, IsOptional, IsObject } from &#x27;class-validator&#x27;;
-import { Column, Entity } from &#x27;typeorm&#x27;;
-import { VCT, PresentationDuringIssuance } from &#x27;../dto/credential-config.dto&#x27;;
-import { SchemaResponse } from &#x27;../dto/schema-response.dto&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { IsOptional, IsObject } from &#x27;class-validator&#x27;;
+import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from &#x27;typeorm&#x27;;
+import { PresentationDuringIssuance } from &#x27;../../credentials-metadata/dto/credential-config.dto&#x27;;
 import { ApiHideProperty } from &#x27;@nestjs/swagger&#x27;;
+import { CredentialConfig } from &#x27;../../credentials/entities/credential.entity&#x27;;
 
 @Entity()
 export class IssuanceConfig {
-    @Column(&#x27;varchar&#x27;, { primary: true })
-    @IsString()
+    /**
+     * Unique identifier for the issuance configuration.
+     */
+    @PrimaryGeneratedColumn(&#x27;uuid&#x27;)
     id: string;
+    /**
+     * Tenant ID for the issuance configuration.
+     */
     @ApiHideProperty()
-    @Column(&#x27;varchar&#x27;, { primary: true })
+    @Column(&#x27;varchar&#x27;)
     tenantId: string;
-    @Column(&#x27;json&#x27;)
-    @IsObject()
-    config: CredentialConfigurationSupported;
-    @Column(&#x27;json&#x27;)
-    // default values to be used
-    @IsObject()
-    claims: Record&lt;string, any&gt;;
-    @Column(&#x27;json&#x27;)
-    @IsObject()
-    disclosureFrame: Record&lt;string, any&gt;;
-    @Column(&#x27;json&#x27;, { nullable: true })
-    @IsObject()
-    @IsOptional()
-    vct?: VCT;
-    @Column(&#x27;json&#x27;, { nullable: true })
+
+    @ManyToMany(
+        () &#x3D;&gt; CredentialConfig,
+        (credentialConfig) &#x3D;&gt; credentialConfig.issuanceConfig,
+    )
+    credentialConfigs: CredentialConfig[];
+
+    /**
+     * Presentation during issuance configuration.
+     * This is optional and can be used to specify how the presentation should be handled during the issuance process.
+     */
     @IsObject()
     @IsOptional()
+    @Column(&#x27;json&#x27;, { nullable: true })
     presentation_during_issuance?: PresentationDuringIssuance;
-    @Column(&#x27;json&#x27;, { nullable: true })
-    @IsObject()
-    @IsOptional()
-    schema?: SchemaResponse;
     /**
      * The timestamp when the VP request was created.
      */
     @Column({ type: &#x27;date&#x27;, default: () &#x3D;&gt; &#x27;CURRENT_TIMESTAMP&#x27; })
-    createdAt: Date;
+    createdAt?: Date;
 }
 </code></pre>
     </div>

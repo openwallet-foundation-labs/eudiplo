@@ -46,8 +46,6 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/mkdocs_puml/puml.css">
-    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -1180,6 +1178,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#http-requestresponse-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      HTTP Request/Response Logging
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#sessionloggerservice" class="md-nav__link">
     <span class="md-ellipsis">
       SessionLoggerService
@@ -1216,6 +1223,15 @@
   <a href="#monitoring-session-flows" class="md-nav__link">
     <span class="md-ellipsis">
       Monitoring Session Flows
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#full-development-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Full Development Logging
     </span>
   </a>
   
@@ -1370,6 +1386,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#http-requestresponse-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      HTTP Request/Response Logging
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#sessionloggerservice" class="md-nav__link">
     <span class="md-ellipsis">
       SessionLoggerService
@@ -1406,6 +1431,15 @@
   <a href="#monitoring-session-flows" class="md-nav__link">
     <span class="md-ellipsis">
       Monitoring Session Flows
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#full-development-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Full Development Logging
     </span>
   </a>
   
@@ -1502,53 +1536,78 @@ debugging and monitoring.</p>
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="nv">LOG_LEVEL</span><span class="o">=</span>error
 </code></pre></div>
 <h2 id="disabling-specific-logger-services">Disabling Specific Logger Services<a class="headerlink" href="#disabling-specific-logger-services" title="Permanent link">&para;</a></h2>
+<h3 id="http-requestresponse-logging">HTTP Request/Response Logging<a class="headerlink" href="#http-requestresponse-logging" title="Permanent link">&para;</a></h3>
+<p>To disable automatic HTTP request and response logging from Pino (useful during
+development when you want to reduce log noise):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Disable HTTP request/response logging</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nv">LOG_DISABLE_HTTP_LOGGER</span><span class="o">=</span><span class="nb">true</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Enable HTTP request/response logging (default)</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="nv">LOG_DISABLE_HTTP_LOGGER</span><span class="o">=</span><span class="nb">false</span>
+</code></pre></div>
+<p><strong>Note:</strong> This controls the built-in HTTP logging from the Pino HTTP logger.
+Session-specific logging is controlled separately.</p>
 <h3 id="sessionloggerservice">SessionLoggerService<a class="headerlink" href="#sessionloggerservice" title="Permanent link">&para;</a></h3>
 <p>To disable all session-related logging (useful during debugging when you want to
 focus on other components):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Disable SessionLoggerService logs</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nv">LOG_DISABLE_SESSION_LOGGER</span><span class="o">=</span><span class="nb">true</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Enable SessionLoggerService logs (default)</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="nv">LOG_DISABLE_SESSION_LOGGER</span><span class="o">=</span><span class="nb">false</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Disable SessionLoggerService logs</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nv">LOG_DISABLE_SESSION_LOGGER</span><span class="o">=</span><span class="nb">true</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Enable SessionLoggerService logs (default)</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nv">LOG_DISABLE_SESSION_LOGGER</span><span class="o">=</span><span class="nb">false</span>
 </code></pre></div>
 <h2 id="development-scenarios">Development Scenarios<a class="headerlink" href="#development-scenarios" title="Permanent link">&para;</a></h2>
 <h3 id="debugging-authentication-issues">Debugging Authentication Issues<a class="headerlink" href="#debugging-authentication-issues" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nv">LOG_LEVEL</span><span class="o">=</span>debug
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nv">LOG_DISABLE_SESSION_LOGGER</span><span class="o">=</span><span class="nb">true</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nv">LOG_LEVEL</span><span class="o">=</span>debug
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nv">LOG_DISABLE_SESSION_LOGGER</span><span class="o">=</span><span class="nb">true</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nv">LOG_DISABLE_HTTP_LOGGER</span><span class="o">=</span><span class="nb">true</span>
 </code></pre></div>
-<p>This will show detailed debug logs but hide session-related noise.</p>
+<p>This will show detailed debug logs but hide session-related and HTTP request
+noise.</p>
 <h3 id="monitoring-session-flows">Monitoring Session Flows<a class="headerlink" href="#monitoring-session-flows" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nv">LOG_LEVEL</span><span class="o">=</span>info
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nv">LOG_DISABLE_SESSION_LOGGER</span><span class="o">=</span><span class="nb">false</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nv">LOG_LEVEL</span><span class="o">=</span>info
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nv">LOG_DISABLE_SESSION_LOGGER</span><span class="o">=</span><span class="nb">false</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nv">LOG_DISABLE_HTTP_LOGGER</span><span class="o">=</span><span class="nb">true</span>
 </code></pre></div>
 <p>This will show all session flow events for monitoring credential issuance and
-verification.</p>
-<h3 id="production-monitoring">Production Monitoring<a class="headerlink" href="#production-monitoring" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nv">LOG_LEVEL</span><span class="o">=</span>warn
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nv">LOG_DISABLE_SESSION_LOGGER</span><span class="o">=</span><span class="nb">false</span>
+verification, but without HTTP request logs.</p>
+<h3 id="full-development-logging">Full Development Logging<a class="headerlink" href="#full-development-logging" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nv">LOG_LEVEL</span><span class="o">=</span>debug
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="nv">LOG_DISABLE_SESSION_LOGGER</span><span class="o">=</span><span class="nb">false</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="nv">LOG_DISABLE_HTTP_LOGGER</span><span class="o">=</span><span class="nb">false</span>
 </code></pre></div>
-<p>This will only show warnings, errors, and important session events.</p>
+<p>This will show everything including HTTP requests, responses, and session flows.</p>
+<h3 id="production-monitoring">Production Monitoring<a class="headerlink" href="#production-monitoring" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nv">LOG_LEVEL</span><span class="o">=</span>warn
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nv">LOG_DISABLE_SESSION_LOGGER</span><span class="o">=</span><span class="nb">false</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="nv">LOG_DISABLE_HTTP_LOGGER</span><span class="o">=</span><span class="nb">true</span>
+</code></pre></div>
+<p>This will only show warnings, errors, and important session events without HTTP
+noise.</p>
 <h2 id="log-structure">Log Structure<a class="headerlink" href="#log-structure" title="Permanent link">&para;</a></h2>
 <p>Session logs include structured data:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="nt">&quot;level&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;info&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="nt">&quot;time&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-07-20T10:30:45.123Z&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="nt">&quot;context&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SessionLoggerService&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="nt">&quot;sessionId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;session_123&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="nt">&quot;tenantId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tenant_456&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="nt">&quot;flowType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;OID4VCI&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">    </span><span class="nt">&quot;event&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;flow_start&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">    </span><span class="nt">&quot;stage&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;initialization&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="nt">&quot;msg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;[OID4VCI] Flow started for session session_123 in tenant tenant_456&quot;</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="p">{</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="nt">&quot;level&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;info&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="nt">&quot;time&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-07-20T10:30:45.123Z&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="nt">&quot;context&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SessionLoggerService&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">    </span><span class="nt">&quot;sessionId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;session_123&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">    </span><span class="nt">&quot;tenantId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tenant_456&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">    </span><span class="nt">&quot;flowType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;OID4VCI&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">    </span><span class="nt">&quot;event&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;flow_start&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">    </span><span class="nt">&quot;stage&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;initialization&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">    </span><span class="nt">&quot;msg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;[OID4VCI] Flow started for session session_123 in tenant tenant_456&quot;</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="p">}</span>
 </code></pre></div>
 <h2 id="environment-configuration">Environment Configuration<a class="headerlink" href="#environment-configuration" title="Permanent link">&para;</a></h2>
 <p>Add these to your <code>.env</code> file:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Basic logging</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nv">LOG_LEVEL</span><span class="o">=</span>info
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># Session logger control</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="nv">LOG_DISABLE_SESSION_LOGGER</span><span class="o">=</span><span class="nb">false</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Basic logging</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nv">LOG_LEVEL</span><span class="o">=</span>info
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="c1"># HTTP request/response logging control</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="nv">LOG_DISABLE_HTTP_LOGGER</span><span class="o">=</span><span class="nb">false</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="c1"># Session logger control</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="nv">LOG_DISABLE_SESSION_LOGGER</span><span class="o">=</span><span class="nb">false</span>
 </code></pre></div>
 <h2 id="runtime-control">Runtime Control<a class="headerlink" href="#runtime-control" title="Permanent link">&para;</a></h2>
 <p>You can also control logging at runtime by restarting the service with different
@@ -1671,8 +1730,6 @@ needed.</p>
     
     
       <script src="../../assets/javascripts/bundle.56ea9cef.min.js"></script>
-      
-        <script src="../../assets/mkdocs_puml/puml.js"></script>
       
     
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});

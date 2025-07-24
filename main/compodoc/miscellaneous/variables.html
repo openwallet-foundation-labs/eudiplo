@@ -146,10 +146,10 @@
                             <a href="#client" title="src/registrar/generated/client.gen.ts" ><b>client</b>&nbsp;&nbsp;&nbsp;(src/.../client.gen.ts)</a>
                         </li>
                         <li>
-                            <a href="#clientId" title="scripts/import.ts" ><b>clientId</b>&nbsp;&nbsp;&nbsp;(scripts/.../import.ts)</a>
+                            <a href="#clientId" title="test/import/import.ts" ><b>clientId</b>&nbsp;&nbsp;&nbsp;(test/.../import.ts)</a>
                         </li>
                         <li>
-                            <a href="#clientSecret" title="scripts/import.ts" ><b>clientSecret</b>&nbsp;&nbsp;&nbsp;(scripts/.../import.ts)</a>
+                            <a href="#clientSecret" title="test/import/import.ts" ><b>clientSecret</b>&nbsp;&nbsp;&nbsp;(test/.../import.ts)</a>
                         </li>
                         <li>
                             <a href="#createClient" title="src/registrar/generated/client/client.ts" ><b>createClient</b>&nbsp;&nbsp;&nbsp;(src/.../client.ts)</a>
@@ -224,6 +224,9 @@
                             <a href="#KEY_VALIDATION_SCHEMA" title="src/crypto/key/key.module.ts" ><b>KEY_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../key.module.ts)</a>
                         </li>
                         <li>
+                            <a href="#maxRetries" title="test/import/import.ts" ><b>maxRetries</b>&nbsp;&nbsp;&nbsp;(test/.../import.ts)</a>
+                        </li>
+                        <li>
                             <a href="#mergeConfigs" title="src/registrar/generated/client/utils.ts" ><b>mergeConfigs</b>&nbsp;&nbsp;&nbsp;(src/.../utils.ts)</a>
                         </li>
                         <li>
@@ -278,6 +281,9 @@
                             <a href="#relyingPartyControllerRemove" title="src/registrar/generated/sdk.gen.ts" ><b>relyingPartyControllerRemove</b>&nbsp;&nbsp;&nbsp;(src/.../sdk.gen.ts)</a>
                         </li>
                         <li>
+                            <a href="#retryDelay" title="test/import/import.ts" ><b>retryDelay</b>&nbsp;&nbsp;&nbsp;(test/.../import.ts)</a>
+                        </li>
+                        <li>
                             <a href="#separatorArrayExplode" title="src/registrar/generated/core/pathSerializer.ts" ><b>separatorArrayExplode</b>&nbsp;&nbsp;&nbsp;(src/.../pathSerializer.ts)</a>
                         </li>
                         <li>
@@ -329,7 +335,7 @@
                             <a href="#Token" title="src/auth/token.decorator.ts" ><b>Token</b>&nbsp;&nbsp;&nbsp;(src/.../token.decorator.ts)</a>
                         </li>
                         <li>
-                            <a href="#url" title="scripts/import.ts" ><b>url</b>&nbsp;&nbsp;&nbsp;(scripts/.../import.ts)</a>
+                            <a href="#url" title="test/import/import.ts" ><b>url</b>&nbsp;&nbsp;&nbsp;(test/.../import.ts)</a>
                         </li>
                         <li>
                             <a href="#urlSearchParamsBodySerializer" title="src/registrar/generated/core/bodySerializer.ts" ><b>urlSearchParamsBodySerializer</b>&nbsp;&nbsp;&nbsp;(src/.../bodySerializer.ts)</a>
@@ -2309,7 +2315,7 @@ Subject is not RFC 4514 conform</p>
         </tbody>
     </table>
 </section>
-    <h3>scripts/import.ts</h3>
+    <h3>test/import/import.ts</h3>
     <section data-compodoc="block-properties">
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
@@ -2324,13 +2330,7 @@ Subject is not RFC 4514 conform</p>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Default value : </i><code>&#x27;root&#x27;</code>
+                        <i>Default value : </i><code>process.env.CLIENT_ID || &#x27;root&#x27;</code>
                     </td>
                 </tr>
 
@@ -2350,13 +2350,47 @@ Subject is not RFC 4514 conform</p>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-
+                        <i>Default value : </i><code>process.env.CLIENT_SECRET || &#x27;root&#x27;</code>
                     </td>
                 </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="maxRetries"></a>
+                    <span class="name">
+                        <span ><b>maxRetries</b></span>
+                        <a href="#maxRetries"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Default value : </i><code>&#x27;root&#x27;</code>
+                        <i>Default value : </i><code>parseInt(process.env.MAX_RETRIES || &#x27;3&#x27;)</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="retryDelay"></a>
+                    <span class="name">
+                        <span ><b>retryDelay</b></span>
+                        <a href="#retryDelay"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>parseInt(process.env.RETRY_DELAY || &#x27;1000&#x27;)</code>
                     </td>
                 </tr>
 
@@ -2376,13 +2410,7 @@ Subject is not RFC 4514 conform</p>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Default value : </i><code>&#x27;http://localhost:3000&#x27;</code>
+                        <i>Default value : </i><code>process.env.API_URL || &#x27;http://localhost:3000&#x27;</code>
                     </td>
                 </tr>
 

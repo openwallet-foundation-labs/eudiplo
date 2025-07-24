@@ -580,7 +580,7 @@ import { Oid4vpService } from &#x27;../oid4vp/oid4vp.service&#x27;;
 import * as QRCode from &#x27;qrcode&#x27;;
 import { Response } from &#x27;express&#x27;;
 
-@ApiTags(&#x27;Presentation management&#x27;, &#x27;Admin&#x27;)
+@ApiTags(&#x27;Presentation management&#x27;)
 @UseGuards(JwtAuthGuard)
 @ApiSecurity(&#x27;oauth2&#x27;, [&#x27;api:read&#x27;, &#x27;api:write&#x27;])
 @Controller(&#x27;presentation-management&#x27;)

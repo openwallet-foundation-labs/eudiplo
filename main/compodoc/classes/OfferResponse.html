@@ -184,7 +184,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:36</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:42</a></div>
                         </td>
                     </tr>
 
@@ -210,7 +210,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="35" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:35</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:41</a></div>
                         </td>
                     </tr>
 
@@ -230,7 +230,7 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
-    ArrayNotEmpty,
+    IsArray,
     IsEnum,
     IsObject,
     IsOptional,
@@ -239,7 +239,7 @@
 import { ResponseType } from &#x27;../../../verifier/oid4vp/dto/presentation-request.dto&#x27;;
 import { ApiProperty } from &#x27;@nestjs/swagger&#x27;;
 
-export class OfferRequest {
+export class OfferRequestDto {
     /**
      * @example &quot;qrcode&quot;
      */
@@ -251,11 +251,17 @@ export class OfferRequest {
     response_type: ResponseType;
 
     /**
+     * @example &quot;pid&quot;
+     */
+    @IsString()
+    issuanceId: string;
+
+    /**
      * @example [&quot;pid&quot;]
      */
-    @ArrayNotEmpty()
-    @IsString({ each: true })
-    credentialConfigurationIds: string[];
+    @IsArray()
+    @IsOptional()
+    credentialConfigurationIds?: string[];
 
     @IsObject()
     @IsOptional()

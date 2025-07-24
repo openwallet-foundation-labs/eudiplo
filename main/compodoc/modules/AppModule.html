@@ -391,6 +391,16 @@ import { LoggerModule } from &#x27;nestjs-pino&#x27;;
                 ...CRYPTO_VALIDATION_SCHEMA,
                 ...ISSUER_VALIDATION_SCHEMA,
                 ...SESSION_VALIDATION_SCHEMA,
+                LOG_DISABLE_HTTP_LOGGER: Joi.boolean().default(false),
+                LOG_DISABLE_SESSION_LOGGER: Joi.boolean().default(false),
+                LOG_DEBUG_MODE: Joi.boolean().default(false),
+                LOG_FORMAT: Joi.string()
+                    .valid(&#x27;json&#x27;, &#x27;pretty&#x27;)
+                    .default(
+                        process.env.NODE_ENV &#x3D;&#x3D;&#x3D; &#x27;production&#x27;
+                            ? &#x27;json&#x27;
+                            : &#x27;pretty&#x27;,
+                    ),
             }),
             isGlobal: true,
             expandVariables: true,
@@ -398,52 +408,60 @@ import { LoggerModule } from &#x27;nestjs-pino&#x27;;
         LoggerModule.forRootAsync({
             imports: [ConfigModule],
             inject: [ConfigService],
-            useFactory: (configService: ConfigService) &#x3D;&gt; ({
-                pinoHttp: {
-                    level: configService.get(&#x27;LOG_LEVEL&#x27;, &#x27;info&#x27;),
-                    transport:
-                        process.env.NODE_ENV &#x3D;&#x3D;&#x3D; &#x27;production&#x27;
-                            ? undefined
-                            : {
-                                  target: &#x27;pino-pretty&#x27;,
-                                  options: {
-                                      colorize: true,
-                                      singleLine: false,
-                                      translateTime: &#x27;yyyy-mm-dd HH:MM:ss&#x27;,
-                                      ignore: &#x27;pid,hostname&#x27;,
+            useFactory: (configService: ConfigService) &#x3D;&gt; {
+                const disableHttpLogger &#x3D; configService.get&lt;boolean&gt;(
+                    &#x27;LOG_DISABLE_HTTP_LOGGER&#x27;,
+                    false,
+                );
+
+                return {
+                    pinoHttp: {
+                        level: configService.get(&#x27;LOG_LEVEL&#x27;, &#x27;info&#x27;),
+                        autoLogging: !disableHttpLogger,
+                        transport:
+                            process.env.NODE_ENV &#x3D;&#x3D;&#x3D; &#x27;production&#x27;
+                                ? undefined
+                                : {
+                                      target: &#x27;pino-pretty&#x27;,
+                                      options: {
+                                          colorize: true,
+                                          singleLine: false,
+                                          translateTime: &#x27;yyyy-mm-dd HH:MM:ss&#x27;,
+                                          ignore: &#x27;pid,hostname&#x27;,
+                                      },
                                   },
-                              },
-                    customProps: (req: any) &#x3D;&gt; ({
-                        sessionId:
-                            req.headers[&#x27;x-session-id&#x27;] ||
-                            req.params?.session ||
-                            req.body?.session_id,
-                        tenantId: req.params?.tenantId,
-                        flow: req.url?.includes(&#x27;/vci&#x27;)
-                            ? &#x27;OID4VCI&#x27;
-                            : req.url?.includes(&#x27;/oid4vp&#x27;)
-                              ? &#x27;OID4VP&#x27;
-                              : undefined,
-                    }),
-                    serializers: {
-                        req: (req: any) &#x3D;&gt; ({
-                            method: req.method,
-                            url: req.url,
-                            headers: {
-                                &#x27;user-agent&#x27;: req.headers[&#x27;user-agent&#x27;],
-                                &#x27;content-type&#x27;: req.headers[&#x27;content-type&#x27;],
-                            },
+                        customProps: (req: any) &#x3D;&gt; ({
                             sessionId:
                                 req.headers[&#x27;x-session-id&#x27;] ||
-                                req.params?.session,
+                                req.params?.session ||
+                                req.body?.session_id,
                             tenantId: req.params?.tenantId,
+                            flow: req.url?.includes(&#x27;/vci&#x27;)
+                                ? &#x27;OID4VCI&#x27;
+                                : req.url?.includes(&#x27;/oid4vp&#x27;)
+                                  ? &#x27;OID4VP&#x27;
+                                  : undefined,
                         }),
-                        res: (res: any) &#x3D;&gt; ({
-                            statusCode: res.statusCode,
-                        }),
+                        serializers: {
+                            req: (req: any) &#x3D;&gt; ({
+                                method: req.method,
+                                url: req.url,
+                                headers: {
+                                    &#x27;user-agent&#x27;: req.headers[&#x27;user-agent&#x27;],
+                                    &#x27;content-type&#x27;: req.headers[&#x27;content-type&#x27;],
+                                },
+                                sessionId:
+                                    req.headers[&#x27;x-session-id&#x27;] ||
+                                    req.params?.session,
+                                tenantId: req.params?.tenantId,
+                            }),
+                            res: (res: any) &#x3D;&gt; ({
+                                statusCode: res.statusCode,
+                            }),
+                        },
                     },
-                },
-            }),
+                };
+            },
         }),
         KeyModule.forRoot(),
         CryptoModule,

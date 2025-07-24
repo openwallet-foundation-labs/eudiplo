@@ -46,8 +46,6 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/mkdocs_puml/puml.css">
-    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -605,6 +603,30 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="API Endpoints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#credential-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Credential Configurations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issuance-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issuance Configurations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -613,6 +635,39 @@
       Credential Issuance Flow
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Structure
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#credential-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Credential Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issuance-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issuance Configuration
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -640,6 +695,39 @@
       Passing Claims
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Management
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#creating-credential-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating Credential Configurations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creating-issuance-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating Issuance Configurations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1321,6 +1409,30 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="API Endpoints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#credential-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Credential Configurations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issuance-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issuance Configurations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1329,6 +1441,39 @@
       Credential Issuance Flow
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Structure
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#credential-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Credential Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issuance-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issuance Configuration
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1356,6 +1501,39 @@
       Passing Claims
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Management
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#creating-credential-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating Credential Configurations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creating-issuance-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating Issuance Configurations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1413,23 +1591,50 @@
 <p>Issuance flow files define how a credential should be generated, signed, and
 formatted. EUDIPLO uses a tenant-based architecture where each tenant has
 isolated configuration.</p>
+<p>The issuance system uses a <strong>two-layer configuration approach</strong>:</p>
+<ol>
+<li><strong>Credential Configurations</strong> - Define the structure, format, and metadata of
+   individual credentials</li>
+<li><strong>Issuance Configurations</strong> - Define which credentials to issue together and
+   authentication requirements</li>
+</ol>
 <hr />
 <h2 id="api-endpoints">API Endpoints<a class="headerlink" href="#api-endpoints" title="Permanent link">&para;</a></h2>
-<p>To manage the configs for issuance, you need to interact with the
-<code>/issuer-management</code> endpoint. Based on your passed JWT, the endpoint will be
-scoped to the tenant ID of the token. The configurations are internally stored
-in a database.</p>
-<p>Via this endpoint you are also able to start the issuance flow for a specific
-flow configuration.</p>
+<p>The system uses two separate endpoints for the two-layer configuration:</p>
+<h3 id="credential-configurations">Credential Configurations<a class="headerlink" href="#credential-configurations" title="Permanent link">&para;</a></h3>
+<p>To manage individual credential configurations, use the
+<code>/issuer-management/credentials</code> endpoint. This endpoint handles the definition
+of credential types, their formats, claims, and display properties.</p>
+<h3 id="issuance-configurations">Issuance Configurations<a class="headerlink" href="#issuance-configurations" title="Permanent link">&para;</a></h3>
+<p>To manage issuance flows (which credentials to issue together and authentication
+requirements), use the <code>/issuer-management/issuance</code> endpoint. This endpoint
+handles grouping credentials and defining authorizations or webhooks.</p>
+<p>Based on your passed JWT, both endpoints will be scoped to the tenant ID of the
+token. The configurations are internally stored in a database.</p>
+<p>Via the <code>/issuer-management/offer</code> endpoint you can start the issuance flow for
+a specific issuance configuration. Some of the defined information can be
+overridden when creating the credential offer.</p>
 <hr />
 <h2 id="credential-issuance-flow">Credential Issuance Flow<a class="headerlink" href="#credential-issuance-flow" title="Permanent link">&para;</a></h2>
 <p>This flow describes how a backend service starts an issuance flow of an
 attestation. EUDIPLO creates the OID4VCI request and handles the protocol flow
 with the wallet.</p>
-<div class='puml-container'><div class="puml light" style="display: block"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" data-diagram-type="SEQUENCE" height="327px" preserveAspectRatio="xMidYMid meet" style="width:555px;height:327px;background:#FFFFFF;" version="1.1" viewBox="0 0 555 327" width="555px" zoomAndPan="magnify" class="diagram"><defs/><g><g><title>EUDI_Wallet</title><rect fill="#000000" fill-opacity="0.00000" height="165.6641" width="8" x="46.6528" y="81.2969"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5,5;" x1="50" x2="50" y1="81.2969" y2="246.9609"/></g><g><title>Middleware</title><rect fill="#000000" fill-opacity="0.00000" height="165.6641" width="8" x="149.6274" y="81.2969"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5,5;" x1="153.3057" x2="153.3057" y1="81.2969" y2="246.9609"/></g><g><title>End_Service</title><rect fill="#000000" fill-opacity="0.00000" height="165.6641" width="8" x="495.5806" y="81.2969"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5,5;" x1="498.9072" x2="498.9072" y1="81.2969" y2="246.9609"/></g><g class="participant participant-head" data-participant="EUDI_Wallet"><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="85.3057" x="5" y="77.9951">EUDI_Wallet</text><ellipse cx="50.6528" cy="13.5" fill="#E2E2F0" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M50.6528,21.5 L50.6528,48.5 M37.6528,29.5 L63.6528,29.5 M50.6528,48.5 L37.6528,63.5 M50.6528,48.5 L63.6528,63.5" fill="none" style="stroke:#181818;stroke-width:0.5;"/></g><g class="participant participant-tail" data-participant="EUDI_Wallet"><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="85.3057" x="5" y="258.9561">EUDI_Wallet</text><ellipse cx="50.6528" cy="270.7578" fill="#E2E2F0" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M50.6528,278.7578 L50.6528,305.7578 M37.6528,286.7578 L63.6528,286.7578 M50.6528,305.7578 L37.6528,320.7578 M50.6528,305.7578 L63.6528,320.7578" fill="none" style="stroke:#181818;stroke-width:0.5;"/></g><g class="participant participant-head" data-participant="Middleware"><rect fill="#E2E2F0" height="30.2969" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="94.6436" x="106.3057" y="50"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="80.6436" x="113.3057" y="69.9951">Middleware</text></g><g class="participant participant-tail" data-participant="Middleware"><rect fill="#E2E2F0" height="30.2969" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="94.6436" x="106.3057" y="245.9609"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="80.6436" x="113.3057" y="265.9561">Middleware</text></g><g class="participant participant-head" data-participant="End_Service"><rect fill="#E2E2F0" height="30.2969" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="99.3467" x="449.9072" y="50"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="85.3467" x="456.9072" y="69.9951">End_Service</text></g><g class="participant participant-tail" data-participant="End_Service"><rect fill="#E2E2F0" height="30.2969" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="99.3467" x="449.9072" y="245.9609"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="85.3467" x="456.9072" y="265.9561">End_Service</text></g><g class="message" data-participant-1="End_Service" data-participant-2="Middleware"><polygon fill="#181818" points="164.6274,108.4297,154.6274,112.4297,164.6274,116.4297,160.6274,112.4297" style="stroke:#181818;stroke-width:1;"/><line style="stroke:#181818;stroke-width:1;" x1="158.6274" x2="498.5806" y1="112.4297" y2="112.4297"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="252.2114" x="170.6274" y="107.3638">Request OID4VCI presentation request</text></g><g class="message" data-participant-1="Middleware" data-participant-2="End_Service"><polygon fill="#181818" points="487.5806,137.5625,497.5806,141.5625,487.5806,145.5625,491.5806,141.5625" style="stroke:#181818;stroke-width:1;"/><line style="stroke:#181818;stroke-width:1;stroke-dasharray:2,2;" x1="153.6274" x2="493.5806" y1="141.5625" y2="141.5625"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="175.0557" x="160.6274" y="136.4966">Return credential offer link</text></g><g class="message" data-participant-1="End_Service" data-participant-2="EUDI_Wallet"><polygon fill="#181818" points="61.6528,166.6953,51.6528,170.6953,61.6528,174.6953,57.6528,170.6953" style="stroke:#181818;stroke-width:1;"/><line style="stroke:#181818;stroke-width:1;" x1="55.6528" x2="498.5806" y1="170.6953" y2="170.6953"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="126.0835" x="67.6528" y="165.6294">Present link to user</text></g><g class="message" data-participant-1="Middleware" data-participant-2="EUDI_Wallet"><polygon fill="#181818" points="61.6528,195.8281,51.6528,199.8281,61.6528,203.8281,57.6528,199.8281" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="141.6274,195.8281,151.6274,199.8281,141.6274,203.8281,145.6274,199.8281" style="stroke:#181818;stroke-width:1;"/><line style="stroke:#181818;stroke-width:1;" x1="55.6528" x2="147.6274" y1="199.8281" y2="199.8281"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="54.1519" x="67.6528" y="194.7622">OID4VCI</text></g><g class="message" data-participant-1="Middleware" data-participant-2="End_Service"><polygon fill="#181818" points="487.5806,224.9609,497.5806,228.9609,487.5806,232.9609,491.5806,228.9609" style="stroke:#181818;stroke-width:1;"/><line style="stroke:#181818;stroke-width:1;" x1="153.6274" x2="493.5806" y1="228.9609" y2="228.9609"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="321.9531" x="160.6274" y="223.895">Notify successful issuance (not implemented yet)</text></g></g></svg></div></div>
+<pre class="mermaid"><code>sequenceDiagram
+actor EUDI_Wallet
+participant Middleware
+participant End_Service
 
+End_Service -&gt;&gt; Middleware : Request OID4VCI presentation request
+Middleware --&gt;&gt; End_Service : Return credential offer link
+End_Service -&gt;&gt; EUDI_Wallet : Present link to user
+Middleware -&gt; EUDI_Wallet : OID4VCI
+Middleware -&gt;&gt; End_Service : Notify successful issuance (not implemented yet)</code></pre>
 <hr />
-<h2 id="example-credential-configuration">Example Credential Configuration<a class="headerlink" href="#example-credential-configuration" title="Permanent link">&para;</a></h2>
+<h2 id="configuration-structure">Configuration Structure<a class="headerlink" href="#configuration-structure" title="Permanent link">&para;</a></h2>
+<h3 id="credential-configuration">Credential Configuration<a class="headerlink" href="#credential-configuration" title="Permanent link">&para;</a></h3>
+<p>Credential configurations define the structure and properties of individual
+credentials. Each credential type has its own configuration file.</p>
+<p><strong>Example Credential Configuration (PID):</strong></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="nt">&quot;config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">        </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dc+sd-jwt&quot;</span><span class="p">,</span>
@@ -1443,13 +1648,13 @@ with the wallet.</p>
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">        </span><span class="nt">&quot;cryptographic_binding_methods_supported&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;jwk&quot;</span><span class="p">],</span>
 <a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">        </span><span class="nt">&quot;display&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">            </span><span class="p">{</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Citizen Pass&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;PID&quot;</span><span class="p">,</span>
 <a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">                </span><span class="nt">&quot;background_color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#FFFFFF&quot;</span><span class="p">,</span>
 <a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">                </span><span class="nt">&quot;background_image&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">                    </span><span class="nt">&quot;uri&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;PUBLIC_URL&gt;/mainhall/credential.png&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">                    </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;PUBLIC_URL&gt;/mainhall/credential.png&quot;</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">                    </span><span class="nt">&quot;uri&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;PUBLIC_URL&gt;/bdr/credential.png&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">                    </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;PUBLIC_URL&gt;/bdr/credential.png&quot;</span>
 <a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">                </span><span class="p">},</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">                </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;A pass for this citizen&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">                </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;PID Credential&quot;</span><span class="p">,</span>
 <a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">                </span><span class="nt">&quot;locale&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;en-US&quot;</span><span class="p">,</span>
 <a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">                </span><span class="nt">&quot;logo&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">                    </span><span class="nt">&quot;uri&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;PUBLIC_URL&gt;/issuer.png&quot;</span><span class="p">,</span>
@@ -1459,86 +1664,170 @@ with the wallet.</p>
 <a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="w">            </span><span class="p">}</span>
 <a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="w">        </span><span class="p">]</span>
 <a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="w">    </span><span class="nt">&quot;presentation_during_issuance&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pid&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="w">        </span><span class="nt">&quot;webhook&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="w">            </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://localhost:8787/process&quot;</span>
-<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class="w">    </span><span class="nt">&quot;claims&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a><span class="w">        </span><span class="nt">&quot;town&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Berlin&quot;</span>
-<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class="w">    </span><span class="nt">&quot;disclosureFrame&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
-<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a><span class="w">    </span><span class="nt">&quot;vct&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a><span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Betelgeuse Education Credential - Preliminary Version&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a><span class="w">        </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;This is our development version of the education credential. Don&#39;t panic.&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a><span class="w">        </span><span class="nt">&quot;extends&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://galaxy.example.com/galactic-education-credential-0.9&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a><span class="w">        </span><span class="nt">&quot;extends#integrity&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sha256-9cLlJNXN-TsMk-PmKjZ5t0WRL5ca_xGgX3c1VLmXfh-WRL5&quot;</span>
-<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a><span class="w">    </span><span class="nt">&quot;schema&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a><span class="w">        </span><span class="nt">&quot;$schema&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://json-schema.org/draft/2020-12/schema&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a><span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a><span class="w">        </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a><span class="w">            </span><span class="nt">&quot;vct&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="w"> </span><span class="p">},</span>
-<a id="__codelineno-0-51" name="__codelineno-0-51" href="#__codelineno-0-51"></a><span class="w">            </span><span class="nt">&quot;iss&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="w"> </span><span class="p">},</span>
-<a id="__codelineno-0-52" name="__codelineno-0-52" href="#__codelineno-0-52"></a><span class="w">            </span><span class="nt">&quot;nbf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;number&quot;</span><span class="w"> </span><span class="p">},</span>
-<a id="__codelineno-0-53" name="__codelineno-0-53" href="#__codelineno-0-53"></a><span class="w">            </span><span class="nt">&quot;exp&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;number&quot;</span><span class="w"> </span><span class="p">},</span>
-<a id="__codelineno-0-54" name="__codelineno-0-54" href="#__codelineno-0-54"></a><span class="w">            </span><span class="nt">&quot;cnf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="w"> </span><span class="p">},</span>
-<a id="__codelineno-0-55" name="__codelineno-0-55" href="#__codelineno-0-55"></a><span class="w">            </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="w"> </span><span class="p">},</span>
-<a id="__codelineno-0-56" name="__codelineno-0-56" href="#__codelineno-0-56"></a><span class="w">            </span><span class="nt">&quot;town&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-0-57" name="__codelineno-0-57" href="#__codelineno-0-57"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-0-58" name="__codelineno-0-58" href="#__codelineno-0-58"></a><span class="w">        </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;iss&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;vct&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;cnf&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;town&quot;</span><span class="p">]</span>
-<a id="__codelineno-0-59" name="__codelineno-0-59" href="#__codelineno-0-59"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-0-60" name="__codelineno-0-60" href="#__codelineno-0-60"></a><span class="p">}</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="w">    </span><span class="nt">&quot;claims&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="w">        </span><span class="nt">&quot;issuing_country&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DE&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="w">        </span><span class="nt">&quot;issuing_authority&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DE&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="w">        </span><span class="nt">&quot;given_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ERIKA&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="w">        </span><span class="nt">&quot;family_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MUSTERMANN&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="w">        </span><span class="nt">&quot;birthdate&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1964-08-12&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class="w">        </span><span class="nt">&quot;place_of_birth&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a><span class="w">            </span><span class="nt">&quot;locality&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;BERLIN&quot;</span>
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class="w">        </span><span class="nt">&quot;address&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a><span class="w">            </span><span class="nt">&quot;locality&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;KÖLN&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a><span class="w">            </span><span class="nt">&quot;postal_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;51147&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a><span class="w">            </span><span class="nt">&quot;street_address&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;HEIDESTRAẞE 17&quot;</span>
+<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a><span class="w">    </span><span class="nt">&quot;disclosureFrame&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a><span class="w">        </span><span class="nt">&quot;_sd&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a><span class="w">            </span><span class="s2">&quot;issuing_country&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a><span class="w">            </span><span class="s2">&quot;issuing_authority&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a><span class="w">            </span><span class="s2">&quot;given_name&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a><span class="w">            </span><span class="s2">&quot;family_name&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-51" name="__codelineno-0-51" href="#__codelineno-0-51"></a><span class="w">            </span><span class="s2">&quot;birthdate&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-52" name="__codelineno-0-52" href="#__codelineno-0-52"></a><span class="w">            </span><span class="s2">&quot;place_of_birth&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-53" name="__codelineno-0-53" href="#__codelineno-0-53"></a><span class="w">            </span><span class="s2">&quot;address&quot;</span>
+<a id="__codelineno-0-54" name="__codelineno-0-54" href="#__codelineno-0-54"></a><span class="w">        </span><span class="p">],</span>
+<a id="__codelineno-0-55" name="__codelineno-0-55" href="#__codelineno-0-55"></a><span class="w">        </span><span class="nt">&quot;address&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-56" name="__codelineno-0-56" href="#__codelineno-0-56"></a><span class="w">            </span><span class="nt">&quot;_sd&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;locality&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;postal_code&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;street_address&quot;</span><span class="p">]</span>
+<a id="__codelineno-0-57" name="__codelineno-0-57" href="#__codelineno-0-57"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-0-58" name="__codelineno-0-58" href="#__codelineno-0-58"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-0-59" name="__codelineno-0-59" href="#__codelineno-0-59"></a><span class="w">    </span><span class="nt">&quot;vct&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<a id="__codelineno-0-60" name="__codelineno-0-60" href="#__codelineno-0-60"></a><span class="w">    </span><span class="nt">&quot;schema&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-61" name="__codelineno-0-61" href="#__codelineno-0-61"></a><span class="w">        </span><span class="nt">&quot;$schema&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://json-schema.org/draft/2020-12/schema&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-62" name="__codelineno-0-62" href="#__codelineno-0-62"></a><span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-63" name="__codelineno-0-63" href="#__codelineno-0-63"></a><span class="w">        </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-64" name="__codelineno-0-64" href="#__codelineno-0-64"></a><span class="w">            </span><span class="nt">&quot;vct&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-0-65" name="__codelineno-0-65" href="#__codelineno-0-65"></a><span class="w">            </span><span class="nt">&quot;iss&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-0-66" name="__codelineno-0-66" href="#__codelineno-0-66"></a><span class="w">            </span><span class="nt">&quot;nbf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;number&quot;</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-0-67" name="__codelineno-0-67" href="#__codelineno-0-67"></a><span class="w">            </span><span class="nt">&quot;exp&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;number&quot;</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-0-68" name="__codelineno-0-68" href="#__codelineno-0-68"></a><span class="w">            </span><span class="nt">&quot;cnf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-0-69" name="__codelineno-0-69" href="#__codelineno-0-69"></a><span class="w">            </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-0-70" name="__codelineno-0-70" href="#__codelineno-0-70"></a><span class="w">            </span><span class="nt">&quot;given_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-0-71" name="__codelineno-0-71" href="#__codelineno-0-71"></a><span class="w">            </span><span class="nt">&quot;family_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-0-72" name="__codelineno-0-72" href="#__codelineno-0-72"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-0-73" name="__codelineno-0-73" href="#__codelineno-0-73"></a><span class="w">        </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;iss&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;vct&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;cnf&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;given_name&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;family_name&quot;</span><span class="p">]</span>
+<a id="__codelineno-0-74" name="__codelineno-0-74" href="#__codelineno-0-74"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-0-75" name="__codelineno-0-75" href="#__codelineno-0-75"></a><span class="p">}</span>
 </code></pre></div>
-<p><strong>Field Breakdown</strong></p>
+<p><strong>Credential Configuration Fields:</strong></p>
 <ul>
-<li><code>config</code>: REQUIRED: entry for
+<li><code>config</code>: <strong>REQUIRED</strong> - Entry for
   <a href="https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-credential-issuer-metadata:~:text=the%20logo%20image.-,credential_configurations_supported,-%3A%20REQUIRED.%20Object%20that">credential_configuration_supported</a>.
   The name of the file will be used as the key in the configuration.</li>
-<li><code>presentation_during_issuance</code>: If set, requires user to present a credential
-  before issuance<ul>
-<li><code>type</code>: REQUIRED: id of the presentation request to use</li>
-<li><code>webhook</code>: OPTIONAL: URL to send the presentation response to. If not
-  provided, it will use the passed claims during the credential offer link
-  generation or the static claims defined in the <code>claims</code> field.</li>
-</ul>
-</li>
-<li><code>claims</code>: OPTIONAL: Static claims to include in the credential. Will be
-  overridden by the webhook response for presentation during issuance or when
-  passed during the credential offer request.</li>
-<li><code>vct</code>:
+<li><code>claims</code>: <strong>OPTIONAL</strong> - Static claims to include in the credential. Can be
+  overridden by webhook responses or claims passed during credential offer.</li>
+<li><code>disclosureFrame</code>: <strong>OPTIONAL</strong> - Defines which claims should be selectively
+  disclosable in SD-JWT format.</li>
+<li><code>vct</code>: <strong>OPTIONAL</strong> -
   <a href="https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-09.html#name-sd-jwt-vc-type-metadata">VC Type Metadata</a>
   provided via the <code>/credentials/vct/{id}</code> endpoint.</li>
-<li><code>schema</code>:
+<li><code>schema</code>: <strong>OPTIONAL</strong> -
   <a href="https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-09.html#name-schema-type-metadata">Schema Type Metadata</a>
-  to validate the claims before issuance.</li>
+  to validate the claims before issuance. The schema will be added into the vct
+  values.</li>
 </ul>
-<blockquote>
-<p><code>&lt;PUBLIC_URL&gt;</code> will be dynamically replaced at runtime with your public URL
-together with with the tenant ID.</p>
-</blockquote>
+<h3 id="issuance-configuration">Issuance Configuration<a class="headerlink" href="#issuance-configuration" title="Permanent link">&para;</a></h3>
+<p>Issuance configurations define which credentials to issue together and any
+authentication requirements.</p>
+<p><strong>Example Issuance Configuration (Citizen Pass):</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="nt">&quot;presentation_during_issuance&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pid&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">        </span><span class="nt">&quot;webhook&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">            </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://localhost:8787/process&quot;</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="nt">&quot;credentialConfigs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;citizen&quot;</span><span class="p">]</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="p">}</span>
+</code></pre></div>
+<p><strong>Issuance Configuration Fields:</strong></p>
+<ul>
+<li><code>credentialConfigs</code>: <strong>REQUIRED</strong> - Array of credential configuration IDs to
+  issue together.</li>
+<li><code>presentation_during_issuance</code>: <strong>OPTIONAL</strong> - If set, requires user to
+  present a credential before issuance<ul>
+<li><code>type</code>: <strong>REQUIRED</strong> - ID of the presentation request to use</li>
+<li><code>webhook</code>: <strong>OPTIONAL</strong> - URL to send the presentation response to. If not
+  provided, it will use the passed claims during the credential offer link
+  generation or the static claims defined in the credential configuration.</li>
+</ul>
+</li>
+</ul>
 <hr />
+<h2 id="example-credential-configuration">Example Credential Configuration<a class="headerlink" href="#example-credential-configuration" title="Permanent link">&para;</a></h2>
 <h2 id="display-configuration">Display Configuration<a class="headerlink" href="#display-configuration" title="Permanent link">&para;</a></h2>
 <p>TODO: needs to be updated</p>
 <p>This display information gets included into the
 <a href="https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-credential-issuer-metadata:~:text=2%20or%20greater.-,display,-%3A%20OPTIONAL.%20A%20non">credential issuer metadata</a>.</p>
+<blockquote>
+<p><code>&lt;PUBLIC_URL&gt;</code> will be dynamically replaced at runtime with your public URL
+together with the tenant ID.</p>
+</blockquote>
 <hr />
 <h2 id="passing-claims">Passing Claims<a class="headerlink" href="#passing-claims" title="Permanent link">&para;</a></h2>
 <p>There are three options to pass claims for the credential. They are handled in
 the following order:</p>
-<ul>
-<li>via webhook response during presentation during issuance</li>
-<li>via the <code>claims</code> field in the credential offer request</li>
-<li>via static claims in the <code>claims</code> field of the credential configuration</li>
-</ul>
+<ol>
+<li><strong>Webhook response</strong> during presentation during issuance (highest priority)</li>
+<li><strong>Claims field</strong> in the credential offer request</li>
+<li><strong>Static claims</strong> in the credential configuration (lowest priority)</li>
+</ol>
 <p>If no claims are provided, the credential will be issued with an empty claims
 set. Claims will not be merged with other claims from e.g. the offer or the
-static defined ones.</p>
+static defined ones - the higher priority source completely overrides lower
+priority sources.</p>
+<h2 id="configuration-management">Configuration Management<a class="headerlink" href="#configuration-management" title="Permanent link">&para;</a></h2>
+<h3 id="creating-credential-configurations">Creating Credential Configurations<a class="headerlink" href="#creating-credential-configurations" title="Permanent link">&para;</a></h3>
+<p>Credential configurations are managed via the <code>/issuer-management/credentials</code>
+endpoint:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">&#39;POST&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="s1">&#39;http://localhost:3000/issuer-management/credentials&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;accept: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Authorization: Bearer eyJhb...npoNk&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="s1">    &quot;id&quot;: &quot;pid&quot;,</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="s1">    &quot;config&quot;: {</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="s1">      &quot;format&quot;: &quot;dc+sd-jwt&quot;,</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="s1">      &quot;vct&quot;: &quot;https://sd-jwt.com&quot;,</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="s1">      &quot;proof_types_supported&quot;: {</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="s1">        &quot;jwt&quot;: {</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="s1">          &quot;proof_signing_alg_values_supported&quot;: [&quot;ES256&quot;]</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="s1">        }</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="s1">      },</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="s1">      &quot;credential_signing_alg_values_supported&quot;: [&quot;ES256&quot;],</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="s1">      &quot;cryptographic_binding_methods_supported&quot;: [&quot;jwk&quot;],</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="s1">      &quot;display&quot;: [...]</span>
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="s1">    },</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="s1">    &quot;claims&quot;: {...},</span>
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="s1">    &quot;disclosureFrame&quot;: {...}</span>
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="s1">  }&#39;</span>
+</code></pre></div>
+<h3 id="creating-issuance-configurations">Creating Issuance Configurations<a class="headerlink" href="#creating-issuance-configurations" title="Permanent link">&para;</a></h3>
+<p>Issuance configurations are managed via the <code>/issuer-management/issuance</code>
+endpoint:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">&#39;POST&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="s1">&#39;http://localhost:3000/issuer-management/issuance&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;accept: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Authorization: Bearer eyJhb...npoNk&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="s1">    &quot;id&quot;: &quot;citizen-with-pid-verification&quot;,</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="s1">    &quot;presentation_during_issuance&quot;: {</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="s1">      &quot;type&quot;: &quot;pid&quot;,</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="s1">      &quot;webhook&quot;: {</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="s1">        &quot;url&quot;: &quot;http://localhost:8787/process&quot;</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="s1">      }</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="s1">    }</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="s1">  }&#39;</span>
+</code></pre></div>
 <h2 id="creating-a-credential-offer">Creating a Credential Offer<a class="headerlink" href="#creating-a-credential-offer" title="Permanent link">&para;</a></h2>
-<p>To start the issuance flow, you need to create a credential offer. This is done
-by calling the <code>/issuer-management/offer</code> endpoint. Via the <code>response_type</code>
-parameter, you can specify how the response should be formatted:</p>
+<p>To start the issuance flow, you need to create a credential offer using an
+<strong>issuance configuration ID</strong>. This is done by calling the
+<code>/issuer-management/offer</code> endpoint. Via the <code>response_type</code> parameter, you can
+specify how the response should be formatted:</p>
 <ul>
 <li><code>uri</code>: Returns a URI that the user can open in their wallet to start the
   issuance flow.</li>
@@ -1548,19 +1837,23 @@ parameter, you can specify how the response should be formatted:</p>
 <p>While the <code>qrcode</code> is good for easy testing with the Swagger UI, the <code>uri</code> is
 recommended to also receive the session ID in the response that is needed to
 fetch information about the session later on.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">&#39;POST&#39;</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="s1">&#39;http://localhost:3000/issuer-management/offer&#39;</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;accept: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Authorization: Bearer eyJhb...npoNk&#39;</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="s1">  &quot;response_type&quot;: &quot;uri&quot;,</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="s1">  &quot;credentialConfigurationIds&quot;: [</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="s1">    &quot;citizen&quot;</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="s1">  ]</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="s1">}&#39;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">&#39;POST&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="s1">&#39;http://localhost:3000/issuer-management/offer&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;accept: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Authorization: Bearer eyJhb...npoNk&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="s1">  &quot;response_type&quot;: &quot;uri&quot;,</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="s1">  &quot;credentialConfigurationIds&quot;: [</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="s1">    &quot;citizen-with-pid-verification&quot;</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="s1">  ]</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="s1">}&#39;</span>
 </code></pre></div>
-<p>When there is no config with the provided ID, the service will return an error.</p>
+<p><strong>Note:</strong> The <code>credentialConfigurationIds</code> field now expects <strong>issuance
+configuration IDs</strong>, not individual credential IDs. The issuance configuration
+will determine which credentials are actually issued.</p>
+<p>When there is no issuance configuration with the provided ID, the service will
+return an error.</p>
 <h2 id="revoking-credentials">Revoking Credentials<a class="headerlink" href="#revoking-credentials" title="Permanent link">&para;</a></h2>
 <p>To simply the revocation of credentials, the service will persist the indexes of
 the status list together with the session data. No other personal data is
@@ -1571,16 +1864,16 @@ stored, just</p>
 <li>status list index</li>
 </ul>
 <p>Sessions can be revoked via the <code>/session/revoke</code> endpoint like</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">&#39;POST&#39;</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="s1">&#39;http://localhost:3000/session/revoke&#39;</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;accept: */*&#39;</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Authorization: Bearer eyJhb...npoNk&#39;</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="s1">  &quot;sessionId&quot;: &quot;59d22466-b403-4b37-b1d0-20163696ade7&quot;,</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="s1">  &quot;credentialConfigurationId&quot;: &quot;pid&quot;,</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="s1">  &quot;status&quot;: 1</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="s1">}&#39;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">&#39;POST&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="s1">&#39;http://localhost:3000/session/revoke&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;accept: */*&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Authorization: Bearer eyJhb...npoNk&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="s1">  &quot;sessionId&quot;: &quot;59d22466-b403-4b37-b1d0-20163696ade7&quot;,</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="s1">  &quot;credentialConfigurationId&quot;: &quot;pid&quot;,</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="s1">  &quot;status&quot;: 1</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="s1">}&#39;</span>
 </code></pre></div>
 <p>If no <code>credentialConfigurationId</code> is provided, the revocation will be applied to
 all credentials of the session. The update to the status list will be performed
@@ -1702,8 +1995,6 @@ immediately after the request and the updates status list will be available.</p>
     
     
       <script src="../../assets/javascripts/bundle.56ea9cef.min.js"></script>
-      
-        <script src="../../assets/mkdocs_puml/puml.js"></script>
       
     
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});

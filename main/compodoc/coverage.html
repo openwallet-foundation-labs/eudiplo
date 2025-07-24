@@ -122,66 +122,6 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                        <a href="./miscellaneous/functions.html#run">scripts/import.ts</a>
-            </td>
-            <td>function</td>
-            <td>run</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
-            </td>
-        </tr>
-        <tr class="low">
-            <td>
-                <!-- miscellaneous -->
-                        <a href="./miscellaneous/variables.html#clientId">scripts/import.ts</a>
-            </td>
-            <td>variable</td>
-            <td>clientId</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
-            </td>
-        </tr>
-        <tr class="low">
-            <td>
-                <!-- miscellaneous -->
-                        <a href="./miscellaneous/variables.html#clientSecret">scripts/import.ts</a>
-            </td>
-            <td>variable</td>
-            <td>clientSecret</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
-            </td>
-        </tr>
-        <tr class="low">
-            <td>
-                <!-- miscellaneous -->
-                        <a href="./miscellaneous/variables.html#url">scripts/import.ts</a>
-            </td>
-            <td>variable</td>
-            <td>url</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
-            </td>
-        </tr>
-        <tr class="low">
-            <td>
-                <!-- miscellaneous -->
-                        <a href="./miscellaneous/typealiases.html#LoginReponse">scripts/import.ts</a>
-            </td>
-            <td>type alias</td>
-            <td>LoginReponse</td>
-            <td align="right" data-sort="0">
-                <span class="coverage-percent">0 %</span>
-                <span class="coverage-count">(0/1)</span>
-            </td>
-        </tr>
-        <tr class="low">
-            <td>
-                <!-- miscellaneous -->
                 <a href="./controllers/AppController.html">src/app/app.controller.ts</a>
             </td>
             <td>controller</td>
@@ -650,31 +590,19 @@
         <tr class="good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./controllers/CredentialsController.html">src/issuer/credentials/credentials.controller.ts</a>
+                <a href="./controllers/CredentialsMetadataController.html">src/issuer/credentials-metadata/credentials-metadata.controller.ts</a>
             </td>
             <td>controller</td>
-            <td>CredentialsController</td>
+            <td>CredentialsMetadataController</td>
             <td align="right" data-sort="66">
                 <span class="coverage-percent">66 %</span>
                 <span class="coverage-count">(2/3)</span>
             </td>
         </tr>
-        <tr class="medium">
-            <td>
-                <!-- miscellaneous -->
-                <a href="./injectables/CredentialsService.html">src/issuer/credentials/credentials.service.ts</a>
-            </td>
-            <td>injectable</td>
-            <td>CredentialsService</td>
-            <td align="right" data-sort="50">
-                <span class="coverage-percent">50 %</span>
-                <span class="coverage-count">(5/10)</span>
-            </td>
-        </tr>
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/PresentationDuringIssuance.html">src/issuer/credentials/dto/credential-config.dto.ts</a>
+                <a href="./classes/PresentationDuringIssuance.html">src/issuer/credentials-metadata/dto/credential-config.dto.ts</a>
             </td>
             <td>class</td>
             <td>PresentationDuringIssuance</td>
@@ -686,7 +614,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/VCT.html">src/issuer/credentials/dto/credential-config.dto.ts</a>
+                <a href="./classes/VCT.html">src/issuer/credentials-metadata/dto/credential-config.dto.ts</a>
             </td>
             <td>class</td>
             <td>VCT</td>
@@ -698,7 +626,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/SchemaResponse.html">src/issuer/credentials/dto/schema-response.dto.ts</a>
+                <a href="./classes/SchemaResponse.html">src/issuer/credentials-metadata/dto/schema-response.dto.ts</a>
             </td>
             <td>class</td>
             <td>SchemaResponse</td>
@@ -707,10 +635,70 @@
                 <span class="coverage-count">(0/5)</span>
             </td>
         </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./injectables/CredentialConfigService.html">src/issuer/credentials/credential-config/credential-config.service.ts</a>
+            </td>
+            <td>injectable</td>
+            <td>CredentialConfigService</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(6/6)</span>
+            </td>
+        </tr>
+        <tr class="very-good">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./controllers/CredentialsController.html">src/issuer/credentials/credentials.controller.ts</a>
+            </td>
+            <td>controller</td>
+            <td>CredentialsController</td>
+            <td align="right" data-sort="100">
+                <span class="coverage-percent">100 %</span>
+                <span class="coverage-count">(4/4)</span>
+            </td>
+        </tr>
+        <tr class="good">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./injectables/CredentialsService.html">src/issuer/credentials/credentials.service.ts</a>
+            </td>
+            <td>injectable</td>
+            <td>CredentialsService</td>
+            <td align="right" data-sort="57">
+                <span class="coverage-percent">57 %</span>
+                <span class="coverage-count">(4/7)</span>
+            </td>
+        </tr>
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./entitys/IssuanceConfig.html">src/issuer/credentials/entities/issuance-config.entity.ts</a>
+                <a href="./entitys/CredentialConfig.html">src/issuer/credentials/entities/credential.entity.ts</a>
+            </td>
+            <td>entity</td>
+            <td>CredentialConfig</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./classes/IssuanceDto.html">src/issuer/issuance/dto/issuance.dto.ts</a>
+            </td>
+            <td>class</td>
+            <td>IssuanceDto</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/3)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./entitys/IssuanceConfig.html">src/issuer/issuance/entities/issuance-config.entity.ts</a>
             </td>
             <td>entity</td>
             <td>IssuanceConfig</td>
@@ -719,16 +707,40 @@
                 <span class="coverage-count">(0/1)</span>
             </td>
         </tr>
-        <tr class="very-good">
+        <tr class="good">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./controllers/IssuanceController.html">src/issuer/issuance/issuance.controller.ts</a>
+            </td>
+            <td>controller</td>
+            <td>IssuanceController</td>
+            <td align="right" data-sort="75">
+                <span class="coverage-percent">75 %</span>
+                <span class="coverage-count">(3/4)</span>
+            </td>
+        </tr>
+        <tr class="good">
+            <td>
+                <!-- miscellaneous -->
+                <a href="./injectables/IssuanceService.html">src/issuer/issuance/issuance.service.ts</a>
+            </td>
+            <td>injectable</td>
+            <td>IssuanceService</td>
+            <td align="right" data-sort="66">
+                <span class="coverage-percent">66 %</span>
+                <span class="coverage-count">(4/6)</span>
+            </td>
+        </tr>
+        <tr class="medium">
             <td>
                 <!-- miscellaneous -->
                 <a href="./controllers/IssuerManagementController.html">src/issuer/issuer-management/issuer-management.controller.ts</a>
             </td>
             <td>controller</td>
             <td>IssuerManagementController</td>
-            <td align="right" data-sort="80">
-                <span class="coverage-percent">80 %</span>
-                <span class="coverage-count">(4/5)</span>
+            <td align="right" data-sort="50">
+                <span class="coverage-percent">50 %</span>
+                <span class="coverage-count">(1/2)</span>
             </td>
         </tr>
         <tr class="low">
@@ -755,16 +767,16 @@
                 <span class="coverage-count">(0/3)</span>
             </td>
         </tr>
-        <tr class="medium">
+        <tr class="good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/OfferRequest.html">src/issuer/oid4vci/dto/offer-request.dto.ts</a>
+                <a href="./classes/OfferRequestDto.html">src/issuer/oid4vci/dto/offer-request.dto.ts</a>
             </td>
             <td>class</td>
-            <td>OfferRequest</td>
-            <td align="right" data-sort="50">
-                <span class="coverage-percent">50 %</span>
-                <span class="coverage-count">(2/4)</span>
+            <td>OfferRequestDto</td>
+            <td align="right" data-sort="60">
+                <span class="coverage-percent">60 %</span>
+                <span class="coverage-count">(3/5)</span>
             </td>
         </tr>
         <tr class="low">
@@ -3210,9 +3222,9 @@
             </td>
             <td>injectable</td>
             <td>LoggerConfigService</td>
-            <td align="right" data-sort="16">
-                <span class="coverage-percent">16 %</span>
-                <span class="coverage-count">(2/12)</span>
+            <td align="right" data-sort="23">
+                <span class="coverage-percent">23 %</span>
+                <span class="coverage-count">(3/13)</span>
             </td>
         </tr>
         <tr class="low">
@@ -3270,9 +3282,9 @@
             </td>
             <td>injectable</td>
             <td>SessionLoggerInterceptor</td>
-            <td align="right" data-sort="100">
-                <span class="coverage-percent">100 %</span>
-                <span class="coverage-count">(4/4)</span>
+            <td align="right" data-sort="80">
+                <span class="coverage-percent">80 %</span>
+                <span class="coverage-count">(4/5)</span>
             </td>
         </tr>
         <tr class="very-good">
@@ -3542,10 +3554,178 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                        <a href="./miscellaneous/functions.html#loggerMiddleware">test/utils.ts</a>
+                        <a href="./miscellaneous/functions.html#getAccessToken">test/import/import.ts</a>
             </td>
             <td>function</td>
-            <td>loggerMiddleware</td>
+            <td>getAccessToken</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#importDirectory">test/import/import.ts</a>
+            </td>
+            <td>function</td>
+            <td>importDirectory</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#importFileWithRetry">test/import/import.ts</a>
+            </td>
+            <td>function</td>
+            <td>importFileWithRetry</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#run">test/import/import.ts</a>
+            </td>
+            <td>function</td>
+            <td>run</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#sleep">test/import/import.ts</a>
+            </td>
+            <td>function</td>
+            <td>sleep</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/functions.html#validateJsonFile">test/import/import.ts</a>
+            </td>
+            <td>function</td>
+            <td>validateJsonFile</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#clientId">test/import/import.ts</a>
+            </td>
+            <td>variable</td>
+            <td>clientId</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#clientSecret">test/import/import.ts</a>
+            </td>
+            <td>variable</td>
+            <td>clientSecret</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#maxRetries">test/import/import.ts</a>
+            </td>
+            <td>variable</td>
+            <td>maxRetries</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#retryDelay">test/import/import.ts</a>
+            </td>
+            <td>variable</td>
+            <td>retryDelay</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/variables.html#url">test/import/import.ts</a>
+            </td>
+            <td>variable</td>
+            <td>url</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#ImportConfig">test/import/import.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>ImportConfig</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#ImportResult">test/import/import.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>ImportResult</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#ImportStats">test/import/import.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>ImportStats</td>
+            <td align="right" data-sort="0">
+                <span class="coverage-percent">0 %</span>
+                <span class="coverage-count">(0/1)</span>
+            </td>
+        </tr>
+        <tr class="low">
+            <td>
+                <!-- miscellaneous -->
+                        <a href="./miscellaneous/typealiases.html#LoginResponse">test/import/import.ts</a>
+            </td>
+            <td>type alias</td>
+            <td>LoginResponse</td>
             <td align="right" data-sort="0">
                 <span class="coverage-percent">0 %</span>
                 <span class="coverage-count">(0/1)</span>
