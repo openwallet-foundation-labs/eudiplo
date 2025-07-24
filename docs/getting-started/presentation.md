@@ -24,19 +24,18 @@ This flow describes how a backend service requests a credential presentation
 (e.g., to authorize a user or verify an attribute). EUDIPLO creates the OID4VP
 request and handles the protocol flow with the wallet.
 
-```plantuml
-@startuml
+```mermaid
+sequenceDiagram
 actor EUDI_Wallet
 participant Middleware
 participant End_Service
 
-End_Service -> Middleware : Request OID4VP presentation request
-Middleware --> End_Service : Return presentation request link
-End_Service -> EUDI_Wallet : Present link to user
-EUDI_Wallet -> Middleware : Start OID4VP flow
-Middleware <-> EUDI_Wallet : OID4VP presentation exchange
-Middleware -> End_Service : Send presented data
-@enduml
+End_Service ->> Middleware : Request OID4VP presentation request
+Middleware -->> End_Service : Return presentation request link
+End_Service ->> EUDI_Wallet : Present link to user
+EUDI_Wallet ->> Middleware : Start OID4VP flow
+Middleware -> EUDI_Wallet : OID4VP presentation exchange
+Middleware ->> End_Service : Send presented data
 ```
 
 ---
@@ -48,23 +47,22 @@ This flow describes an advanced scenario where the end-user is required to
 useful when a prior attribute (e.g. student ID, PID) is needed to qualify for
 the new credential.
 
-```plantuml
-@startuml
+```mermaid
+sequenceDiagram
 actor EUDI_Wallet
 participant Middleware
 participant End_Service
 
-End_Service -> Middleware : Request OID4VCI offer generation
-Middleware --> End_Service : Return offer link
-End_Service -> EUDI_Wallet : Present offer link to user
-EUDI_Wallet -> Middleware : Start OID4VCI flow
-Middleware -> EUDI_Wallet : Request credential presentation
-EUDI_Wallet -> Middleware : Present credential
-Middleware -> End_Service : Send presented credential
-End_Service -> Middleware : Provide data for issuance
-Middleware <-> EUDI_Wallet : OID4VCI credential issuance
-Middleware -> End_Service : Notify successful issuance
-@enduml
+End_Service ->> Middleware : Request OID4VCI offer generation
+Middleware -->> End_Service : Return offer link
+End_Service ->> EUDI_Wallet : Present offer link to user
+EUDI_Wallet ->> Middleware : Start OID4VCI flow
+Middleware ->> EUDI_Wallet : Request credential presentation
+EUDI_Wallet ->> Middleware : Present credential
+Middleware ->> End_Service : Send presented credential
+End_Service ->> Middleware : Provide data for issuance
+Middleware -> EUDI_Wallet : OID4VCI credential issuance
+Middleware ->> End_Service : Notify successful issuance
 ```
 
 ## Example Presentation Request

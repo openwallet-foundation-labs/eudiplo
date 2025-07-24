@@ -4,17 +4,37 @@ Issuance flow files define how a credential should be generated, signed, and
 formatted. EUDIPLO uses a tenant-based architecture where each tenant has
 isolated configuration.
 
+The issuance system uses a **two-layer configuration approach**:
+
+1. **Credential Configurations** - Define the structure, format, and metadata of
+   individual credentials
+2. **Issuance Configurations** - Define which credentials to issue together and
+   authentication requirements
+
 ---
 
 ## API Endpoints
 
-To manage the configs for issuance, you need to interact with the
-`/issuer-management` endpoint. Based on your passed JWT, the endpoint will be
-scoped to the tenant ID of the token. The configurations are internally stored
-in a database.
+The system uses two separate endpoints for the two-layer configuration:
 
-Via this endpoint you are also able to start the issuance flow for a specific
-flow configuration.
+### Credential Configurations
+
+To manage individual credential configurations, use the
+`/issuer-management/credentials` endpoint. This endpoint handles the definition
+of credential types, their formats, claims, and display properties.
+
+### Issuance Configurations
+
+To manage issuance flows (which credentials to issue together and authentication
+requirements), use the `/issuer-management/issuance` endpoint. This endpoint
+handles grouping credentials and defining authorizations or webhooks.
+
+Based on your passed JWT, both endpoints will be scoped to the tenant ID of the
+token. The configurations are internally stored in a database.
+
+Via the `/issuer-management/offer` endpoint you can start the issuance flow for
+a specific issuance configuration. Some of the defined information can be
+overridden when creating the credential offer.
 
 ---
 
@@ -24,23 +44,29 @@ This flow describes how a backend service starts an issuance flow of an
 attestation. EUDIPLO creates the OID4VCI request and handles the protocol flow
 with the wallet.
 
-```plantuml
-@startuml
+```mermaid
+sequenceDiagram
 actor EUDI_Wallet
 participant Middleware
 participant End_Service
 
-End_Service -> Middleware : Request OID4VCI presentation request
-Middleware --> End_Service : Return credential offer link
-End_Service -> EUDI_Wallet : Present link to user
-Middleware <-> EUDI_Wallet : OID4VCI
-Middleware -> End_Service : Notify successful issuance (not implemented yet)
-@enduml
+End_Service ->> Middleware : Request OID4VCI presentation request
+Middleware -->> End_Service : Return credential offer link
+End_Service ->> EUDI_Wallet : Present link to user
+Middleware -> EUDI_Wallet : OID4VCI
+Middleware ->> End_Service : Notify successful issuance (not implemented yet)
 ```
 
 ---
 
-## Example Credential Configuration
+## Configuration Structure
+
+### Credential Configuration
+
+Credential configurations define the structure and properties of individual
+credentials. Each credential type has its own configuration file.
+
+**Example Credential Configuration (PID):**
 
 ```json
 {
@@ -56,13 +82,13 @@ Middleware -> End_Service : Notify successful issuance (not implemented yet)
         "cryptographic_binding_methods_supported": ["jwk"],
         "display": [
             {
-                "name": "Citizen Pass",
+                "name": "PID",
                 "background_color": "#FFFFFF",
                 "background_image": {
-                    "uri": "<PUBLIC_URL>/mainhall/credential.png",
-                    "url": "<PUBLIC_URL>/mainhall/credential.png"
+                    "uri": "<PUBLIC_URL>/bdr/credential.png",
+                    "url": "<PUBLIC_URL>/bdr/credential.png"
                 },
-                "description": "A pass for this citizen",
+                "description": "PID Credential",
                 "locale": "en-US",
                 "logo": {
                     "uri": "<PUBLIC_URL>/issuer.png",
@@ -72,22 +98,36 @@ Middleware -> End_Service : Notify successful issuance (not implemented yet)
             }
         ]
     },
-    "presentation_during_issuance": {
-        "type": "pid",
-        "webhook": {
-            "url": "http://localhost:8787/process"
+    "claims": {
+        "issuing_country": "DE",
+        "issuing_authority": "DE",
+        "given_name": "ERIKA",
+        "family_name": "MUSTERMANN",
+        "birthdate": "1964-08-12",
+        "place_of_birth": {
+            "locality": "BERLIN"
+        },
+        "address": {
+            "locality": "KÖLN",
+            "postal_code": "51147",
+            "street_address": "HEIDESTRAẞE 17"
         }
     },
-    "claims": {
-        "town": "Berlin"
+    "disclosureFrame": {
+        "_sd": [
+            "issuing_country",
+            "issuing_authority",
+            "given_name",
+            "family_name",
+            "birthdate",
+            "place_of_birth",
+            "address"
+        ],
+        "address": {
+            "_sd": ["locality", "postal_code", "street_address"]
+        }
     },
-    "disclosureFrame": {},
-    "vct": {
-        "name": "Betelgeuse Education Credential - Preliminary Version",
-        "description": "This is our development version of the education credential. Don't panic.",
-        "extends": "https://galaxy.example.com/galactic-education-credential-0.9",
-        "extends#integrity": "sha256-9cLlJNXN-TsMk-PmKjZ5t0WRL5ca_xGgX3c1VLmXfh-WRL5"
-    },
+    "vct": {},
     "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
@@ -98,38 +138,64 @@ Middleware -> End_Service : Notify successful issuance (not implemented yet)
             "exp": { "type": "number" },
             "cnf": { "type": "object" },
             "status": { "type": "object" },
-            "town": { "type": "string" }
+            "given_name": { "type": "string" },
+            "family_name": { "type": "string" }
         },
-        "required": ["iss", "vct", "cnf", "town"]
+        "required": ["iss", "vct", "cnf", "given_name", "family_name"]
     }
 }
 ```
 
-**Field Breakdown**
+**Credential Configuration Fields:**
 
-- `config`: REQUIRED: entry for
+- `config`: **REQUIRED** - Entry for
   [credential_configuration_supported](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-credential-issuer-metadata:~:text=the%20logo%20image.-,credential_configurations_supported,-%3A%20REQUIRED.%20Object%20that).
   The name of the file will be used as the key in the configuration.
-- `presentation_during_issuance`: If set, requires user to present a credential
-  before issuance
-    - `type`: REQUIRED: id of the presentation request to use
-    - `webhook`: OPTIONAL: URL to send the presentation response to. If not
-      provided, it will use the passed claims during the credential offer link
-      generation or the static claims defined in the `claims` field.
-- `claims`: OPTIONAL: Static claims to include in the credential. Will be
-  overridden by the webhook response for presentation during issuance or when
-  passed during the credential offer request.
-- `vct`:
+- `claims`: **OPTIONAL** - Static claims to include in the credential. Can be
+  overridden by webhook responses or claims passed during credential offer.
+- `disclosureFrame`: **OPTIONAL** - Defines which claims should be selectively
+  disclosable in SD-JWT format.
+- `vct`: **OPTIONAL** -
   [VC Type Metadata](https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-09.html#name-sd-jwt-vc-type-metadata)
   provided via the `/credentials/vct/{id}` endpoint.
-- `schema`:
+- `schema`: **OPTIONAL** -
   [Schema Type Metadata](https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-09.html#name-schema-type-metadata)
-  to validate the claims before issuance.
+  to validate the claims before issuance. The schema will be added into the vct
+  values.
 
-> `<PUBLIC_URL>` will be dynamically replaced at runtime with your public URL
-> together with with the tenant ID.
+### Issuance Configuration
+
+Issuance configurations define which credentials to issue together and any
+authentication requirements.
+
+**Example Issuance Configuration (Citizen Pass):**
+
+```json
+{
+    "presentation_during_issuance": {
+        "type": "pid",
+        "webhook": {
+            "url": "http://localhost:8787/process"
+        }
+    },
+    "credentialConfigs": ["citizen"]
+}
+```
+
+**Issuance Configuration Fields:**
+
+- `credentialConfigs`: **REQUIRED** - Array of credential configuration IDs to
+  issue together.
+- `presentation_during_issuance`: **OPTIONAL** - If set, requires user to
+  present a credential before issuance
+    - `type`: **REQUIRED** - ID of the presentation request to use
+    - `webhook`: **OPTIONAL** - URL to send the presentation response to. If not
+      provided, it will use the passed claims during the credential offer link
+      generation or the static claims defined in the credential configuration.
 
 ---
+
+## Example Credential Configuration
 
 ## Display Configuration
 
@@ -138,6 +204,9 @@ TODO: needs to be updated
 This display information gets included into the
 [credential issuer metadata](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-credential-issuer-metadata:~:text=2%20or%20greater.-,display,-%3A%20OPTIONAL.%20A%20non).
 
+> `<PUBLIC_URL>` will be dynamically replaced at runtime with your public URL
+> together with the tenant ID.
+
 ---
 
 ## Passing Claims
@@ -145,19 +214,75 @@ This display information gets included into the
 There are three options to pass claims for the credential. They are handled in
 the following order:
 
-- via webhook response during presentation during issuance
-- via the `claims` field in the credential offer request
-- via static claims in the `claims` field of the credential configuration
+1. **Webhook response** during presentation during issuance (highest priority)
+2. **Claims field** in the credential offer request
+3. **Static claims** in the credential configuration (lowest priority)
 
 If no claims are provided, the credential will be issued with an empty claims
 set. Claims will not be merged with other claims from e.g. the offer or the
-static defined ones.
+static defined ones - the higher priority source completely overrides lower
+priority sources.
+
+## Configuration Management
+
+### Creating Credential Configurations
+
+Credential configurations are managed via the `/issuer-management/credentials`
+endpoint:
+
+```bash
+curl -X 'POST' \
+  'http://localhost:3000/issuer-management/credentials' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer eyJhb...npoNk' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "id": "pid",
+    "config": {
+      "format": "dc+sd-jwt",
+      "vct": "https://sd-jwt.com",
+      "proof_types_supported": {
+        "jwt": {
+          "proof_signing_alg_values_supported": ["ES256"]
+        }
+      },
+      "credential_signing_alg_values_supported": ["ES256"],
+      "cryptographic_binding_methods_supported": ["jwk"],
+      "display": [...]
+    },
+    "claims": {...},
+    "disclosureFrame": {...}
+  }'
+```
+
+### Creating Issuance Configurations
+
+Issuance configurations are managed via the `/issuer-management/issuance`
+endpoint:
+
+```bash
+curl -X 'POST' \
+  'http://localhost:3000/issuer-management/issuance' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer eyJhb...npoNk' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "id": "citizen-with-pid-verification",
+    "presentation_during_issuance": {
+      "type": "pid",
+      "webhook": {
+        "url": "http://localhost:8787/process"
+      }
+    }
+  }'
+```
 
 ## Creating a Credential Offer
 
-To start the issuance flow, you need to create a credential offer. This is done
-by calling the `/issuer-management/offer` endpoint. Via the `response_type`
-parameter, you can specify how the response should be formatted:
+To start the issuance flow, you need to create a credential offer using an
+**issuance configuration ID**. This is done by calling the
+`/issuer-management/offer` endpoint. Via the `response_type` parameter, you can
+specify how the response should be formatted:
 
 - `uri`: Returns a URI that the user can open in their wallet to start the
   issuance flow.
@@ -177,12 +302,17 @@ curl -X 'POST' \
   -d '{
   "response_type": "uri",
   "credentialConfigurationIds": [
-    "citizen"
+    "citizen-with-pid-verification"
   ]
 }'
 ```
 
-When there is no config with the provided ID, the service will return an error.
+**Note:** The `credentialConfigurationIds` field now expects **issuance
+configuration IDs**, not individual credential IDs. The issuance configuration
+will determine which credentials are actually issued.
+
+When there is no issuance configuration with the provided ID, the service will
+return an error.
 
 ## Revoking Credentials
 

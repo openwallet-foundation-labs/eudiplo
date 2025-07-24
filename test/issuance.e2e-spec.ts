@@ -3,7 +3,7 @@ import {
     extractScopesForCredentialConfigurationIds,
     Openid4vciClient,
 } from '@openid4vc/openid4vci';
-import { callbacks, getSignJwtCallback, loggerMiddleware } from './utils';
+import { callbacks, getSignJwtCallback } from './utils';
 import { exportJWK, generateKeyPair } from 'jose';
 import {
     Jwk,
@@ -12,7 +12,7 @@ import {
 } from '@openid4vc/oauth2';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { App } from 'supertest/types';
 import request from 'supertest';
 import { readFileSync } from 'fs';
@@ -43,10 +43,8 @@ describe('Issuance', () => {
                 cert: readFileSync('test/cert/access-certificate.pem'),
             },
         });
+        app.useGlobalPipes(new ValidationPipe());
 
-        app.useLogger(['error', 'warn', 'log']);
-        // Uncomment the next line to enable logger middleware
-        app.use(loggerMiddleware);
         const configService = app.get(ConfigService);
         clientId = configService.getOrThrow<string>('AUTH_CLIENT_ID');
         clientSecret = configService.getOrThrow<string>('AUTH_CLIENT_SECRET');
@@ -69,14 +67,30 @@ describe('Issuance', () => {
 
         //import the pid credential configuration
         const pidCredentialConfiguration = JSON.parse(
-            readFileSync('test/pid-issuance.json', 'utf-8'),
+            readFileSync('test/import/issuance/credentials/pid.json', 'utf-8'),
         );
         pidCredentialConfiguration.id = 'pid';
         await request(app.getHttpServer())
-            .post('/issuer-management')
+            .post('/issuer-management/credentials')
             .trustLocalhost()
             .set('Authorization', `Bearer ${authToken}`)
             .send(pidCredentialConfiguration);
+
+        //import the pid credential configuration
+        const pidIssuanceConfiguration = JSON.parse(
+            readFileSync('test/import/issuance/issuance/pid.json', 'utf-8'),
+        );
+        pidIssuanceConfiguration.id = 'pid';
+        await request(app.getHttpServer())
+            .post('/issuer-management/issuance')
+            .trustLocalhost()
+            .set('Authorization', `Bearer ${authToken}`)
+            .send(pidIssuanceConfiguration);
+
+        await request(app.getHttpServer())
+            .get('/issuer-management/issuance')
+            .trustLocalhost()
+            .set('Authorization', `Bearer ${authToken}`);
     });
 
     afterAll(async () => {
@@ -90,7 +104,7 @@ describe('Issuance', () => {
             .set('Authorization', `Bearer ${authToken}`)
             .send({
                 response_type: 'uri',
-                credentialConfigurationIds: ['pid'],
+                issuanceId: 'pid',
             })
             .expect(201);
 
@@ -115,14 +129,9 @@ describe('Issuance', () => {
             .set('Authorization', `Bearer ${authToken}`)
             .send({
                 response_type: 'uri',
-                credentialConfigurationIds: ['invalid'],
+                issuanceId: 'invalid',
             })
-            .expect(409)
-            .expect((res) => {
-                expect(res.body.message).toContain(
-                    'Invalid credential configuration ID',
-                );
-            });
+            .expect(400);
     });
 
     test('get credential from oid4vci offer', async () => {
@@ -132,7 +141,7 @@ describe('Issuance', () => {
             .set('Authorization', `Bearer ${authToken}`)
             .send({
                 response_type: 'uri',
-                credentialConfigurationIds: ['pid'],
+                issuanceId: 'pid',
             })
             .expect(201);
 

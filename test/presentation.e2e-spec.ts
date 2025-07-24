@@ -1,12 +1,12 @@
 import { beforeAll, describe, expect, test } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { App } from 'supertest/types';
 import request from 'supertest';
 import { ConfigService } from '@nestjs/config';
 import { Openid4vpClient } from '@openid4vc/openid4vp';
-import { callbacks, loggerMiddleware } from './utils';
+import { callbacks } from './utils';
 import { readFileSync } from 'fs';
 
 describe('Presentation', () => {
@@ -22,14 +22,13 @@ describe('Presentation', () => {
 
         app = moduleFixture.createNestApplication();
 
-        app.useLogger(['error', 'warn', 'log']);
-        // Uncomment the next line to enable logger middleware
-        app.use(loggerMiddleware);
         const configService = app.get(ConfigService);
         configService.set('PUBLIC_URL', 'https://example.com'); // Set a test URL
         host = configService.getOrThrow('PUBLIC_URL');
         clientId = configService.getOrThrow<string>('AUTH_CLIENT_ID');
         clientSecret = configService.getOrThrow<string>('AUTH_CLIENT_SECRET');
+        app.useGlobalPipes(new ValidationPipe());
+
         await app.init();
 
         // Get JWT token using client credentials
@@ -47,7 +46,7 @@ describe('Presentation', () => {
 
         //import the pid credential configuration
         const pidCredentialConfiguration = JSON.parse(
-            readFileSync('test/pid-presentation.json', 'utf-8'),
+            readFileSync('test/import/presentation/pid.json', 'utf-8'),
         );
         pidCredentialConfiguration.id = 'pid';
         await request(app.getHttpServer())

@@ -86,4 +86,12 @@ export class LoggerConfigService {
     reloadConfiguration(): void {
         this.loadConfiguration();
     }
+
+    /**
+     * Check if automatic HTTP request/response logging should be enabled
+     * This is used by the LoggerModule configuration
+     */
+    shouldEnableAutoLogging(): boolean {
+        return this.isHttpLoggerEnabled();
+    }
 }

@@ -19,7 +19,7 @@ codebase, including:
 pnpm run compodoc:start
 ```
 
-A rendered version of the build is included [here](/eudiplo/compodoc).
+A rendered version of the build is included [here](../compodoc).
 
 ## Source Code Structure
 

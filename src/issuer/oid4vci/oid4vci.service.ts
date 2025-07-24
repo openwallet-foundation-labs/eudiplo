@@ -18,7 +18,7 @@ import {
     Openid4vciIssuer,
 } from '@openid4vc/openid4vci';
 import type { Request } from 'express';
-import { CredentialsService } from '../../issuer/credentials/credentials.service';
+import { CredentialsService } from '../credentials/credentials.service';
 import { CryptoService } from '../../crypto/crypto.service';
 import { AuthorizeService } from '../authorize/authorize.service';
 import { getHeadersFromRequest } from './util';
@@ -26,11 +26,12 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { SessionService } from '../../session/session.service';
 import { v4 } from 'uuid';
-import { OfferRequest, OfferResponse } from './dto/offer-request.dto';
+import { OfferRequestDto, OfferResponse } from './dto/offer-request.dto';
 import { NotificationRequestDto } from './dto/notification-request.dto';
 import { SessionLoggerService } from '../../utils/session-logger.service';
 import { SessionLogContext } from '../../utils/session-logger-context';
 import { TokenPayload } from '../../auth/token.decorator';
+import { IssuanceService } from '../issuance/issuance.service';
 
 @Injectable()
 export class Oid4vciService implements OnModuleInit {
@@ -45,6 +46,7 @@ export class Oid4vciService implements OnModuleInit {
         private readonly configService: ConfigService,
         private readonly sessionService: SessionService,
         private readonly sessionLogger: SessionLoggerService,
+        private readonly issuanceService: IssuanceService,
     ) {}
     onModuleInit() {
         //TODO: align for tenant
@@ -108,25 +110,26 @@ export class Oid4vciService implements OnModuleInit {
     }
 
     async createOffer(
-        body: OfferRequest,
+        body: OfferRequestDto,
         user: TokenPayload,
         tenantId: string,
     ): Promise<OfferResponse> {
-        const configs =
-            await this.credentialsService.getCredentialConfiguration(user.sub);
-        body.credentialConfigurationIds.map((id) => {
-            if (configs[id] === undefined) {
-                throw new ConflictException(
-                    'Invalid credential configuration ID',
+        const issuanceConfig = await this.issuanceService
+            .getIssuanceConfigurationById(body.issuanceId, tenantId)
+            .catch(() => {
+                throw new BadRequestException(
+                    `Issuance configuration with ID ${body.issuanceId} not found`,
                 );
-            }
-        });
+            });
+        const credentialConfigurationIds =
+            body.credentialConfigurationIds ||
+            issuanceConfig.credentialConfigs.map((config) => config.id);
 
         const issuerMetadata = await this.issuerMetadata(tenantId);
         const issuer_state = v4();
         return this.issuer
             .createCredentialOffer({
-                credentialConfigurationIds: body.credentialConfigurationIds,
+                credentialConfigurationIds,
                 grants: {
                     [authorizationCodeGrantIdentifier]: {
                         issuer_state,
@@ -134,18 +137,26 @@ export class Oid4vciService implements OnModuleInit {
                 },
                 issuerMetadata,
             })
-            .then(async (offer) => {
-                await this.sessionService.create({
-                    id: issuer_state,
-                    offer: offer.credentialOfferObject,
-                    credentialPayload: body,
-                    tenantId: user.sub,
-                });
-                return {
-                    session: issuer_state,
-                    uri: offer.credentialOffer,
-                } as OfferResponse;
-            });
+            .then(
+                async (offer) => {
+                    await this.sessionService.create({
+                        id: issuer_state,
+                        offer: offer.credentialOfferObject,
+                        credentialPayload: body,
+                        tenantId: user.sub,
+                        issuanceId: body.issuanceId,
+                    });
+                    return {
+                        session: issuer_state,
+                        uri: offer.credentialOffer,
+                    } as OfferResponse;
+                },
+                () => {
+                    throw new ConflictException(
+                        `Invalid credential configuration ID`,
+                    );
+                },
+            );
     }
 
     async getCredential(

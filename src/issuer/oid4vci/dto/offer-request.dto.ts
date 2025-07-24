@@ -1,5 +1,5 @@
 import {
-    ArrayNotEmpty,
+    IsArray,
     IsEnum,
     IsObject,
     IsOptional,
@@ -8,7 +8,7 @@ import {
 import { ResponseType } from '../../../verifier/oid4vp/dto/presentation-request.dto';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class OfferRequest {
+export class OfferRequestDto {
     /**
      * @example "qrcode"
      */
@@ -20,11 +20,17 @@ export class OfferRequest {
     response_type: ResponseType;
 
     /**
+     * @example "pid"
+     */
+    @IsString()
+    issuanceId: string;
+
+    /**
      * @example ["pid"]
      */
-    @ArrayNotEmpty()
-    @IsString({ each: true })
-    credentialConfigurationIds: string[];
+    @IsArray()
+    @IsOptional()
+    credentialConfigurationIds?: string[];
 
     @IsObject()
     @IsOptional()

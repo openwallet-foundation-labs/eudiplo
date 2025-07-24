@@ -79,14 +79,6 @@ markdown_extensions:
       custom_checkbox: true
   - pymdownx.tilde
 plugins:
-    - plantuml:
-        puml_url: 'https://www.plantuml.com/plantuml/'
-        puml_keyword: plantuml
-        verify_ssl: false
-        interaction:
-          enabled: false
-        theme:
-          enabled: false
     - search
     - glightbox
     - neoteroi.mkdocsoad:

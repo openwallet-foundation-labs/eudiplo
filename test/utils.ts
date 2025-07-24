@@ -1,6 +1,5 @@
 import { CallbackContext, Jwk, SignJwtCallback } from '@openid4vc/oauth2';
 import crypto from 'node:crypto';
-import { NextFunction, Request } from 'express';
 import {
     calculateJwkThumbprint,
     exportJWK,
@@ -120,15 +119,3 @@ export const getSignJwtCallback = (privateJwks: Jwk[]): SignJwtCallback => {
         };
     };
 };
-
-export function loggerMiddleware(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-) {
-    console.log(`[${req.host}] ${req.originalUrl}`);
-    if (req.body) {
-        console.log(req.body);
-    }
-    next();
-}

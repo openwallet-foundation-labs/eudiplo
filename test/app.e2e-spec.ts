@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, test } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { App } from 'supertest/types';
 import request from 'supertest';
 
@@ -14,6 +14,8 @@ describe('Home', () => {
         }).compile();
 
         app = moduleFixture.createNestApplication();
+        app.useGlobalPipes(new ValidationPipe());
+
         await app.init();
     });
 

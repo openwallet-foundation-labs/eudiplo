@@ -15,8 +15,8 @@ import { getHeadersFromRequest } from '../oid4vci/util';
 import { AuthorizeQueries } from './dto/authorize-request.dto';
 import { Oid4vpService } from '../../verifier/oid4vp/oid4vp.service';
 import { SessionService } from '../../session/session.service';
-import { CredentialsService } from '../credentials/credentials.service';
 import { WebhookConfig } from '../../utils/webhook.dto';
+import { IssuanceService } from '../issuance/issuance.service';
 
 export interface ParsedAccessTokenAuthorizationCodeRequestGrant {
     grantType: AuthorizationCodeGrantIdentifier;
@@ -32,7 +32,7 @@ export class AuthorizeService {
         private cryptoService: CryptoService,
         private oid4vpService: Oid4vpService,
         private sessionService: SessionService,
-        private credentialsService: CredentialsService,
+        private issuanceService: IssuanceService,
     ) {}
 
     getAuthorizationServer(tenantId: string): Oauth2AuthorizationServer {
@@ -201,9 +201,9 @@ export class AuthorizeService {
         if (!session) {
             throw new Error('Credential offer not found');
         }
-        const ids = session.offer!.credential_configuration_ids;
-        const config = await this.credentialsService.getConfigById(
-            ids[0],
+        const issuanceId = session.issuanceId!;
+        const config = await this.issuanceService.getIssuanceConfigurationById(
+            issuanceId,
             tenantId,
         );
         if (config.presentation_during_issuance) {

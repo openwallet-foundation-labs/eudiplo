@@ -28,7 +28,7 @@ import { Oid4vpService } from '../oid4vp/oid4vp.service';
 import * as QRCode from 'qrcode';
 import { Response } from 'express';
 
-@ApiTags('Presentation management', 'Admin')
+@ApiTags('Presentation management')
 @UseGuards(JwtAuthGuard)
 @ApiSecurity('oauth2', ['api:read', 'api:write'])
 @Controller('presentation-management')

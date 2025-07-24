@@ -1,14 +1,4 @@
-import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    Param,
-    Post,
-    Res,
-    UseGuards,
-} from '@nestjs/common';
-import { CredentialsService } from '../credentials/credentials.service';
+import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
 import {
     ApiBody,
     ApiProduces,
@@ -18,22 +8,21 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/auth.guard';
 import { Token, TokenPayload } from '../../auth/token.decorator';
-import { IssuanceConfig } from '../../issuer/credentials/entities/issuance-config.entity';
 import { Oid4vciService } from '../../issuer/oid4vci/oid4vci.service';
-import { OfferResponse, OfferRequest } from '../oid4vci/dto/offer-request.dto';
+import {
+    OfferResponse,
+    OfferRequestDto,
+} from '../oid4vci/dto/offer-request.dto';
 import { ResponseType } from '../../verifier/oid4vp/dto/presentation-request.dto';
 import * as QRCode from 'qrcode';
 import { Response } from 'express';
 
-@ApiTags('Issuer management', 'Admin')
+@ApiTags('Issuer management')
 @UseGuards(JwtAuthGuard)
 @ApiSecurity('oauth2')
 @Controller('issuer-management')
 export class IssuerManagementController {
-    constructor(
-        private readonly credentialsService: CredentialsService,
-        private readonly oid4vciService: Oid4vciService,
-    ) {}
+    constructor(private readonly oid4vciService: Oid4vciService) {}
 
     /**
      * Create an offer for a credential. This endpoint may be protected
@@ -52,28 +41,28 @@ export class IssuerManagementController {
     })
     @ApiProduces('application/json', 'image/png')
     @ApiBody({
-        type: OfferRequest,
+        type: OfferRequestDto,
         examples: {
             qrcode: {
                 summary: 'QR-Code Example',
                 value: {
                     response_type: ResponseType.QRCode,
                     credentialConfigurationIds: ['pid'],
-                } as OfferRequest,
+                } as OfferRequestDto,
             },
             uri: {
                 summary: 'URI',
                 value: {
                     response_type: ResponseType.URI,
                     credentialConfigurationIds: ['pid'],
-                } as OfferRequest,
+                } as OfferRequestDto,
             },
         },
     })
     @Post('offer')
     async getOffer(
         @Res() res: Response,
-        @Body() body: OfferRequest,
+        @Body() body: OfferRequestDto,
         @Token() user: TokenPayload,
     ) {
         // For now, we'll just pass the body to the service as before
@@ -96,43 +85,5 @@ export class IssuerManagementController {
         } else {
             res.send(values);
         }
-    }
-
-    /**
-     * Returns the credential configuration for all supported credentials.
-     * @returns
-     */
-    @Get()
-    configuration(@Token() user: TokenPayload) {
-        return this.credentialsService.getConfig(user.sub);
-    }
-
-    /**
-     * Stores a credential configuration. If it already exists, it will be updated.
-     * @param config
-     * @returns
-     */
-    @Post()
-    storeConfiguration(
-        @Body() config: IssuanceConfig,
-        @Token() user: TokenPayload,
-    ) {
-        return this.credentialsService.storeCredentialConfiguration(
-            user.sub,
-            config,
-        );
-    }
-
-    /**
-     * Deletes a credential configuration by its ID.
-     * @param id
-     * @returns
-     */
-    @Delete('/:id')
-    deleteConfiguration(@Param('id') id: string, @Token() user: TokenPayload) {
-        return this.credentialsService.deleteCredentialConfiguration(
-            user.sub,
-            id,
-        );
     }
 }
