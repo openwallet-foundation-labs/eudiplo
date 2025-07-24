@@ -3,7 +3,6 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { writeFileSync } from 'fs';
-import { Logger } from 'nestjs-pino';
 import { ConfigService } from '@nestjs/config';
 
 /**
