@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import {
+    AuthorizationFlow,
     extractScopesForCredentialConfigurationIds,
     Openid4vciClient,
 } from '@openid4vc/openid4vci';
@@ -15,7 +16,7 @@ import { AppModule } from '../src/app.module';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { App } from 'supertest/types';
 import request from 'supertest';
-import { readFileSync } from 'fs';
+import { readFileSync, write, writeFileSync } from 'fs';
 import { fetch, setGlobalDispatcher, Agent } from 'undici';
 import { ConfigService } from '@nestjs/config';
 
@@ -76,18 +77,7 @@ describe('Issuance', () => {
             .set('Authorization', `Bearer ${authToken}`)
             .send(pidCredentialConfiguration);
 
-        //import the pid credential configuration
-        const pidIssuanceConfiguration = JSON.parse(
-            readFileSync('test/import/issuance/issuance/pid.json', 'utf-8'),
-        );
-        pidIssuanceConfiguration.id = 'pid';
-        await request(app.getHttpServer())
-            .post('/issuer-management/issuance')
-            .trustLocalhost()
-            .set('Authorization', `Bearer ${authToken}`)
-            .send(pidIssuanceConfiguration);
-
-        //import the pid credential configuration
+        //import the pid credential configuration for pre authorized code flow
         const pidNoneIssuanceConfiguration = JSON.parse(
             readFileSync(
                 'test/import/issuance/issuance/pid-none.json',
@@ -101,10 +91,38 @@ describe('Issuance', () => {
             .set('Authorization', `Bearer ${authToken}`)
             .send(pidNoneIssuanceConfiguration);
 
+        //import the pid credential configuration for authorized code flow
+        const pidIssuanceConfiguration = JSON.parse(
+            readFileSync('test/import/issuance/issuance/pid.json', 'utf-8'),
+        );
+        pidIssuanceConfiguration.id = 'pid';
         await request(app.getHttpServer())
-            .get('/issuer-management/issuance')
+            .post('/issuer-management/issuance')
             .trustLocalhost()
-            .set('Authorization', `Bearer ${authToken}`);
+            .set('Authorization', `Bearer ${authToken}`)
+            .send(pidIssuanceConfiguration);
+
+        //import citizen that that requires presentation during issuance
+
+        const citizenCredentialConfiguration = JSON.parse(
+            readFileSync('test/import/issuance/credentials/pid.json', 'utf-8'),
+        );
+        citizenCredentialConfiguration.id = 'citizen';
+        await request(app.getHttpServer())
+            .post('/issuer-management/credentials')
+            .trustLocalhost()
+            .set('Authorization', `Bearer ${authToken}`)
+            .send(citizenCredentialConfiguration);
+
+        const citizenIssuanceConfiguration = JSON.parse(
+            readFileSync('test/import/issuance/issuance/citizen.json', 'utf-8'),
+        );
+        citizenIssuanceConfiguration.id = 'citizen';
+        await request(app.getHttpServer())
+            .post('/issuer-management/issuance')
+            .trustLocalhost()
+            .set('Authorization', `Bearer ${authToken}`)
+            .send(citizenIssuanceConfiguration);
     });
 
     afterAll(async () => {
@@ -224,6 +242,18 @@ describe('Issuance', () => {
                 jwt: proofJwt,
             },
         });
+        writeFileSync(
+            'test.json',
+            JSON.stringify(
+                {
+                    credential:
+                        credentialResponse.credentialResponse.credentials[0],
+                    privateKey: holderPrivateKeyJwk,
+                },
+                null,
+                2,
+            ),
+        );
         await client.sendNotification({
             issuerMetadata,
             notification: {
@@ -293,6 +323,23 @@ describe('Issuance', () => {
         const redirectUri = 'https://127.0.0.1:3000/callback';
         //TODO: no real use for this yet, need to check: https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-authorization-endpoint
         const pkceCodeVerifier = 'random-code-verifier';
+
+        const authorization = await client.initiateAuthorization({
+            clientId,
+            issuerMetadata,
+            redirectUri,
+            credentialOffer,
+            pkceCodeVerifier,
+            scope: extractScopesForCredentialConfigurationIds({
+                credentialConfigurationIds:
+                    credentialOffer.credential_configuration_ids,
+                issuerMetadata,
+            })?.join(' '),
+        });
+
+        expect(authorization.authorizationFlow).toBe(
+            AuthorizationFlow.Oauth2Redirect,
+        );
 
         const { authorizationRequestUrl, pkce } =
             await client.createAuthorizationRequestUrlFromOffer({
@@ -377,5 +424,143 @@ describe('Issuance', () => {
         );
         expect(notificationObj).toBeDefined();
         expect(notificationObj.event).toBe('credential_accepted');
+    });
+
+    test('presentation during issuance', async () => {
+        const offerResponse = await request(app.getHttpServer())
+            .post('/issuer-management/offer')
+            .trustLocalhost()
+            .set('Authorization', `Bearer ${authToken}`)
+            .send({
+                response_type: 'uri',
+                issuanceId: 'citizen',
+            })
+            .expect(201);
+
+        const holderKeyPair = await generateKeyPair('ES256', {
+            extractable: true,
+        });
+        const holderPrivateKeyJwk = await exportJWK(holderKeyPair.privateKey);
+        const holderPublicKeyJwk = await exportJWK(holderKeyPair.publicKey);
+
+        const client = new Openid4vciClient({
+            callbacks: {
+                ...callbacks,
+                clientAuthentication: clientAuthenticationAnonymous(),
+                signJwt: getSignJwtCallback([holderPrivateKeyJwk as Jwk]),
+            },
+        });
+        const credentialOffer = await client.resolveCredentialOffer(
+            offerResponse.body.uri,
+        );
+
+        const issuerMetadata = await client.resolveIssuerMetadata(
+            credentialOffer.credential_issuer,
+        );
+
+        const dpopSigner = {
+            method: 'jwk',
+            alg: 'ES256',
+            publicJwk: holderPublicKeyJwk,
+        } as JwtSignerJwk;
+
+        const clientId = 'wallet';
+        const redirectUri = 'https://127.0.0.1:3000/callback';
+        //TODO: no real use for this yet, need to check: https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-authorization-endpoint
+        const pkceCodeVerifier = 'random-code-verifier';
+
+        const authorization = await client.initiateAuthorization({
+            clientId,
+            issuerMetadata,
+            redirectUri,
+            credentialOffer,
+            pkceCodeVerifier,
+            scope: extractScopesForCredentialConfigurationIds({
+                credentialConfigurationIds:
+                    credentialOffer.credential_configuration_ids,
+                issuerMetadata,
+            })?.join(' '),
+        });
+
+        expect(authorization.authorizationFlow).toBe(
+            AuthorizationFlow.PresentationDuringIssuance,
+        );
+
+        console.log(authorization);
+
+        /*         const { authorizationChallengeResponse } =
+            await client.retrieveAuthorizationCodeUsingPresentation({
+                issuerMetadata,
+                authSession: (authorization as any).authSession!,
+                credentialOffer,
+                // out of scope for now, handled by RP
+                presentationDuringIssuanceSession: 'some-session',
+            });
+        console.log(authorizationChallengeResponse); */
+        /*         const { accessTokenResponse, dpop } =
+            await client.retrieveAuthorizationCodeAccessTokenFromOffer({
+                issuerMetadata,
+                authorizationCode:
+                    authorizationChallengeResponse.authorization_code,
+                credentialOffer,
+                dpop: {
+                    nonce: 'random-nonce',
+                    signer: dpopSigner,
+                },
+                redirectUri,
+            }); */
+        /*const { jwt: proofJwt } = await client.createCredentialRequestJwtProof({
+            issuerMetadata,
+            signer: {
+                method: 'jwk',
+                alg: 'ES256',
+                publicJwk: holderPublicKeyJwk,
+            } as JwtSignerJwk,
+            clientId,
+            issuedAt: new Date(),
+            credentialConfigurationId:
+                credentialOffer.credential_configuration_ids[0],
+            nonce: accessTokenResponse.c_nonce,
+        });
+
+        const credentialResponse = await client.retrieveCredentials({
+            accessToken: accessTokenResponse.access_token,
+            credentialConfigurationId:
+                credentialOffer.credential_configuration_ids[0],
+            issuerMetadata,
+            dpop: {
+                ...dpop,
+                signer: dpopSigner,
+            },
+            proof: {
+                proof_type: 'jwt',
+                jwt: proofJwt,
+            },
+        });
+        await client.sendNotification({
+            issuerMetadata,
+            notification: {
+                //from the credential response
+                notificationId:
+                    credentialResponse.credentialResponse.notification_id!,
+                event: 'credential_accepted',
+            },
+            accessToken: accessTokenResponse.access_token,
+            dpop: {
+                ...dpop,
+                signer: dpopSigner,
+            },
+        });
+        const session = await request(app.getHttpServer())
+            .get(`/session/${offerResponse.body.session}`)
+            .trustLocalhost()
+            .set('Authorization', `Bearer ${authToken}`);
+        const notificationObj = session.body.notifications.find(
+            (notification) =>
+                notification.id ===
+                credentialResponse.credentialResponse.notification_id,
+        );
+        expect(notificationObj).toBeDefined();
+        expect(notificationObj.event).toBe('credential_accepted'); */
     });
 });

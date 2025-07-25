@@ -97,8 +97,6 @@ export class AuthorizeService {
                 'request_uri not found or not provided in the request',
             );
         }
-        console.log('values');
-        console.log(values);
         const code = await this.setAuthCode(values.issuer_state!, tenantId);
         res.redirect(`${values.redirect_uri}?code=${code}`);
     }
@@ -232,6 +230,7 @@ export class AuthorizeService {
         body: AuthorizeQueries,
         tenantId: string,
     ) {
+        console.log(body);
         // auth session and issuer state have the same value
         if (body.auth_session) {
             const session = await this.sessionService.get(body.auth_session);
@@ -242,8 +241,19 @@ export class AuthorizeService {
                 );
             }
             //check if session has valid presentation, we assume for now
-            await this.sendAuthorizationCode(res, body.auth_session, tenantId);
-            return;
+            if (session.credentials) {
+                await this.sendAuthorizationCode(
+                    res,
+                    body.auth_session,
+                    tenantId,
+                );
+                return;
+            } else {
+                //TODO: needs to be checked if this is the correct response
+                throw new ConflictException(
+                    'Session does not have valid credentials for issuance',
+                );
+            }
         }
 
         const session = await this.sessionService.get(body.issuer_state!);

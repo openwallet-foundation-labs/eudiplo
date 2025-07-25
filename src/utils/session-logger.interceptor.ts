@@ -30,7 +30,7 @@ export class SessionLoggerInterceptor implements NestInterceptor {
         private readonly configService: ConfigService,
     ) {
         this.isEnabled = !this.configService.get<boolean>(
-            'LOG_DISABLE_SESSION_LOGGER',
+            'LOG_ENABLE_SESSION_LOGGER',
             false,
         );
     }

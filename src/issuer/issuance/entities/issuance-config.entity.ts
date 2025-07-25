@@ -11,7 +11,7 @@ export class IssuanceConfig {
      */
     @PrimaryGeneratedColumn('uuid')
     id: string;
-    
+
     /**
      * Tenant ID for the issuance configuration.
      */

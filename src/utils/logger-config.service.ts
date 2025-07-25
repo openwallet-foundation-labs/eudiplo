@@ -3,8 +3,8 @@ import { ConfigService } from '@nestjs/config';
 
 export interface LoggerConfiguration {
     level: LogLevel;
-    disableSessionLogger: boolean;
-    disableHttpLogger: boolean;
+    enableSessionLogger: boolean;
+    enableHttpLogger: boolean;
     enableDebugMode: boolean;
     logFormat: 'json' | 'pretty';
 }
@@ -25,12 +25,12 @@ export class LoggerConfigService {
             level: this.parseLogLevel(
                 this.configService.get<string>('LOG_LEVEL', 'info'),
             ),
-            disableSessionLogger: this.configService.get<boolean>(
-                'LOG_DISABLE_SESSION_LOGGER',
+            enableSessionLogger: this.configService.get<boolean>(
+                'LOG_ENABLE_SESSION_LOGGER',
                 false,
             ),
-            disableHttpLogger: this.configService.get<boolean>(
-                'LOG_DISABLE_HTTP_LOGGER',
+            enableHttpLogger: this.configService.get<boolean>(
+                'LOG_ENABLE_HTTP_LOGGER',
                 false,
             ),
             enableDebugMode: this.configService.get<boolean>(
@@ -61,11 +61,11 @@ export class LoggerConfigService {
     }
 
     isSessionLoggerEnabled(): boolean {
-        return !this.config.disableSessionLogger;
+        return this.config.enableSessionLogger;
     }
 
     isHttpLoggerEnabled(): boolean {
-        return !this.config.disableHttpLogger;
+        return this.config.enableHttpLogger;
     }
 
     isDebugModeEnabled(): boolean {
