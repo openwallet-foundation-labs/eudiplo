@@ -2,12 +2,15 @@ import { randomUUID } from 'node:crypto';
 import { ConflictException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
+    authorizationCodeGrantIdentifier,
     type AuthorizationCodeGrantIdentifier,
     type AuthorizationServerMetadata,
     type HttpMethod,
     Jwk,
     Oauth2AuthorizationServer,
     PkceCodeChallengeMethod,
+    PreAuthorizedCodeGrantIdentifier,
+    preAuthorizedCodeGrantIdentifier,
 } from '@openid4vc/oauth2';
 import type { Request, Response } from 'express';
 import { CryptoService } from '../../crypto/crypto.service';
@@ -17,10 +20,17 @@ import { Oid4vpService } from '../../verifier/oid4vp/oid4vp.service';
 import { SessionService } from '../../session/session.service';
 import { WebhookConfig } from '../../utils/webhook.dto';
 import { IssuanceService } from '../issuance/issuance.service';
+import { AuthenticationConfigHelper } from '../issuance/dto/authentication-config.helper';
 
 export interface ParsedAccessTokenAuthorizationCodeRequestGrant {
     grantType: AuthorizationCodeGrantIdentifier;
     code: string;
+}
+
+interface ParsedAccessTokenPreAuthorizedCodeRequestGrant {
+    grantType: PreAuthorizedCodeGrantIdentifier;
+    preAuthorizedCode: string;
+    txCode?: string;
 }
 
 @Injectable()
@@ -87,6 +97,8 @@ export class AuthorizeService {
                 'request_uri not found or not provided in the request',
             );
         }
+        console.log('values');
+        console.log(values);
         const code = await this.setAuthCode(values.issuer_state!, tenantId);
         res.redirect(`${values.redirect_uri}?code=${code}`);
     }
@@ -110,7 +122,7 @@ export class AuthorizeService {
         });
 
         const session = await this.sessionService.getBy({
-            authorization_code: body.code,
+            authorization_code: body.code ?? body['pre-authorized_code'],
             tenantId,
         });
 
@@ -118,26 +130,63 @@ export class AuthorizeService {
             throw new ConflictException('Authorization code not found');
         }
         const authorizationServerMetadata = this.authzMetadata(tenantId);
-        //TODO: handle response
-        const { dpop } = await this.getAuthorizationServer(
-            tenantId,
-        ).verifyAuthorizationCodeAccessTokenRequest({
-            grant: parsedAccessTokenRequest.grant as ParsedAccessTokenAuthorizationCodeRequestGrant,
-            accessTokenRequest: parsedAccessTokenRequest.accessTokenRequest,
-            expectedCode: session.authorization_code as string,
-            request: {
-                method: req.method as HttpMethod,
-                url,
-                headers: getHeadersFromRequest(req),
-            },
-            dpop: {
-                required: true,
-                allowedSigningAlgs:
-                    authorizationServerMetadata.dpop_signing_alg_values_supported,
-                jwt: parsedAccessTokenRequest.dpop?.jwt,
-            },
-            authorizationServerMetadata,
-        });
+        let dpopValue;
+        if (
+            parsedAccessTokenRequest.grant.grantType ===
+            preAuthorizedCodeGrantIdentifier
+        ) {
+            const { dpop } = await this.getAuthorizationServer(
+                tenantId,
+            ).verifyPreAuthorizedCodeAccessTokenRequest({
+                grant: parsedAccessTokenRequest.grant as ParsedAccessTokenPreAuthorizedCodeRequestGrant,
+                accessTokenRequest: parsedAccessTokenRequest.accessTokenRequest,
+                request: {
+                    method: req.method as HttpMethod,
+                    url,
+                    headers: getHeadersFromRequest(req),
+                },
+                dpop: {
+                    required: true,
+                    allowedSigningAlgs:
+                        authorizationServerMetadata.dpop_signing_alg_values_supported,
+                    jwt: parsedAccessTokenRequest.dpop?.jwt,
+                },
+
+                authorizationServerMetadata,
+
+                expectedPreAuthorizedCode:
+                    parsedAccessTokenRequest.grant.preAuthorizedCode,
+                expectedTxCode: parsedAccessTokenRequest.grant.txCode,
+            });
+            dpopValue = dpop;
+        }
+
+        if (
+            parsedAccessTokenRequest.grant.grantType ===
+            authorizationCodeGrantIdentifier
+        ) {
+            //TODO: handle response
+            const { dpop } = await this.getAuthorizationServer(
+                tenantId,
+            ).verifyAuthorizationCodeAccessTokenRequest({
+                grant: parsedAccessTokenRequest.grant as ParsedAccessTokenAuthorizationCodeRequestGrant,
+                accessTokenRequest: parsedAccessTokenRequest.accessTokenRequest,
+                expectedCode: session.authorization_code as string,
+                request: {
+                    method: req.method as HttpMethod,
+                    url,
+                    headers: getHeadersFromRequest(req),
+                },
+                dpop: {
+                    required: true,
+                    allowedSigningAlgs:
+                        authorizationServerMetadata.dpop_signing_alg_values_supported,
+                    jwt: parsedAccessTokenRequest.dpop?.jwt,
+                },
+                authorizationServerMetadata,
+            });
+            dpopValue = dpop;
+        }
 
         const cNonce = randomUUID();
         return this.getAuthorizationServer(tenantId).createAccessTokenResponse({
@@ -156,7 +205,7 @@ export class AuthorizeService {
             cNonce,
             cNonceExpiresIn: 100,
             clientId: 'wallet', // must be same as the client attestation
-            dpop,
+            dpop: dpopValue,
         });
     }
 
@@ -206,16 +255,42 @@ export class AuthorizeService {
             issuanceId,
             tenantId,
         );
-        if (config.presentation_during_issuance) {
-            const webhook = config.presentation_during_issuance.webhook;
+
+        // Use the new authentication configuration structure
+        const authConfig = config.authenticationConfig;
+
+        if (!authConfig) {
+            throw new Error(
+                'No authentication configuration found for issuance config',
+            );
+        }
+
+        if (
+            AuthenticationConfigHelper.isPresentationDuringIssuanceAuth(
+                authConfig,
+            )
+        ) {
+            // OID4VP flow - credential presentation required
+            const presentationConfig =
+                AuthenticationConfigHelper.getPresentationConfig(authConfig);
+            const webhook = presentationConfig?.presentation.webhook;
             const response = await this.parseChallengeRequest(
                 body,
                 tenantId,
                 webhook,
             );
             res.status(400).send(response);
-        } else {
+        } else if (AuthenticationConfigHelper.isAuthUrlAuth(authConfig)) {
+            // OID4VCI authorized code flow - should not reach here typically in challenge endpoint
+            // But we'll handle it by sending authorization code
             await this.sendAuthorizationCode(res, body.issuer_state!, tenantId);
+        } else if (AuthenticationConfigHelper.isNoneAuth(authConfig)) {
+            // Pre-authorized code flow (method: 'none') - send authorization code directly
+            await this.sendAuthorizationCode(res, body.issuer_state!, tenantId);
+        } else {
+            throw new Error(
+                `Unsupported authentication method: ${(authConfig as any).method}`,
+            );
         }
     }
 

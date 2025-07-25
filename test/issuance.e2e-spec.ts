@@ -87,6 +87,20 @@ describe('Issuance', () => {
             .set('Authorization', `Bearer ${authToken}`)
             .send(pidIssuanceConfiguration);
 
+        //import the pid credential configuration
+        const pidNoneIssuanceConfiguration = JSON.parse(
+            readFileSync(
+                'test/import/issuance/issuance/pid-none.json',
+                'utf-8',
+            ),
+        );
+        pidNoneIssuanceConfiguration.id = 'pid-none';
+        await request(app.getHttpServer())
+            .post('/issuer-management/issuance')
+            .trustLocalhost()
+            .set('Authorization', `Bearer ${authToken}`)
+            .send(pidNoneIssuanceConfiguration);
+
         await request(app.getHttpServer())
             .get('/issuer-management/issuance')
             .trustLocalhost()
@@ -134,7 +148,110 @@ describe('Issuance', () => {
             .expect(400);
     });
 
-    test('get credential from oid4vci offer', async () => {
+    test('pre authorized code flow', async () => {
+        const offerResponse = await request(app.getHttpServer())
+            .post('/issuer-management/offer')
+            .trustLocalhost()
+            .set('Authorization', `Bearer ${authToken}`)
+            .send({
+                response_type: 'uri',
+                issuanceId: 'pid-none',
+            })
+            .expect(201);
+
+        const holderKeyPair = await generateKeyPair('ES256', {
+            extractable: true,
+        });
+        const holderPrivateKeyJwk = await exportJWK(holderKeyPair.privateKey);
+        const holderPublicKeyJwk = await exportJWK(holderKeyPair.publicKey);
+
+        const client = new Openid4vciClient({
+            callbacks: {
+                ...callbacks,
+                clientAuthentication: clientAuthenticationAnonymous(),
+                signJwt: getSignJwtCallback([holderPrivateKeyJwk as Jwk]),
+            },
+        });
+        const credentialOffer = await client.resolveCredentialOffer(
+            offerResponse.body.uri,
+        );
+
+        const issuerMetadata = await client.resolveIssuerMetadata(
+            credentialOffer.credential_issuer,
+        );
+
+        const dpopSigner = {
+            method: 'jwk',
+            alg: 'ES256',
+            publicJwk: holderPublicKeyJwk,
+        } as JwtSignerJwk;
+
+        const { accessTokenResponse, dpop } =
+            await client.retrievePreAuthorizedCodeAccessTokenFromOffer({
+                credentialOffer,
+                issuerMetadata,
+                dpop: {
+                    nonce: 'random-nonce',
+                    signer: dpopSigner,
+                },
+            });
+
+        const { jwt: proofJwt } = await client.createCredentialRequestJwtProof({
+            issuerMetadata,
+            signer: {
+                method: 'jwk',
+                alg: 'ES256',
+                publicJwk: holderPublicKeyJwk,
+            } as JwtSignerJwk,
+            clientId,
+            issuedAt: new Date(),
+            credentialConfigurationId:
+                credentialOffer.credential_configuration_ids[0],
+            nonce: accessTokenResponse.c_nonce,
+        });
+
+        const credentialResponse = await client.retrieveCredentials({
+            accessToken: accessTokenResponse.access_token,
+            credentialConfigurationId:
+                credentialOffer.credential_configuration_ids[0],
+            issuerMetadata,
+            dpop: {
+                ...dpop,
+                signer: dpopSigner,
+            },
+            proof: {
+                proof_type: 'jwt',
+                jwt: proofJwt,
+            },
+        });
+        await client.sendNotification({
+            issuerMetadata,
+            notification: {
+                //from the credential response
+                notificationId:
+                    credentialResponse.credentialResponse.notification_id!,
+                event: 'credential_accepted',
+            },
+            accessToken: accessTokenResponse.access_token,
+            dpop: {
+                ...dpop,
+                signer: dpopSigner,
+            },
+        });
+        const session = await request(app.getHttpServer())
+            .get(`/session/${offerResponse.body.session}`)
+            .trustLocalhost()
+            .set('Authorization', `Bearer ${authToken}`);
+        const notificationObj = session.body.notifications.find(
+            (notification) =>
+                notification.id ===
+                credentialResponse.credentialResponse.notification_id,
+        );
+        expect(notificationObj).toBeDefined();
+        expect(notificationObj.event).toBe('credential_accepted');
+    });
+
+    test('authorized code flow', async () => {
         const offerResponse = await request(app.getHttpServer())
             .post('/issuer-management/offer')
             .trustLocalhost()
@@ -166,6 +283,12 @@ describe('Issuance', () => {
             credentialOffer.credential_issuer,
         );
 
+        const dpopSigner = {
+            method: 'jwk',
+            alg: 'ES256',
+            publicJwk: holderPublicKeyJwk,
+        } as JwtSignerJwk;
+
         const clientId = 'wallet';
         const redirectUri = 'https://127.0.0.1:3000/callback';
         //TODO: no real use for this yet, need to check: https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-authorization-endpoint
@@ -188,12 +311,6 @@ describe('Issuance', () => {
         //get the authorization code, in this setup it will return a redirect with the URL
         const result = await fetch(authorizationRequestUrl);
         const authorizationCode = new URL(result.url).searchParams.get('code')!;
-
-        const dpopSigner = {
-            method: 'jwk',
-            alg: 'ES256',
-            publicJwk: holderPublicKeyJwk,
-        } as JwtSignerJwk;
 
         const { accessTokenResponse, dpop } =
             await client.retrieveAuthorizationCodeAccessTokenFromOffer({

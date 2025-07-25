@@ -1,12 +1,17 @@
-import { IsArray, IsObject, IsOptional, IsString } from 'class-validator';
-import { PresentationDuringIssuance } from '../../credentials-metadata/dto/credential-config.dto';
+import { IsArray, IsObject, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+import { AuthenticationConfigDto } from './authentication-config.dto';
 
 export class IssuanceDto {
+    @IsString()
+    id: string;
+
     @IsString({ each: true })
     @IsArray()
     credentialConfigs: string[];
 
     @IsObject()
-    @IsOptional()
-    presentation_during_issuance?: PresentationDuringIssuance;
+    @ValidateNested()
+    @Type(() => AuthenticationConfigDto)
+    authenticationConfig: AuthenticationConfigDto;
 }

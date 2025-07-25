@@ -10,6 +10,7 @@ import {
     Oauth2ResourceServer,
     SupportedAuthenticationScheme,
     authorizationCodeGrantIdentifier,
+    preAuthorizedCodeGrantIdentifier,
 } from '@openid4vc/oauth2';
 import {
     type CredentialResponse,
@@ -125,16 +126,30 @@ export class Oid4vciService implements OnModuleInit {
             body.credentialConfigurationIds ||
             issuanceConfig.credentialConfigs.map((config) => config.id);
 
-        const issuerMetadata = await this.issuerMetadata(tenantId);
+        let authorization_code: string | undefined;
+        let grants: any;
         const issuer_state = v4();
+        if (issuanceConfig.authenticationConfig.method === 'none') {
+            authorization_code = v4();
+            grants = {
+                [preAuthorizedCodeGrantIdentifier]: {
+                    'pre-authorized_code': authorization_code,
+                },
+            };
+        } else {
+            grants = {
+                [authorizationCodeGrantIdentifier]: {
+                    issuer_state,
+                },
+            };
+        }
+
+        const issuerMetadata = await this.issuerMetadata(tenantId);
+
         return this.issuer
             .createCredentialOffer({
                 credentialConfigurationIds,
-                grants: {
-                    [authorizationCodeGrantIdentifier]: {
-                        issuer_state,
-                    },
-                },
+                grants,
                 issuerMetadata,
             })
             .then(
@@ -145,6 +160,7 @@ export class Oid4vciService implements OnModuleInit {
                         credentialPayload: body,
                         tenantId: user.sub,
                         issuanceId: body.issuanceId,
+                        authorization_code,
                     });
                     return {
                         session: issuer_state,

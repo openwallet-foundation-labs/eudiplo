@@ -1,0 +1,8 @@
+{
+    "authenticationConfig": {
+        "method": "none"
+    },
+    "credentialConfigs": [
+        "pid"
+    ]
+}

@@ -313,8 +313,6 @@ export class Oid4vpService {
                         session.webhook.auth.config.value;
                 }
 
-                console.log(headers);
-
                 this.sessionLogger.logSession(
                     logContext,
                     'Sending webhook notification',
