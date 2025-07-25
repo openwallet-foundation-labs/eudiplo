@@ -125,9 +125,6 @@ jobs:
             - name: Copy env file
               run: cp .env.example .env
 
-            - name: Set up Docker (for Testcontainers)
-              uses: docker/setup-buildx-action@v3
-
             - name: Set up Node.js with pnpm
               uses: actions/setup-node@v4
               with:
@@ -145,8 +142,12 @@ jobs:
             - name: Install dependencies
               run: pnpm install
 
-            - name: Allow Node.js to bind to port 80
-              run: sudo setcap CAP_NET_BIND_SERVICE=+eip $(which node)
+            - name: setup test webhooks
+              run: |
+                  # Ensure the webhook server is running
+                  cd test/webhook
+                  npm ci
+                  nohup npm run start &
 
             - name: Run E2E tests
               run: pnpm run test:e2e

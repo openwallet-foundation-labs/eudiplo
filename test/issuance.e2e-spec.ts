@@ -52,7 +52,7 @@ describe('Issuance', () => {
         host = configService.getOrThrow<string>('PUBLIC_URL');
 
         await app.init();
-        await app.listen(80);
+        await app.listen(3000);
 
         // Get JWT token using client credentials
         const tokenResponse = await request(app.getHttpServer())
@@ -297,11 +297,15 @@ describe('Issuance', () => {
 
         writeFileSync(
             'test.json',
-            JSON.stringify({
-                key: holderPrivateKeyJwk,
-                credential:
-                    credentialResponse.credentialResponse.credentials[0],
-            }),
+            JSON.stringify(
+                {
+                    privateKey: holderPrivateKeyJwk,
+                    credential:
+                        credentialResponse.credentialResponse.credentials[0],
+                },
+                null,
+                2,
+            ),
         );
     });
 
@@ -344,7 +348,7 @@ describe('Issuance', () => {
         } as JwtSignerJwk;
 
         const clientId = 'wallet';
-        const redirectUri = 'http://127.0.0.1:80/callback';
+        const redirectUri = 'http://127.0.0.1:3000/callback';
         //TODO: no real use for this yet, need to check: https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-authorization-endpoint
         const pkceCodeVerifier = 'random-code-verifier';
 

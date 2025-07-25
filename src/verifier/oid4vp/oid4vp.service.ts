@@ -103,9 +103,9 @@ export class Oid4vpService {
                     : 1,
             });
 
-            const hostname = this.configService
-                .getOrThrow<string>('PUBLIC_URL')
-                .split('://')[1];
+            const hostname = new URL(
+                this.configService.getOrThrow<string>('PUBLIC_URL'),
+            ).hostname;
 
             const request = {
                 payload: {
@@ -240,9 +240,9 @@ export class Oid4vpService {
             });
         }
 
-        const hostname = this.configService
-            .getOrThrow<string>('PUBLIC_URL')
-            .split('://')[1];
+        const hostname = new URL(
+            this.configService.getOrThrow<string>('PUBLIC_URL'),
+        ).hostname;
         const params = {
             client_id: `x509_san_dns:${hostname}`,
             request_uri: `${this.configService.getOrThrow<string>('PUBLIC_URL')}/${tenantId}/oid4vp/request/${requestId}/${values.session}`,

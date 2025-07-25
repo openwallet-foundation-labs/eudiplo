@@ -70,9 +70,9 @@ export class CryptoService implements OnModuleInit {
         if (!existsSync(certOut)) {
             // === Configurable parameters (you can parameterize these when calling the script) ===
             const subject = this.configService.getOrThrow<string>('RP_NAME');
-            const hostname = this.configService
-                .getOrThrow<string>('PUBLIC_URL')
-                .split('://')[1];
+            const hostname = new URL(
+                this.configService.getOrThrow<string>('PUBLIC_URL'),
+            ).hostname; // Use URL to parse and get hostname
 
             // === Helper to run shell commands ===
             const run = (cmd) => {

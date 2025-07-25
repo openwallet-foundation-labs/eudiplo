@@ -33,7 +33,7 @@ describe('Presentation', () => {
         app.useGlobalPipes(new ValidationPipe());
 
         await app.init();
-        await app.listen(80);
+        await app.listen(3000);
 
         // Get JWT token using client credentials
         const tokenResponse = await request(app.getHttpServer())
@@ -62,7 +62,6 @@ describe('Presentation', () => {
     });
 
     test('create oid4vp offer', async () => {
-        return;
         const res = await request(app.getHttpServer())
             .post('/presentation-management/request')
             .trustLocalhost()
