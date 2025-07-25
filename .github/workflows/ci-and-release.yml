@@ -125,6 +125,9 @@ jobs:
             - name: Copy env file
               run: cp .env.example .env
 
+            - name: Allow Node.js to bind to port 80
+              run: sudo setcap CAP_NET_BIND_SERVICE=+eip $(which node)
+
             - name: Set up Docker (for Testcontainers)
               uses: docker/setup-buildx-action@v3
 
