@@ -104,7 +104,8 @@ describe('Presentation', () => {
             .post('/presentation-management')
             .trustLocalhost()
             .set('Authorization', `Bearer ${authToken}`)
-            .send(pidCredentialConfiguration);
+            .send(pidCredentialConfiguration)
+            .expect(201);
     });
 
     test('create oid4vp offer', async () => {

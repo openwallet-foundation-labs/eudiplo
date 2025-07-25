@@ -61,7 +61,8 @@ describe('Issuance', () => {
                 client_id: clientId,
                 client_secret: clientSecret,
                 grant_type: 'client_credentials',
-            });
+            })
+            .expect(201);
 
         authToken = tokenResponse.body.access_token;
         expect(authToken).toBeDefined();
@@ -75,7 +76,8 @@ describe('Issuance', () => {
             .post('/issuer-management/credentials')
             .trustLocalhost()
             .set('Authorization', `Bearer ${authToken}`)
-            .send(pidCredentialConfiguration);
+            .send(pidCredentialConfiguration)
+            .expect(201);
 
         //import the pid credential configuration for pre authorized code flow
         const pidNoneIssuanceConfiguration = JSON.parse(
@@ -89,7 +91,8 @@ describe('Issuance', () => {
             .post('/issuer-management/issuance')
             .trustLocalhost()
             .set('Authorization', `Bearer ${authToken}`)
-            .send(pidNoneIssuanceConfiguration);
+            .send(pidNoneIssuanceConfiguration)
+            .expect(201);
 
         //import the pid credential configuration for authorized code flow
         const pidIssuanceConfiguration = JSON.parse(
@@ -100,19 +103,21 @@ describe('Issuance', () => {
             .post('/issuer-management/issuance')
             .trustLocalhost()
             .set('Authorization', `Bearer ${authToken}`)
-            .send(pidIssuanceConfiguration);
+            .send(pidIssuanceConfiguration)
+            .expect(201);
 
         //import citizen that that requires presentation during issuance
 
-        const citizenCredentialConfiguration = JSON.parse(
-            readFileSync('test/import/issuance/credentials/pid.json', 'utf-8'),
+        const citizenPresentationConfiguration = JSON.parse(
+            readFileSync('test/import/presentation/pid.json', 'utf-8'),
         );
-        citizenCredentialConfiguration.id = 'citizen';
+        citizenPresentationConfiguration.id = 'pid';
         await request(app.getHttpServer())
-            .post('/issuer-management/credentials')
+            .post('/presentation-management')
             .trustLocalhost()
             .set('Authorization', `Bearer ${authToken}`)
-            .send(citizenCredentialConfiguration);
+            .send(citizenPresentationConfiguration)
+            .expect(201);
 
         const citizenIssuanceConfiguration = JSON.parse(
             readFileSync('test/import/issuance/issuance/citizen.json', 'utf-8'),
@@ -122,7 +127,8 @@ describe('Issuance', () => {
             .post('/issuer-management/issuance')
             .trustLocalhost()
             .set('Authorization', `Bearer ${authToken}`)
-            .send(citizenIssuanceConfiguration);
+            .send(citizenIssuanceConfiguration)
+            .expect(201);
     });
 
     afterAll(async () => {
