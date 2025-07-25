@@ -22,3 +22,4 @@ secret:
   # Alternative: use ignored_detectors if you want to ignore specific types
   # ignored_detectors:
   #   - "Generic Password"
+  

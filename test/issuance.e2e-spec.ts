@@ -4,8 +4,8 @@ import {
     extractScopesForCredentialConfigurationIds,
     Openid4vciClient,
 } from '@openid4vc/openid4vci';
-import { callbacks, getSignJwtCallback } from './utils';
-import { exportJWK, generateKeyPair } from 'jose';
+import { callbacks, getSignJwtCallback, preparePresentation } from './utils';
+import { EncryptJWT, exportJWK, generateKeyPair, importJWK, JWK } from 'jose';
 import {
     Jwk,
     JwtSignerJwk,
@@ -16,9 +16,13 @@ import { AppModule } from '../src/app.module';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { App } from 'supertest/types';
 import request from 'supertest';
-import { readFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import { fetch, setGlobalDispatcher, Agent } from 'undici';
 import { ConfigService } from '@nestjs/config';
+import {
+    Openid4vpAuthorizationRequest,
+    Openid4vpClient,
+} from '@openid4vc/openid4vp';
 
 setGlobalDispatcher(
     new Agent({
@@ -32,26 +36,23 @@ describe('Issuance', () => {
     let authToken: string;
     let clientId: string;
     let clientSecret: string;
+    let host: string;
 
     beforeAll(async () => {
         const moduleFixture: TestingModule = await Test.createTestingModule({
             imports: [AppModule],
         }).compile();
 
-        app = moduleFixture.createNestApplication({
-            httpsOptions: {
-                key: readFileSync('test/cert/private-key.pem'),
-                cert: readFileSync('test/cert/access-certificate.pem'),
-            },
-        });
+        app = moduleFixture.createNestApplication();
         app.useGlobalPipes(new ValidationPipe());
 
         const configService = app.get(ConfigService);
         clientId = configService.getOrThrow<string>('AUTH_CLIENT_ID');
         clientSecret = configService.getOrThrow<string>('AUTH_CLIENT_SECRET');
+        host = configService.getOrThrow<string>('PUBLIC_URL');
 
         await app.init();
-        await app.listen(3000);
+        await app.listen(80);
 
         // Get JWT token using client credentials
         const tokenResponse = await request(app.getHttpServer())
@@ -119,6 +120,21 @@ describe('Issuance', () => {
             .send(citizenPresentationConfiguration)
             .expect(201);
 
+        //import the citizen credential configuration
+        const citizenCredentialConfiguration = JSON.parse(
+            readFileSync(
+                'test/import/issuance/credentials/citizen.json',
+                'utf-8',
+            ),
+        );
+        citizenCredentialConfiguration.id = 'citizen';
+        await request(app.getHttpServer())
+            .post('/issuer-management/credentials')
+            .trustLocalhost()
+            .set('Authorization', `Bearer ${authToken}`)
+            .send(citizenCredentialConfiguration)
+            .expect(201);
+
         const citizenIssuanceConfiguration = JSON.parse(
             readFileSync('test/import/issuance/issuance/citizen.json', 'utf-8'),
         );
@@ -129,6 +145,11 @@ describe('Issuance', () => {
             .set('Authorization', `Bearer ${authToken}`)
             .send(citizenIssuanceConfiguration)
             .expect(201);
+        await request(app.getHttpServer())
+            .get('/issuer-management/issuance')
+            .trustLocalhost()
+            .set('Authorization', `Bearer ${authToken}`)
+            .expect(200);
     });
 
     afterAll(async () => {
@@ -273,6 +294,15 @@ describe('Issuance', () => {
         );
         expect(notificationObj).toBeDefined();
         expect(notificationObj.event).toBe('credential_accepted');
+
+        writeFileSync(
+            'test.json',
+            JSON.stringify({
+                key: holderPrivateKeyJwk,
+                credential:
+                    credentialResponse.credentialResponse.credentials[0],
+            }),
+        );
     });
 
     test('authorized code flow', async () => {
@@ -314,7 +344,7 @@ describe('Issuance', () => {
         } as JwtSignerJwk;
 
         const clientId = 'wallet';
-        const redirectUri = 'https://127.0.0.1:3000/callback';
+        const redirectUri = 'http://127.0.0.1:80/callback';
         //TODO: no real use for this yet, need to check: https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-authorization-endpoint
         const pkceCodeVerifier = 'random-code-verifier';
 
@@ -452,14 +482,8 @@ describe('Issuance', () => {
             credentialOffer.credential_issuer,
         );
 
-        /*         const dpopSigner = {
-            method: 'jwk',
-            alg: 'ES256',
-            publicJwk: holderPublicKeyJwk,
-        } as JwtSignerJwk;
- */
         const clientId = 'wallet';
-        const redirectUri = 'https://127.0.0.1:3000/callback';
+        const redirectUri = 'http://127.0.0.1:80/callback';
         //TODO: no real use for this yet, need to check: https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-authorization-endpoint
         const pkceCodeVerifier = 'random-code-verifier';
 
@@ -480,9 +504,86 @@ describe('Issuance', () => {
             AuthorizationFlow.PresentationDuringIssuance,
         );
 
-        console.log(authorization);
+        const vpClient = new Openid4vpClient({
+            callbacks: {
+                ...callbacks,
+                fetch: async (uri: string, init: RequestInit) => {
+                    const path = uri.split(host)[1];
+                    let response: any;
+                    if (init.method === 'POST') {
+                        response = await request(app.getHttpServer())
+                            .post(path)
+                            .trustLocalhost()
+                            .send(init.body!);
+                    } else {
+                        response = await request(app.getHttpServer())
+                            .get(path)
+                            .trustLocalhost();
+                    }
+                    return {
+                        ok: true,
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                        text: () => response.text,
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                        json: () => response.body,
+                        status: response.status,
+                        headers: response.headers,
+                    };
+                },
+            },
+        });
+        const authRequest = vpClient.parseOpenid4vpAuthorizationRequest({
+            authorizationRequest: authorization.openid4vpRequestUrl,
+        });
 
-        /*         const { authorizationChallengeResponse } =
+        const resolved = await vpClient.resolveOpenId4vpAuthorizationRequest({
+            authorizationRequestPayload: authRequest.params,
+        });
+        expect(resolved).toBeDefined();
+
+        const vp_token = await preparePresentation({
+            iat: Math.floor(Date.now() / 1000),
+            aud: resolved.authorizationRequestPayload.aud as string,
+            nonce: resolved.authorizationRequestPayload.nonce,
+        });
+
+        //encrypt the vp token
+        const key = (await importJWK(
+            resolved.authorizationRequestPayload.client_metadata?.jwks
+                ?.keys[0] as JWK,
+            'ECDH-ES',
+        )) as CryptoKey;
+
+        const jwt = await new EncryptJWT({
+            vp_token: { pid: vp_token },
+            state: resolved.authorizationRequestPayload.state!,
+        })
+            .setProtectedHeader({
+                alg: 'ECDH-ES',
+                enc: 'A128GCM',
+            })
+            .setIssuedAt()
+            .setExpirationTime('2h') // Optional: set expiration
+            .encrypt(key); // Use the public key for encryption
+
+        const authorizationResponse =
+            await vpClient.createOpenid4vpAuthorizationResponse({
+                authorizationRequestPayload: authRequest.params,
+                authorizationResponsePayload: {
+                    response: jwt,
+                },
+                ...callbacks,
+            });
+
+        const submitRes = await vpClient.submitOpenid4vpAuthorizationResponse({
+            authorizationResponsePayload:
+                authorizationResponse.authorizationResponsePayload,
+            authorizationRequestPayload:
+                resolved.authorizationRequestPayload as Openid4vpAuthorizationRequest,
+        });
+        expect(submitRes).toBeDefined();
+
+        const { authorizationChallengeResponse } =
             await client.retrieveAuthorizationCodeUsingPresentation({
                 issuerMetadata,
                 authSession: (authorization as any).authSession!,
@@ -490,8 +591,16 @@ describe('Issuance', () => {
                 // out of scope for now, handled by RP
                 presentationDuringIssuanceSession: 'some-session',
             });
-        console.log(authorizationChallengeResponse); */
-        /*         const { accessTokenResponse, dpop } =
+
+        const holderPublicKeyJwk = await exportJWK(holderKeyPair.publicKey);
+
+        const dpopSigner = {
+            method: 'jwk',
+            alg: 'ES256',
+            publicJwk: holderPublicKeyJwk,
+        } as JwtSignerJwk;
+
+        const { accessTokenResponse, dpop } =
             await client.retrieveAuthorizationCodeAccessTokenFromOffer({
                 issuerMetadata,
                 authorizationCode:
@@ -502,8 +611,9 @@ describe('Issuance', () => {
                     signer: dpopSigner,
                 },
                 redirectUri,
-            }); */
-        /*const { jwt: proofJwt } = await client.createCredentialRequestJwtProof({
+            });
+
+        const { jwt: proofJwt } = await client.createCredentialRequestJwtProof({
             issuerMetadata,
             signer: {
                 method: 'jwk',
@@ -555,6 +665,6 @@ describe('Issuance', () => {
                 credentialResponse.credentialResponse.notification_id,
         );
         expect(notificationObj).toBeDefined();
-        expect(notificationObj.event).toBe('credential_accepted'); */
+        expect(notificationObj.event).toBe('credential_accepted');
     });
 });

@@ -189,12 +189,16 @@ export class Oid4vciService implements OnModuleInit {
             throw new Error('Invalid credential request');
         }
 
+        const protocol = this.configService
+            .getOrThrow<string>('PUBLIC_URL')
+            .split('://')[0];
+
         const headers = getHeadersFromRequest(req);
         const { tokenPayload } =
             await this.resourceServer.verifyResourceRequest({
                 authorizationServers: issuerMetadata.authorizationServers,
                 request: {
-                    url: `https://${req.host}${req.url}`,
+                    url: `${protocol}://${req.host}${req.url}`,
                     method: req.method as HttpMethod,
                     headers,
                 },
@@ -293,11 +297,14 @@ export class Oid4vciService implements OnModuleInit {
     ) {
         const issuerMetadata = await this.issuerMetadata(tenantId);
         const headers = getHeadersFromRequest(req);
+        const protocol = this.configService
+            .getOrThrow<string>('PUBLIC_URL')
+            .split('://')[0];
         const { tokenPayload } =
             await this.resourceServer.verifyResourceRequest({
                 authorizationServers: issuerMetadata.authorizationServers,
                 request: {
-                    url: `https://${req.host}${req.url}`,
+                    url: `${protocol}://${req.host}${req.url}`,
                     method: req.method as HttpMethod,
                     headers,
                 },

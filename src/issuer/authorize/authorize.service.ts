@@ -230,7 +230,6 @@ export class AuthorizeService {
         body: AuthorizeQueries,
         tenantId: string,
     ) {
-        console.log(body);
         // auth session and issuer state have the same value
         if (body.auth_session) {
             const session = await this.sessionService.get(body.auth_session);

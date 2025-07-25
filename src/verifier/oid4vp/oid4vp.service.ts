@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'node:crypto';
 import { CryptoService } from '../../crypto/crypto.service';
@@ -103,10 +103,14 @@ export class Oid4vpService {
                     : 1,
             });
 
+            const hostname = this.configService
+                .getOrThrow<string>('PUBLIC_URL')
+                .split('://')[1];
+
             const request = {
                 payload: {
                     response_type: 'vp_token',
-                    client_id: 'x509_san_dns:' + host.replace('https://', ''),
+                    client_id: 'x509_san_dns:' + hostname,
                     response_uri: `${host}/${tenantId}/oid4vp/response`,
                     response_mode: 'direct_post.jwt',
                     nonce,
@@ -236,11 +240,11 @@ export class Oid4vpService {
             });
         }
 
-        const host = this.configService
+        const hostname = this.configService
             .getOrThrow<string>('PUBLIC_URL')
-            .replace('https://', '');
+            .split('://')[1];
         const params = {
-            client_id: `x509_san_dns:${host}`,
+            client_id: `x509_san_dns:${hostname}`,
             request_uri: `${this.configService.getOrThrow<string>('PUBLIC_URL')}/${tenantId}/oid4vp/request/${requestId}/${values.session}`,
         };
         const queryString = Object.entries(params)
@@ -265,6 +269,9 @@ export class Oid4vpService {
         const res = await this.encryptionService.decryptJwe<AuthResponse>(
             body.response,
         );
+        if (!res.state) {
+            throw new ConflictException('No state found in the response');
+        }
         const session = await this.sessionService.get(res.state);
 
         // Create session logging context

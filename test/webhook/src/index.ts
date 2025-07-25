@@ -26,6 +26,7 @@ async function handleRequest(request: Request): Promise<Response> {
 
 	if (request.method === 'POST' && url.pathname === '/process') {
 		const presented: PresentedData = await request.json();
+		console.log(presented);
 		const res: ProcessResponse = {
 			citizen: {
 				town: `You live in ${presented.credentials[0].values.address.locality}`,

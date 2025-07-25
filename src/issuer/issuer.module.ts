@@ -20,6 +20,8 @@ import { IssuanceController } from './issuance/issuance.controller';
 import { CredentialsMetadataController } from './credentials-metadata/credentials-metadata.controller';
 import { IssuanceService } from './issuance/issuance.service';
 import { CredentialConfigService } from './credentials/credential-config/credential-config.service';
+import { setGlobalConfig } from '@openid4vc/openid4vci';
+import { ConfigService } from '@nestjs/config';
 
 export const ISSUER_VALIDATION_SCHEMA = {
     PUBLIC_URL: Joi.string(),
@@ -52,4 +54,11 @@ export const ISSUER_VALIDATION_SCHEMA = {
     ],
     exports: [AuthorizeService, Oid4vciService],
 })
-export class IssuerModule {}
+export class IssuerModule {
+    constructor(configService: ConfigService) {
+        const unsecure = configService
+            .getOrThrow<string>('PUBLIC_URL')
+            .startsWith('http://');
+        setGlobalConfig({ allowInsecureUrls: unsecure });
+    }
+}

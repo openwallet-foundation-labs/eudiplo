@@ -21,7 +21,7 @@ export class SessionLoggerService {
         private readonly configService: ConfigService,
     ) {
         this.logger.setContext('SessionLoggerService');
-        this.isEnabled = !this.configService.get<boolean>(
+        this.isEnabled = this.configService.get<boolean>(
             'LOG_ENABLE_SESSION_LOGGER',
             false,
         );
