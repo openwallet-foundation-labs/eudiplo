@@ -16,7 +16,7 @@ import { AppModule } from '../src/app.module';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { App } from 'supertest/types';
 import request from 'supertest';
-import { readFileSync, write, writeFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import { fetch, setGlobalDispatcher, Agent } from 'undici';
 import { ConfigService } from '@nestjs/config';
 
@@ -242,18 +242,6 @@ describe('Issuance', () => {
                 jwt: proofJwt,
             },
         });
-        writeFileSync(
-            'test.json',
-            JSON.stringify(
-                {
-                    credential:
-                        credentialResponse.credentialResponse.credentials[0],
-                    privateKey: holderPrivateKeyJwk,
-                },
-                null,
-                2,
-            ),
-        );
         await client.sendNotification({
             issuerMetadata,
             notification: {
@@ -441,7 +429,7 @@ describe('Issuance', () => {
             extractable: true,
         });
         const holderPrivateKeyJwk = await exportJWK(holderKeyPair.privateKey);
-        const holderPublicKeyJwk = await exportJWK(holderKeyPair.publicKey);
+        //const holderPublicKeyJwk = await exportJWK(holderKeyPair.publicKey);
 
         const client = new Openid4vciClient({
             callbacks: {
@@ -458,12 +446,12 @@ describe('Issuance', () => {
             credentialOffer.credential_issuer,
         );
 
-        const dpopSigner = {
+        /*         const dpopSigner = {
             method: 'jwk',
             alg: 'ES256',
             publicJwk: holderPublicKeyJwk,
         } as JwtSignerJwk;
-
+ */
         const clientId = 'wallet';
         const redirectUri = 'https://127.0.0.1:3000/callback';
         //TODO: no real use for this yet, need to check: https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-authorization-endpoint

@@ -65,3 +65,5 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 template
 build
 .secrets
+
+.cache_ggshield
