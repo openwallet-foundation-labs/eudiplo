@@ -37,9 +37,10 @@ Create a `.env` file in the root of the project:
 cp .env.example .env
 ```
 
-To allow the registrar and external services to interact with your running
-application, a **public HTTPS URL** is required. You can use **ngrok** to expose
-your local server:
+To allow your wallet to interact with your service, a **public HTTPS URL** is
+required. You can use **ngrok** to expose your local server:
+
+> TODO: check if it also runs in a local network when using wallets.
 
 ```bash
 ngrok http 3000

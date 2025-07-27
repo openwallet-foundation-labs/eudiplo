@@ -186,16 +186,85 @@ authentication requirements.
 
 - `credentialConfigs`: **REQUIRED** - Array of credential configuration IDs to
   issue together.
-- `presentation_during_issuance`: **OPTIONAL** - If set, requires user to
-  present a credential before issuance
-    - `type`: **REQUIRED** - ID of the presentation request to use
-    - `webhook`: **OPTIONAL** - URL to send the presentation response to. If not
-      provided, it will use the passed claims during the credential offer link
-      generation or the static claims defined in the credential configuration.
 
 ---
 
-## Example Credential Configuration
+## Authentication
+
+The authentication configuration uses a discriminated union pattern that ensures
+type safety and proper validation. Each authentication method corresponds to a
+specific OpenID4VC flow, and only one method can be active at a time.
+
+### 1. Pre-Authorized Code Flow (`none`)
+
+Used when no user authentication is required. The credential is issued directly
+using a pre-authorized code.
+
+```typescript
+const config: AuthenticationConfig = {
+    method: 'none',
+};
+```
+
+**Use case**: Direct credential issuance without user interaction (e.g., batch
+issuance, automated processes)
+
+### 2. OID4VCI Authorized Code Flow (`auth`)
+
+Used when user authentication is required. The user will be redirected to an
+external authentication URL as part of the OID4VCI authorized code flow.
+
+```typescript
+const config: AuthenticationConfig = {
+    method: 'auth',
+    config: {
+        authUrl: 'https://auth.example.com/login',
+        webhook: {
+            url: 'https://api.example.com/webhook',
+            auth: {
+                type: 'apiKey',
+                config: {
+                    headerName: 'Authorization',
+                    value: 'Bearer your-token',
+                },
+            },
+        },
+    },
+};
+```
+
+**Use case**: When the issuer needs to authenticate the user before issuing
+credentials (e.g., identity verification, account-based issuance)
+
+### 3. OID4VP Flow (`presentationDuringIssuance`)
+
+Used when a credential presentation is required before issuance. An OID4VP
+request is sent to the wallet to present specific credentials.
+
+```typescript
+const config: AuthenticationConfig = {
+    method: 'presentationDuringIssuance',
+    config: {
+        presentation: {
+            type: 'oid4vp',
+            webhook: {
+                url: 'https://api.example.com/webhook',
+                auth: {
+                    type: 'apiKey',
+                    config: {
+                        headerName: 'Authorization',
+                        value: 'Bearer your-token',
+                    },
+                },
+            },
+        },
+    },
+};
+```
+
+**Use case**: When the issuer needs to verify that the user possesses certain
+credentials before issuing new ones (e.g., issuing a university diploma only if
+the user can present a high school certificate)
 
 ## Display Configuration
 

@@ -39,16 +39,6 @@ export class AuthenticationConfigHelper {
     }
 
     /**
-     * Get the authentication URL if the method is 'auth'
-     */
-    static getAuthUrl(config: AuthenticationConfig): string | null {
-        if (this.isAuthUrlAuth(config)) {
-            return config.config.authUrl;
-        }
-        return null;
-    }
-
-    /**
      * Get the presentation configuration if the method is 'presentationDuringIssuance'
      */
     static getPresentationConfig(
@@ -58,35 +48,5 @@ export class AuthenticationConfigHelper {
             return config.config;
         }
         return null;
-    }
-
-    /**
-     * Create a 'none' authentication config (pre-authorized code flow)
-     */
-    static createNoneConfig(): AuthenticationConfig {
-        return { method: 'none' };
-    }
-
-    /**
-     * Create an 'auth' authentication config (OID4VCI authorized code flow)
-     */
-    static createAuthConfig(
-        authUrl: string,
-        webhook?: any,
-    ): AuthenticationConfig {
-        return {
-            method: 'auth',
-            config: { authUrl, webhook },
-        };
-    }
-
-    /**
-     * Create a 'presentationDuringIssuance' authentication config (OID4VP flow)
-     */
-    static createPresentationConfig(presentation: any): AuthenticationConfig {
-        return {
-            method: 'presentationDuringIssuance',
-            config: { presentation },
-        };
     }
 }
