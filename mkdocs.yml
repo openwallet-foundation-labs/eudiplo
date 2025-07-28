@@ -1,6 +1,6 @@
 site_name: EUDIPLO
-repo_name: cre8/eudiplo
-repo_url: https://github.com/cre8/eudiplo
+repo_name: openwallet-foundation-labs/eudiplo
+repo_url: https://github.com/openwallet-foundation-labs/eudiplo
 edit_uri: edit/main/docs/
 docs_dir: docs
 copyright: "License: CC BY 4.0"
@@ -89,10 +89,10 @@ extra:
     provider: mike
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/cre8/eudiplo
+      link: https://github.com/openwallet-foundation-labs/eudiplo
   legal:
     - text: Contributing
-      link: https://github.com/cre8/eudiplo/blob/main/CONTRIBUTING.md
+      link: https://github.com/openwallet-foundation-labs/eudiplo/blob/main/CONTRIBUTING.md
 
 nav:  
   - Getting Started:

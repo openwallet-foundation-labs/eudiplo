@@ -1,6 +1,6 @@
 services:
     eudiplo:
-        image: ghcr.io/cre8/eudiplo:latest
+        image: ghcr.io/openwallet-foundation-labs/eudiplo:latest
         restart: always
         env_file:
             - .env

@@ -18,7 +18,7 @@ Before you start, make sure you have the following tools installed:
 ## 1. Clone the Repository
 
 ```bash
-git clone https://github.com/cre8/eudiplo
+git clone https://github.com/openwallet-foundation-labs/eudiplo
 cd eudiplo
 ```
 

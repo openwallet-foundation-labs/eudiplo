@@ -23,7 +23,7 @@ pnpm run test:e2e
 ```
 
 It is also accessible via
-[codecov](https://app.codecov.io/github/cre8/eudiplo/tree/main).
+[codecov](https://app.codecov.io/github/openwallet-foundation-labs/eudiplo/tree/main).
 
 During writing E2E tests, you can use it in watch mode to automatically re-run
 tests on file changes:

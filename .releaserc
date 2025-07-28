@@ -9,8 +9,8 @@
             {
                 dockerRegistry: 'ghcr.io',
                 dockerImage: 'eudiplo',
-                dockerProject: 'cre8',
-                dockerCacheFrom: 'cre8/eudiplo',
+                dockerProject: 'openwallet-foundation-labs',
+                dockerCacheFrom: 'openwallet-foundation-labs/eudiplo',
                 dockerTags: ['latest', '{{version}}', '{{major}}', '{{major}}.{{minor}}'],
                 dockerArgs: {
                     GITHUB_TOKEN: null,

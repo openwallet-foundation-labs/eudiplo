@@ -54,14 +54,14 @@ OIDC=https://keycloak.example.com/realms/eudiplo
 
 You can run EUDIPLO using Docker Compose. We recommend to use the latest stable
 version available on
-[GitHub Container Registry](https://github.com/cre8/eudiplo/pkgs/container/eudiplo).
+[GitHub Container Registry](https://github.com/openwallet-foundation-labs/eudiplo/pkgs/container/eudiplo).
 Create a `docker-compose.yml` file in the root of your project with the
 following content:
 
 ```yaml
 services:
     EUDIPLO:
-        image: ghcr.io/cre8/eudiplo:latest
+        image: ghcr.io/openwallet-foundation-labs/eudiplo:latest
         env_file:
             - .env
         ports:
