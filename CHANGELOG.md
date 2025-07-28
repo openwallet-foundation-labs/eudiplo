@@ -1,3 +1,17 @@
+# [1.3.0](https://github.com/cre8/eudiplo/compare/v1.2.3...v1.3.0) (2025-07-28)
+
+
+### Bug Fixes
+
+* add documentation ([1912bb8](https://github.com/cre8/eudiplo/commit/1912bb8989ad5adc6a9d4dd01d1a7d89de66c04e))
+* add more granular logging ([53804b0](https://github.com/cre8/eudiplo/commit/53804b0215ab83f142c1c5babdfb358bbbda9bca))
+* use oidc for all flows ([#12](https://github.com/cre8/eudiplo/issues/12)) ([f15f6ab](https://github.com/cre8/eudiplo/commit/f15f6abdefa97d7c4477ea4287eccad9f4d7327f))
+
+
+### Features
+
+* improve issuance config ([#13](https://github.com/cre8/eudiplo/issues/13)) ([b99786b](https://github.com/cre8/eudiplo/commit/b99786b647153699fddabeb3ab1d1a0fa9cb6c16))
+
 ## [1.2.3](https://github.com/cre8/eudiplo/compare/v1.2.2...v1.2.3) (2025-07-20)
 
 
