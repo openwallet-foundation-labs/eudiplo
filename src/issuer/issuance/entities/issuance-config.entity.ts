@@ -1,9 +1,13 @@
-import { IsOptional, IsObject } from 'class-validator';
+import { IsObject } from 'class-validator';
 import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { PresentationDuringIssuance } from '../../credentials-metadata/dto/credential-config.dto';
 import { ApiHideProperty } from '@nestjs/swagger';
 import { CredentialConfig } from '../../credentials/entities/credential.entity';
+import type { AuthenticationConfig } from '../dto/authentication-config.dto';
+import { WebhookConfig } from '../../../utils/webhook/webhook.dto';
 
+/**
+ * Entity to manage issuance configs
+ */
 @Entity()
 export class IssuanceConfig {
     /**
@@ -11,6 +15,7 @@ export class IssuanceConfig {
      */
     @PrimaryGeneratedColumn('uuid')
     id: string;
+
     /**
      * Tenant ID for the issuance configuration.
      */
@@ -18,6 +23,9 @@ export class IssuanceConfig {
     @Column('varchar')
     tenantId: string;
 
+    /**
+     * Links to all credential configs that are included in this issuance config.
+     */
     @ManyToMany(
         () => CredentialConfig,
         (credentialConfig) => credentialConfig.issuanceConfig,
@@ -25,16 +33,25 @@ export class IssuanceConfig {
     credentialConfigs: CredentialConfig[];
 
     /**
-     * Presentation during issuance configuration.
-     * This is optional and can be used to specify how the presentation should be handled during the issuance process.
+     * Authentication configuration for the issuance process.
+     * This determines which OpenID4VC flow to use:
+     * - 'none': Pre-authorized code flow (no user authentication required)
+     * - 'auth': OID4VCI authorized code flow (user will be redirected for authentication)
+     * - 'presentationDuringIssuance': OID4VP request is sent (credential presentation required)
      */
     @IsObject()
-    @IsOptional()
-    @Column('json', { nullable: true })
-    presentation_during_issuance?: PresentationDuringIssuance;
+    @Column('json')
+    authenticationConfig: AuthenticationConfig;
+
     /**
-     * The timestamp when the VP request was created.
+     * The timestamp when the issuance configuration was created.
      */
     @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP' })
     createdAt?: Date;
+
+    /**
+     * Webhook to send the result of the notification response
+     */
+    @Column('json', { nullable: true })
+    webhook: WebhookConfig;
 }

@@ -10,8 +10,8 @@ import type { CredentialResponse } from '@openid4vc/openid4vci';
 import type { Request } from 'express';
 import { Oid4vciService } from '../../issuer/oid4vci/oid4vci.service';
 import { NotificationRequestDto } from './dto/notification-request.dto';
-import { SessionLogger } from '../../utils/session-logger.decorator';
-import { SessionLoggerInterceptor } from '../../utils/session-logger.interceptor';
+import { SessionLogger } from '../../utils/logger//session-logger.decorator';
+import { SessionLoggerInterceptor } from '../../utils/logger/session-logger.interceptor';
 
 @Controller(':tenantId/vci')
 @UseInterceptors(SessionLoggerInterceptor)

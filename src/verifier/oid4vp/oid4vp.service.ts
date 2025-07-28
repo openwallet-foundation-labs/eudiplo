@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'node:crypto';
 import { CryptoService } from '../../crypto/crypto.service';
@@ -9,12 +9,11 @@ import { AuthResponse } from '../presentations/dto/auth-response.dto';
 import { EncryptionService } from '../../crypto/encryption/encryption.service';
 import { v4 } from 'uuid';
 import { SessionService } from '../../session/session.service';
-import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
 import { OfferResponse } from '../../issuer/oid4vci/dto/offer-request.dto';
-import { SessionLoggerService } from '../../utils/session-logger.service';
-import { SessionLogContext } from '../../utils/session-logger-context';
 import { PresentationRequestOptions } from './dto/presentation-request-options.dto';
+import { WebhookService } from '../../utils/webhook/webhook.service';
+import { SessionLoggerService } from '../../utils/logger/session-logger.service';
+import { SessionLogContext } from '../../utils/logger/session-logger-context';
 
 @Injectable()
 export class Oid4vpService {
@@ -25,8 +24,8 @@ export class Oid4vpService {
         private registrarService: RegistrarService,
         private presentationsService: PresentationsService,
         private sessionService: SessionService,
-        private httpService: HttpService,
         private sessionLogger: SessionLoggerService,
+        private webhookService: WebhookService,
     ) {}
 
     /**
@@ -103,10 +102,14 @@ export class Oid4vpService {
                     : 1,
             });
 
+            const hostname = new URL(
+                this.configService.getOrThrow<string>('PUBLIC_URL'),
+            ).hostname;
+
             const request = {
                 payload: {
                     response_type: 'vp_token',
-                    client_id: 'x509_san_dns:' + host.replace('https://', ''),
+                    client_id: 'x509_san_dns:' + hostname,
                     response_uri: `${host}/${tenantId}/oid4vp/response`,
                     response_mode: 'direct_post.jwt',
                     nonce,
@@ -236,11 +239,11 @@ export class Oid4vpService {
             });
         }
 
-        const host = this.configService
-            .getOrThrow<string>('PUBLIC_URL')
-            .replace('https://', '');
+        const hostname = new URL(
+            this.configService.getOrThrow<string>('PUBLIC_URL'),
+        ).hostname;
         const params = {
-            client_id: `x509_san_dns:${host}`,
+            client_id: `x509_san_dns:${hostname}`,
             request_uri: `${this.configService.getOrThrow<string>('PUBLIC_URL')}/${tenantId}/oid4vp/request/${requestId}/${values.session}`,
         };
         const queryString = Object.entries(params)
@@ -265,6 +268,9 @@ export class Oid4vpService {
         const res = await this.encryptionService.decryptJwe<AuthResponse>(
             body.response,
         );
+        if (!res.state) {
+            throw new ConflictException('No state found in the response');
+        }
         const session = await this.sessionService.get(res.state);
 
         // Create session logging context
@@ -303,72 +309,12 @@ export class Oid4vpService {
                 credentials: credentials as any,
             });
             // if there a a webook URL, send the response there
+            //TODO: move to dedicated service to reuse it also in the oid4vci flow.
             if (session.webhook) {
-                const headers: Record<string, string> = {};
-                if (
-                    session.webhook.auth &&
-                    session.webhook.auth.type === 'apiKey'
-                ) {
-                    headers[session.webhook.auth.config.headerName] =
-                        session.webhook.auth.config.value;
-                }
-
-                console.log(headers);
-
-                this.sessionLogger.logSession(
+                await this.webhookService.sendWebhook(
+                    session,
                     logContext,
-                    'Sending webhook notification',
-                    {
-                        webhookUrl: session.webhook.url,
-                        authType: session.webhook.auth?.type || 'none',
-                    },
-                );
-
-                await firstValueFrom(
-                    this.httpService.post(
-                        session.webhook.url,
-                        {
-                            credentials,
-                            session: res.state,
-                        },
-                        {
-                            headers,
-                        },
-                    ),
-                ).then(
-                    async (webhookResponse) => {
-                        //TODO: better: just store it when it's a presentation during issuance
-                        if (webhookResponse.data) {
-                            session.credentialPayload!.values =
-                                webhookResponse.data;
-                            //store received webhook response
-                            await this.sessionService.add(res.state, tenantId, {
-                                credentialPayload: session.credentialPayload,
-                            });
-                        }
-
-                        this.sessionLogger.logSession(
-                            logContext,
-                            'Webhook notification sent successfully',
-                            {
-                                responseStatus: webhookResponse.status,
-                                hasResponseData: !!webhookResponse.data,
-                            },
-                        );
-                    },
-                    (err) => {
-                        this.sessionLogger.logSessionError(
-                            logContext,
-                            err,
-                            'Error sending webhook',
-                            {
-                                webhookUrl: session.webhook!.url,
-                            },
-                        );
-                        throw new Error(
-                            `Error sending webhook: ${err.message || err}`,
-                        );
-                    },
+                    credentials,
                 );
             }
 

@@ -24,8 +24,15 @@ interface ProcessResponse {
 async function handleRequest(request: Request): Promise<Response> {
 	const url = new URL(request.url);
 
+	if (request.method === 'POST' && url.pathname === '/notify') {
+		const presented: PresentedData = await request.json();
+		console.log('Received notification:');
+		console.log(JSON.stringify(presented, null, 2));
+	}
+
 	if (request.method === 'POST' && url.pathname === '/process') {
 		const presented: PresentedData = await request.json();
+		console.log(presented);
 		const res: ProcessResponse = {
 			citizen: {
 				town: `You live in ${presented.credentials[0].values.address.locality}`,

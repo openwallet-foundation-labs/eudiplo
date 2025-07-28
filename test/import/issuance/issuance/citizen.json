@@ -1,11 +1,26 @@
 {
-    "presentation_during_issuance": {
-        "type": "pid",
-        "webhook": {
-            "url": "http://localhost:8787/process"
+    "authenticationConfig": {
+        "method": "presentationDuringIssuance",
+        "config": {
+            "presentation": {
+                "type": "pid",
+                "webhook": {
+                    "url": "http://localhost:8787/process"
+                }
+            }
         }
     },
     "credentialConfigs": [
         "citizen"
-    ]
+    ],
+    "webhook": {
+        "url": "http://localhost:8787/notify",
+        "auth": {
+            "type": "apiKey",
+            "config": {
+                "headerName": "x-api-key",
+                "value": "foo-bar"
+            }
+        }
+    }
 }

@@ -5,9 +5,13 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { App } from 'supertest/types';
 import request from 'supertest';
 import { ConfigService } from '@nestjs/config';
-import { Openid4vpClient } from '@openid4vc/openid4vp';
-import { callbacks } from './utils';
+import {
+    Openid4vpAuthorizationRequest,
+    Openid4vpClient,
+} from '@openid4vc/openid4vp';
+import { callbacks, preparePresentation } from './utils';
 import { readFileSync } from 'fs';
+import { importJWK, CryptoKey, EncryptJWT, JWK } from 'jose';
 
 describe('Presentation', () => {
     let app: INestApplication<App>;
@@ -23,13 +27,13 @@ describe('Presentation', () => {
         app = moduleFixture.createNestApplication();
 
         const configService = app.get(ConfigService);
-        configService.set('PUBLIC_URL', 'https://example.com'); // Set a test URL
         host = configService.getOrThrow('PUBLIC_URL');
         clientId = configService.getOrThrow<string>('AUTH_CLIENT_ID');
         clientSecret = configService.getOrThrow<string>('AUTH_CLIENT_SECRET');
         app.useGlobalPipes(new ValidationPipe());
 
         await app.init();
+        await app.listen(3000);
 
         // Get JWT token using client credentials
         const tokenResponse = await request(app.getHttpServer())
@@ -53,7 +57,8 @@ describe('Presentation', () => {
             .post('/presentation-management')
             .trustLocalhost()
             .set('Authorization', `Bearer ${authToken}`)
-            .send(pidCredentialConfiguration);
+            .send(pidCredentialConfiguration)
+            .expect(201);
     });
 
     test('create oid4vp offer', async () => {
@@ -110,14 +115,25 @@ describe('Presentation', () => {
         const client = new Openid4vpClient({
             callbacks: {
                 ...callbacks,
-                fetch: async (uri: string) => {
+                fetch: async (uri: string, init: RequestInit) => {
                     const path = uri.split(host)[1];
-                    const response = await request(app.getHttpServer())
-                        .get(path)
-                        .trustLocalhost();
+                    let response: any;
+                    if (init.method === 'POST') {
+                        response = await request(app.getHttpServer())
+                            .post(path)
+                            .trustLocalhost()
+                            .send(init.body!);
+                    } else {
+                        response = await request(app.getHttpServer())
+                            .get(path)
+                            .trustLocalhost();
+                    }
                     return {
                         ok: true,
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                         text: () => response.text,
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                        json: () => response.body,
                         status: response.status,
                         headers: response.headers,
                     };
@@ -133,6 +149,47 @@ describe('Presentation', () => {
         });
         expect(resolved).toBeDefined();
 
-        //TODO: send response
+        const vp_token = await preparePresentation({
+            iat: Math.floor(Date.now() / 1000),
+            aud: resolved.authorizationRequestPayload.aud as string,
+            nonce: resolved.authorizationRequestPayload.nonce,
+        });
+
+        //encrypt the vp token
+        const key = (await importJWK(
+            resolved.authorizationRequestPayload.client_metadata?.jwks
+                ?.keys[0] as JWK,
+            'ECDH-ES',
+        )) as CryptoKey;
+
+        const jwt = await new EncryptJWT({
+            vp_token: { pid: vp_token },
+            state: resolved.authorizationRequestPayload.state!,
+        })
+            .setProtectedHeader({
+                alg: 'ECDH-ES',
+                enc: 'A128GCM',
+            })
+            .setIssuedAt()
+            .setExpirationTime('2h') // Optional: set expiration
+            .encrypt(key); // Use the public key for encryption
+
+        const authorizationResponse =
+            await client.createOpenid4vpAuthorizationResponse({
+                authorizationRequestPayload: authRequest.params,
+                authorizationResponsePayload: {
+                    response: jwt,
+                },
+                ...callbacks,
+            });
+
+        const submitRes = await client.submitOpenid4vpAuthorizationResponse({
+            authorizationResponsePayload:
+                authorizationResponse.authorizationResponsePayload,
+            authorizationRequestPayload:
+                resolved.authorizationRequestPayload as Openid4vpAuthorizationRequest,
+        });
+        expect(submitRes).toBeDefined();
+        expect(submitRes.response.status).toBe(201);
     });
 });

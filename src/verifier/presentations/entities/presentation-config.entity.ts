@@ -1,5 +1,5 @@
 import { IsString, IsObject } from 'class-validator';
-import { WebhookConfig } from '../../../utils/webhook.dto';
+import { WebhookConfig } from '../../../utils/webhook/webhook.dto';
 import { RegistrationCertificateRequest } from '../dto/vp-request.dto';
 import { Column, Entity } from 'typeorm';
 import { ApiHideProperty } from '@nestjs/swagger';

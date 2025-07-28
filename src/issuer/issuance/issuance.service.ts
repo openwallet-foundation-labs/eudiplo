@@ -5,6 +5,7 @@ import { IssuanceConfig } from './entities/issuance-config.entity';
 import { CredentialConfigService } from '../credentials/credential-config/credential-config.service';
 import { IssuanceDto } from './dto/issuance.dto';
 import { CredentialConfig } from '../credentials/entities/credential.entity';
+import { AuthenticationConfig } from './dto/authentication-config.dto';
 
 @Injectable()
 export class IssuanceService {
@@ -59,10 +60,44 @@ export class IssuanceService {
                 credentials.push(credential);
             }
         }
+
+        // Convert AuthenticationConfigDto to AuthenticationConfig union type
+        let authenticationConfig: AuthenticationConfig;
+        if (value.authenticationConfig.method === 'none') {
+            authenticationConfig = { method: 'none' };
+        } else if (value.authenticationConfig.method === 'auth') {
+            if (!value.authenticationConfig.config) {
+                throw new Error(
+                    'AuthenticationConfig is required for auth method',
+                );
+            }
+            authenticationConfig = {
+                method: 'auth',
+                config: value.authenticationConfig.config as any,
+            };
+        } else if (
+            value.authenticationConfig.method === 'presentationDuringIssuance'
+        ) {
+            if (!value.authenticationConfig.config) {
+                throw new Error(
+                    'AuthenticationConfig is required for presentationDuringIssuance method',
+                );
+            }
+            authenticationConfig = {
+                method: 'presentationDuringIssuance',
+                config: value.authenticationConfig.config as any,
+            };
+        } else {
+            throw new Error(
+                `Invalid authentication method: ${(value.authenticationConfig as any).method}`,
+            );
+        }
+
         const issuanceConfig = this.issuanceConfigRepo.create({
-            ...value,
+            id: value.id,
             tenantId,
             credentialConfigs: credentials,
+            authenticationConfig,
         });
         return this.issuanceConfigRepo.save(issuanceConfig);
     }

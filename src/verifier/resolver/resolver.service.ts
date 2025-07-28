@@ -29,7 +29,7 @@ export class ResolverService {
                 (cert) => new X509Certificate(Buffer.from(cert, 'base64')),
             );
             const cert = certs[0];
-            if (!cert.subjectAltName?.includes(payload.iss.split('://')[1])) {
+            if (!cert.subjectAltName?.includes(new URL(payload.iss).hostname)) {
                 throw new Error('Subject and issuer do not match');
             }
             return cert.publicKey.export({ format: 'jwk' }) as JWK;

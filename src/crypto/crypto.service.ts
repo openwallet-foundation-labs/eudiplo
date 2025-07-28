@@ -70,9 +70,9 @@ export class CryptoService implements OnModuleInit {
         if (!existsSync(certOut)) {
             // === Configurable parameters (you can parameterize these when calling the script) ===
             const subject = this.configService.getOrThrow<string>('RP_NAME');
-            const uri = this.configService
-                .getOrThrow<string>('PUBLIC_URL')
-                .replace('https://', '');
+            const hostname = new URL(
+                this.configService.getOrThrow<string>('PUBLIC_URL'),
+            ).hostname; // Use URL to parse and get hostname
 
             // === Helper to run shell commands ===
             const run = (cmd) => {
@@ -103,16 +103,16 @@ export class CryptoService implements OnModuleInit {
 
             // Step 3: Create self-signed issuer cert
             run(
-                `openssl req -x509 -new -key "${issuerKey}" -subj "/CN=${subject}" -addext "subjectAltName=DNS:${uri}" -days 365 -out "${issuerCert}"`,
+                `openssl req -x509 -new -key "${issuerKey}" -subj "/CN=${subject}" -addext "subjectAltName=DNS:${hostname}" -days 365 -out "${issuerCert}"`,
             );
 
             // Step 4: Create dummy CSR
             run(
-                `openssl req -new -key "${dummyKey}" -subj "/CN=${subject}" -addext "subjectAltName=DNS:${uri}" -out "${dummyCsr}"`,
+                `openssl req -new -key "${dummyKey}" -subj "/CN=${subject}" -addext "subjectAltName=DNS:${hostname}" -out "${dummyCsr}"`,
             );
 
             // Step 5: Create SAN extension file
-            writeFileSync(sanExt, `subjectAltName=DNS:${uri}`);
+            writeFileSync(sanExt, `subjectAltName=DNS:${hostname}`);
 
             // Step 6: Sign certificate using issuer
             run(

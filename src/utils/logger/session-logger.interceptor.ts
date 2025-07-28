@@ -29,8 +29,8 @@ export class SessionLoggerInterceptor implements NestInterceptor {
         private readonly logger: PinoLogger,
         private readonly configService: ConfigService,
     ) {
-        this.isEnabled = !this.configService.get<boolean>(
-            'LOG_DISABLE_SESSION_LOGGER',
+        this.isEnabled = this.configService.get<boolean>(
+            'LOG_ENABLE_SESSION_LOGGER',
             false,
         );
     }

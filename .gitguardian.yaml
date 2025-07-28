@@ -1,0 +1,25 @@
+# Required, otherwise ggshield considers the file to use the deprecated v1 format
+version: 2
+
+secret:
+  # Exclude files and paths by globbing
+  ignored_paths:
+    - 'test/**/*'
+    - 'docs/**/*'
+    - 'venv/**/*'
+    - 'node_modules/**/*'
+    - 'dist/**/*'
+    - '**/test/**'
+    - '**/docs/**'
+    - '**/node_modules/**'
+    - '**/dist/**/*'
+    - 'site/**/*'
+    - 'tmp/**/*'
+    - '.env'
+    - '.git/**/*'
+
+  
+  # Alternative: use ignored_detectors if you want to ignore specific types
+  # ignored_detectors:
+  #   - "Generic Password"
+  
