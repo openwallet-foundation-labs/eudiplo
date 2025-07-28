@@ -83,11 +83,11 @@
                <div class="content getting-started">
                    <div class="content-data">
 
-<p><a href="https://github.com/cre8/eudiplo/actions"><img src="https://github.com/cre8/eudiplo/actions/workflows/ci-and-release.yml/badge.svg" alt="Build Status" class="img-responsive"></a>
-<img src="https://img.shields.io/github/license/cre8/eudiplo" alt="License" class="img-responsive">
-<a href="https://cre8.github.io/eudiplo/latest/"><img src="https://img.shields.io/badge/website-eudiplo-blue" alt="Website" class="img-responsive"></a>
-<a href="https://cre8.github.io/eudiplo/latest/compodoc/coverage.html"><img src="https://cre8.github.io/eudiplo/latest/compodoc/images/coverage-badge-documentation.svg" alt="Documentation Coverage" class="img-responsive"></a>
-<a href="https://codecov.io/github/cre8/eudiplo"><img src="https://codecov.io/github/cre8/eudiplo/graph/badge.svg?token=pt4TLHJYrO" alt="codecov" class="img-responsive"></a></p>
+<p><a href="https://github.com/openwallet-foundation-labs/eudiplo/actions"><img src="https://github.com/openwallet-foundation-labs/eudiplo/actions/workflows/ci-and-release.yml/badge.svg" alt="Build Status" class="img-responsive"></a>
+<img src="https://img.shields.io/github/license/openwallet-foundation-labs/eudiplo" alt="License" class="img-responsive">
+<a href="https://openwallet-foundation-labs.github.io/eudiplo/latest/"><img src="https://img.shields.io/badge/website-eudiplo-blue" alt="Website" class="img-responsive"></a>
+<a href="https://openwallet-foundation-labs.github.io/eudiplo/latest/compodoc/coverage.html"><img src="https://openwallet-foundation-labs.github.io/eudiplo/latest/compodoc/images/coverage-badge-documentation.svg" alt="Documentation Coverage" class="img-responsive"></a>
+<a href="https://codecov.io/github/openwallet-foundation-labs/eudiplo"><img src="https://codecov.io/github/openwallet-foundation-labs/eudiplo/graph/badge.svg?token=pt4TLHJYrO" alt="codecov" class="img-responsive"></a></p>
 <h1>EUDIPLO</h1>
 <p><strong>Your Diplomatic Layer for EUDI Wallet Integration</strong></p>
 <p>EUDIPLO is an open-source middleware that bridges your backend and EUDI Wallets
@@ -121,7 +121,7 @@ List</strong></li>
 <hr>
 <h2>🚀 Quick Start</h2>
 <b>Example :</b><div><pre class="line-numbers"><code class="language-bash"># Clone and configure
-git clone https://github.com/cre8/eudiplo.git
+git clone https://github.com/openwallet-foundation-labs/eudiplo.git
 cd eudiplo
 cp .env.example .env
 
@@ -135,7 +135,7 @@ docker run -p 3000:3000 \
   -e JWT_SECRET=your-32-character-secret \
   -e AUTH_CLIENT_SECRET=your-issuer-secret \
   -v $(pwd)/config:/app/config \
-  ghcr.io/cre8/eudiplo:latest
+  ghcr.io/openwallet-foundation-labs/eudiplo:latest
 
 # Get a token and start using the API
 curl -X POST http://localhost:3000/auth/oauth2/token \
@@ -144,28 +144,29 @@ curl -X POST http://localhost:3000/auth/oauth2/token \
     &quot;client_id&quot;: &quot;root&quot;,
     &quot;client_secret&quot;: &quot;root&quot;
   }&#39;</code></pre></div><p>📚 API:
-<a href="https://cre8.github.io/eudiplo/latest/api/">https://cre8.github.io/eudiplo/latest/api/</a><br>📦
+<a href="https://openwallet-foundation-labs.github.io/eudiplo/latest/api/">https://openwallet-foundation-labs.github.io/eudiplo/latest/api/</a><br>📦
 Full setup:
-<a href="https://cre8.github.io/eudiplo/latest/getting-started/quick-start/">Quickstart Guide</a></p>
+<a href="https://openwallet-foundation-labs.github.io/eudiplo/latest/getting-started/quick-start/">Quickstart Guide</a></p>
 <hr>
 <h2>📚 Documentation</h2>
 <p><strong>Choose your documentation version:</strong></p>
 <ul>
 <li>🚀 <strong>Latest Stable</strong> (recommended):
-<a href="https://cre8.github.io/eudiplo/latest/">https://cre8.github.io/eudiplo/latest/</a> -
+<a href="https://openwallet-foundation-labs.github.io/eudiplo/latest/">https://openwallet-foundation-labs.github.io/eudiplo/latest/</a> -
 Documentation for the most recent major release</li>
 <li>🔬 <strong>Development</strong>:
-<a href="https://cre8.github.io/eudiplo/main/">https://cre8.github.io/eudiplo/main/</a> -
+<a href="https://openwallet-foundation-labs.github.io/eudiplo/main/">https://openwallet-foundation-labs.github.io/eudiplo/main/</a> -
 Latest features from the main branch</li>
-<li>📚 <strong>Specific Major Versions</strong>: <a href="https://cre8.github.io/eudiplo/1/">v1</a>,
-<a href="https://cre8.github.io/eudiplo/2/">v2</a>, etc.</li>
+<li>📚 <strong>Specific Major Versions</strong>:
+<a href="https://openwallet-foundation-labs.github.io/eudiplo/1/">v1</a>,
+<a href="https://openwallet-foundation-labs.github.io/eudiplo/2/">v2</a>, etc.</li>
 </ul>
 <p><strong>Key sections:</strong></p>
 <ul>
-<li><a href="https://cre8.github.io/eudiplo/latest/architecture/overview/">Architecture</a></li>
-<li><a href="https://cre8.github.io/eudiplo/latest/architecture/supported-protocols/">Supported Protocols</a></li>
-<li><a href="https://cre8.github.io/eudiplo/latest/api/">API Reference</a></li>
-<li><a href="https://cre8.github.io/eudiplo/latest/compodoc/">Code Documentation</a></li>
+<li><a href="https://openwallet-foundation-labs.github.io/eudiplo/latest/architecture/overview/">Architecture</a></li>
+<li><a href="https://openwallet-foundation-labs.github.io/eudiplo/latest/architecture/supported-protocols/">Supported Protocols</a></li>
+<li><a href="https://openwallet-foundation-labs.github.io/eudiplo/latest/api/">API Reference</a></li>
+<li><a href="https://openwallet-foundation-labs.github.io/eudiplo/latest/compodoc/">Code Documentation</a></li>
 </ul>
 <hr>
 <h2>🤝 Contributing</h2>
