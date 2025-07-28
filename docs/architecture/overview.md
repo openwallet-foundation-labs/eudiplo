@@ -41,7 +41,8 @@ EUDIPLO can be deployed as:
 - a **backend service** in production (e.g., behind a gateway)
 
 you can examples of deployments in the
-[deployment](https://github.com/cre8/eudiplo/tree/main/deployment) directory.
+[deployment](https://github.com/openwallet-foundation-labs/eudiplo/tree/main/deployment)
+directory.
 
 ---
 

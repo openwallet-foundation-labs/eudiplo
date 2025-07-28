@@ -23,7 +23,7 @@ publishes it with the `:main` tag.
 Use this tag for development environments:
 
 ```
-ghcr.io/cre8/eudiplo:main
+ghcr.io/openwallet-foundation-labs/eudiplo:main
 ```
 
 > ⚠️ `main` is always moving and may contain untagged or unreleased features.
@@ -34,8 +34,8 @@ Stable releases are published via GitHub tags and follow semantic versioning.
 Each release creates both a versioned tag and updates the `:latest` tag:
 
 ```
-ghcr.io/cre8/eudiplo:1.2.3
-ghcr.io/cre8/eudiplo:latest
+ghcr.io/openwallet-foundation-labs/eudiplo:1.2.3
+ghcr.io/openwallet-foundation-labs/eudiplo:latest
 ```
 
 The `:latest` tag always points to the most recent stable release and is
@@ -47,7 +47,7 @@ Optionally, pre-release tags such as `1.3.0-alpha.1` may be published for
 testing upcoming features:
 
 ```
-ghcr.io/cre8/eudiplo:1.3.0-alpha.1
+ghcr.io/openwallet-foundation-labs/eudiplo:1.3.0-alpha.1
 ```
 
 ## Release Automation

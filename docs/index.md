@@ -60,7 +60,7 @@ docker run -p 3000:3000 \
   -e AUTH_CLIENT_ID=your-tenant-id \
   -e AUTH_CLIENT_SECRET=your-tenant-secret \
   -v $(pwd)/config:/app/config \
-  ghcr.io/cre8/eudiplo:latest
+  ghcr.io/openwallet-foundation-labs/eudiplo:latest
 ```
 
 ➡️ Read the [Quickstart Guide](./getting-started/quick-start.md)  

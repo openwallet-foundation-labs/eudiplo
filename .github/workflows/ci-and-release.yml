@@ -185,8 +185,9 @@ jobs:
 
             - name: Build Docker image
               run:
-                  docker build -t ghcr.io/cre8/eudiplo:main --build-arg
+                  docker build -t
+                  ghcr.io/openwallet-foundation-labs/eudiplo:main --build-arg
                   VERSION=main .
 
             - name: Push Docker image
-              run: docker push ghcr.io/cre8/eudiplo:main
+              run: docker push ghcr.io/openwallet-foundation-labs/eudiplo:main

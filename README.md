@@ -1,8 +1,8 @@
-[![Build Status](https://github.com/cre8/eudiplo/actions/workflows/ci-and-release.yml/badge.svg)](https://github.com/cre8/eudiplo/actions)
-![License](https://img.shields.io/github/license/cre8/eudiplo)
-[![Website](https://img.shields.io/badge/website-eudiplo-blue)](https://cre8.github.io/eudiplo/latest/)
-[![Documentation Coverage](https://cre8.github.io/eudiplo/latest/compodoc/images/coverage-badge-documentation.svg)](https://cre8.github.io/eudiplo/latest/compodoc/coverage.html)
-[![codecov](https://codecov.io/github/cre8/eudiplo/graph/badge.svg?token=pt4TLHJYrO)](https://codecov.io/github/cre8/eudiplo)
+[![Build Status](https://github.com/openwallet-foundation-labs/eudiplo/actions/workflows/ci-and-release.yml/badge.svg)](https://github.com/openwallet-foundation-labs/eudiplo/actions)
+![License](https://img.shields.io/github/license/openwallet-foundation-labs/eudiplo)
+[![Website](https://img.shields.io/badge/website-eudiplo-blue)](https://openwallet-foundation-labs.github.io/eudiplo/latest/)
+[![Documentation Coverage](https://openwallet-foundation-labs.github.io/eudiplo/latest/compodoc/images/coverage-badge-documentation.svg)](https://openwallet-foundation-labs.github.io/eudiplo/latest/compodoc/coverage.html)
+[![codecov](https://codecov.io/github/openwallet-foundation-labs/eudiplo/graph/badge.svg?token=pt4TLHJYrO)](https://codecov.io/github/openwallet-foundation-labs/eudiplo)
 
 # EUDIPLO
 
@@ -50,7 +50,7 @@ management, scalable database support, and clean API boundaries.
 
 ```bash
 # Clone and configure
-git clone https://github.com/cre8/eudiplo.git
+git clone https://github.com/openwallet-foundation-labs/eudiplo.git
 cd eudiplo
 cp .env.example .env
 
@@ -64,7 +64,7 @@ docker run -p 3000:3000 \
   -e JWT_SECRET=your-32-character-secret \
   -e AUTH_CLIENT_SECRET=your-issuer-secret \
   -v $(pwd)/config:/app/config \
-  ghcr.io/cre8/eudiplo:latest
+  ghcr.io/openwallet-foundation-labs/eudiplo:latest
 
 # Get a token and start using the API
 curl -X POST http://localhost:3000/auth/oauth2/token \
@@ -76,10 +76,10 @@ curl -X POST http://localhost:3000/auth/oauth2/token \
 ```
 
 📚 API:
-[https://cre8.github.io/eudiplo/latest/api/](https://cre8.github.io/eudiplo/latest/api/)  
+[https://openwallet-foundation-labs.github.io/eudiplo/latest/api/](https://openwallet-foundation-labs.github.io/eudiplo/latest/api/)  
 📦
 Full setup:
-[Quickstart Guide](https://cre8.github.io/eudiplo/latest/getting-started/quick-start/)
+[Quickstart Guide](https://openwallet-foundation-labs.github.io/eudiplo/latest/getting-started/quick-start/)
 
 ---
 
@@ -88,20 +88,21 @@ Full setup:
 **Choose your documentation version:**
 
 - 🚀 **Latest Stable** (recommended):
-  [https://cre8.github.io/eudiplo/latest/](https://cre8.github.io/eudiplo/latest/) -
+  [https://openwallet-foundation-labs.github.io/eudiplo/latest/](https://openwallet-foundation-labs.github.io/eudiplo/latest/) -
   Documentation for the most recent major release
 - 🔬 **Development**:
-  [https://cre8.github.io/eudiplo/main/](https://cre8.github.io/eudiplo/main/) -
+  [https://openwallet-foundation-labs.github.io/eudiplo/main/](https://openwallet-foundation-labs.github.io/eudiplo/main/) -
   Latest features from the main branch
-- 📚 **Specific Major Versions**: [v1](https://cre8.github.io/eudiplo/1/),
-  [v2](https://cre8.github.io/eudiplo/2/), etc.
+- 📚 **Specific Major Versions**:
+  [v1](https://openwallet-foundation-labs.github.io/eudiplo/1/),
+  [v2](https://openwallet-foundation-labs.github.io/eudiplo/2/), etc.
 
 **Key sections:**
 
-- [Architecture](https://cre8.github.io/eudiplo/latest/architecture/overview/)
-- [Supported Protocols](https://cre8.github.io/eudiplo/latest/architecture/supported-protocols/)
-- [API Reference](https://cre8.github.io/eudiplo/latest/api/)
-- [Code Documentation](https://cre8.github.io/eudiplo/latest/compodoc/)
+- [Architecture](https://openwallet-foundation-labs.github.io/eudiplo/latest/architecture/overview/)
+- [Supported Protocols](https://openwallet-foundation-labs.github.io/eudiplo/latest/architecture/supported-protocols/)
+- [API Reference](https://openwallet-foundation-labs.github.io/eudiplo/latest/api/)
+- [Code Documentation](https://openwallet-foundation-labs.github.io/eudiplo/latest/compodoc/)
 
 ---
 

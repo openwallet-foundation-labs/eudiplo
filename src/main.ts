@@ -22,7 +22,7 @@ async function bootstrap() {
         )
         .setExternalDoc(
             'Documentation',
-            'https://cre8.github.io/eudiplo/latest/',
+            'https://openwallet-foundation-labs.github.io/eudiplo/latest/',
         )
         .setVersion(process.env.VERSION ?? '0.0.1');
     // Add OAuth2 configuration - either external OIDC or integrated OAuth2 server

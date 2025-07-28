@@ -17,7 +17,8 @@ flows.
 
 ## Example Webhook Service
 
-In the [test/webhook](https://github.com/cre8/eudiplo/tree/main/test/webhook)
+In the
+[test/webhook](https://github.com/openwallet-foundation-labs/eudiplo/tree/main/test/webhook)
 directory, you can find a simple webhook simulator that can be used to test the
 webhook functionality of the EUDIPLO service. It can be run locally or deployed
 to a cloudflare worker.
