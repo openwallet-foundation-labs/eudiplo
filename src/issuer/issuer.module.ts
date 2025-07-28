@@ -13,8 +13,8 @@ import { IssuerManagementController } from './issuer-management/issuer-managemen
 import { Oid4vpModule } from '../verifier/oid4vp/oid4vp.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { IssuanceConfig } from './issuance/entities/issuance-config.entity';
-import { SessionLoggerService } from '../utils/session-logger.service';
-import { SessionLoggerInterceptor } from '../utils/session-logger.interceptor';
+import { SessionLoggerService } from '../utils/logger/session-logger.service';
+import { SessionLoggerInterceptor } from '../utils/logger/session-logger.interceptor';
 import { CredentialConfig } from './credentials/entities/credential.entity';
 import { IssuanceController } from './issuance/issuance.controller';
 import { CredentialsMetadataController } from './credentials-metadata/credentials-metadata.controller';
@@ -22,6 +22,8 @@ import { IssuanceService } from './issuance/issuance.service';
 import { CredentialConfigService } from './credentials/credential-config/credential-config.service';
 import { setGlobalConfig } from '@openid4vc/openid4vci';
 import { ConfigService } from '@nestjs/config';
+import { WebhookService } from '../utils/webhook/webhook.service';
+import { HttpModule } from '@nestjs/axios';
 
 export const ISSUER_VALIDATION_SCHEMA = {
     PUBLIC_URL: Joi.string(),
@@ -33,6 +35,7 @@ export const ISSUER_VALIDATION_SCHEMA = {
         StatusListModule,
         Oid4vpModule,
         SessionModule,
+        HttpModule,
         TypeOrmModule.forFeature([IssuanceConfig, CredentialConfig]),
     ],
     controllers: [
@@ -51,6 +54,7 @@ export const ISSUER_VALIDATION_SCHEMA = {
         SessionLoggerInterceptor,
         IssuanceService,
         CredentialConfigService,
+        WebhookService,
     ],
     exports: [AuthorizeService, Oid4vciService],
 })

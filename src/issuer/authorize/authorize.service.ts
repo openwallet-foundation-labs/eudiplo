@@ -18,7 +18,7 @@ import { getHeadersFromRequest } from '../oid4vci/util';
 import { AuthorizeQueries } from './dto/authorize-request.dto';
 import { Oid4vpService } from '../../verifier/oid4vp/oid4vp.service';
 import { SessionService } from '../../session/session.service';
-import { WebhookConfig } from '../../utils/webhook.dto';
+import { WebhookConfig } from '../../utils/webhook/webhook.dto';
 import { IssuanceService } from '../issuance/issuance.service';
 import { AuthenticationConfigHelper } from '../issuance/dto/authentication-config.helper';
 

@@ -3,7 +3,11 @@ import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { ApiHideProperty } from '@nestjs/swagger';
 import { CredentialConfig } from '../../credentials/entities/credential.entity';
 import type { AuthenticationConfig } from '../dto/authentication-config.dto';
+import { WebhookConfig } from '../../../utils/webhook/webhook.dto';
 
+/**
+ * Entity to manage issuance configs
+ */
 @Entity()
 export class IssuanceConfig {
     /**
@@ -19,6 +23,9 @@ export class IssuanceConfig {
     @Column('varchar')
     tenantId: string;
 
+    /**
+     * Links to all credential configs that are included in this issuance config.
+     */
     @ManyToMany(
         () => CredentialConfig,
         (credentialConfig) => credentialConfig.issuanceConfig,
@@ -41,4 +48,10 @@ export class IssuanceConfig {
      */
     @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP' })
     createdAt?: Date;
+
+    /**
+     * Webhook to send the result of the notification response
+     */
+    @Column('json', { nullable: true })
+    webhook: WebhookConfig;
 }

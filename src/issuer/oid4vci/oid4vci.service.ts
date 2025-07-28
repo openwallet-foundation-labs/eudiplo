@@ -29,10 +29,11 @@ import { SessionService } from '../../session/session.service';
 import { v4 } from 'uuid';
 import { OfferRequestDto, OfferResponse } from './dto/offer-request.dto';
 import { NotificationRequestDto } from './dto/notification-request.dto';
-import { SessionLoggerService } from '../../utils/session-logger.service';
-import { SessionLogContext } from '../../utils/session-logger-context';
+import { SessionLoggerService } from '../../utils/logger/session-logger.service';
+import { SessionLogContext } from '../../utils/logger/session-logger-context';
 import { TokenPayload } from '../../auth/token.decorator';
 import { IssuanceService } from '../issuance/issuance.service';
+import { WebhookService } from '../../utils/webhook/webhook.service';
 
 @Injectable()
 export class Oid4vciService implements OnModuleInit {
@@ -48,6 +49,7 @@ export class Oid4vciService implements OnModuleInit {
         private readonly sessionService: SessionService,
         private readonly sessionLogger: SessionLoggerService,
         private readonly issuanceService: IssuanceService,
+        private readonly webhookService: WebhookService,
     ) {}
     onModuleInit() {
         //TODO: align for tenant
@@ -258,6 +260,8 @@ export class Oid4vciService implements OnModuleInit {
             const notificationId = v4();
             session.notifications.push({
                 id: notificationId,
+                credentialConfigurationId:
+                    parsedCredentialRequest.credentialConfigurationId as string,
             });
             await this.sessionService.add(session.id, tenantId, {
                 notifications: session.notifications,
@@ -339,10 +343,8 @@ export class Oid4vciService implements OnModuleInit {
                     'No notifications found in session',
                 );
             }
-            session.notifications[index] = {
-                id: body.notification_id,
-                event: body.event,
-            };
+
+            session.notifications[index].event = body.event;
             await this.sessionService.add(session.id, tenantId, {
                 notifications: session.notifications,
             });
@@ -351,6 +353,16 @@ export class Oid4vciService implements OnModuleInit {
                 notificationId: body.notification_id,
                 notificationIndex: index,
             });
+
+            //check for the webhook and send it.
+            //TODO: in case multiple batches are included, check if each time the notification endpoint is triggered. Also when multiple credentials got offered in the request, try to bundle them maybe?
+            if (session.notifyWebhook) {
+                await this.webhookService.sendWebhookNotification(
+                    session,
+                    logContext,
+                    session.notifications[index],
+                );
+            }
         } catch (error) {
             this.sessionLogger.logSessionError(
                 logContext,

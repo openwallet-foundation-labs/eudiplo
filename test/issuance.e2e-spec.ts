@@ -16,7 +16,7 @@ import { AppModule } from '../src/app.module';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { App } from 'supertest/types';
 import request from 'supertest';
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import { fetch, setGlobalDispatcher, Agent } from 'undici';
 import { ConfigService } from '@nestjs/config';
 import {
@@ -295,7 +295,7 @@ describe('Issuance', () => {
         expect(notificationObj).toBeDefined();
         expect(notificationObj.event).toBe('credential_accepted');
 
-        writeFileSync(
+        /* writeFileSync(
             'test.json',
             JSON.stringify(
                 {
@@ -306,9 +306,8 @@ describe('Issuance', () => {
                 null,
                 2,
             ),
-        );
+        );*/
     });
-
     test('authorized code flow', async () => {
         const offerResponse = await request(app.getHttpServer())
             .post('/issuer-management/offer')

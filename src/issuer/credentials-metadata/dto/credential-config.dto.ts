@@ -1,5 +1,5 @@
 import { IsObject, IsString } from 'class-validator';
-import { WebhookConfig } from '../../../utils/webhook.dto';
+import { WebhookConfig } from '../../../utils/webhook/webhook.dto';
 
 export class VCT {
     @IsString()

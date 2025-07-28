@@ -8,8 +8,8 @@ import {
 } from '@nestjs/common';
 import { Oid4vpService } from './oid4vp.service';
 import { AuthorizationResponse } from './dto/authorization-response.dto';
-import { SessionLogger } from '../../utils/session-logger.decorator';
-import { SessionLoggerInterceptor } from '../../utils/session-logger.interceptor';
+import { SessionLogger } from '../../utils/logger/session-logger.decorator';
+import { SessionLoggerInterceptor } from '../../utils/logger/session-logger.interceptor';
 
 /**
  * Controller for handling OID4VP (OpenID for Verifiable Presentations) requests.

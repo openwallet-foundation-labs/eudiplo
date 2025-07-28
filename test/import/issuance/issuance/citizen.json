@@ -12,5 +12,15 @@
     },
     "credentialConfigs": [
         "citizen"
-    ]
+    ],
+    "webhook": {
+        "url": "http://localhost:8787/notify",
+        "auth": {
+            "type": "apiKey",
+            "config": {
+                "headerName": "x-api-key",
+                "value": "foo-bar"
+            }
+        }
+    }
 }

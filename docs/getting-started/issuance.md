@@ -11,6 +11,9 @@ The issuance system uses a **two-layer configuration approach**:
 2. **Issuance Configurations** - Define which credentials to issue together and
    authentication requirements
 
+Both configurations have a _many-to-many_ relationship, which means a defined
+credential can be used in multiple issuance configurations.
+
 ---
 
 ## API Endpoints

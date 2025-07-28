@@ -6,7 +6,7 @@ import {
     ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { WebhookConfig } from '../../../utils/webhook.dto';
+import { WebhookConfig } from '../../../utils/webhook/webhook.dto';
 import { PresentationDuringIssuance } from '../../credentials-metadata/dto/credential-config.dto';
 
 /**

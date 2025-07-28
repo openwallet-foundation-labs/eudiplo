@@ -6,12 +6,12 @@ import { VerificationResult } from '@sd-jwt/sd-jwt-vc';
 import { AuthorizeQueries } from '../../issuer/authorize/dto/authorize-request.dto';
 import { OfferRequestDto } from '../../issuer/oid4vci/dto/offer-request.dto';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
-import { WebhookConfig } from '../../utils/webhook.dto';
+import { WebhookConfig } from '../../utils/webhook/webhook.dto';
 
 /**
  * Represents a session entity for managing user sessions in the application.
  */
-type Notification = {
+export type Notification = {
     /**
      * Unique identifier for the notification.
      */
@@ -20,6 +20,11 @@ type Notification = {
      * The type of notification.
      */
     event?: NotificationEvent;
+
+    /**
+     * The credential ID associated with the notification.
+     */
+    credentialConfigurationId: string;
 };
 
 /**
@@ -82,6 +87,11 @@ export class Session {
      */
     @Column('json', { nullable: true })
     webhook?: WebhookConfig;
+    /**
+     * Webhook configuration to send the result of the notification response.
+     */
+    @Column('json', { nullable: true })
+    notifyWebhook?: WebhookConfig;
     /**
      * Notifications associated with the session.
      */
