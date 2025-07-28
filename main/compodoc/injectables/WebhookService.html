@@ -92,7 +92,7 @@
 
 <ol class="breadcrumb">
   <li class="breadcrumb-item">Injectables</li>
-  <li class="breadcrumb-item" >SessionLoggerInterceptor</li>
+  <li class="breadcrumb-item" >WebhookService</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -116,7 +116,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/utils/logger/session-logger.interceptor.ts</code>
+            <code>src/utils/webhook/webhook.service.ts</code>
         </p>
 
 
@@ -124,7 +124,7 @@
                 <h3>Description</h3>
             </p>
             <p class="comment">
-                <p>Interceptor for logging session-related requests and responses.</p>
+                <p>Service for handling webhooks in the application.</p>
 
             </p>
 
@@ -134,22 +134,6 @@
     <h3 id="index">Index</h3>
     <table class="table table-sm table-bordered index-table">
         <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <h6><b>Properties</b></h6>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <ul class="index-list">
-                            <li>
-                                    <span class="modifier">Private</span>
-                                    <span class="modifier">Readonly</span>
-                                <a href="#isEnabled" >isEnabled</a>
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
 
                 <tr>
                     <td class="col-md-4">
@@ -160,11 +144,12 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
-                                <a href="#intercept" >intercept</a>
+                                    <span class="modifier">Async</span>
+                                <a href="#sendWebhook" >sendWebhook</a>
                             </li>
                             <li>
-                                    <span class="modifier">Private</span>
-                                <a href="#sanitizeBody" >sanitizeBody</a>
+                                    <span class="modifier">Async</span>
+                                <a href="#sendWebhookNotification" >sendWebhookNotification</a>
                             </li>
                         </ul>
                     </td>
@@ -184,18 +169,18 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(reflector: Reflector, logger: PinoLogger, configService: ConfigService)</code>
+<code>constructor(httpService: HttpService, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, sessionLogger: <a href="../injectables/SessionLoggerService.html" target="_self">SessionLoggerService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/utils/logger/session-logger.interceptor.ts:19</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="13" class="link-to-prism">src/utils/webhook/webhook.service.ts:13</a></div>
                             </td>
                         </tr>
 
                 <tr>
                     <td class="col-md-4">
-                            <div class="io-description"><p>Constructor for SessionLoggerInterceptor.</p>
+                            <div class="io-description"><p>Constructor for WebhookService.</p>
 </div>
                             <div>
                                     <b>Parameters :</b>
@@ -205,63 +190,44 @@
                                                 <td>Name</td>
                                                     <td>Type</td>
                                                 <td>Optional</td>
-                                                    <td>Description</td>
                                             </tr>
                                         </thead>
                                         <tbody>
                                                 <tr>
-                                                        <td>reflector</td>
+                                                        <td>httpService</td>
                                                   
                                                         <td>
-                                                                    <code>Reflector</code>
+                                                                    <code>HttpService</code>
                                                         </td>
                                                   
                                                     <td>
                                                             No
                                                     </td>
                                                     
-                                                        <td>
-                                                                <ul>
-<li>Reflector instance for accessing metadata.</li>
-</ul>
-
-                                                        </td>
                                                 </tr>
                                                 <tr>
-                                                        <td>logger</td>
+                                                        <td>sessionService</td>
                                                   
                                                         <td>
-                                                                    <code>PinoLogger</code>
+                                                                        <code><a href="../injectables/SessionService.html" target="_self" >SessionService</a></code>
                                                         </td>
                                                   
                                                     <td>
                                                             No
                                                     </td>
                                                     
-                                                        <td>
-                                                                <ul>
-<li>PinoLogger instance for logging.</li>
-</ul>
-
-                                                        </td>
                                                 </tr>
                                                 <tr>
-                                                        <td>configService</td>
+                                                        <td>sessionLogger</td>
                                                   
                                                         <td>
-                                                                    <code>ConfigService</code>
+                                                                        <code><a href="../injectables/SessionLoggerService.html" target="_self" >SessionLoggerService</a></code>
                                                         </td>
                                                   
                                                     <td>
                                                             No
                                                     </td>
                                                     
-                                                        <td>
-                                                                <ul>
-<li>ConfigService for accessing configuration.</li>
-</ul>
-
-                                                        </td>
                                                 </tr>
                                         </tbody>
                                     </table>
@@ -281,128 +247,33 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="intercept"></a>
+                    <a name="sendWebhook"></a>
                     <span class="name">
-                        <span ><b>intercept</b></span>
-                        <a href="#intercept"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>intercept(context: ExecutionContext, next: CallHandler)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="44"
-                                    class="link-to-prism">src/utils/logger/session-logger.interceptor.ts:44</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Intercepts the request and logs session-related information.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>context</td>
-                                            <td>
-                                                        <code>ExecutionContext</code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>Execution context of the request.</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>next</td>
-                                            <td>
-                                                        <code>CallHandler</code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>Call handler to proceed with the request.</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>Observable&lt;any&gt;</code>
-
-                        </div>
-                            <div class="io-description">
-                                <p>An observable that emits the response data.</p>
-
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="sanitizeBody"></a>
-                    <span class="name">
-                            <span class="modifier">Private</span>
-                        <span ><b>sanitizeBody</b></span>
-                        <a href="#sanitizeBody"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier">Async</span>
+                        <span ><b>sendWebhook</b></span>
+                        <a href="#sendWebhook"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>sanitizeBody(body: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+                    <code>sendWebhook(session: <a href="../entitys/Session.html" target="_self">Session</a>, logContext: <a href="../interfaces/SessionLogContext.html" target="_self">SessionLogContext</a>, credentials: any[])</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="141"
-                                    class="link-to-prism">src/utils/logger/session-logger.interceptor.ts:141</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="32"
+                                    class="link-to-prism">src/utils/webhook/webhook.service.ts:32</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Sanitizes the request body to remove sensitive information.</p>
+                        <div class="io-description"><p>Sends a webhook with the provided credentials, also return the response data.</p>
 </div>
 
                             <div class="io-description">
@@ -414,14 +285,13 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
-                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>body</td>
+                                                <td>session</td>
                                             <td>
-                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                                            <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
                                             </td>
 
                                             <td>
@@ -429,12 +299,30 @@
                                             </td>
 
 
+                                        </tr>
+                                        <tr>
+                                                <td>logContext</td>
                                             <td>
-                                                    <ul>
-<li>The request body to sanitize.</li>
-</ul>
-
+                                                            <code><a href="../interfaces/SessionLogContext.html" target="_self" >SessionLogContext</a></code>
                                             </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>credentials</td>
+                                            <td>
+                                                        <code>any[]</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
                                         </tr>
                                     </tbody>
                                 </table>
@@ -444,45 +332,105 @@
 
                         </div>
                             <div class="io-description">
-                                <p>Sanitized body.</p>
-
+                                
                             </div>
                 </td>
             </tr>
         </tbody>
     </table>
-</section>
-            <section data-compodoc="block-properties">
-    
-    <h3 id="inputs">
-        Properties
-    </h3>
     <table class="table table-sm table-bordered">
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="isEnabled"></a>
+                    <a name="sendWebhookNotification"></a>
                     <span class="name">
-                            <span class="modifier">Private</span>
-                            <span class="modifier">Readonly</span>
-                        <span ><b>isEnabled</b></span>
-                        <a href="#isEnabled"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier">Async</span>
+                        <span ><b>sendWebhookNotification</b></span>
+                        <a href="#sendWebhookNotification"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>sendWebhookNotification(session: <a href="../entitys/Session.html" target="_self">Session</a>, logContext: <a href="../interfaces/SessionLogContext.html" target="_self">SessionLogContext</a>, notification: <a href="../undefineds/Notification.html" target="_self">Notification</a>)</code>
+                </td>
+            </tr>
 
-                    </td>
-                </tr>
+
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/utils/logger/session-logger.interceptor.ts:19</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="102"
+                                    class="link-to-prism">src/utils/webhook/webhook.service.ts:102</a></div>
                         </td>
                     </tr>
 
 
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Sends a webhook notification for a session.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>session</td>
+                                            <td>
+                                                            <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>logContext</td>
+                                            <td>
+                                                            <code><a href="../interfaces/SessionLogContext.html" target="_self" >SessionLogContext</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>notification</td>
+                                            <td>
+                                                            <code><a href="../miscellaneous/typealiases.html#Notification" target="_self" >Notification</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
         </tbody>
     </table>
 </section>
@@ -491,170 +439,174 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
-    Injectable,
-    NestInterceptor,
-    ExecutionContext,
-    CallHandler,
-} from &#x27;@nestjs/common&#x27;;
-import { Reflector } from &#x27;@nestjs/core&#x27;;
-import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { Observable } from &#x27;rxjs&#x27;;
-import { tap, catchError } from &#x27;rxjs/operators&#x27;;
-import { PinoLogger } from &#x27;nestjs-pino&#x27;;
-import { SESSION_LOGGER_KEY } from &#x27;./session-logger.decorator&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { HttpService } from &#x27;@nestjs/axios&#x27;;
+import { Injectable } from &#x27;@nestjs/common&#x27;;
+import { firstValueFrom } from &#x27;rxjs&#x27;;
+import { SessionService } from &#x27;../../session/session.service&#x27;;
+import { SessionLoggerService } from &#x27;../logger/session-logger.service&#x27;;
+import { Notification, Session } from &#x27;../../session/entities/session.entity&#x27;;
+import { SessionLogContext } from &#x27;../logger/session-logger-context&#x27;;
 
 /**
- * Interceptor for logging session-related requests and responses.
+ * Service for handling webhooks in the application.
  */
 @Injectable()
-export class SessionLoggerInterceptor implements NestInterceptor {
-    private readonly isEnabled: boolean;
-
+export class WebhookService {
     /**
-     * Constructor for SessionLoggerInterceptor.
-     * @param reflector - Reflector instance for accessing metadata.
-     * @param logger - PinoLogger instance for logging.
-     * @param configService - ConfigService for accessing configuration.
+     * Constructor for WebhookService.
+     * @param httpService
+     * @param sessionService
+     * @param sessionLogger
      */
     constructor(
-        private readonly reflector: Reflector,
-        private readonly logger: PinoLogger,
-        private readonly configService: ConfigService,
+        private httpService: HttpService,
+        private sessionService: SessionService,
+        private sessionLogger: SessionLoggerService,
+    ) {}
+
+    /**
+     * Sends a webhook with the provided credentials, also return the response data.
+     * @param session
+     * @param logContext
+     * @param credentials
+     */
+    async sendWebhook(
+        session: Session,
+        logContext: SessionLogContext,
+        credentials: any[],
     ) {
-        this.isEnabled &#x3D; this.configService.get&lt;boolean&gt;(
-            &#x27;LOG_ENABLE_SESSION_LOGGER&#x27;,
-            false,
-        );
-    }
-
-    /**
-     * Intercepts the request and logs session-related information.
-     * @param context - Execution context of the request.
-     * @param next - Call handler to proceed with the request.
-     * @returns An observable that emits the response data.
-     */
-    intercept(context: ExecutionContext, next: CallHandler): Observable&lt;any&gt; {
-        const metadata &#x3D; this.reflector.get(
-            SESSION_LOGGER_KEY,
-            context.getHandler(),
-        );
-
-        if (!metadata || !this.isEnabled) {
-            return next.handle();
+        const headers: Record&lt;string, string&gt; &#x3D; {};
+        if (session.webhook!.auth &amp;&amp; session.webhook!.auth.type &#x3D;&#x3D;&#x3D; &#x27;apiKey&#x27;) {
+            headers[session.webhook!.auth.config.headerName] &#x3D;
+                session.webhook!.auth.config.value;
         }
-
-        const { sessionIdParam, flowType } &#x3D; metadata;
-        const request &#x3D; context.switchToHttp().getRequest();
-        const response &#x3D; context.switchToHttp().getResponse();
-
-        // Extract session ID from various sources
-        const sessionId &#x3D;
-            request.params?.[sessionIdParam] ||
-            request.body?.[sessionIdParam] ||
-            request.headers[&#x27;x-session-id&#x27;] ||
-            request.query?.[sessionIdParam];
-
-        const tenantId &#x3D; request.params?.tenantId;
-        const method &#x3D; request.method;
-        const url &#x3D; request.url;
-
-        // Set context for this logger instance
-        this.logger.setContext(&#x27;SessionLogger&#x27;);
-
-        // Create log context
-        const logContext &#x3D; {
-            sessionId,
-            tenantId,
-            flowType,
-            endpoint: &#x60;${method} ${url}&#x60;,
-        };
-
-        // Log the start of the request
-        this.logger.info(
-            {
-                ...logContext,
-                event: &#x27;request_start&#x27;,
-                method,
-                url,
-                headers: {
-                    &#x27;user-agent&#x27;: request.headers[&#x27;user-agent&#x27;],
-                    &#x27;content-type&#x27;: request.headers[&#x27;content-type&#x27;],
-                },
-                body: this.sanitizeBody(request.body),
-            },
-            &#x60;[${flowType}] Starting ${method} ${url} for session ${sessionId}&#x60;,
-        );
-
-        const startTime &#x3D; Date.now();
-
-        return next.handle().pipe(
-            tap((data) &#x3D;&gt; {
-                const duration &#x3D; Date.now() - startTime;
-                this.logger.info(
-                    {
-                        ...logContext,
-                        event: &#x27;request_success&#x27;,
-                        method,
-                        url,
-                        statusCode: response.statusCode,
-                        duration,
-                        responseSize: JSON.stringify(data || {}).length,
-                    },
-                    &#x60;[${flowType}] Completed ${method} ${url} for session ${sessionId} in ${duration}ms&#x60;,
-                );
-            }),
-            catchError((error) &#x3D;&gt; {
-                const duration &#x3D; Date.now() - startTime;
-                this.logger.error(
-                    {
-                        ...logContext,
-                        event: &#x27;request_error&#x27;,
-                        method,
-                        url,
-                        error: {
-                            name: error.name,
-                            message: error.message,
-                            stack: error.stack,
-                        },
-                        duration,
-                    },
-                    &#x60;[${flowType}] Error in ${method} ${url} for session ${sessionId}: ${error.message}&#x60;,
-                );
-                throw error;
-            }),
-        );
-    }
-
-    /**
-     * Sanitizes the request body to remove sensitive information.
-     * @param body - The request body to sanitize.
-     * @returns Sanitized body.
-     */
-    private sanitizeBody(body: any): any {
-        if (!body) return body;
-
-        // Create a copy to avoid modifying the original
-        const sanitized &#x3D; { ...body };
-
-        // Remove sensitive fields
-        const sensitiveFields &#x3D; [
-            &#x27;password&#x27;,
-            &#x27;token&#x27;,
-            &#x27;secret&#x27;,
-            &#x27;key&#x27;,
-            &#x27;private_key&#x27;,
-            &#x27;access_token&#x27;,
-            &#x27;refresh_token&#x27;,
-        ];
-
-        sensitiveFields.forEach((field) &#x3D;&gt; {
-            if (sanitized[field]) {
-                sanitized[field] &#x3D; &#x27;[REDACTED]&#x27;;
-            }
+        this.sessionLogger.logSession(logContext, &#x27;Sending webhook&#x27;, {
+            webhookUrl: session.webhook!.url,
+            authType: session.webhook!.auth?.type || &#x27;none&#x27;,
         });
 
-        return sanitized;
+        await firstValueFrom(
+            this.httpService.post(
+                session.webhook!.url,
+                {
+                    credentials,
+                    session: session.id,
+                },
+                {
+                    headers,
+                },
+            ),
+        ).then(
+            async (webhookResponse) &#x3D;&gt; {
+                //TODO: better: just store it when it&#x27;s a presentation during issuance
+                if (webhookResponse.data) {
+                    session.credentialPayload!.values &#x3D; webhookResponse.data;
+                    //store received webhook response
+                    await this.sessionService.add(
+                        session.id,
+                        session.tenantId,
+                        {
+                            credentialPayload: session.credentialPayload,
+                        },
+                    );
+                }
+
+                this.sessionLogger.logSession(
+                    logContext,
+                    &#x27;Webhook sent successfully&#x27;,
+                    {
+                        responseStatus: webhookResponse.status,
+                        hasResponseData: !!webhookResponse.data,
+                    },
+                );
+            },
+            (err) &#x3D;&gt; {
+                this.sessionLogger.logSessionError(
+                    logContext,
+                    err,
+                    &#x27;Error sending webhook&#x27;,
+                    {
+                        webhookUrl: session.webhook!.url,
+                    },
+                );
+                throw new Error(&#x60;Error sending webhook: ${err.message || err}&#x60;);
+            },
+        );
+    }
+
+    /**
+     * Sends a webhook notification for a session.
+     * @param session
+     * @param logContext
+     * @param notification
+     */
+    async sendWebhookNotification(
+        session: Session,
+        logContext: SessionLogContext,
+        notification: Notification,
+    ) {
+        const headers: Record&lt;string, string&gt; &#x3D; {};
+        const webhook &#x3D; session.notifyWebhook!;
+
+        if (webhook.auth &amp;&amp; webhook.auth.type &#x3D;&#x3D;&#x3D; &#x27;apiKey&#x27;) {
+            headers[webhook.auth.config.headerName] &#x3D; webhook.auth.config.value;
+        }
+        this.sessionLogger.logSession(
+            logContext,
+            &#x27;Sending webhook notification&#x27;,
+            {
+                webhookUrl: webhook.url,
+                authType: webhook.auth?.type || &#x27;none&#x27;,
+            },
+        );
+
+        await firstValueFrom(
+            this.httpService.post(
+                webhook.url,
+                {
+                    notification,
+                    session: session.id,
+                },
+                {
+                    headers,
+                },
+            ),
+        ).then(
+            async (webhookResponse) &#x3D;&gt; {
+                //TODO: better: just store it when it&#x27;s a presentation during issuance
+                if (webhookResponse.data) {
+                    session.credentialPayload!.values &#x3D; webhookResponse.data;
+                    //store received webhook response
+                    await this.sessionService.add(
+                        session.id,
+                        session.tenantId,
+                        {
+                            credentialPayload: session.credentialPayload,
+                        },
+                    );
+                }
+
+                this.sessionLogger.logSession(
+                    logContext,
+                    &#x27;Webhook notification sent successfully&#x27;,
+                    {
+                        responseStatus: webhookResponse.status,
+                        hasResponseData: !!webhookResponse.data,
+                    },
+                );
+            },
+            (err) &#x3D;&gt; {
+                this.sessionLogger.logSessionError(
+                    logContext,
+                    err,
+                    &#x27;Error sending webhook&#x27;,
+                    {
+                        webhookUrl: session.webhook!.url,
+                    },
+                );
+                throw new Error(&#x60;Error sending webhook: ${err.message || err}&#x60;);
+            },
+        );
     }
 }
 </code></pre>
@@ -700,7 +652,7 @@ export class SessionLoggerInterceptor implements NestInterceptor {
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'injectable';
-            var COMPODOC_CURRENT_PAGE_URL = 'SessionLoggerInterceptor.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'WebhookService.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

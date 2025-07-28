@@ -325,14 +325,14 @@ export class IssuerManagementController {
                 summary: &#x27;QR-Code Example&#x27;,
                 value: {
                     response_type: ResponseType.QRCode,
-                    credentialConfigurationIds: [&#x27;pid&#x27;],
+                    issuanceId: &#x27;pid&#x27;,
                 } as OfferRequestDto,
             },
             uri: {
                 summary: &#x27;URI&#x27;,
                 value: {
                     response_type: ResponseType.URI,
-                    credentialConfigurationIds: [&#x27;pid&#x27;],
+                    issuanceId: &#x27;pid&#x27;,
                 } as OfferRequestDto,
             },
         },

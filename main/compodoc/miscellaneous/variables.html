@@ -308,13 +308,13 @@
                             <a href="#serializeUrlSearchParamsPair" title="src/registrar/generated/core/bodySerializer.ts" ><b>serializeUrlSearchParamsPair</b>&nbsp;&nbsp;&nbsp;(src/.../bodySerializer.ts)</a>
                         </li>
                         <li>
-                            <a href="#SESSION_LOGGER_KEY" title="src/utils/session-logger.decorator.ts" ><b>SESSION_LOGGER_KEY</b>&nbsp;&nbsp;&nbsp;(src/.../session-logger.decorator.ts)</a>
+                            <a href="#SESSION_LOGGER_KEY" title="src/utils/logger/session-logger.decorator.ts" ><b>SESSION_LOGGER_KEY</b>&nbsp;&nbsp;&nbsp;(src/.../session-logger.decorator.ts)</a>
                         </li>
                         <li>
                             <a href="#SESSION_VALIDATION_SCHEMA" title="src/session/session.module.ts" ><b>SESSION_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../session.module.ts)</a>
                         </li>
                         <li>
-                            <a href="#SessionLogger" title="src/utils/session-logger.decorator.ts" ><b>SessionLogger</b>&nbsp;&nbsp;&nbsp;(src/.../session-logger.decorator.ts)</a>
+                            <a href="#SessionLogger" title="src/utils/logger/session-logger.decorator.ts" ><b>SessionLogger</b>&nbsp;&nbsp;&nbsp;(src/.../session-logger.decorator.ts)</a>
                         </li>
                         <li>
                             <a href="#setAuthParams" title="src/registrar/generated/client/utils.ts" ><b>setAuthParams</b>&nbsp;&nbsp;&nbsp;(src/.../utils.ts)</a>
@@ -2216,8 +2216,6 @@ Subject is not RFC 4514 conform</p>
             .subjectAltName!.split(&#x27;,&#x27;)
             .map((name) &#x3D;&gt; name.replace(&#x27;DNS:&#x27;, &#x27;&#x27;).trim());
         const sanUriNames &#x3D; [];
-        sanDnsNames.push(&#x27;example.com&#x27;);
-
         return {
             sanDnsNames,
             sanUriNames,
@@ -3488,7 +3486,7 @@ Defines the required environment variables and their types.</p>
         </tbody>
     </table>
 </section>
-    <h3>src/utils/session-logger.decorator.ts</h3>
+    <h3>src/utils/logger/session-logger.decorator.ts</h3>
     <section data-compodoc="block-properties">
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>

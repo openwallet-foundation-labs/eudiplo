@@ -116,7 +116,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/utils/logger-config.service.ts</code>
+            <code>src/utils/logger/logger-config.service.ts</code>
         </p>
 
 
@@ -213,7 +213,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="17" class="link-to-prism">src/utils/logger-config.service.ts:17</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="17" class="link-to-prism">src/utils/logger/logger-config.service.ts:17</a></div>
                             </td>
                         </tr>
 
@@ -277,7 +277,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="59"
-                                    class="link-to-prism">src/utils/logger-config.service.ts:59</a></div>
+                                    class="link-to-prism">src/utils/logger/logger-config.service.ts:59</a></div>
                         </td>
                     </tr>
 
@@ -314,7 +314,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="79"
-                                    class="link-to-prism">src/utils/logger-config.service.ts:79</a></div>
+                                    class="link-to-prism">src/utils/logger/logger-config.service.ts:79</a></div>
                         </td>
                     </tr>
 
@@ -351,7 +351,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="75"
-                                    class="link-to-prism">src/utils/logger-config.service.ts:75</a></div>
+                                    class="link-to-prism">src/utils/logger/logger-config.service.ts:75</a></div>
                         </td>
                     </tr>
 
@@ -388,7 +388,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="71"
-                                    class="link-to-prism">src/utils/logger-config.service.ts:71</a></div>
+                                    class="link-to-prism">src/utils/logger/logger-config.service.ts:71</a></div>
                         </td>
                     </tr>
 
@@ -425,7 +425,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="67"
-                                    class="link-to-prism">src/utils/logger-config.service.ts:67</a></div>
+                                    class="link-to-prism">src/utils/logger/logger-config.service.ts:67</a></div>
                         </td>
                     </tr>
 
@@ -462,7 +462,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="63"
-                                    class="link-to-prism">src/utils/logger-config.service.ts:63</a></div>
+                                    class="link-to-prism">src/utils/logger/logger-config.service.ts:63</a></div>
                         </td>
                     </tr>
 
@@ -501,7 +501,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="23"
-                                    class="link-to-prism">src/utils/logger-config.service.ts:23</a></div>
+                                    class="link-to-prism">src/utils/logger/logger-config.service.ts:23</a></div>
                         </td>
                     </tr>
 
@@ -540,7 +540,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="47"
-                                    class="link-to-prism">src/utils/logger-config.service.ts:47</a></div>
+                                    class="link-to-prism">src/utils/logger/logger-config.service.ts:47</a></div>
                         </td>
                     </tr>
 
@@ -607,7 +607,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="86"
-                                    class="link-to-prism">src/utils/logger-config.service.ts:86</a></div>
+                                    class="link-to-prism">src/utils/logger/logger-config.service.ts:86</a></div>
                         </td>
                     </tr>
 
@@ -646,7 +646,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="94"
-                                    class="link-to-prism">src/utils/logger-config.service.ts:94</a></div>
+                                    class="link-to-prism">src/utils/logger/logger-config.service.ts:94</a></div>
                         </td>
                     </tr>
 
@@ -691,7 +691,7 @@ This is used by the LoggerModule configuration</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="17" class="link-to-prism">src/utils/logger-config.service.ts:17</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="17" class="link-to-prism">src/utils/logger/logger-config.service.ts:17</a></div>
                         </td>
                     </tr>
 
@@ -709,8 +709,8 @@ import { ConfigService } from &#x27;@nestjs/config&#x27;;
 
 export interface LoggerConfiguration {
     level: LogLevel;
-    disableSessionLogger: boolean;
-    disableHttpLogger: boolean;
+    enableSessionLogger: boolean;
+    enableHttpLogger: boolean;
     enableDebugMode: boolean;
     logFormat: &#x27;json&#x27; | &#x27;pretty&#x27;;
 }
@@ -731,12 +731,12 @@ export class LoggerConfigService {
             level: this.parseLogLevel(
                 this.configService.get&lt;string&gt;(&#x27;LOG_LEVEL&#x27;, &#x27;info&#x27;),
             ),
-            disableSessionLogger: this.configService.get&lt;boolean&gt;(
-                &#x27;LOG_DISABLE_SESSION_LOGGER&#x27;,
+            enableSessionLogger: this.configService.get&lt;boolean&gt;(
+                &#x27;LOG_ENABLE_SESSION_LOGGER&#x27;,
                 false,
             ),
-            disableHttpLogger: this.configService.get&lt;boolean&gt;(
-                &#x27;LOG_DISABLE_HTTP_LOGGER&#x27;,
+            enableHttpLogger: this.configService.get&lt;boolean&gt;(
+                &#x27;LOG_ENABLE_HTTP_LOGGER&#x27;,
                 false,
             ),
             enableDebugMode: this.configService.get&lt;boolean&gt;(
@@ -767,11 +767,11 @@ export class LoggerConfigService {
     }
 
     isSessionLoggerEnabled(): boolean {
-        return !this.config.disableSessionLogger;
+        return this.config.enableSessionLogger;
     }
 
     isHttpLoggerEnabled(): boolean {
-        return !this.config.disableHttpLogger;
+        return this.config.enableHttpLogger;
     }
 
     isDebugModeEnabled(): boolean {

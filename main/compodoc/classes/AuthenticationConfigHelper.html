@@ -80,16 +80,23 @@
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
-               <div class="content controller">
+               <div class="content class">
                    <div class="content-data">
 
 
 
 
 
+
+
+
+
+
+
+
 <ol class="breadcrumb">
-  <li class="breadcrumb-item">Controllers</li>
-  <li class="breadcrumb-item" >Oid4vpController</li>
+  <li class="breadcrumb-item">Classes</li>
+  <li class="breadcrumb-item" >AuthenticationConfigHelper</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -113,22 +120,15 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/verifier/oid4vp/oid4vp.controller.ts</code>
+            <code>src/issuer/issuance/dto/authentication-config.helper.ts</code>
         </p>
-
-            <p class="comment">
-                <h3>Prefix</h3>
-            </p>
-            <p class="comment">
-                <code>:tenantId/oid4vp</code>
-            </p>
 
 
             <p class="comment">
                 <h3>Description</h3>
             </p>
             <p class="comment">
-                <p>Controller for handling OID4VP (OpenID for Verifiable Presentations) requests.</p>
+                <p>Utility functions for working with OpenID4VC authentication configurations</p>
 
             </p>
 
@@ -149,14 +149,20 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                <a href="#getRequestWithSession" >getRequestWithSession</a>
+                                    <span class="modifier">Static</span>
+                                <a href="#getPresentationConfig" >getPresentationConfig</a>
                             </li>
                             <li>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                <a href="#getResponse" >getResponse</a>
+                                    <span class="modifier">Static</span>
+                                <a href="#isAuthUrlAuth" >isAuthUrlAuth</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Static</span>
+                                <a href="#isNoneAuth" >isNoneAuth</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Static</span>
+                                <a href="#isPresentationDuringIssuanceAuth" >isPresentationDuringIssuanceAuth</a>
                             </li>
                         </ul>
                     </td>
@@ -170,6 +176,8 @@
     </table>
 </section>
 
+
+
             <section data-compodoc="block-methods">
     
     <h3 id="methods">
@@ -179,41 +187,33 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getRequestWithSession"></a>
+                    <a name="getPresentationConfig"></a>
                     <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                        <span ><b>getRequestWithSession</b></span>
-                        <a href="#getRequestWithSession"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier">Static</span>
+                        <span ><b>getPresentationConfig</b></span>
+                        <a href="#getPresentationConfig"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getRequestWithSession(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, requestId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, session: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>getPresentationConfig(config: <a href="../undefineds/AuthenticationConfig.html" target="_self">AuthenticationConfig</a>)</code>
                 </td>
             </tr>
 
-            <tr>
-                <td class="col-md-4">
-                    <b>Decorators : </b>
-                    <br />
-                    <code>@Get(&#x27;request/:requestId/:session&#x27;)<br />@SessionLogger(&#x27;session&#x27;, &#x27;OID4VP&#x27;)<br /></code>
-                </td>
-            </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="34"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:34</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="44"
+                                    class="link-to-prism">src/issuer/issuance/dto/authentication-config.helper.ts:44</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Returns the authorization request for a given requestId and session.</p>
+                        <div class="io-description"><p>Get the presentation configuration if the method is &#39;presentationDuringIssuance&#39;</p>
 </div>
 
                             <div class="io-description">
@@ -229,33 +229,9 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>tenantId</td>
+                                                <td>config</td>
                                             <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>requestId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>session</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                                            <code><a href="../miscellaneous/typealiases.html#AuthenticationConfig" target="_self" >AuthenticationConfig</a></code>
                                             </td>
 
                                             <td>
@@ -268,7 +244,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>        <code><a href="../entitys/IssuanceConfig.html" target="_self" >PresentationDuringIssuanceConfig | null</a></code>
 
                         </div>
                             <div class="io-description">
@@ -282,41 +258,33 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getResponse"></a>
+                    <a name="isAuthUrlAuth"></a>
                     <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                        <span ><b>getResponse</b></span>
-                        <a href="#getResponse"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier">Static</span>
+                        <span ><b>isAuthUrlAuth</b></span>
+                        <a href="#isAuthUrlAuth"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getResponse(body: <a href="../classes/AuthorizationResponse.html" target="_self">AuthorizationResponse</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>isAuthUrlAuth(config: <a href="../undefineds/AuthenticationConfig.html" target="_self">AuthenticationConfig</a>)</code>
                 </td>
             </tr>
 
-            <tr>
-                <td class="col-md-4">
-                    <b>Decorators : </b>
-                    <br />
-                    <code>@Post(&#x27;response&#x27;)<br />@SessionLogger(&#x27;state&#x27;, &#x27;OID4VP&#x27;)<br /></code>
-                </td>
-            </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="53"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:53</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="23"
+                                    class="link-to-prism">src/issuer/issuance/dto/authentication-config.helper.ts:23</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Endpoint to receive the response from the wallet.</p>
+                        <div class="io-description"><p>Type guard to check if the config uses OID4VCI authorized code flow</p>
 </div>
 
                             <div class="io-description">
@@ -332,21 +300,9 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>body</td>
+                                                <td>config</td>
                                             <td>
-                                                            <code><a href="../classes/AuthorizationResponse.html" target="_self" >AuthorizationResponse</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                                            <code><a href="../miscellaneous/typealiases.html#AuthenticationConfig" target="_self" >AuthenticationConfig</a></code>
                                             </td>
 
                                             <td>
@@ -359,7 +315,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>    <code>literal type</code>
 
                         </div>
                             <div class="io-description">
@@ -369,79 +325,213 @@
             </tr>
         </tbody>
     </table>
-</section>    </div>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="isNoneAuth"></a>
+                    <span class="name">
+                            <span class="modifier">Static</span>
+                        <span ><b>isNoneAuth</b></span>
+                        <a href="#isNoneAuth"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>isNoneAuth(config: <a href="../undefineds/AuthenticationConfig.html" target="_self">AuthenticationConfig</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="14"
+                                    class="link-to-prism">src/issuer/issuance/dto/authentication-config.helper.ts:14</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Type guard to check if the config uses pre-authorized code flow</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>config</td>
+                                            <td>
+                                                            <code><a href="../miscellaneous/typealiases.html#AuthenticationConfig" target="_self" >AuthenticationConfig</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>literal type</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="isPresentationDuringIssuanceAuth"></a>
+                    <span class="name">
+                            <span class="modifier">Static</span>
+                        <span ><b>isPresentationDuringIssuanceAuth</b></span>
+                        <a href="#isPresentationDuringIssuanceAuth"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>isPresentationDuringIssuanceAuth(config: <a href="../undefineds/AuthenticationConfig.html" target="_self">AuthenticationConfig</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="32"
+                                    class="link-to-prism">src/issuer/issuance/dto/authentication-config.helper.ts:32</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Type guard to check if the config uses OID4VP flow</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>config</td>
+                                            <td>
+                                                            <code><a href="../miscellaneous/typealiases.html#AuthenticationConfig" target="_self" >AuthenticationConfig</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>literal type</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+
+
+
+
+    </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
-    Body,
-    Controller,
-    Get,
-    Param,
-    Post,
-    UseInterceptors,
-} from &#x27;@nestjs/common&#x27;;
-import { Oid4vpService } from &#x27;./oid4vp.service&#x27;;
-import { AuthorizationResponse } from &#x27;./dto/authorization-response.dto&#x27;;
-import { SessionLogger } from &#x27;../../utils/logger/session-logger.decorator&#x27;;
-import { SessionLoggerInterceptor } from &#x27;../../utils/logger/session-logger.interceptor&#x27;;
+    AuthenticationConfig,
+    AuthenticationUrlConfig,
+    PresentationDuringIssuanceConfig,
+} from &#x27;./authentication-config.dto&#x27;;
 
 /**
- * Controller for handling OID4VP (OpenID for Verifiable Presentations) requests.
+ * Utility functions for working with OpenID4VC authentication configurations
  */
-@Controller(&#x27;:tenantId/oid4vp&#x27;)
-@UseInterceptors(SessionLoggerInterceptor)
-export class Oid4vpController {
+export class AuthenticationConfigHelper {
     /**
-     * Constructor for the Oid4vpController.
-     * @param oid4vpService - Instance of Oid4vpService for handling OID4VP operations.
+     * Type guard to check if the config uses pre-authorized code flow
      */
-    constructor(private readonly oid4vpService: Oid4vpService) {}
-
-    /**
-     * Returns the authorization request for a given requestId and session.
-     * @param requestId
-     * @param session
-     * @returns
-     */
-    @Get(&#x27;request/:requestId/:session&#x27;)
-    @SessionLogger(&#x27;session&#x27;, &#x27;OID4VP&#x27;)
-    getRequestWithSession(
-        @Param(&#x27;tenantId&#x27;) tenantId: string,
-        @Param(&#x27;requestId&#x27;) requestId: string,
-        @Param(&#x27;session&#x27;) session: string,
-    ) {
-        return this.oid4vpService.createAuthorizationRequest(
-            requestId,
-            tenantId,
-            session,
-        );
+    static isNoneAuth(
+        config: AuthenticationConfig,
+    ): config is { method: &#x27;none&#x27; } {
+        return config.method &#x3D;&#x3D;&#x3D; &#x27;none&#x27;;
     }
 
     /**
-     * Endpoint to receive the response from the wallet.
-     * @param body
-     * @returns
+     * Type guard to check if the config uses OID4VCI authorized code flow
      */
-    @Post(&#x27;response&#x27;)
-    @SessionLogger(&#x27;state&#x27;, &#x27;OID4VP&#x27;)
-    getResponse(
-        @Body() body: AuthorizationResponse,
-        @Param(&#x27;tenantId&#x27;) tenantId: string,
-    ) {
-        return this.oid4vpService.getResponse(body, tenantId);
+    static isAuthUrlAuth(
+        config: AuthenticationConfig,
+    ): config is { method: &#x27;auth&#x27;; config: AuthenticationUrlConfig } {
+        return config.method &#x3D;&#x3D;&#x3D; &#x27;auth&#x27;;
+    }
+
+    /**
+     * Type guard to check if the config uses OID4VP flow
+     */
+    static isPresentationDuringIssuanceAuth(
+        config: AuthenticationConfig,
+    ): config is {
+        method: &#x27;presentationDuringIssuance&#x27;;
+        config: PresentationDuringIssuanceConfig;
+    } {
+        return config.method &#x3D;&#x3D;&#x3D; &#x27;presentationDuringIssuance&#x27;;
+    }
+
+    /**
+     * Get the presentation configuration if the method is &#x27;presentationDuringIssuance&#x27;
+     */
+    static getPresentationConfig(
+        config: AuthenticationConfig,
+    ): PresentationDuringIssuanceConfig | null {
+        if (this.isPresentationDuringIssuanceAuth(config)) {
+            return config.config;
+        }
+        return null;
     }
 }
 </code></pre>
     </div>
 </div>
-
-
-
-
-
-
-
 
 
 
@@ -476,8 +566,8 @@ export class Oid4vpController {
 
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'controller';
-            var COMPODOC_CURRENT_PAGE_URL = 'Oid4vpController.html';
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
+            var COMPODOC_CURRENT_PAGE_URL = 'AuthenticationConfigHelper.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

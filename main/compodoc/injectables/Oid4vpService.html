@@ -166,12 +166,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, encryptionService: <a href="../injectables/EncryptionService.html" target="_self">EncryptionService</a>, configService: ConfigService, registrarService: <a href="../injectables/RegistrarService.html" target="_self">RegistrarService</a>, presentationsService: <a href="../injectables/PresentationsService.html" target="_self">PresentationsService</a>, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, httpService: HttpService, sessionLogger: <a href="../injectables/SessionLoggerService.html" target="_self">SessionLoggerService</a>)</code>
+<code>constructor(cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, encryptionService: <a href="../injectables/EncryptionService.html" target="_self">EncryptionService</a>, configService: ConfigService, registrarService: <a href="../injectables/RegistrarService.html" target="_self">RegistrarService</a>, presentationsService: <a href="../injectables/PresentationsService.html" target="_self">PresentationsService</a>, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, sessionLogger: <a href="../injectables/SessionLoggerService.html" target="_self">SessionLoggerService</a>, webhookService: <a href="../injectables/WebhookService.html" target="_self">WebhookService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="20" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:20</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:19</a></div>
                             </td>
                         </tr>
 
@@ -261,10 +261,10 @@
                                                     
                                                 </tr>
                                                 <tr>
-                                                        <td>httpService</td>
+                                                        <td>sessionLogger</td>
                                                   
                                                         <td>
-                                                                    <code>HttpService</code>
+                                                                        <code><a href="../injectables/SessionLoggerService.html" target="_self" >SessionLoggerService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -273,10 +273,10 @@
                                                     
                                                 </tr>
                                                 <tr>
-                                                        <td>sessionLogger</td>
+                                                        <td>webhookService</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../injectables/SessionLoggerService.html" target="_self" >SessionLoggerService</a></code>
+                                                                        <code><a href="../injectables/WebhookService.html" target="_self" >WebhookService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -320,8 +320,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="41"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:41</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="40"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:40</a></div>
                         </td>
                     </tr>
 
@@ -417,8 +417,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="215"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:215</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="218"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:218</a></div>
                         </td>
                     </tr>
 
@@ -512,8 +512,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="264"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:264</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="267"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:267</a></div>
                         </td>
                     </tr>
 
@@ -579,7 +579,7 @@ It initializes the session logging context and logs the start of the flow.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &#x27;@nestjs/common&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ConflictException, Injectable } from &#x27;@nestjs/common&#x27;;
 import { ConfigService } from &#x27;@nestjs/config&#x27;;
 import { randomUUID } from &#x27;node:crypto&#x27;;
 import { CryptoService } from &#x27;../../crypto/crypto.service&#x27;;
@@ -590,12 +590,11 @@ import { AuthResponse } from &#x27;../presentations/dto/auth-response.dto&#x27;;
 import { EncryptionService } from &#x27;../../crypto/encryption/encryption.service&#x27;;
 import { v4 } from &#x27;uuid&#x27;;
 import { SessionService } from &#x27;../../session/session.service&#x27;;
-import { HttpService } from &#x27;@nestjs/axios&#x27;;
-import { firstValueFrom } from &#x27;rxjs&#x27;;
 import { OfferResponse } from &#x27;../../issuer/oid4vci/dto/offer-request.dto&#x27;;
-import { SessionLoggerService } from &#x27;../../utils/session-logger.service&#x27;;
-import { SessionLogContext } from &#x27;../../utils/session-logger-context&#x27;;
 import { PresentationRequestOptions } from &#x27;./dto/presentation-request-options.dto&#x27;;
+import { WebhookService } from &#x27;../../utils/webhook/webhook.service&#x27;;
+import { SessionLoggerService } from &#x27;../../utils/logger/session-logger.service&#x27;;
+import { SessionLogContext } from &#x27;../../utils/logger/session-logger-context&#x27;;
 
 @Injectable()
 export class Oid4vpService {
@@ -606,8 +605,8 @@ export class Oid4vpService {
         private registrarService: RegistrarService,
         private presentationsService: PresentationsService,
         private sessionService: SessionService,
-        private httpService: HttpService,
         private sessionLogger: SessionLoggerService,
+        private webhookService: WebhookService,
     ) {}
 
     /**
@@ -684,10 +683,14 @@ export class Oid4vpService {
                     : 1,
             });
 
+            const hostname &#x3D; new URL(
+                this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;),
+            ).hostname;
+
             const request &#x3D; {
                 payload: {
                     response_type: &#x27;vp_token&#x27;,
-                    client_id: &#x27;x509_san_dns:&#x27; + host.replace(&#x27;https://&#x27;, &#x27;&#x27;),
+                    client_id: &#x27;x509_san_dns:&#x27; + hostname,
                     response_uri: &#x60;${host}/${tenantId}/oid4vp/response&#x60;,
                     response_mode: &#x27;direct_post.jwt&#x27;,
                     nonce,
@@ -817,11 +820,11 @@ export class Oid4vpService {
             });
         }
 
-        const host &#x3D; this.configService
-            .getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;)
-            .replace(&#x27;https://&#x27;, &#x27;&#x27;);
+        const hostname &#x3D; new URL(
+            this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;),
+        ).hostname;
         const params &#x3D; {
-            client_id: &#x60;x509_san_dns:${host}&#x60;,
+            client_id: &#x60;x509_san_dns:${hostname}&#x60;,
             request_uri: &#x60;${this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;)}/${tenantId}/oid4vp/request/${requestId}/${values.session}&#x60;,
         };
         const queryString &#x3D; Object.entries(params)
@@ -846,6 +849,9 @@ export class Oid4vpService {
         const res &#x3D; await this.encryptionService.decryptJwe&lt;AuthResponse&gt;(
             body.response,
         );
+        if (!res.state) {
+            throw new ConflictException(&#x27;No state found in the response&#x27;);
+        }
         const session &#x3D; await this.sessionService.get(res.state);
 
         // Create session logging context
@@ -884,72 +890,12 @@ export class Oid4vpService {
                 credentials: credentials as any,
             });
             // if there a a webook URL, send the response there
+            //TODO: move to dedicated service to reuse it also in the oid4vci flow.
             if (session.webhook) {
-                const headers: Record&lt;string, string&gt; &#x3D; {};
-                if (
-                    session.webhook.auth &amp;&amp;
-                    session.webhook.auth.type &#x3D;&#x3D;&#x3D; &#x27;apiKey&#x27;
-                ) {
-                    headers[session.webhook.auth.config.headerName] &#x3D;
-                        session.webhook.auth.config.value;
-                }
-
-                console.log(headers);
-
-                this.sessionLogger.logSession(
+                await this.webhookService.sendWebhook(
+                    session,
                     logContext,
-                    &#x27;Sending webhook notification&#x27;,
-                    {
-                        webhookUrl: session.webhook.url,
-                        authType: session.webhook.auth?.type || &#x27;none&#x27;,
-                    },
-                );
-
-                await firstValueFrom(
-                    this.httpService.post(
-                        session.webhook.url,
-                        {
-                            credentials,
-                            session: res.state,
-                        },
-                        {
-                            headers,
-                        },
-                    ),
-                ).then(
-                    async (webhookResponse) &#x3D;&gt; {
-                        //TODO: better: just store it when it&#x27;s a presentation during issuance
-                        if (webhookResponse.data) {
-                            session.credentialPayload!.values &#x3D;
-                                webhookResponse.data;
-                            //store received webhook response
-                            await this.sessionService.add(res.state, tenantId, {
-                                credentialPayload: session.credentialPayload,
-                            });
-                        }
-
-                        this.sessionLogger.logSession(
-                            logContext,
-                            &#x27;Webhook notification sent successfully&#x27;,
-                            {
-                                responseStatus: webhookResponse.status,
-                                hasResponseData: !!webhookResponse.data,
-                            },
-                        );
-                    },
-                    (err) &#x3D;&gt; {
-                        this.sessionLogger.logSessionError(
-                            logContext,
-                            err,
-                            &#x27;Error sending webhook&#x27;,
-                            {
-                                webhookUrl: session.webhook!.url,
-                            },
-                        );
-                        throw new Error(
-                            &#x60;Error sending webhook: ${err.message || err}&#x60;,
-                        );
-                    },
+                    credentials,
                 );
             }
 

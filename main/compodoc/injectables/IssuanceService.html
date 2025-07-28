@@ -175,7 +175,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="10" class="link-to-prism">src/issuer/issuance/issuance.service.ts:10</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="11" class="link-to-prism">src/issuer/issuance/issuance.service.ts:11</a></div>
                             </td>
                         </tr>
 
@@ -250,8 +250,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="76"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:76</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="111"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:111</a></div>
                         </td>
                     </tr>
 
@@ -334,8 +334,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="22"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:22</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="23"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:23</a></div>
                         </td>
                     </tr>
 
@@ -405,8 +405,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="35"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:35</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="36"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:36</a></div>
                         </td>
                     </tr>
 
@@ -488,8 +488,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="51"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:51</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="52"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:52</a></div>
                         </td>
                     </tr>
 
@@ -562,6 +562,7 @@ import { IssuanceConfig } from &#x27;./entities/issuance-config.entity&#x27;;
 import { CredentialConfigService } from &#x27;../credentials/credential-config/credential-config.service&#x27;;
 import { IssuanceDto } from &#x27;./dto/issuance.dto&#x27;;
 import { CredentialConfig } from &#x27;../credentials/entities/credential.entity&#x27;;
+import { AuthenticationConfig } from &#x27;./dto/authentication-config.dto&#x27;;
 
 @Injectable()
 export class IssuanceService {
@@ -616,10 +617,44 @@ export class IssuanceService {
                 credentials.push(credential);
             }
         }
+
+        // Convert AuthenticationConfigDto to AuthenticationConfig union type
+        let authenticationConfig: AuthenticationConfig;
+        if (value.authenticationConfig.method &#x3D;&#x3D;&#x3D; &#x27;none&#x27;) {
+            authenticationConfig &#x3D; { method: &#x27;none&#x27; };
+        } else if (value.authenticationConfig.method &#x3D;&#x3D;&#x3D; &#x27;auth&#x27;) {
+            if (!value.authenticationConfig.config) {
+                throw new Error(
+                    &#x27;AuthenticationConfig is required for auth method&#x27;,
+                );
+            }
+            authenticationConfig &#x3D; {
+                method: &#x27;auth&#x27;,
+                config: value.authenticationConfig.config as any,
+            };
+        } else if (
+            value.authenticationConfig.method &#x3D;&#x3D;&#x3D; &#x27;presentationDuringIssuance&#x27;
+        ) {
+            if (!value.authenticationConfig.config) {
+                throw new Error(
+                    &#x27;AuthenticationConfig is required for presentationDuringIssuance method&#x27;,
+                );
+            }
+            authenticationConfig &#x3D; {
+                method: &#x27;presentationDuringIssuance&#x27;,
+                config: value.authenticationConfig.config as any,
+            };
+        } else {
+            throw new Error(
+                &#x60;Invalid authentication method: ${(value.authenticationConfig as any).method}&#x60;,
+            );
+        }
+
         const issuanceConfig &#x3D; this.issuanceConfigRepo.create({
-            ...value,
+            id: value.id,
             tenantId,
             credentialConfigs: credentials,
+            authenticationConfig,
         });
         return this.issuanceConfigRepo.save(issuanceConfig);
     }

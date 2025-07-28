@@ -1347,11 +1347,14 @@ export class PresentationsService implements OnModuleInit {
                             },
                         };
                     },
-                    (err) &#x3D;&gt; ({
-                        // when the verification fails, it will return an error object                (err) &#x3D;&gt; ({
-                        id: att,
-                        error: err.message,
-                    }),
+                    /* (err) &#x3D;&gt; {
+                        throw new Error
+                        //(console.log(err);
+                        return {
+                            id: att,
+                            error: err.message,
+                        };
+                    }, */
                 ),
         );
         return Promise.all(att);

@@ -226,8 +226,15 @@ interface ProcessResponse {
 async function handleRequest(request: Request): Promise&lt;Response&gt; {
 	const url &#x3D; new URL(request.url);
 
+	if (request.method &#x3D;&#x3D;&#x3D; &#x27;POST&#x27; &amp;&amp; url.pathname &#x3D;&#x3D;&#x3D; &#x27;/notify&#x27;) {
+		const presented: PresentedData &#x3D; await request.json();
+		console.log(&#x27;Received notification:&#x27;);
+		console.log(JSON.stringify(presented, null, 2));
+	}
+
 	if (request.method &#x3D;&#x3D;&#x3D; &#x27;POST&#x27; &amp;&amp; url.pathname &#x3D;&#x3D;&#x3D; &#x27;/process&#x27;) {
 		const presented: PresentedData &#x3D; await request.json();
+		console.log(presented);
 		const res: ProcessResponse &#x3D; {
 			citizen: {
 				town: &#x60;You live in ${presented.credentials[0].values.address.locality}&#x60;,
