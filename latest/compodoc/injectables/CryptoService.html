@@ -303,8 +303,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="193"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:193</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="191"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:191</a></div>
                         </td>
                     </tr>
 
@@ -455,8 +455,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="268"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:268</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="266"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:266</a></div>
                         </td>
                     </tr>
 
@@ -522,8 +522,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="282"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:282</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="280"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:280</a></div>
                         </td>
                     </tr>
 
@@ -589,8 +589,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="231"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:231</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="229"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:229</a></div>
                         </td>
                     </tr>
 
@@ -842,8 +842,8 @@ If not it will be created.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="166"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:166</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="164"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:164</a></div>
                         </td>
                     </tr>
 
@@ -933,8 +933,8 @@ If not it will be created.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="159"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:159</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="157"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:157</a></div>
                         </td>
                     </tr>
 
@@ -1014,8 +1014,8 @@ If not it will be created.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="174"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:174</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="172"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:172</a></div>
                         </td>
                     </tr>
 
@@ -1161,7 +1161,7 @@ If not it will be created.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { createHash, randomBytes, X509Certificate } from &#x27;node:crypto&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { createHash, randomBytes } from &#x27;node:crypto&#x27;;
 import {
     existsSync,
     mkdirSync,
@@ -1233,9 +1233,9 @@ export class CryptoService implements OnModuleInit {
         if (!existsSync(certOut)) {
             // &#x3D;&#x3D;&#x3D; Configurable parameters (you can parameterize these when calling the script) &#x3D;&#x3D;&#x3D;
             const subject &#x3D; this.configService.getOrThrow&lt;string&gt;(&#x27;RP_NAME&#x27;);
-            const uri &#x3D; this.configService
-                .getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;)
-                .replace(&#x27;https://&#x27;, &#x27;&#x27;);
+            const hostname &#x3D; new URL(
+                this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;),
+            ).hostname; // Use URL to parse and get hostname
 
             // &#x3D;&#x3D;&#x3D; Helper to run shell commands &#x3D;&#x3D;&#x3D;
             const run &#x3D; (cmd) &#x3D;&gt; {
@@ -1266,16 +1266,16 @@ export class CryptoService implements OnModuleInit {
 
             // Step 3: Create self-signed issuer cert
             run(
-                &#x60;openssl req -x509 -new -key &quot;${issuerKey}&quot; -subj &quot;/CN&#x3D;${subject}&quot; -addext &quot;subjectAltName&#x3D;DNS:${uri}&quot; -days 365 -out &quot;${issuerCert}&quot;&#x60;,
+                &#x60;openssl req -x509 -new -key &quot;${issuerKey}&quot; -subj &quot;/CN&#x3D;${subject}&quot; -addext &quot;subjectAltName&#x3D;DNS:${hostname}&quot; -days 365 -out &quot;${issuerCert}&quot;&#x60;,
             );
 
             // Step 4: Create dummy CSR
             run(
-                &#x60;openssl req -new -key &quot;${dummyKey}&quot; -subj &quot;/CN&#x3D;${subject}&quot; -addext &quot;subjectAltName&#x3D;DNS:${uri}&quot; -out &quot;${dummyCsr}&quot;&#x60;,
+                &#x60;openssl req -new -key &quot;${dummyKey}&quot; -subj &quot;/CN&#x3D;${subject}&quot; -addext &quot;subjectAltName&#x3D;DNS:${hostname}&quot; -out &quot;${dummyCsr}&quot;&#x60;,
             );
 
             // Step 5: Create SAN extension file
-            writeFileSync(sanExt, &#x60;subjectAltName&#x3D;DNS:${uri}&#x60;);
+            writeFileSync(sanExt, &#x60;subjectAltName&#x3D;DNS:${hostname}&#x60;);
 
             // Step 6: Sign certificate using issuer
             run(
@@ -1309,8 +1309,6 @@ export class CryptoService implements OnModuleInit {
             join(this.folder, tenantId, &#x27;keys&#x27;, &#x60;${type}-certificate.pem&#x60;),
             &#x27;utf-8&#x27;,
         );
-        const crt &#x3D; new X509Certificate(cert);
-        console.log(crt.subjectAltName);
 
         const chain &#x3D; cert
             .replace(&#x27;-----BEGIN CERTIFICATE-----&#x27;, &#x27;&#x27;)

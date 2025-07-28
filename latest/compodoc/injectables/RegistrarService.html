@@ -120,6 +120,14 @@
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>RegistrarService is responsible for managing the interaction with the registrar,
+including adding relying parties, access certificates, and registration certificates.</p>
+
+            </p>
 
 
 
@@ -229,12 +237,14 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/registrar/registrar.service.ts:36</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="61" class="link-to-prism">src/registrar/registrar.service.ts:61</a></div>
                             </td>
                         </tr>
 
                 <tr>
                     <td class="col-md-4">
+                            <div class="io-description"><p>Constructor for the RegistrarService.</p>
+</div>
                             <div>
                                     <b>Parameters :</b>
                                     <table class="params">
@@ -243,6 +253,7 @@
                                                 <td>Name</td>
                                                     <td>Type</td>
                                                 <td>Optional</td>
+                                                    <td>Description</td>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -257,6 +268,12 @@
                                                             No
                                                     </td>
                                                     
+                                                        <td>
+                                                                <ul>
+<li>Instance of ConfigService for accessing configuration values.</li>
+</ul>
+
+                                                        </td>
                                                 </tr>
                                                 <tr>
                                                         <td>cryptoService</td>
@@ -269,6 +286,12 @@
                                                             No
                                                     </td>
                                                     
+                                                        <td>
+                                                                <ul>
+<li>Instance of CryptoService for cryptographic operations.</li>
+</ul>
+
+                                                        </td>
                                                 </tr>
                                                 <tr>
                                                         <td>presentationsService</td>
@@ -281,6 +304,12 @@
                                                             No
                                                     </td>
                                                     
+                                                        <td>
+                                                                <ul>
+<li>Instance of PresentationsService for handling presentations.</li>
+</ul>
+
+                                                        </td>
                                                 </tr>
                                         </tbody>
                                     </table>
@@ -319,8 +348,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="186"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:186</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="231"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:231</a></div>
                         </td>
                     </tr>
 
@@ -404,8 +433,8 @@ If the access certificate already exists, it will be returned.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="227"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:227</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="272"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:272</a></div>
                         </td>
                     </tr>
 
@@ -511,15 +540,15 @@ If the registration certificate already exists, it will be returned.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="122"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:122</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="161"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:161</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Add a new relying party to the registrar.
+                        <div class="io-description"><p>Adds a new relying party to the registrar.
 This is only needed once, when the relying party is created.</p>
 </div>
 
@@ -583,8 +612,8 @@ This is only needed once, when the relying party is created.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="159"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:159</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="204"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:204</a></div>
                         </td>
                     </tr>
 
@@ -667,19 +696,25 @@ If it is revoked, it will add a new one.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="71"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:71</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="109"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:109</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Checks if the registrar service is enabled based on the configuration.</p>
+</div>
 
                         <div class="io-description">
                             <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
 
                         </div>
+                            <div class="io-description">
+                                <p>True if the registrar service is enabled, false otherwise.</p>
+
+                            </div>
                 </td>
             </tr>
         </tbody>
@@ -706,8 +741,8 @@ If it is revoked, it will add a new one.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="284"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:284</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="329"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:329</a></div>
                         </td>
                     </tr>
 
@@ -777,16 +812,16 @@ If it is revoked, it will add a new one.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="79"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:79</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="117"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:117</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>This function is called when the module is initialized.
-It will refresh the access token and add the relying party and certificates to the registrar.</p>
+                        <div class="io-description"><p>This function is called when the application starts.
+It will refresh the access token for the registrar.</p>
 </div>
 
                         <div class="io-description">
@@ -817,14 +852,16 @@ It will refresh the access token and add the relying party and certificates to t
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="44"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:44</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="78"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:78</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Initializes the OAuth2 client and registrar client with the necessary configurations.</p>
+</div>
 
                         <div class="io-description">
                             <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
@@ -864,8 +901,8 @@ It will refresh the access token and add the relying party and certificates to t
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="91"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:91</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="129"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:129</a></div>
                         </td>
                     </tr>
 
@@ -935,15 +972,16 @@ It will refresh the access token and add the relying party and certificates to t
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="105"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:105</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="144"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:144</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Get the access token from OIDC provider using client credentials grant.</p>
+                        <div class="io-description"><p>Refreshes the access token for the registrar using client credentials.
+This method is called periodically to ensure the access token is valid.</p>
 </div>
 
                         <div class="io-description">
@@ -976,8 +1014,8 @@ It will refresh the access token and add the relying party and certificates to t
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="307"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:307</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="352"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:352</a></div>
                         </td>
                     </tr>
 
@@ -1059,14 +1097,17 @@ It will refresh the access token and add the relying party and certificates to t
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="141"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:141</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="186"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:186</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Stores the existing relying party ID based on the name.
+This is used when the relying party already exists in the registrar.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -1077,6 +1118,7 @@ It will refresh the access token and add the relying party and certificates to t
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
+                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -1091,6 +1133,12 @@ It will refresh the access token and add the relying party and certificates to t
                                             </td>
 
 
+                                            <td>
+                                                    <ul>
+<li>The name of the relying party.</li>
+</ul>
+
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -1100,7 +1148,8 @@ It will refresh the access token and add the relying party and certificates to t
 
                         </div>
                             <div class="io-description">
-                                
+                                <p>The ID of the existing relying party.</p>
+
                             </div>
                 </td>
             </tr>
@@ -1132,10 +1181,16 @@ It will refresh the access token and add the relying party and certificates to t
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/registrar/registrar.service.ts:36</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="61" class="link-to-prism">src/registrar/registrar.service.ts:61</a></div>
                         </td>
                     </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Access token for authenticating requests to the registrar.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -1153,10 +1208,16 @@ It will refresh the access token and add the relying party and certificates to t
             </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="35" class="link-to-prism">src/registrar/registrar.service.ts:35</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="57" class="link-to-prism">src/registrar/registrar.service.ts:57</a></div>
                         </td>
                     </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Client for interacting with the registrar API.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -1180,10 +1241,16 @@ It will refresh the access token and add the relying party and certificates to t
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="34" class="link-to-prism">src/registrar/registrar.service.ts:34</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="53" class="link-to-prism">src/registrar/registrar.service.ts:53</a></div>
                         </td>
                     </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>OAuth2 client for interacting with the OIDC provider.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -1218,24 +1285,58 @@ import { join } from &#x27;node:path&#x27;;
 import { OnEvent } from &#x27;@nestjs/event-emitter&#x27;;
 import { TENANT_EVENTS } from &#x27;../auth/tenant-events&#x27;;
 
+/**
+ * Repsonse of access certificate request.
+ */
 interface AccessCertificateResponse {
+    /**
+     * Unique identifier of the access certificate.
+     */
     id: string;
+    /**
+     * The public key in PEM format.
+     */
     crt: string;
+    /**
+     * Indicates if the access certificate is revoked.
+     */
     revoked?: boolean;
 }
 
+/**
+ * RegistrarService is responsible for managing the interaction with the registrar,
+ * including adding relying parties, access certificates, and registration certificates.
+ */
 @Injectable()
 export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
+    /**
+     * OAuth2 client for interacting with the OIDC provider.
+     */
     private oauth2Client: OAuth2Client;
+    /**
+     * Client for interacting with the registrar API.
+     */
     private client: typeof client;
+    /**
+     * Access token for authenticating requests to the registrar.
+     */
     private accessToken: string;
 
+    /**
+     * Constructor for the RegistrarService.
+     * @param configService - Instance of ConfigService for accessing configuration values.
+     * @param cryptoService - Instance of CryptoService for cryptographic operations.
+     * @param presentationsService - Instance of PresentationsService for handling presentations.
+     */
     constructor(
         private configService: ConfigService,
         private cryptoService: CryptoService,
         private presentationsService: PresentationsService,
     ) {}
 
+    /**
+     * Initializes the OAuth2 client and registrar client with the necessary configurations.
+     */
     onModuleInit() {
         //when not set, we will not use the registrar
         if (!this.isEnabled()) {
@@ -1263,13 +1364,17 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         });
     }
 
+    /**
+     * Checks if the registrar service is enabled based on the configuration.
+     * @returns True if the registrar service is enabled, false otherwise.
+     */
     isEnabled() {
         return !!this.configService.get&lt;string&gt;(&#x27;REGISTRAR_URL&#x27;);
     }
 
     /**
-     * This function is called when the module is initialized.
-     * It will refresh the access token and add the relying party and certificates to the registrar.
+     * This function is called when the application starts.
+     * It will refresh the access token for the registrar.
      */
     async onApplicationBootstrap() {
         if (!this.configService.get&lt;string&gt;(&#x27;REGISTRAR_URL&#x27;)) {
@@ -1295,7 +1400,8 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
     }
 
     /**
-     * Get the access token from OIDC provider using client credentials grant.
+     * Refreshes the access token for the registrar using client credentials.
+     * This method is called periodically to ensure the access token is valid.
      */
     async refreshAccessToken() {
         await this.oauth2Client.clientCredentials().then((token) &#x3D;&gt; {
@@ -1311,7 +1417,7 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
     }
 
     /**
-     * Add a new relying party to the registrar.
+     * Adds a new relying party to the registrar.
      * This is only needed once, when the relying party is created.
      */
     addRp(tenantId: string): Promise&lt;string&gt; {
@@ -1333,6 +1439,12 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         });
     }
 
+    /**
+     * Stores the existing relying party ID based on the name.
+     * This is used when the relying party already exists in the registrar.
+     * @param name - The name of the relying party.
+     * @returns The ID of the existing relying party.
+     */
     private storeExistingRp(name: string) {
         return relyingPartyControllerFindAll({
             client: this.client,

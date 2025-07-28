@@ -120,10 +120,17 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/utils/webhook.dto.ts</code>
+            <code>src/utils/webhook/webhook.dto.ts</code>
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Configuration for webhook authentication.</p>
+
+            </p>
 
 
 
@@ -198,10 +205,17 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="18" class="link-to-prism">src/utils/webhook.dto.ts:18</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="43" class="link-to-prism">src/utils/webhook/webhook.dto.ts:43</a></div>
                         </td>
                     </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Configuration for API key authentication.
+This is required if the type is &#39;apiKey&#39;.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -234,10 +248,17 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/utils/webhook.dto.ts:15</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/utils/webhook/webhook.dto.ts:36</a></div>
                         </td>
                     </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>The type of authentication used for the webhook.
+Currently, only &#39;apiKey&#39; is supported.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -256,26 +277,61 @@
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Type } from &#x27;class-transformer&#x27;;
 import { IsIn, IsObject, IsOptional, IsString } from &#x27;class-validator&#x27;;
 
+/**
+ * Configuration for API key authentication in webhooks.
+ */
 export class ApiKeyConfig {
+    /**
+     * The name of the header where the API key will be sent.
+     * @example Authorization
+     */
     @IsString()
     headerName: string;
+    /**
+     * The value of the API key to be sent in the header.
+     * @example Bearer your_api_key_here
+     */
     @IsString()
     value: string;
 }
 
+/**
+ * Enum for the type of authentication used in webhooks.
+ */
 export type AuthConfig &#x3D; &#x27;apiKey&#x27;;
 
+/**
+ * Configuration for webhook authentication.
+ */
 export class WebHookAuthConfig {
+    /**
+     * The type of authentication used for the webhook.
+     * Currently, only &#x27;apiKey&#x27; is supported.
+     */
     @IsIn([&#x27;apiKey&#x27;])
     type: AuthConfig;
+    /**
+     * Configuration for API key authentication.
+     * This is required if the type is &#x27;apiKey&#x27;.
+     */
     @Type(() &#x3D;&gt; ApiKeyConfig)
     @IsObject()
     config: ApiKeyConfig;
 }
 
+/**
+ * Configuration for webhooks used in various services.
+ */
 export class WebhookConfig {
+    /**
+     * The URL to which the webhook will send notifications.
+     */
     @IsString()
     url: string;
+    /**
+     * Optional authentication configuration for the webhook.
+     * If not provided, no authentication will be used.
+     */
     @Type(() &#x3D;&gt; WebHookAuthConfig)
     @IsOptional()
     @IsObject()

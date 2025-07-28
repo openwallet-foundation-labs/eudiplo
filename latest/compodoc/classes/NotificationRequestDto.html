@@ -190,7 +190,7 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsEnum([&#x27;credential_issued&#x27;, &#x27;credential_revoked&#x27;])<br />
+                            @IsEnum([&#x27;credential_accepted&#x27;, &#x27;credential_revoked&#x27;])<br />
                         </code>
                     </td>
                 </tr>
@@ -258,7 +258,7 @@ export class NotificationRequestDto {
     @IsString()
     notification_id: string;
 
-    @IsEnum([&#x27;credential_issued&#x27;, &#x27;credential_revoked&#x27;])
+    @IsEnum([&#x27;credential_accepted&#x27;, &#x27;credential_revoked&#x27;])
     event: NotificationEvent;
 }
 </code></pre>

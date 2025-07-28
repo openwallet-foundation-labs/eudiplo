@@ -308,15 +308,15 @@ export class JwtService {
     constructor(private configService: ConfigService) {}
 
     /**
-     * Generate a JWT token for single-tenant mode
+     * Generate a JWT token for integrated OAuth2 server
      */
     async generateToken(
         payload: TokenPayload,
         options: GenerateTokenOptions &#x3D; {},
     ): Promise&lt;string&gt; {
-        if (this.isMultiTenant()) {
+        if (this.isUsingExternalOIDC()) {
             throw new Error(
-                &#x27;Token generation is not available in multi-tenant mode. Use Keycloak for token generation.&#x27;,
+                &#x27;Token generation is not available when using external OIDC provider. Use your external OIDC provider for token generation.&#x27;,
             );
         }
 
@@ -348,9 +348,9 @@ export class JwtService {
      * Verify a JWT token (for additional validation if needed)
      */
     async verifyToken(token: string): Promise&lt;TokenPayload&gt; {
-        if (this.isMultiTenant()) {
+        if (this.isUsingExternalOIDC()) {
             throw new Error(
-                &#x27;Token verification is handled by Keycloak in multi-tenant mode.&#x27;,
+                &#x27;Token verification is handled by external OIDC provider.&#x27;,
             );
         }
 
@@ -383,9 +383,9 @@ export class JwtService {
     }
 
     /**
-     * Check if the service is in multi-tenant mode
+     * Check if the service is using external OIDC provider
      */
-    isMultiTenant(): boolean {
+    isUsingExternalOIDC(): boolean {
         return this.configService.get&lt;string&gt;(&#x27;OIDC&#x27;) !&#x3D;&#x3D; undefined;
     }
 }

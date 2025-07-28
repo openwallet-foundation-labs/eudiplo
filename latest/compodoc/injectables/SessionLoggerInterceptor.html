@@ -116,10 +116,17 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/utils/session-logger.interceptor.ts</code>
+            <code>src/utils/logger/session-logger.interceptor.ts</code>
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Interceptor for logging session-related requests and responses.</p>
+
+            </p>
 
 
 
@@ -127,6 +134,22 @@
     <h3 id="index">Index</h3>
     <table class="table table-sm table-bordered index-table">
         <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Readonly</span>
+                                <a href="#isEnabled" >isEnabled</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
 
                 <tr>
                     <td class="col-md-4">
@@ -161,17 +184,19 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(reflector: Reflector, logger: PinoLogger)</code>
+<code>constructor(reflector: Reflector, logger: PinoLogger, configService: ConfigService)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="14" class="link-to-prism">src/utils/session-logger.interceptor.ts:14</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/utils/logger/session-logger.interceptor.ts:19</a></div>
                             </td>
                         </tr>
 
                 <tr>
                     <td class="col-md-4">
+                            <div class="io-description"><p>Constructor for SessionLoggerInterceptor.</p>
+</div>
                             <div>
                                     <b>Parameters :</b>
                                     <table class="params">
@@ -180,6 +205,7 @@
                                                 <td>Name</td>
                                                     <td>Type</td>
                                                 <td>Optional</td>
+                                                    <td>Description</td>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -194,6 +220,12 @@
                                                             No
                                                     </td>
                                                     
+                                                        <td>
+                                                                <ul>
+<li>Reflector instance for accessing metadata.</li>
+</ul>
+
+                                                        </td>
                                                 </tr>
                                                 <tr>
                                                         <td>logger</td>
@@ -206,6 +238,30 @@
                                                             No
                                                     </td>
                                                     
+                                                        <td>
+                                                                <ul>
+<li>PinoLogger instance for logging.</li>
+</ul>
+
+                                                        </td>
+                                                </tr>
+                                                <tr>
+                                                        <td>configService</td>
+                                                  
+                                                        <td>
+                                                                    <code>ConfigService</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                        <td>
+                                                                <ul>
+<li>ConfigService for accessing configuration.</li>
+</ul>
+
+                                                        </td>
                                                 </tr>
                                         </tbody>
                                     </table>
@@ -241,14 +297,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="20"
-                                    class="link-to-prism">src/utils/session-logger.interceptor.ts:20</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="44"
+                                    class="link-to-prism">src/utils/logger/session-logger.interceptor.ts:44</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Intercepts the request and logs session-related information.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -259,6 +317,7 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
+                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -273,6 +332,12 @@
                                             </td>
 
 
+                                            <td>
+                                                    <ul>
+<li>Execution context of the request.</li>
+</ul>
+
+                                            </td>
                                         </tr>
                                         <tr>
                                                 <td>next</td>
@@ -285,6 +350,12 @@
                                             </td>
 
 
+                                            <td>
+                                                    <ul>
+<li>Call handler to proceed with the request.</li>
+</ul>
+
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -294,7 +365,8 @@
 
                         </div>
                             <div class="io-description">
-                                
+                                <p>An observable that emits the response data.</p>
+
                             </div>
                 </td>
             </tr>
@@ -322,14 +394,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="112"
-                                    class="link-to-prism">src/utils/session-logger.interceptor.ts:112</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="141"
+                                    class="link-to-prism">src/utils/logger/session-logger.interceptor.ts:141</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Sanitizes the request body to remove sensitive information.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -340,6 +414,7 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
+                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -354,6 +429,12 @@
                                             </td>
 
 
+                                            <td>
+                                                    <ul>
+<li>The request body to sanitize.</li>
+</ul>
+
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -363,10 +444,45 @@
 
                         </div>
                             <div class="io-description">
-                                
+                                <p>Sanitized body.</p>
+
                             </div>
                 </td>
             </tr>
+        </tbody>
+    </table>
+</section>
+            <section data-compodoc="block-properties">
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="isEnabled"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Readonly</span>
+                        <span ><b>isEnabled</b></span>
+                        <a href="#isEnabled"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/utils/logger/session-logger.interceptor.ts:19</a></div>
+                        </td>
+                    </tr>
+
+
         </tbody>
     </table>
 </section>
@@ -382,25 +498,49 @@
     CallHandler,
 } from &#x27;@nestjs/common&#x27;;
 import { Reflector } from &#x27;@nestjs/core&#x27;;
+import { ConfigService } from &#x27;@nestjs/config&#x27;;
 import { Observable } from &#x27;rxjs&#x27;;
 import { tap, catchError } from &#x27;rxjs/operators&#x27;;
 import { PinoLogger } from &#x27;nestjs-pino&#x27;;
 import { SESSION_LOGGER_KEY } from &#x27;./session-logger.decorator&#x27;;
 
+/**
+ * Interceptor for logging session-related requests and responses.
+ */
 @Injectable()
 export class SessionLoggerInterceptor implements NestInterceptor {
+    private readonly isEnabled: boolean;
+
+    /**
+     * Constructor for SessionLoggerInterceptor.
+     * @param reflector - Reflector instance for accessing metadata.
+     * @param logger - PinoLogger instance for logging.
+     * @param configService - ConfigService for accessing configuration.
+     */
     constructor(
         private readonly reflector: Reflector,
         private readonly logger: PinoLogger,
-    ) {}
+        private readonly configService: ConfigService,
+    ) {
+        this.isEnabled &#x3D; this.configService.get&lt;boolean&gt;(
+            &#x27;LOG_ENABLE_SESSION_LOGGER&#x27;,
+            false,
+        );
+    }
 
+    /**
+     * Intercepts the request and logs session-related information.
+     * @param context - Execution context of the request.
+     * @param next - Call handler to proceed with the request.
+     * @returns An observable that emits the response data.
+     */
     intercept(context: ExecutionContext, next: CallHandler): Observable&lt;any&gt; {
         const metadata &#x3D; this.reflector.get(
             SESSION_LOGGER_KEY,
             context.getHandler(),
         );
 
-        if (!metadata) {
+        if (!metadata || !this.isEnabled) {
             return next.handle();
         }
 
@@ -486,6 +626,11 @@ export class SessionLoggerInterceptor implements NestInterceptor {
         );
     }
 
+    /**
+     * Sanitizes the request body to remove sensitive information.
+     * @param body - The request body to sanitize.
+     * @returns Sanitized body.
+     */
     private sanitizeBody(body: any): any {
         if (!body) return body;
 

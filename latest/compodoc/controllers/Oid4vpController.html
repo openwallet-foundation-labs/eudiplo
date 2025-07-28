@@ -124,6 +124,13 @@
             </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Controller for handling OID4VP (OpenID for Verifiable Presentations) requests.</p>
+
+            </p>
 
 
 
@@ -198,8 +205,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="27"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:27</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="34"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:34</a></div>
                         </td>
                     </tr>
 
@@ -301,8 +308,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="46"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:46</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="53"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:53</a></div>
                         </td>
                     </tr>
 
@@ -376,12 +383,19 @@
 } from &#x27;@nestjs/common&#x27;;
 import { Oid4vpService } from &#x27;./oid4vp.service&#x27;;
 import { AuthorizationResponse } from &#x27;./dto/authorization-response.dto&#x27;;
-import { SessionLogger } from &#x27;../../utils/session-logger.decorator&#x27;;
-import { SessionLoggerInterceptor } from &#x27;../../utils/session-logger.interceptor&#x27;;
+import { SessionLogger } from &#x27;../../utils/logger/session-logger.decorator&#x27;;
+import { SessionLoggerInterceptor } from &#x27;../../utils/logger/session-logger.interceptor&#x27;;
 
+/**
+ * Controller for handling OID4VP (OpenID for Verifiable Presentations) requests.
+ */
 @Controller(&#x27;:tenantId/oid4vp&#x27;)
 @UseInterceptors(SessionLoggerInterceptor)
 export class Oid4vpController {
+    /**
+     * Constructor for the Oid4vpController.
+     * @param oid4vpService - Instance of Oid4vpService for handling OID4VP operations.
+     */
     constructor(private readonly oid4vpService: Oid4vpService) {}
 
     /**

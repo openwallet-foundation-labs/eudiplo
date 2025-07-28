@@ -124,6 +124,13 @@
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>DTO for the presentation request containing the response type and request ID.</p>
+
+            </p>
 
 
 
@@ -202,13 +209,14 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="20" class="link-to-prism">src/verifier/oid4vp/dto/presentation-request.dto.ts:20</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="33" class="link-to-prism">src/verifier/oid4vp/dto/presentation-request.dto.ts:33</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><b>Example :</b><div><pre class="line-numbers"><code class="language-html"></code></pre></div></div>
+                    <div class="io-description"><p>Identifier of the presentation configuration</p>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-html"></code></pre></div></div>
                 </td>
             </tr>
 
@@ -243,7 +251,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="14" class="link-to-prism">src/verifier/oid4vp/dto/presentation-request.dto.ts:14</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="26" class="link-to-prism">src/verifier/oid4vp/dto/presentation-request.dto.ts:26</a></div>
                         </td>
                     </tr>
 
@@ -286,10 +294,17 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="24" class="link-to-prism">src/verifier/oid4vp/dto/presentation-request.dto.ts:24</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">src/verifier/oid4vp/dto/presentation-request.dto.ts:41</a></div>
                         </td>
                     </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Webhook configuration to receive the response.
+If not provided, the configured webhook from the configuration will be used.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -306,13 +321,25 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { IsEnum, IsObject, IsOptional, IsString } from &#x27;class-validator&#x27;;
-import { WebhookConfig } from &#x27;../../../utils/webhook.dto&#x27;;
+import { WebhookConfig } from &#x27;../../../utils/webhook/webhook.dto&#x27;;
 
+/**
+ * Enum for the type of response expected from the presentation request.
+ */
 export enum ResponseType {
+    /**
+     * Response type indicating a QR code will be returned.
+     */
     QRCode &#x3D; &#x27;qrcode&#x27;,
+    /**
+     * Response type indicating a URI will be returned.
+     */
     URI &#x3D; &#x27;uri&#x27;,
 }
 
+/**
+ * DTO for the presentation request containing the response type and request ID.
+ */
 export class PresentationRequest {
     /**
      * @example qrcode
@@ -321,11 +348,16 @@ export class PresentationRequest {
     response_type: ResponseType;
 
     /**
+     * Identifier of the presentation configuration
      * @example pid
      */
     @IsString()
     requestId: string;
 
+    /**
+     * Webhook configuration to receive the response.
+     * If not provided, the configured webhook from the configuration will be used.
+     */
     @IsObject()
     @IsOptional()
     webhook?: WebhookConfig;

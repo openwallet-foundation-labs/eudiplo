@@ -239,12 +239,15 @@
 import { ConflictException, Injectable } from &#x27;@nestjs/common&#x27;;
 import { ConfigService } from &#x27;@nestjs/config&#x27;;
 import {
+    authorizationCodeGrantIdentifier,
     type AuthorizationCodeGrantIdentifier,
     type AuthorizationServerMetadata,
     type HttpMethod,
     Jwk,
     Oauth2AuthorizationServer,
     PkceCodeChallengeMethod,
+    PreAuthorizedCodeGrantIdentifier,
+    preAuthorizedCodeGrantIdentifier,
 } from &#x27;@openid4vc/oauth2&#x27;;
 import type { Request, Response } from &#x27;express&#x27;;
 import { CryptoService } from &#x27;../../crypto/crypto.service&#x27;;
@@ -252,12 +255,19 @@ import { getHeadersFromRequest } from &#x27;../oid4vci/util&#x27;;
 import { AuthorizeQueries } from &#x27;./dto/authorize-request.dto&#x27;;
 import { Oid4vpService } from &#x27;../../verifier/oid4vp/oid4vp.service&#x27;;
 import { SessionService } from &#x27;../../session/session.service&#x27;;
-import { CredentialsService } from &#x27;../credentials/credentials.service&#x27;;
-import { WebhookConfig } from &#x27;../../utils/webhook.dto&#x27;;
+import { WebhookConfig } from &#x27;../../utils/webhook/webhook.dto&#x27;;
+import { IssuanceService } from &#x27;../issuance/issuance.service&#x27;;
+import { AuthenticationConfigHelper } from &#x27;../issuance/dto/authentication-config.helper&#x27;;
 
 export interface ParsedAccessTokenAuthorizationCodeRequestGrant {
     grantType: AuthorizationCodeGrantIdentifier;
     code: string;
+}
+
+interface ParsedAccessTokenPreAuthorizedCodeRequestGrant {
+    grantType: PreAuthorizedCodeGrantIdentifier;
+    preAuthorizedCode: string;
+    txCode?: string;
 }
 
 @Injectable()
@@ -269,7 +279,7 @@ export class AuthorizeService {
         private cryptoService: CryptoService,
         private oid4vpService: Oid4vpService,
         private sessionService: SessionService,
-        private credentialsService: CredentialsService,
+        private issuanceService: IssuanceService,
     ) {}
 
     getAuthorizationServer(tenantId: string): Oauth2AuthorizationServer {
@@ -347,7 +357,7 @@ export class AuthorizeService {
         });
 
         const session &#x3D; await this.sessionService.getBy({
-            authorization_code: body.code,
+            authorization_code: body.code ?? body[&#x27;pre-authorized_code&#x27;],
             tenantId,
         });
 
@@ -355,26 +365,63 @@ export class AuthorizeService {
             throw new ConflictException(&#x27;Authorization code not found&#x27;);
         }
         const authorizationServerMetadata &#x3D; this.authzMetadata(tenantId);
-        //TODO: handle response
-        const { dpop } &#x3D; await this.getAuthorizationServer(
-            tenantId,
-        ).verifyAuthorizationCodeAccessTokenRequest({
-            grant: parsedAccessTokenRequest.grant as ParsedAccessTokenAuthorizationCodeRequestGrant,
-            accessTokenRequest: parsedAccessTokenRequest.accessTokenRequest,
-            expectedCode: session.authorization_code as string,
-            request: {
-                method: req.method as HttpMethod,
-                url,
-                headers: getHeadersFromRequest(req),
-            },
-            dpop: {
-                required: true,
-                allowedSigningAlgs:
-                    authorizationServerMetadata.dpop_signing_alg_values_supported,
-                jwt: parsedAccessTokenRequest.dpop?.jwt,
-            },
-            authorizationServerMetadata,
-        });
+        let dpopValue;
+        if (
+            parsedAccessTokenRequest.grant.grantType &#x3D;&#x3D;&#x3D;
+            preAuthorizedCodeGrantIdentifier
+        ) {
+            const { dpop } &#x3D; await this.getAuthorizationServer(
+                tenantId,
+            ).verifyPreAuthorizedCodeAccessTokenRequest({
+                grant: parsedAccessTokenRequest.grant as ParsedAccessTokenPreAuthorizedCodeRequestGrant,
+                accessTokenRequest: parsedAccessTokenRequest.accessTokenRequest,
+                request: {
+                    method: req.method as HttpMethod,
+                    url,
+                    headers: getHeadersFromRequest(req),
+                },
+                dpop: {
+                    required: true,
+                    allowedSigningAlgs:
+                        authorizationServerMetadata.dpop_signing_alg_values_supported,
+                    jwt: parsedAccessTokenRequest.dpop?.jwt,
+                },
+
+                authorizationServerMetadata,
+
+                expectedPreAuthorizedCode:
+                    parsedAccessTokenRequest.grant.preAuthorizedCode,
+                expectedTxCode: parsedAccessTokenRequest.grant.txCode,
+            });
+            dpopValue &#x3D; dpop;
+        }
+
+        if (
+            parsedAccessTokenRequest.grant.grantType &#x3D;&#x3D;&#x3D;
+            authorizationCodeGrantIdentifier
+        ) {
+            //TODO: handle response
+            const { dpop } &#x3D; await this.getAuthorizationServer(
+                tenantId,
+            ).verifyAuthorizationCodeAccessTokenRequest({
+                grant: parsedAccessTokenRequest.grant as ParsedAccessTokenAuthorizationCodeRequestGrant,
+                accessTokenRequest: parsedAccessTokenRequest.accessTokenRequest,
+                expectedCode: session.authorization_code as string,
+                request: {
+                    method: req.method as HttpMethod,
+                    url,
+                    headers: getHeadersFromRequest(req),
+                },
+                dpop: {
+                    required: true,
+                    allowedSigningAlgs:
+                        authorizationServerMetadata.dpop_signing_alg_values_supported,
+                    jwt: parsedAccessTokenRequest.dpop?.jwt,
+                },
+                authorizationServerMetadata,
+            });
+            dpopValue &#x3D; dpop;
+        }
 
         const cNonce &#x3D; randomUUID();
         return this.getAuthorizationServer(tenantId).createAccessTokenResponse({
@@ -393,7 +440,7 @@ export class AuthorizeService {
             cNonce,
             cNonceExpiresIn: 100,
             clientId: &#x27;wallet&#x27;, // must be same as the client attestation
-            dpop,
+            dpop: dpopValue,
         });
     }
 
@@ -430,29 +477,66 @@ export class AuthorizeService {
                 );
             }
             //check if session has valid presentation, we assume for now
-            await this.sendAuthorizationCode(res, body.auth_session, tenantId);
-            return;
+            if (session.credentials) {
+                await this.sendAuthorizationCode(
+                    res,
+                    body.auth_session,
+                    tenantId,
+                );
+                return;
+            } else {
+                //TODO: needs to be checked if this is the correct response
+                throw new ConflictException(
+                    &#x27;Session does not have valid credentials for issuance&#x27;,
+                );
+            }
         }
 
         const session &#x3D; await this.sessionService.get(body.issuer_state!);
         if (!session) {
             throw new Error(&#x27;Credential offer not found&#x27;);
         }
-        const ids &#x3D; session.offer!.credential_configuration_ids;
-        const config &#x3D; await this.credentialsService.getConfigById(
-            ids[0],
+        const issuanceId &#x3D; session.issuanceId!;
+        const config &#x3D; await this.issuanceService.getIssuanceConfigurationById(
+            issuanceId,
             tenantId,
         );
-        if (config.presentation_during_issuance) {
-            const webhook &#x3D; config.presentation_during_issuance.webhook;
+
+        // Use the new authentication configuration structure
+        const authConfig &#x3D; config.authenticationConfig;
+
+        if (!authConfig) {
+            throw new Error(
+                &#x27;No authentication configuration found for issuance config&#x27;,
+            );
+        }
+
+        if (
+            AuthenticationConfigHelper.isPresentationDuringIssuanceAuth(
+                authConfig,
+            )
+        ) {
+            // OID4VP flow - credential presentation required
+            const presentationConfig &#x3D;
+                AuthenticationConfigHelper.getPresentationConfig(authConfig);
+            const webhook &#x3D; presentationConfig?.presentation.webhook;
             const response &#x3D; await this.parseChallengeRequest(
                 body,
                 tenantId,
                 webhook,
             );
             res.status(400).send(response);
-        } else {
+        } else if (AuthenticationConfigHelper.isAuthUrlAuth(authConfig)) {
+            // OID4VCI authorized code flow - should not reach here typically in challenge endpoint
+            // But we&#x27;ll handle it by sending authorization code
             await this.sendAuthorizationCode(res, body.issuer_state!, tenantId);
+        } else if (AuthenticationConfigHelper.isNoneAuth(authConfig)) {
+            // Pre-authorized code flow (method: &#x27;none&#x27;) - send authorization code directly
+            await this.sendAuthorizationCode(res, body.issuer_state!, tenantId);
+        } else {
+            throw new Error(
+                &#x60;Unsupported authentication method: ${(authConfig as any).method}&#x60;,
+            );
         }
     }
 

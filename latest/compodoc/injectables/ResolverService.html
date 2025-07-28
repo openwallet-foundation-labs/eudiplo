@@ -120,6 +120,13 @@
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Service for resolving public keys from JWT payloads and headers.</p>
+
+            </p>
 
 
 
@@ -163,7 +170,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="14" class="link-to-prism">src/verifier/resolver/resolver.service.ts:14</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="12" class="link-to-prism">src/verifier/resolver/resolver.service.ts:12</a></div>
                             </td>
                         </tr>
 
@@ -228,8 +235,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="23"
-                                    class="link-to-prism">src/verifier/resolver/resolver.service.ts:23</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="21"
+                                    class="link-to-prism">src/verifier/resolver/resolver.service.ts:21</a></div>
                         </td>
                     </tr>
 
@@ -300,13 +307,11 @@ import { JWK, JWTPayload } from &#x27;jose&#x27;;
 import { HttpService } from &#x27;@nestjs/axios&#x27;;
 import { firstValueFrom } from &#x27;rxjs&#x27;;
 import { X509Certificate } from &#x27;node:crypto&#x27;;
+import { IssuerMetadata } from &#x27;./dto/issuer-metadata.dto&#x27;;
 
-interface IssuerMetadata {
-    issuer: string;
-    jwks: {
-        keys: JWK[];
-    };
-}
+/**
+ * Service for resolving public keys from JWT payloads and headers.
+ */
 @Injectable()
 export class ResolverService {
     constructor(private httpService: HttpService) {}
@@ -328,7 +333,7 @@ export class ResolverService {
                 (cert) &#x3D;&gt; new X509Certificate(Buffer.from(cert, &#x27;base64&#x27;)),
             );
             const cert &#x3D; certs[0];
-            if (!cert.subjectAltName?.includes(payload.iss.split(&#x27;://&#x27;)[1])) {
+            if (!cert.subjectAltName?.includes(new URL(payload.iss).hostname)) {
                 throw new Error(&#x27;Subject and issuer do not match&#x27;);
             }
             return cert.publicKey.export({ format: &#x27;jwk&#x27; }) as JWK;

@@ -151,8 +151,6 @@
                             </li>
                             <li>
                                     <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
                                 <a href="#revokeAll" >revokeAll</a>
                             </li>
                         </ul>
@@ -312,8 +310,6 @@
                     <a name="revokeAll"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
                         <span ><b>revokeAll</b></span>
                         <a href="#revokeAll"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -330,14 +326,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@UseGuards(JwtAuthGuard)<br />@ApiSecurity(&#x27;bearer&#x27;)<br />@Post(&#x27;revoke&#x27;)<br /></code>
+                    <code>@Post(&#x27;revoke&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="44"
-                                    class="link-to-prism">src/session/session.controller.ts:44</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="42"
+                                    class="link-to-prism">src/session/session.controller.ts:42</a></div>
                         </td>
                     </tr>
 
@@ -410,9 +406,9 @@ import { Token, TokenPayload } from &#x27;../auth/token.decorator&#x27;;
 import { StatusUpdateDto } from &#x27;../issuer/status-list/dto/status-update.dto&#x27;;
 import { StatusListService } from &#x27;../issuer/status-list/status-list.service&#x27;;
 
-@ApiTags(&#x27;Session management&#x27;, &#x27;Admin&#x27;)
+@ApiTags(&#x27;Session management&#x27;)
 @UseGuards(JwtAuthGuard)
-@ApiSecurity(&#x27;bearer&#x27;)
+@ApiSecurity(&#x27;oauth2&#x27;)
 @Controller(&#x27;session&#x27;)
 export class SessionController {
     constructor(
@@ -441,8 +437,6 @@ export class SessionController {
      * @param value
      * @returns
      */
-    @UseGuards(JwtAuthGuard)
-    @ApiSecurity(&#x27;bearer&#x27;)
     @Post(&#x27;revoke&#x27;)
     revokeAll(@Body() value: StatusUpdateDto, @Token() user: TokenPayload) {
         return this.statusListService.updateStatus(value, user.sub);

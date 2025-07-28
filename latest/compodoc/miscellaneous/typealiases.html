@@ -173,7 +173,10 @@
                             <a href="#ArrayStyle" title="src/registrar/generated/core/pathSerializer.ts" ><b>ArrayStyle</b>&nbsp;&nbsp;&nbsp;(src/.../pathSerializer.ts)</a>
                         </li>
                         <li>
-                            <a href="#AuthConfig" title="src/utils/webhook.dto.ts" ><b>AuthConfig</b>&nbsp;&nbsp;&nbsp;(src/.../webhook.dto.ts)</a>
+                            <a href="#AuthConfig" title="src/utils/webhook/webhook.dto.ts" ><b>AuthConfig</b>&nbsp;&nbsp;&nbsp;(src/.../webhook.dto.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#AuthenticationConfig" title="src/issuer/issuance/dto/authentication-config.dto.ts" ><b>AuthenticationConfig</b>&nbsp;&nbsp;&nbsp;(src/.../authentication-config.dto.ts)</a>
                         </li>
                         <li>
                             <a href="#AuthToken" title="src/registrar/generated/core/auth.ts" ><b>AuthToken</b>&nbsp;&nbsp;&nbsp;(src/.../auth.ts)</a>
@@ -254,6 +257,15 @@
                             <a href="#HealthControllerCheckResponses" title="src/registrar/generated/types.gen.ts" ><b>HealthControllerCheckResponses</b>&nbsp;&nbsp;&nbsp;(src/.../types.gen.ts)</a>
                         </li>
                         <li>
+                            <a href="#ImportConfig" title="test/import/import.ts" ><b>ImportConfig</b>&nbsp;&nbsp;&nbsp;(test/.../import.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#ImportResult" title="test/import/import.ts" ><b>ImportResult</b>&nbsp;&nbsp;&nbsp;(test/.../import.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#ImportStats" title="test/import/import.ts" ><b>ImportStats</b>&nbsp;&nbsp;&nbsp;(test/.../import.ts)</a>
+                        </li>
+                        <li>
                             <a href="#IntendedUse" title="src/registrar/generated/types.gen.ts" ><b>IntendedUse</b>&nbsp;&nbsp;&nbsp;(src/.../types.gen.ts)</a>
                         </li>
                         <li>
@@ -263,7 +275,7 @@
                             <a href="#KeyPair" title="src/crypto/key/crypto/crypto-implementation.ts" ><b>KeyPair</b>&nbsp;&nbsp;&nbsp;(src/.../crypto-implementation.ts)</a>
                         </li>
                         <li>
-                            <a href="#LoginReponse" title="scripts/import.ts" ><b>LoginReponse</b>&nbsp;&nbsp;&nbsp;(scripts/.../import.ts)</a>
+                            <a href="#LoginResponse" title="test/import/import.ts" ><b>LoginResponse</b>&nbsp;&nbsp;&nbsp;(test/.../import.ts)</a>
                         </li>
                         <li>
                             <a href="#MatrixStyle" title="src/registrar/generated/client/utils.ts" ><b>MatrixStyle</b>&nbsp;&nbsp;&nbsp;(src/.../utils.ts)</a>
@@ -1957,7 +1969,7 @@
             </tr>
         </tbody>
     </table>
-</section>    <h3>src/utils/webhook.dto.ts</h3>
+</section>    <h3>src/utils/webhook/webhook.dto.ts</h3>
     <section data-compodoc="block-typealias">
     <table class="table table-sm table-bordered">
         <tbody>
@@ -1969,7 +1981,38 @@
             </tr>
             <tr>
                 <td class="col-md-4">
+                    <div class="io-description"><p>Enum for the type of authentication used in webhooks.</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
                     <code>    <code></code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>src/issuer/issuance/dto/authentication-config.dto.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="AuthenticationConfig"></a>
+                    <span class="name "><b>AuthenticationConfig</b><a href="#AuthenticationConfig"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Union type for authentication configurations
+Each method corresponds to a specific OpenID4VC flow</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>literal type | literal type | literal type</code>
 </code>
                 </td>
             </tr>
@@ -2329,6 +2372,72 @@ to ensure your client always has the correct values.</p>
             </tr>
         </tbody>
     </table>
+</section>    <h3>test/import/import.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ImportConfig"></a>
+                    <span class="name "><b>ImportConfig</b><a href="#ImportConfig"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>literal type</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ImportResult"></a>
+                    <span class="name "><b>ImportResult</b><a href="#ImportResult"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>literal type</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ImportStats"></a>
+                    <span class="name "><b>ImportStats</b><a href="#ImportStats"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>literal type</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="LoginResponse"></a>
+                    <span class="name "><b>LoginResponse</b><a href="#LoginResponse"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>literal type</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </section>    <h3>src/crypto/key/crypto/crypto-implementation.ts</h3>
     <section data-compodoc="block-typealias">
     <table class="table table-sm table-bordered">
@@ -2379,24 +2488,6 @@ to ensure your client always has the correct values.</p>
             </tr>
         </tbody>
     </table>
-</section>    <h3>scripts/import.ts</h3>
-    <section data-compodoc="block-typealias">
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="LoginReponse"></a>
-                    <span class="name "><b>LoginReponse</b><a href="#LoginReponse"><span class="icon ion-ios-link"></span></a></span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                    <code>    <code>literal type</code>
-</code>
-                </td>
-            </tr>
-        </tbody>
-    </table>
 </section>    <h3>src/session/entities/session.entity.ts</h3>
     <section data-compodoc="block-typealias">
     <table class="table table-sm table-bordered">
@@ -2405,6 +2496,12 @@ to ensure your client always has the correct values.</p>
                 <td class="col-md-4">
                     <a name="Notification"></a>
                     <span class="name "><b>Notification</b><a href="#Notification"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Represents a session entity for managing user sessions in the application.</p>
+</div>
                 </td>
             </tr>
             <tr>
