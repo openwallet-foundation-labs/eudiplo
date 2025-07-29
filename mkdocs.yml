@@ -3,7 +3,7 @@ repo_name: openwallet-foundation-labs/eudiplo
 repo_url: https://github.com/openwallet-foundation-labs/eudiplo
 edit_uri: edit/main/docs/
 docs_dir: docs
-copyright: "License: CC BY 4.0"
+copyright: "Copyright © OpenWallet Foundation | License: CC BY 4.0"
 theme:
   name: material
   icon:
@@ -90,6 +90,8 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/openwallet-foundation-labs/eudiplo
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/58ys8XfXDu
   legal:
     - text: Contributing
       link: https://github.com/openwallet-foundation-labs/eudiplo/blob/main/CONTRIBUTING.md
