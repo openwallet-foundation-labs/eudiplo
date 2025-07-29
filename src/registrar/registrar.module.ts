@@ -10,15 +10,15 @@ import { PresentationsModule } from '../verifier/presentations/presentations.mod
  */
 export const REGISTRAR_VALIDATION_SCHEMA = {
     REGISTRAR_URL: Joi.string(),
-    OIDC_ISSUER_URL: Joi.string().when('REGISTRAR_URL', {
+    REGISTRAR_OIDC_URL: Joi.string().when('REGISTRAR_URL', {
         is: Joi.exist(),
         then: Joi.required(),
     }),
-    OIDC_CLIENT_ID: Joi.string().when('REGISTRAR_URL', {
+    REGISTRAR_OIDC_CLIENT_ID: Joi.string().when('REGISTRAR_URL', {
         is: Joi.exist(),
         then: Joi.required(),
     }),
-    OIDC_CLIENT_SECRET: Joi.string().when('REGISTRAR_URL', {
+    REGISTRAR_OIDC_CLIENT_SECRET: Joi.string().when('REGISTRAR_URL', {
         is: Joi.exist(),
         then: Joi.required(),
     }),

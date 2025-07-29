@@ -19,20 +19,20 @@ Registrar.
 
 Used to authenticate against the Registrar using any OIDC-compliant provider.
 
-| Variable             | Description                                                     |
-| -------------------- | --------------------------------------------------------------- |
-| `OIDC_ISSUER_URL`    | OIDC issuer URL (e.g., https://auth.example.com/realms/myrealm) |
-| `OIDC_CLIENT_ID`     | Client ID as configured in the OIDC provider                    |
-| `OIDC_CLIENT_SECRET` | Secret associated with the OIDC client                          |
+| Variable                       | Description                                              |
+| ------------------------------ | -------------------------------------------------------- |
+| `REGISTRAR_OIDC_URL`           | OIDC URL (e.g., https://auth.example.com/realms/myrealm) |
+| `REGISTRAR_OIDC_CLIENT_ID`     | Client ID as configured in the OIDC provider             |
+| `REGISTRAR_OIDC_CLIENT_SECRET` | Secret associated with the OIDC client                   |
 
 ### Example Configurations
 
 **Keycloak:**
 
 ```env
-OIDC_ISSUER_URL=https://keycloak.example.com/realms/registrar
-OIDC_CLIENT_ID=eudiplo-client
-OIDC_CLIENT_SECRET=your-client-secret
+REGISTRAR_OIDC_URL=https://keycloak.example.com/realms/registrar
+REGISTRAR_OIDC_CLIENT_ID=eudiplo-client
+REGISTRAR_OIDC_CLIENT_SECRET=your-client-secret
 ```
 
 ## Accessing the Registrar
