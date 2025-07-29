@@ -114,6 +114,10 @@ in advancing the EUDI Wallet ecosystem.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
+💬 **Have questions?** Join our
+[Discord community](https://discord.gg/58ys8XfXDu) to ask questions, get help,
+and connect with other developers.
+
 ---
 
 ## 📝 License
