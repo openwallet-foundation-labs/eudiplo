@@ -82,11 +82,13 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         }
 
         const oidcIssuerUrl =
-            this.configService.getOrThrow<string>('OIDC_ISSUER_URL');
-        const clientId =
-            this.configService.getOrThrow<string>('OIDC_CLIENT_ID');
-        const clientSecret =
-            this.configService.getOrThrow<string>('OIDC_CLIENT_SECRET');
+            this.configService.getOrThrow<string>('REGISTRAR_OIDC_URL');
+        const clientId = this.configService.getOrThrow<string>(
+            'REGISTRAR_OIDC_CLIENT_ID',
+        );
+        const clientSecret = this.configService.getOrThrow<string>(
+            'REGISTRAR_OIDC_CLIENT_SECRET',
+        );
 
         this.oauth2Client = new OAuth2Client({
             server: `${oidcIssuerUrl}/protocol/openid-connect/token`,
@@ -169,11 +171,13 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
             const config = this.loadConfig(tenantId);
             if (response.error) {
                 config.id = await this.storeExistingRp(name);
+                this.saveConfig(config, tenantId);
+                return config.id!;
             } else {
                 config.id = response.data!['id'];
+                this.saveConfig(config, tenantId);
+                return response.data!['id'];
             }
-            this.saveConfig(config, tenantId);
-            return response.data!['id'];
         });
     }
 
