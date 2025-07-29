@@ -13,7 +13,7 @@
     "credentialConfigs": [
         "citizen"
     ],
-    "webhook": {
+    "notifyWebhook": {
         "url": "http://localhost:8787/notify",
         "auth": {
             "type": "apiKey",

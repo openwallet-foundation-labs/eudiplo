@@ -8,10 +8,11 @@ flows.
 
 ## Supported Webhook Scenarios
 
-| Flow                             | Purpose                                        |
-| -------------------------------- | ---------------------------------------------- |
-| **Presentation Webhook**         | Receives verified claims from the wallet       |
-| **Presentation During Issuance** | Receives claims required to issue a credential |
+| Flow                             | Purpose                                                          |
+| -------------------------------- | ---------------------------------------------------------------- |
+| **Presentation Webhook**         | Receives verified claims from the wallet                         |
+| **Presentation During Issuance** | Receives claims required to issue a credential                   |
+| **Notification Webhook**         | Receives notifications about the status of the issuance process. |
 
 ---
 
@@ -78,7 +79,26 @@ configuration or passing the webhook dynamically via offer creation:
 }
 ```
 
-> TODO: need to add a webhook for issuance flows.
+### 3. Notification Webhook
+
+When configured, it will send the notification response like accepted or denied
+to the configured webhook endpoint. Then you can be sure that the Wallet has
+received and accepted the credential.
+
+```json
+{
+    "notifyWebhook": {
+        "url": "http://localhost:8787/notify",
+        "auth": {
+            "type": "apiKey",
+            "config": {
+                "headerName": "x-api-key",
+                "value": "your-api-key"
+            }
+        }
+    }
+}
+```
 
 ---
 

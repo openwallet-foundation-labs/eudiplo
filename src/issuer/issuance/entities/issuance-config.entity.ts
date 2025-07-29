@@ -53,5 +53,5 @@ export class IssuanceConfig {
      * Webhook to send the result of the notification response
      */
     @Column('json', { nullable: true })
-    webhook: WebhookConfig;
+    notifyWebhook: WebhookConfig;
 }
