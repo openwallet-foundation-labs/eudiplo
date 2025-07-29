@@ -327,13 +327,13 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="modules/RegistrarModule.html" data-type="entity-link" >RegistrarModule</a>
                                 <li class="chapter inner">
                                     <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ?
-                                        'data-bs-target="#injectables-links-module-RegistrarModule-7ab5075ff50e43448b9ee33e84511a22cd479a93a770e7ec1fbda28d524de48702c2b106f7f84fa8560c7820cc3c9d136c15f91cfe4c905395eace174340da80"' : 'data-bs-target="#xs-injectables-links-module-RegistrarModule-7ab5075ff50e43448b9ee33e84511a22cd479a93a770e7ec1fbda28d524de48702c2b106f7f84fa8560c7820cc3c9d136c15f91cfe4c905395eace174340da80"' }>
+                                        'data-bs-target="#injectables-links-module-RegistrarModule-ef17a1a97f22a60285af636936788791074a1e2fd0753db3acc9c3c9e0e5ff2eb952d74416f1842ffdd3119399040c04640a55dd018b64c44dbbe068cac81394"' : 'data-bs-target="#xs-injectables-links-module-RegistrarModule-ef17a1a97f22a60285af636936788791074a1e2fd0753db3acc9c3c9e0e5ff2eb952d74416f1842ffdd3119399040c04640a55dd018b64c44dbbe068cac81394"' }>
                                         <span class="icon ion-md-arrow-round-down"></span>
                                         <span>Injectables</span>
                                         <span class="icon ion-ios-arrow-down"></span>
                                     </div>
-                                    <ul class="links collapse" ${ isNormalMode ? 'id="injectables-links-module-RegistrarModule-7ab5075ff50e43448b9ee33e84511a22cd479a93a770e7ec1fbda28d524de48702c2b106f7f84fa8560c7820cc3c9d136c15f91cfe4c905395eace174340da80"' :
-                                        'id="xs-injectables-links-module-RegistrarModule-7ab5075ff50e43448b9ee33e84511a22cd479a93a770e7ec1fbda28d524de48702c2b106f7f84fa8560c7820cc3c9d136c15f91cfe4c905395eace174340da80"' }>
+                                    <ul class="links collapse" ${ isNormalMode ? 'id="injectables-links-module-RegistrarModule-ef17a1a97f22a60285af636936788791074a1e2fd0753db3acc9c3c9e0e5ff2eb952d74416f1842ffdd3119399040c04640a55dd018b64c44dbbe068cac81394"' :
+                                        'id="xs-injectables-links-module-RegistrarModule-ef17a1a97f22a60285af636936788791074a1e2fd0753db3acc9c3c9e0e5ff2eb952d74416f1842ffdd3119399040c04640a55dd018b64c44dbbe068cac81394"' }>
                                         <li class="link">
                                             <a href="injectables/RegistrarService.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >RegistrarService</a>
                                         </li>

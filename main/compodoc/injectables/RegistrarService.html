@@ -348,8 +348,8 @@ including adding relying parties, access certificates, and registration certific
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="231"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:231</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="235"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:235</a></div>
                         </td>
                     </tr>
 
@@ -433,8 +433,8 @@ If the access certificate already exists, it will be returned.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="272"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:272</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="276"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:276</a></div>
                         </td>
                     </tr>
 
@@ -540,8 +540,8 @@ If the registration certificate already exists, it will be returned.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="161"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:161</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="163"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:163</a></div>
                         </td>
                     </tr>
 
@@ -612,8 +612,8 @@ This is only needed once, when the relying party is created.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="204"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:204</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="208"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:208</a></div>
                         </td>
                     </tr>
 
@@ -696,8 +696,8 @@ If it is revoked, it will add a new one.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="109"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:109</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="111"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:111</a></div>
                         </td>
                     </tr>
 
@@ -741,8 +741,8 @@ If it is revoked, it will add a new one.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="329"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:329</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="333"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:333</a></div>
                         </td>
                     </tr>
 
@@ -812,8 +812,8 @@ If it is revoked, it will add a new one.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="117"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:117</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="119"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:119</a></div>
                         </td>
                     </tr>
 
@@ -901,8 +901,8 @@ It will refresh the access token for the registrar.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="129"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:129</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="131"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:131</a></div>
                         </td>
                     </tr>
 
@@ -972,8 +972,8 @@ It will refresh the access token for the registrar.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="144"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:144</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="146"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:146</a></div>
                         </td>
                     </tr>
 
@@ -1014,8 +1014,8 @@ This method is called periodically to ensure the access token is valid.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="352"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:352</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="356"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:356</a></div>
                         </td>
                     </tr>
 
@@ -1097,8 +1097,8 @@ This method is called periodically to ensure the access token is valid.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="186"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:186</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="190"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:190</a></div>
                         </td>
                     </tr>
 
@@ -1344,11 +1344,13 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         }
 
         const oidcIssuerUrl &#x3D;
-            this.configService.getOrThrow&lt;string&gt;(&#x27;OIDC_ISSUER_URL&#x27;);
-        const clientId &#x3D;
-            this.configService.getOrThrow&lt;string&gt;(&#x27;OIDC_CLIENT_ID&#x27;);
-        const clientSecret &#x3D;
-            this.configService.getOrThrow&lt;string&gt;(&#x27;OIDC_CLIENT_SECRET&#x27;);
+            this.configService.getOrThrow&lt;string&gt;(&#x27;REGISTRAR_OIDC_URL&#x27;);
+        const clientId &#x3D; this.configService.getOrThrow&lt;string&gt;(
+            &#x27;REGISTRAR_OIDC_CLIENT_ID&#x27;,
+        );
+        const clientSecret &#x3D; this.configService.getOrThrow&lt;string&gt;(
+            &#x27;REGISTRAR_OIDC_CLIENT_SECRET&#x27;,
+        );
 
         this.oauth2Client &#x3D; new OAuth2Client({
             server: &#x60;${oidcIssuerUrl}/protocol/openid-connect/token&#x60;,
@@ -1431,11 +1433,13 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
             const config &#x3D; this.loadConfig(tenantId);
             if (response.error) {
                 config.id &#x3D; await this.storeExistingRp(name);
+                this.saveConfig(config, tenantId);
+                return config.id!;
             } else {
                 config.id &#x3D; response.data![&#x27;id&#x27;];
+                this.saveConfig(config, tenantId);
+                return response.data![&#x27;id&#x27;];
             }
-            this.saveConfig(config, tenantId);
-            return response.data![&#x27;id&#x27;];
         });
     }
 

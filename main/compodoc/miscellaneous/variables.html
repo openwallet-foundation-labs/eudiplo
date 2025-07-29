@@ -3191,15 +3191,15 @@ Subject is not RFC 4514 conform</p>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
     REGISTRAR_URL: Joi.string(),
-    OIDC_ISSUER_URL: Joi.string().when(&#x27;REGISTRAR_URL&#x27;, {
+    REGISTRAR_OIDC_URL: Joi.string().when(&#x27;REGISTRAR_URL&#x27;, {
         is: Joi.exist(),
         then: Joi.required(),
     }),
-    OIDC_CLIENT_ID: Joi.string().when(&#x27;REGISTRAR_URL&#x27;, {
+    REGISTRAR_OIDC_CLIENT_ID: Joi.string().when(&#x27;REGISTRAR_URL&#x27;, {
         is: Joi.exist(),
         then: Joi.required(),
     }),
-    OIDC_CLIENT_SECRET: Joi.string().when(&#x27;REGISTRAR_URL&#x27;, {
+    REGISTRAR_OIDC_CLIENT_SECRET: Joi.string().when(&#x27;REGISTRAR_URL&#x27;, {
         is: Joi.exist(),
         then: Joi.required(),
     }),

@@ -389,11 +389,13 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         }
 
         const oidcIssuerUrl &#x3D;
-            this.configService.getOrThrow&lt;string&gt;(&#x27;OIDC_ISSUER_URL&#x27;);
-        const clientId &#x3D;
-            this.configService.getOrThrow&lt;string&gt;(&#x27;OIDC_CLIENT_ID&#x27;);
-        const clientSecret &#x3D;
-            this.configService.getOrThrow&lt;string&gt;(&#x27;OIDC_CLIENT_SECRET&#x27;);
+            this.configService.getOrThrow&lt;string&gt;(&#x27;REGISTRAR_OIDC_URL&#x27;);
+        const clientId &#x3D; this.configService.getOrThrow&lt;string&gt;(
+            &#x27;REGISTRAR_OIDC_CLIENT_ID&#x27;,
+        );
+        const clientSecret &#x3D; this.configService.getOrThrow&lt;string&gt;(
+            &#x27;REGISTRAR_OIDC_CLIENT_SECRET&#x27;,
+        );
 
         this.oauth2Client &#x3D; new OAuth2Client({
             server: &#x60;${oidcIssuerUrl}/protocol/openid-connect/token&#x60;,
@@ -476,11 +478,13 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
             const config &#x3D; this.loadConfig(tenantId);
             if (response.error) {
                 config.id &#x3D; await this.storeExistingRp(name);
+                this.saveConfig(config, tenantId);
+                return config.id!;
             } else {
                 config.id &#x3D; response.data![&#x27;id&#x27;];
+                this.saveConfig(config, tenantId);
+                return response.data![&#x27;id&#x27;];
             }
-            this.saveConfig(config, tenantId);
-            return response.data![&#x27;id&#x27;];
         });
     }
 
