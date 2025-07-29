@@ -488,9 +488,6 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/EC_Public.html" data-type="entity-link" >EC_Public</a>
                             </li>
                             <li class="link">
-                                <a href="classes/Interceptors.html" data-type="entity-link" >Interceptors</a>
-                            </li>
-                            <li class="link">
                                 <a href="classes/IssuanceDto.html" data-type="entity-link" >IssuanceDto</a>
                             </li>
                             <li class="link">
@@ -580,31 +577,13 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="interfaces/AccessCertificateResponse.html" data-type="entity-link" >AccessCertificateResponse</a>
                             </li>
                             <li class="link">
-                                <a href="interfaces/Auth.html" data-type="entity-link" >Auth</a>
-                            </li>
-                            <li class="link">
                                 <a href="interfaces/AuthResponse.html" data-type="entity-link" >AuthResponse</a>
                             </li>
                             <li class="link">
                                 <a href="interfaces/Client.html" data-type="entity-link" >Client</a>
                             </li>
                             <li class="link">
-                                <a href="interfaces/Client-1.html" data-type="entity-link" >Client</a>
-                            </li>
-                            <li class="link">
-                                <a href="interfaces/ClientOptions.html" data-type="entity-link" >ClientOptions</a>
-                            </li>
-                            <li class="link">
-                                <a href="interfaces/Config.html" data-type="entity-link" >Config</a>
-                            </li>
-                            <li class="link">
-                                <a href="interfaces/Config-1.html" data-type="entity-link" >Config</a>
-                            </li>
-                            <li class="link">
                                 <a href="interfaces/CryptoImplementation.html" data-type="entity-link" >CryptoImplementation</a>
-                            </li>
-                            <li class="link">
-                                <a href="interfaces/Fields.html" data-type="entity-link" >Fields</a>
                             </li>
                             <li class="link">
                                 <a href="interfaces/GenerateTokenOptions.html" data-type="entity-link" >GenerateTokenOptions</a>
@@ -616,55 +595,19 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="interfaces/LoggerConfiguration.html" data-type="entity-link" >LoggerConfiguration</a>
                             </li>
                             <li class="link">
-                                <a href="interfaces/Middleware.html" data-type="entity-link" >Middleware</a>
-                            </li>
-                            <li class="link">
-                                <a href="interfaces/Params.html" data-type="entity-link" >Params</a>
-                            </li>
-                            <li class="link">
                                 <a href="interfaces/ParsedAccessTokenAuthorizationCodeRequestGrant.html" data-type="entity-link" >ParsedAccessTokenAuthorizationCodeRequestGrant</a>
                             </li>
                             <li class="link">
                                 <a href="interfaces/ParsedAccessTokenPreAuthorizedCodeRequestGrant.html" data-type="entity-link" >ParsedAccessTokenPreAuthorizedCodeRequestGrant</a>
                             </li>
                             <li class="link">
-                                <a href="interfaces/PathSerializer.html" data-type="entity-link" >PathSerializer</a>
-                            </li>
-                            <li class="link">
                                 <a href="interfaces/PresentationRequestOptions.html" data-type="entity-link" >PresentationRequestOptions</a>
-                            </li>
-                            <li class="link">
-                                <a href="interfaces/PresentedData.html" data-type="entity-link" >PresentedData</a>
-                            </li>
-                            <li class="link">
-                                <a href="interfaces/ProcessResponse.html" data-type="entity-link" >ProcessResponse</a>
-                            </li>
-                            <li class="link">
-                                <a href="interfaces/QuerySerializerOptions.html" data-type="entity-link" >QuerySerializerOptions</a>
-                            </li>
-                            <li class="link">
-                                <a href="interfaces/RequestOptions.html" data-type="entity-link" >RequestOptions</a>
-                            </li>
-                            <li class="link">
-                                <a href="interfaces/SerializeOptions.html" data-type="entity-link" >SerializeOptions</a>
-                            </li>
-                            <li class="link">
-                                <a href="interfaces/SerializePrimitiveOptions.html" data-type="entity-link" >SerializePrimitiveOptions</a>
-                            </li>
-                            <li class="link">
-                                <a href="interfaces/SerializePrimitiveParam.html" data-type="entity-link" >SerializePrimitiveParam</a>
-                            </li>
-                            <li class="link">
-                                <a href="interfaces/SerializerOptions.html" data-type="entity-link" >SerializerOptions</a>
                             </li>
                             <li class="link">
                                 <a href="interfaces/SessionLogContext.html" data-type="entity-link" >SessionLogContext</a>
                             </li>
                             <li class="link">
                                 <a href="interfaces/StatusListFile.html" data-type="entity-link" >StatusListFile</a>
-                            </li>
-                            <li class="link">
-                                <a href="interfaces/TDataShape.html" data-type="entity-link" >TDataShape</a>
                             </li>
                             <li class="link">
                                 <a href="interfaces/TokenPayload.html" data-type="entity-link" >TokenPayload</a>

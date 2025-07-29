@@ -120,6 +120,14 @@
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Service for managing issuance configurations.
+It provides methods to get, store, and delete issuance configurations.</p>
+
+            </p>
 
 
 
@@ -175,12 +183,14 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="11" class="link-to-prism">src/issuer/issuance/issuance.service.ts:11</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/issuer/issuance/issuance.service.ts:15</a></div>
                             </td>
                         </tr>
 
                 <tr>
                     <td class="col-md-4">
+                            <div class="io-description"><p>Constructor for IssuanceService.</p>
+</div>
                             <div>
                                     <b>Parameters :</b>
                                     <table class="params">
@@ -250,8 +260,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="111"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:111</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="128"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:128</a></div>
                         </td>
                     </tr>
 
@@ -334,8 +344,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="23"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:23</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="32"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:32</a></div>
                         </td>
                     </tr>
 
@@ -405,8 +415,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="36"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:36</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="53"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:53</a></div>
                         </td>
                     </tr>
 
@@ -488,8 +498,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="52"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:52</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="69"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:69</a></div>
                         </td>
                     </tr>
 
@@ -564,8 +574,17 @@ import { IssuanceDto } from &#x27;./dto/issuance.dto&#x27;;
 import { CredentialConfig } from &#x27;../credentials/entities/credential.entity&#x27;;
 import { AuthenticationConfig } from &#x27;./dto/authentication-config.dto&#x27;;
 
+/**
+ * Service for managing issuance configurations.
+ * It provides methods to get, store, and delete issuance configurations.
+ */
 @Injectable()
 export class IssuanceService {
+    /**
+     * Constructor for IssuanceService.
+     * @param issuanceConfigRepo
+     * @param credentialsConfigService
+     */
     constructor(
         @InjectRepository(IssuanceConfig)
         private issuanceConfigRepo: Repository&lt;IssuanceConfig&gt;,
@@ -581,6 +600,14 @@ export class IssuanceService {
         return this.issuanceConfigRepo.find({
             where: { tenantId },
             relations: [&#x27;credentialConfigs&#x27;],
+            select: {
+                id: true,
+                tenantId: true,
+                // Add other fields you want from IssuanceConfig
+                credentialConfigs: {
+                    id: true, // Only select the id from credentialConfigs
+                },
+            },
         });
     }
 
@@ -651,7 +678,7 @@ export class IssuanceService {
         }
 
         const issuanceConfig &#x3D; this.issuanceConfigRepo.create({
-            id: value.id,
+            ...value,
             tenantId,
             credentialConfigs: credentials,
             authenticationConfig,
