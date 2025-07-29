@@ -36,7 +36,8 @@ Each module typically contains its own:
   authentication with the API
 - [Contributing Guidelines](contributing.md) - How to contribute to the project
 - [Testing Guide](testing.md) - How to run and write tests
-- [Session Logging](session-logging.md) - Understanding session logging
+- [Logging](./logging-configuration.md) - Configuring logging for development
+  and production
 
 ## Scripts
 

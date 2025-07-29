@@ -42,5 +42,5 @@ export class IssuanceDto {
     @IsOptional()
     @ValidateNested()
     @Type(() => WebhookConfig)
-    webhook?: WebhookConfig;
+    notifyWebhook?: WebhookConfig;
 }

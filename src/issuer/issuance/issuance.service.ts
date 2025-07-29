@@ -112,7 +112,6 @@ export class IssuanceService {
 
         const issuanceConfig = this.issuanceConfigRepo.create({
             ...value,
-            id: value.id,
             tenantId,
             credentialConfigs: credentials,
             authenticationConfig,
