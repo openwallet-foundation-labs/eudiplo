@@ -1,10 +1,11 @@
+![Logo](./docs/eudiplo.png)
+
 [![Build Status](https://github.com/openwallet-foundation-labs/eudiplo/actions/workflows/ci-and-release.yml/badge.svg)](https://github.com/openwallet-foundation-labs/eudiplo/actions)
 ![License](https://img.shields.io/github/license/openwallet-foundation-labs/eudiplo)
 [![Website](https://img.shields.io/badge/website-eudiplo-blue)](https://openwallet-foundation-labs.github.io/eudiplo/latest/)
 [![Documentation Coverage](https://openwallet-foundation-labs.github.io/eudiplo/latest/compodoc/images/coverage-badge-documentation.svg)](https://openwallet-foundation-labs.github.io/eudiplo/latest/compodoc/coverage.html)
 [![codecov](https://codecov.io/github/openwallet-foundation-labs/eudiplo/graph/badge.svg?token=pt4TLHJYrO)](https://codecov.io/github/openwallet-foundation-labs/eudiplo)
-
-# EUDIPLO
+[![Join our Discord](https://img.shields.io/discord/1022962884864643214?label=Join%20our%20Discord&logo=discord&color=7289DA&labelColor=2C2F33)](https://discord.gg/58ys8XfXDu)
 
 **Your Diplomatic Layer for EUDI Wallet Integration**
 
@@ -112,6 +113,10 @@ We welcome PRs from wallet developers, institutions, and contributors interested
 in advancing the EUDI Wallet ecosystem.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+💬 **Have questions?** Join our
+[Discord community](https://discord.gg/58ys8XfXDu) to ask questions, get help,
+and connect with other developers.
 
 ---
 

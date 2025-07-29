@@ -1,3 +1,5 @@
+![EUDIPLO Logo](./eudiplo.png)
+
 # What is EUDIPLO?
 
 **EUDIPLO** is a lightweight, open-source **middleware layer** that bridges your
