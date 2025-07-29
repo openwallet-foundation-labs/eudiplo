@@ -7,8 +7,17 @@ import { IssuanceDto } from './dto/issuance.dto';
 import { CredentialConfig } from '../credentials/entities/credential.entity';
 import { AuthenticationConfig } from './dto/authentication-config.dto';
 
+/**
+ * Service for managing issuance configurations.
+ * It provides methods to get, store, and delete issuance configurations.
+ */
 @Injectable()
 export class IssuanceService {
+    /**
+     * Constructor for IssuanceService.
+     * @param issuanceConfigRepo
+     * @param credentialsConfigService
+     */
     constructor(
         @InjectRepository(IssuanceConfig)
         private issuanceConfigRepo: Repository<IssuanceConfig>,
@@ -24,6 +33,14 @@ export class IssuanceService {
         return this.issuanceConfigRepo.find({
             where: { tenantId },
             relations: ['credentialConfigs'],
+            select: {
+                id: true,
+                tenantId: true,
+                // Add other fields you want from IssuanceConfig
+                credentialConfigs: {
+                    id: true, // Only select the id from credentialConfigs
+                },
+            },
         });
     }
 
@@ -94,6 +111,7 @@ export class IssuanceService {
         }
 
         const issuanceConfig = this.issuanceConfigRepo.create({
+            ...value,
             id: value.id,
             tenantId,
             credentialConfigs: credentials,
