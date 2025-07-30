@@ -54,6 +54,12 @@ export class CryptoService implements OnModuleInit {
         this.eventEmitter.emit(TENANT_EVENTS.TENANT_KEYS, tenantId);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    getAlgorithm(tenantId: string): string {
+        //TODO: implement logic to fetch algorithm for the tenant
+        return 'ES256';
+    }
+
     /**
      * Checks if there is a signing certificate and access certificate available.
      * If not it will be created.

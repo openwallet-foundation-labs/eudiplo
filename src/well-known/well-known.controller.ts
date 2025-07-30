@@ -1,31 +1,40 @@
 import { Controller, Get, Header, Param } from '@nestjs/common';
-import { CryptoService } from '../crypto/crypto.service';
-import { AuthorizeService } from '../issuer/authorize/authorize.service';
-import { Oid4vciService } from '../issuer/oid4vci/oid4vci.service';
+import { WellKnownService } from './well-known.service';
 import { JwksResponseDto } from './dto/jwks-response.dto';
 import { Oauth2AuthorizationServerResponse } from './dto/oauth-authorization-server-response.dto';
-import { CredentialIssuerMetadataDto } from './dto/credential-issuer-metadata.dto';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiOperation, ApiProduces } from '@nestjs/swagger';
+import { ContentType } from '../utils/mediaType/media-type.decorator';
+import { MediaType } from '../utils/mediaType/media-type.enum';
 
 /**
  * Controller for the OpenID4VCI well-known endpoints.
  */
 @Controller(':tenantId/.well-known')
 export class WellKnownController {
-    constructor(
-        private readonly oid4vciService: Oid4vciService,
-        private readonly authorizeService: AuthorizeService,
-        private readonly cryptoService: CryptoService,
-    ) {}
+    /**
+     * Constructor for WellKnownController.
+     * @param wellKnownService
+     */
+    constructor(private readonly wellKnownService: WellKnownService) {}
 
+    /**
+     * Retrieves the OpenID4VCI issuer metadata for a given tenant.
+     * @param tenantId
+     * @param contentType
+     * @returns
+     */
     @ApiOperation({
         summary: 'Get OpenID4VCI issuer metadata',
         description: 'Returns the OpenID4VCI issuer metadata.',
     })
+    //we can not set the accept in the apiheader via swagger.
+    @ApiProduces(MediaType.APPLICATION_JSON, MediaType.APPLICATION_JWT)
     @Get('openid-credential-issuer')
-    async issuerMetadata(@Param('tenantId') tenantId: string) {
-        return (await this.oid4vciService.issuerMetadata(tenantId))
-            .credentialIssuer as unknown as Promise<CredentialIssuerMetadataDto>;
+    async issuerMetadata(
+        @Param('tenantId') tenantId: string,
+        @ContentType() contentType: MediaType,
+    ) {
+        return this.wellKnownService.getIssuerMetadata(tenantId, contentType);
     }
 
     /**
@@ -36,9 +45,7 @@ export class WellKnownController {
     authzMetadata(
         @Param('tenantId') tenantId: string,
     ): Oauth2AuthorizationServerResponse {
-        return this.authorizeService.authzMetadata(
-            tenantId,
-        ) as Oauth2AuthorizationServerResponse;
+        return this.wellKnownService.getAuthzMetadata(tenantId);
     }
 
     /**
@@ -50,8 +57,6 @@ export class WellKnownController {
     async getJwks(
         @Param('tenantId') tenantId: string,
     ): Promise<JwksResponseDto> {
-        return this.cryptoService.getJwks(tenantId).then((key) => ({
-            keys: [key],
-        }));
+        return this.wellKnownService.getJwks(tenantId);
     }
 }

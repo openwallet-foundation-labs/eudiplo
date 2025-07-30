@@ -5,7 +5,15 @@ import {
     Openid4vciClient,
 } from '@openid4vc/openid4vci';
 import { callbacks, getSignJwtCallback, preparePresentation } from './utils';
-import { EncryptJWT, exportJWK, generateKeyPair, importJWK, JWK } from 'jose';
+import {
+    EncryptJWT,
+    exportJWK,
+    generateKeyPair,
+    importJWK,
+    importX509,
+    JWK,
+    jwtVerify,
+} from 'jose';
 import {
     Jwk,
     JwtSignerJwk,
@@ -154,6 +162,42 @@ describe('Issuance', () => {
 
     afterAll(async () => {
         await app.close();
+    });
+
+    test('get issuer metadata', async () => {
+        const res = await request(app.getHttpServer())
+            .get('/root/.well-known/openid-credential-issuer')
+            .trustLocalhost()
+            .set('Accept', 'application/json')
+            .expect(200);
+        expect(res.body).toBeDefined();
+        expect(res.body.credential_issuer).toBeDefined();
+        expect(res.body.credential_issuer).toBe(`http://localhost:3000/root`);
+    });
+
+    test('get signed issuer metadata', async () => {
+        const res = await request(app.getHttpServer())
+            .get('/root/.well-known/openid-credential-issuer')
+            .trustLocalhost()
+            .set('Accept', 'application/jwt')
+            .expect(200);
+        expect(res.body).toBeDefined();
+        //get the x5c header and verify the signature
+        const jwtHeader = JSON.parse(
+            Buffer.from(res.text.split('.')[0], 'base64').toString('utf-8'),
+        );
+        expect(jwtHeader.typ).toBe('openidvci-issuer-metadata+jwt');
+        expect(jwtHeader.alg).toBeDefined();
+        expect(jwtHeader.x5c).toBeDefined();
+        expect(jwtHeader.x5c.length).toBeGreaterThan(0);
+        //verify the signature
+        const cert = `-----BEGIN CERTIFICATE-----\n${jwtHeader.x5c[0]}\n-----END CERTIFICATE-----`;
+        const key = await importX509(cert, 'ES256');
+        //use jose to verify the signature
+        const { payload } = await jwtVerify(res.text, key, {
+            algorithms: [jwtHeader.alg],
+        });
+        expect(payload.iss).toBeDefined();
     });
 
     test('create oid4vci offer', async () => {
