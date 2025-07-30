@@ -80,16 +80,19 @@
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
-               <div class="content controller">
+               <div class="content injectable">
                    <div class="content-data">
 
 
 
 
 
+
+
+
 <ol class="breadcrumb">
-  <li class="breadcrumb-item">Controllers</li>
-  <li class="breadcrumb-item" >WellKnownController</li>
+  <li class="breadcrumb-item">Injectables</li>
+  <li class="breadcrumb-item" >WellKnownService</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -113,25 +116,17 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/well-known/well-known.controller.ts</code>
+            <code>src/well-known/well-known.service.ts</code>
         </p>
-
-            <p class="comment">
-                <h3>Prefix</h3>
-            </p>
-            <p class="comment">
-                <code>:tenantId/.well-known</code>
-            </p>
 
 
             <p class="comment">
                 <h3>Description</h3>
             </p>
             <p class="comment">
-                <p>Controller for the OpenID4VCI well-known endpoints.</p>
+                <p>Service to handle well-known endpoints and metadata retrieval.</p>
 
             </p>
-
 
 
 
@@ -149,21 +144,15 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
-                                    <span class="modifier"></span>
-                                <a href="#authzMetadata" >authzMetadata</a>
+                                <a href="#getAuthzMetadata" >getAuthzMetadata</a>
                             </li>
                             <li>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#getIssuerMetadata" >getIssuerMetadata</a>
+                            </li>
+                            <li>
                                     <span class="modifier">Async</span>
                                 <a href="#getJwks" >getJwks</a>
-                            </li>
-                            <li>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier">Async</span>
-                                <a href="#issuerMetadata" >issuerMetadata</a>
                             </li>
                         </ul>
                     </td>
@@ -177,6 +166,81 @@
     </table>
 </section>
 
+            <section data-compodoc="block-constructor">
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor(oid4vciService: <a href="../injectables/Oid4vciService.html" target="_self">Oid4vciService</a>, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, authorizeService: <a href="../injectables/AuthorizeService.html" target="_self">AuthorizeService</a>)</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="14" class="link-to-prism">src/well-known/well-known.service.ts:14</a></div>
+                            </td>
+                        </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                            <div class="io-description"><p>Constructor for WellKnownService.</p>
+</div>
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>oid4vciService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/Oid4vciService.html" target="_self" >Oid4vciService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>cryptoService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/CryptoService.html" target="_self" >CryptoService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>authorizeService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/AuthorizeService.html" target="_self" >AuthorizeService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
             <section data-compodoc="block-methods">
     
     <h3 id="methods">
@@ -186,40 +250,31 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="authzMetadata"></a>
+                    <a name="getAuthzMetadata"></a>
                     <span class="name">
-                            <span class="modifier"></span>
-                        <span ><b>authzMetadata</b></span>
-                        <a href="#authzMetadata"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>getAuthzMetadata</b></span>
+                        <a href="#getAuthzMetadata"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>authzMetadata(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+<code>getAuthzMetadata(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
-            <tr>
-                <td class="col-md-4">
-                    <b>Decorators : </b>
-                    <br />
-                    <code>@Get(&#x27;oauth-authorization-server&#x27;)<br /></code>
-                </td>
-            </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="45"
-                                    class="link-to-prism">src/well-known/well-known.controller.ts:45</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="66"
+                                    class="link-to-prism">src/well-known/well-known.service.ts:66</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Authorization Server Metadata</p>
+                        <div class="io-description"><p>Returns the OAuth 2.0 Authorization Server metadata for a given tenant.</p>
 </div>
 
                             <div class="io-description">
@@ -264,123 +319,38 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getJwks"></a>
+                    <a name="getIssuerMetadata"></a>
                     <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
                             <span class="modifier">Async</span>
-                        <span ><b>getJwks</b></span>
-                        <a href="#getJwks"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>getIssuerMetadata</b></span>
+                        <a href="#getIssuerMetadata"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getJwks(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>getIssuerMetadata(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, contentType: <a href="../undefineds/MediaType.html" target="_self">MediaType</a>)</code>
                 </td>
             </tr>
 
-            <tr>
-                <td class="col-md-4">
-                    <b>Decorators : </b>
-                    <br />
-                    <code>@Header(&#x27;Content-Type&#x27;, &#x27;application/jwk-set+json&#x27;)<br />@Get(&#x27;jwks.json&#x27;)<br /></code>
-                </td>
-            </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="57"
-                                    class="link-to-prism">src/well-known/well-known.controller.ts:57</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="36"
+                                    class="link-to-prism">src/well-known/well-known.service.ts:36</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Returns the JSON Web Key Set (JWKS) for the authorization server.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../classes/JwksResponseDto.html" target="_self" >Promise&lt;JwksResponseDto&gt;</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="issuerMetadata"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier">Async</span>
-                        <span ><b>issuerMetadata</b></span>
-                        <a href="#issuerMetadata"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>issuerMetadata(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, contentType: <a href="../undefineds/MediaType.html" target="_self">MediaType</a>)</code>
-                </td>
-            </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <b>Decorators : </b>
-                    <br />
-                    <code>@ApiOperation({summary: &#x27;Get OpenID4VCI issuer metadata&#x27;, description: &#x27;Returns the OpenID4VCI issuer metadata.&#x27;})<br />@ApiProduces(MediaType.APPLICATION_JSON, MediaType.APPLICATION_JWT)<br />@Get(&#x27;openid-credential-issuer&#x27;)<br /></code>
-                </td>
-            </tr>
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="33"
-                                    class="link-to-prism">src/well-known/well-known.controller.ts:33</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Retrieves the OpenID4VCI issuer metadata for a given tenant.</p>
+                        <div class="io-description"><p>Retrieves the issuer metadata for a given tenant for the specified content type.
+The metadata can be returned in two formats:</p>
+<ul>
+<li>an unsigned JSON document using the media type application/json, or</li>
+<li>a signed JSON Web Token (JWT) containing the Credential Issuer Metadata in its payload using the media type application/jwt.</li>
+</ul>
 </div>
 
                             <div class="io-description">
@@ -433,78 +403,168 @@
             </tr>
         </tbody>
     </table>
-</section>    </div>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getJwks"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>getJwks</b></span>
+                        <a href="#getJwks"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getJwks(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="76"
+                                    class="link-to-prism">src/well-known/well-known.service.ts:76</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Returns the JSON Web Key Set (JWKS) for a given tenant.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/JwksResponseDto.html" target="_self" >Promise&lt;JwksResponseDto&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+    </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Controller, Get, Header, Param } from &#x27;@nestjs/common&#x27;;
-import { WellKnownService } from &#x27;./well-known.service&#x27;;
-import { JwksResponseDto } from &#x27;./dto/jwks-response.dto&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &#x27;@nestjs/common&#x27;;
+import { CryptoService } from &#x27;../crypto/crypto.service&#x27;;
+import { Oid4vciService } from &#x27;../issuer/oid4vci/oid4vci.service&#x27;;
+import { AuthorizeService } from &#x27;../issuer/authorize/authorize.service&#x27;;
+import { CredentialIssuerMetadataDto } from &#x27;./dto/credential-issuer-metadata.dto&#x27;;
 import { Oauth2AuthorizationServerResponse } from &#x27;./dto/oauth-authorization-server-response.dto&#x27;;
-import { ApiOperation, ApiProduces } from &#x27;@nestjs/swagger&#x27;;
-import { ContentType } from &#x27;../utils/mediaType/media-type.decorator&#x27;;
+import { JwksResponseDto } from &#x27;./dto/jwks-response.dto&#x27;;
 import { MediaType } from &#x27;../utils/mediaType/media-type.enum&#x27;;
 
 /**
- * Controller for the OpenID4VCI well-known endpoints.
+ * Service to handle well-known endpoints and metadata retrieval.
  */
-@Controller(&#x27;:tenantId/.well-known&#x27;)
-export class WellKnownController {
+@Injectable()
+export class WellKnownService {
     /**
-     * Constructor for WellKnownController.
-     * @param wellKnownService
+     * Constructor for WellKnownService.
+     * @param oid4vciService
+     * @param cryptoService
+     * @param authorizeService
      */
-    constructor(private readonly wellKnownService: WellKnownService) {}
+    constructor(
+        private readonly oid4vciService: Oid4vciService,
+        private readonly cryptoService: CryptoService,
+        private readonly authorizeService: AuthorizeService,
+    ) {}
 
     /**
-     * Retrieves the OpenID4VCI issuer metadata for a given tenant.
+     * Retrieves the issuer metadata for a given tenant for the specified content type.
+     * The metadata can be returned in two formats:
+     * - an unsigned JSON document using the media type application/json, or
+     * - a signed JSON Web Token (JWT) containing the Credential Issuer Metadata in its payload using the media type application/jwt.
      * @param tenantId
      * @param contentType
      * @returns
      */
-    @ApiOperation({
-        summary: &#x27;Get OpenID4VCI issuer metadata&#x27;,
-        description: &#x27;Returns the OpenID4VCI issuer metadata.&#x27;,
-    })
-    //we can not set the accept in the apiheader via swagger.
-    @ApiProduces(MediaType.APPLICATION_JSON, MediaType.APPLICATION_JWT)
-    @Get(&#x27;openid-credential-issuer&#x27;)
-    async issuerMetadata(
-        @Param(&#x27;tenantId&#x27;) tenantId: string,
-        @ContentType() contentType: MediaType,
-    ) {
-        return this.wellKnownService.getIssuerMetadata(tenantId, contentType);
+    async getIssuerMetadata(tenantId: string, contentType: MediaType) {
+        const metadata &#x3D; (await this.oid4vciService.issuerMetadata(tenantId))
+            .credentialIssuer as unknown as CredentialIssuerMetadataDto;
+
+        if (contentType &#x3D;&#x3D;&#x3D; MediaType.APPLICATION_JWT) {
+            return this.cryptoService.signJwt(
+                {
+                    typ: &#x27;openidvci-issuer-metadata+jwt&#x27;,
+                    alg: this.cryptoService.getAlgorithm(tenantId),
+                    x5c: this.cryptoService.getCertChain(&#x27;access&#x27;, tenantId),
+                },
+                {
+                    ...metadata,
+                    iss: metadata.credential_issuer,
+                    sub: metadata.credential_issuer,
+                    iat: Math.floor(new Date().getTime() / 1000),
+                    // [Review]: should we add &#x60;exp&#x60; value here?
+                    //MM: the value makes sense when we cache the issuer metadata so it must not be signed on every request. Like when it is issued every hour, its lifetime is 1 hour and the jwt is in the cache.
+                },
+                tenantId,
+            );
+        }
+
+        return metadata;
     }
 
     /**
-     * Authorization Server Metadata
+     * Returns the OAuth 2.0 Authorization Server metadata for a given tenant.
      * @returns
      */
-    @Get(&#x27;oauth-authorization-server&#x27;)
-    authzMetadata(
-        @Param(&#x27;tenantId&#x27;) tenantId: string,
-    ): Oauth2AuthorizationServerResponse {
-        return this.wellKnownService.getAuthzMetadata(tenantId);
+    getAuthzMetadata(tenantId: string): Oauth2AuthorizationServerResponse {
+        return this.authorizeService.authzMetadata(
+            tenantId,
+        ) as Oauth2AuthorizationServerResponse;
     }
 
     /**
-     * Returns the JSON Web Key Set (JWKS) for the authorization server.
+     * Returns the JSON Web Key Set (JWKS) for a given tenant.
      * @returns
      */
-    @Header(&#x27;Content-Type&#x27;, &#x27;application/jwk-set+json&#x27;)
-    @Get(&#x27;jwks.json&#x27;)
-    async getJwks(
-        @Param(&#x27;tenantId&#x27;) tenantId: string,
-    ): Promise&lt;JwksResponseDto&gt; {
-        return this.wellKnownService.getJwks(tenantId);
+    async getJwks(tenantId: string): Promise&lt;JwksResponseDto&gt; {
+        return this.cryptoService.getJwks(tenantId).then((key) &#x3D;&gt; ({
+            keys: [key],
+        }));
     }
 }
 </code></pre>
     </div>
+
 </div>
-
-
-
 
 
 
@@ -543,8 +603,8 @@ export class WellKnownController {
 
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'controller';
-            var COMPODOC_CURRENT_PAGE_URL = 'WellKnownController.html';
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'injectable';
+            var COMPODOC_CURRENT_PAGE_URL = 'WellKnownService.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

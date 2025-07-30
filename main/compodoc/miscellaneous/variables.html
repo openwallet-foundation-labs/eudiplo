@@ -116,6 +116,9 @@
                             <a href="#AUTH_VALIDATION_SCHEMA" title="src/auth/auth.module.ts" ><b>AUTH_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../auth.module.ts)</a>
                         </li>
                         <li>
+                            <a href="#ContentType" title="src/utils/mediaType/media-type.decorator.ts" ><b>ContentType</b>&nbsp;&nbsp;&nbsp;(src/.../media-type.decorator.ts)</a>
+                        </li>
+                        <li>
                             <a href="#CRYPTO_VALIDATION_SCHEMA" title="src/crypto/key/crypto/crypto.module.ts" ><b>CRYPTO_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../crypto.module.ts)</a>
                         </li>
                         <li>
@@ -216,6 +219,41 @@
                     </td>
                 </tr>
 
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/utils/mediaType/media-type.decorator.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ContentType"></a>
+                    <span class="name">
+                        <span ><b>ContentType</b></span>
+                        <a href="#ContentType"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>createParamDecorator(
+    (data: unknown, ctx: ExecutionContext) &#x3D;&gt; {
+        const request &#x3D; ctx.switchToHttp().getRequest();
+        return request.headers[&#x27;accept&#x27;] as string | undefined;
+    },
+)</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Decorator to extract the content type from the request headers.
+This decorator can be used to determine the media type of the request.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
