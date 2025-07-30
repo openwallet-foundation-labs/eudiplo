@@ -24,6 +24,7 @@ import { HealthModule } from './health/health.module';
 import { AUTH_VALIDATION_SCHEMA, AuthModule } from './auth/auth.module';
 import { EventEmitterModule } from '@nestjs/event-emitter/dist/event-emitter.module';
 import { LoggerModule } from 'nestjs-pino';
+import { WellKnownService } from './well-known/well-known.service';
 
 @Module({
     imports: [
@@ -145,6 +146,6 @@ import { LoggerModule } from 'nestjs-pino';
         AuthModule,
     ],
     controllers: [WellKnownController, AppController],
-    providers: [],
+    providers: [WellKnownService],
 })
 export class AppModule {}
