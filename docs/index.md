@@ -11,6 +11,13 @@ private sector—EUDIPLO lets you interact with EUDI Wallets using simple
 JSON-based APIs, without having to implement complex identity protocols
 yourself.
 
+!!! info "EUDIPLO stands for EUDI Protocol Liaison Operator"
+
+    The name EUDIPLO is inspired by diplomat — because this middleware acts as
+    a translator and trusted go-between. It speaks fluent EUDI specs on one side
+    and down-to-earth JSON on the other, making sure your backend doesn't have to
+    become a protocol expert overnight.
+
 ---
 
 ## Why EUDIPLO?
