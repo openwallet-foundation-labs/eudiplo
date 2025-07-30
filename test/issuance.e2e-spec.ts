@@ -165,19 +165,45 @@ describe('Issuance', () => {
     });
 
     test('get issuer metadata', async () => {
+        const offerResponse = await request(app.getHttpServer())
+            .post('/issuer-management/offer')
+            .trustLocalhost()
+            .set('Authorization', `Bearer ${authToken}`)
+            .send({
+                response_type: 'uri',
+                issuanceId: 'pid',
+            })
+            .expect(201);
+
+        const sessionId = offerResponse.body.session;
+
         const res = await request(app.getHttpServer())
-            .get('/root/.well-known/openid-credential-issuer')
+            .get(`/${sessionId}/.well-known/openid-credential-issuer`)
             .trustLocalhost()
             .set('Accept', 'application/json')
             .expect(200);
         expect(res.body).toBeDefined();
         expect(res.body.credential_issuer).toBeDefined();
-        expect(res.body.credential_issuer).toBe(`http://localhost:3000/root`);
+        expect(res.body.credential_issuer).toBe(
+            `http://localhost:3000/${sessionId}`,
+        );
     });
 
     test('get signed issuer metadata', async () => {
+        const offerResponse = await request(app.getHttpServer())
+            .post('/issuer-management/offer')
+            .trustLocalhost()
+            .set('Authorization', `Bearer ${authToken}`)
+            .send({
+                response_type: 'uri',
+                issuanceId: 'pid',
+            })
+            .expect(201);
+
+        const sessionId = offerResponse.body.session;
+
         const res = await request(app.getHttpServer())
-            .get('/root/.well-known/openid-credential-issuer')
+            .get(`/${sessionId}/.well-known/openid-credential-issuer`)
             .trustLocalhost()
             .set('Accept', 'application/jwt')
             .expect(200);
@@ -338,19 +364,6 @@ describe('Issuance', () => {
         );
         expect(notificationObj).toBeDefined();
         expect(notificationObj.event).toBe('credential_accepted');
-
-        /* writeFileSync(
-            'test.json',
-            JSON.stringify(
-                {
-                    privateKey: holderPrivateKeyJwk,
-                    credential:
-                        credentialResponse.credentialResponse.credentials[0],
-                },
-                null,
-                2,
-            ),
-        );*/
     });
     test('authorized code flow', async () => {
         const offerResponse = await request(app.getHttpServer())

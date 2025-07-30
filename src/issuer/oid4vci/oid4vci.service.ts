@@ -34,6 +34,7 @@ import { SessionLogContext } from '../../utils/logger/session-logger-context';
 import { TokenPayload } from '../../auth/token.decorator';
 import { IssuanceService } from '../issuance/issuance.service';
 import { WebhookService } from '../../utils/webhook/webhook.service';
+import { Session } from '../../session/entities/session.entity';
 
 @Injectable()
 export class Oid4vciService implements OnModuleInit {
@@ -62,16 +63,16 @@ export class Oid4vciService implements OnModuleInit {
         });
     }
 
-    async issuerMetadata(tenantId: string): Promise<IssuerMetadataResult> {
+    async issuerMetadata(session: Session): Promise<IssuerMetadataResult> {
         const credential_issuer = `${this.configService.getOrThrow<string>(
             'PUBLIC_URL',
-        )}/${tenantId}`;
+        )}/${session.id}`;
 
         const display = JSON.parse(
             readFileSync(
                 join(
                     this.configService.getOrThrow<string>('FOLDER'),
-                    tenantId,
+                    session.tenantId,
                     'display.json',
                 ),
                 'utf-8',
@@ -79,13 +80,13 @@ export class Oid4vciService implements OnModuleInit {
         );
 
         const authorizationServerMetadata =
-            this.authzService.authzMetadata(tenantId);
+            this.authzService.authzMetadata(session);
 
         let credentialIssuer = this.issuer.createCredentialIssuerMetadata({
             credential_issuer,
             credential_configurations_supported:
                 await this.credentialsService.getCredentialConfiguration(
-                    tenantId,
+                    session.tenantId,
                 ),
             credential_endpoint: `${credential_issuer}/vci/credential`,
             authorization_servers: [authorizationServerMetadata.issuer],
@@ -146,7 +147,15 @@ export class Oid4vciService implements OnModuleInit {
             };
         }
 
-        const issuerMetadata = await this.issuerMetadata(tenantId);
+        const session = await this.sessionService.create({
+            id: issuer_state,
+            credentialPayload: body,
+            tenantId: user.sub,
+            issuanceId: body.issuanceId,
+            authorization_code,
+        });
+
+        const issuerMetadata = await this.issuerMetadata(session);
 
         return this.issuer
             .createCredentialOffer({
@@ -156,13 +165,8 @@ export class Oid4vciService implements OnModuleInit {
             })
             .then(
                 async (offer) => {
-                    await this.sessionService.create({
-                        id: issuer_state,
-                        offer: offer.credentialOfferObject,
-                        credentialPayload: body,
-                        tenantId: user.sub,
-                        issuanceId: body.issuanceId,
-                        authorization_code,
+                    await this.sessionService.add(issuer_state, {
+                        offer: offer.credentialOfferObject as any,
                     });
                     return {
                         session: issuer_state,
@@ -179,9 +183,9 @@ export class Oid4vciService implements OnModuleInit {
 
     async getCredential(
         req: Request,
-        tenantId: string,
+        session: Session,
     ): Promise<CredentialResponse> {
-        const issuerMetadata = await this.issuerMetadata(tenantId);
+        const issuerMetadata = await this.issuerMetadata(session);
         const parsedCredentialRequest = this.issuer.parseCredentialRequest({
             issuerMetadata,
             credentialRequest: req.body as Record<string, unknown>,
@@ -211,14 +215,14 @@ export class Oid4vciService implements OnModuleInit {
                 ],
             });
 
-        const session = await this.sessionService.get(
-            tokenPayload.sub as string,
-        );
+        if (tokenPayload.sub !== session.id) {
+            throw new BadRequestException('Session not found');
+        }
 
         // Create session logging context
         const logContext: SessionLogContext = {
             sessionId: session.id,
-            tenantId,
+            tenantId: session.tenantId,
             flowType: 'OID4VCI',
             stage: 'credential_request',
         };
@@ -236,7 +240,7 @@ export class Oid4vciService implements OnModuleInit {
                     await this.issuer.verifyCredentialRequestJwtProof({
                         //check if this is correct or if the passed nonce is validated.
                         expectedNonce: tokenPayload.nonce as string,
-                        issuerMetadata: await this.issuerMetadata(tenantId),
+                        issuerMetadata: await this.issuerMetadata(session),
                         jwt,
                     });
                 const cnf = verifiedProof.signer.publicJwk;
@@ -263,7 +267,7 @@ export class Oid4vciService implements OnModuleInit {
                 credentialConfigurationId:
                     parsedCredentialRequest.credentialConfigurationId as string,
             });
-            await this.sessionService.add(session.id, tenantId, {
+            await this.sessionService.add(session.id, {
                 notifications: session.notifications,
             });
 
@@ -297,9 +301,9 @@ export class Oid4vciService implements OnModuleInit {
     async handleNotification(
         req: Request,
         body: NotificationRequestDto,
-        tenantId: string,
+        session: Session,
     ) {
-        const issuerMetadata = await this.issuerMetadata(tenantId);
+        const issuerMetadata = await this.issuerMetadata(session);
         const headers = getHeadersFromRequest(req);
         const protocol = new URL(
             this.configService.getOrThrow<string>('PUBLIC_URL'),
@@ -319,17 +323,14 @@ export class Oid4vciService implements OnModuleInit {
                 ],
             });
 
-        const session = await this.sessionService.get(
-            tokenPayload.sub as string,
-        );
-        if (session === undefined) {
+        if (session.id !== tokenPayload.sub) {
             throw new BadRequestException('Session not found');
         }
 
         // Create session logging context
         const logContext: SessionLogContext = {
             sessionId: session.id,
-            tenantId,
+            tenantId: session.tenantId,
             flowType: 'OID4VCI',
             stage: 'notification',
         };
@@ -345,7 +346,7 @@ export class Oid4vciService implements OnModuleInit {
             }
 
             session.notifications[index].event = body.event;
-            await this.sessionService.add(session.id, tenantId, {
+            await this.sessionService.add(session.id, {
                 notifications: session.notifications,
             });
 

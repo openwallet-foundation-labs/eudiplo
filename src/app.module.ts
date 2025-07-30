@@ -72,24 +72,17 @@ import { WellKnownService } from './well-known/well-known.service';
                     pinoHttp: {
                         level: configService.get('LOG_LEVEL', 'info'),
                         autoLogging: enableHttpLogger,
-                        transport:
-                            process.env.NODE_ENV === 'production'
-                                ? undefined
-                                : {
-                                      target: 'pino-pretty',
-                                      options: {
-                                          colorize: true,
-                                          singleLine: false,
-                                          translateTime: 'yyyy-mm-dd HH:MM:ss',
-                                          ignore: 'pid,hostname',
-                                      },
-                                  },
+                        transport: {
+                            target: 'pino-pretty',
+                            options: {
+                                colorize: true,
+                                singleLine: false,
+                                translateTime: 'yyyy-mm-dd HH:MM:ss',
+                                ignore: 'pid,hostname',
+                            },
+                        },
                         customProps: (req: any) => ({
-                            sessionId:
-                                req.headers['x-session-id'] ||
-                                req.params?.session ||
-                                req.body?.session_id,
-                            tenantId: req.params?.tenantId,
+                            sessionId: req.params?.session,
                             flow: req.url?.includes('/vci')
                                 ? 'OID4VCI'
                                 : req.url?.includes('/oid4vp')
@@ -104,9 +97,7 @@ import { WellKnownService } from './well-known/well-known.service';
                                     'user-agent': req.headers['user-agent'],
                                     'content-type': req.headers['content-type'],
                                 },
-                                sessionId:
-                                    req.headers['x-session-id'] ||
-                                    req.params?.session,
+                                sessionId: req.params?.session,
                                 tenantId: req.params?.tenantId,
                             }),
                             res: (res: any) => ({

@@ -6,6 +6,7 @@ import { CredentialIssuerMetadataDto } from './dto/credential-issuer-metadata.dt
 import { Oauth2AuthorizationServerResponse } from './dto/oauth-authorization-server-response.dto';
 import { JwksResponseDto } from './dto/jwks-response.dto';
 import { MediaType } from '../utils/mediaType/media-type.enum';
+import { Session } from '../session/entities/session.entity';
 
 /**
  * Service to handle well-known endpoints and metadata retrieval.
@@ -33,16 +34,19 @@ export class WellKnownService {
      * @param contentType
      * @returns
      */
-    async getIssuerMetadata(tenantId: string, contentType: MediaType) {
-        const metadata = (await this.oid4vciService.issuerMetadata(tenantId))
+    async getIssuerMetadata(session: Session, contentType: MediaType) {
+        const metadata = (await this.oid4vciService.issuerMetadata(session))
             .credentialIssuer as unknown as CredentialIssuerMetadataDto;
 
         if (contentType === MediaType.APPLICATION_JWT) {
             return this.cryptoService.signJwt(
                 {
                     typ: 'openidvci-issuer-metadata+jwt',
-                    alg: this.cryptoService.getAlgorithm(tenantId),
-                    x5c: this.cryptoService.getCertChain('access', tenantId),
+                    alg: this.cryptoService.getAlgorithm(session.tenantId),
+                    x5c: this.cryptoService.getCertChain(
+                        'access',
+                        session.tenantId,
+                    ),
                 },
                 {
                     ...metadata,
@@ -52,7 +56,7 @@ export class WellKnownService {
                     // [Review]: should we add `exp` value here?
                     //MM: the value makes sense when we cache the issuer metadata so it must not be signed on every request. Like when it is issued every hour, its lifetime is 1 hour and the jwt is in the cache.
                 },
-                tenantId,
+                session.tenantId,
             );
         }
 
@@ -63,9 +67,9 @@ export class WellKnownService {
      * Returns the OAuth 2.0 Authorization Server metadata for a given tenant.
      * @returns
      */
-    getAuthzMetadata(tenantId: string): Oauth2AuthorizationServerResponse {
+    getAuthzMetadata(session: Session): Oauth2AuthorizationServerResponse {
         return this.authorizeService.authzMetadata(
-            tenantId,
+            session,
         ) as Oauth2AuthorizationServerResponse;
     }
 

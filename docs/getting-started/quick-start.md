@@ -17,8 +17,7 @@ through the steps to get started.
 ## 1. Prepare Environment Variables
 
 EUDIPLO uses **OAuth2 Client Credentials flow with Bearer JWT tokens** for API
-authentication. All endpoints follow the pattern `/{tenantId}/...` for tenant
-isolation.
+authentication.
 
 You can choose how to manage OAuth2 clients:
 
@@ -97,12 +96,14 @@ https://example.com/api
 All tenant-specific endpoints follow the pattern:
 
 ```bash
-https://example.com/{tenantId}/vci/credential
-https://example.com/{tenantId}/.well-known/openid-credential-issuer
-https://example.com/{tenantId}/oid4vp/response
+https://example.com/{session}/vci/credential
+https://example.com/{session}/.well-known/openid-credential-issuer
+https://example.com/{session}/oid4vp/response
 ```
 
-Where `{tenantId}` corresponds to your OAuth2 client ID.
+> Where `{session}` corresponds with the session ID of the issuance (OID4VCI) or
+> presentation (OID4VP) flow. Endpoints like credential metadata or status list
+> do not include the session ID because of privacy reasons.
 
 All admin endpoints like managing configs of flows or starting issuance flows
 are protected and accessible via the same path.

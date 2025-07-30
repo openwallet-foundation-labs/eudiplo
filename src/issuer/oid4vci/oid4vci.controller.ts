@@ -1,9 +1,9 @@
 import {
     Body,
     Controller,
-    Param,
     Post,
     Req,
+    UseGuards,
     UseInterceptors,
 } from '@nestjs/common';
 import type { CredentialResponse } from '@openid4vc/openid4vci';
@@ -12,8 +12,12 @@ import { Oid4vciService } from '../../issuer/oid4vci/oid4vci.service';
 import { NotificationRequestDto } from './dto/notification-request.dto';
 import { SessionLogger } from '../../utils/logger//session-logger.decorator';
 import { SessionLoggerInterceptor } from '../../utils/logger/session-logger.interceptor';
+import { SessionGuard } from '../../session/session.guard';
+import { SessionEntity } from '../../session/session.decorator';
+import { Session } from '../../session/entities/session.entity';
 
-@Controller(':tenantId/vci')
+@UseGuards(SessionGuard)
+@Controller(':session/vci')
 @UseInterceptors(SessionLoggerInterceptor)
 export class Oid4vciController {
     constructor(private readonly oid4vciService: Oid4vciService) {}
@@ -27,9 +31,9 @@ export class Oid4vciController {
     @SessionLogger('state', 'OID4VCI')
     credential(
         @Req() req: Request,
-        @Param('tenantId') tenantId: string,
+        @SessionEntity() session: Session,
     ): Promise<CredentialResponse> {
-        return this.oid4vciService.getCredential(req, tenantId);
+        return this.oid4vciService.getCredential(req, session);
     }
 
     /**
@@ -42,9 +46,9 @@ export class Oid4vciController {
     notifications(
         @Body() body: NotificationRequestDto,
         @Req() req: Request,
-        @Param('tenantId') tenantId: string,
+        @SessionEntity() session: Session,
     ) {
-        return this.oid4vciService.handleNotification(req, body, tenantId);
+        return this.oid4vciService.handleNotification(req, body, session);
     }
 
     //TODO: this endpoint may be relevant for the wallet attestation.

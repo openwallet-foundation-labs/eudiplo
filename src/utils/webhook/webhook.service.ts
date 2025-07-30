@@ -61,13 +61,9 @@ export class WebhookService {
                 if (webhookResponse.data) {
                     session.credentialPayload!.values = webhookResponse.data;
                     //store received webhook response
-                    await this.sessionService.add(
-                        session.id,
-                        session.tenantId,
-                        {
-                            credentialPayload: session.credentialPayload,
-                        },
-                    );
+                    await this.sessionService.add(session.id, {
+                        credentialPayload: session.credentialPayload,
+                    });
                 }
 
                 this.sessionLogger.logSession(
@@ -136,13 +132,9 @@ export class WebhookService {
                 if (webhookResponse.data) {
                     session.credentialPayload!.values = webhookResponse.data;
                     //store received webhook response
-                    await this.sessionService.add(
-                        session.id,
-                        session.tenantId,
-                        {
-                            credentialPayload: session.credentialPayload,
-                        },
-                    );
+                    await this.sessionService.add(session.id, {
+                        credentialPayload: session.credentialPayload,
+                    });
                 }
 
                 this.sessionLogger.logSession(

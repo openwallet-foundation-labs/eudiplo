@@ -3,11 +3,11 @@ import {
     Body,
     Controller,
     Get,
-    Param,
     Post,
     Query,
     Req,
     Res,
+    UseGuards,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { AuthorizeService } from './authorize.service';
@@ -15,12 +15,16 @@ import { AuthorizeQueries } from './dto/authorize-request.dto';
 import { SessionService } from '../../session/session.service';
 import { ParResponseDto } from './dto/par-response.dto';
 import { ApiBody } from '@nestjs/swagger';
+import { SessionEntity } from '../../session/session.decorator';
+import { Session } from '../../session/entities/session.entity';
+import { SessionGuard } from '../../session/session.guard';
 
 /**
  * Controller for the OpenID4VCI authorization endpoints.
  * This controller handles the authorization requests, token requests.
  */
-@Controller(':tenantId/authorize')
+@UseGuards(SessionGuard)
+@Controller(':session/authorize')
 export class AuthorizeController {
     constructor(
         private readonly authorizeService: AuthorizeService,
@@ -33,16 +37,8 @@ export class AuthorizeController {
      * @param res
      */
     @Get()
-    async authorize(
-        @Query() queries: AuthorizeQueries,
-        @Res() res: Response,
-        @Param('tenantId') tenantId: string,
-    ) {
-        return this.authorizeService.sendAuthorizationResponse(
-            queries,
-            res,
-            tenantId,
-        );
+    async authorize(@Query() queries: AuthorizeQueries, @Res() res: Response) {
+        return this.authorizeService.sendAuthorizationResponse(queries, res);
     }
 
     /**
@@ -55,13 +51,10 @@ export class AuthorizeController {
         type: AuthorizeQueries,
     })
     @Post('par')
-    async par(
-        @Body() body: AuthorizeQueries,
-        @Param('tenantId') tenantId: string,
-    ): Promise<ParResponseDto> {
+    async par(@Body() body: AuthorizeQueries): Promise<ParResponseDto> {
         const request_uri = `urn:${randomUUID()}`;
         // save both so we can retrieve the session also via the request_uri in the authorize step.
-        await this.sessionService.add(body.issuer_state!, tenantId, {
+        await this.sessionService.add(body.issuer_state!, {
             request_uri,
             auth_queries: body,
         });
@@ -78,14 +71,15 @@ export class AuthorizeController {
      * @param req
      * @returns
      */
+    @UseGuards(SessionGuard)
     @Post('token')
     async token(
         @Body() body: any,
         @Req() req: Request,
-        @Param('tenantId') tenantId: string,
+        @SessionEntity() session: Session,
     ): Promise<any> {
         //TODO: define body
-        return this.authorizeService.validateTokenRequest(body, req, tenantId);
+        return this.authorizeService.validateTokenRequest(body, req, session);
     }
 
     /**
@@ -94,16 +88,17 @@ export class AuthorizeController {
      * @param body
      * @returns
      */
+    @UseGuards(SessionGuard)
     @Post('challenge')
     authorizationChallengeEndpoint(
         @Res() res: Response,
         @Body() body: AuthorizeQueries,
-        @Param('tenantId') tenantId: string,
+        @SessionEntity() session: Session,
     ) {
         return this.authorizeService.authorizationChallengeEndpoint(
             res,
             body,
-            tenantId,
+            session,
         );
     }
 }
