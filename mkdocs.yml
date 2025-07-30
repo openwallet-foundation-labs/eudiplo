@@ -104,6 +104,7 @@ nav:
       - Flows:
         - Issuance: getting-started/issuance.md
         - Presentation: getting-started/presentation.md
+      - Wallet Compatibility: getting-started/wallet-compatibility.md
       - Management: getting-started/management.md
       - Webhooks: getting-started/webhooks.md
       - Registrar: getting-started/registrar.md

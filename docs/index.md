@@ -45,7 +45,7 @@ can run yourself, integrate over HTTP, and configure via JSON.
 | 🔐 **Secure by Default**    | Built-in support for secure key handling and OAuth-based status checking |
 | 🧱 **Plug and Play**        | Integrates with your backend over HTTP; no SDK required                  |
 | ⚙️ **JSON Configurable**    | Set up templates, trust roots, and issuers through JSON files            |
-| 🇪🇺 **Wallet Compatible**    | Works with real-world EUDI Wallets like [Animo](https://animo.id)        |
+| 🇪🇺 **Wallet Compatible**    | Works with multiple [wallets](./getting-started/wallet-compatibility.md) |
 | 👥 **Multi-Tenant Support** | Isolate configurations for different tenants or clients                  |
 
 ---
