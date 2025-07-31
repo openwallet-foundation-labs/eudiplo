@@ -1,4 +1,4 @@
-import { Controller, Get, Header, UseGuards } from '@nestjs/common';
+import { Controller, Get, Header, Req, UseGuards } from '@nestjs/common';
 import { WellKnownService } from './well-known.service';
 import { JwksResponseDto } from './dto/jwks-response.dto';
 import { Oauth2AuthorizationServerResponse } from './dto/oauth-authorization-server-response.dto';

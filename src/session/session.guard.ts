@@ -5,21 +5,12 @@ import {
     NotFoundException,
 } from '@nestjs/common';
 import { SessionService } from './session.service';
-import { ConfigService } from '@nestjs/config/dist/config.service';
 
 @Injectable()
 export class SessionGuard implements CanActivate {
-    constructor(
-        private readonly sessionService: SessionService,
-        private configService: ConfigService,
-    ) {}
+    constructor(private readonly sessionService: SessionService) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
-        // if not enabled, skip the guard
-        if (!this.configService.get<boolean>('LOG_ENABLE_SESSION_LOGGER')) {
-            return true;
-        }
-
         const request = context.switchToHttp().getRequest();
         const sessionId = request.params.session;
         if (!sessionId) {
