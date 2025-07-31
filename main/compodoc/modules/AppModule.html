@@ -385,7 +385,6 @@ import { ServeStaticModule } from &#x27;@nestjs/serve-static&#x27;;
 import { join, isAbsolute } from &#x27;path&#x27;;
 import { KEY_VALIDATION_SCHEMA, KeyModule } from &#x27;./crypto/key/key.module&#x27;;
 import { CRYPTO_VALIDATION_SCHEMA } from &#x27;./crypto/key/crypto/crypto.module&#x27;;
-import { AppController } from &#x27;./app/app.controller&#x27;;
 import {
     SESSION_VALIDATION_SCHEMA,
     SessionModule,
@@ -397,6 +396,7 @@ import { AUTH_VALIDATION_SCHEMA, AuthModule } from &#x27;./auth/auth.module&#x27
 import { EventEmitterModule } from &#x27;@nestjs/event-emitter/dist/event-emitter.module&#x27;;
 import { LoggerModule } from &#x27;nestjs-pino&#x27;;
 import { WellKnownService } from &#x27;./well-known/well-known.service&#x27;;
+import { AppController } from &#x27;./app/app.controller&#x27;;
 
 @Module({
     imports: [
@@ -439,34 +439,22 @@ import { WellKnownService } from &#x27;./well-known/well-known.service&#x27;;
                     &#x27;LOG_ENABLE_HTTP_LOGGER&#x27;,
                     false,
                 );
-
+                //TODO: check if logging to file is needed: https://github.com/iamolegga/nestjs-pino?tab&#x3D;readme-ov-file#asynchronous-logging
                 return {
                     pinoHttp: {
                         level: configService.get(&#x27;LOG_LEVEL&#x27;, &#x27;info&#x27;),
                         autoLogging: enableHttpLogger,
-                        transport:
-                            process.env.NODE_ENV &#x3D;&#x3D;&#x3D; &#x27;production&#x27;
-                                ? undefined
-                                : {
-                                      target: &#x27;pino-pretty&#x27;,
-                                      options: {
-                                          colorize: true,
-                                          singleLine: false,
-                                          translateTime: &#x27;yyyy-mm-dd HH:MM:ss&#x27;,
-                                          ignore: &#x27;pid,hostname&#x27;,
-                                      },
-                                  },
+                        transport: {
+                            target: &#x27;pino-pretty&#x27;,
+                            options: {
+                                colorize: true,
+                                singleLine: false,
+                                translateTime: &#x27;yyyy-mm-dd HH:MM:ss&#x27;,
+                                ignore: &#x27;pid,hostname&#x27;,
+                            },
+                        },
                         customProps: (req: any) &#x3D;&gt; ({
-                            sessionId:
-                                req.headers[&#x27;x-session-id&#x27;] ||
-                                req.params?.session ||
-                                req.body?.session_id,
-                            tenantId: req.params?.tenantId,
-                            flow: req.url?.includes(&#x27;/vci&#x27;)
-                                ? &#x27;OID4VCI&#x27;
-                                : req.url?.includes(&#x27;/oid4vp&#x27;)
-                                  ? &#x27;OID4VP&#x27;
-                                  : undefined,
+                            sessionId: req.params?.session,
                         }),
                         serializers: {
                             req: (req: any) &#x3D;&gt; ({
@@ -476,9 +464,7 @@ import { WellKnownService } from &#x27;./well-known/well-known.service&#x27;;
                                     &#x27;user-agent&#x27;: req.headers[&#x27;user-agent&#x27;],
                                     &#x27;content-type&#x27;: req.headers[&#x27;content-type&#x27;],
                                 },
-                                sessionId:
-                                    req.headers[&#x27;x-session-id&#x27;] ||
-                                    req.params?.session,
+                                sessionId: req.params?.session,
                                 tenantId: req.params?.tenantId,
                             }),
                             res: (res: any) &#x3D;&gt; ({

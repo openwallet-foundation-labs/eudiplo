@@ -120,7 +120,7 @@
                 <h3>Prefix</h3>
             </p>
             <p class="comment">
-                <code>:tenantId/authorize</code>
+                <code>:session/authorize</code>
             </p>
 
 
@@ -151,6 +151,7 @@ This controller handles the authorization requests, token requests.</p>
                         <ul class="index-list">
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#authorizationChallengeEndpoint" >authorizationChallengeEndpoint</a>
                             </li>
                             <li>
@@ -165,6 +166,7 @@ This controller handles the authorization requests, token requests.</p>
                                 <a href="#par" >par</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier">Async</span>
                                 <a href="#token" >token</a>
@@ -193,6 +195,7 @@ This controller handles the authorization requests, token requests.</p>
                     <a name="authorizationChallengeEndpoint"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>authorizationChallengeEndpoint</b></span>
                         <a href="#authorizationChallengeEndpoint"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -201,7 +204,7 @@ This controller handles the authorization requests, token requests.</p>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>authorizationChallengeEndpoint(res: Response, body: <a href="../classes/AuthorizeQueries.html" target="_self">AuthorizeQueries</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>authorizationChallengeEndpoint(res: Response, body: <a href="../classes/AuthorizeQueries.html" target="_self">AuthorizeQueries</a>, session: <a href="../entitys/Session.html" target="_self">Session</a>)</code>
                 </td>
             </tr>
 
@@ -209,14 +212,14 @@ This controller handles the authorization requests, token requests.</p>
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Post(&#x27;challenge&#x27;)<br /></code>
+                    <code>@UseGuards(SessionGuard)<br />@Post(&#x27;challenge&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="98"
-                                    class="link-to-prism">src/issuer/authorize/authorize.controller.ts:98</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="94"
+                                    class="link-to-prism">src/issuer/authorize/authorize.controller.ts:94</a></div>
                         </td>
                     </tr>
 
@@ -263,9 +266,9 @@ This controller handles the authorization requests, token requests.</p>
 
                                         </tr>
                                         <tr>
-                                                <td>tenantId</td>
+                                                <td>session</td>
                                             <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                                            <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
                                             </td>
 
                                             <td>
@@ -304,7 +307,7 @@ This controller handles the authorization requests, token requests.</p>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>authorize(queries: <a href="../classes/AuthorizeQueries.html" target="_self">AuthorizeQueries</a>, res: Response, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>authorize(queries: <a href="../classes/AuthorizeQueries.html" target="_self">AuthorizeQueries</a>, res: Response)</code>
                 </td>
             </tr>
 
@@ -318,8 +321,8 @@ This controller handles the authorization requests, token requests.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="36"
-                                    class="link-to-prism">src/issuer/authorize/authorize.controller.ts:36</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="41"
+                                    class="link-to-prism">src/issuer/authorize/authorize.controller.ts:41</a></div>
                         </td>
                     </tr>
 
@@ -365,18 +368,6 @@ This controller handles the authorization requests, token requests.</p>
 
 
                                         </tr>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -408,7 +399,7 @@ This controller handles the authorization requests, token requests.</p>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>par(body: <a href="../classes/AuthorizeQueries.html" target="_self">AuthorizeQueries</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>par(body: <a href="../classes/AuthorizeQueries.html" target="_self">AuthorizeQueries</a>)</code>
                 </td>
             </tr>
 
@@ -422,8 +413,8 @@ This controller handles the authorization requests, token requests.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="58"
-                                    class="link-to-prism">src/issuer/authorize/authorize.controller.ts:58</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="55"
+                                    class="link-to-prism">src/issuer/authorize/authorize.controller.ts:55</a></div>
                         </td>
                     </tr>
 
@@ -457,18 +448,6 @@ This controller handles the authorization requests, token requests.</p>
 
 
                                         </tr>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -490,6 +469,7 @@ This controller handles the authorization requests, token requests.</p>
                     <a name="token"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                             <span class="modifier">Async</span>
                         <span ><b>token</b></span>
                         <a href="#token"><span class="icon ion-ios-link"></span></a>
@@ -499,7 +479,7 @@ This controller handles the authorization requests, token requests.</p>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>token(body: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, req: Request, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>token(body: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, req: Request, session: <a href="../entitys/Session.html" target="_self">Session</a>)</code>
                 </td>
             </tr>
 
@@ -507,14 +487,14 @@ This controller handles the authorization requests, token requests.</p>
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Post(&#x27;token&#x27;)<br /></code>
+                    <code>@UseGuards(SessionGuard)<br />@Post(&#x27;token&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="82"
-                                    class="link-to-prism">src/issuer/authorize/authorize.controller.ts:82</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="77"
+                                    class="link-to-prism">src/issuer/authorize/authorize.controller.ts:77</a></div>
                         </td>
                     </tr>
 
@@ -562,9 +542,9 @@ This endpoint is used to exchange the authorization code for an access token.</p
 
                                         </tr>
                                         <tr>
-                                                <td>tenantId</td>
+                                                <td>session</td>
                                             <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                                            <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
                                             </td>
 
                                             <td>
@@ -596,24 +576,29 @@ import {
     Body,
     Controller,
     Get,
-    Param,
     Post,
     Query,
     Req,
     Res,
+    UseGuards,
 } from &#x27;@nestjs/common&#x27;;
 import type { Request, Response } from &#x27;express&#x27;;
 import { AuthorizeService } from &#x27;./authorize.service&#x27;;
 import { AuthorizeQueries } from &#x27;./dto/authorize-request.dto&#x27;;
 import { SessionService } from &#x27;../../session/session.service&#x27;;
 import { ParResponseDto } from &#x27;./dto/par-response.dto&#x27;;
-import { ApiBody } from &#x27;@nestjs/swagger&#x27;;
+import { ApiBody, ApiExcludeController } from &#x27;@nestjs/swagger&#x27;;
+import { SessionEntity } from &#x27;../../session/session.decorator&#x27;;
+import { Session } from &#x27;../../session/entities/session.entity&#x27;;
+import { SessionGuard } from &#x27;../../session/session.guard&#x27;;
 
 /**
  * Controller for the OpenID4VCI authorization endpoints.
  * This controller handles the authorization requests, token requests.
  */
-@Controller(&#x27;:tenantId/authorize&#x27;)
+@ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &#x27;true&#x27;)
+@UseGuards(SessionGuard)
+@Controller(&#x27;:session/authorize&#x27;)
 export class AuthorizeController {
     constructor(
         private readonly authorizeService: AuthorizeService,
@@ -626,16 +611,8 @@ export class AuthorizeController {
      * @param res
      */
     @Get()
-    async authorize(
-        @Query() queries: AuthorizeQueries,
-        @Res() res: Response,
-        @Param(&#x27;tenantId&#x27;) tenantId: string,
-    ) {
-        return this.authorizeService.sendAuthorizationResponse(
-            queries,
-            res,
-            tenantId,
-        );
+    async authorize(@Query() queries: AuthorizeQueries, @Res() res: Response) {
+        return this.authorizeService.sendAuthorizationResponse(queries, res);
     }
 
     /**
@@ -648,13 +625,10 @@ export class AuthorizeController {
         type: AuthorizeQueries,
     })
     @Post(&#x27;par&#x27;)
-    async par(
-        @Body() body: AuthorizeQueries,
-        @Param(&#x27;tenantId&#x27;) tenantId: string,
-    ): Promise&lt;ParResponseDto&gt; {
+    async par(@Body() body: AuthorizeQueries): Promise&lt;ParResponseDto&gt; {
         const request_uri &#x3D; &#x60;urn:${randomUUID()}&#x60;;
         // save both so we can retrieve the session also via the request_uri in the authorize step.
-        await this.sessionService.add(body.issuer_state!, tenantId, {
+        await this.sessionService.add(body.issuer_state!, {
             request_uri,
             auth_queries: body,
         });
@@ -671,14 +645,15 @@ export class AuthorizeController {
      * @param req
      * @returns
      */
+    @UseGuards(SessionGuard)
     @Post(&#x27;token&#x27;)
     async token(
         @Body() body: any,
         @Req() req: Request,
-        @Param(&#x27;tenantId&#x27;) tenantId: string,
+        @SessionEntity() session: Session,
     ): Promise&lt;any&gt; {
         //TODO: define body
-        return this.authorizeService.validateTokenRequest(body, req, tenantId);
+        return this.authorizeService.validateTokenRequest(body, req, session);
     }
 
     /**
@@ -687,16 +662,17 @@ export class AuthorizeController {
      * @param body
      * @returns
      */
+    @UseGuards(SessionGuard)
     @Post(&#x27;challenge&#x27;)
     authorizationChallengeEndpoint(
         @Res() res: Response,
         @Body() body: AuthorizeQueries,
-        @Param(&#x27;tenantId&#x27;) tenantId: string,
+        @SessionEntity() session: Session,
     ) {
         return this.authorizeService.authorizationChallengeEndpoint(
             res,
             body,
-            tenantId,
+            session,
         );
     }
 }

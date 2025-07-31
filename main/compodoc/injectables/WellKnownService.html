@@ -177,7 +177,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="14" class="link-to-prism">src/well-known/well-known.service.ts:14</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/well-known/well-known.service.ts:15</a></div>
                             </td>
                         </tr>
 
@@ -259,15 +259,15 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>getAuthzMetadata(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+<code>getAuthzMetadata(session: <a href="../entitys/Session.html" target="_self">Session</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="66"
-                                    class="link-to-prism">src/well-known/well-known.service.ts:66</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="70"
+                                    class="link-to-prism">src/well-known/well-known.service.ts:70</a></div>
                         </td>
                     </tr>
 
@@ -290,9 +290,9 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>tenantId</td>
+                                                <td>session</td>
                                             <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                                            <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
                                             </td>
 
                                             <td>
@@ -330,15 +330,15 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getIssuerMetadata(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, contentType: <a href="../undefineds/MediaType.html" target="_self">MediaType</a>)</code>
+                    <code>getIssuerMetadata(session: <a href="../entitys/Session.html" target="_self">Session</a>, contentType: <a href="../undefineds/MediaType.html" target="_self">MediaType</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="36"
-                                    class="link-to-prism">src/well-known/well-known.service.ts:36</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="37"
+                                    class="link-to-prism">src/well-known/well-known.service.ts:37</a></div>
                         </td>
                     </tr>
 
@@ -366,9 +366,9 @@ The metadata can be returned in two formats:</p>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>tenantId</td>
+                                                <td>session</td>
                                             <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                                            <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
                                             </td>
 
                                             <td>
@@ -425,8 +425,8 @@ The metadata can be returned in two formats:</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="76"
-                                    class="link-to-prism">src/well-known/well-known.service.ts:76</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="80"
+                                    class="link-to-prism">src/well-known/well-known.service.ts:80</a></div>
                         </td>
                     </tr>
 
@@ -488,6 +488,7 @@ import { CredentialIssuerMetadataDto } from &#x27;./dto/credential-issuer-metada
 import { Oauth2AuthorizationServerResponse } from &#x27;./dto/oauth-authorization-server-response.dto&#x27;;
 import { JwksResponseDto } from &#x27;./dto/jwks-response.dto&#x27;;
 import { MediaType } from &#x27;../utils/mediaType/media-type.enum&#x27;;
+import { Session } from &#x27;../session/entities/session.entity&#x27;;
 
 /**
  * Service to handle well-known endpoints and metadata retrieval.
@@ -515,16 +516,19 @@ export class WellKnownService {
      * @param contentType
      * @returns
      */
-    async getIssuerMetadata(tenantId: string, contentType: MediaType) {
-        const metadata &#x3D; (await this.oid4vciService.issuerMetadata(tenantId))
+    async getIssuerMetadata(session: Session, contentType: MediaType) {
+        const metadata &#x3D; (await this.oid4vciService.issuerMetadata(session))
             .credentialIssuer as unknown as CredentialIssuerMetadataDto;
 
         if (contentType &#x3D;&#x3D;&#x3D; MediaType.APPLICATION_JWT) {
             return this.cryptoService.signJwt(
                 {
                     typ: &#x27;openidvci-issuer-metadata+jwt&#x27;,
-                    alg: this.cryptoService.getAlgorithm(tenantId),
-                    x5c: this.cryptoService.getCertChain(&#x27;access&#x27;, tenantId),
+                    alg: this.cryptoService.getAlgorithm(session.tenantId),
+                    x5c: this.cryptoService.getCertChain(
+                        &#x27;access&#x27;,
+                        session.tenantId,
+                    ),
                 },
                 {
                     ...metadata,
@@ -534,7 +538,7 @@ export class WellKnownService {
                     // [Review]: should we add &#x60;exp&#x60; value here?
                     //MM: the value makes sense when we cache the issuer metadata so it must not be signed on every request. Like when it is issued every hour, its lifetime is 1 hour and the jwt is in the cache.
                 },
-                tenantId,
+                session.tenantId,
             );
         }
 
@@ -545,9 +549,9 @@ export class WellKnownService {
      * Returns the OAuth 2.0 Authorization Server metadata for a given tenant.
      * @returns
      */
-    getAuthzMetadata(tenantId: string): Oauth2AuthorizationServerResponse {
+    getAuthzMetadata(session: Session): Oauth2AuthorizationServerResponse {
         return this.authorizeService.authzMetadata(
-            tenantId,
+            session,
         ) as Oauth2AuthorizationServerResponse;
     }
 

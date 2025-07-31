@@ -258,6 +258,7 @@ import { SessionService } from &#x27;../../session/session.service&#x27;;
 import { WebhookConfig } from &#x27;../../utils/webhook/webhook.dto&#x27;;
 import { IssuanceService } from &#x27;../issuance/issuance.service&#x27;;
 import { AuthenticationConfigHelper } from &#x27;../issuance/dto/authentication-config.helper&#x27;;
+import { Session } from &#x27;../../session/entities/session.entity&#x27;;
 
 export interface ParsedAccessTokenAuthorizationCodeRequestGrant {
     grantType: AuthorizationCodeGrantIdentifier;
@@ -289,12 +290,12 @@ export class AuthorizeService {
         });
     }
 
-    authzMetadata(tenantId: string): AuthorizationServerMetadata {
+    authzMetadata(session: Session): AuthorizationServerMetadata {
         const authServer &#x3D;
             this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;) +
-            &#x60;/${tenantId}&#x60;;
+            &#x60;/${session.id}&#x60;;
         return this.getAuthorizationServer(
-            tenantId,
+            session.tenantId,
         ).createAuthorizationServerMetadata({
             issuer: authServer,
             token_endpoint: &#x60;${authServer}/authorize/token&#x60;,
@@ -315,7 +316,6 @@ export class AuthorizeService {
     async sendAuthorizationResponse(
         queries: AuthorizeQueries,
         res: Response&lt;any, Record&lt;string, any&gt;&gt;,
-        tenantId: string,
     ) {
         let values &#x3D; queries;
         if (queries.request_uri) {
@@ -334,17 +334,17 @@ export class AuthorizeService {
                 &#x27;request_uri not found or not provided in the request&#x27;,
             );
         }
-        const code &#x3D; await this.setAuthCode(values.issuer_state!, tenantId);
+        const code &#x3D; await this.setAuthCode(values.issuer_state!);
         res.redirect(&#x60;${values.redirect_uri}?code&#x3D;${code}&#x60;);
     }
 
     async validateTokenRequest(
         body: any,
         req: Request,
-        tenantId: string,
+        session: Session,
     ): Promise&lt;any&gt; {
         const url &#x3D; &#x60;${this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;)}${req.url}&#x60;;
-
+        const tenantId &#x3D; session.tenantId;
         const parsedAccessTokenRequest &#x3D; this.getAuthorizationServer(
             tenantId,
         ).parseAccessTokenRequest({
@@ -356,15 +356,15 @@ export class AuthorizeService {
             },
         });
 
-        const session &#x3D; await this.sessionService.getBy({
+        /*         const session &#x3D; await this.sessionService.getBy({
             authorization_code: body.code ?? body[&#x27;pre-authorized_code&#x27;],
             tenantId,
         });
 
         if (!session) {
             throw new ConflictException(&#x27;Authorization code not found&#x27;);
-        }
-        const authorizationServerMetadata &#x3D; this.authzMetadata(tenantId);
+        } */
+        const authorizationServerMetadata &#x3D; this.authzMetadata(session);
         let dpopValue;
         if (
             parsedAccessTokenRequest.grant.grantType &#x3D;&#x3D;&#x3D;
@@ -422,10 +422,9 @@ export class AuthorizeService {
             });
             dpopValue &#x3D; dpop;
         }
-
         const cNonce &#x3D; randomUUID();
         return this.getAuthorizationServer(tenantId).createAccessTokenResponse({
-            audience: &#x60;${this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;)}/${tenantId}&#x60;,
+            audience: &#x60;${this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;)}/${session.id}&#x60;,
             signer: {
                 method: &#x27;jwk&#x27;,
                 alg: &#x27;ES256&#x27;,
@@ -465,24 +464,21 @@ export class AuthorizeService {
     async authorizationChallengeEndpoint(
         res: Response&lt;any, Record&lt;string, any&gt;&gt;,
         body: AuthorizeQueries,
-        tenantId: string,
+        session: Session,
     ) {
         // auth session and issuer state have the same value
         if (body.auth_session) {
-            const session &#x3D; await this.sessionService.get(body.auth_session);
+            /* const session &#x3D; await this.sessionService.get(body.auth_session);
             // if session is not found, we assume that the auth session is the
             if (!session) {
                 throw new ConflictException(
                     &#x27;auth_session not found or not provided in the request&#x27;,
                 );
             }
+ */
             //check if session has valid presentation, we assume for now
             if (session.credentials) {
-                await this.sendAuthorizationCode(
-                    res,
-                    body.auth_session,
-                    tenantId,
-                );
+                await this.sendAuthorizationCode(res, body.auth_session);
                 return;
             } else {
                 //TODO: needs to be checked if this is the correct response
@@ -492,14 +488,14 @@ export class AuthorizeService {
             }
         }
 
-        const session &#x3D; await this.sessionService.get(body.issuer_state!);
+        /* const session &#x3D; await this.sessionService.get(body.issuer_state!);
         if (!session) {
             throw new Error(&#x27;Credential offer not found&#x27;);
-        }
+        } */
         const issuanceId &#x3D; session.issuanceId!;
         const config &#x3D; await this.issuanceService.getIssuanceConfigurationById(
             issuanceId,
-            tenantId,
+            session.tenantId,
         );
 
         // Use the new authentication configuration structure
@@ -522,17 +518,17 @@ export class AuthorizeService {
             const webhook &#x3D; presentationConfig?.presentation.webhook;
             const response &#x3D; await this.parseChallengeRequest(
                 body,
-                tenantId,
+                session.tenantId,
                 webhook,
             );
             res.status(400).send(response);
         } else if (AuthenticationConfigHelper.isAuthUrlAuth(authConfig)) {
             // OID4VCI authorized code flow - should not reach here typically in challenge endpoint
             // But we&#x27;ll handle it by sending authorization code
-            await this.sendAuthorizationCode(res, body.issuer_state!, tenantId);
+            await this.sendAuthorizationCode(res, body.issuer_state!);
         } else if (AuthenticationConfigHelper.isNoneAuth(authConfig)) {
             // Pre-authorized code flow (method: &#x27;none&#x27;) - send authorization code directly
-            await this.sendAuthorizationCode(res, body.issuer_state!, tenantId);
+            await this.sendAuthorizationCode(res, body.issuer_state!);
         } else {
             throw new Error(
                 &#x60;Unsupported authentication method: ${(authConfig as any).method}&#x60;,
@@ -540,23 +536,16 @@ export class AuthorizeService {
         }
     }
 
-    private async sendAuthorizationCode(
-        res: Response,
-        issuer_state: string,
-        tenantId: string,
-    ) {
-        const authorization_code &#x3D; await this.setAuthCode(
-            issuer_state,
-            tenantId,
-        );
+    private async sendAuthorizationCode(res: Response, issuer_state: string) {
+        const authorization_code &#x3D; await this.setAuthCode(issuer_state);
         res.send({
             authorization_code,
         });
     }
 
-    async setAuthCode(issuer_state: string, tenantId: string) {
+    async setAuthCode(issuer_state: string) {
         const code &#x3D; randomUUID();
-        await this.sessionService.add(issuer_state, tenantId, {
+        await this.sessionService.add(issuer_state, {
             authorization_code: code,
         });
         return code;

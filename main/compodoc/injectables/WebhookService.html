@@ -360,8 +360,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="102"
-                                    class="link-to-prism">src/utils/webhook/webhook.service.ts:102</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="98"
+                                    class="link-to-prism">src/utils/webhook/webhook.service.ts:98</a></div>
                         </td>
                     </tr>
 
@@ -502,13 +502,9 @@ export class WebhookService {
                 if (webhookResponse.data) {
                     session.credentialPayload!.values &#x3D; webhookResponse.data;
                     //store received webhook response
-                    await this.sessionService.add(
-                        session.id,
-                        session.tenantId,
-                        {
-                            credentialPayload: session.credentialPayload,
-                        },
-                    );
+                    await this.sessionService.add(session.id, {
+                        credentialPayload: session.credentialPayload,
+                    });
                 }
 
                 this.sessionLogger.logSession(
@@ -577,13 +573,9 @@ export class WebhookService {
                 if (webhookResponse.data) {
                     session.credentialPayload!.values &#x3D; webhookResponse.data;
                     //store received webhook response
-                    await this.sessionService.add(
-                        session.id,
-                        session.tenantId,
-                        {
-                            credentialPayload: session.credentialPayload,
-                        },
-                    );
+                    await this.sessionService.add(session.id, {
+                        credentialPayload: session.credentialPayload,
+                    });
                 }
 
                 this.sessionLogger.logSession(

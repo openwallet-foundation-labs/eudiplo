@@ -394,8 +394,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="141"
-                                    class="link-to-prism">src/utils/logger/session-logger.interceptor.ts:141</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="136"
+                                    class="link-to-prism">src/utils/logger/session-logger.interceptor.ts:136</a></div>
                         </td>
                     </tr>
 
@@ -548,12 +548,7 @@ export class SessionLoggerInterceptor implements NestInterceptor {
         const request &#x3D; context.switchToHttp().getRequest();
         const response &#x3D; context.switchToHttp().getResponse();
 
-        // Extract session ID from various sources
-        const sessionId &#x3D;
-            request.params?.[sessionIdParam] ||
-            request.body?.[sessionIdParam] ||
-            request.headers[&#x27;x-session-id&#x27;] ||
-            request.query?.[sessionIdParam];
+        const sessionId &#x3D; request.params[sessionIdParam];
 
         const tenantId &#x3D; request.params?.tenantId;
         const method &#x3D; request.method;

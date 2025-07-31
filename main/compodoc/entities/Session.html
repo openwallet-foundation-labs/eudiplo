@@ -195,6 +195,11 @@ request URI, authorization queries, and more.</p>
                             </li>
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
+                                <a href="#requestId" >requestId</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
                                 <a href="#tenantId" >tenantId</a>
                             </li>
                             <li>
@@ -255,7 +260,7 @@ request URI, authorization queries, and more.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="64" class="link-to-prism">src/session/entities/session.entity.ts:64</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="71" class="link-to-prism">src/session/entities/session.entity.ts:71</a></div>
                         </td>
                     </tr>
 
@@ -298,7 +303,7 @@ request URI, authorization queries, and more.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="54" class="link-to-prism">src/session/entities/session.entity.ts:54</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="61" class="link-to-prism">src/session/entities/session.entity.ts:61</a></div>
                         </td>
                     </tr>
 
@@ -340,7 +345,7 @@ request URI, authorization queries, and more.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="74" class="link-to-prism">src/session/entities/session.entity.ts:74</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="81" class="link-to-prism">src/session/entities/session.entity.ts:81</a></div>
                         </td>
                     </tr>
 
@@ -383,7 +388,7 @@ request URI, authorization queries, and more.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="84" class="link-to-prism">src/session/entities/session.entity.ts:84</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="91" class="link-to-prism">src/session/entities/session.entity.ts:91</a></div>
                         </td>
                     </tr>
 
@@ -426,7 +431,7 @@ request URI, authorization queries, and more.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="49" class="link-to-prism">src/session/entities/session.entity.ts:49</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="56" class="link-to-prism">src/session/entities/session.entity.ts:56</a></div>
                         </td>
                     </tr>
 
@@ -547,7 +552,7 @@ request URI, authorization queries, and more.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="99" class="link-to-prism">src/session/entities/session.entity.ts:99</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="106" class="link-to-prism">src/session/entities/session.entity.ts:106</a></div>
                         </td>
                     </tr>
 
@@ -590,7 +595,7 @@ request URI, authorization queries, and more.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="94" class="link-to-prism">src/session/entities/session.entity.ts:94</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="101" class="link-to-prism">src/session/entities/session.entity.ts:101</a></div>
                         </td>
                     </tr>
 
@@ -633,7 +638,7 @@ request URI, authorization queries, and more.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="79" class="link-to-prism">src/session/entities/session.entity.ts:79</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="86" class="link-to-prism">src/session/entities/session.entity.ts:86</a></div>
                         </td>
                     </tr>
 
@@ -676,13 +681,56 @@ request URI, authorization queries, and more.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="59" class="link-to-prism">src/session/entities/session.entity.ts:59</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="66" class="link-to-prism">src/session/entities/session.entity.ts:66</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
                     <div class="io-description"><p>Request URI from the authorization request.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="requestId"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
+                        <span ><b>requestId</b></span>
+                        <a href="#requestId"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @Column(&#x27;varchar&#x27;, {nullable: true})<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="50" class="link-to-prism">src/session/entities/session.entity.ts:50</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>The request ID associated with the session for a presentation flow.</p>
 </div>
                 </td>
             </tr>
@@ -718,7 +766,7 @@ request URI, authorization queries, and more.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="104" class="link-to-prism">src/session/entities/session.entity.ts:104</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="111" class="link-to-prism">src/session/entities/session.entity.ts:111</a></div>
                         </td>
                     </tr>
 
@@ -761,7 +809,7 @@ request URI, authorization queries, and more.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="69" class="link-to-prism">src/session/entities/session.entity.ts:69</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="76" class="link-to-prism">src/session/entities/session.entity.ts:76</a></div>
                         </td>
                     </tr>
 
@@ -804,7 +852,7 @@ request URI, authorization queries, and more.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="89" class="link-to-prism">src/session/entities/session.entity.ts:89</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="96" class="link-to-prism">src/session/entities/session.entity.ts:96</a></div>
                         </td>
                     </tr>
 
@@ -866,6 +914,13 @@ export class Session {
 
     @Column(&#x27;varchar&#x27;, { nullable: true })
     issuanceId?: string;
+
+    /**
+     * The request ID associated with the session for a presentation flow.
+     */
+    @Column(&#x27;varchar&#x27;, { nullable: true })
+    requestId?: string;
+
     /**
      * Verified credentials from the verification process.
      */

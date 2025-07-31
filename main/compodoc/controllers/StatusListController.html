@@ -193,8 +193,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="16"
-                                    class="link-to-prism">src/issuer/status-list/status-list.controller.ts:16</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="17"
+                                    class="link-to-prism">src/issuer/status-list/status-list.controller.ts:17</a></div>
                         </td>
                     </tr>
 
@@ -248,8 +248,9 @@
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Controller, Get, Header, Param } from &#x27;@nestjs/common&#x27;;
 import { StatusListService } from &#x27;./status-list.service&#x27;;
-import { ApiTags } from &#x27;@nestjs/swagger&#x27;;
+import { ApiExcludeController, ApiTags } from &#x27;@nestjs/swagger&#x27;;
 
+@ApiExcludeController(process.env.SWAGGER_ALL &#x3D;&#x3D;&#x3D; &#x27;true&#x27;)
 @ApiTags(&#x27;Status management&#x27;)
 @Controller(&#x27;:tenantId/status-management&#x27;)
 export class StatusListController {

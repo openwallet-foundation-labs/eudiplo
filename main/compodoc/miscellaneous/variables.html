@@ -149,6 +149,9 @@
                             <a href="#SESSION_VALIDATION_SCHEMA" title="src/session/session.module.ts" ><b>SESSION_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../session.module.ts)</a>
                         </li>
                         <li>
+                            <a href="#SessionEntity" title="src/session/session.decorator.ts" ><b>SessionEntity</b>&nbsp;&nbsp;&nbsp;(src/.../session.decorator.ts)</a>
+                        </li>
+                        <li>
                             <a href="#SessionLogger" title="src/utils/logger/session-logger.decorator.ts" ><b>SessionLogger</b>&nbsp;&nbsp;&nbsp;(src/.../session-logger.decorator.ts)</a>
                         </li>
                         <li>
@@ -719,6 +722,34 @@ Defines the required environment variables and their types.</p>
 </div>
                 </td>
             </tr>
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/session/session.decorator.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="SessionEntity"></a>
+                    <span class="name">
+                        <span ><b>SessionEntity</b></span>
+                        <a href="#SessionEntity"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>createParamDecorator(
+    (data: unknown, ctx: ExecutionContext) &#x3D;&gt; {
+        const request &#x3D; ctx.switchToHttp().getRequest();
+        return request.session as Session;
+    },
+)</code>
+                    </td>
+                </tr>
+
 
         </tbody>
     </table>

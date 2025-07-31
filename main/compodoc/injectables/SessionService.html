@@ -260,7 +260,7 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>add(issuer_state: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, values: <a href="../entitys/Session.html" target="_self">QueryDeepPartialEntity&lt;Session&gt;</a>)</code>
+<code>add(issuer_state: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, values: <a href="../entitys/Session.html" target="_self">QueryDeepPartialEntity&lt;Session&gt;</a>)</code>
                 </td>
             </tr>
 
@@ -292,18 +292,6 @@
                                     <tbody>
                                         <tr>
                                                 <td>issuer_state</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>tenantId</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -429,8 +417,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="74"
-                                    class="link-to-prism">src/session/session.service.ts:74</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="67"
+                                    class="link-to-prism">src/session/session.service.ts:67</a></div>
                         </td>
                     </tr>
 
@@ -498,8 +486,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="65"
-                                    class="link-to-prism">src/session/session.service.ts:65</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="58"
+                                    class="link-to-prism">src/session/session.service.ts:58</a></div>
                         </td>
                     </tr>
 
@@ -540,8 +528,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="83"
-                                    class="link-to-prism">src/session/session.service.ts:83</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="76"
+                                    class="link-to-prism">src/session/session.service.ts:76</a></div>
                         </td>
                     </tr>
 
@@ -652,8 +640,8 @@ This will run every hour by default, but can be configured via the <code>SESSION
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="90"
-                                    class="link-to-prism">src/session/session.service.ts:90</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="83"
+                                    class="link-to-prism">src/session/session.service.ts:83</a></div>
                         </td>
                     </tr>
 
@@ -726,15 +714,8 @@ export class SessionService implements OnApplicationBootstrap {
      * @param values
      * @returns
      */
-    add(
-        issuer_state: string,
-        tenantId: string,
-        values: QueryDeepPartialEntity&lt;Session&gt;,
-    ) {
-        return this.sessionRepository.update(
-            { id: issuer_state, tenantId },
-            values,
-        );
+    add(issuer_state: string, values: QueryDeepPartialEntity&lt;Session&gt;) {
+        return this.sessionRepository.update({ id: issuer_state }, values);
     }
 
     /**

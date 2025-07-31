@@ -1438,8 +1438,7 @@ through the steps to get started.</p>
 <hr />
 <h2 id="1-prepare-environment-variables">1. Prepare Environment Variables<a class="headerlink" href="#1-prepare-environment-variables" title="Permanent link">&para;</a></h2>
 <p>EUDIPLO uses <strong>OAuth2 Client Credentials flow with Bearer JWT tokens</strong> for API
-authentication. All endpoints follow the pattern <code>/{tenantId}/...</code> for tenant
-isolation.</p>
+authentication.</p>
 <p>You can choose how to manage OAuth2 clients:</p>
 <h3 id="self-managed-clients-default">Self-Managed Clients (Default)<a class="headerlink" href="#self-managed-clients-default" title="Permanent link">&para;</a></h3>
 <p><strong>EUDIPLO manages clients and issues JWT tokens:</strong></p>
@@ -1495,11 +1494,15 @@ following content:</p>
 </code></pre></div>
 <h3 id="api-endpoint-pattern">API Endpoint Pattern<a class="headerlink" href="#api-endpoint-pattern" title="Permanent link">&para;</a></h3>
 <p>All tenant-specific endpoints follow the pattern:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>https://example.com/<span class="o">{</span>tenantId<span class="o">}</span>/vci/credential
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>https://example.com/<span class="o">{</span>tenantId<span class="o">}</span>/.well-known/openid-credential-issuer
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>https://example.com/<span class="o">{</span>tenantId<span class="o">}</span>/oid4vp/response
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>https://example.com/<span class="o">{</span>session<span class="o">}</span>/vci/credential
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>https://example.com/<span class="o">{</span>session<span class="o">}</span>/.well-known/openid-credential-issuer
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>https://example.com/<span class="o">{</span>session<span class="o">}</span>/oid4vp/response
 </code></pre></div>
-<p>Where <code>{tenantId}</code> corresponds to your OAuth2 client ID.</p>
+<blockquote>
+<p>Where <code>{session}</code> corresponds with the session ID of the issuance (OID4VCI) or
+presentation (OID4VP) flow. Endpoints like credential metadata or status list
+do not include the session ID because of privacy reasons.</p>
+</blockquote>
 <p>All admin endpoints like managing configs of flows or starting issuance flows
 are protected and accessible via the same path.</p>
 <hr />

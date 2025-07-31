@@ -1457,8 +1457,8 @@ EUDIPLO service to use the OIDC issuer URL via the <code>OIDC</code> environment
 provider for authentication.</p>
 <h2 id="api-endpoint-patterns">API Endpoint Patterns<a class="headerlink" href="#api-endpoint-patterns" title="Permanent link">&para;</a></h2>
 <blockquote>
-<p><strong>Important</strong>: the <code>{tenantId}</code> in the URL must match the tenant associated
-with your JWT token via the <code>sub</code> field.</p>
+<p><strong>Important</strong>: Endpoints are not isolated by tenant id, but by session id.
+Each session includes the tenant ID to use it during the request.</p>
 </blockquote>
 <h3 id="tenant-initialization-process">Tenant Initialization Process<a class="headerlink" href="#tenant-initialization-process" title="Permanent link">&para;</a></h3>
 <p>TODO: needs to be aligned</p>
