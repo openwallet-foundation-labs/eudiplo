@@ -53,7 +53,7 @@ actor EUDI_Wallet
 participant Middleware
 participant End_Service
 
-End_Service ->> Middleware : Request OID4VCI presentation request
+End_Service ->> Middleware : Request OID4VCI issuance offer
 Middleware -->> End_Service : Return credential offer link
 End_Service ->> EUDI_Wallet : Present link to user
 Middleware -> EUDI_Wallet : OID4VCI
