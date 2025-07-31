@@ -1,9 +1,14 @@
-import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import { TENANT_EVENTS } from './tenant-events';
+import { CryptoService } from '../crypto/crypto.service';
+import { EncryptionService } from '../crypto/encryption/encryption.service';
+import { StatusListService } from '../issuer/status-list/status-list.service';
+import { RegistrarService } from '../registrar/registrar.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { ClientEntry } from './entitites/client.entity';
+import { Repository } from 'typeorm/repository/Repository';
 
 // Client interface for service integration
 export interface Client {
@@ -12,21 +17,18 @@ export interface Client {
 }
 
 @Injectable()
-export class ClientService implements OnApplicationBootstrap {
+export class ClientService {
     private clients: Client[] | null = null;
 
     constructor(
         private configService: ConfigService,
-        private eventEmitter: EventEmitter2,
+        private cryptoService: CryptoService,
+        private encryptionService: EncryptionService,
+        private statutsListService: StatusListService,
+        private registrarService: RegistrarService,
+        @InjectRepository(ClientEntry)
+        private clientRepository: Repository<ClientEntry>,
     ) {}
-
-    onApplicationBootstrap() {
-        // were are ignoring clients that are not used anymore for now. Need to implement a proper cleanup mechanism later
-        const clients = this.getClients();
-        clients.forEach((client) => {
-            this.setUpClient(client.id);
-        });
-    }
 
     /**
      * Get clients from configuration
@@ -76,10 +78,24 @@ export class ClientService implements OnApplicationBootstrap {
     }
 
     /**
+     * Check if the client is set up, if not, set it up.
+     * @param id
+     * @returns
+     */
+    async isSetUp(id: string) {
+        await this.clientRepository.findOneByOrFail({ id }).catch(async () => {
+            await this.setUpClient(id);
+            console.log(`Client ${id} set up successfully.`);
+            return this.clientRepository.save({ id });
+        });
+        return true;
+    }
+
+    /**
      * Sends an event to set up a client, allowing all other services to listen and react accordingly.
      * @param id
      */
-    setUpClient(id: string) {
+    async setUpClient(id: string) {
         const folder = join(
             this.configService.getOrThrow<string>('FOLDER'),
             id,
@@ -102,7 +118,9 @@ export class ClientService implements OnApplicationBootstrap {
             join(folder, 'display.json'),
             JSON.stringify(displayInfo, null, 2),
         );
-
-        this.eventEmitter.emit(TENANT_EVENTS.TENANT_INIT, id);
+        await this.cryptoService.onTenantInit(id);
+        await this.encryptionService.onTenantInit(id);
+        await this.statutsListService.onTenantInit(id);
+        await this.registrarService.onTenantInit(id);
     }
 }

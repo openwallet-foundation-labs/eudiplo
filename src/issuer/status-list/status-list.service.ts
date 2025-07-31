@@ -15,9 +15,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { StatusMapping } from './entities/status-mapping.entity';
 import { Repository } from 'typeorm';
 import { StatusUpdateDto } from './dto/status-update.dto';
-import { OnEvent } from '@nestjs/event-emitter';
 import { Session } from '../../session/entities/session.entity';
-import { TENANT_EVENTS } from '../../auth/tenant-events';
 
 interface StatusListFile {
     elements: number[];
@@ -38,7 +36,6 @@ export class StatusListService implements OnModuleInit {
     ) {}
     onModuleInit() {}
 
-    @OnEvent(TENANT_EVENTS.TENANT_KEYS, { async: true })
     onTenantInit(tenantId: string) {
         return this.init(tenantId);
     }

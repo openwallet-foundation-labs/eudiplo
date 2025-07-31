@@ -66,12 +66,11 @@ export class JwtService {
         const secretKey = new TextEncoder().encode(secret);
 
         try {
-            const { payload } = await jwtVerify(token, secretKey, {
+            const { payload } = (await jwtVerify(token, secretKey, {
                 issuer,
                 algorithms: ['HS256'],
-            });
-
-            return payload as TokenPayload;
+            })) as { payload: TokenPayload };
+            return payload;
         } catch (error) {
             throw new Error(`Invalid token: ${error.message}`);
         }

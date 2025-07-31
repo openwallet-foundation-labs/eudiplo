@@ -3,8 +3,6 @@ import { ConfigService } from '@nestjs/config';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { importJWK, exportJWK, generateKeyPair, jwtDecrypt, JWK } from 'jose';
 import { join } from 'path';
-import { TENANT_EVENTS } from '../../auth/tenant-events';
-import { OnEvent } from '@nestjs/event-emitter';
 
 @Injectable()
 export class EncryptionService {
@@ -15,7 +13,6 @@ export class EncryptionService {
 
     constructor(private configService: ConfigService) {}
 
-    @OnEvent(TENANT_EVENTS.TENANT_INIT, { async: true })
     async onTenantInit(tenantId: string) {
         await this.init(tenantId);
     }
