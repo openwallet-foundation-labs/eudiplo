@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
@@ -83,12 +83,35 @@ export class ClientService {
      * @returns
      */
     async isSetUp(id: string) {
-        await this.clientRepository.findOneByOrFail({ id }).catch(async () => {
-            await this.setUpClient(id);
-            console.log(`Client ${id} set up successfully.`);
-            return this.clientRepository.save({ id });
-        });
-        return true;
+        await this.clientRepository.findOneByOrFail({ id }).then(
+            (res) => {
+                if (res.status === 'set up') {
+                    return true;
+                }
+                throw new BadRequestException(
+                    `Client ${id} is not set up. Please retry later.`,
+                );
+            },
+            async () => {
+                // create it to signl that the client getting set up
+                await this.clientRepository.save({ id });
+                await this.setUpClient(id).catch(async (err) => {
+                    // if there is an error, update the client status
+                    await this.clientRepository.update(
+                        { id },
+                        { status: 'error', error: err.message },
+                    );
+                    throw new BadRequestException(
+                        `Error setting up client ${id}. Please retry later.`,
+                    );
+                });
+                // if everything is fine, update the client status
+                return this.clientRepository.update(
+                    { id },
+                    { status: 'set up' },
+                );
+            },
+        );
     }
 
     /**
