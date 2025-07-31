@@ -44,7 +44,8 @@
         "doc:deploy-dev": "pnpm run swagger && pnpm run compodoc && mike deploy dev",
         "doc:deploy-major": "pnpm run swagger && pnpm run compodoc && mike deploy --update-aliases",
         "doc:list-versions": "mike list",
-        "doc:delete-version": "mike delete"
+        "doc:delete-version": "mike delete",
+        "import": "ts-node ./test/import/import.ts"
     },
     "dependencies": {
         "@badgateway/oauth2-client": "^3.2.0",

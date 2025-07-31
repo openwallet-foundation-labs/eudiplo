@@ -13,7 +13,6 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join, isAbsolute } from 'path';
 import { KEY_VALIDATION_SCHEMA, KeyModule } from './crypto/key/key.module';
 import { CRYPTO_VALIDATION_SCHEMA } from './crypto/key/crypto/crypto.module';
-import { AppController } from './app/app.controller';
 import {
     SESSION_VALIDATION_SCHEMA,
     SessionModule,
@@ -67,7 +66,7 @@ import { WellKnownService } from './well-known/well-known.service';
                     'LOG_ENABLE_HTTP_LOGGER',
                     false,
                 );
-
+                //TODO: check if logging to file is needed: https://github.com/iamolegga/nestjs-pino?tab=readme-ov-file#asynchronous-logging
                 return {
                     pinoHttp: {
                         level: configService.get('LOG_LEVEL', 'info'),
@@ -83,11 +82,6 @@ import { WellKnownService } from './well-known/well-known.service';
                         },
                         customProps: (req: any) => ({
                             sessionId: req.params?.session,
-                            flow: req.url?.includes('/vci')
-                                ? 'OID4VCI'
-                                : req.url?.includes('/oid4vp')
-                                  ? 'OID4VP'
-                                  : undefined,
                         }),
                         serializers: {
                             req: (req: any) => ({
@@ -136,7 +130,7 @@ import { WellKnownService } from './well-known/well-known.service';
         HealthModule,
         AuthModule,
     ],
-    controllers: [WellKnownController, AppController],
+    controllers: [WellKnownController],
     providers: [WellKnownService],
 })
 export class AppModule {}

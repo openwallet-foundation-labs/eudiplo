@@ -20,7 +20,7 @@ import { ApiExcludeController } from '@nestjs/swagger';
 /**
  * Controller for handling OID4VCI (OpenID for Verifiable Credential Issuance) requests.
  */
-@ApiExcludeController(process.env.SWAGGER_ALL !== 'true')
+@ApiExcludeController(process.env.SWAGGER_ALL === 'true')
 @UseGuards(SessionGuard)
 @Controller(':session/vci')
 @UseInterceptors(SessionLoggerInterceptor)
@@ -33,7 +33,7 @@ export class Oid4vciController {
      * @returns
      */
     @Post('credential')
-    @SessionLogger('state', 'OID4VCI')
+    @SessionLogger('session', 'OID4VCI')
     credential(
         @Req() req: Request,
         @SessionEntity() session: Session,

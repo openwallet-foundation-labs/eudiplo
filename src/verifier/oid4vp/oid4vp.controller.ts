@@ -21,7 +21,7 @@ import { ApiExcludeController } from '@nestjs/swagger';
 @Controller('oid4vp')
 @UseGuards(SessionGuard)
 @UseInterceptors(SessionLoggerInterceptor)
-@ApiExcludeController(process.env.SWAGGER_ALL !== 'true')
+@ApiExcludeController(process.env.SWAGGER_ALL === 'true')
 export class Oid4vpController {
     /**
      * Constructor for the Oid4vpController.
@@ -48,7 +48,7 @@ export class Oid4vpController {
      * @returns
      */
     @Post('response/:session')
-    @SessionLogger('state', 'OID4VP')
+    @SessionLogger('session', 'OID4VP')
     getResponse(
         @Body() body: AuthorizationResponse,
         @SessionEntity() session: Session,

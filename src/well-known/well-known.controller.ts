@@ -16,7 +16,7 @@ import { Session } from '../session/entities/session.entity';
 /**
  * Controller for the OpenID4VCI well-known endpoints.
  */
-@ApiExcludeController(process.env.SWAGGER_ALL !== 'true')
+@ApiExcludeController(process.env.SWAGGER_ALL === 'true')
 @UseGuards(SessionGuard)
 @Controller(':session/.well-known')
 export class WellKnownController {

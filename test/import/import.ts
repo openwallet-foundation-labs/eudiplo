@@ -237,17 +237,17 @@ async function run(): Promise<void> {
         // since issuance configurations reference credential schemas
         const importConfigs: ImportConfig[] = [
             {
-                directory: 'issuance/credentials',
+                directory: 'test/import/issuance/credentials',
                 endpoint: '/issuer-management/credentials',
                 name: 'credentials',
             },
             {
-                directory: 'issuance/issuance',
+                directory: 'test/import/issuance/issuance',
                 endpoint: '/issuer-management/issuance',
                 name: 'issuance configurations',
             },
             {
-                directory: 'presentation',
+                directory: 'test/import/presentation',
                 endpoint: '/presentation-management',
                 name: 'presentations',
             },
