@@ -13,7 +13,7 @@ import { SessionLoggerInterceptor } from '../../utils/logger/session-logger.inte
 import { SessionEntity } from '../../session/session.decorator';
 import { Session } from '../../session/entities/session.entity';
 import { SessionGuard } from '../../session/session.guard';
-import { ApiExcludeController } from '@nestjs/swagger';
+import { ApiExcludeController, ApiParam } from '@nestjs/swagger';
 
 /**
  * Controller for handling OID4VP (OpenID for Verifiable Presentations) requests.
@@ -21,7 +21,8 @@ import { ApiExcludeController } from '@nestjs/swagger';
 @Controller('oid4vp')
 @UseGuards(SessionGuard)
 @UseInterceptors(SessionLoggerInterceptor)
-@ApiExcludeController(process.env.SWAGGER_ALL === 'true')
+@ApiParam({ name: 'session', required: true })
+@ApiExcludeController(process.env.SWAGGER_ALL !== 'true')
 export class Oid4vpController {
     /**
      * Constructor for the Oid4vpController.

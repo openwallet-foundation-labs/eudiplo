@@ -15,12 +15,13 @@ import { SessionLoggerInterceptor } from '../../utils/logger/session-logger.inte
 import { SessionGuard } from '../../session/session.guard';
 import { SessionEntity } from '../../session/session.decorator';
 import { Session } from '../../session/entities/session.entity';
-import { ApiExcludeController } from '@nestjs/swagger';
+import { ApiExcludeController, ApiParam } from '@nestjs/swagger';
 
 /**
  * Controller for handling OID4VCI (OpenID for Verifiable Credential Issuance) requests.
  */
-@ApiExcludeController(process.env.SWAGGER_ALL === 'true')
+@ApiParam({ name: 'session', required: true })
+@ApiExcludeController(process.env.SWAGGER_ALL !== 'true')
 @UseGuards(SessionGuard)
 @Controller(':session/vci')
 @UseInterceptors(SessionLoggerInterceptor)
