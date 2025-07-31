@@ -14,7 +14,7 @@ import { AuthorizeService } from './authorize.service';
 import { AuthorizeQueries } from './dto/authorize-request.dto';
 import { SessionService } from '../../session/session.service';
 import { ParResponseDto } from './dto/par-response.dto';
-import { ApiBody } from '@nestjs/swagger';
+import { ApiBody, ApiExcludeController } from '@nestjs/swagger';
 import { SessionEntity } from '../../session/session.decorator';
 import { Session } from '../../session/entities/session.entity';
 import { SessionGuard } from '../../session/session.guard';
@@ -23,6 +23,7 @@ import { SessionGuard } from '../../session/session.guard';
  * Controller for the OpenID4VCI authorization endpoints.
  * This controller handles the authorization requests, token requests.
  */
+@ApiExcludeController(process.env.SWAGGER_ALL !== 'true')
 @UseGuards(SessionGuard)
 @Controller(':session/authorize')
 export class AuthorizeController {

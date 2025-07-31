@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
 
-@ApiExcludeController()
+@ApiExcludeController(process.env.SWAGGER_ALL !== 'true')
 @Controller()
 export class AppController {
     @Get()
