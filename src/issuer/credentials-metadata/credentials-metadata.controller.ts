@@ -1,7 +1,9 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { CredentialsService } from '../credentials/credentials.service';
+import { ApiExcludeController } from '@nestjs/swagger';
 
-@Controller('credentials-metadata')
+@ApiExcludeController(process.env.SWAGGER_ALL === 'true')
+@Controller(':tenantId/credentials-metadata')
 export class CredentialsMetadataController {
     constructor(private readonly credentialsService: CredentialsService) {}
 

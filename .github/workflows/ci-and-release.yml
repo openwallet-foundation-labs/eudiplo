@@ -37,6 +37,11 @@ jobs:
             - name: Run linter
               run: pnpm run lint
 
+            - name: Run license check
+              run:
+                  npx license-checker --onlyAllow
+                  "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;0BSD"
+
     build:
         name: Build Application
         runs-on: ubuntu-latest

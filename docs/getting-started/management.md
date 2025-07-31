@@ -67,8 +67,8 @@ provider for authentication.
 
 ## API Endpoint Patterns
 
-> **Important**: the `{tenantId}` in the URL must match the tenant associated
-> with your JWT token via the `sub` field.
+> **Important**: Endpoints are not isolated by tenant id, but by session id.
+> Each session includes the tenant ID to use it during the request.
 
 ### Tenant Initialization Process
 

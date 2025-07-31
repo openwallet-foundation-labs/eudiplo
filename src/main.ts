@@ -24,7 +24,7 @@ async function bootstrap() {
             'Documentation',
             'https://openwallet-foundation-labs.github.io/eudiplo/latest/',
         )
-        .setVersion(process.env.VERSION ?? '0.0.1');
+        .setVersion(process.env.VERSION ?? 'main');
     // Add OAuth2 configuration - either external OIDC or integrated OAuth2 server
     const useExternalOIDC = configService.get<string>('OIDC');
     const publicUrl = configService.getOrThrow<string>('PUBLIC_URL');

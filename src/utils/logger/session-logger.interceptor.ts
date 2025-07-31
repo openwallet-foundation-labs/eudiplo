@@ -55,12 +55,7 @@ export class SessionLoggerInterceptor implements NestInterceptor {
         const request = context.switchToHttp().getRequest();
         const response = context.switchToHttp().getResponse();
 
-        // Extract session ID from various sources
-        const sessionId =
-            request.params?.[sessionIdParam] ||
-            request.body?.[sessionIdParam] ||
-            request.headers['x-session-id'] ||
-            request.query?.[sessionIdParam];
+        const sessionId = request.params[sessionIdParam];
 
         const tenantId = request.params?.tenantId;
         const method = request.method;

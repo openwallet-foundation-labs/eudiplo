@@ -42,6 +42,13 @@ export class Session {
 
     @Column('varchar', { nullable: true })
     issuanceId?: string;
+
+    /**
+     * The request ID associated with the session for a presentation flow.
+     */
+    @Column('varchar', { nullable: true })
+    requestId?: string;
+
     /**
      * Verified credentials from the verification process.
      */

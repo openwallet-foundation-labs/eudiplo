@@ -1,15 +1,24 @@
-import { Controller, Get, Header, Param } from '@nestjs/common';
+import { Controller, Get, Header, UseGuards } from '@nestjs/common';
 import { WellKnownService } from './well-known.service';
 import { JwksResponseDto } from './dto/jwks-response.dto';
 import { Oauth2AuthorizationServerResponse } from './dto/oauth-authorization-server-response.dto';
-import { ApiOperation, ApiProduces } from '@nestjs/swagger';
+import {
+    ApiExcludeController,
+    ApiOperation,
+    ApiProduces,
+} from '@nestjs/swagger';
 import { ContentType } from '../utils/mediaType/media-type.decorator';
 import { MediaType } from '../utils/mediaType/media-type.enum';
+import { SessionGuard } from '../session/session.guard';
+import { SessionEntity } from '../session/session.decorator';
+import { Session } from '../session/entities/session.entity';
 
 /**
  * Controller for the OpenID4VCI well-known endpoints.
  */
-@Controller(':tenantId/.well-known')
+@ApiExcludeController(process.env.SWAGGER_ALL === 'true')
+@UseGuards(SessionGuard)
+@Controller(':session/.well-known')
 export class WellKnownController {
     /**
      * Constructor for WellKnownController.
@@ -31,10 +40,10 @@ export class WellKnownController {
     @ApiProduces(MediaType.APPLICATION_JSON, MediaType.APPLICATION_JWT)
     @Get('openid-credential-issuer')
     async issuerMetadata(
-        @Param('tenantId') tenantId: string,
+        @SessionEntity() session: Session,
         @ContentType() contentType: MediaType,
     ) {
-        return this.wellKnownService.getIssuerMetadata(tenantId, contentType);
+        return this.wellKnownService.getIssuerMetadata(session, contentType);
     }
 
     /**
@@ -43,9 +52,9 @@ export class WellKnownController {
      */
     @Get('oauth-authorization-server')
     authzMetadata(
-        @Param('tenantId') tenantId: string,
+        @SessionEntity() session: Session,
     ): Oauth2AuthorizationServerResponse {
-        return this.wellKnownService.getAuthzMetadata(tenantId);
+        return this.wellKnownService.getAuthzMetadata(session);
     }
 
     /**
@@ -54,9 +63,7 @@ export class WellKnownController {
      */
     @Header('Content-Type', 'application/jwk-set+json')
     @Get('jwks.json')
-    async getJwks(
-        @Param('tenantId') tenantId: string,
-    ): Promise<JwksResponseDto> {
-        return this.wellKnownService.getJwks(tenantId);
+    async getJwks(@SessionEntity() session: Session): Promise<JwksResponseDto> {
+        return this.wellKnownService.getJwks(session.tenantId);
     }
 }

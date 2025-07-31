@@ -14,6 +14,7 @@ import { PresentationRequestOptions } from './dto/presentation-request-options.d
 import { WebhookService } from '../../utils/webhook/webhook.service';
 import { SessionLoggerService } from '../../utils/logger/session-logger.service';
 import { SessionLogContext } from '../../utils/logger/session-logger-context';
+import { Session } from '../../session/entities/session.entity';
 
 @Injectable()
 export class Oid4vpService {
@@ -37,39 +38,34 @@ export class Oid4vpService {
      * @param auth_session
      * @returns
      */
-    async createAuthorizationRequest(
-        requestId: string,
-        tenantId: string,
-        auth_session: string,
-    ): Promise<string> {
+    async createAuthorizationRequest(session: Session): Promise<string> {
         // Create session logging context
         const logContext: SessionLogContext = {
-            sessionId: auth_session,
-            tenantId,
+            sessionId: session.id,
+            tenantId: session.tenantId,
             flowType: 'OID4VP',
             stage: 'authorization_request',
         };
 
         this.sessionLogger.logFlowStart(logContext, {
-            requestId,
+            requestId: session.requestId,
             action: 'create_authorization_request',
         });
 
         try {
             const host = this.configService.getOrThrow<string>('PUBLIC_URL');
-            const tenantUrl = `${host}/${tenantId}`;
 
             const values =
                 await this.presentationsService.getPresentationConfig(
-                    requestId,
-                    tenantId,
+                    session.requestId!,
+                    session.tenantId,
                 );
             let regCert: string | undefined = undefined;
 
             const dcql_query = JSON.parse(
                 JSON.stringify(values.dcql_query).replace(
                     /<PUBLIC_URL>/g,
-                    tenantUrl,
+                    host,
                 ),
             );
 
@@ -77,24 +73,24 @@ export class Oid4vpService {
                 const registrationCert = JSON.parse(
                     JSON.stringify(values.registrationCert).replace(
                         /<PUBLIC_URL>/g,
-                        tenantUrl,
+                        host,
                     ),
                 );
                 regCert =
                     await this.registrarService.addRegistrationCertificate(
                         registrationCert,
                         dcql_query,
-                        requestId,
-                        tenantId,
+                        session.requestId!,
+                        session.tenantId,
                     );
             }
             const nonce = randomUUID();
-            await this.sessionService.add(auth_session, tenantId, {
+            await this.sessionService.add(session.id, {
                 vp_nonce: nonce,
             });
 
             this.sessionLogger.logAuthorizationRequest(logContext, {
-                requestId,
+                requestId: session.requestId,
                 nonce,
                 regCert,
                 dcqlQueryCount: Array.isArray(dcql_query)
@@ -110,7 +106,7 @@ export class Oid4vpService {
                 payload: {
                     response_type: 'vp_token',
                     client_id: 'x509_san_dns:' + hostname,
-                    response_uri: `${host}/${tenantId}/oid4vp/response`,
+                    response_uri: `${host}/oid4vp/response/${session.id}`,
                     response_mode: 'direct_post.jwt',
                     nonce,
                     dcql_query,
@@ -145,7 +141,7 @@ export class Oid4vpService {
                             this.configService.getOrThrow<string>('RP_NAME'),
                         response_types_supported: ['vp_token'],
                     },
-                    state: auth_session,
+                    state: session.id,
                     aud: host,
                     exp: Math.floor(Date.now() / 1000) + 60 * 5,
                     iat: Math.floor(new Date().getTime() / 1000),
@@ -167,13 +163,13 @@ export class Oid4vpService {
             try {
                 accessCert = this.cryptoService.getCertChain(
                     'access',
-                    tenantId,
+                    session.tenantId,
                 );
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
             } catch (err: any) {
                 accessCert = this.cryptoService.getCertChain(
                     'signing',
-                    tenantId,
+                    session.tenantId,
                 );
             }
 
@@ -186,7 +182,7 @@ export class Oid4vpService {
             const signedJwt = await this.cryptoService.signJwt(
                 header,
                 request.payload,
-                tenantId,
+                session.tenantId,
             );
 
             this.sessionLogger.logSession(
@@ -201,7 +197,7 @@ export class Oid4vpService {
             return signedJwt;
         } catch (error) {
             this.sessionLogger.logFlowError(logContext, error as Error, {
-                requestId,
+                requestId: session.requestId,
                 action: 'create_authorization_request',
             });
             throw error;
@@ -232,9 +228,10 @@ export class Oid4vpService {
                 id: values.session,
                 webhook: values.webhook ?? presentationConfig.webhook,
                 tenantId,
+                requestId,
             });
         } else {
-            await this.sessionService.add(values.session, tenantId, {
+            await this.sessionService.add(values.session, {
                 webhook: values.webhook ?? presentationConfig.webhook,
             });
         }
@@ -244,7 +241,7 @@ export class Oid4vpService {
         ).hostname;
         const params = {
             client_id: `x509_san_dns:${hostname}`,
-            request_uri: `${this.configService.getOrThrow<string>('PUBLIC_URL')}/${tenantId}/oid4vp/request/${requestId}/${values.session}`,
+            request_uri: `${this.configService.getOrThrow<string>('PUBLIC_URL')}/oid4vp/request/${values.session}`,
         };
         const queryString = Object.entries(params)
             .map(
@@ -264,19 +261,18 @@ export class Oid4vpService {
      * @param body
      * @param tenantId
      */
-    async getResponse(body: AuthorizationResponse, tenantId: string) {
+    async getResponse(body: AuthorizationResponse, session: Session) {
         const res = await this.encryptionService.decryptJwe<AuthResponse>(
             body.response,
         );
         if (!res.state) {
             throw new ConflictException('No state found in the response');
         }
-        const session = await this.sessionService.get(res.state);
 
         // Create session logging context
         const logContext: SessionLogContext = {
             sessionId: res.state,
-            tenantId,
+            tenantId: session.tenantId,
             flowType: 'OID4VP',
             stage: 'response_processing',
         };
@@ -304,7 +300,7 @@ export class Oid4vpService {
             );
 
             //tell the auth server the result of the session.
-            await this.sessionService.add(res.state, tenantId, {
+            await this.sessionService.add(res.state, {
                 //TODO: not clear why it has to be any
                 credentials: credentials as any,
             });

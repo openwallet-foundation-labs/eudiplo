@@ -13,7 +13,6 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join, isAbsolute } from 'path';
 import { KEY_VALIDATION_SCHEMA, KeyModule } from './crypto/key/key.module';
 import { CRYPTO_VALIDATION_SCHEMA } from './crypto/key/crypto/crypto.module';
-import { AppController } from './app/app.controller';
 import {
     SESSION_VALIDATION_SCHEMA,
     SessionModule,
@@ -25,6 +24,7 @@ import { AUTH_VALIDATION_SCHEMA, AuthModule } from './auth/auth.module';
 import { EventEmitterModule } from '@nestjs/event-emitter/dist/event-emitter.module';
 import { LoggerModule } from 'nestjs-pino';
 import { WellKnownService } from './well-known/well-known.service';
+import { AppController } from './app/app.controller';
 
 @Module({
     imports: [
@@ -67,34 +67,22 @@ import { WellKnownService } from './well-known/well-known.service';
                     'LOG_ENABLE_HTTP_LOGGER',
                     false,
                 );
-
+                //TODO: check if logging to file is needed: https://github.com/iamolegga/nestjs-pino?tab=readme-ov-file#asynchronous-logging
                 return {
                     pinoHttp: {
                         level: configService.get('LOG_LEVEL', 'info'),
                         autoLogging: enableHttpLogger,
-                        transport:
-                            process.env.NODE_ENV === 'production'
-                                ? undefined
-                                : {
-                                      target: 'pino-pretty',
-                                      options: {
-                                          colorize: true,
-                                          singleLine: false,
-                                          translateTime: 'yyyy-mm-dd HH:MM:ss',
-                                          ignore: 'pid,hostname',
-                                      },
-                                  },
+                        transport: {
+                            target: 'pino-pretty',
+                            options: {
+                                colorize: true,
+                                singleLine: false,
+                                translateTime: 'yyyy-mm-dd HH:MM:ss',
+                                ignore: 'pid,hostname',
+                            },
+                        },
                         customProps: (req: any) => ({
-                            sessionId:
-                                req.headers['x-session-id'] ||
-                                req.params?.session ||
-                                req.body?.session_id,
-                            tenantId: req.params?.tenantId,
-                            flow: req.url?.includes('/vci')
-                                ? 'OID4VCI'
-                                : req.url?.includes('/oid4vp')
-                                  ? 'OID4VP'
-                                  : undefined,
+                            sessionId: req.params?.session,
                         }),
                         serializers: {
                             req: (req: any) => ({
@@ -104,9 +92,7 @@ import { WellKnownService } from './well-known/well-known.service';
                                     'user-agent': req.headers['user-agent'],
                                     'content-type': req.headers['content-type'],
                                 },
-                                sessionId:
-                                    req.headers['x-session-id'] ||
-                                    req.params?.session,
+                                sessionId: req.params?.session,
                                 tenantId: req.params?.tenantId,
                             }),
                             res: (res: any) => ({
