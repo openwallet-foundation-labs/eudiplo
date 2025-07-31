@@ -3,7 +3,6 @@
     "version": "0.0.1",
     "description": "a middleware to interact with the EUDI Wallet",
     "author": "Mirko Mollik <mirkomollik@gmail.com>",
-    "private": true,
     "license": "Apache-2.0",
     "repository": {
         "type": "git",
