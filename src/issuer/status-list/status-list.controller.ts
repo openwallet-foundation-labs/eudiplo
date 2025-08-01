@@ -2,7 +2,7 @@ import { Controller, Get, Header, Param } from '@nestjs/common';
 import { StatusListService } from './status-list.service';
 import { ApiExcludeController, ApiTags } from '@nestjs/swagger';
 
-@ApiExcludeController(process.env.SWAGGER_ALL === 'true')
+@ApiExcludeController(process.env.SWAGGER_ALL !== 'true')
 @ApiTags('Status management')
 @Controller(':tenantId/status-management')
 export class StatusListController {

@@ -113,7 +113,9 @@ export class Oid4vpService {
                     client_metadata: {
                         jwks: {
                             keys: [
-                                this.encryptionService.getEncryptionPublicKey(),
+                                this.encryptionService.getEncryptionPublicKey(
+                                    session.tenantId,
+                                ),
                             ],
                         },
                         vp_formats: {
@@ -264,6 +266,7 @@ export class Oid4vpService {
     async getResponse(body: AuthorizationResponse, session: Session) {
         const res = await this.encryptionService.decryptJwe<AuthResponse>(
             body.response,
+            session.tenantId,
         );
         if (!res.state) {
             throw new ConflictException('No state found in the response');

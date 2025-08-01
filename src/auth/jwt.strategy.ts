@@ -4,10 +4,14 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { passportJwtSecret } from 'jwks-rsa';
 import { ConfigService } from '@nestjs/config';
 import { TokenPayload } from './token.decorator';
+import { ClientService } from './client.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
-    constructor(private configService: ConfigService) {
+    constructor(
+        private configService: ConfigService,
+        private clientService: ClientService,
+    ) {
         const useExternalOIDC = configService.get<boolean>('OIDC');
 
         super(
@@ -63,9 +67,15 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         return config;
     }
 
-    validate(payload: TokenPayload): unknown {
+    /**
+     * Validate the JWT payload. It will also check if the client is set up.
+     * @param payload The JWT payload
+     * @returns The validated payload or an error
+     */
+    async validate(payload: TokenPayload): Promise<unknown> {
         const useExternalOIDC =
             this.configService.get<boolean>('OIDC') !== undefined;
+        await this.clientService.isSetUp(payload.sub);
 
         if (useExternalOIDC) {
             // External OIDC: Extract user info from external provider token

@@ -17,7 +17,7 @@ When running EUDIPLO, the following endpoints are available:
     By default it will only include the endpoints that are relevant to interact with
     it from the server side (it is excluding the routes that are relevant for e.g.
     OID4VCI and OID4VP). To generate the full OpenAPI specification, you can set the
-    environment variable `SWAGGER_ALL` to `true` in your `.env` file.
+    environment variable `SWAGGER_ALL` to `true` when starting the service like `SWAGGER_ALL=true pnpm run start:dev`.
 
 You can use this OpenAPI specification to generate client libraries.
 

@@ -142,17 +142,7 @@ export class KeyEntity {
 2. System creates tenant directory: `/config/{tenantId}/`
 3. Cryptographic key pair automatically generated
 4. Keys stored in tenant-specific location
-5. `TENANT_KEYS` event emitted for dependent services
-
-**Event-Driven Key Setup:**
-
-```typescript
-@OnEvent(TENANT_EVENTS.TENANT_KEYS, { async: true })
-async onTenantInit(tenantId: string) {
-    // Services automatically initialize tenant-specific keys
-    await this.cryptoService.initializeKeys(tenantId);
-}
-```
+5. Generation of certificate for public key
 
 ### Key Access Patterns
 

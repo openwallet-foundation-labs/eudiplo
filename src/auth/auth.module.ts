@@ -7,6 +7,11 @@ import { AuthController } from './auth.controller';
 import { ClientService } from './client.service';
 import * as Joi from 'joi';
 import { ConfigModule } from '@nestjs/config';
+import { CryptoModule } from '../crypto/crypto.module';
+import { StatusListModule } from '../issuer/status-list/status-list.module';
+import { RegistrarModule } from '../registrar/registrar.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ClientEntry } from './entitites/client.entity';
 
 export const AUTH_VALIDATION_SCHEMA = {
     OIDC: Joi.string().optional(),
@@ -41,7 +46,14 @@ export const AUTH_VALIDATION_SCHEMA = {
 };
 
 @Module({
-    imports: [PassportModule, ConfigModule],
+    imports: [
+        PassportModule,
+        ConfigModule,
+        CryptoModule,
+        StatusListModule,
+        RegistrarModule,
+        TypeOrmModule.forFeature([ClientEntry]),
+    ],
     providers: [JwtStrategy, JwtAuthGuard, JwtService, ClientService],
     controllers: [AuthController],
     exports: [PassportModule, JwtStrategy, JwtAuthGuard, JwtService],

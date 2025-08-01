@@ -22,8 +22,6 @@ import { join } from 'node:path';
 import { KeyService } from './key/key.service';
 import { EC_Public } from '../well-known/dto/jwks-response.dto';
 import { execSync } from 'node:child_process';
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { TENANT_EVENTS } from '../auth/tenant-events';
 
 type certificateType = 'access' | 'signing';
 
@@ -34,7 +32,6 @@ export class CryptoService implements OnModuleInit {
     constructor(
         private readonly configService: ConfigService,
         @Inject('KeyService') public readonly keyService: KeyService,
-        private readonly eventEmitter: EventEmitter2,
     ) {}
     onModuleInit() {
         this.folder = join(this.configService.getOrThrow<string>('FOLDER'));
@@ -43,7 +40,6 @@ export class CryptoService implements OnModuleInit {
         }
     }
 
-    @OnEvent(TENANT_EVENTS.TENANT_INIT, { async: true })
     async onTenantInit(tenantId: string) {
         const folder = join(this.folder, tenantId, 'keys');
         if (!existsSync(folder)) {
@@ -51,7 +47,6 @@ export class CryptoService implements OnModuleInit {
         }
         await this.keyService.init(tenantId);
         this.hasCerts(tenantId);
-        this.eventEmitter.emit(TENANT_EVENTS.TENANT_KEYS, tenantId);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

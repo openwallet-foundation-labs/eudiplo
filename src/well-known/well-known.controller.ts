@@ -5,6 +5,7 @@ import { Oauth2AuthorizationServerResponse } from './dto/oauth-authorization-ser
 import {
     ApiExcludeController,
     ApiOperation,
+    ApiParam,
     ApiProduces,
 } from '@nestjs/swagger';
 import { ContentType } from '../utils/mediaType/media-type.decorator';
@@ -16,8 +17,12 @@ import { Session } from '../session/entities/session.entity';
 /**
  * Controller for the OpenID4VCI well-known endpoints.
  */
-@ApiExcludeController(process.env.SWAGGER_ALL === 'true')
+@ApiExcludeController(process.env.SWAGGER_ALL !== 'true')
 @UseGuards(SessionGuard)
+@ApiParam({
+    name: 'session',
+    required: true,
+})
 @Controller(':session/.well-known')
 export class WellKnownController {
     /**
