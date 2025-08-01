@@ -393,7 +393,6 @@ import { ScheduleModule } from &#x27;@nestjs/schedule&#x27;;
 import { DatabaseModule } from &#x27;./database/database.module&#x27;;
 import { HealthModule } from &#x27;./health/health.module&#x27;;
 import { AUTH_VALIDATION_SCHEMA, AuthModule } from &#x27;./auth/auth.module&#x27;;
-import { EventEmitterModule } from &#x27;@nestjs/event-emitter/dist/event-emitter.module&#x27;;
 import { LoggerModule } from &#x27;nestjs-pino&#x27;;
 import { WellKnownService } from &#x27;./well-known/well-known.service&#x27;;
 import { AppController } from &#x27;./app/app.controller&#x27;;
@@ -496,7 +495,6 @@ import { AppController } from &#x27;./app/app.controller&#x27;;
                 ];
             },
         }),
-        EventEmitterModule.forRoot(),
         DatabaseModule,
         SessionModule,
         DatabaseModule,

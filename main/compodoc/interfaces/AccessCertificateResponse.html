@@ -327,8 +327,6 @@ import { PresentationsService } from &#x27;../verifier/presentations/presentatio
 import { existsSync, readFileSync, writeFileSync } from &#x27;node:fs&#x27;;
 import { RegistrarConfig } from &#x27;./registrar-config&#x27;;
 import { join } from &#x27;node:path&#x27;;
-import { OnEvent } from &#x27;@nestjs/event-emitter&#x27;;
-import { TENANT_EVENTS } from &#x27;../auth/tenant-events&#x27;;
 
 /**
  * Repsonse of access certificate request.
@@ -434,7 +432,6 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
      * This function is called when a tenant is initialized.
      * @param tenantId
      */
-    @OnEvent(TENANT_EVENTS.TENANT_KEYS, { async: true })
     async onTenantInit(tenantId: string) {
         if (!this.isEnabled()) {
             return;

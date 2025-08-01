@@ -393,8 +393,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="214"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:214</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="216"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:216</a></div>
                         </td>
                     </tr>
 
@@ -488,8 +488,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="264"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:264</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="266"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:266</a></div>
                         </td>
                     </tr>
 
@@ -670,7 +670,9 @@ export class Oid4vpService {
                     client_metadata: {
                         jwks: {
                             keys: [
-                                this.encryptionService.getEncryptionPublicKey(),
+                                this.encryptionService.getEncryptionPublicKey(
+                                    session.tenantId,
+                                ),
                             ],
                         },
                         vp_formats: {
@@ -821,6 +823,7 @@ export class Oid4vpService {
     async getResponse(body: AuthorizationResponse, session: Session) {
         const res &#x3D; await this.encryptionService.decryptJwe&lt;AuthResponse&gt;(
             body.response,
+            session.tenantId,
         );
         if (!res.state) {
             throw new ConflictException(&#x27;No state found in the response&#x27;);

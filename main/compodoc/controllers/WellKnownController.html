@@ -211,8 +211,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="54"
-                                    class="link-to-prism">src/well-known/well-known.controller.ts:54</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="59"
+                                    class="link-to-prism">src/well-known/well-known.controller.ts:59</a></div>
                         </td>
                     </tr>
 
@@ -291,8 +291,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="66"
-                                    class="link-to-prism">src/well-known/well-known.controller.ts:66</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="71"
+                                    class="link-to-prism">src/well-known/well-known.controller.ts:71</a></div>
                         </td>
                     </tr>
 
@@ -372,8 +372,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="42"
-                                    class="link-to-prism">src/well-known/well-known.controller.ts:42</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="47"
+                                    class="link-to-prism">src/well-known/well-known.controller.ts:47</a></div>
                         </td>
                     </tr>
 
@@ -444,6 +444,7 @@ import { Oauth2AuthorizationServerResponse } from &#x27;./dto/oauth-authorizatio
 import {
     ApiExcludeController,
     ApiOperation,
+    ApiParam,
     ApiProduces,
 } from &#x27;@nestjs/swagger&#x27;;
 import { ContentType } from &#x27;../utils/mediaType/media-type.decorator&#x27;;
@@ -455,8 +456,12 @@ import { Session } from &#x27;../session/entities/session.entity&#x27;;
 /**
  * Controller for the OpenID4VCI well-known endpoints.
  */
-@ApiExcludeController(process.env.SWAGGER_ALL &#x3D;&#x3D;&#x3D; &#x27;true&#x27;)
+@ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &#x27;true&#x27;)
 @UseGuards(SessionGuard)
+@ApiParam({
+    name: &#x27;session&#x27;,
+    required: true,
+})
 @Controller(&#x27;:session/.well-known&#x27;)
 export class WellKnownController {
     /**

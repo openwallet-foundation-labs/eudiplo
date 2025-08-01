@@ -205,8 +205,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="41"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:41</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="42"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:42</a></div>
                         </td>
                     </tr>
 
@@ -284,8 +284,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="52"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:52</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="53"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:53</a></div>
                         </td>
                     </tr>
 
@@ -364,7 +364,7 @@ import { SessionLoggerInterceptor } from &#x27;../../utils/logger/session-logger
 import { SessionEntity } from &#x27;../../session/session.decorator&#x27;;
 import { Session } from &#x27;../../session/entities/session.entity&#x27;;
 import { SessionGuard } from &#x27;../../session/session.guard&#x27;;
-import { ApiExcludeController } from &#x27;@nestjs/swagger&#x27;;
+import { ApiExcludeController, ApiParam } from &#x27;@nestjs/swagger&#x27;;
 
 /**
  * Controller for handling OID4VP (OpenID for Verifiable Presentations) requests.
@@ -372,7 +372,8 @@ import { ApiExcludeController } from &#x27;@nestjs/swagger&#x27;;
 @Controller(&#x27;oid4vp&#x27;)
 @UseGuards(SessionGuard)
 @UseInterceptors(SessionLoggerInterceptor)
-@ApiExcludeController(process.env.SWAGGER_ALL &#x3D;&#x3D;&#x3D; &#x27;true&#x27;)
+@ApiParam({ name: &#x27;session&#x27;, required: true })
+@ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &#x27;true&#x27;)
 export class Oid4vpController {
     /**
      * Constructor for the Oid4vpController.

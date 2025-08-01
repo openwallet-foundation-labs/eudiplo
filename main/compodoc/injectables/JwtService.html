@@ -236,8 +236,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="83"
-                                    class="link-to-prism">src/auth/jwt.service.ts:83</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="82"
+                                    class="link-to-prism">src/auth/jwt.service.ts:82</a></div>
                         </td>
                     </tr>
 
@@ -394,8 +394,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="94"
-                                    class="link-to-prism">src/auth/jwt.service.ts:94</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="93"
+                                    class="link-to-prism">src/auth/jwt.service.ts:93</a></div>
                         </td>
                     </tr>
 
@@ -558,12 +558,11 @@ export class JwtService {
         const secretKey &#x3D; new TextEncoder().encode(secret);
 
         try {
-            const { payload } &#x3D; await jwtVerify(token, secretKey, {
+            const { payload } &#x3D; (await jwtVerify(token, secretKey, {
                 issuer,
                 algorithms: [&#x27;HS256&#x27;],
-            });
-
-            return payload as TokenPayload;
+            })) as { payload: TokenPayload };
+            return payload;
         } catch (error) {
             throw new Error(&#x60;Invalid token: ${error.message}&#x60;);
         }

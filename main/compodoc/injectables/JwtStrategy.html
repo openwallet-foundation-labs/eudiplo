@@ -153,6 +153,7 @@
                                 <a href="#getIntegratedOAuth2Config" >getIntegratedOAuth2Config</a>
                             </li>
                             <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#validate" >validate</a>
                             </li>
                         </ul>
@@ -173,12 +174,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(configService: ConfigService)</code>
+<code>constructor(configService: ConfigService, clientService: <a href="../injectables/ClientService.html" target="_self">ClientService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="9" class="link-to-prism">src/auth/jwt.strategy.ts:9</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="10" class="link-to-prism">src/auth/jwt.strategy.ts:10</a></div>
                             </td>
                         </tr>
 
@@ -200,6 +201,18 @@
                                                   
                                                         <td>
                                                                     <code>ConfigService</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>clientService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/ClientService.html" target="_self" >ClientService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -244,8 +257,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="20"
-                                    class="link-to-prism">src/auth/jwt.strategy.ts:20</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="24"
+                                    class="link-to-prism">src/auth/jwt.strategy.ts:24</a></div>
                         </td>
                     </tr>
 
@@ -314,8 +327,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="47"
-                                    class="link-to-prism">src/auth/jwt.strategy.ts:47</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="51"
+                                    class="link-to-prism">src/auth/jwt.strategy.ts:51</a></div>
                         </td>
                     </tr>
 
@@ -367,6 +380,7 @@
                 <td class="col-md-4">
                     <a name="validate"></a>
                     <span class="name">
+                            <span class="modifier">Async</span>
                         <span ><b>validate</b></span>
                         <a href="#validate"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -374,21 +388,24 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>validate(payload: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>validate(payload: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="66"
-                                    class="link-to-prism">src/auth/jwt.strategy.ts:66</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="75"
+                                    class="link-to-prism">src/auth/jwt.strategy.ts:75</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Validate the JWT payload. It will also check if the client is set up.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -399,6 +416,7 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
+                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -413,9 +431,21 @@
                                             </td>
 
 
+                                            <td>
+                                                    <p>The JWT payload</p>
+
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>The validated payload or an error</p>
+
                             </div>
                 </td>
             </tr>
@@ -433,10 +463,14 @@ import { ExtractJwt, Strategy } from &#x27;passport-jwt&#x27;;
 import { passportJwtSecret } from &#x27;jwks-rsa&#x27;;
 import { ConfigService } from &#x27;@nestjs/config&#x27;;
 import { TokenPayload } from &#x27;./token.decorator&#x27;;
+import { ClientService } from &#x27;./client.service&#x27;;
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, &#x27;jwt&#x27;) {
-    constructor(private configService: ConfigService) {
+    constructor(
+        private configService: ConfigService,
+        private clientService: ClientService,
+    ) {
         const useExternalOIDC &#x3D; configService.get&lt;boolean&gt;(&#x27;OIDC&#x27;);
 
         super(
@@ -492,9 +526,15 @@ export class JwtStrategy extends PassportStrategy(Strategy, &#x27;jwt&#x27;) {
         return config;
     }
 
-    validate(payload: TokenPayload): unknown {
+    /**
+     * Validate the JWT payload. It will also check if the client is set up.
+     * @param payload The JWT payload
+     * @returns The validated payload or an error
+     */
+    async validate(payload: TokenPayload): Promise&lt;unknown&gt; {
         const useExternalOIDC &#x3D;
             this.configService.get&lt;boolean&gt;(&#x27;OIDC&#x27;) !&#x3D;&#x3D; undefined;
+        await this.clientService.isSetUp(payload.sub);
 
         if (useExternalOIDC) {
             // External OIDC: Extract user info from external provider token

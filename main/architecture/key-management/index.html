@@ -1550,22 +1550,15 @@ tenants, ensuring cryptographic separation and security.</p>
 <li>System creates tenant directory: <code>/config/{tenantId}/</code></li>
 <li>Cryptographic key pair automatically generated</li>
 <li>Keys stored in tenant-specific location</li>
-<li><code>TENANT_KEYS</code> event emitted for dependent services</li>
+<li>Generation of certificate for public key</li>
 </ol>
-<p><strong>Event-Driven Key Setup:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kd">@OnEvent</span><span class="p">(</span><span class="nx">TENANT_EVENTS</span><span class="p">.</span><span class="nx">TENANT_KEYS</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">async</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="w"> </span><span class="p">})</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="k">async</span><span class="w"> </span><span class="nx">onTenantInit</span><span class="p">(</span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="c1">// Services automatically initialize tenant-specific keys</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">cryptoService</span><span class="p">.</span><span class="nx">initializeKeys</span><span class="p">(</span><span class="nx">tenantId</span><span class="p">);</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="p">}</span>
-</code></pre></div>
 <h3 id="key-access-patterns">Key Access Patterns<a class="headerlink" href="#key-access-patterns" title="Permanent link">&para;</a></h3>
 <p><strong>Tenant-Scoped Key Retrieval:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1">// Get signing keys for specific tenant</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kd">const</span><span class="w"> </span><span class="nx">keys</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">cryptoService</span><span class="p">.</span><span class="nx">getJwks</span><span class="p">(</span><span class="nx">tenantId</span><span class="p">);</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1">// Get encryption context for tenant</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="kd">const</span><span class="w"> </span><span class="nx">context</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">cryptoService</span><span class="p">.</span><span class="nx">getCallbackContext</span><span class="p">(</span><span class="nx">tenantId</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1">// Get signing keys for specific tenant</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kd">const</span><span class="w"> </span><span class="nx">keys</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">cryptoService</span><span class="p">.</span><span class="nx">getJwks</span><span class="p">(</span><span class="nx">tenantId</span><span class="p">);</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1">// Get encryption context for tenant</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="kd">const</span><span class="w"> </span><span class="nx">context</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">cryptoService</span><span class="p">.</span><span class="nx">getCallbackContext</span><span class="p">(</span><span class="nx">tenantId</span><span class="p">);</span>
 </code></pre></div>
 <p><strong>Security Benefits:</strong></p>
 <ul>
