@@ -35,7 +35,6 @@ import { TokenPayload } from '../../auth/token.decorator';
 import { IssuanceService } from '../issuance/issuance.service';
 import { WebhookService } from '../../utils/webhook/webhook.service';
 import { Session, SessionStatus } from '../../session/entities/session.entity';
-import { b } from 'vitest/dist/chunks/suite.d.FvehnV49';
 
 @Injectable()
 export class Oid4vciService implements OnModuleInit {

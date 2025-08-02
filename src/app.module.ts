@@ -24,7 +24,6 @@ import { AUTH_VALIDATION_SCHEMA, AuthModule } from './auth/auth.module';
 import { LoggerModule } from 'nestjs-pino';
 import { WellKnownService } from './well-known/well-known.service';
 import { AppController } from './app/app.controller';
-import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 import { MetricModule } from './metric/metric.module';
 
 @Module({
