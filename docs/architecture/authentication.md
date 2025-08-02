@@ -1,6 +1,4 @@
-# Management
-
-## Authentication
+# Authentication
 
 EUDIPLO uses **Bearer JWT token authentication** for all management API
 endpoints. The service supports two client management approaches.
@@ -64,33 +62,3 @@ EUDIPLO service to use the OIDC issuer URL via the `OIDC` environment variable.
 
 This will deactivate the internal client management and use the external OIDC
 provider for authentication.
-
-## API Endpoint Patterns
-
-> **Important**: Endpoints are not isolated by tenant id, but by session id.
-> Each session includes the tenant ID to use it during the request.
-
-### Tenant Initialization Process
-
-TODO: needs to be aligned
-
-- when to create all the necessary resources like keys and certificates
-- when to remove them
-- when to check if they are still valid
-
-## Sessions Management
-
-EUDIPLO manages sessions for credential issuance and verification and are bound
-to each tenant. In case for a presentation during issuance, both actions are
-handled in the same session. Sessions are stored in the database and can be
-managed via the `/sessions` endpoint. You can retrieve a specific session via
-`/sessions/{id}`.
-
-To tidy up old sessions, an interval is set to delete older session. The default
-values can be configured by setting:
-
-- `SESSION_TIDY_UP_INTERVAL`: value in seconds, default: 3600 (1 hour)
-- `SESSION_TTL`: value in seconds, default: 86400 (24 hours)
-
-Other elements as persisted status mapping (the binding between a session id and
-a status list reference) are not deleted with this process.

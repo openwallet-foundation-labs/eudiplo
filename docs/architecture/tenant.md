@@ -5,9 +5,6 @@ configurations and data for different clients or environments. This means you
 can run multiple instances of EUDIPLO, each serving a different tenant or
 client, while sharing the same codebase.
 
-Each tenant is accessible via a client, more information can be found in the
-[Management](../getting-started/management.md) section.
-
 ## Tenant Isolation
 
 Each tenant has:

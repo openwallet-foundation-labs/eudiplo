@@ -129,8 +129,8 @@ Middleware ->> End_Service : Notify successful issuance
   [Blueprint](https://bmi.usercontent.opencode.de/eudi-wallet/eidas-2.0-architekturkonzept/flows/Wallet-Relying-Party-Authentication/)
 - `webhook`: OPTIONAL: The URL where the verified presentation will be sent
   after the user completes the flow, for more information, see
-  [Webhook Integration](./webhooks.md). If not provided, the data can be fetched
-  via the session ID returned in the initial request.
+  [Webhook Integration](../architecture/webhooks.md). If not provided, the data
+  can be fetched via the session ID returned in the initial request.
 
 > `<PUBLIC_URL>` will be dynamically replaced at runtime with your public URL
 > together with with the tenant ID.
