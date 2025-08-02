@@ -34,7 +34,8 @@ import { SessionLogContext } from '../../utils/logger/session-logger-context';
 import { TokenPayload } from '../../auth/token.decorator';
 import { IssuanceService } from '../issuance/issuance.service';
 import { WebhookService } from '../../utils/webhook/webhook.service';
-import { Session } from '../../session/entities/session.entity';
+import { Session, SessionStatus } from '../../session/entities/session.entity';
+import { b } from 'vitest/dist/chunks/suite.d.FvehnV49';
 
 @Injectable()
 export class Oid4vciService implements OnModuleInit {
@@ -364,6 +365,9 @@ export class Oid4vciService implements OnModuleInit {
                     session.notifications[index],
                 );
             }
+            const state: SessionStatus =
+                body.event === 'credential_accepted' ? 'completed' : 'failed';
+            await this.sessionService.setState(session, state);
         } catch (error) {
             this.sessionLogger.logSessionError(
                 logContext,

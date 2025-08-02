@@ -1,0 +1,52 @@
+services:
+    prometheus:
+        image: prom/prometheus:latest
+        restart: always
+        container_name: prometheus
+        ports:
+            - '9090:9090'
+        volumes:
+            - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+            - ./prometheus/rules:/etc/prometheus/rules:ro
+            - prometheus_data:/prometheus
+        command:
+            - '--config.file=/etc/prometheus/prometheus.yml'
+            - '--storage.tsdb.path=/prometheus'
+            - '--web.console.libraries=/etc/prometheus/console_libraries'
+            - '--web.console.templates=/etc/prometheus/consoles'
+            - '--storage.tsdb.retention.time=200h'
+            - '--web.enable-lifecycle'
+            - '--web.enable-admin-api'
+        networks:
+            - monitoring
+
+    grafana:
+        image: grafana/grafana:latest
+        restart: always
+        container_name: grafana
+        ports:
+            - '3001:3000'
+        environment:
+            - GF_SECURITY_ADMIN_USER=admin
+            - GF_SECURITY_ADMIN_PASSWORD=admin
+            - GF_USERS_ALLOW_SIGN_UP=false
+        volumes:
+            - grafana_data:/var/lib/grafana
+            - ./grafana/provisioning:/etc/grafana/provisioning:ro
+            - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+            - ./grafana/custom.ini:/etc/grafana/grafana.ini:ro
+            # Optional: Uncomment for read-write access (less secure)
+            # - ./grafana/provisioning:/etc/grafana/provisioning:rw
+            # - ./grafana/dashboards:/var/lib/grafana/dashboards:rw
+        networks:
+            - monitoring
+        depends_on:
+            - prometheus
+
+networks:
+    monitoring:
+        driver: bridge
+
+volumes:
+    prometheus_data:
+    grafana_data:

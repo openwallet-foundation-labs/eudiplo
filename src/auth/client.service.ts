@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+    BadRequestException,
+    Injectable,
+    OnApplicationBootstrap,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
@@ -9,6 +13,8 @@ import { RegistrarService } from '../registrar/registrar.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ClientEntry } from './entitites/client.entity';
 import { Repository } from 'typeorm/repository/Repository';
+import { InjectMetric } from '@willsoto/nestjs-prometheus';
+import { Gauge } from 'prom-client';
 
 // Client interface for service integration
 export interface Client {
@@ -17,7 +23,7 @@ export interface Client {
 }
 
 @Injectable()
-export class ClientService {
+export class ClientService implements OnApplicationBootstrap {
     private clients: Client[] | null = null;
 
     constructor(
@@ -28,7 +34,15 @@ export class ClientService {
         private registrarService: RegistrarService,
         @InjectRepository(ClientEntry)
         private clientRepository: Repository<ClientEntry>,
+        @InjectMetric('tenant_client_total')
+        private tenantClientTotal: Gauge<string>,
     ) {}
+
+    async onApplicationBootstrap() {
+        // Initialize the client metrics
+        const count = await this.clientRepository.countBy({ status: 'set up' });
+        this.tenantClientTotal.set({}, count);
+    }
 
     /**
      * Get clients from configuration
@@ -83,6 +97,12 @@ export class ClientService {
      * @returns
      */
     async isSetUp(id: string) {
+        void this.clientRepository
+            .countBy({ status: 'set up' })
+            .then((count) => {
+                this.tenantClientTotal.set({}, count);
+            });
+
         await this.clientRepository.findOneByOrFail({ id }).then(
             (res) => {
                 if (res.status === 'set up') {
