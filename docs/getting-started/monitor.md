@@ -108,33 +108,13 @@ docker-compose up -d
 
 ## Key Metrics
 
-Right now only the sessions will be monitored, but you can extend this to
-include more metrics as needed like:
+EUDIPLO exposes these important metrics:
 
 ### Business Metrics
 
-- `credential_issuance_total` - Credentials issued
-- `credential_verification_total` - Verifications performed
-- `active_sessions_total` - Current active sessions
+- `sessions` - Active, completed, and failed sessions
 
-### Technical Metrics
-
-- `http_requests_total` - HTTP requests by status
-- `http_request_duration_seconds` - Request latency
-- `nodejs_heap_used_bytes` - Memory usage
-
-### Example Queries
-
-```promql
-# Request rate (last 5 minutes)
-rate(http_requests_total[5m])
-
-# Error rate
-rate(http_requests_total{status=~"4..|5.."}[5m])
-
-# Memory usage
-nodejs_heap_used_bytes / 1024 / 1024
-```
+> More values will be added as the project evolves.
 
 ## Access Dashboards
 
@@ -208,6 +188,10 @@ For production deployments:
 3. **Backup**: Set up regular backups of Grafana dashboards
 4. **Alerting**: Configure alertmanager for notifications
 5. **Resources**: Monitor resource usage and scale accordingly
+
+!!! Warning
+
+    The endpoint for `/metrics` is not protected yet. So for now run the prometheus in the same network as the EUDIPLO instance. Authentication mechanisms will be added in the future.
 
 ## Clean Up
 
