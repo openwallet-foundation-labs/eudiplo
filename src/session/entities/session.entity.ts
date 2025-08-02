@@ -8,6 +8,8 @@ import { OfferRequestDto } from '../../issuer/oid4vci/dto/offer-request.dto';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { WebhookConfig } from '../../utils/webhook/webhook.dto';
 
+export type SessionStatus = 'active' | 'completed' | 'expired' | 'failed';
+
 /**
  * Represents a session entity for managing user sessions in the application.
  */
@@ -44,7 +46,7 @@ export class Session {
     issuanceId?: string;
 
     /**
-     * The request ID associated with the session for a presentation flow.
+     * The ID of the presentation configuration associated with the session.
      */
     @Column('varchar', { nullable: true })
     requestId?: string;
@@ -109,4 +111,7 @@ export class Session {
      */
     @Column('varchar')
     tenantId: string;
+
+    @Column('varchar', { nullable: true, default: 'active' })
+    status: SessionStatus;
 }

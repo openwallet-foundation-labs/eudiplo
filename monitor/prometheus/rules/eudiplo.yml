@@ -1,0 +1,71 @@
+groups:
+  - name: eudiplo.rules
+    rules:
+      # High Error Rate Alert
+      - alert: HighErrorRate
+        expr: rate(application_errors_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          service: eudiplo
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value }} errors per second for tenant {{ $labels.tenant_id }}"
+
+      # Credential Issuance Failure Rate
+      - alert: HighCredentialFailureRate
+        expr: rate(credential_issuance_failures_total[5m]) / rate(credential_issuance_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          service: eudiplo
+        annotations:
+          summary: "High credential issuance failure rate"
+          description: "Credential failure rate is {{ $value | humanizePercentage }} for tenant {{ $labels.tenant_id }}"
+
+      # Service Down Alert
+      - alert: ServiceDown
+        expr: up{job="eudiplo"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: eudiplo
+        annotations:
+          summary: "EUDIPLO service is down"
+          description: "EUDIPLO service has been down for more than 1 minute"
+
+      # High Response Time
+      - alert: HighResponseTime
+        expr: http_request_duration_seconds{quantile="0.95"} > 2
+        for: 5m
+        labels:
+          severity: warning
+          service: eudiplo
+        annotations:
+          summary: "High response time detected"
+          description: "95th percentile response time is {{ $value }}s"
+
+      # High Memory Usage (if node_exporter is available)
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: eudiplo
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is {{ $value }}%"
+
+  - name: tenant.rules
+    rules:
+      # Per-tenant credential issuance rate
+      - record: tenant:credential_issuance_rate
+        expr: rate(credential_issuance_total[5m])
+        
+      # Per-tenant error rate
+      - record: tenant:error_rate
+        expr: rate(application_errors_total[5m])
+        
+      # Per-tenant active sessions
+      - record: tenant:active_sessions
+        expr: active_sessions_total

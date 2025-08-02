@@ -1,10 +1,19 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
-import { Session } from './entities/session.entity';
+import { Session, SessionStatus } from './entities/session.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeepPartial, FindOptionsWhere, LessThan, Repository } from 'typeorm';
+import {
+    DeepPartial,
+    FindOptionsWhere,
+    IsNull,
+    LessThan,
+    Not,
+    Repository,
+} from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { ConfigService } from '@nestjs/config';
+import { Gauge } from 'prom-client';
+import { InjectMetric } from '@willsoto/nestjs-prometheus/dist/injector';
 
 @Injectable()
 export class SessionService implements OnApplicationBootstrap {
@@ -13,6 +22,8 @@ export class SessionService implements OnApplicationBootstrap {
         private sessionRepository: Repository<Session>,
         private readonly configService: ConfigService,
         private readonly schedulerRegistry: SchedulerRegistry,
+        @InjectMetric('sessions')
+        private sessionsCounter: Gauge<string>,
     ) {}
 
     /**
@@ -20,7 +31,7 @@ export class SessionService implements OnApplicationBootstrap {
      * This will run every hour by default, but can be configured via the `SESSION_TIDY_UP_INTERVAL` config variable.
      * @returns
      */
-    onApplicationBootstrap() {
+    async onApplicationBootstrap() {
         const callback = () => {
             void this.tidyUpSessions();
         };
@@ -29,6 +40,44 @@ export class SessionService implements OnApplicationBootstrap {
             1000;
         const interval = setInterval(callback, intervalTime);
         this.schedulerRegistry.addInterval('tidyUpSessions', interval);
+
+        //set default values for session metrics
+        const tenantId = 'root';
+        const states: SessionStatus[] = [
+            'active',
+            'completed',
+            'expired',
+            'failed',
+        ];
+        for (const state of states) {
+            const issuanceCounter = await this.sessionRepository.countBy({
+                tenantId,
+                issuanceId: Not(IsNull()),
+                status: state,
+            });
+            this.sessionsCounter.set(
+                {
+                    tenant_id: tenantId,
+                    session_type: 'issuance',
+                    status: state,
+                },
+                issuanceCounter,
+            );
+            const verificationCounter = await this.sessionRepository.countBy({
+                tenantId,
+                issuanceId: IsNull(),
+                status: state,
+            });
+            this.sessionsCounter.set(
+                {
+                    tenant_id: tenantId,
+                    session_type: 'verification',
+                    status: state,
+                },
+                verificationCounter,
+            );
+        }
+
         return this.tidyUpSessions();
     }
 
@@ -37,8 +86,44 @@ export class SessionService implements OnApplicationBootstrap {
      * @param session
      * @returns
      */
-    create(session: DeepPartial<Session>) {
-        return this.sessionRepository.save(session);
+    async create(session: DeepPartial<Session>) {
+        const createdSession = await this.sessionRepository.save(session);
+
+        // Count total sessions created
+        this.sessionsCounter.inc({
+            tenant_id: createdSession.tenantId,
+            session_type: createdSession.issuanceId
+                ? 'issuance'
+                : 'verification',
+            status: 'active',
+        });
+
+        return createdSession;
+    }
+
+    /**
+     * Marks the session as successful or failed.
+     * @param session
+     * @param status
+     */
+    async setState(session: Session, status: SessionStatus) {
+        const sessionType = session.issuanceId ? 'issuance' : 'verification';
+
+        await this.sessionRepository.update({ id: session.id }, { status });
+
+        // Count completed sessions (success or failure)
+        this.sessionsCounter.inc({
+            tenant_id: session.tenantId,
+            session_type: sessionType,
+            status,
+        });
+
+        // Decrease active sessions count
+        this.sessionsCounter.dec({
+            tenant_id: session.tenantId,
+            session_type: sessionType,
+            status: 'active',
+        });
     }
 
     /**

@@ -108,6 +108,7 @@ nav:
       - Management: getting-started/management.md
       - Webhooks: getting-started/webhooks.md
       - Registrar: getting-started/registrar.md
+      - Monitor: getting-started/monitor.md
   - Architecture:
       - Overview: architecture/overview.md      
       - Supported Protocols: architecture/supported-protocols.md

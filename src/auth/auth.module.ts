@@ -12,6 +12,7 @@ import { StatusListModule } from '../issuer/status-list/status-list.module';
 import { RegistrarModule } from '../registrar/registrar.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ClientEntry } from './entitites/client.entity';
+import { makeGaugeProvider } from '@willsoto/nestjs-prometheus';
 
 export const AUTH_VALIDATION_SCHEMA = {
     OIDC: Joi.string().optional(),
@@ -54,7 +55,16 @@ export const AUTH_VALIDATION_SCHEMA = {
         RegistrarModule,
         TypeOrmModule.forFeature([ClientEntry]),
     ],
-    providers: [JwtStrategy, JwtAuthGuard, JwtService, ClientService],
+    providers: [
+        JwtStrategy,
+        JwtAuthGuard,
+        JwtService,
+        ClientService,
+        makeGaugeProvider({
+            name: 'tenant_client_total',
+            help: 'Total number of tenant clients',
+        }),
+    ],
     controllers: [AuthController],
     exports: [PassportModule, JwtStrategy, JwtAuthGuard, JwtService],
 })
