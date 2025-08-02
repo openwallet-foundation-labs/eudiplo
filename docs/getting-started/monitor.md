@@ -1,327 +1,220 @@
-# EUDIPLO Monitoring Setup
+# Monitoring
 
-This document describes how to set up Prometheus monitoring for the EUDIPLO service using Docker Compose.
+This guide shows how to set up Prometheus and Grafana monitoring for EUDIPLO in
+both local development and Docker container scenarios.
 
 ## Quick Start
 
-### Option 1: Basic Setup (Prometheus only)
+The monitoring stack includes:
 
-To start EUDIPLO with Prometheus monitoring:
+- **Prometheus** on http://localhost:9090 - Metrics collection
+- **Grafana** on http://localhost:3001 - Dashboards and visualization
+
+### Start Monitoring Stack
 
 ```bash
+cd monitor/
 docker-compose up -d
 ```
 
-This will start:
-- **EUDIPLO service** on http://localhost:3000
-- **Prometheus** on http://localhost:9090
+## Local Development Setup
 
-### Option 2: Full Monitoring Stack (Prometheus + Grafana)
+When running EUDIPLO locally (outside Docker) and monitoring with Docker:
 
-To start the complete monitoring stack:
+### 1. Start EUDIPLO Locally
 
 ```bash
-docker-compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d
+# Install dependencies and start EUDIPLO
+npm install
+npm run start:dev
 ```
 
-This will start:
-- **EUDIPLO service** on http://localhost:3000
-- **Prometheus** on http://localhost:9090
-- **Grafana** on http://localhost:3001
+EUDIPLO will be available at http://localhost:3000 with metrics at
+http://localhost:3000/metrics
 
-## Services Overview
+### 2. Configure Prometheus for Local EUDIPLO
 
-### EUDIPLO Service
-- **URL**: http://localhost:3000
-- **Metrics endpoint**: http://localhost:3000/metrics
-- **Per-tenant metrics**: http://localhost:3000/metrics/tenant/{tenantId}
-- **Tenant list**: http://localhost:3000/metrics/tenants
-
-### Prometheus
-- **URL**: http://localhost:9090
-- **Configuration**: `./prometheus/prometheus.yml`
-- **Rules**: `./prometheus/rules/eudiplo.yml`
-- **Data persistence**: Docker volume `prometheus_data`
-
-### Grafana (Optional)
-- **URL**: http://localhost:3001
-- **Username**: admin
-- **Password**: admin
-- **Configuration**: `./grafana/provisioning/`
-- **Dashboards**: `./grafana/dashboards/`
-- **Data persistence**: Docker volume `grafana_data`
-
-## Configuration Files
-
-### Prometheus Configuration (`prometheus/prometheus.yml`)
+Update `monitor/prometheus/prometheus.yml`:
 
 ```yaml
 global:
-  scrape_interval: 15s
-  evaluation_interval: 15s
-
-rule_files:
-  - "rules/*.yml"
+    scrape_interval: 15s
 
 scrape_configs:
-  - job_name: 'eudiplo'
-    static_configs:
-      - targets: ['EUDIPLO:3000']
-    metrics_path: '/metrics'
-    scrape_interval: 30s
+    - job_name: 'eudiplo-local'
+      static_configs:
+          - targets: ['host.docker.internal:3000'] # For local EUDIPLO
+      metrics_path: '/metrics'
+      scrape_interval: 30s
 ```
 
-### Alerting Rules (`prometheus/rules/eudiplo.yml`)
+### 3. Start Monitoring
 
-The setup includes predefined alerting rules for:
-- High error rates
-- Credential issuance failures
-- Service downtime
-- High response times
-- Resource usage (if node_exporter is available)
+```bash
+cd monitor/
+docker-compose up -d prometheus grafana
+```
 
-## Key Metrics Available
+## Docker Container Setup
+
+When running EUDIPLO as a Docker container:
+
+### 1. Update Prometheus Configuration
+
+Edit `monitor/prometheus/prometheus.yml`:
+
+```yaml
+global:
+    scrape_interval: 15s
+
+scrape_configs:
+    - job_name: 'eudiplo-docker'
+      static_configs:
+          - targets: ['eudiplo:3000'] # For Docker container
+      metrics_path: '/metrics'
+      scrape_interval: 30s
+```
+
+### 2. Add EUDIPLO to Docker Compose
+
+Add to `monitor/docker-compose.yml`:
+
+```yaml
+services:
+    eudiplo:
+        image: eudiplo/eudiplo:latest
+        ports:
+            - '3000:3000'
+        environment:
+            - NODE_ENV=development
+            - PUBLIC_URL=http://localhost:3000
+        networks:
+            - monitoring
+
+    prometheus:
+        # ... existing config
+
+networks:
+    monitoring:
+        driver: bridge
+```
+
+### 3. Start Full Stack
+
+```bash
+cd monitor/
+docker-compose up -d
+```
+
+## Key Metrics
+
+Right now only the sessions will be monitored, but you can extend this to
+include more metrics as needed like:
 
 ### Business Metrics
-- `credential_issuance_total` - Total credentials issued per tenant
-- `credential_issuance_failures_total` - Failed credential issuances
-- `credential_verification_total` - Credential verifications
-- `active_sessions_total` - Active sessions per tenant
-- `webhook_calls_total` - Webhook calls made
+
+- `credential_issuance_total` - Credentials issued
+- `credential_verification_total` - Verifications performed
+- `active_sessions_total` - Current active sessions
 
 ### Technical Metrics
-- `http_requests_total` - HTTP requests by method, status, tenant
-- `http_request_duration_seconds` - Request duration histograms
-- `application_errors_total` - Application errors by type
 
-### System Metrics (if enabled)
-- Node exporter metrics for system monitoring
-- Container metrics for resource usage
+- `http_requests_total` - HTTP requests by status
+- `http_request_duration_seconds` - Request latency
+- `nodejs_heap_used_bytes` - Memory usage
 
-## Multi-Tenant Monitoring
-
-All business metrics include a `tenant_id` label for multi-tenant monitoring:
-
-### Example Prometheus Queries
+### Example Queries
 
 ```promql
-# Credentials issued per tenant
-sum(credential_issuance_total) by (tenant_id)
+# Request rate (last 5 minutes)
+rate(http_requests_total[5m])
 
-# Error rate per tenant (last 5 minutes)
-rate(application_errors_total[5m]) by (tenant_id)
+# Error rate
+rate(http_requests_total{status=~"4..|5.."}[5m])
 
-# Active sessions per tenant
-active_sessions_total by (tenant_id)
-
-# HTTP request rate by tenant
-rate(http_requests_total[5m]) by (tenant_id)
+# Memory usage
+nodejs_heap_used_bytes / 1024 / 1024
 ```
 
-## Customization
+## Access Dashboards
 
-### Adding Custom Metrics
+1. **Prometheus**: http://localhost:9090
+    - View metrics and run queries
+    - Check targets status at `/targets`
 
-1. Update your EUDIPLO service to expose additional metrics
-2. Metrics will automatically be scraped by Prometheus
-3. Add alerting rules if needed in `prometheus/rules/eudiplo.yml`
+2. **Grafana**: http://localhost:3001
+    - Username: `admin`
+    - Password: `admin`
+    - Import or create dashboards
 
-### Adding Custom Dashboards
+## Configuration Files
 
-1. Create dashboard JSON files in `grafana/dashboards/`
-2. Restart Grafana: `docker-compose restart grafana`
-3. Dashboards will be automatically imported
-
-### Modifying Scrape Intervals
-
-Edit `prometheus/prometheus.yml`:
+### Prometheus (`prometheus/prometheus.yml`)
 
 ```yaml
+global:
+    scrape_interval: 15s
+
 scrape_configs:
-  - job_name: 'eudiplo'
-    scrape_interval: 15s  # Change from 30s to 15s
-    # ... other config
+    - job_name: 'eudiplo'
+      static_configs:
+          - targets: ['host.docker.internal:3000'] # Local
+          # - targets: ['eudiplo:3000']             # Docker
+      scrape_interval: 30s
 ```
 
-### Adding Alertmanager
+### Grafana Data Source
 
-1. Add Alertmanager service to docker-compose.yml:
-
-```yaml
-  alertmanager:
-    image: prom/alertmanager:latest
-    ports:
-      - '9093:9093'
-    volumes:
-      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
-    networks:
-      - monitoring
-```
-
-2. Update Prometheus configuration to include alerting:
-
-```yaml
-alerting:
-  alertmanagers:
-    - static_configs:
-        - targets:
-          - alertmanager:9093
-```
-
-## Maintenance
-
-### Data Retention
-
-Prometheus data is retained for 200 hours by default. To change:
-
-```yaml
-command:
-  - '--storage.tsdb.retention.time=720h'  # 30 days
-```
-
-### Backup and Restore
-
-#### Prometheus Data
-```bash
-# Backup
-docker run --rm -v prometheus_data:/data -v $(pwd):/backup alpine tar czf /backup/prometheus-backup.tar.gz -C /data .
-
-# Restore
-docker run --rm -v prometheus_data:/data -v $(pwd):/backup alpine tar xzf /backup/prometheus-backup.tar.gz -C /data
-```
-
-#### Grafana Data
-```bash
-# Backup
-docker run --rm -v grafana_data:/data -v $(pwd):/backup alpine tar czf /backup/grafana-backup.tar.gz -C /data .
-
-# Restore
-docker run --rm -v grafana_data:/data -v $(pwd):/backup alpine tar xzf /backup/grafana-backup.tar.gz -C /data
-```
-
-### Monitoring the Monitoring
-
-- Check Prometheus targets: http://localhost:9090/targets
-- Check Prometheus configuration: http://localhost:9090/config
-- Check alerting rules: http://localhost:9090/rules
-- Check Grafana health: http://localhost:3001/api/health
+Grafana is pre-configured with Prometheus as data source at
+`http://prometheus:9090`.
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **Prometheus can't connect to EUDIPLO**
-   - Check if both services are on the same network
-   - Verify EUDIPLO service name in prometheus.yml matches docker-compose.yml
-   - Check if EUDIPLO metrics endpoint is accessible: `curl http://localhost:3000/metrics`
-
-2. **No data in Grafana**
-   - Verify Prometheus datasource is configured correctly
-   - Check if Prometheus is scraping data: http://localhost:9090/targets
-   - Verify time range in Grafana dashboards
-
-3. **High memory usage**
-   - Reduce Prometheus retention time
-   - Increase scrape intervals
-   - Monitor metric cardinality (number of unique label combinations)
-
-4. **Container startup issues**
-   - Check logs: `docker-compose logs prometheus`
-   - Verify configuration syntax: `docker exec prometheus promtool check config /etc/prometheus/prometheus.yml`
-
-### Health Checks
+**Prometheus can't reach EUDIPLO:**
 
 ```bash
-# Check all services
-docker-compose ps
+# Check if metrics endpoint is accessible
+curl http://localhost:3000/metrics
 
-# Check Prometheus configuration
-curl http://localhost:9090/-/healthy
-
-# Check EUDIPLO metrics endpoint
-curl http://localhost:3000/metrics/health
-
-# Check Grafana
-curl http://localhost:3001/api/health
+# For local development, verify host.docker.internal works
+docker run --rm appropriate/curl curl -I http://host.docker.internal:3000/metrics
 ```
 
-## Security Considerations
+**No data in Grafana:**
 
-### Production Deployment
+- Check Prometheus targets: http://localhost:9090/targets
+- Verify time range in Grafana dashboards
+- Ensure Prometheus data source is configured
 
-1. **Change default passwords**:
-   ```yaml
-   environment:
-     - GF_SECURITY_ADMIN_PASSWORD=your-secure-password
-   ```
+**Container issues:**
 
-2. **Enable authentication for Prometheus**:
-   - Add reverse proxy with authentication
-   - Use network policies to restrict access
+```bash
+# Check logs
+docker-compose logs prometheus
+docker-compose logs grafana
 
-3. **Secure metrics endpoints**:
-   - Add authentication to EUDIPLO metrics endpoints
-   - Use HTTPS in production
-
-4. **Data encryption**:
-   - Configure TLS for inter-service communication
-   - Encrypt persistent volumes
-
-### Network Security
-
-```yaml
-networks:
-  monitoring:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16
+# Restart services
+docker-compose restart
 ```
 
-## Performance Tuning
+## Production Considerations
 
-### Prometheus
+For production deployments:
 
-```yaml
-command:
-  - '--storage.tsdb.retention.time=720h'
-  - '--storage.tsdb.retention.size=10GB'
-  - '--query.max-concurrency=20'
-  - '--query.timeout=2m'
-```
+1. **Security**: Change default Grafana password
+2. **Retention**: Configure appropriate data retention
+3. **Backup**: Set up regular backups of Grafana dashboards
+4. **Alerting**: Configure alertmanager for notifications
+5. **Resources**: Monitor resource usage and scale accordingly
 
-### Grafana
+## Clean Up
 
-```yaml
-environment:
-  - GF_DATABASE_WAL=true
-  - GF_LOG_LEVEL=warn
-  - GF_SNAPSHOTS_EXTERNAL_ENABLED=false
-```
+```bash
+# Stop monitoring stack
+docker-compose down
 
-## Integration with CI/CD
-
-### Docker Compose Override
-
-Create `docker-compose.override.yml` for local development:
-
-```yaml
-services:
-  EUDIPLO:
-    environment:
-      - LOG_LEVEL=debug
-  
-  prometheus:
-    ports:
-      - '9090:9090'  # Expose only in development
-```
-
-### Environment-specific Configuration
-
-Use environment variables in docker-compose.yml:
-
-```yaml
-environment:
-  - PROMETHEUS_RETENTION=${PROMETHEUS_RETENTION:-200h}
-  - GRAFANA_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+# Remove volumes (deletes all data)
+docker-compose down -v
 ```
