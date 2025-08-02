@@ -122,13 +122,13 @@
 <title>cluster_AuthModule_imports</title>
 <polygon fill="none" stroke="black" points="577,-78 577,-130 954,-130 954,-78 577,-78"/>
 </g>
-<g id="clust4" class="cluster">
-<title>cluster_AuthModule_exports</title>
-<polygon fill="none" stroke="black" points="345,-208 345,-260 665,-260 665,-208 345,-208"/>
-</g>
 <g id="clust6" class="cluster">
 <title>cluster_AuthModule_providers</title>
 <polygon fill="none" stroke="black" points="16,-78 16,-130 569,-130 569,-78 16,-78"/>
+</g>
+<g id="clust4" class="cluster">
+<title>cluster_AuthModule_exports</title>
+<polygon fill="none" stroke="black" points="345,-208 345,-260 665,-260 665,-208 345,-208"/>
 </g>
 <!-- CryptoModule -->
 <g id="node1" class="node">
@@ -383,6 +383,7 @@ import { StatusListModule } from &#x27;../issuer/status-list/status-list.module&
 import { RegistrarModule } from &#x27;../registrar/registrar.module&#x27;;
 import { TypeOrmModule } from &#x27;@nestjs/typeorm&#x27;;
 import { ClientEntry } from &#x27;./entitites/client.entity&#x27;;
+import { makeGaugeProvider } from &#x27;@willsoto/nestjs-prometheus&#x27;;
 
 export const AUTH_VALIDATION_SCHEMA &#x3D; {
     OIDC: Joi.string().optional(),
@@ -425,7 +426,16 @@ export const AUTH_VALIDATION_SCHEMA &#x3D; {
         RegistrarModule,
         TypeOrmModule.forFeature([ClientEntry]),
     ],
-    providers: [JwtStrategy, JwtAuthGuard, JwtService, ClientService],
+    providers: [
+        JwtStrategy,
+        JwtAuthGuard,
+        JwtService,
+        ClientService,
+        makeGaugeProvider({
+            name: &#x27;tenant_client_total&#x27;,
+            help: &#x27;Total number of tenant clients&#x27;,
+        }),
+    ],
     controllers: [AuthController],
     exports: [PassportModule, JwtStrategy, JwtAuthGuard, JwtService],
 })

@@ -168,6 +168,10 @@
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
+                                <a href="#onApplicationBootstrap" >onApplicationBootstrap</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#setUpClient" >setUpClient</a>
                             </li>
                             <li>
@@ -191,12 +195,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(configService: ConfigService, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, encryptionService: <a href="../injectables/EncryptionService.html" target="_self">EncryptionService</a>, statutsListService: <a href="../injectables/StatusListService.html" target="_self">StatusListService</a>, registrarService: <a href="../injectables/RegistrarService.html" target="_self">RegistrarService</a>, clientRepository: <a href="../interfaces/Client.html" target="_self">Repository&lt;ClientEntry&gt;</a>)</code>
+<code>constructor(configService: ConfigService, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, encryptionService: <a href="../injectables/EncryptionService.html" target="_self">EncryptionService</a>, statutsListService: <a href="../injectables/StatusListService.html" target="_self">StatusListService</a>, registrarService: <a href="../injectables/RegistrarService.html" target="_self">RegistrarService</a>, clientRepository: <a href="../interfaces/Client.html" target="_self">Repository&lt;ClientEntry&gt;</a>, tenantClientTotal: Gauge<string>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="21" class="link-to-prism">src/auth/client.service.ts:21</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="27" class="link-to-prism">src/auth/client.service.ts:27</a></div>
                             </td>
                         </tr>
 
@@ -285,6 +289,18 @@
                                                     </td>
                                                     
                                                 </tr>
+                                                <tr>
+                                                        <td>tenantClientTotal</td>
+                                                  
+                                                        <td>
+                                                                    <code>Gauge&lt;string&gt;</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
                                         </tbody>
                                     </table>
                             </div>
@@ -319,8 +335,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="76"
-                                    class="link-to-prism">src/auth/client.service.ts:76</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="90"
+                                    class="link-to-prism">src/auth/client.service.ts:90</a></div>
                         </td>
                     </tr>
 
@@ -390,8 +406,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="37"
-                                    class="link-to-prism">src/auth/client.service.ts:37</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="51"
+                                    class="link-to-prism">src/auth/client.service.ts:51</a></div>
                         </td>
                     </tr>
 
@@ -434,8 +450,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="85"
-                                    class="link-to-prism">src/auth/client.service.ts:85</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="99"
+                                    class="link-to-prism">src/auth/client.service.ts:99</a></div>
                         </td>
                     </tr>
 
@@ -505,8 +521,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="47"
-                                    class="link-to-prism">src/auth/client.service.ts:47</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="61"
+                                    class="link-to-prism">src/auth/client.service.ts:61</a></div>
                         </td>
                     </tr>
 
@@ -518,6 +534,45 @@
 
                         <div class="io-description">
                             <b>Returns : </b>        <code><a href="../interfaces/Client.html" target="_self" >Client[]</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onApplicationBootstrap"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>onApplicationBootstrap</b></span>
+                        <a href="#onApplicationBootstrap"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>onApplicationBootstrap()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="41"
+                                    class="link-to-prism">src/auth/client.service.ts:41</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
 
                         </div>
                 </td>
@@ -546,8 +601,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="121"
-                                    class="link-to-prism">src/auth/client.service.ts:121</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="141"
+                                    class="link-to-prism">src/auth/client.service.ts:141</a></div>
                         </td>
                     </tr>
 
@@ -615,8 +670,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="63"
-                                    class="link-to-prism">src/auth/client.service.ts:63</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="77"
+                                    class="link-to-prism">src/auth/client.service.ts:77</a></div>
                         </td>
                     </tr>
 
@@ -708,7 +763,7 @@ This is the primary authentication method for service integration</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="21" class="link-to-prism">src/auth/client.service.ts:21</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="27" class="link-to-prism">src/auth/client.service.ts:27</a></div>
                         </td>
                     </tr>
 
@@ -721,7 +776,11 @@ This is the primary authentication method for service integration</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { BadRequestException, Injectable } from &#x27;@nestjs/common&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+    BadRequestException,
+    Injectable,
+    OnApplicationBootstrap,
+} from &#x27;@nestjs/common&#x27;;
 import { ConfigService } from &#x27;@nestjs/config&#x27;;
 import { existsSync, mkdirSync, writeFileSync } from &#x27;fs&#x27;;
 import { join } from &#x27;path&#x27;;
@@ -732,6 +791,8 @@ import { RegistrarService } from &#x27;../registrar/registrar.service&#x27;;
 import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
 import { ClientEntry } from &#x27;./entitites/client.entity&#x27;;
 import { Repository } from &#x27;typeorm/repository/Repository&#x27;;
+import { InjectMetric } from &#x27;@willsoto/nestjs-prometheus&#x27;;
+import { Gauge } from &#x27;prom-client&#x27;;
 
 // Client interface for service integration
 export interface Client {
@@ -740,7 +801,7 @@ export interface Client {
 }
 
 @Injectable()
-export class ClientService {
+export class ClientService implements OnApplicationBootstrap {
     private clients: Client[] | null &#x3D; null;
 
     constructor(
@@ -751,7 +812,15 @@ export class ClientService {
         private registrarService: RegistrarService,
         @InjectRepository(ClientEntry)
         private clientRepository: Repository&lt;ClientEntry&gt;,
+        @InjectMetric(&#x27;tenant_client_total&#x27;)
+        private tenantClientTotal: Gauge&lt;string&gt;,
     ) {}
+
+    async onApplicationBootstrap() {
+        // Initialize the client metrics
+        const count &#x3D; await this.clientRepository.countBy({ status: &#x27;set up&#x27; });
+        this.tenantClientTotal.set({}, count);
+    }
 
     /**
      * Get clients from configuration
@@ -806,6 +875,12 @@ export class ClientService {
      * @returns
      */
     async isSetUp(id: string) {
+        void this.clientRepository
+            .countBy({ status: &#x27;set up&#x27; })
+            .then((count) &#x3D;&gt; {
+                this.tenantClientTotal.set({}, count);
+            });
+
         await this.clientRepository.findOneByOrFail({ id }).then(
             (res) &#x3D;&gt; {
                 if (res.status &#x3D;&#x3D;&#x3D; &#x27;set up&#x27;) {

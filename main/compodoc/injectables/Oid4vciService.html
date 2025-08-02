@@ -832,7 +832,7 @@ import { SessionLogContext } from &#x27;../../utils/logger/session-logger-contex
 import { TokenPayload } from &#x27;../../auth/token.decorator&#x27;;
 import { IssuanceService } from &#x27;../issuance/issuance.service&#x27;;
 import { WebhookService } from &#x27;../../utils/webhook/webhook.service&#x27;;
-import { Session } from &#x27;../../session/entities/session.entity&#x27;;
+import { Session, SessionStatus } from &#x27;../../session/entities/session.entity&#x27;;
 
 @Injectable()
 export class Oid4vciService implements OnModuleInit {
@@ -1162,6 +1162,9 @@ export class Oid4vciService implements OnModuleInit {
                     session.notifications[index],
                 );
             }
+            const state: SessionStatus &#x3D;
+                body.event &#x3D;&#x3D;&#x3D; &#x27;credential_accepted&#x27; ? &#x27;completed&#x27; : &#x27;failed&#x27;;
+            await this.sessionService.setState(session, state);
         } catch (error) {
             this.sessionLogger.logSessionError(
                 logContext,

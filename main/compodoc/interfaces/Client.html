@@ -235,7 +235,11 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { BadRequestException, Injectable } from &#x27;@nestjs/common&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+    BadRequestException,
+    Injectable,
+    OnApplicationBootstrap,
+} from &#x27;@nestjs/common&#x27;;
 import { ConfigService } from &#x27;@nestjs/config&#x27;;
 import { existsSync, mkdirSync, writeFileSync } from &#x27;fs&#x27;;
 import { join } from &#x27;path&#x27;;
@@ -246,6 +250,8 @@ import { RegistrarService } from &#x27;../registrar/registrar.service&#x27;;
 import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
 import { ClientEntry } from &#x27;./entitites/client.entity&#x27;;
 import { Repository } from &#x27;typeorm/repository/Repository&#x27;;
+import { InjectMetric } from &#x27;@willsoto/nestjs-prometheus&#x27;;
+import { Gauge } from &#x27;prom-client&#x27;;
 
 // Client interface for service integration
 export interface Client {
@@ -254,7 +260,7 @@ export interface Client {
 }
 
 @Injectable()
-export class ClientService {
+export class ClientService implements OnApplicationBootstrap {
     private clients: Client[] | null &#x3D; null;
 
     constructor(
@@ -265,7 +271,15 @@ export class ClientService {
         private registrarService: RegistrarService,
         @InjectRepository(ClientEntry)
         private clientRepository: Repository&lt;ClientEntry&gt;,
+        @InjectMetric(&#x27;tenant_client_total&#x27;)
+        private tenantClientTotal: Gauge&lt;string&gt;,
     ) {}
+
+    async onApplicationBootstrap() {
+        // Initialize the client metrics
+        const count &#x3D; await this.clientRepository.countBy({ status: &#x27;set up&#x27; });
+        this.tenantClientTotal.set({}, count);
+    }
 
     /**
      * Get clients from configuration
@@ -320,6 +334,12 @@ export class ClientService {
      * @returns
      */
     async isSetUp(id: string) {
+        void this.clientRepository
+            .countBy({ status: &#x27;set up&#x27; })
+            .then((count) &#x3D;&gt; {
+                this.tenantClientTotal.set({}, count);
+            });
+
         await this.clientRepository.findOneByOrFail({ id }).then(
             (res) &#x3D;&gt; {
                 if (res.status &#x3D;&#x3D;&#x3D; &#x27;set up&#x27;) {
