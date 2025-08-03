@@ -4,6 +4,8 @@ EUDIPLO exposes a REST API based on the OpenAPI 3.0 standard. This interface
 allows systems to issue credentials, verify presentations, and configure
 credential behavior through standard HTTP endpoints.
 
+A rendered openapi overview can be found [here](./openapi.md).
+
 ## OpenAPI Endpoints
 
 When running EUDIPLO, the following endpoints are available:
@@ -19,6 +21,5 @@ When running EUDIPLO, the following endpoints are available:
     OID4VCI and OID4VP). To generate the full OpenAPI specification, you can set the
     environment variable `SWAGGER_ALL` to `true` when starting the service like `SWAGGER_ALL=true pnpm run start:dev`.
 
-You can use this OpenAPI specification to generate client libraries.
-
-[OAD(swagger.json)]
+You can use this OpenAPI specification to generate client libraries with e.g the
+[OpenAPI Generator](https://openapi-generator.tech/).

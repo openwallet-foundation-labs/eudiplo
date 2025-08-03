@@ -10,6 +10,12 @@ import { PresentationConfig } from './entities/presentation-config.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm/repository/Repository';
 import { AuthResponse } from './dto/auth-response.dto';
+import { ConfigService } from '@nestjs/config';
+import { readdirSync, readFileSync } from 'fs';
+import { join } from 'path';
+import { PinoLogger } from 'nestjs-pino';
+import { plainToClass } from 'class-transformer';
+import { validate } from 'class-validator';
 
 /**
  * Service for managing Verifiable Presentations (VPs) and handling SD-JWT-VCs.
@@ -32,6 +38,8 @@ export class PresentationsService implements OnModuleInit {
         private resolverService: ResolverService,
         @InjectRepository(PresentationConfig)
         private vpRequestRepository: Repository<PresentationConfig>,
+        private configService: ConfigService,
+        private logger: PinoLogger,
     ) {}
 
     /**
@@ -44,6 +52,72 @@ export class PresentationsService implements OnModuleInit {
             kbVerifier: this.kbVerifier.bind(this),
             statusListFetcher: this.statusListFetcher.bind(this),
         });
+    }
+
+    /**
+     * Imports presentation configurations from a predefined directory structure.
+     */
+    async onApplicationBootstrap() {
+        const configPath = 'assets/config';
+        const subfolder = 'presentation';
+        const force = this.configService.get<boolean>('CONFIG_IMPORT_FORCE');
+        if (this.configService.get<boolean>('CONFIG_IMPORT')) {
+            const tenantFolders = readdirSync(configPath, {
+                withFileTypes: true,
+            }).filter((tenant) => tenant.isDirectory());
+            let counter = 0;
+            for (const tenant of tenantFolders) {
+                //iterate over all elements in the folder and import them
+                const path = join(configPath, tenant.name, subfolder);
+                const files = readdirSync(path);
+                for (const file of files) {
+                    const payload = JSON.parse(
+                        readFileSync(join(path, file), 'utf8'),
+                    );
+
+                    payload.id = file.replace('.json', '');
+                    if (
+                        (await this.getPresentationConfig(
+                            payload.id,
+                            tenant.name,
+                        )) &&
+                        !force
+                    ) {
+                        continue; // Skip if config already exists and force is not set
+                    }
+
+                    // Validate the payload against PresentationConfig
+                    const config = plainToClass(PresentationConfig, payload);
+                    const validationErrors = await validate(config);
+
+                    if (validationErrors.length > 0) {
+                        this.logger.error(
+                            {
+                                event: 'ValidationError',
+                                file,
+                                tenant: tenant.name,
+                                errors: validationErrors.map((error) => ({
+                                    property: error.property,
+                                    constraints: error.constraints,
+                                    value: error.value,
+                                })),
+                            },
+                            `Validation failed for issuance config ${file} in tenant ${tenant.name}`,
+                        );
+                        continue; // Skip this invalid config
+                    }
+
+                    await this.storePresentationConfig(tenant.name, config);
+                    counter++;
+                }
+                this.logger.info(
+                    {
+                        event: 'Import',
+                    },
+                    `${counter} presentation configs imported for ${tenant.name}`,
+                );
+            }
+        }
     }
 
     /**
@@ -60,11 +134,11 @@ export class PresentationsService implements OnModuleInit {
 
     /**
      * Stores a new presentation configuration.
-     * @param vprequest - The PresentationConfig entity to store.
      * @param tenantId - The ID of the tenant for which to store the configuration.
+     * @param vprequest - The PresentationConfig entity to store.
      * @returns A promise that resolves to the stored PresentationConfig entity.
      */
-    storePresentationConfig(vprequest: PresentationConfig, tenantId: string) {
+    storePresentationConfig(tenantId: string, vprequest: PresentationConfig) {
         vprequest.tenantId = tenantId;
         return this.vpRequestRepository.save(vprequest);
     }

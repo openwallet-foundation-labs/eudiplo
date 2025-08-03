@@ -123,8 +123,8 @@ export class PresentationManagementController {
         @Token() user: TokenPayload,
     ) {
         return this.presentationsService.storePresentationConfig(
-            config,
             user.sub,
+            config,
         );
     }
 

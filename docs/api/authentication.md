@@ -1,52 +1,54 @@
 # API Authentication
 
-The EUDIPLO Service API uses OAuth2 client credentials flow for all
-authentication, providing a unified approach that works with both integrated
-OAuth2 server and external OIDC providers.
+EUDIPLO uses OAuth 2.0 Client Credentials flow for API authentication, designed
+for service-to-service communication without user interaction.
+
+## Authentication Architecture
+
+### Design Principles
+
+- **Service-to-Service**: No user interaction required
+- **Tenant Isolation**: JWT `sub` claim identifies and isolates tenants
+- **Pluggable Identity**: Support for both built-in and external OIDC providers
+- **Stateless**: JWT tokens enable horizontal scaling
+
+### Security Model
+
+- All management endpoints require authentication
+- Tenant data is isolated using JWT subject claims
+- Tokens are signed and validated for integrity
+- Support for token expiration and rotation
+
+**Related Architecture:** For multi-tenant configuration and session management,
+see [Tenant-Based Architecture](../architecture/tenant.md) and
+[Sessions](../architecture/sessions.md).
+
+---
 
 ## OAuth2 Client Credentials Authentication
 
 This API exclusively uses the OAuth2 client credentials flow, which is designed
 for service-to-service authentication where no user interaction is required.
 
-### External OIDC Provider (e.g., Keycloak)
+### Built-in OAuth2 Server (Recommended for Getting Started)
 
-When configured with an external OIDC provider:
+EUDIPLO includes a built-in OAuth2 server for simple deployments:
 
 1. **Swagger UI Authentication:**
     - Navigate to the Swagger UI at `/api`
     - Click the "Authorize" button
     - Select "oauth2"
-    - Enter your client ID and client secret
+    - Enter client ID and secret (configured via environment variables)
     - Click "Authorize"
-    - The Swagger UI will automatically send credentials in the Authorization
-      header (Basic auth)
 
 2. **Programmatic Access:**
-    - Use your OIDC provider's token endpoint with client credentials flow
-    - Include the access token in API requests: `Authorization: Bearer <token>`
 
-### Integrated OAuth2 Server
-
-When using the built-in OAuth2 server:
-
-1. **Swagger UI Authentication:**
-    - Navigate to the Swagger UI at `/api`
-    - Click the "Authorize" button
-    - Select "oauth2"
-    - Enter client ID and secret (default: `root`/`root`)
-    - The Swagger UI will automatically send credentials in the Authorization
-      header (Basic auth)
-
-2. **Programmatic Access (Client Credentials Flow):**
-
-    **Option 1: Credentials in Authorization Header (Recommended for OAuth2
-    compliance):**
+    **Option 1: Credentials in Authorization Header (OAuth2 Standard):**
 
     ```bash
     curl -X POST http://localhost:3000/auth/oauth2/token \
       -H "Content-Type: application/json" \
-      -H "Authorization: Basic $(echo -n 'root:root' | base64)" \
+      -H "Authorization: Basic $(echo -n 'client_id:client_secret' | base64)" \
       -d '{
         "grant_type": "client_credentials"
       }'
@@ -59,10 +61,30 @@ When using the built-in OAuth2 server:
       -H "Content-Type: application/json" \
       -d '{
         "grant_type": "client_credentials",
-        "client_id": "root",
-        "client_secret": "root"
+        "client_id": "your-client-id",
+        "client_secret": "your-client-secret"
       }'
     ```
+
+### External OIDC Provider
+
+For enterprise deployments with existing identity infrastructure, EUDIPLO can
+integrate with external OIDC providers like Keycloak, Auth0, or Azure AD.
+
+**Configuration:**
+
+```env
+OIDC=https://your-keycloak.example.com/realms/your-realm
+PUBLIC_URL=https://your-api.example.com
+```
+
+**Authentication Flow:**
+
+1. Use your OIDC provider's token endpoint with client credentials flow
+2. Include the access token in API requests: `Authorization: Bearer <token>`
+
+For detailed external OIDC setup, see
+[Enterprise Authentication Setup](./enterprise-auth.md).
 
 ## Configuration
 
@@ -85,6 +107,10 @@ JWT_SECRET=your-secret-key-here-minimum-32-characters
 AUTH_CLIENT_ID=root
 AUTH_CLIENT_SECRET=root
 ```
+
+**Configuration Reference:** For complete configuration options and environment
+variables, see [Key Management](../architecture/key-management.md) and
+[Database Configuration](../architecture/database.md).
 
 ## Protected Endpoints
 
@@ -118,3 +144,26 @@ All administrative endpoints require OAuth2 authentication:
   expose them in logs or URLs
 - **Service-to-Service**: This API is designed for service-to-service
   authentication without user interaction
+
+---
+
+## Related Documentation
+
+### Architecture & Design
+
+- **[Tenant-Based Architecture](../architecture/tenant.md)** - Multi-tenant
+  isolation and configuration
+- **[Sessions](../architecture/sessions.md)** - Session lifecycle and management
+- **[Key Management](../architecture/key-management.md)** - Cryptographic key
+  handling and security
+
+### Implementation Guides
+
+- **[Quick Start](../getting-started/quick-start.md)** - Get authentication
+  working in 5 minutes
+- **[API Overview](./index.md)** - Complete API reference and endpoints
+
+### Operations
+
+- **[Development Setup](../development/running-locally.md)** - Local development
+  authentication setup

@@ -40,9 +40,13 @@ EUDIPLO can be deployed as:
 - a **standalone local service** (e.g., during development)
 - a **backend service** in production (e.g., behind a gateway)
 
-you can examples of deployments in the
+You can find examples of deployments in the
 [deployment](https://github.com/openwallet-foundation-labs/eudiplo/tree/main/deployment)
 directory.
+
+For configuration management, see
+[Configuration Import](./configuration-import.md) to learn how to bootstrap your
+deployment with pre-configured credentials and workflows.
 
 ---
 

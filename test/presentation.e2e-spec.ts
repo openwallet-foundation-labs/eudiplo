@@ -50,7 +50,7 @@ describe('Presentation', () => {
 
         //import the pid credential configuration
         const pidCredentialConfiguration = JSON.parse(
-            readFileSync('test/import/presentation/pid.json', 'utf-8'),
+            readFileSync('assets/config/root/presentation/pid.json', 'utf-8'),
         );
         pidCredentialConfiguration.id = 'pid';
         await request(app.getHttpServer())

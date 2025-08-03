@@ -113,12 +113,13 @@ nav:
       - Tenant-Based: architecture/tenant.md
       - Sessions: architecture/sessions.md
       - Webhooks: architecture/webhooks.md
-      - Authentication: architecture/authentication.md
+      - Config Import: architecture/configuration-import.md
       - Key Management: architecture/key-management.md
       - Database: architecture/database.md      
   - API:    
     - Overview: api/index.md    
     - Authentication: api/authentication.md
+    - OpenApi: api/openapi.md
   - Development:
       - development/index.md
       - Running Locally: development/running-locally.md
