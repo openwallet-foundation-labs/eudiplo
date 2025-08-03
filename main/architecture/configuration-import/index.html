@@ -1859,7 +1859,7 @@ startup. This feature allows you to pre-configure credentials, issuance
 workflows, and presentation verification rules without using the API.</p>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
 <p>The configuration import system automatically loads and validates JSON
-configuration files from the <code>assets/config/</code> directory when the application
+configuration files from the <code>config/config/</code> directory when the application
 starts. This is particularly useful for:</p>
 <ul>
 <li><strong>Development environments</strong> - Pre-load test configurations</li>
@@ -1867,6 +1867,9 @@ starts. This is particularly useful for:</p>
 <li><strong>CI/CD pipelines</strong> - Automated environment setup</li>
 <li><strong>Multi-tenant scenarios</strong> - Bulk import tenant-specific configurations</li>
 </ul>
+<blockquote>
+<p>When running locally with nodejs, the default directory is <code>assets/config/</code>.</p>
+</blockquote>
 <h2 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h2>
 <p>Configure the import behavior using these environment variables:</p>
 <table>
@@ -1890,6 +1893,12 @@ starts. This is particularly useful for:</p>
 <td>boolean</td>
 <td><code>false</code></td>
 <td>Overwrite existing configurations with same ID</td>
+</tr>
+<tr>
+<td><code>CONFIG_FOLDER</code></td>
+<td>string</td>
+<td><code>assets/config/</code></td>
+<td>Directory containing configuration files. Will be set in the Dockerfile to <code>app/config/config/</code></td>
 </tr>
 </tbody>
 </table>
@@ -1939,17 +1948,17 @@ starts. This is particularly useful for:</p>
 </ul>
 <h2 id="configuration-types">Configuration Types<a class="headerlink" href="#configuration-types" title="Permanent link">&para;</a></h2>
 <h3 id="1-credential-configurations">1. Credential Configurations<a class="headerlink" href="#1-credential-configurations" title="Permanent link">&para;</a></h3>
-<p><strong>Location</strong>: <code>assets/config/{tenant}/issuance/credentials/*.json</code></p>
+<p><strong>Location</strong>: <code>config/config/{tenant}/issuance/credentials/*.json</code></p>
 <p>Define credential templates and schemas.</p>
 <p><strong>Schema Reference</strong>:
 <a href="https://openwallet-foundation-labs.github.io/eudiplo/main/api/index.html#credentialconfig">Credential Config API</a></p>
 <h3 id="2-issuance-configurations">2. Issuance Configurations<a class="headerlink" href="#2-issuance-configurations" title="Permanent link">&para;</a></h3>
-<p><strong>Location</strong>: <code>assets/config/{tenant}/issuance/issuance/*.json</code></p>
+<p><strong>Location</strong>: <code>config/config/{tenant}/issuance/issuance/*.json</code></p>
 <p>Define issuance workflows and authentication requirements.</p>
 <p><strong>Schema Reference</strong>:
 <a href="https://openwallet-foundation-labs.github.io/eudiplo/main/api/index.html#issuanceconfig">Issuance Config API</a></p>
 <h3 id="3-presentation-configurations">3. Presentation Configurations<a class="headerlink" href="#3-presentation-configurations" title="Permanent link">&para;</a></h3>
-<p><strong>Location</strong>: <code>assets/config/{tenant}/presentation/*.json</code></p>
+<p><strong>Location</strong>: <code>config/config/{tenant}/presentation/*.json</code></p>
 <p>Define verification requirements for credential presentations.</p>
 <p><strong>Schema Reference</strong>:
 <a href="https://openwallet-foundation-labs.github.io/eudiplo/main/api/index.html#presentationconfig">Presentation Config API</a></p>

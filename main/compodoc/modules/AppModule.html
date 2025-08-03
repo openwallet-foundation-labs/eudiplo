@@ -428,6 +428,7 @@ import { MetricModule } from &#x27;./metric/metric.module&#x27;;
                     ),
                 CONFIG_IMPORT: Joi.boolean().default(false),
                 CONFIG_IMPORT_FORCE: Joi.boolean().default(false),
+                CONFIG_FOLDER: Joi.string().default(&#x27;assets/config&#x27;),
                 ...AUTH_VALIDATION_SCHEMA,
                 ...REGISTRAR_VALIDATION_SCHEMA,
                 ...KEY_VALIDATION_SCHEMA,
