@@ -83,9 +83,6 @@ PUBLIC_URL=https://your-api.example.com
 1. Use your OIDC provider's token endpoint with client credentials flow
 2. Include the access token in API requests: `Authorization: Bearer <token>`
 
-For detailed external OIDC setup, see
-[Enterprise Authentication Setup](./enterprise-auth.md).
-
 ## Configuration
 
 ### External OIDC Provider
