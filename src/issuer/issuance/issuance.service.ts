@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { IssuanceConfig } from './entities/issuance-config.entity';
@@ -6,13 +6,19 @@ import { CredentialConfigService } from '../credentials/credential-config/creden
 import { IssuanceDto } from './dto/issuance.dto';
 import { CredentialConfig } from '../credentials/entities/credential.entity';
 import { AuthenticationConfig } from './dto/authentication-config.dto';
+import { ConfigService } from '@nestjs/config';
+import { join } from 'path';
+import { readdirSync, readFileSync } from 'fs';
+import { PinoLogger } from 'nestjs-pino';
+import { plainToClass } from 'class-transformer';
+import { validate } from 'class-validator';
 
 /**
  * Service for managing issuance configurations.
  * It provides methods to get, store, and delete issuance configurations.
  */
 @Injectable()
-export class IssuanceService {
+export class IssuanceService implements OnApplicationBootstrap {
     /**
      * Constructor for IssuanceService.
      * @param issuanceConfigRepo
@@ -22,7 +28,78 @@ export class IssuanceService {
         @InjectRepository(IssuanceConfig)
         private issuanceConfigRepo: Repository<IssuanceConfig>,
         private credentialsConfigService: CredentialConfigService,
+        private configService: ConfigService,
+        private logger: PinoLogger,
     ) {}
+
+    /**
+     * Imports issuance configurations from a predefined directory structure.
+     */
+    async onApplicationBootstrap() {
+        const configPath = 'assets/config';
+        const subfolder = 'issuance/issuance';
+        const force = this.configService.get<boolean>('CONFIG_IMPORT_FORCE');
+        if (this.configService.get<boolean>('CONFIG_IMPORT')) {
+            const tenantFolders = readdirSync(configPath, {
+                withFileTypes: true,
+            }).filter((tenant) => tenant.isDirectory());
+            let counter = 0;
+            for (const tenant of tenantFolders) {
+                //iterate over all elements in the folder and import them
+                const path = join(configPath, tenant.name, subfolder);
+                const files = readdirSync(path);
+                for (const file of files) {
+                    const payload = JSON.parse(
+                        readFileSync(join(path, file), 'utf8'),
+                    );
+
+                    payload.id = file.replace('.json', '');
+                    if (
+                        (await this.getIssuanceConfigurationById(
+                            payload.id,
+                            tenant.name,
+                        )) &&
+                        !force
+                    ) {
+                        continue; // Skip if config already exists and force is not set
+                    }
+
+                    // Validate the payload against IssuanceDto
+                    const issuanceDto = plainToClass(IssuanceDto, payload);
+                    const validationErrors = await validate(issuanceDto);
+
+                    if (validationErrors.length > 0) {
+                        this.logger.error(
+                            {
+                                event: 'ValidationError',
+                                file,
+                                tenant: tenant.name,
+                                errors: validationErrors.map((error) => ({
+                                    property: error.property,
+                                    constraints: error.constraints,
+                                    value: error.value,
+                                })),
+                            },
+                            `Validation failed for issuance config ${file} in tenant ${tenant.name}`,
+                        );
+                        continue; // Skip this invalid config
+                    }
+
+                    await this.storeIssuanceConfiguration(
+                        tenant.name,
+                        issuanceDto,
+                    );
+                    counter++;
+                }
+                this.logger.info(
+                    {
+                        event: 'Import',
+                    },
+                    `${counter} issuance configs imported for ${tenant.name}`,
+                );
+            }
+        }
+    }
 
     /**
      * Returns the issuance configurations for this tenant.

@@ -1,119 +1,117 @@
-# Installation
+# Quick Start
 
-EUDIPLO is distributed as a Docker image and can be installed quickly by
-configuring an `.env` file and running the container. This section guides you
-through the steps to get started.
+Get EUDIPLO running in under 2 minutes! This guide gets you from zero to issuing
+your first credential.
 
----
+!!! tip "New to EUDIPLO?"
 
-## Requirements
-
-- [Docker](https://www.docker.com/get-started) installed on your system
-- A `.env` file with the necessary configuration
-- Mounted `config/` folder for local database or credential config
+    This is the fastest path to see EUDIPLO working. For
+    production setup and advanced configuration, see the
+    [Architecture](../architecture/overview.md) and [API](../api/index.md) sections.
 
 ---
 
-## 1. Prepare Environment Variables
+## What You'll Need
 
-EUDIPLO uses **OAuth2 Client Credentials flow with Bearer JWT tokens** for API
-authentication.
-
-You can choose how to manage OAuth2 clients:
-
-### Self-Managed Clients (Default)
-
-**EUDIPLO manages clients and issues JWT tokens:**
-
-```env
-PUBLIC_URL=https://example.com
-RP_NAME=EUDIPLO
-AUTH_CLIENT_ID=your-tenant-id
-AUTH_CLIENT_SECRET=your-tenant-secret
-JWT_SECRET=your-jwt-signing-secret
-JWT_ISSUER=https://example.com
-JWT_EXPIRES_IN=1h
-```
-
-### External OIDC Provider
-
-**External IAM (e.g., Keycloak) manages clients and tokens:**
-
-```env
-PUBLIC_URL=https://example.com
-RP_NAME=EUDIPLO
-OIDC=https://keycloak.example.com/realms/eudiplo
-```
-
-> TODO: needs to be aligned
+- [Docker](https://www.docker.com/get-started) installed
+- 2 minutes of your time ⏱️
 
 ---
 
-## 2. Run the Docker Container
-
-You can run EUDIPLO using Docker Compose. We recommend to use the latest stable
-version available on
-[GitHub Container Registry](https://github.com/openwallet-foundation-labs/eudiplo/pkgs/container/eudiplo).
-Create a `docker-compose.yml` file in the root of your project with the
-following content:
-
-```yaml
-services:
-    EUDIPLO:
-        image: ghcr.io/openwallet-foundation-labs/eudiplo:latest
-        env_file:
-            - .env
-        ports:
-            - '3000:3000'
-        volumes:
-            - ./config:/app/config
-```
-
-> **Docker Tags:**
->
-> - `:latest` - Latest stable release (recommended for production)
-> - `:main` - Latest development build from main branch
-> - `:1.2.3` - Specific version tags for pinned deployments
-
----
-
-## 3. Verify It's Running
-
-Once started, EUDIPLO exposes several endpoints. For example:
+## Step 1: One-Command Setup
 
 ```bash
-curl https://example.com/health
+# Run EUDIPLO with default settings
+docker run -d \
+  --name eudiplo-quickstart \
+  -p 3000:3000 \
+  -e PUBLIC_URL=http://localhost:3000 \
+  -e AUTH_CLIENT_ID=demo \
+  -e AUTH_CLIENT_SECRET=demo-secret \
+  -e JWT_SECRET=quick-start-secret-32-characters-min \
+  ghcr.io/openwallet-foundation-labs/eudiplo:latest
 ```
-
-The swagger UI is available at:
-
-```bash
-https://example.com/api
-```
-
-### API Endpoint Pattern
-
-All tenant-specific endpoints follow the pattern:
-
-```bash
-https://example.com/{session}/vci/credential
-https://example.com/{session}/.well-known/openid-credential-issuer
-https://example.com/{session}/oid4vp/response
-```
-
-> Where `{session}` corresponds with the session ID of the issuance (OID4VCI) or
-> presentation (OID4VP) flow. Endpoints like credential metadata or status list
-> do not include the session ID because of privacy reasons.
-
-All admin endpoints like managing configs of flows or starting issuance flows
-are protected and accessible via the same path.
 
 ---
 
-## Next Steps
+## Step 2: Verify It's Working
 
-- Configure [issuance templates](issuance.md) for your credentials
-- Set up [presentations](presentation.md) for verifying credentials
-- Explore advanced setup with other
-  [database options](../architecture/database.md) or
-  [key management](../architecture/key-management.md)
+**Check health:**
+
+```bash
+curl http://localhost:3000/health
+```
+
+**Expected response:**
+
+```json
+{
+    "status": "ok",
+    "info": {
+        "database": { "status": "up" }
+    },
+    "errors": {}
+}
+```
+
+---
+
+## Step 3: Explore the API
+
+Open your browser and visit:
+
+- 🏠 **API Documentation**: http://localhost:3000/api
+- 📊 **Health Check**: http://localhost:3000/health
+
+The Swagger UI includes authentication - use:
+
+- **Client ID**: `demo`
+- **Client Secret**: `demo-secret`
+
+---
+
+## Step 4: Authenticate via Swagger UI
+
+1. **Open the API Documentation**: http://localhost:3000/api
+2. **Click the "Authorize" button** (🔓 lock icon) in the top-right
+3. **Enter your credentials**:
+    - **Client ID**: `demo`
+    - **Client Secret**: `demo-secret`
+4. **Click "Authorize"** and then **"Close"**
+
+You're now authenticated! The 🔓 icon should change to 🔒 (locked).
+
+---
+
+## Step 5: Test Your First API Call
+
+1. **Find the "Issuer Management" section** in Swagger UI
+2. **Expand** `/issuer-management/credentials` → **GET**
+3. **Click "Try it out"** → **"Execute"**
+
+You should see a successful response with available credential templates!
+
+---
+
+## 🎉 Success!
+
+EUDIPLO is now running and ready for credential issuance and verification.
+
+### What's Next?
+
+- 📝 **[Issue Your First Credential](./issuance.md)** - Learn credential
+  issuance flows
+- 🔍 **[Verify Credentials](./presentation.md)** - Set up credential
+  verification
+- ⚙️ **[Production Setup](../architecture/overview.md)** - Deploy for production
+  use
+- 🔐 **[Advanced Authentication](../api/authentication.md)** - External OIDC,
+  multi-tenant setup
+
+### Clean Up
+
+When you're done experimenting:
+
+```bash
+docker stop eudiplo-quickstart && docker rm eudiplo-quickstart
+```

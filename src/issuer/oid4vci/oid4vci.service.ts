@@ -85,7 +85,7 @@ export class Oid4vciService implements OnModuleInit {
         let credentialIssuer = this.issuer.createCredentialIssuerMetadata({
             credential_issuer,
             credential_configurations_supported:
-                await this.credentialsService.getCredentialConfiguration(
+                await this.credentialsService.getCredentialConfigurationSupported(
                     session.tenantId,
                 ),
             credential_endpoint: `${credential_issuer}/vci/credential`,

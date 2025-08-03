@@ -78,7 +78,10 @@ describe('Issuance', () => {
 
         //import the pid credential configuration
         const pidCredentialConfiguration = JSON.parse(
-            readFileSync('test/import/issuance/credentials/pid.json', 'utf-8'),
+            readFileSync(
+                'assets/config/root/issuance/credentials/pid.json',
+                'utf-8',
+            ),
         );
         pidCredentialConfiguration.id = 'pid';
         await request(app.getHttpServer())
@@ -91,7 +94,7 @@ describe('Issuance', () => {
         //import the pid credential configuration for pre authorized code flow
         const pidNoneIssuanceConfiguration = JSON.parse(
             readFileSync(
-                'test/import/issuance/issuance/pid-none.json',
+                'assets/config/root/issuance/issuance/pid-none.json',
                 'utf-8',
             ),
         );
@@ -105,7 +108,10 @@ describe('Issuance', () => {
 
         //import the pid credential configuration for authorized code flow
         const pidIssuanceConfiguration = JSON.parse(
-            readFileSync('test/import/issuance/issuance/pid.json', 'utf-8'),
+            readFileSync(
+                'assets/config/root/issuance/issuance/pid.json',
+                'utf-8',
+            ),
         );
         pidIssuanceConfiguration.id = 'pid';
         await request(app.getHttpServer())
@@ -118,7 +124,7 @@ describe('Issuance', () => {
         //import citizen that that requires presentation during issuance
 
         const citizenPresentationConfiguration = JSON.parse(
-            readFileSync('test/import/presentation/pid.json', 'utf-8'),
+            readFileSync('assets/config/root/presentation/pid.json', 'utf-8'),
         );
         citizenPresentationConfiguration.id = 'pid';
         await request(app.getHttpServer())
@@ -131,7 +137,7 @@ describe('Issuance', () => {
         //import the citizen credential configuration
         const citizenCredentialConfiguration = JSON.parse(
             readFileSync(
-                'test/import/issuance/credentials/citizen.json',
+                'assets/config/root/issuance/credentials/citizen.json',
                 'utf-8',
             ),
         );
@@ -144,7 +150,10 @@ describe('Issuance', () => {
             .expect(201);
 
         const citizenIssuanceConfiguration = JSON.parse(
-            readFileSync('test/import/issuance/issuance/citizen.json', 'utf-8'),
+            readFileSync(
+                'assets/config/root/issuance/issuance/citizen.json',
+                'utf-8',
+            ),
         );
         citizenIssuanceConfiguration.id = 'citizen';
         await request(app.getHttpServer())

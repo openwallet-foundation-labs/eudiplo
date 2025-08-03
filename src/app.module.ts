@@ -39,6 +39,8 @@ import { MetricModule } from './metric/metric.module';
                             ? 'warn'
                             : 'debug',
                     ),
+                CONFIG_IMPORT: Joi.boolean().default(false),
+                CONFIG_IMPORT_FORCE: Joi.boolean().default(false),
                 ...AUTH_VALIDATION_SCHEMA,
                 ...REGISTRAR_VALIDATION_SCHEMA,
                 ...KEY_VALIDATION_SCHEMA,
