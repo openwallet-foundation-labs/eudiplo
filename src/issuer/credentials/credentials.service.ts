@@ -37,7 +37,7 @@ export class CredentialsService implements OnApplicationBootstrap {
      * Imports credential configurations from a predefined directory structure.
      */
     async onApplicationBootstrap() {
-        const configPath = 'assets/config';
+        const configPath = this.configService.getOrThrow('CONFIG_FOLDER');
         const subfolder = 'issuance/credentials';
         const force = this.configService.get<boolean>('CONFIG_IMPORT_FORCE');
         if (this.configService.get<boolean>('CONFIG_IMPORT')) {

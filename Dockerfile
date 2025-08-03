@@ -37,6 +37,7 @@ ENV NODE_ENV=production
 
 # Set the default FOLDER environment variable
 ENV FOLDER=/app/config
+ENV CONFIG_FOLDER=/app/config/config
 
 # Set the working directory
 WORKDIR /app

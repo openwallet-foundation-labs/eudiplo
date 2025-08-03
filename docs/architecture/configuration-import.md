@@ -7,7 +7,7 @@ workflows, and presentation verification rules without using the API.
 ## Overview
 
 The configuration import system automatically loads and validates JSON
-configuration files from the `assets/config/` directory when the application
+configuration files from the `config/config/` directory when the application
 starts. This is particularly useful for:
 
 - **Development environments** - Pre-load test configurations
@@ -15,14 +15,17 @@ starts. This is particularly useful for:
 - **CI/CD pipelines** - Automated environment setup
 - **Multi-tenant scenarios** - Bulk import tenant-specific configurations
 
+> When running locally with nodejs, the default directory is `assets/config/`.
+
 ## Environment Variables
 
 Configure the import behavior using these environment variables:
 
-| Variable              | Type    | Default | Description                                    |
-| --------------------- | ------- | ------- | ---------------------------------------------- |
-| `CONFIG_IMPORT`       | boolean | `false` | Enable configuration import on startup         |
-| `CONFIG_IMPORT_FORCE` | boolean | `false` | Overwrite existing configurations with same ID |
+| Variable              | Type    | Default          | Description                                                                                     |
+| --------------------- | ------- | ---------------- | ----------------------------------------------------------------------------------------------- |
+| `CONFIG_IMPORT`       | boolean | `false`          | Enable configuration import on startup                                                          |
+| `CONFIG_IMPORT_FORCE` | boolean | `false`          | Overwrite existing configurations with same ID                                                  |
+| `CONFIG_FOLDER`       | string  | `assets/config/` | Directory containing configuration files. Will be set in the Dockerfile to `app/config/config/` |
 
 ### Examples
 
@@ -79,7 +82,7 @@ assets/
 
 ### 1. Credential Configurations
 
-**Location**: `assets/config/{tenant}/issuance/credentials/*.json`
+**Location**: `config/config/{tenant}/issuance/credentials/*.json`
 
 Define credential templates and schemas.
 
@@ -88,7 +91,7 @@ Define credential templates and schemas.
 
 ### 2. Issuance Configurations
 
-**Location**: `assets/config/{tenant}/issuance/issuance/*.json`
+**Location**: `config/config/{tenant}/issuance/issuance/*.json`
 
 Define issuance workflows and authentication requirements.
 
@@ -97,7 +100,7 @@ Define issuance workflows and authentication requirements.
 
 ### 3. Presentation Configurations
 
-**Location**: `assets/config/{tenant}/presentation/*.json`
+**Location**: `config/config/{tenant}/presentation/*.json`
 
 Define verification requirements for credential presentations.
 
