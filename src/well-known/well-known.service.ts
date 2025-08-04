@@ -43,7 +43,7 @@ export class WellKnownService {
                 {
                     typ: 'openidvci-issuer-metadata+jwt',
                     alg: this.cryptoService.getAlgorithm(session.tenantId),
-                    x5c: this.cryptoService.getCertChain(
+                    x5c: await this.cryptoService.getCertChain(
                         'access',
                         session.tenantId,
                     ),

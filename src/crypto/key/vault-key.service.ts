@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { KeyService } from './key.service';
+import { KeyEntity, KeyService } from './key.service';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { importSPKI, exportJWK, JWTHeaderParameters, JWK } from 'jose';
@@ -8,6 +8,7 @@ import { JwtPayload, Signer } from '@sd-jwt/types';
 import { CryptoService, CryptoType } from './crypto/crypto.service';
 import { writeFileSync } from 'fs';
 import { join } from 'path';
+import { KeyImportDto } from './dto/key-import.dto';
 
 @Injectable()
 export class VaultKeyService extends KeyService {
@@ -51,6 +52,15 @@ export class VaultKeyService extends KeyService {
             .catch(async () => this.create(tenantId));
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    import(tenantId: string, body: KeyImportDto): Promise<string> {
+        throw new Error('Method not implemented.');
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    getKeys(tenantId: string): Promise<KeyEntity[]> {
+        throw new Error('Method not implemented.');
+    }
+
     /**
      * Get the signer for the key service
      */
@@ -80,11 +90,8 @@ export class VaultKeyService extends KeyService {
                 this.headers,
             ),
         );
-        const jwk = await this.getPublicKey('jwk', tenantId);
-        return {
-            id: res.data.id,
-            publicKey: jwk,
-        };
+        //const jwk = await this.getPublicKey('jwk', tenantId);
+        return res.data.id as string;
     }
 
     getKid(tenantId: string): Promise<string> {

@@ -55,6 +55,7 @@ describe('Issuance', () => {
         app.useGlobalPipes(new ValidationPipe());
 
         const configService = app.get(ConfigService);
+        configService.set('CONFIG_IMPORT_FORCE', true);
         clientId = configService.getOrThrow<string>('AUTH_CLIENT_ID');
         clientSecret = configService.getOrThrow<string>('AUTH_CLIENT_SECRET');
         host = configService.getOrThrow<string>('PUBLIC_URL');

@@ -24,6 +24,7 @@ import { setGlobalConfig } from '@openid4vc/openid4vci';
 import { ConfigService } from '@nestjs/config';
 import { WebhookService } from '../utils/webhook/webhook.service';
 import { HttpModule } from '@nestjs/axios';
+import { CredentialIssuanceBinding } from './issuance/entities/credential-issuance-binding.entity';
 
 export const ISSUER_VALIDATION_SCHEMA = {
     PUBLIC_URL: Joi.string(),
@@ -36,7 +37,11 @@ export const ISSUER_VALIDATION_SCHEMA = {
         Oid4vpModule,
         SessionModule,
         HttpModule,
-        TypeOrmModule.forFeature([IssuanceConfig, CredentialConfig]),
+        TypeOrmModule.forFeature([
+            IssuanceConfig,
+            CredentialConfig,
+            CredentialIssuanceBinding,
+        ]),
     ],
     controllers: [
         Oid4vciController,

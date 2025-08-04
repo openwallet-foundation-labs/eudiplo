@@ -127,7 +127,9 @@ export class Oid4vciService implements OnModuleInit {
             });
         const credentialConfigurationIds =
             body.credentialConfigurationIds ||
-            issuanceConfig.credentialConfigs.map((config) => config.id);
+            issuanceConfig.credentialIssuanceBindings.map(
+                (config) => config.credentialConfigId,
+            );
 
         let authorization_code: string | undefined;
         let grants: any;

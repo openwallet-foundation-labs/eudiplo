@@ -11,7 +11,9 @@
         }
     },
     "credentialConfigs": [
-        "citizen"
+        {
+            "id": "citizen"
+        }
     ],
     "notifyWebhook": {
         "url": "http://localhost:8787/notify",

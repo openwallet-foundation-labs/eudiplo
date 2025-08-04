@@ -3,6 +3,8 @@
         "method": "none"
     },
     "credentialConfigs": [
-        "pid"
+        {
+            "id": "pid"
+        }
     ]
 }

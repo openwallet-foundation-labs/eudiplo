@@ -76,13 +76,11 @@ export class PresentationsService implements OnModuleInit {
                     );
 
                     payload.id = file.replace('.json', '');
-                    if (
-                        (await this.getPresentationConfig(
-                            payload.id,
-                            tenant.name,
-                        )) &&
-                        !force
-                    ) {
+                    const presentationExists = await this.getPresentationConfig(
+                        payload.id,
+                        tenant.name,
+                    ).catch(() => false);
+                    if (presentationExists && !force) {
                         continue; // Skip if config already exists and force is not set
                     }
 
@@ -169,7 +167,7 @@ export class PresentationsService implements OnModuleInit {
                 tenantId,
             })
             .catch(() => {
-                throw new ConflictException('Request ID invalid not found');
+                throw new ConflictException(`Request ID ${id} not found`);
             });
     }
 

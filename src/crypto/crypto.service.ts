@@ -15,13 +15,13 @@ import {
     calculateJwkThumbprint,
     clientAuthenticationNone,
 } from '@openid4vc/oauth2';
-import type { Request } from 'express';
 import { type JWK, importJWK, jwtVerify } from 'jose';
 import { ConfigService } from '@nestjs/config';
 import { join } from 'node:path';
 import { KeyService } from './key/key.service';
 import { EC_Public } from '../well-known/dto/jwks-response.dto';
 import { execSync } from 'node:child_process';
+import { KeyImportDto } from './key/dto/key-import.dto';
 
 type certificateType = 'access' | 'signing';
 
@@ -46,7 +46,7 @@ export class CryptoService implements OnModuleInit {
             mkdirSync(folder, { recursive: true });
         }
         await this.keyService.init(tenantId);
-        this.hasCerts(tenantId);
+        await this.hasCerts(tenantId);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -56,18 +56,64 @@ export class CryptoService implements OnModuleInit {
     }
 
     /**
+     * Imports a key into the key service.
+     * @param tenantId
+     * @param body
+     * @returns
+     */
+    async importKey(tenantId: string, body: KeyImportDto): Promise<string> {
+        const keyId = await this.keyService.import(tenantId, body);
+        // If the private key has a certificate, write it to the certs folder
+        if (body.crt) {
+            const certFolder = join(
+                this.configService.getOrThrow<string>('FOLDER'),
+                tenantId,
+                'keys',
+                'certs',
+            );
+            if (!existsSync(certFolder)) {
+                mkdirSync(certFolder, { recursive: true });
+            }
+            writeFileSync(
+                join(certFolder, `${body.privateKey.kid}.pem`),
+                body.crt,
+            );
+        } else {
+            // If no certificate is provided, generate a self-signed certificate
+            await this.hasCerts(tenantId, keyId);
+        }
+        return keyId;
+    }
+
+    /**
      * Checks if there is a signing certificate and access certificate available.
      * If not it will be created.
      */
-    hasCerts(tenantId: string) {
+    async hasCerts(tenantId: string, keyId?: string) {
+        keyId = keyId || (await this.keyService.getKid(tenantId));
+        const publicKey = await this.keyService.getPublicKey(
+            'pem',
+            tenantId,
+            keyId,
+        );
+
         const folder = join(this.folder, tenantId, 'keys');
-        const pubkey = join(folder, 'public-key.pem');
+
+        const publicKeyPath = join(folder, `public-key.${keyId}.pem`);
+        writeFileSync(publicKeyPath, publicKey);
         const dummyKey = join(folder, 'dummy_key.pem');
         const dummyCsr = join(folder, 'dummy.csr');
         const issuerKey = join(folder, 'issuer_key.pem');
         const issuerCert = join(folder, 'issuer_cert.pem');
-        const certOut = join(folder, 'signing-certificate.pem');
+        const certFolder = join(folder, 'certs');
+
+        const certOut = join(certFolder, `${keyId}.pem`);
         const sanExt = join(folder, 'san.ext');
+
+        if (!existsSync(certFolder)) {
+            mkdirSync(certFolder, { recursive: true });
+        }
+
         if (!existsSync(certOut)) {
             // === Configurable parameters (you can parameterize these when calling the script) ===
             const subject = this.configService.getOrThrow<string>('RP_NAME');
@@ -117,7 +163,7 @@ export class CryptoService implements OnModuleInit {
 
             // Step 6: Sign certificate using issuer
             run(
-                `openssl x509 -req -in "${dummyCsr}" -force_pubkey "${pubkey}" -CA "${issuerCert}" -CAkey "${issuerKey}" -CAcreateserial -days 365 -extfile "${sanExt}" -out "${certOut}"`,
+                `openssl x509 -req -in "${dummyCsr}" -force_pubkey "${publicKeyPath}" -CA "${issuerCert}" -CAkey "${issuerKey}" -CAcreateserial -days 365 -extfile "${sanExt}" -out "${certOut}"`,
             );
 
             // Step 7: Clean up
@@ -126,6 +172,7 @@ export class CryptoService implements OnModuleInit {
                 issuerCert,
                 dummyCsr,
                 dummyKey,
+                publicKeyPath,
                 join(folder, 'issuer_cert.srl'),
                 sanExt,
             ].forEach((file) => {
@@ -134,19 +181,36 @@ export class CryptoService implements OnModuleInit {
         }
         if (!existsSync(join(folder, 'access-certificate.pem'))) {
             // Create access certificate from signing certificate
-            const signingCert = readFileSync(
-                join(folder, 'signing-certificate.pem'),
-                'utf-8',
-            );
+            const signingCert = readFileSync(join(certOut), 'utf-8');
             writeFileSync(join(folder, 'access-certificate.pem'), signingCert);
         }
     }
 
-    getCertChain(type: certificateType = 'signing', tenantId: string) {
-        const cert = readFileSync(
-            join(this.folder, tenantId, 'keys', `${type}-certificate.pem`),
-            'utf-8',
-        );
+    /**
+     * Get the certificate chain for the given type to be included in the JWS header.
+     * @param type
+     * @param tenantId
+     * @param keyId
+     * @returns
+     */
+    async getCertChain(
+        type: certificateType = 'signing',
+        tenantId: string,
+        keyId?: string,
+    ) {
+        keyId = keyId || (await this.keyService.getKid(tenantId));
+        let cert: string;
+        if (type === 'signing') {
+            cert = readFileSync(
+                join(this.folder, tenantId, 'keys', 'certs', `${keyId}.pem`),
+                'utf-8',
+            );
+        } else {
+            cert = readFileSync(
+                join(this.folder, tenantId, 'keys', `access-certificate.pem`),
+                'utf-8',
+            );
+        }
 
         const chain = cert
             .replace('-----BEGIN CERTIFICATE-----', '')
@@ -155,6 +219,11 @@ export class CryptoService implements OnModuleInit {
         return [chain];
     }
 
+    /**
+     * Store the access certificate for the tenant.
+     * @param crt
+     * @param tenantId
+     */
     storeAccessCertificate(crt: string, tenantId: string) {
         writeFileSync(
             join(this.folder, tenantId, 'keys', `access-certificate.pem`),
@@ -162,6 +231,13 @@ export class CryptoService implements OnModuleInit {
         );
     }
 
+    /**
+     * Sign a JWT with the key service.
+     * @param header
+     * @param payload
+     * @param tenantId
+     * @returns
+     */
     async signJwt(
         header: any,
         payload: any,
@@ -170,6 +246,13 @@ export class CryptoService implements OnModuleInit {
         return this.keyService.signJWT(payload, header, tenantId);
     }
 
+    /**
+     * Verify a JWT with the key service.
+     * @param compact
+     * @param tenantId
+     * @param payload
+     * @returns
+     */
     async verifyJwt(
         compact: string,
         tenantId: string,
@@ -189,6 +272,11 @@ export class CryptoService implements OnModuleInit {
             return { verified: false };
         }
     }
+    /**
+     * Get the callback context for the key service.
+     * @param tenantId
+     * @returns
+     */
     getCallbackContext(
         tenantId: string,
     ): Omit<CallbackContext, 'encryptJwe' | 'decryptJwe'> {
@@ -263,25 +351,26 @@ export class CryptoService implements OnModuleInit {
         };
     }
 
-    // Utility method like in your utils.ts
-    getHeadersFromRequest(req: Request): globalThis.Headers {
-        const headers = new Headers();
-        for (const [key, value] of Object.entries(req.headers)) {
-            if (Array.isArray(value)) {
-                for (const v of value) {
-                    headers.append(key, v);
-                }
-            } else if (value !== undefined) {
-                headers.set(key, value);
-            }
-        }
-        return headers;
-    }
-
+    /**
+     * Get the JWKs for the tenant.
+     * @param tenantId
+     * @returns
+     */
     getJwks(tenantId: string) {
         return this.keyService.getPublicKey(
             'jwk',
             tenantId,
         ) as Promise<EC_Public>;
+    }
+
+    /**
+     * Delete a key from the key service and the cert.
+     * @param tenantId
+     * @param id
+     */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    deleteKey(tenantId: string, id: string) {
+        //TODO: before deleting it, make sure it is not used in a configuration
+        throw new Error('Method not implemented.');
     }
 }

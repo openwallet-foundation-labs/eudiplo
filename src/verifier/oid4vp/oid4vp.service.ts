@@ -163,13 +163,13 @@ export class Oid4vpService {
 
             let accessCert: string[] | undefined = undefined;
             try {
-                accessCert = this.cryptoService.getCertChain(
+                accessCert = await this.cryptoService.getCertChain(
                     'access',
                     session.tenantId,
                 );
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
             } catch (err: any) {
-                accessCert = this.cryptoService.getCertChain(
+                accessCert = await this.cryptoService.getCertChain(
                     'signing',
                     session.tenantId,
                 );

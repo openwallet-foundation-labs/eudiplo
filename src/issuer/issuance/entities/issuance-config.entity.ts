@@ -1,9 +1,9 @@
 import { IsObject } from 'class-validator';
-import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { ApiHideProperty } from '@nestjs/swagger';
-import { CredentialConfig } from '../../credentials/entities/credential.entity';
 import type { AuthenticationConfig } from '../dto/authentication-config.dto';
 import { WebhookConfig } from '../../../utils/webhook/webhook.dto';
+import { CredentialIssuanceBinding } from './credential-issuance-binding.entity';
 
 /**
  * Entity to manage issuance configs
@@ -24,13 +24,13 @@ export class IssuanceConfig {
     tenantId: string;
 
     /**
-     * Links to all credential configs that are included in this issuance config.
+     * Links to all credential config bindings that are included in this issuance config.
      */
-    @ManyToMany(
-        () => CredentialConfig,
-        (credentialConfig) => credentialConfig.issuanceConfig,
+    @OneToMany(
+        () => CredentialIssuanceBinding,
+        (binding) => binding.issuanceConfig,
     )
-    credentialConfigs: CredentialConfig[];
+    credentialIssuanceBindings: CredentialIssuanceBinding[];
 
     /**
      * Authentication configuration for the issuance process.

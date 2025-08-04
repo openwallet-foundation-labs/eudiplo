@@ -6,6 +6,8 @@
         }
     },
     "credentialConfigs": [
-        "pid"
+        {
+            "id": "pid"
+        }
     ]
 }

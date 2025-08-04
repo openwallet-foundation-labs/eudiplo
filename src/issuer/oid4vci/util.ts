@@ -1,5 +1,10 @@
 import type { Request } from 'express';
 
+/**
+ * Utility function to extract headers from an Express request
+ * @param req
+ * @returns
+ */
 export function getHeadersFromRequest(req: Request): globalThis.Headers {
     const headers = new Headers();
 
