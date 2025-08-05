@@ -4,7 +4,7 @@ import { CryptoImplementationService } from './crypto.service';
 import { ConfigModule } from '@nestjs/config';
 
 export const CRYPTO_VALIDATION_SCHEMA = {
-    CRYPTO_ALG: Joi.string().valid('ES256', 'Ed25519').default('ES256'),
+    CRYPTO_ALG: Joi.string().valid('ES256').default('ES256'),
 };
 
 @Global()

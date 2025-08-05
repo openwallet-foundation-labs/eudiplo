@@ -57,7 +57,7 @@ End_Service ->> Middleware : Request OID4VCI issuance offer
 Middleware -->> End_Service : Return credential offer link
 End_Service ->> EUDI_Wallet : Present link to user
 Middleware -> EUDI_Wallet : OID4VCI
-Middleware ->> End_Service : Notify successful issuance (not implemented yet)
+Middleware ->> End_Service : Notify successful issuance
 ```
 
 ---
@@ -175,13 +175,32 @@ authentication requirements.
 
 ```json
 {
-    "presentation_during_issuance": {
-        "type": "pid",
-        "webhook": {
-            "url": "http://localhost:8787/process"
+    "authenticationConfig": {
+        "method": "presentationDuringIssuance",
+        "config": {
+            "presentation": {
+                "type": "pid",
+                "webhook": {
+                    "url": "http://localhost:8787/process"
+                }
+            }
         }
     },
-    "credentialConfigs": ["citizen"]
+    "credentialConfigs": [
+        {
+            "id": "citizen"
+        }
+    ],
+    "notifyWebhook": {
+        "url": "http://localhost:8787/notify",
+        "auth": {
+            "type": "apiKey",
+            "config": {
+                "headerName": "x-api-key",
+                "value": "foo-bar"
+            }
+        }
+    }
 }
 ```
 
@@ -189,6 +208,10 @@ authentication requirements.
 
 - `credentialConfigs`: **REQUIRED** - Array of credential configuration IDs to
   issue together.
+- `authenticationConfig`: **OPTIONAL** - Authentication method and configuration
+  for the issuance flow.
+- `notifyWebhook`: **OPTIONAL** - Webhook configuration to notify external
+  services about successful issuance.
 
 ---
 
@@ -340,10 +363,30 @@ curl -X 'POST' \
   -H 'Content-Type: application/json' \
   -d '{
     "id": "citizen-with-pid-verification",
-    "presentation_during_issuance": {
-      "type": "pid",
-      "webhook": {
-        "url": "http://localhost:8787/process"
+    "authenticationConfig": {
+      "method": "presentationDuringIssuance",
+      "config": {
+        "presentation": {
+          "type": "pid",
+          "webhook": {
+            "url": "http://localhost:8787/process"
+          }
+        }
+      }
+    },
+    "credentialConfigs": [
+      {
+        "id": "citizen"
+      }
+    ],
+    "notifyWebhook": {
+      "url": "http://localhost:8787/notify",
+      "auth": {
+        "type": "apiKey",
+        "config": {
+          "headerName": "x-api-key",
+          "value": "foo-bar"
+        }
       }
     }
   }'

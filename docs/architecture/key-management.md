@@ -10,11 +10,14 @@ ways, depending on the selected key management type (`KM_TYPE`).
 
 ## Configuration Overview
 
-| Variable      | Description                                              | Required for | Default |
-| ------------- | -------------------------------------------------------- | ------------ | ------- |
-| `KM_TYPE`     | Key management engine type                               | All          | `file`  |
-| `VAULT_URL`   | Vault API URL to vault instance like `http://vault:8200` | `vault`      | –       |
-| `VAULT_TOKEN` | Authentication token for Vault                           | `vault`      | –       |
+| Variable              | Description                                              | Required for | Default |
+| --------------------- | -------------------------------------------------------- | ------------ | ------- |
+| `KM_TYPE`             | Key management engine type (`file` or `vault`)           | All          | `file`  |
+| `CRYPTO_ALG`          | Cryptographic algorithm (`ES256`)                        | All          | `ES256` |
+| `VAULT_URL`           | Vault API URL to vault instance like `http://vault:8200` | `vault`      | –       |
+| `VAULT_TOKEN`         | Authentication token for Vault                           | `vault`      | –       |
+| `CONFIG_IMPORT`       | Enable automatic key import from config files            | Optional     | `false` |
+| `CONFIG_IMPORT_FORCE` | Overwrite existing keys during import                    | Optional     | `false` |
 
 > ✅ When using the default `file` mode, the keys will be stored in the `keys`
 > folder in the config folder. Vault mode requires all `VAULT_*` variables.
@@ -26,14 +29,45 @@ ways, depending on the selected key management type (`KM_TYPE`).
 When `KM_TYPE=file` (default), keys are stored unencrypted in the `keys`
 directory in the config folder. This mode is ideal for development or testing.
 
-On startup, if no keys are found, the service will generate:
+### Multiple Key Support
 
-- `private-key.pem`
-- `public-key.pem`
-- `signing-certificate.pem` (self-signed)
+Each tenant can manage multiple cryptographic keys simultaneously. Keys are
+stored in the tenant's `keys/keys/` subdirectory as individual JSON files:
 
-You can also place your own pre-generated PEM files in the folder to override
-the defaults.
+```
+config/
+├── tenant-1/
+│   ├── keys/
+│   │   └── keys/
+│   │       ├── 039af178-3ca0-48f4-a2e4-7b1209f30376.json
+│   │       ├── 7e2c1a4b-9d8e-4f3a-b5c2-8f1e3d7a9c6b.json
+│   │       └── a1b2c3d4-e5f6-7890-1234-567890abcdef.json
+│   └── display.json
+```
+
+Each key file contains the private key in JWK format:
+
+```json
+{
+    "kty": "EC",
+    "x": "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
+    "y": "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
+    "crv": "P-256",
+    "d": "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
+    "kid": "039af178-3ca0-48f4-a2e4-7b1209f30376",
+    "alg": "ES256"
+}
+```
+
+### Automatic Key Generation
+
+On startup, if no keys are found for a tenant, the service will automatically
+generate a new key pair with a self signed certificate. Each generated key
+includes:
+
+- **Private key** (stored as JWK format)
+- **Public key** (derived from private key)
+- **Self-signed certificate** (automatically generated)
 
 ---
 
@@ -106,30 +140,20 @@ When `KM_TYPE=file` in multi-tenant mode:
 config/
 ├── tenant-1/
 │   ├── keys/
-│   │   ├── signing-key.json
-│   │   └── encryption-key.json
+│   │   └── keys/
+│   │       ├── key-1.json
+│   │       ├── key-2.json
+│   │       └── key-3.json
 │   └── display.json
 ├── tenant-2/
 │   ├── keys/
-│   │   ├── signing-key.json
-│   │   └── encryption-key.json
+│   │   └── keys/
+│   │       ├── signing-key.json
+│   │       └── backup-key.json
 │   └── display.json
 ```
 
-#### Database Key Management
-
-Keys are stored in the `KeyEntity` table with tenant isolation:
-
-```typescript
-@Entity()
-export class KeyEntity {
-    @Column('varchar', { primary: true })
-    tenantId: string; // Primary key includes tenant ID
-
-    @Column('json')
-    privateKey: JsonWebKey;
-}
-```
+Each key file contains a complete JWK private key with metadata.
 
 ### Automatic Key Generation
 
@@ -141,21 +165,97 @@ export class KeyEntity {
 4. Keys stored in tenant-specific location
 5. Generation of certificate for public key
 
-### Key Access Patterns
+## Key Import and Management
 
-**Tenant-Scoped Key Retrieval:**
+EUDIPLO supports importing existing keys through multiple methods to accommodate
+different deployment scenarios and security requirements.
 
-```typescript
-// Get signing keys for specific tenant
-const keys = await this.cryptoService.getJwks(tenantId);
+### API-Based Key Import
 
-// Get encryption context for tenant
-const context = this.cryptoService.getCallbackContext(tenantId);
+Import keys through the REST API using authenticated requests:
+
+**Endpoint**: `POST /key`
+
+**Request Body**:
+
+```json
+{
+    "privateKey": {
+        "kty": "EC",
+        "x": "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
+        "y": "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
+        "crv": "P-256",
+        "d": "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
+        "kid": "039af178-3ca0-48f4-a2e4-7b1209f30376",
+        "alg": "ES256"
+    },
+    "crt": "-----BEGIN CERTIFICATE-----\n...optional certificate...\n-----END CERTIFICATE-----"
+}
 ```
 
-**Security Benefits:**
+**Response**:
 
-- **Complete isolation**: No cross-tenant key access possible
-- **Independent rotation**: Each tenant can manage keys separately
-- **Audit trail**: All key operations scoped to tenant ID
-- **Scalable**: New tenants automatically provisioned with fresh keys
+```json
+{
+    "id": "039af178-3ca0-48f4-a2e4-7b1209f30376"
+}
+```
+
+### Configuration-Based Key Import
+
+Import keys automatically during application startup using the configuration
+import system.
+
+**Environment Variables**:
+
+```bash
+CONFIG_IMPORT=true
+CONFIG_IMPORT_FORCE=false  # Set to true to overwrite existing keys
+```
+
+**Directory Structure**:
+
+```
+assets/config/
+├── tenant-1/
+│   └── keys/
+│       ├── primary-key.json
+│       ├── backup-key.json
+│       └── legacy-key.json
+└── tenant-2/
+    └── keys/
+        └── signing-key.json
+```
+
+**Key File Format**:
+
+```json
+{
+    "privateKey": {
+        "kty": "EC",
+        "x": "...",
+        "y": "...",
+        "crv": "P-256",
+        "d": "...",
+        "kid": "unique-key-identifier",
+        "alg": "ES256"
+    },
+    "crt": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
+}
+```
+
+### Key Management Operations
+
+**List All Keys**:
+
+```bash
+GET /key
+Authorization: Bearer <tenant-token>
+```
+
+### Supported Key Formats
+
+- **Algorithm Support**: ES256 (ECDSA P-256)
+- **Key Format**: JSON Web Key (JWK) format
+- **Certificate Support**: Optional X.509 certificates in PEM format
+- **Key Generation**: Automatic generation if no keys exist

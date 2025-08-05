@@ -63,15 +63,20 @@ configuration or passing the webhook dynamically via offer creation:
 
 ```json
 {
-    "presentation_during_issuance": {
-        "type": "pid",
-        "webhook": {
-            "url": "http://localhost:8787/process",
-            "auth": {
-                "type": "apiKey",
-                "config": {
-                    "headerName": "x-api-key",
-                    "value": "your-api-key"
+    "authenticationConfig": {
+        "method": "presentationDuringIssuance",
+        "config": {
+            "presentation": {
+                "type": "pid",
+                "webhook": {
+                    "url": "http://localhost:8787/process",
+                    "auth": {
+                        "type": "apiKey",
+                        "config": {
+                            "headerName": "x-api-key",
+                            "value": "your-api-key"
+                        }
+                    }
                 }
             }
         }

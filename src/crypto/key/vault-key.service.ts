@@ -114,7 +114,6 @@ export class VaultKeyService extends KeyService {
     async create(tenantId: string) {
         const types: Map<CryptoType, string> = new Map();
         types.set('ES256', 'ecdsa-p256');
-        types.set('Ed25519', 'ed25519');
         const id = v4();
         await firstValueFrom(
             this.httpService.post(
