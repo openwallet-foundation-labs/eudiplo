@@ -108,7 +108,7 @@ export abstract class KeyService {
             })
             .then(
                 (cert) => cert.crt,
-                (err) => {
+                () => {
                     throw new ConflictException('Certificate not found');
                 },
             );

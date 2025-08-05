@@ -21,7 +21,6 @@ import {
     ConflictException,
     Injectable,
     OnApplicationBootstrap,
-    OnModuleInit,
 } from '@nestjs/common';
 import { Signer } from '@sd-jwt/types';
 import { ConfigService } from '@nestjs/config';
@@ -77,13 +76,13 @@ export class FileSystemKeyService
                         );
 
                         payload.id = file.replace('.json', '');
-                        /* const exists = await this.
+                        const exists = await this.getPrivateKey(
                             tenant.name,
                             payload.id,
                         ).catch(() => false);
                         if (exists && !force) {
                             continue; // Skip if config already exists and force is not set
-                        } */
+                        }
 
                         // Validate the payload against KeyImportDto
                         const config = plainToClass(KeyImportDto, payload);
