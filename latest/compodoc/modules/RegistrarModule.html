@@ -289,15 +289,15 @@ import { PresentationsModule } from &#x27;../verifier/presentations/presentation
  */
 export const REGISTRAR_VALIDATION_SCHEMA &#x3D; {
     REGISTRAR_URL: Joi.string(),
-    OIDC_ISSUER_URL: Joi.string().when(&#x27;REGISTRAR_URL&#x27;, {
+    REGISTRAR_OIDC_URL: Joi.string().when(&#x27;REGISTRAR_URL&#x27;, {
         is: Joi.exist(),
         then: Joi.required(),
     }),
-    OIDC_CLIENT_ID: Joi.string().when(&#x27;REGISTRAR_URL&#x27;, {
+    REGISTRAR_OIDC_CLIENT_ID: Joi.string().when(&#x27;REGISTRAR_URL&#x27;, {
         is: Joi.exist(),
         then: Joi.required(),
     }),
-    OIDC_CLIENT_SECRET: Joi.string().when(&#x27;REGISTRAR_URL&#x27;, {
+    REGISTRAR_OIDC_CLIENT_SECRET: Joi.string().when(&#x27;REGISTRAR_URL&#x27;, {
         is: Joi.exist(),
         then: Joi.required(),
     }),

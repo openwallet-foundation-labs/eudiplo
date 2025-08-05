@@ -235,12 +235,23 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, OnApplicationBootstrap } from &#x27;@nestjs/common&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+    BadRequestException,
+    Injectable,
+    OnApplicationBootstrap,
+} from &#x27;@nestjs/common&#x27;;
 import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { EventEmitter2 } from &#x27;@nestjs/event-emitter&#x27;;
 import { existsSync, mkdirSync, writeFileSync } from &#x27;fs&#x27;;
 import { join } from &#x27;path&#x27;;
-import { TENANT_EVENTS } from &#x27;./tenant-events&#x27;;
+import { CryptoService } from &#x27;../crypto/crypto.service&#x27;;
+import { EncryptionService } from &#x27;../crypto/encryption/encryption.service&#x27;;
+import { StatusListService } from &#x27;../issuer/status-list/status-list.service&#x27;;
+import { RegistrarService } from &#x27;../registrar/registrar.service&#x27;;
+import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
+import { ClientEntry } from &#x27;./entitites/client.entity&#x27;;
+import { Repository } from &#x27;typeorm/repository/Repository&#x27;;
+import { InjectMetric } from &#x27;@willsoto/nestjs-prometheus&#x27;;
+import { Gauge } from &#x27;prom-client&#x27;;
 
 // Client interface for service integration
 export interface Client {
@@ -254,15 +265,20 @@ export class ClientService implements OnApplicationBootstrap {
 
     constructor(
         private configService: ConfigService,
-        private eventEmitter: EventEmitter2,
+        private cryptoService: CryptoService,
+        private encryptionService: EncryptionService,
+        private statutsListService: StatusListService,
+        private registrarService: RegistrarService,
+        @InjectRepository(ClientEntry)
+        private clientRepository: Repository&lt;ClientEntry&gt;,
+        @InjectMetric(&#x27;tenant_client_total&#x27;)
+        private tenantClientTotal: Gauge&lt;string&gt;,
     ) {}
 
-    onApplicationBootstrap() {
-        // were are ignoring clients that are not used anymore for now. Need to implement a proper cleanup mechanism later
-        const clients &#x3D; this.getClients();
-        clients.forEach((client) &#x3D;&gt; {
-            this.setUpClient(client.id);
-        });
+    async onApplicationBootstrap() {
+        // Initialize the client metrics
+        const count &#x3D; await this.clientRepository.countBy({ status: &#x27;set up&#x27; });
+        this.tenantClientTotal.set({}, count);
     }
 
     /**
@@ -313,10 +329,54 @@ export class ClientService implements OnApplicationBootstrap {
     }
 
     /**
+     * Check if the client is set up, if not, set it up.
+     * @param id
+     * @returns
+     */
+    async isSetUp(id: string) {
+        void this.clientRepository
+            .countBy({ status: &#x27;set up&#x27; })
+            .then((count) &#x3D;&gt; {
+                this.tenantClientTotal.set({}, count);
+            });
+
+        await this.clientRepository.findOneByOrFail({ id }).then(
+            (res) &#x3D;&gt; {
+                if (res.status &#x3D;&#x3D;&#x3D; &#x27;set up&#x27;) {
+                    return true;
+                }
+                throw new BadRequestException(
+                    &#x60;Client ${id} is not set up. Please retry later.&#x60;,
+                );
+            },
+            async () &#x3D;&gt; {
+                // create it to signl that the client getting set up
+                await this.clientRepository.save({ id });
+                await this.setUpClient(id).catch(async (err) &#x3D;&gt; {
+                    console.error(err);
+                    // if there is an error, update the client status&quot;
+                    await this.clientRepository.update(
+                        { id },
+                        { status: &#x27;error&#x27;, error: err.message },
+                    );
+                    throw new BadRequestException(
+                        &#x60;Error setting up client ${id}. Please retry later.&#x60;,
+                    );
+                });
+                // if everything is fine, update the client status
+                return this.clientRepository.update(
+                    { id },
+                    { status: &#x27;set up&#x27; },
+                );
+            },
+        );
+    }
+
+    /**
      * Sends an event to set up a client, allowing all other services to listen and react accordingly.
      * @param id
      */
-    setUpClient(id: string) {
+    async setUpClient(id: string) {
         const folder &#x3D; join(
             this.configService.getOrThrow&lt;string&gt;(&#x27;FOLDER&#x27;),
             id,
@@ -339,8 +399,10 @@ export class ClientService implements OnApplicationBootstrap {
             join(folder, &#x27;display.json&#x27;),
             JSON.stringify(displayInfo, null, 2),
         );
-
-        this.eventEmitter.emit(TENANT_EVENTS.TENANT_INIT, id);
+        await this.cryptoService.onTenantInit(id);
+        await this.encryptionService.onTenantInit(id);
+        await this.statutsListService.onTenantInit(id);
+        await this.registrarService.onTenantInit(id);
     }
 }
 </code></pre>

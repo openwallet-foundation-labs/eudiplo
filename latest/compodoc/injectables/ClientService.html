@@ -159,13 +159,19 @@
                                 <a href="#getClients" >getClients</a>
                             </li>
                             <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#isSetUp" >isSetUp</a>
+                            </li>
+                            <li>
                                     <span class="modifier">Private</span>
                                 <a href="#loadClients" >loadClients</a>
                             </li>
                             <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#onApplicationBootstrap" >onApplicationBootstrap</a>
                             </li>
                             <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#setUpClient" >setUpClient</a>
                             </li>
                             <li>
@@ -189,12 +195,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(configService: ConfigService, eventEmitter: EventEmitter2)</code>
+<code>constructor(configService: ConfigService, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, encryptionService: <a href="../injectables/EncryptionService.html" target="_self">EncryptionService</a>, statutsListService: <a href="../injectables/StatusListService.html" target="_self">StatusListService</a>, registrarService: <a href="../injectables/RegistrarService.html" target="_self">RegistrarService</a>, clientRepository: <a href="../interfaces/Client.html" target="_self">Repository&lt;ClientEntry&gt;</a>, tenantClientTotal: Gauge<string>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="16" class="link-to-prism">src/auth/client.service.ts:16</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="27" class="link-to-prism">src/auth/client.service.ts:27</a></div>
                             </td>
                         </tr>
 
@@ -224,10 +230,70 @@
                                                     
                                                 </tr>
                                                 <tr>
-                                                        <td>eventEmitter</td>
+                                                        <td>cryptoService</td>
                                                   
                                                         <td>
-                                                                    <code>EventEmitter2</code>
+                                                                        <code><a href="../injectables/CryptoService.html" target="_self" >CryptoService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>encryptionService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/EncryptionService.html" target="_self" >EncryptionService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>statutsListService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/StatusListService.html" target="_self" >StatusListService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>registrarService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/RegistrarService.html" target="_self" >RegistrarService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>clientRepository</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../interfaces/Client.html" target="_self" >Repository&lt;ClientEntry&gt;</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>tenantClientTotal</td>
+                                                  
+                                                        <td>
+                                                                    <code>Gauge&lt;string&gt;</code>
                                                         </td>
                                                   
                                                     <td>
@@ -269,8 +335,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="74"
-                                    class="link-to-prism">src/auth/client.service.ts:74</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="90"
+                                    class="link-to-prism">src/auth/client.service.ts:90</a></div>
                         </td>
                     </tr>
 
@@ -308,7 +374,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#Client" target="_self" >Client | null</a></code>
+                            <b>Returns : </b>        <code><a href="../interfaces/Client.html" target="_self" >Client | null</a></code>
 
                         </div>
                             <div class="io-description">
@@ -340,8 +406,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="35"
-                                    class="link-to-prism">src/auth/client.service.ts:35</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="51"
+                                    class="link-to-prism">src/auth/client.service.ts:51</a></div>
                         </td>
                     </tr>
 
@@ -352,7 +418,78 @@
 </div>
 
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#Client" target="_self" >Client[]</a></code>
+                            <b>Returns : </b>        <code><a href="../interfaces/Client.html" target="_self" >Client[]</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="isSetUp"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>isSetUp</b></span>
+                        <a href="#isSetUp"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>isSetUp(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="99"
+                                    class="link-to-prism">src/auth/client.service.ts:99</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Check if the client is set up, if not, set it up.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
 
                         </div>
                             <div class="io-description">
@@ -384,8 +521,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="45"
-                                    class="link-to-prism">src/auth/client.service.ts:45</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="61"
+                                    class="link-to-prism">src/auth/client.service.ts:61</a></div>
                         </td>
                     </tr>
 
@@ -396,7 +533,7 @@
 </div>
 
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#Client" target="_self" >Client[]</a></code>
+                            <b>Returns : </b>        <code><a href="../interfaces/Client.html" target="_self" >Client[]</a></code>
 
                         </div>
                 </td>
@@ -409,6 +546,7 @@
                 <td class="col-md-4">
                     <a name="onApplicationBootstrap"></a>
                     <span class="name">
+                            <span class="modifier">Async</span>
                         <span ><b>onApplicationBootstrap</b></span>
                         <a href="#onApplicationBootstrap"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -416,15 +554,16 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>onApplicationBootstrap()</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>onApplicationBootstrap()</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="23"
-                                    class="link-to-prism">src/auth/client.service.ts:23</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="41"
+                                    class="link-to-prism">src/auth/client.service.ts:41</a></div>
                         </td>
                     </tr>
 
@@ -433,7 +572,7 @@
                 <td class="col-md-4">
 
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
 
                         </div>
                 </td>
@@ -446,6 +585,7 @@
                 <td class="col-md-4">
                     <a name="setUpClient"></a>
                     <span class="name">
+                            <span class="modifier">Async</span>
                         <span ><b>setUpClient</b></span>
                         <a href="#setUpClient"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -453,15 +593,16 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>setUpClient(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>setUpClient(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="82"
-                                    class="link-to-prism">src/auth/client.service.ts:82</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="142"
+                                    class="link-to-prism">src/auth/client.service.ts:142</a></div>
                         </td>
                     </tr>
 
@@ -499,7 +640,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
 
                         </div>
                             <div class="io-description">
@@ -529,8 +670,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="61"
-                                    class="link-to-prism">src/auth/client.service.ts:61</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="77"
+                                    class="link-to-prism">src/auth/client.service.ts:77</a></div>
                         </td>
                     </tr>
 
@@ -581,7 +722,7 @@ This is the primary authentication method for service integration</p>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#Client" target="_self" >Client | null</a></code>
+                            <b>Returns : </b>        <code><a href="../interfaces/Client.html" target="_self" >Client | null</a></code>
 
                         </div>
                             <div class="io-description">
@@ -611,7 +752,7 @@ This is the primary authentication method for service integration</p>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../miscellaneous/typealiases.html#Client" target="_self" >Client[] | null</a></code>
+                        <i>Type : </i>        <code><a href="../interfaces/Client.html" target="_self" >Client[] | null</a></code>
 
                     </td>
                 </tr>
@@ -622,7 +763,7 @@ This is the primary authentication method for service integration</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="16" class="link-to-prism">src/auth/client.service.ts:16</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="27" class="link-to-prism">src/auth/client.service.ts:27</a></div>
                         </td>
                     </tr>
 
@@ -635,12 +776,23 @@ This is the primary authentication method for service integration</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, OnApplicationBootstrap } from &#x27;@nestjs/common&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+    BadRequestException,
+    Injectable,
+    OnApplicationBootstrap,
+} from &#x27;@nestjs/common&#x27;;
 import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { EventEmitter2 } from &#x27;@nestjs/event-emitter&#x27;;
 import { existsSync, mkdirSync, writeFileSync } from &#x27;fs&#x27;;
 import { join } from &#x27;path&#x27;;
-import { TENANT_EVENTS } from &#x27;./tenant-events&#x27;;
+import { CryptoService } from &#x27;../crypto/crypto.service&#x27;;
+import { EncryptionService } from &#x27;../crypto/encryption/encryption.service&#x27;;
+import { StatusListService } from &#x27;../issuer/status-list/status-list.service&#x27;;
+import { RegistrarService } from &#x27;../registrar/registrar.service&#x27;;
+import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
+import { ClientEntry } from &#x27;./entitites/client.entity&#x27;;
+import { Repository } from &#x27;typeorm/repository/Repository&#x27;;
+import { InjectMetric } from &#x27;@willsoto/nestjs-prometheus&#x27;;
+import { Gauge } from &#x27;prom-client&#x27;;
 
 // Client interface for service integration
 export interface Client {
@@ -654,15 +806,20 @@ export class ClientService implements OnApplicationBootstrap {
 
     constructor(
         private configService: ConfigService,
-        private eventEmitter: EventEmitter2,
+        private cryptoService: CryptoService,
+        private encryptionService: EncryptionService,
+        private statutsListService: StatusListService,
+        private registrarService: RegistrarService,
+        @InjectRepository(ClientEntry)
+        private clientRepository: Repository&lt;ClientEntry&gt;,
+        @InjectMetric(&#x27;tenant_client_total&#x27;)
+        private tenantClientTotal: Gauge&lt;string&gt;,
     ) {}
 
-    onApplicationBootstrap() {
-        // were are ignoring clients that are not used anymore for now. Need to implement a proper cleanup mechanism later
-        const clients &#x3D; this.getClients();
-        clients.forEach((client) &#x3D;&gt; {
-            this.setUpClient(client.id);
-        });
+    async onApplicationBootstrap() {
+        // Initialize the client metrics
+        const count &#x3D; await this.clientRepository.countBy({ status: &#x27;set up&#x27; });
+        this.tenantClientTotal.set({}, count);
     }
 
     /**
@@ -713,10 +870,54 @@ export class ClientService implements OnApplicationBootstrap {
     }
 
     /**
+     * Check if the client is set up, if not, set it up.
+     * @param id
+     * @returns
+     */
+    async isSetUp(id: string) {
+        void this.clientRepository
+            .countBy({ status: &#x27;set up&#x27; })
+            .then((count) &#x3D;&gt; {
+                this.tenantClientTotal.set({}, count);
+            });
+
+        await this.clientRepository.findOneByOrFail({ id }).then(
+            (res) &#x3D;&gt; {
+                if (res.status &#x3D;&#x3D;&#x3D; &#x27;set up&#x27;) {
+                    return true;
+                }
+                throw new BadRequestException(
+                    &#x60;Client ${id} is not set up. Please retry later.&#x60;,
+                );
+            },
+            async () &#x3D;&gt; {
+                // create it to signl that the client getting set up
+                await this.clientRepository.save({ id });
+                await this.setUpClient(id).catch(async (err) &#x3D;&gt; {
+                    console.error(err);
+                    // if there is an error, update the client status&quot;
+                    await this.clientRepository.update(
+                        { id },
+                        { status: &#x27;error&#x27;, error: err.message },
+                    );
+                    throw new BadRequestException(
+                        &#x60;Error setting up client ${id}. Please retry later.&#x60;,
+                    );
+                });
+                // if everything is fine, update the client status
+                return this.clientRepository.update(
+                    { id },
+                    { status: &#x27;set up&#x27; },
+                );
+            },
+        );
+    }
+
+    /**
      * Sends an event to set up a client, allowing all other services to listen and react accordingly.
      * @param id
      */
-    setUpClient(id: string) {
+    async setUpClient(id: string) {
         const folder &#x3D; join(
             this.configService.getOrThrow&lt;string&gt;(&#x27;FOLDER&#x27;),
             id,
@@ -739,8 +940,10 @@ export class ClientService implements OnApplicationBootstrap {
             join(folder, &#x27;display.json&#x27;),
             JSON.stringify(displayInfo, null, 2),
         );
-
-        this.eventEmitter.emit(TENANT_EVENTS.TENANT_INIT, id);
+        await this.cryptoService.onTenantInit(id);
+        await this.encryptionService.onTenantInit(id);
+        await this.statutsListService.onTenantInit(id);
+        await this.registrarService.onTenantInit(id);
     }
 }
 </code></pre>

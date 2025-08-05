@@ -118,13 +118,13 @@
 <title>cluster_IssuerModule</title>
 <polygon fill="none" stroke="black" stroke-dasharray="1,5" points="8,-70 8,-268 2062,-268 2062,-70 8,-70"/>
 </g>
-<g id="clust6" class="cluster">
-<title>cluster_IssuerModule_providers</title>
-<polygon fill="none" stroke="black" points="512,-78 512,-130 2054,-130 2054,-78 512,-78"/>
-</g>
 <g id="clust4" class="cluster">
 <title>cluster_IssuerModule_exports</title>
 <polygon fill="none" stroke="black" points="778,-208 778,-260 1036,-260 1036,-208 778,-208"/>
+</g>
+<g id="clust6" class="cluster">
+<title>cluster_IssuerModule_providers</title>
+<polygon fill="none" stroke="black" points="512,-78 512,-130 2054,-130 2054,-78 512,-78"/>
 </g>
 <g id="clust3" class="cluster">
 <title>cluster_IssuerModule_imports</title>
@@ -470,6 +470,7 @@ import { setGlobalConfig } from &#x27;@openid4vc/openid4vci&#x27;;
 import { ConfigService } from &#x27;@nestjs/config&#x27;;
 import { WebhookService } from &#x27;../utils/webhook/webhook.service&#x27;;
 import { HttpModule } from &#x27;@nestjs/axios&#x27;;
+import { CredentialIssuanceBinding } from &#x27;./issuance/entities/credential-issuance-binding.entity&#x27;;
 
 export const ISSUER_VALIDATION_SCHEMA &#x3D; {
     PUBLIC_URL: Joi.string(),
@@ -482,7 +483,11 @@ export const ISSUER_VALIDATION_SCHEMA &#x3D; {
         Oid4vpModule,
         SessionModule,
         HttpModule,
-        TypeOrmModule.forFeature([IssuanceConfig, CredentialConfig]),
+        TypeOrmModule.forFeature([
+            IssuanceConfig,
+            CredentialConfig,
+            CredentialIssuanceBinding,
+        ]),
     ],
     controllers: [
         Oid4vciController,

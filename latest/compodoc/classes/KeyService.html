@@ -150,6 +150,18 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier">Abstract</span>
+                                <a href="#create" >create</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Protected</span>
+                                <a href="#getCertificate" >getCertificate</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Abstract</span>
+                                <a href="#getKeys" >getKeys</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Abstract</span>
                                 <a href="#getKid" >getKid</a>
                             </li>
                             <li>
@@ -163,6 +175,10 @@
                             <li>
                                     <span class="modifier">Abstract</span>
                                 <a href="#getPublicKey" >getPublicKey</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Abstract</span>
+                                <a href="#import" >import</a>
                             </li>
                             <li>
                                     <span class="modifier">Abstract</span>
@@ -188,6 +204,66 @@
     </table>
 </section>
 
+            <section data-compodoc="block-constructor">
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor(configService: ConfigService, certRepository: <a href="../entitys/CertEntity.html" target="_self">Repository&lt;CertEntity&gt;</a>)</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="30" class="link-to-prism">src/crypto/key/key.service.ts:30</a></div>
+                            </td>
+                        </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>configService</td>
+                                                  
+                                                        <td>
+                                                                    <code>ConfigService</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>certRepository</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../entitys/CertEntity.html" target="_self" >Repository&lt;CertEntity&gt;</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
 
 
             <section data-compodoc="block-methods">
@@ -195,6 +271,226 @@
     <h3 id="methods">
         Methods
     </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="create"></a>
+                    <span class="name">
+                            <span class="modifier">Abstract</span>
+                        <span ><b>create</b></span>
+                        <a href="#create"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>create(tenantId)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="48"
+                                    class="link-to-prism">src/crypto/key/key.service.ts:48</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Creates a new keypair</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>key id of the generated key.</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getCertificate"></a>
+                    <span class="name">
+                            <span class="modifier">Protected</span>
+                        <span ><b>getCertificate</b></span>
+                        <a href="#getCertificate"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getCertificate(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, keyId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="105"
+                                    class="link-to-prism">src/crypto/key/key.service.ts:105</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get the certificate for the given key id.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>keyId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getKeys"></a>
+                    <span class="name">
+                            <span class="modifier">Abstract</span>
+                        <span ><b>getKeys</b></span>
+                        <a href="#getKeys"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getKeys(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="69"
+                                    class="link-to-prism">src/crypto/key/key.service.ts:69</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;KeyObj[]&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
     <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -210,15 +506,15 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getKid(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>getKid(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, type?: <a href="../undefineds/CertificateType.html" target="_self">CertificateType</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="23"
-                                    class="link-to-prism">src/crypto/key/key.service.ts:23</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="67"
+                                    class="link-to-prism">src/crypto/key/key.service.ts:67</a></div>
                         </td>
                     </tr>
 
@@ -252,6 +548,18 @@
 
 
                                         </tr>
+                                        <tr>
+                                                <td>type</td>
+                                            <td>
+                                                            <code><a href="../miscellaneous/typealiases.html#CertificateType" target="_self" >CertificateType</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -281,15 +589,15 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getPublicKey(type, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>getPublicKey(type, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, keyId?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="29"
-                                    class="link-to-prism">src/crypto/key/key.service.ts:29</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="75"
+                                    class="link-to-prism">src/crypto/key/key.service.ts:75</a></div>
                         </td>
                     </tr>
 
@@ -334,6 +642,18 @@
 
 
                                         </tr>
+                                        <tr>
+                                                <td>keyId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -363,15 +683,15 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getPublicKey(type, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>getPublicKey(type, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, keyId?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="30"
-                                    class="link-to-prism">src/crypto/key/key.service.ts:30</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="80"
+                                    class="link-to-prism">src/crypto/key/key.service.ts:80</a></div>
                         </td>
                     </tr>
 
@@ -414,6 +734,18 @@
 
 
                                         </tr>
+                                        <tr>
+                                                <td>keyId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -443,15 +775,15 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getPublicKey(type: "pem" | "jwk", tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>getPublicKey(type: "pem" | "jwk", tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, keyId?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="31"
-                                    class="link-to-prism">src/crypto/key/key.service.ts:31</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="85"
+                                    class="link-to-prism">src/crypto/key/key.service.ts:85</a></div>
                         </td>
                     </tr>
 
@@ -495,11 +827,106 @@
 
 
                                         </tr>
+                                        <tr>
+                                                <td>keyId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
                         <div class="io-description">
                             <b>Returns : </b>    <code>Promise&lt;JWK | string&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="import"></a>
+                    <span class="name">
+                            <span class="modifier">Abstract</span>
+                        <span ><b>import</b></span>
+                        <a href="#import"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>import(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, body: <a href="../classes/KeyImportDto.html" target="_self">KeyImportDto</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="55"
+                                    class="link-to-prism">src/crypto/key/key.service.ts:55</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Import a key into the key service.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>body</td>
+                                            <td>
+                                                            <code><a href="../classes/KeyImportDto.html" target="_self" >KeyImportDto</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
 
                         </div>
                             <div class="io-description">
@@ -531,8 +958,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="11"
-                                    class="link-to-prism">src/crypto/key/key.service.ts:11</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="41"
+                                    class="link-to-prism">src/crypto/key/key.service.ts:41</a></div>
                         </td>
                     </tr>
 
@@ -566,11 +993,12 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+                            <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
 
                         </div>
                             <div class="io-description">
-                                
+                                <p>key id of the initialized key.</p>
+
                             </div>
                 </td>
             </tr>
@@ -591,15 +1019,15 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>signer(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>signer(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, keyId?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="17"
-                                    class="link-to-prism">src/crypto/key/key.service.ts:17</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="61"
+                                    class="link-to-prism">src/crypto/key/key.service.ts:61</a></div>
                         </td>
                     </tr>
 
@@ -633,6 +1061,18 @@
 
 
                                         </tr>
+                                        <tr>
+                                                <td>keyId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -662,15 +1102,15 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>signJWT(payload: JWTPayload, header: JoseHeaderParameters, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>signJWT(payload: JWTPayload, header: JoseHeaderParameters, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, keyId?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="37"
-                                    class="link-to-prism">src/crypto/key/key.service.ts:37</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="92"
+                                    class="link-to-prism">src/crypto/key/key.service.ts:92</a></div>
                         </td>
                     </tr>
 
@@ -726,6 +1166,18 @@
 
 
                                         </tr>
+                                        <tr>
+                                                <td>keyId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -752,37 +1204,92 @@
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Signer } from &#x27;@sd-jwt/types&#x27;;
 import { JWK, JWTPayload, JoseHeaderParameters } from &#x27;jose&#x27;;
+import { KeyImportDto } from &#x27;./dto/key-import.dto&#x27;;
+import { ConfigService } from &#x27;@nestjs/config&#x27;;
+import { Repository } from &#x27;typeorm&#x27;;
+import { CertEntity, CertificateType } from &#x27;./entities/cert.entity&#x27;;
+import { ConflictException } from &#x27;@nestjs/common&#x27;;
+
+/**
+ * Represents a key entity with its unique identifier, public key, and certificate.
+ */
+export class KeyObj {
+    /**
+     * Unique identifier for the key.
+     */
+    id: string;
+    /**
+     * Public key in JWK format.
+     */
+    publicKey: JWK;
+    /**
+     * Certificate in PEM format.
+     */
+    crt: string;
+}
 
 /**
  * Generic interface for a key service
  */
 export abstract class KeyService {
+    constructor(
+        protected configService: ConfigService,
+        protected certRepository: Repository&lt;CertEntity&gt;,
+    ) {}
+
     /**
      * Initialize the key service
+     * @param tenantId
+     * @returns key id of the initialized key.
      */
-    abstract init(tenantId): Promise&lt;void&gt;;
+    abstract init(tenantId): Promise&lt;string&gt;;
+
+    /**
+     * Creates a new keypair
+     * @param tenantId
+     * @return key id of the generated key.
+     */
+    abstract create(tenantId): Promise&lt;string&gt;;
+
+    /**
+     * Import a key into the key service.
+     * @param tenantId
+     * @param body
+     */
+    abstract import(tenantId: string, body: KeyImportDto): Promise&lt;string&gt;;
 
     /**
      * Get the callback for the signer function
      * @param tenantId
      */
-    abstract signer(tenantId: string): Promise&lt;Signer&gt;;
+    abstract signer(tenantId: string, keyId?: string): Promise&lt;Signer&gt;;
 
     /**
      * Get the key id
      * @returns
      */
-    abstract getKid(tenantId: string): Promise&lt;string&gt;;
+    abstract getKid(tenantId: string, type?: CertificateType): Promise&lt;string&gt;;
+
+    abstract getKeys(tenantId: string): Promise&lt;KeyObj[]&gt;;
 
     /**
      * Get the public key
      * @returns
      */
-    abstract getPublicKey(type: &#x27;jwk&#x27;, tenantId: string): Promise&lt;JWK&gt;;
-    abstract getPublicKey(type: &#x27;pem&#x27;, tenantId: string): Promise&lt;string&gt;;
+    abstract getPublicKey(
+        type: &#x27;jwk&#x27;,
+        tenantId: string,
+        keyId?: string,
+    ): Promise&lt;JWK&gt;;
+    abstract getPublicKey(
+        type: &#x27;pem&#x27;,
+        tenantId: string,
+        keyId?: string,
+    ): Promise&lt;string&gt;;
     abstract getPublicKey(
         type: &#x27;pem&#x27; | &#x27;jwk&#x27;,
         tenantId: string,
+        keyId?: string,
     ): Promise&lt;JWK | string&gt;;
 
     //TODO: this can be handled via the signer callback
@@ -790,7 +1297,28 @@ export abstract class KeyService {
         payload: JWTPayload,
         header: JoseHeaderParameters,
         tenantId: string,
+        keyId?: string,
     ): Promise&lt;string&gt;;
+
+    /**
+     * Get the certificate for the given key id.
+     * @param tenantId
+     * @param keyId
+     * @returns
+     */
+    protected getCertificate(tenantId: string, keyId: string): Promise&lt;string&gt; {
+        return this.certRepository
+            .findOneByOrFail({
+                tenantId,
+                keyId,
+            })
+            .then(
+                (cert) &#x3D;&gt; cert.crt,
+                () &#x3D;&gt; {
+                    throw new ConflictException(&#x27;Certificate not found&#x27;);
+                },
+            );
+    }
 }
 </code></pre>
     </div>

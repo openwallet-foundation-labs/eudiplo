@@ -80,7 +80,7 @@
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
-               <div class="content injectable">
+               <div class="content guard">
                    <div class="content-data">
 
 
@@ -90,9 +90,11 @@
 
 
 
+
+
 <ol class="breadcrumb">
-  <li class="breadcrumb-item">Injectables</li>
-  <li class="breadcrumb-item" >CryptoService</li>
+    <li class="breadcrumb-item">Guards</li>
+    <li class="breadcrumb-item" >SessionGuard</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -111,19 +113,20 @@
 </ul>
 
 <div class="tab-content">
-    <div class="tab-pane fade active in" id="info">
-        <p class="comment">
+        <div class="tab-pane fade active in" id="info">
+            <p class="comment">
             <h3>File</h3>
-        </p>
-        <p class="comment">
-            <code>src/crypto/key/crypto/crypto.service.ts</code>
-        </p>
+            </p>
+            <p class="comment">
+                <code>src/session/session.guard.ts</code>
+            </p>
 
 
 
 
 
-            <section data-compodoc="block-index">
+
+                <section data-compodoc="block-index">
     <h3 id="index">Index</h3>
     <table class="table table-sm table-bordered index-table">
         <tbody>
@@ -137,10 +140,8 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
-                                <a href="#getAlg" >getAlg</a>
-                            </li>
-                            <li>
-                                <a href="#getCrypto" >getCrypto</a>
+                                    <span class="modifier">Async</span>
+                                <a href="#canActivate" >canActivate</a>
                             </li>
                         </ul>
                     </td>
@@ -154,18 +155,18 @@
     </table>
 </section>
 
-            <section data-compodoc="block-constructor">
+                <section data-compodoc="block-constructor">
     <h3 id="constructor">Constructor</h3>
         <table class="table table-sm table-bordered">
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(configServie: ConfigService)</code>
+<code>constructor(sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="10" class="link-to-prism">src/crypto/key/crypto/crypto.service.ts:10</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="10" class="link-to-prism">src/session/session.guard.ts:10</a></div>
                             </td>
                         </tr>
 
@@ -183,10 +184,10 @@
                                         </thead>
                                         <tbody>
                                                 <tr>
-                                                        <td>configServie</td>
+                                                        <td>sessionService</td>
                                                   
                                                         <td>
-                                                                    <code>ConfigService</code>
+                                                                        <code><a href="../injectables/SessionService.html" target="_self" >SessionService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -203,7 +204,7 @@
         </table>
 </section>
 
-            <section data-compodoc="block-methods">
+                <section data-compodoc="block-methods">
     
     <h3 id="methods">
         Methods
@@ -212,66 +213,26 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getAlg"></a>
+                    <a name="canActivate"></a>
                     <span class="name">
-                        <span ><b>getAlg</b></span>
-                        <a href="#getAlg"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier">Async</span>
+                        <span ><b>canActivate</b></span>
+                        <a href="#canActivate"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>getAlg()</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>canActivate(context: ExecutionContext)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="17"
-                                    class="link-to-prism">src/crypto/key/crypto/crypto.service.ts:17</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Return the algorithm that is used for the crypto operations like signing.</p>
-</div>
-
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#CryptoType" target="_self" >CryptoType</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getCrypto"></a>
-                    <span class="name">
-                        <span ><b>getCrypto</b></span>
-                        <a href="#getCrypto"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getCrypto(alg)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="21"
-                                    class="link-to-prism">src/crypto/key/crypto/crypto.service.ts:21</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="13"
+                                    class="link-to-prism">src/session/session.guard.ts:13</a></div>
                         </td>
                     </tr>
 
@@ -286,28 +247,28 @@
                                     <thead>
                                         <tr>
                                             <td>Name</td>
+                                                <td>Type</td>
                                             <td>Optional</td>
-                                                <td>Default value</td>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>alg</td>
+                                                <td>context</td>
+                                            <td>
+                                                        <code>ExecutionContext</code>
+                                            </td>
 
                                             <td>
                                                     No
                                             </td>
 
-                                            <td>
-                                                    <code>this.configServie.get&lt;string&gt;(&#x27;CRYPTO_ALG&#x27;)</code>
-                                            </td>
 
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../interfaces/CryptoImplementation.html" target="_self" >CryptoImplementation</a></code>
+                            <b>Returns : </b>    <code>Promise&lt;boolean&gt;</code>
 
                         </div>
                             <div class="io-description">
@@ -318,50 +279,43 @@
         </tbody>
     </table>
 </section>
+        </div>
 
-    </div>
 
-
-    <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { ES256 } from &#x27;@sd-jwt/crypto-nodejs&#x27;;
-import { ED25519 } from &#x27;./ed25519&#x27;;
-import { CryptoImplementation } from &#x27;./crypto-implementation&#x27;;
-import { Injectable } from &#x27;@nestjs/common&#x27;;
-
-export type CryptoType &#x3D; &#x27;ES256&#x27; | &#x27;Ed25519&#x27;;
+        <div class="tab-pane fade  tab-source-code" id="source">
+            <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+    CanActivate,
+    ExecutionContext,
+    Injectable,
+    NotFoundException,
+} from &#x27;@nestjs/common&#x27;;
+import { SessionService } from &#x27;./session.service&#x27;;
 
 @Injectable()
-export class CryptoService {
-    constructor(private configServie: ConfigService) {}
+export class SessionGuard implements CanActivate {
+    constructor(private readonly sessionService: SessionService) {}
 
-    /**
-     * Return the algorithm that is used for the crypto operations like signing.
-     * @returns
-     */
-    getAlg(): CryptoType {
-        return this.configServie.get(&#x27;CRYPTO_ALG&#x27;) as CryptoType;
-    }
-
-    getCrypto(
-        alg &#x3D; this.configServie.get&lt;string&gt;(&#x27;CRYPTO_ALG&#x27;),
-    ): CryptoImplementation {
-        switch (alg) {
-            case &#x27;Ed25519&#x27;:
-                return ED25519;
-            case &#x27;ES256&#x27;:
-                return ES256;
-            default:
-                throw new Error(&#x60;Unsupported algorithm ${alg}&#x60;);
+    async canActivate(context: ExecutionContext): Promise&lt;boolean&gt; {
+        const request &#x3D; context.switchToHttp().getRequest();
+        const sessionId &#x3D; request.params.session;
+        if (!sessionId) {
+            throw new NotFoundException(
+                &#x27;Session ID not found in request parameters&#x27;,
+            );
         }
+        const session &#x3D; await this.sessionService.get(sessionId);
+        if (!session) {
+            throw new NotFoundException(
+                &#x60;Session with ID ${sessionId} not found&#x60;,
+            );
+        }
+        request.session &#x3D; session;
+        return true;
     }
 }
 </code></pre>
-    </div>
-
+        </div>
 </div>
-
-
 
 
 
@@ -398,8 +352,8 @@ export class CryptoService {
 
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'injectable';
-            var COMPODOC_CURRENT_PAGE_URL = 'CryptoService-1.html';
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'guard';
+            var COMPODOC_CURRENT_PAGE_URL = 'SessionGuard.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

@@ -118,13 +118,13 @@
 <title>cluster_CryptoModule</title>
 <polygon fill="none" stroke="black" stroke-dasharray="1,5" points="73,-70 73,-268 423,-268 423,-70 73,-70"/>
 </g>
-<g id="clust4" class="cluster">
-<title>cluster_CryptoModule_exports</title>
-<polygon fill="none" stroke="black" points="105,-208 105,-260 363,-260 363,-208 105,-208"/>
-</g>
 <g id="clust6" class="cluster">
 <title>cluster_CryptoModule_providers</title>
 <polygon fill="none" stroke="black" points="81,-78 81,-130 415,-130 415,-78 81,-78"/>
+</g>
+<g id="clust4" class="cluster">
+<title>cluster_CryptoModule_exports</title>
+<polygon fill="none" stroke="black" points="105,-208 105,-260 363,-260 363,-208 105,-208"/>
 </g>
 <!-- CryptoService  -->
 <g id="node1" class="node">
@@ -238,6 +238,16 @@
                     </ul>
                 </div>
                 <div class="col-sm-3">
+                    <h3>Controllers<a href="https://docs.nestjs.com/controllers" target="_blank" rel="noopener noreferrer"
+                            title="Official documentation about module controllers"><span
+                                class="icon ion-ios-information-circle-outline"></a></h3>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <a href="../controllers/KeyController.html">KeyController</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-sm-3">
                     <h3>Exports<a href="https://angular.io/api/core/NgModule#exports" target="_blank" rel="noopener noreferrer"
                             title="Official documentation about module exports"><span
                                 class="icon ion-ios-information-circle-outline"></a></h3>
@@ -261,9 +271,13 @@
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &#x27;@nestjs/common&#x27;;
 import { CryptoService } from &#x27;./crypto.service&#x27;;
 import { EncryptionService } from &#x27;./encryption/encryption.service&#x27;;
+import { KeyController } from &#x27;./key/key.controller&#x27;;
+import { TypeOrmModule } from &#x27;@nestjs/typeorm&#x27;;
+import { CertEntity } from &#x27;./key/entities/cert.entity&#x27;;
 
 @Module({
-    imports: [],
+    imports: [TypeOrmModule.forFeature([CertEntity])],
+    controllers: [KeyController],
     providers: [CryptoService, EncryptionService],
     exports: [CryptoService, EncryptionService],
 })

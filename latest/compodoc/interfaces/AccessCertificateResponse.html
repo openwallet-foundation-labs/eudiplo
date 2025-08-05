@@ -327,8 +327,6 @@ import { PresentationsService } from &#x27;../verifier/presentations/presentatio
 import { existsSync, readFileSync, writeFileSync } from &#x27;node:fs&#x27;;
 import { RegistrarConfig } from &#x27;./registrar-config&#x27;;
 import { join } from &#x27;node:path&#x27;;
-import { OnEvent } from &#x27;@nestjs/event-emitter&#x27;;
-import { TENANT_EVENTS } from &#x27;../auth/tenant-events&#x27;;
 
 /**
  * Repsonse of access certificate request.
@@ -389,11 +387,13 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         }
 
         const oidcIssuerUrl &#x3D;
-            this.configService.getOrThrow&lt;string&gt;(&#x27;OIDC_ISSUER_URL&#x27;);
-        const clientId &#x3D;
-            this.configService.getOrThrow&lt;string&gt;(&#x27;OIDC_CLIENT_ID&#x27;);
-        const clientSecret &#x3D;
-            this.configService.getOrThrow&lt;string&gt;(&#x27;OIDC_CLIENT_SECRET&#x27;);
+            this.configService.getOrThrow&lt;string&gt;(&#x27;REGISTRAR_OIDC_URL&#x27;);
+        const clientId &#x3D; this.configService.getOrThrow&lt;string&gt;(
+            &#x27;REGISTRAR_OIDC_CLIENT_ID&#x27;,
+        );
+        const clientSecret &#x3D; this.configService.getOrThrow&lt;string&gt;(
+            &#x27;REGISTRAR_OIDC_CLIENT_SECRET&#x27;,
+        );
 
         this.oauth2Client &#x3D; new OAuth2Client({
             server: &#x60;${oidcIssuerUrl}/protocol/openid-connect/token&#x60;,
@@ -432,7 +432,6 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
      * This function is called when a tenant is initialized.
      * @param tenantId
      */
-    @OnEvent(TENANT_EVENTS.TENANT_KEYS, { async: true })
     async onTenantInit(tenantId: string) {
         if (!this.isEnabled()) {
             return;
@@ -476,11 +475,13 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
             const config &#x3D; this.loadConfig(tenantId);
             if (response.error) {
                 config.id &#x3D; await this.storeExistingRp(name);
+                this.saveConfig(config, tenantId);
+                return config.id!;
             } else {
                 config.id &#x3D; response.data![&#x27;id&#x27;];
+                this.saveConfig(config, tenantId);
+                return response.data![&#x27;id&#x27;];
             }
-            this.saveConfig(config, tenantId);
-            return response.data![&#x27;id&#x27;];
         });
     }
 
@@ -539,6 +540,7 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         config: RegistrarConfig,
         tenantId: string,
     ): Promise&lt;string&gt; {
+        const keyId &#x3D; await this.cryptoService.keyService.getKid(tenantId);
         const host &#x3D; this.configService
             .getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;)
             .replace(&#x27;https://&#x27;, &#x27;&#x27;);
@@ -548,21 +550,23 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
                 publicKey: await this.cryptoService.keyService.getPublicKey(
                     &#x27;pem&#x27;,
                     tenantId,
+                    keyId,
                 ),
                 dns: [host],
             },
             path: {
                 rp: config.id,
             },
-        }).then((res) &#x3D;&gt; {
+        }).then(async (res) &#x3D;&gt; {
             if (res.error) {
                 console.error(&#x27;Error adding access certificate:&#x27;, res.error);
                 throw new Error(&#x27;Error adding access certificate&#x27;);
             }
             //store the cert
-            this.cryptoService.storeAccessCertificate(
+            await this.cryptoService.storeAccessCertificate(
                 res.data![&#x27;crt&#x27;],
                 tenantId,
+                keyId,
             );
             config.accessCertificateId &#x3D; res.data![&#x27;id&#x27;];
             this.saveConfig(config, tenantId);

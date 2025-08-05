@@ -140,6 +140,7 @@
                                 <a href="#add" >add</a>
                             </li>
                             <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#create" >create</a>
                             </li>
                             <li>
@@ -152,7 +153,12 @@
                                 <a href="#getBy" >getBy</a>
                             </li>
                             <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#onApplicationBootstrap" >onApplicationBootstrap</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#setState" >setState</a>
                             </li>
                             <li>
                                 <a href="#tidyUpSessions" >tidyUpSessions</a>
@@ -175,12 +181,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(sessionRepository: <a href="../entitys/Session.html" target="_self">Repository&lt;Session&gt;</a>, configService: ConfigService, schedulerRegistry: SchedulerRegistry)</code>
+<code>constructor(sessionRepository: <a href="../entitys/Session.html" target="_self">Repository&lt;Session&gt;</a>, configService: ConfigService, schedulerRegistry: SchedulerRegistry, sessionsCounter: Gauge<string>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="10" class="link-to-prism">src/session/session.service.ts:10</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/session/session.service.ts:19</a></div>
                             </td>
                         </tr>
 
@@ -233,6 +239,18 @@
                                                     </td>
                                                     
                                                 </tr>
+                                                <tr>
+                                                        <td>sessionsCounter</td>
+                                                  
+                                                        <td>
+                                                                    <code>Gauge&lt;string&gt;</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
                                         </tbody>
                                     </table>
                             </div>
@@ -260,15 +278,15 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>add(issuer_state: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, values: <a href="../entitys/Session.html" target="_self">QueryDeepPartialEntity&lt;Session&gt;</a>)</code>
+<code>add(issuer_state: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, values: <a href="../entitys/Session.html" target="_self">QueryDeepPartialEntity&lt;Session&gt;</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="50"
-                                    class="link-to-prism">src/session/session.service.ts:50</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="135"
+                                    class="link-to-prism">src/session/session.service.ts:135</a></div>
                         </td>
                     </tr>
 
@@ -292,18 +310,6 @@
                                     <tbody>
                                         <tr>
                                                 <td>issuer_state</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>tenantId</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -346,6 +352,7 @@
                 <td class="col-md-4">
                     <a name="create"></a>
                     <span class="name">
+                            <span class="modifier">Async</span>
                         <span ><b>create</b></span>
                         <a href="#create"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -353,15 +360,16 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>create(session: <a href="../entitys/Session.html" target="_self">DeepPartial&lt;Session&gt;</a>)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>create(session: <a href="../entitys/Session.html" target="_self">DeepPartial&lt;Session&gt;</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="40"
-                                    class="link-to-prism">src/session/session.service.ts:40</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="89"
+                                    class="link-to-prism">src/session/session.service.ts:89</a></div>
                         </td>
                     </tr>
 
@@ -399,7 +407,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>    <code>unknown</code>
 
                         </div>
                             <div class="io-description">
@@ -429,8 +437,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="74"
-                                    class="link-to-prism">src/session/session.service.ts:74</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="152"
+                                    class="link-to-prism">src/session/session.service.ts:152</a></div>
                         </td>
                     </tr>
 
@@ -498,8 +506,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="65"
-                                    class="link-to-prism">src/session/session.service.ts:65</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="143"
+                                    class="link-to-prism">src/session/session.service.ts:143</a></div>
                         </td>
                     </tr>
 
@@ -540,8 +548,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="83"
-                                    class="link-to-prism">src/session/session.service.ts:83</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="161"
+                                    class="link-to-prism">src/session/session.service.ts:161</a></div>
                         </td>
                     </tr>
 
@@ -595,6 +603,7 @@
                 <td class="col-md-4">
                     <a name="onApplicationBootstrap"></a>
                     <span class="name">
+                            <span class="modifier">Async</span>
                         <span ><b>onApplicationBootstrap</b></span>
                         <a href="#onApplicationBootstrap"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -602,15 +611,16 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>onApplicationBootstrap()</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>onApplicationBootstrap()</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="23"
-                                    class="link-to-prism">src/session/session.service.ts:23</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="34"
+                                    class="link-to-prism">src/session/session.service.ts:34</a></div>
                         </td>
                     </tr>
 
@@ -621,6 +631,89 @@
 This will run every hour by default, but can be configured via the <code>SESSION_TIDY_UP_INTERVAL</code> config variable.</p>
 </div>
 
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>unknown</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="setState"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>setState</b></span>
+                        <a href="#setState"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>setState(session: <a href="../entitys/Session.html" target="_self">Session</a>, status: <a href="../undefineds/SessionStatus.html" target="_self">SessionStatus</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="109"
+                                    class="link-to-prism">src/session/session.service.ts:109</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Marks the session as successful or failed.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>session</td>
+                                            <td>
+                                                            <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>status</td>
+                                            <td>
+                                                            <code><a href="../miscellaneous/typealiases.html#SessionStatus" target="_self" >SessionStatus</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         <div class="io-description">
                             <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
 
@@ -652,8 +745,8 @@ This will run every hour by default, but can be configured via the <code>SESSION
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="90"
-                                    class="link-to-prism">src/session/session.service.ts:90</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="168"
+                                    class="link-to-prism">src/session/session.service.ts:168</a></div>
                         </td>
                     </tr>
 
@@ -678,12 +771,21 @@ This will run every hour by default, but can be configured via the <code>SESSION
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, OnApplicationBootstrap } from &#x27;@nestjs/common&#x27;;
-import { Session } from &#x27;./entities/session.entity&#x27;;
+import { Session, SessionStatus } from &#x27;./entities/session.entity&#x27;;
 import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
-import { DeepPartial, FindOptionsWhere, LessThan, Repository } from &#x27;typeorm&#x27;;
+import {
+    DeepPartial,
+    FindOptionsWhere,
+    IsNull,
+    LessThan,
+    Not,
+    Repository,
+} from &#x27;typeorm&#x27;;
 import { QueryDeepPartialEntity } from &#x27;typeorm/query-builder/QueryPartialEntity&#x27;;
 import { SchedulerRegistry } from &#x27;@nestjs/schedule&#x27;;
 import { ConfigService } from &#x27;@nestjs/config&#x27;;
+import { Gauge } from &#x27;prom-client&#x27;;
+import { InjectMetric } from &#x27;@willsoto/nestjs-prometheus/dist/injector&#x27;;
 
 @Injectable()
 export class SessionService implements OnApplicationBootstrap {
@@ -692,6 +794,8 @@ export class SessionService implements OnApplicationBootstrap {
         private sessionRepository: Repository&lt;Session&gt;,
         private readonly configService: ConfigService,
         private readonly schedulerRegistry: SchedulerRegistry,
+        @InjectMetric(&#x27;sessions&#x27;)
+        private sessionsCounter: Gauge&lt;string&gt;,
     ) {}
 
     /**
@@ -699,7 +803,7 @@ export class SessionService implements OnApplicationBootstrap {
      * This will run every hour by default, but can be configured via the &#x60;SESSION_TIDY_UP_INTERVAL&#x60; config variable.
      * @returns
      */
-    onApplicationBootstrap() {
+    async onApplicationBootstrap() {
         const callback &#x3D; () &#x3D;&gt; {
             void this.tidyUpSessions();
         };
@@ -708,6 +812,44 @@ export class SessionService implements OnApplicationBootstrap {
             1000;
         const interval &#x3D; setInterval(callback, intervalTime);
         this.schedulerRegistry.addInterval(&#x27;tidyUpSessions&#x27;, interval);
+
+        //set default values for session metrics
+        const tenantId &#x3D; &#x27;root&#x27;;
+        const states: SessionStatus[] &#x3D; [
+            &#x27;active&#x27;,
+            &#x27;completed&#x27;,
+            &#x27;expired&#x27;,
+            &#x27;failed&#x27;,
+        ];
+        for (const state of states) {
+            const issuanceCounter &#x3D; await this.sessionRepository.countBy({
+                tenantId,
+                issuanceId: Not(IsNull()),
+                status: state,
+            });
+            this.sessionsCounter.set(
+                {
+                    tenant_id: tenantId,
+                    session_type: &#x27;issuance&#x27;,
+                    status: state,
+                },
+                issuanceCounter,
+            );
+            const verificationCounter &#x3D; await this.sessionRepository.countBy({
+                tenantId,
+                issuanceId: IsNull(),
+                status: state,
+            });
+            this.sessionsCounter.set(
+                {
+                    tenant_id: tenantId,
+                    session_type: &#x27;verification&#x27;,
+                    status: state,
+                },
+                verificationCounter,
+            );
+        }
+
         return this.tidyUpSessions();
     }
 
@@ -716,8 +858,44 @@ export class SessionService implements OnApplicationBootstrap {
      * @param session
      * @returns
      */
-    create(session: DeepPartial&lt;Session&gt;) {
-        return this.sessionRepository.save(session);
+    async create(session: DeepPartial&lt;Session&gt;) {
+        const createdSession &#x3D; await this.sessionRepository.save(session);
+
+        // Count total sessions created
+        this.sessionsCounter.inc({
+            tenant_id: createdSession.tenantId,
+            session_type: createdSession.issuanceId
+                ? &#x27;issuance&#x27;
+                : &#x27;verification&#x27;,
+            status: &#x27;active&#x27;,
+        });
+
+        return createdSession;
+    }
+
+    /**
+     * Marks the session as successful or failed.
+     * @param session
+     * @param status
+     */
+    async setState(session: Session, status: SessionStatus) {
+        const sessionType &#x3D; session.issuanceId ? &#x27;issuance&#x27; : &#x27;verification&#x27;;
+
+        await this.sessionRepository.update({ id: session.id }, { status });
+
+        // Count completed sessions (success or failure)
+        this.sessionsCounter.inc({
+            tenant_id: session.tenantId,
+            session_type: sessionType,
+            status,
+        });
+
+        // Decrease active sessions count
+        this.sessionsCounter.dec({
+            tenant_id: session.tenantId,
+            session_type: sessionType,
+            status: &#x27;active&#x27;,
+        });
     }
 
     /**
@@ -726,15 +904,8 @@ export class SessionService implements OnApplicationBootstrap {
      * @param values
      * @returns
      */
-    add(
-        issuer_state: string,
-        tenantId: string,
-        values: QueryDeepPartialEntity&lt;Session&gt;,
-    ) {
-        return this.sessionRepository.update(
-            { id: issuer_state, tenantId },
-            values,
-        );
+    add(issuer_state: string, values: QueryDeepPartialEntity&lt;Session&gt;) {
+        return this.sessionRepository.update({ id: issuer_state }, values);
     }
 
     /**

@@ -120,7 +120,7 @@
                 <h3>Prefix</h3>
             </p>
             <p class="comment">
-                <code>:tenantId/.well-known</code>
+                <code>:session/.well-known</code>
             </p>
 
 
@@ -161,6 +161,7 @@
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                     <span class="modifier">Async</span>
                                 <a href="#issuerMetadata" >issuerMetadata</a>
                             </li>
@@ -196,7 +197,7 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>authzMetadata(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>authzMetadata(session: <a href="../entitys/Session.html" target="_self">Session</a>)</code>
                 </td>
             </tr>
 
@@ -210,8 +211,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="36"
-                                    class="link-to-prism">src/well-known/well-known.controller.ts:36</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="59"
+                                    class="link-to-prism">src/well-known/well-known.controller.ts:59</a></div>
                         </td>
                     </tr>
 
@@ -234,9 +235,9 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>tenantId</td>
+                                                <td>session</td>
                                             <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                                            <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
                                             </td>
 
                                             <td>
@@ -276,7 +277,7 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getJwks(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>getJwks(session: <a href="../entitys/Session.html" target="_self">Session</a>)</code>
                 </td>
             </tr>
 
@@ -290,8 +291,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="50"
-                                    class="link-to-prism">src/well-known/well-known.controller.ts:50</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="71"
+                                    class="link-to-prism">src/well-known/well-known.controller.ts:71</a></div>
                         </td>
                     </tr>
 
@@ -314,9 +315,9 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>tenantId</td>
+                                                <td>session</td>
                                             <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                                            <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
                                             </td>
 
                                             <td>
@@ -347,6 +348,7 @@
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                             <span class="modifier">Async</span>
                         <span ><b>issuerMetadata</b></span>
                         <a href="#issuerMetadata"><span class="icon ion-ios-link"></span></a>
@@ -356,7 +358,7 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>issuerMetadata(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>issuerMetadata(session: <a href="../entitys/Session.html" target="_self">Session</a>, contentType: <a href="../undefineds/MediaType.html" target="_self">MediaType</a>)</code>
                 </td>
             </tr>
 
@@ -364,20 +366,22 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@ApiOperation({summary: &#x27;Get OpenID4VCI issuer metadata&#x27;, description: &#x27;Returns the OpenID4VCI issuer metadata.&#x27;})<br />@Get(&#x27;openid-credential-issuer&#x27;)<br /></code>
+                    <code>@ApiOperation({summary: &#x27;Get OpenID4VCI issuer metadata&#x27;, description: &#x27;Returns the OpenID4VCI issuer metadata.&#x27;})<br />@ApiProduces(MediaType.APPLICATION_JSON, MediaType.APPLICATION_JWT)<br />@Get(&#x27;openid-credential-issuer&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="26"
-                                    class="link-to-prism">src/well-known/well-known.controller.ts:26</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="47"
+                                    class="link-to-prism">src/well-known/well-known.controller.ts:47</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Retrieves the OpenID4VCI issuer metadata for a given tenant.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -392,9 +396,21 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>tenantId</td>
+                                                <td>session</td>
                                             <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                                            <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>contentType</td>
+                                            <td>
+                                                            <code><a href="../miscellaneous/enumerations.html#MediaType" target="_self" >MediaType</a></code>
                                             </td>
 
                                             <td>
@@ -421,34 +437,57 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Controller, Get, Header, Param } from &#x27;@nestjs/common&#x27;;
-import { CryptoService } from &#x27;../crypto/crypto.service&#x27;;
-import { AuthorizeService } from &#x27;../issuer/authorize/authorize.service&#x27;;
-import { Oid4vciService } from &#x27;../issuer/oid4vci/oid4vci.service&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Controller, Get, Header, UseGuards } from &#x27;@nestjs/common&#x27;;
+import { WellKnownService } from &#x27;./well-known.service&#x27;;
 import { JwksResponseDto } from &#x27;./dto/jwks-response.dto&#x27;;
 import { Oauth2AuthorizationServerResponse } from &#x27;./dto/oauth-authorization-server-response.dto&#x27;;
-import { CredentialIssuerMetadataDto } from &#x27;./dto/credential-issuer-metadata.dto&#x27;;
-import { ApiOperation } from &#x27;@nestjs/swagger&#x27;;
+import {
+    ApiExcludeController,
+    ApiOperation,
+    ApiParam,
+    ApiProduces,
+} from &#x27;@nestjs/swagger&#x27;;
+import { ContentType } from &#x27;../utils/mediaType/media-type.decorator&#x27;;
+import { MediaType } from &#x27;../utils/mediaType/media-type.enum&#x27;;
+import { SessionGuard } from &#x27;../session/session.guard&#x27;;
+import { SessionEntity } from &#x27;../session/session.decorator&#x27;;
+import { Session } from &#x27;../session/entities/session.entity&#x27;;
 
 /**
  * Controller for the OpenID4VCI well-known endpoints.
  */
-@Controller(&#x27;:tenantId/.well-known&#x27;)
+@ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &#x27;true&#x27;)
+@UseGuards(SessionGuard)
+@ApiParam({
+    name: &#x27;session&#x27;,
+    required: true,
+})
+@Controller(&#x27;:session/.well-known&#x27;)
 export class WellKnownController {
-    constructor(
-        private readonly oid4vciService: Oid4vciService,
-        private readonly authorizeService: AuthorizeService,
-        private readonly cryptoService: CryptoService,
-    ) {}
+    /**
+     * Constructor for WellKnownController.
+     * @param wellKnownService
+     */
+    constructor(private readonly wellKnownService: WellKnownService) {}
 
+    /**
+     * Retrieves the OpenID4VCI issuer metadata for a given tenant.
+     * @param tenantId
+     * @param contentType
+     * @returns
+     */
     @ApiOperation({
         summary: &#x27;Get OpenID4VCI issuer metadata&#x27;,
         description: &#x27;Returns the OpenID4VCI issuer metadata.&#x27;,
     })
+    //we can not set the accept in the apiheader via swagger.
+    @ApiProduces(MediaType.APPLICATION_JSON, MediaType.APPLICATION_JWT)
     @Get(&#x27;openid-credential-issuer&#x27;)
-    async issuerMetadata(@Param(&#x27;tenantId&#x27;) tenantId: string) {
-        return (await this.oid4vciService.issuerMetadata(tenantId))
-            .credentialIssuer as unknown as Promise&lt;CredentialIssuerMetadataDto&gt;;
+    async issuerMetadata(
+        @SessionEntity() session: Session,
+        @ContentType() contentType: MediaType,
+    ) {
+        return this.wellKnownService.getIssuerMetadata(session, contentType);
     }
 
     /**
@@ -457,11 +496,9 @@ export class WellKnownController {
      */
     @Get(&#x27;oauth-authorization-server&#x27;)
     authzMetadata(
-        @Param(&#x27;tenantId&#x27;) tenantId: string,
+        @SessionEntity() session: Session,
     ): Oauth2AuthorizationServerResponse {
-        return this.authorizeService.authzMetadata(
-            tenantId,
-        ) as Oauth2AuthorizationServerResponse;
+        return this.wellKnownService.getAuthzMetadata(session);
     }
 
     /**
@@ -470,12 +507,8 @@ export class WellKnownController {
      */
     @Header(&#x27;Content-Type&#x27;, &#x27;application/jwk-set+json&#x27;)
     @Get(&#x27;jwks.json&#x27;)
-    async getJwks(
-        @Param(&#x27;tenantId&#x27;) tenantId: string,
-    ): Promise&lt;JwksResponseDto&gt; {
-        return this.cryptoService.getJwks(tenantId).then((key) &#x3D;&gt; ({
-            keys: [key],
-        }));
+    async getJwks(@SessionEntity() session: Session): Promise&lt;JwksResponseDto&gt; {
+        return this.wellKnownService.getJwks(session.tenantId);
     }
 }
 </code></pre>

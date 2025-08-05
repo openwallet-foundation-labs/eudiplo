@@ -120,10 +120,17 @@
                 <h3>Prefix</h3>
             </p>
             <p class="comment">
-                <code>:tenantId/vci</code>
+                <code>:session/vci</code>
             </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Controller for handling OID4VCI (OpenID for Verifiable Credential Issuance) requests.</p>
+
+            </p>
 
 
 
@@ -184,7 +191,7 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>credential(req: Request, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>credential(req: Request, session: <a href="../entitys/Session.html" target="_self">Session</a>)</code>
                 </td>
             </tr>
 
@@ -192,14 +199,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Post(&#x27;credential&#x27;)<br />@SessionLogger(&#x27;state&#x27;, &#x27;OID4VCI&#x27;)<br /></code>
+                    <code>@Post(&#x27;credential&#x27;)<br />@SessionLogger(&#x27;session&#x27;, &#x27;OID4VCI&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="28"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.controller.ts:28</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="38"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.controller.ts:38</a></div>
                         </td>
                     </tr>
 
@@ -234,9 +241,9 @@
 
                                         </tr>
                                         <tr>
-                                                <td>tenantId</td>
+                                                <td>session</td>
                                             <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                                            <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
                                             </td>
 
                                             <td>
@@ -249,7 +256,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#Credential" target="_self" >Promise&lt;CredentialResponse&gt;</a></code>
+                            <b>Returns : </b>    <code>Promise&lt;CredentialResponse&gt;</code>
 
                         </div>
                             <div class="io-description">
@@ -275,7 +282,7 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>notifications(body: <a href="../classes/NotificationRequestDto.html" target="_self">NotificationRequestDto</a>, req: Request, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>notifications(body: <a href="../classes/NotificationRequestDto.html" target="_self">NotificationRequestDto</a>, req: Request, session: <a href="../entitys/Session.html" target="_self">Session</a>)</code>
                 </td>
             </tr>
 
@@ -289,8 +296,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="42"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.controller.ts:42</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="52"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.controller.ts:52</a></div>
                         </td>
                     </tr>
 
@@ -337,9 +344,9 @@
 
                                         </tr>
                                         <tr>
-                                                <td>tenantId</td>
+                                                <td>session</td>
                                             <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                                            <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
                                             </td>
 
                                             <td>
@@ -369,9 +376,9 @@
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
     Body,
     Controller,
-    Param,
     Post,
     Req,
+    UseGuards,
     UseInterceptors,
 } from &#x27;@nestjs/common&#x27;;
 import type { CredentialResponse } from &#x27;@openid4vc/openid4vci&#x27;;
@@ -380,8 +387,18 @@ import { Oid4vciService } from &#x27;../../issuer/oid4vci/oid4vci.service&#x27;;
 import { NotificationRequestDto } from &#x27;./dto/notification-request.dto&#x27;;
 import { SessionLogger } from &#x27;../../utils/logger//session-logger.decorator&#x27;;
 import { SessionLoggerInterceptor } from &#x27;../../utils/logger/session-logger.interceptor&#x27;;
+import { SessionGuard } from &#x27;../../session/session.guard&#x27;;
+import { SessionEntity } from &#x27;../../session/session.decorator&#x27;;
+import { Session } from &#x27;../../session/entities/session.entity&#x27;;
+import { ApiExcludeController, ApiParam } from &#x27;@nestjs/swagger&#x27;;
 
-@Controller(&#x27;:tenantId/vci&#x27;)
+/**
+ * Controller for handling OID4VCI (OpenID for Verifiable Credential Issuance) requests.
+ */
+@ApiParam({ name: &#x27;session&#x27;, required: true })
+@ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &#x27;true&#x27;)
+@UseGuards(SessionGuard)
+@Controller(&#x27;:session/vci&#x27;)
 @UseInterceptors(SessionLoggerInterceptor)
 export class Oid4vciController {
     constructor(private readonly oid4vciService: Oid4vciService) {}
@@ -392,12 +409,12 @@ export class Oid4vciController {
      * @returns
      */
     @Post(&#x27;credential&#x27;)
-    @SessionLogger(&#x27;state&#x27;, &#x27;OID4VCI&#x27;)
+    @SessionLogger(&#x27;session&#x27;, &#x27;OID4VCI&#x27;)
     credential(
         @Req() req: Request,
-        @Param(&#x27;tenantId&#x27;) tenantId: string,
+        @SessionEntity() session: Session,
     ): Promise&lt;CredentialResponse&gt; {
-        return this.oid4vciService.getCredential(req, tenantId);
+        return this.oid4vciService.getCredential(req, session);
     }
 
     /**
@@ -410,9 +427,9 @@ export class Oid4vciController {
     notifications(
         @Body() body: NotificationRequestDto,
         @Req() req: Request,
-        @Param(&#x27;tenantId&#x27;) tenantId: string,
+        @SessionEntity() session: Session,
     ) {
-        return this.oid4vciService.handleNotification(req, body, tenantId);
+        return this.oid4vciService.handleNotification(req, body, session);
     }
 
     //TODO: this endpoint may be relevant for the wallet attestation.

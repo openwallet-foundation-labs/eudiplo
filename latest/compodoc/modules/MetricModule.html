@@ -80,192 +80,82 @@
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
-               <div class="content interface">
+               <div class="content module">
                    <div class="content-data">
 
 
 
-
-
-
-
-
-
-
-
-
-
 <ol class="breadcrumb">
-  <li class="breadcrumb-item">Interfaces</li>
-  <li class="breadcrumb-item"
-  >
-  ProcessResponse</li>
+    <li class="breadcrumb-item">Modules</li>
+    <li class="breadcrumb-item" >MetricModule</li>
 </ol>
 
+
 <ul class="nav nav-tabs" role="tablist">
-        <li class="nav-item">
-            <a href="#info" 
-                class="nav-link"
-                class="nav-link active"
-                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
-        </li>
-        <li class="nav-item">
-            <a href="#source" 
-                class="nav-link"
-                
-                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
-        </li>
+    <li class="nav-item">
+        <a href="#info" 
+            class="nav-link"
+            class="nav-link active"
+            role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+    </li>
+    <li class="nav-item">
+        <a href="#source" 
+            class="nav-link"
+            
+            role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+    </li>
 </ul>
 
 <div class="tab-content">
     <div class="tab-pane fade active in" id="info">
+
         <p class="comment">
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>test/webhook/src/index.ts</code>
+            <code>src/metric/metric.module.ts</code>
         </p>
 
 
-            <p class="comment">
-                <h3>Description</h3>
-            </p>
-            <p class="comment">
-                <p>Response for the citizen credential.</p>
-
-            </p>
-
-
-        <section data-compodoc="block-index">
-            <h3 id="index">Index</h3>
-            <table class="table table-sm table-bordered index-table">
-                <tbody>
-                    <tr>
-                        <td class="col-md-4">
-                            <h6><b>Properties</b></h6>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="col-md-4">
-                            <ul class="index-list">
-                                <li>
-                                        <a href="#citizen" 
->
-                                            citizen
-                                        </a>
-                                </li>
-                            </ul>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
 
 
 
-            <section data-compodoc="block-properties">
-                <h3 id="inputs">Properties</h3>
-                    <table class="table table-sm table-bordered">
-                        <tbody>
-                                <tr>
-                                    <td class="col-md-4">
-                                        <a name="citizen"></a>
-                                        <span class="name "><b>citizen</b>
-                                            <a href="#citizen">
-                                                <span class="icon ion-ios-link"></span>
-                                            </a>
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="col-md-4">
-                                        <code>citizen:     <code>literal type</code>
-</code>
-                                    </td>
-                                </tr>
+        <div class="container-fluid module">
+            <div class="row">
+            </div>
+        </div>
 
 
-                                    <tr>
-                                        <td class="col-md-4">
-                                            <i>Type : </i>    <code>literal type</code>
-
-                                        </td>
-                                    </tr>
-
-
-
-
-
-                        </tbody>
-                    </table>
-            </section>
     </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">interface PresentedData {
-	credentials: {
-		id: string;
-		values: {
-			address: {
-				locality: string;
-			};
-		};
-	}[];
-}
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &#x27;@nestjs/common&#x27;;
+import { PrometheusModule } from &#x27;@willsoto/nestjs-prometheus&#x27;;
 
-/**
- * Response for the citizen credential.
- */
-interface ProcessResponse {
-	citizen: {
-		town: string;
-	};
-}
-
-async function handleRequest(request: Request): Promise&lt;Response&gt; {
-	const url &#x3D; new URL(request.url);
-
-	if (request.method &#x3D;&#x3D;&#x3D; &#x27;POST&#x27; &amp;&amp; url.pathname &#x3D;&#x3D;&#x3D; &#x27;/notify&#x27;) {
-		const presented: PresentedData &#x3D; await request.json();
-		console.log(&#x27;Received notification:&#x27;);
-		console.log(JSON.stringify(presented, null, 2));
-	}
-
-	if (request.method &#x3D;&#x3D;&#x3D; &#x27;POST&#x27; &amp;&amp; url.pathname &#x3D;&#x3D;&#x3D; &#x27;/process&#x27;) {
-		const presented: PresentedData &#x3D; await request.json();
-		console.log(presented);
-		const res: ProcessResponse &#x3D; {
-			citizen: {
-				town: &#x60;You live in ${presented.credentials[0].values.address.locality}&#x60;,
-			},
-		};
-		return Response.json(res, { status: 200 });
-	}
-
-	if (request.method &#x3D;&#x3D;&#x3D; &#x27;POST&#x27; &amp;&amp; url.pathname &#x3D;&#x3D;&#x3D; &#x27;/consume&#x27;) {
-		const expextedApiKey &#x3D; &#x27;foo-bar&#x27;; // This should be securely stored and retrieved
-		console.log(request.headers);
-		const apiKey &#x3D; request.headers.get(&#x27;x-api-key&#x27;);
-		if (apiKey !&#x3D;&#x3D; expextedApiKey) {
-			return new Response(&#x27;Unauthorized&#x27;, { status: 401 });
-		}
-
-		const presented &#x3D; await request.json();
-		console.log(&#x27;Received consume webhook:&#x27;);
-		console.log(JSON.stringify(presented, null, 2));
-		return new Response(null, { status: 200 });
-	}
-
-	return new Response(&#x27;Not found&#x27;, { status: 404 });
-}
-
-export default {
-	fetch: handleRequest,
-};
+@Module({
+    imports: [
+        //TODO: add a guard to protect the metrics endpoint
+        PrometheusModule.register({
+            defaultMetrics: {
+                enabled: false,
+            },
+        }),
+    ],
+})
+export class MetricModule {}
 </code></pre>
     </div>
 </div>
+
+
+
+
+
+
+
+
+
 
 
 
@@ -299,8 +189,8 @@ export default {
 
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'interface';
-            var COMPODOC_CURRENT_PAGE_URL = 'ProcessResponse.html';
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'module';
+            var COMPODOC_CURRENT_PAGE_URL = 'MetricModule.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

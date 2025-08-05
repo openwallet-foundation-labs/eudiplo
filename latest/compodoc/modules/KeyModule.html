@@ -152,8 +152,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="36"
-                                    class="link-to-prism">src/crypto/key/key.module.ts:36</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="34"
+                                    class="link-to-prism">src/crypto/key/key.module.ts:34</a></div>
                         </td>
                     </tr>
 
@@ -178,12 +178,15 @@
 import { FileSystemKeyService } from &#x27;./filesystem-key.service&#x27;;
 import { VaultKeyService } from &#x27;./vault-key.service&#x27;;
 import { CryptoModule } from &#x27;./crypto/crypto.module&#x27;;
-import { CryptoService } from &#x27;./crypto/crypto.service&#x27;;
+import { CryptoImplementationService } from &#x27;./crypto/crypto.service&#x27;;
 import { ConfigModule, ConfigService } from &#x27;@nestjs/config&#x27;;
 import { HttpModule, HttpService } from &#x27;@nestjs/axios&#x27;;
 import * as Joi from &#x27;joi&#x27;;
-import { TypeOrmModule } from &#x27;@nestjs/typeorm/dist/typeorm.module&#x27;;
-import { KeyEntity } from &#x27;./entities/key.entity&#x27;;
+import { CertEntity } from &#x27;./entities/cert.entity&#x27;;
+import { Repository } from &#x27;typeorm/repository/Repository&#x27;;
+import { TypeOrmModule } from &#x27;@nestjs/typeorm&#x27;;
+import { getRepositoryToken } from &#x27;@nestjs/typeorm&#x27;;
+import { PinoLogger } from &#x27;nestjs-pino&#x27;;
 
 export const KEY_VALIDATION_SCHEMA &#x3D; {
     KM_TYPE: Joi.string().valid(&#x27;file&#x27;, &#x27;vault&#x27;).default(&#x27;file&#x27;),
@@ -199,11 +202,6 @@ export const KEY_VALIDATION_SCHEMA &#x3D; {
         then: Joi.required(),
         otherwise: Joi.optional(),
     }),
-    VAULT_KEY_ID: Joi.string().when(&#x27;KM_TYPE&#x27;, {
-        is: &#x27;vault&#x27;,
-        then: Joi.string().default(&#x27;key-id&#x27;),
-        otherwise: Joi.optional(),
-    }),
 };
 
 @Global()
@@ -216,7 +214,7 @@ export class KeyModule {
                 HttpModule,
                 ConfigModule,
                 CryptoModule,
-                TypeOrmModule.forFeature([KeyEntity]),
+                TypeOrmModule.forFeature([CertEntity]),
             ],
             providers: [
                 {
@@ -224,7 +222,9 @@ export class KeyModule {
                     useFactory: (
                         configService: ConfigService,
                         httpService: HttpService,
-                        cryptoService: CryptoService,
+                        cryptoService: CryptoImplementationService,
+                        certRepository: Repository&lt;CertEntity&gt;,
+                        logger: PinoLogger,
                     ) &#x3D;&gt; {
                         const kmType &#x3D; configService.get&lt;&#x27;vault&#x27; | &#x27;file&#x27;&gt;(
                             &#x27;KM_TYPE&#x27;,
@@ -234,15 +234,24 @@ export class KeyModule {
                                 httpService,
                                 configService,
                                 cryptoService,
+                                certRepository,
                             );
                         }
 
                         return new FileSystemKeyService(
                             configService,
                             cryptoService,
+                            certRepository,
+                            logger,
                         );
                     },
-                    inject: [ConfigService, HttpService, CryptoService],
+                    inject: [
+                        ConfigService,
+                        HttpService,
+                        CryptoImplementationService,
+                        getRepositoryToken(CertEntity),
+                        PinoLogger,
+                    ],
                 },
             ],
             exports: [&#x27;KeyService&#x27;],
