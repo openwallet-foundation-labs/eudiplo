@@ -77,6 +77,26 @@ describe('Issuance', () => {
         authToken = tokenResponse.body.access_token;
         expect(authToken).toBeDefined();
 
+        //import key
+
+        const privateKey = {
+            kty: 'EC',
+            x: 'pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho',
+            y: 'rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o',
+            crv: 'P-256',
+            d: 'rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU',
+            kid: '039af178-3ca0-48f4-a2e4-7b1209f30376',
+            alg: 'ES256',
+        };
+
+        await request(app.getHttpServer())
+            .post('/key')
+            .set('Authorization', `Bearer ${authToken}`)
+            .send({
+                privateKey,
+            })
+            .expect(201);
+
         //import the pid credential configuration
         const pidCredentialConfiguration = JSON.parse(
             readFileSync(
