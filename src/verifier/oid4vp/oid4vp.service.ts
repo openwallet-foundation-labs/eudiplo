@@ -151,19 +151,10 @@ export class Oid4vpService {
                 },
             };
 
-            let accessCert: string[] | undefined = undefined;
-            try {
-                accessCert = await this.cryptoService.getCertChain(
-                    'access',
-                    session.tenantId,
-                );
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            } catch (err: any) {
-                accessCert = await this.cryptoService.getCertChain(
-                    'signing',
-                    session.tenantId,
-                );
-            }
+            const accessCert = await this.cryptoService.getCertChain(
+                'access',
+                session.tenantId,
+            );
 
             const header = {
                 ...request.header,
@@ -171,10 +162,15 @@ export class Oid4vpService {
                 x5c: accessCert,
             };
 
+            const keyId = await this.cryptoService.keyService.getKid(
+                session.tenantId,
+                'access',
+            );
             const signedJwt = await this.cryptoService.signJwt(
                 header,
                 request.payload,
                 session.tenantId,
+                keyId,
             );
 
             this.sessionLogger.logSession(

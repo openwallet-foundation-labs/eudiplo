@@ -24,9 +24,7 @@ import { execSync } from 'node:child_process';
 import { KeyImportDto } from './key/dto/key-import.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm/repository/Repository';
-import { CertEntity } from './key/entities/cert.entity';
-
-type certificateType = 'access' | 'signing';
+import { CertEntity, CertificateType } from './key/entities/cert.entity';
 
 @Injectable()
 export class CryptoService implements OnModuleInit {
@@ -50,8 +48,8 @@ export class CryptoService implements OnModuleInit {
         if (!existsSync(folder)) {
             mkdirSync(folder, { recursive: true });
         }
-        await this.keyService.init(tenantId);
-        await this.hasCerts(tenantId);
+        const keyId = await this.keyService.init(tenantId);
+        await this.hasCerts(tenantId, keyId);
     }
 
     /**
@@ -171,16 +169,28 @@ export class CryptoService implements OnModuleInit {
             tenantId,
             keyId,
             crt,
+            type: 'signing',
         });
 
         // Step 7: Clean up
         rmSync(folder, { recursive: true });
 
-        const certFolder = join(this.folder, tenantId, 'keys');
-        if (!existsSync(join(certFolder, 'access-certificate.pem'))) {
-            // Create access certificate from signing certificate
-            writeFileSync(join(certFolder, 'access-certificate.pem'), crt);
-        }
+        //set access certificate
+        await this.certRepository
+            .countBy({
+                tenantId,
+                type: 'access',
+            })
+            .then(async (count) => {
+                if (count === 0) {
+                    return this.certRepository.save({
+                        tenantId,
+                        keyId,
+                        crt,
+                        type: 'access',
+                    });
+                }
+            });
     }
 
     /**
@@ -215,19 +225,21 @@ export class CryptoService implements OnModuleInit {
      * @returns
      */
     async getCertChain(
-        type: certificateType = 'signing',
+        type: CertificateType = 'signing',
         tenantId: string,
         keyId?: string,
     ) {
-        keyId = keyId || (await this.keyService.getKid(tenantId));
         let cert: string;
         if (type === 'signing') {
+            keyId = keyId || (await this.keyService.getKid(tenantId));
             cert = await this.getCert(tenantId, keyId);
         } else {
-            cert = readFileSync(
-                join(this.folder, tenantId, 'keys', `access-certificate.pem`),
-                'utf-8',
-            );
+            cert = await this.certRepository
+                .findOneByOrFail({
+                    tenantId,
+                    type: 'access',
+                })
+                .then((cert) => cert.crt);
         }
 
         const chain = cert
@@ -242,11 +254,13 @@ export class CryptoService implements OnModuleInit {
      * @param crt
      * @param tenantId
      */
-    storeAccessCertificate(crt: string, tenantId: string) {
-        writeFileSync(
-            join(this.folder, tenantId, 'keys', `access-certificate.pem`),
+    async storeAccessCertificate(crt: string, tenantId: string, keyId: string) {
+        await this.certRepository.save({
+            tenantId,
+            keyId,
             crt,
-        );
+            type: 'access',
+        });
     }
 
     /**
@@ -260,8 +274,9 @@ export class CryptoService implements OnModuleInit {
         header: any,
         payload: any,
         tenantId: string,
+        keyId?: string,
     ): Promise<string> {
-        return this.keyService.signJWT(payload, header, tenantId);
+        return this.keyService.signJWT(payload, header, tenantId, keyId);
     }
 
     /**

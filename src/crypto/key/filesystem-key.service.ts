@@ -28,7 +28,7 @@ import { CryptoImplementation } from './crypto/crypto-implementation';
 import { CryptoImplementationService } from './crypto/crypto.service';
 import { join } from 'node:path';
 import { KeyImportDto } from './dto/key-import.dto';
-import { CertEntity } from './entities/cert.entity';
+import { CertEntity, CertificateType } from './entities/cert.entity';
 import { Repository } from 'typeorm/repository/Repository';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
@@ -192,12 +192,8 @@ export class FileSystemKeyService
      * This will create the keys if they do not exist.
      * @param tenant
      */
-    async init(tenant: string) {
-        await this.getKid(tenant).catch(async () => {
-            // If no key exists, create a new one
-            await this.create(tenant);
-        });
-        return Promise.resolve();
+    init(tenant: string): Promise<string> {
+        return this.getKid(tenant).catch(async () => this.create(tenant));
     }
 
     /**
@@ -276,31 +272,16 @@ export class FileSystemKeyService
      * If no key exists, it will throw an error.
      * @returns
      */
-    getKid(tenantId: string): Promise<string> {
-        const folder = join(
-            this.configService.getOrThrow<string>('FOLDER'),
-            tenantId,
-            'keys',
-            'keys',
-        );
-        if (!existsSync(folder)) {
-            mkdirSync(folder, { recursive: true });
-        }
-        const files = readdirSync(folder);
-        if (files.length === 0) {
-            return Promise.reject(
-                new Error(`No keys found for tenant ${tenantId}`),
-            );
-        }
-        // Return the first key id found
-        const firstFile = files[0];
-        //check if the file includes the kid
-        const keyData = readFileSync(join(folder, firstFile), 'utf-8');
-        const privateKey = JSON.parse(keyData) as JWK;
-        if (privateKey.kid) {
-            return Promise.resolve(privateKey.kid);
-        }
-        return Promise.reject(new Error('Key id not found'));
+    getKid(
+        tenantId: string,
+        type: CertificateType = 'signing',
+    ): Promise<string> {
+        return this.certRepository
+            .findOneByOrFail({
+                tenantId,
+                type,
+            })
+            .then((cert) => cert.keyId);
     }
 
     /**

@@ -63,7 +63,7 @@ export class VaultKeyService extends KeyService {
         ).catch((err) => {
             console.error(JSON.stringify(err.response.data, null, 2));
         });
-        await this.create(tenantId);
+        return this.create(tenantId);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

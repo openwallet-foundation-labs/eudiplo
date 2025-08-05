@@ -252,6 +252,9 @@ describe('Issuance', () => {
         //use jose to verify the signature
         const { payload } = await jwtVerify(res.text, key, {
             algorithms: [jwtHeader.alg],
+        }).catch((err) => {
+            console.error('JWT verification failed:', err);
+            throw err;
         });
         expect(payload.iss).toBeDefined();
     });

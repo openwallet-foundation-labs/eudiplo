@@ -4,6 +4,7 @@ import { AppModule } from '../src/app.module';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { ConfigService } from '@nestjs/config';
+import { v4 } from 'uuid';
 
 describe('Key (e2e)', () => {
     let app: INestApplication;
@@ -49,7 +50,7 @@ describe('Key (e2e)', () => {
             y: 'rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o',
             crv: 'P-256',
             d: 'rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU',
-            kid: '039af178-3ca0-48f4-a2e4-7b1209f30376',
+            kid: v4(),
             alg: 'ES256',
         };
 

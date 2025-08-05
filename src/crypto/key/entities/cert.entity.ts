@@ -1,5 +1,7 @@
 import { Column, Entity } from 'typeorm';
 
+export type CertificateType = 'access' | 'signing';
+
 @Entity()
 export class CertEntity {
     @Column('varchar', { primary: true })
@@ -10,4 +12,7 @@ export class CertEntity {
 
     @Column('varchar')
     crt: string;
+
+    @Column('varchar', { default: 'signing', primary: true })
+    type: CertificateType;
 }

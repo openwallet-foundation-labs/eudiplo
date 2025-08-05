@@ -3,7 +3,7 @@ import { JWK, JWTPayload, JoseHeaderParameters } from 'jose';
 import { KeyImportDto } from './dto/key-import.dto';
 import { ConfigService } from '@nestjs/config';
 import { Repository } from 'typeorm';
-import { CertEntity } from './entities/cert.entity';
+import { CertEntity, CertificateType } from './entities/cert.entity';
 import { ConflictException } from '@nestjs/common';
 
 /**
@@ -35,8 +35,10 @@ export abstract class KeyService {
 
     /**
      * Initialize the key service
+     * @param tenantId
+     * @returns key id of the initialized key.
      */
-    abstract init(tenantId): Promise<void>;
+    abstract init(tenantId): Promise<string>;
 
     /**
      * Creates a new keypair
@@ -62,7 +64,7 @@ export abstract class KeyService {
      * Get the key id
      * @returns
      */
-    abstract getKid(tenantId: string): Promise<string>;
+    abstract getKid(tenantId: string, type?: CertificateType): Promise<string>;
 
     abstract getKeys(tenantId: string): Promise<KeyObj[]>;
 
