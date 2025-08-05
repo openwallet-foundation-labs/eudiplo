@@ -120,21 +120,11 @@ export class Oid4vpService {
                         },
                         vp_formats: {
                             mso_mdoc: {
-                                alg: ['EdDSA', 'ES256', 'ES384'],
+                                alg: ['ES256'],
                             },
                             'dc+sd-jwt': {
-                                'kb-jwt_alg_values': [
-                                    'EdDSA',
-                                    'ES256',
-                                    'ES384',
-                                    'ES256K',
-                                ],
-                                'sd-jwt_alg_values': [
-                                    'EdDSA',
-                                    'ES256',
-                                    'ES384',
-                                    'ES256K',
-                                ],
+                                'kb-jwt_alg_values': ['ES256'],
+                                'sd-jwt_alg_values': ['ES256'],
                             },
                         },
                         authorization_encrypted_response_alg: 'ECDH-ES',

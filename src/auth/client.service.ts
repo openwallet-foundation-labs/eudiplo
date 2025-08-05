@@ -116,7 +116,8 @@ export class ClientService implements OnApplicationBootstrap {
                 // create it to signl that the client getting set up
                 await this.clientRepository.save({ id });
                 await this.setUpClient(id).catch(async (err) => {
-                    // if there is an error, update the client status
+                    console.error(err);
+                    // if there is an error, update the client status"
                     await this.clientRepository.update(
                         { id },
                         { status: 'error', error: err.message },

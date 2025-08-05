@@ -11,7 +11,7 @@ import {
 import { ApiSecurity } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/auth.guard';
 import { Token, TokenPayload } from '../../auth/token.decorator';
-import { KeyEntity, KeyService } from './key.service';
+import { KeyObj, KeyService } from './key.service';
 import { KeyImportDto } from './dto/key-import.dto';
 import { CryptoService } from '../crypto.service';
 
@@ -33,7 +33,7 @@ export class KeyController {
      * @returns
      */
     @Get()
-    getKeys(@Token() token: TokenPayload): Promise<KeyEntity[]> {
+    getKeys(@Token() token: TokenPayload): Promise<KeyObj[]> {
         const tenantId = token.sub;
         return this.keyService.getKeys(tenantId);
     }

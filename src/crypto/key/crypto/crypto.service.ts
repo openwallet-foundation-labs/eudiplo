@@ -7,7 +7,7 @@ import { Injectable } from '@nestjs/common';
 export type CryptoType = 'ES256' | 'Ed25519';
 
 @Injectable()
-export class CryptoService {
+export class CryptoImplementationService {
     constructor(private configServie: ConfigService) {}
 
     /**

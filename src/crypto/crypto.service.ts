@@ -3,7 +3,7 @@ import {
     existsSync,
     mkdirSync,
     readFileSync,
-    unlinkSync,
+    rmSync,
     writeFileSync,
 } from 'node:fs';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
@@ -22,6 +22,9 @@ import { KeyService } from './key/key.service';
 import { EC_Public } from '../well-known/dto/jwks-response.dto';
 import { execSync } from 'node:child_process';
 import { KeyImportDto } from './key/dto/key-import.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm/repository/Repository';
+import { CertEntity } from './key/entities/cert.entity';
 
 type certificateType = 'access' | 'signing';
 
@@ -32,6 +35,8 @@ export class CryptoService implements OnModuleInit {
     constructor(
         private readonly configService: ConfigService,
         @Inject('KeyService') public readonly keyService: KeyService,
+        @InjectRepository(CertEntity)
+        private certRepository: Repository<CertEntity>,
     ) {}
     onModuleInit() {
         this.folder = join(this.configService.getOrThrow<string>('FOLDER'));
@@ -65,19 +70,11 @@ export class CryptoService implements OnModuleInit {
         const keyId = await this.keyService.import(tenantId, body);
         // If the private key has a certificate, write it to the certs folder
         if (body.crt) {
-            const certFolder = join(
-                this.configService.getOrThrow<string>('FOLDER'),
+            await this.certRepository.save({
                 tenantId,
-                'keys',
-                'certs',
-            );
-            if (!existsSync(certFolder)) {
-                mkdirSync(certFolder, { recursive: true });
-            }
-            writeFileSync(
-                join(certFolder, `${body.privateKey.kid}.pem`),
-                body.crt,
-            );
+                keyId,
+                crt: body.crt,
+            });
         } else {
             // If no certificate is provided, generate a self-signed certificate
             await this.hasCerts(tenantId, keyId);
@@ -91,99 +88,111 @@ export class CryptoService implements OnModuleInit {
      */
     async hasCerts(tenantId: string, keyId?: string) {
         keyId = keyId || (await this.keyService.getKid(tenantId));
+
+        const certObj = await this.certRepository.findOneBy({
+            tenantId,
+            keyId,
+        });
+
+        //when there is no cert, create one
+        if (certObj?.crt) {
+            return;
+        }
+
         const publicKey = await this.keyService.getPublicKey(
             'pem',
             tenantId,
             keyId,
         );
 
-        const folder = join(this.folder, tenantId, 'keys');
-
+        const folder = join(this.folder, tenantId, keyId);
+        // create a temporary folder for the cert generation
+        if (!existsSync(folder)) {
+            mkdirSync(folder, { recursive: true });
+        }
         const publicKeyPath = join(folder, `public-key.${keyId}.pem`);
         writeFileSync(publicKeyPath, publicKey);
         const dummyKey = join(folder, 'dummy_key.pem');
         const dummyCsr = join(folder, 'dummy.csr');
         const issuerKey = join(folder, 'issuer_key.pem');
         const issuerCert = join(folder, 'issuer_cert.pem');
-        const certFolder = join(folder, 'certs');
 
-        const certOut = join(certFolder, `${keyId}.pem`);
+        const certOut = join(folder, `${keyId}.pem`);
         const sanExt = join(folder, 'san.ext');
 
-        if (!existsSync(certFolder)) {
-            mkdirSync(certFolder, { recursive: true });
-        }
+        // === Configurable parameters (you can parameterize these when calling the script) ===
+        const subject = this.configService.getOrThrow<string>('RP_NAME');
+        const hostname = new URL(
+            this.configService.getOrThrow<string>('PUBLIC_URL'),
+        ).hostname; // Use URL to parse and get hostname
 
-        if (!existsSync(certOut)) {
-            // === Configurable parameters (you can parameterize these when calling the script) ===
-            const subject = this.configService.getOrThrow<string>('RP_NAME');
-            const hostname = new URL(
-                this.configService.getOrThrow<string>('PUBLIC_URL'),
-            ).hostname; // Use URL to parse and get hostname
+        // === Helper to run shell commands ===
+        const run = (cmd) => {
+            execSync(cmd, { stdio: 'inherit' });
+        };
 
-            // === Helper to run shell commands ===
-            const run = (cmd) => {
-                execSync(cmd, { stdio: 'inherit' });
-            };
+        // === Step-by-step ===
+        mkdirSync(this.folder, { recursive: true });
 
-            // === Step-by-step ===
-            mkdirSync(this.folder, { recursive: true });
-
-            // Step 1: Create dummy key pair if public key is missing
+        // Step 1: Create dummy key pair if public key is missing
+        if (!existsSync(dummyKey)) {
+            // Generate private key (PKCS#8)
+            run(
+                `openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:prime256v1 -out "${dummyKey}"`,
+            );
+        } else {
             if (!existsSync(dummyKey)) {
-                // Generate private key (PKCS#8)
-                run(
-                    `openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:prime256v1 -out "${dummyKey}"`,
+                throw new Error(
+                    `Public key exists but ${dummyKey} is missing.`,
                 );
-            } else {
-                if (!existsSync(dummyKey)) {
-                    throw new Error(
-                        `Public key exists but ${dummyKey} is missing.`,
-                    );
-                }
             }
-
-            // Step 2: Generate issuer key
-            run(
-                `openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:prime256v1 -out "${issuerKey}"`,
-            );
-
-            // Step 3: Create self-signed issuer cert
-            run(
-                `openssl req -x509 -new -key "${issuerKey}" -subj "/CN=${subject}" -addext "subjectAltName=DNS:${hostname}" -days 365 -out "${issuerCert}"`,
-            );
-
-            // Step 4: Create dummy CSR
-            run(
-                `openssl req -new -key "${dummyKey}" -subj "/CN=${subject}" -addext "subjectAltName=DNS:${hostname}" -out "${dummyCsr}"`,
-            );
-
-            // Step 5: Create SAN extension file
-            writeFileSync(sanExt, `subjectAltName=DNS:${hostname}`);
-
-            // Step 6: Sign certificate using issuer
-            run(
-                `openssl x509 -req -in "${dummyCsr}" -force_pubkey "${publicKeyPath}" -CA "${issuerCert}" -CAkey "${issuerKey}" -CAcreateserial -days 365 -extfile "${sanExt}" -out "${certOut}"`,
-            );
-
-            // Step 7: Clean up
-            [
-                issuerKey,
-                issuerCert,
-                dummyCsr,
-                dummyKey,
-                publicKeyPath,
-                join(folder, 'issuer_cert.srl'),
-                sanExt,
-            ].forEach((file) => {
-                if (existsSync(file)) unlinkSync(file);
-            });
         }
-        if (!existsSync(join(folder, 'access-certificate.pem'))) {
+
+        // Step 2: Generate issuer key
+        run(
+            `openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:prime256v1 -out "${issuerKey}"`,
+        );
+
+        // Step 3: Create self-signed issuer cert
+        run(
+            `openssl req -x509 -new -key "${issuerKey}" -subj "/CN=${subject}" -addext "subjectAltName=DNS:${hostname}" -days 365 -out "${issuerCert}"`,
+        );
+
+        // Step 4: Create dummy CSR
+        run(
+            `openssl req -new -key "${dummyKey}" -subj "/CN=${subject}" -addext "subjectAltName=DNS:${hostname}" -out "${dummyCsr}"`,
+        );
+
+        // Step 5: Create SAN extension file
+        writeFileSync(sanExt, `subjectAltName=DNS:${hostname}`);
+
+        // Step 6: Sign certificate using issuer
+        run(
+            `openssl x509 -req -in "${dummyCsr}" -force_pubkey "${publicKeyPath}" -CA "${issuerCert}" -CAkey "${issuerKey}" -CAcreateserial -days 365 -extfile "${sanExt}" -out "${certOut}"`,
+        );
+
+        const crt = readFileSync(certOut, 'utf-8');
+        // Store the certificate in the database
+        await this.certRepository.save({
+            tenantId,
+            keyId,
+            crt,
+        });
+
+        // Step 7: Clean up
+        rmSync(folder, { recursive: true });
+
+        const certFolder = join(this.folder, tenantId, 'keys');
+        if (!existsSync(join(certFolder, 'access-certificate.pem'))) {
             // Create access certificate from signing certificate
-            const signingCert = readFileSync(join(certOut), 'utf-8');
-            writeFileSync(join(folder, 'access-certificate.pem'), signingCert);
+            writeFileSync(join(certFolder, 'access-certificate.pem'), crt);
         }
+    }
+
+    getCert(tenantId: string, keyId: string): Promise<string> {
+        return this.certRepository
+            .findOneBy({ tenantId, keyId })
+            .then((cert) => cert!.crt);
     }
 
     /**
@@ -201,10 +210,7 @@ export class CryptoService implements OnModuleInit {
         keyId = keyId || (await this.keyService.getKid(tenantId));
         let cert: string;
         if (type === 'signing') {
-            cert = readFileSync(
-                join(this.folder, tenantId, 'keys', 'certs', `${keyId}.pem`),
-                'utf-8',
-            );
+            cert = await this.getCert(tenantId, keyId);
         } else {
             cert = readFileSync(
                 join(this.folder, tenantId, 'keys', `access-certificate.pem`),

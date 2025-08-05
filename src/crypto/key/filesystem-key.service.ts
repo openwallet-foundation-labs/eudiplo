@@ -16,27 +16,108 @@ import {
     exportJWK,
 } from 'jose';
 import { v4 } from 'uuid';
-import { KeyEntity, KeyService } from './key.service';
-import { Injectable } from '@nestjs/common';
+import { KeyObj, KeyService } from './key.service';
+import {
+    ConflictException,
+    Injectable,
+    OnApplicationBootstrap,
+    OnModuleInit,
+} from '@nestjs/common';
 import { Signer } from '@sd-jwt/types';
 import { ConfigService } from '@nestjs/config';
 import { CryptoImplementation } from './crypto/crypto-implementation';
-import { CryptoService } from './crypto/crypto.service';
+import { CryptoImplementationService } from './crypto/crypto.service';
 import { join } from 'node:path';
 import { KeyImportDto } from './dto/key-import.dto';
+import { CertEntity } from './entities/cert.entity';
+import { Repository } from 'typeorm/repository/Repository';
+import { plainToClass } from 'class-transformer';
+import { validate } from 'class-validator';
+import { PinoLogger } from 'nestjs-pino';
 
 /**
  * The key service is responsible for managing the keys of the issuer.
  */
 @Injectable()
-export class FileSystemKeyService implements KeyService {
+export class FileSystemKeyService
+    extends KeyService
+    implements OnApplicationBootstrap
+{
     private crypto: CryptoImplementation;
 
     constructor(
-        private configService: ConfigService,
-        private cryptoService: CryptoService,
+        configService: ConfigService,
+        private cryptoService: CryptoImplementationService,
+        certRepository: Repository<CertEntity>,
+        private logger: PinoLogger,
     ) {
-        this.crypto = this.cryptoService.getCrypto();
+        super(configService, certRepository);
+        this.crypto = cryptoService.getCrypto();
+    }
+
+    async onApplicationBootstrap() {
+        if (this.configService.get<boolean>('CONFIG_IMPORT')) {
+            const configPath = this.configService.getOrThrow('CONFIG_FOLDER');
+            const subfolder = 'keys';
+            const force = this.configService.get<boolean>(
+                'CONFIG_IMPORT_FORCE',
+            );
+            if (this.configService.get<boolean>('CONFIG_IMPORT')) {
+                const tenantFolders = readdirSync(configPath, {
+                    withFileTypes: true,
+                }).filter((tenant) => tenant.isDirectory());
+                let counter = 0;
+                for (const tenant of tenantFolders) {
+                    //iterate over all elements in the folder and import them
+                    const path = join(configPath, tenant.name, subfolder);
+                    const files = readdirSync(path);
+                    for (const file of files) {
+                        const payload = JSON.parse(
+                            readFileSync(join(path, file), 'utf8'),
+                        );
+
+                        payload.id = file.replace('.json', '');
+                        /* const exists = await this.
+                            tenant.name,
+                            payload.id,
+                        ).catch(() => false);
+                        if (exists && !force) {
+                            continue; // Skip if config already exists and force is not set
+                        } */
+
+                        // Validate the payload against KeyImportDto
+                        const config = plainToClass(KeyImportDto, payload);
+                        const validationErrors = await validate(config);
+
+                        if (validationErrors.length > 0) {
+                            this.logger.error(
+                                {
+                                    event: 'ValidationError',
+                                    file,
+                                    tenant: tenant.name,
+                                    errors: validationErrors.map((error) => ({
+                                        property: error.property,
+                                        constraints: error.constraints,
+                                        value: error.value,
+                                    })),
+                                },
+                                `Validation failed for key config ${file} in tenant ${tenant.name}`,
+                            );
+                            continue; // Skip this invalid config
+                        }
+
+                        await this.import(tenant.name, config);
+                        counter++;
+                    }
+                    this.logger.info(
+                        {
+                            event: 'Import',
+                        },
+                        `${counter} keys imported for ${tenant.name}`,
+                    );
+                }
+            }
+        }
     }
 
     /**
@@ -70,7 +151,7 @@ export class FileSystemKeyService implements KeyService {
      * @param tenantId
      * @returns
      */
-    getKeys(tenantId: string): Promise<KeyEntity[]> {
+    async getKeys(tenantId: string): Promise<KeyObj[]> {
         const folder = join(
             this.configService.getOrThrow<string>('FOLDER'),
             tenantId,
@@ -81,13 +162,16 @@ export class FileSystemKeyService implements KeyService {
             mkdirSync(folder, { recursive: true });
         }
         const files = readdirSync(folder);
-        const keys: KeyEntity[] = [];
+        const keys: KeyObj[] = [];
         for (const file of files) {
             const keyData = readFileSync(join(folder, file), 'utf-8');
             const privateKey = JSON.parse(keyData) as JWK;
 
             const publicKey = this.getPubFromPrivateKey(privateKey);
-            const crt = this.getCertificate(tenantId, privateKey.kid as string);
+            const crt = await this.getCertificate(
+                tenantId,
+                privateKey.kid as string,
+            );
             keys.push({ id: privateKey.kid as string, publicKey, crt });
         }
         return Promise.resolve(keys);
@@ -102,27 +186,6 @@ export class FileSystemKeyService implements KeyService {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { d, key_ops, ext, ...publicKey } = privateKey;
         return publicKey;
-    }
-
-    /**
-     * Get the certificate for the given key id.
-     * @param tenantId
-     * @param keyId
-     * @returns
-     */
-    private getCertificate(tenantId: string, keyId: string): string {
-        const file = join(
-            this.configService.getOrThrow<string>('FOLDER'),
-            tenantId,
-            'keys',
-            'certs',
-            `${keyId}.pem`,
-        );
-
-        if (!existsSync(file)) {
-            throw new Error(`Certificate not found for key ${keyId}`);
-        }
-        return readFileSync(file, 'utf-8');
     }
 
     /**
@@ -159,10 +222,16 @@ export class FileSystemKeyService implements KeyService {
         //add a random key id for reference
         privateKey.kid = v4();
         privateKey.alg = this.crypto.alg;
+
+        //remove exportable and key_ops from the private key
+        delete privateKey.ext;
+        delete privateKey.key_ops;
+
         writeFileSync(
             join(folder, `${privateKey.kid}.json`),
             JSON.stringify(privateKey, null, 2),
         );
+
         return privateKey.kid;
     }
 
@@ -194,6 +263,9 @@ export class FileSystemKeyService implements KeyService {
         if (!existsSync(file)) {
             // If the file does not exist, generate a new keypair
             await this.create(tenantId);
+        }
+        if (!existsSync(file)) {
+            throw new ConflictException(`Key ${file} does not exist`);
         }
         const keyData = readFileSync(file, 'utf-8');
         const privateKey = JSON.parse(keyData) as JWK;
