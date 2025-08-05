@@ -92,7 +92,7 @@
 
 <ol class="breadcrumb">
   <li class="breadcrumb-item">Injectables</li>
-  <li class="breadcrumb-item" >CryptoService</li>
+  <li class="breadcrumb-item" >CryptoImplementationService</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -332,7 +332,7 @@ import { Injectable } from &#x27;@nestjs/common&#x27;;
 export type CryptoType &#x3D; &#x27;ES256&#x27; | &#x27;Ed25519&#x27;;
 
 @Injectable()
-export class CryptoService {
+export class CryptoImplementationService {
     constructor(private configServie: ConfigService) {}
 
     /**
@@ -399,7 +399,7 @@ export class CryptoService {
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'injectable';
-            var COMPODOC_CURRENT_PAGE_URL = 'CryptoService-1.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'CryptoImplementationService.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

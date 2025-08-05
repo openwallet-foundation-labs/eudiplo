@@ -80,26 +80,16 @@
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
-               <div class="content interface">
+               <div class="content controller">
                    <div class="content-data">
 
 
 
 
 
-
-
-
-
-
-
-
-
 <ol class="breadcrumb">
-  <li class="breadcrumb-item">Interfaces</li>
-  <li class="breadcrumb-item"
-  >
-  CryptoImplementation</li>
+  <li class="breadcrumb-item">Controllers</li>
+  <li class="breadcrumb-item" >KeyController</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -123,72 +113,65 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/crypto/key/crypto/crypto-implementation.ts</code>
+            <code>src/crypto/key/key.controller.ts</code>
         </p>
+
+            <p class="comment">
+                <h3>Prefix</h3>
+            </p>
+            <p class="comment">
+                <code>key</code>
+            </p>
 
 
             <p class="comment">
                 <h3>Description</h3>
             </p>
             <p class="comment">
-                <p>Generic interface to imeplement different algorithms.</p>
+                <p>KeyController is responsible for managing keys in the system.</p>
 
             </p>
 
 
-        <section data-compodoc="block-index">
-            <h3 id="index">Index</h3>
-            <table class="table table-sm table-bordered index-table">
-                <tbody>
-                    <tr>
-                        <td class="col-md-4">
-                            <h6><b>Properties</b></h6>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="col-md-4">
-                            <ul class="index-list">
-                                <li>
-                                        <a href="#alg" 
->
-                                            alg
-                                        </a>
-                                </li>
-                            </ul>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="col-md-4">
-                            <h6><b>Methods</b></h6>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="col-md-4">
-                            <ul class="index-list">
-                                <li>
-                                    <a href="#generateKeyPair" 
->
-                                        generateKeyPair
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#getSigner" 
->
-                                        getSigner
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#getVerifier" 
->
-                                        getVerifier
-                                    </a>
-                                </li>
-                            </ul>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
+
+
+            <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#addKey" >addKey</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                <a href="#deleteKey" >deleteKey</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                <a href="#getKeys" >getKeys</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
 
             <section data-compodoc="block-methods">
     
@@ -199,70 +182,41 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="generateKeyPair"></a>
+                    <a name="addKey"></a>
                     <span class="name">
-                        <span ><b>generateKeyPair</b></span>
-                        <a href="#generateKeyPair"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier"></span>
+                            <span class="modifier">Async</span>
+                        <span ><b>addKey</b></span>
+                        <a href="#addKey"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>generateKeyPair()</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>addKey(token: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>, body: <a href="../classes/KeyImportDto.html" target="_self">KeyImportDto</a>)</code>
                 </td>
             </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Post()<br /></code>
+                </td>
+            </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="19"
-                                    class="link-to-prism">src/crypto/key/crypto/crypto-implementation.ts:19</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="48"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:48</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Generates a new keypair</p>
-</div>
-
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../classes/Key.html" target="_self" >Promise&lt;KeyPair&gt;</a></code>
-
-                        </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getSigner"></a>
-                    <span class="name">
-                        <span ><b>getSigner</b></span>
-                        <a href="#getSigner"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getSigner(privateKeyJWK: <a href="../classes/Key.html" target="_self">JsonWebKey</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="24"
-                                    class="link-to-prism">src/crypto/key/crypto/crypto-implementation.ts:24</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>creates a signer based on the passed key.</p>
+                        <div class="io-description"><p>Add a new key to the key service.</p>
 </div>
 
                             <div class="io-description">
@@ -278,9 +232,21 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>privateKeyJWK</td>
+                                                <td>token</td>
                                             <td>
-                                                            <code><a href="../classes/Key.html" target="_self" >JsonWebKey</a></code>
+                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>body</td>
+                                            <td>
+                                                            <code><a href="../classes/KeyImportDto.html" target="_self" >KeyImportDto</a></code>
                                             </td>
 
                                             <td>
@@ -293,7 +259,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#Signer" target="_self" >Promise&lt;Signer&gt;</a></code>
+                            <b>Returns : </b>    <code>Promise&lt;literal type&gt;</code>
 
                         </div>
                             <div class="io-description">
@@ -307,31 +273,40 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getVerifier"></a>
+                    <a name="deleteKey"></a>
                     <span class="name">
-                        <span ><b>getVerifier</b></span>
-                        <a href="#getVerifier"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier"></span>
+                        <span ><b>deleteKey</b></span>
+                        <a href="#deleteKey"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>getVerifier(publicKeyJWK: <a href="../classes/Key.html" target="_self">JsonWebKey</a>)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>deleteKey(token: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Delete(&#x27;:id&#x27;)<br /></code>
+                </td>
+            </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="29"
-                                    class="link-to-prism">src/crypto/key/crypto/crypto-implementation.ts:29</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="63"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:63</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>creates a verifier based on the passed key.</p>
+                        <div class="io-description"><p>Delete a key from the key service.</p>
 </div>
 
                             <div class="io-description">
@@ -347,9 +322,21 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>publicKeyJWK</td>
+                                                <td>token</td>
                                             <td>
-                                                            <code><a href="../classes/Key.html" target="_self" >JsonWebKey</a></code>
+                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
 
                                             <td>
@@ -362,7 +349,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#Verifier" target="_self" >Promise&lt;Verifier&gt;</a></code>
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
 
                         </div>
                             <div class="io-description">
@@ -372,81 +359,165 @@
             </tr>
         </tbody>
     </table>
-</section>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getKeys"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                        <span ><b>getKeys</b></span>
+                        <a href="#getKeys"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getKeys(token: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
+                </td>
+            </tr>
 
-            <section data-compodoc="block-properties">
-                <h3 id="inputs">Properties</h3>
-                    <table class="table table-sm table-bordered">
-                        <tbody>
-                                <tr>
-                                    <td class="col-md-4">
-                                        <a name="alg"></a>
-                                        <span class="name "><b>alg</b>
-                                            <a href="#alg">
-                                                <span class="icon ion-ios-link"></span>
-                                            </a>
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="col-md-4">
-                                        <code>alg:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-</code>
-                                    </td>
-                                </tr>
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get()<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="36"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:36</a></div>
+                        </td>
+                    </tr>
 
 
-                                    <tr>
-                                        <td class="col-md-4">
-                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get all keys for the tenant.</p>
+</div>
 
-                                        </td>
-                                    </tr>
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>token</td>
+                                            <td>
+                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
 
 
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;KeyObj[]&gt;</code>
 
-
-
-                        </tbody>
-                    </table>
-            </section>
-    </div>
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">type KeyPair &#x3D; {
-    publicKey: JsonWebKey;
-    privateKey: JsonWebKey;
-};
-
-type Signer &#x3D; (data: string) &#x3D;&gt; Promise&lt;string&gt;;
-
-type Verifier &#x3D; (data: string, signature: string) &#x3D;&gt; Promise&lt;boolean&gt;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Inject,
+    Param,
+    Post,
+    UseGuards,
+} from &#x27;@nestjs/common&#x27;;
+import { ApiSecurity } from &#x27;@nestjs/swagger&#x27;;
+import { JwtAuthGuard } from &#x27;../../auth/auth.guard&#x27;;
+import { Token, TokenPayload } from &#x27;../../auth/token.decorator&#x27;;
+import { KeyObj, KeyService } from &#x27;./key.service&#x27;;
+import { KeyImportDto } from &#x27;./dto/key-import.dto&#x27;;
+import { CryptoService } from &#x27;../crypto.service&#x27;;
 
 /**
- * Generic interface to imeplement different algorithms.
+ * KeyController is responsible for managing keys in the system.
  */
-export interface CryptoImplementation {
-    //name of the algorithm
-    alg: string;
+@UseGuards(JwtAuthGuard)
+@ApiSecurity(&#x27;oauth2&#x27;)
+@Controller(&#x27;key&#x27;)
+export class KeyController {
+    constructor(
+        @Inject(&#x27;KeyService&#x27;) public readonly keyService: KeyService,
+        private cryptoService: CryptoService,
+    ) {}
+
     /**
-     * Generates a new keypair
+     * Get all keys for the tenant.
+     * @param token
+     * @returns
      */
-    generateKeyPair(): Promise&lt;KeyPair&gt;;
+    @Get()
+    getKeys(@Token() token: TokenPayload): Promise&lt;KeyObj[]&gt; {
+        const tenantId &#x3D; token.sub;
+        return this.keyService.getKeys(tenantId);
+    }
+
     /**
-     * creates a signer based on the passed key.
-     * @param privateKeyJWK
+     * Add a new key to the key service.
+     * @param token
+     * @param body
+     * @returns
      */
-    getSigner(privateKeyJWK: JsonWebKey): Promise&lt;Signer&gt;;
+    @Post()
+    async addKey(
+        @Token() token: TokenPayload,
+        @Body() body: KeyImportDto,
+    ): Promise&lt;{ id: string }&gt; {
+        const tenantId &#x3D; token.sub;
+        const id &#x3D; await this.cryptoService.importKey(tenantId, body);
+        return { id };
+    }
+
     /**
-     * creates a verifier based on the passed key.
-     * @param publicKeyJWK
+     * Delete a key from the key service.
+     * @param token
+     * @param id
      */
-    getVerifier(publicKeyJWK: JsonWebKey): Promise&lt;Verifier&gt;;
+    @Delete(&#x27;:id&#x27;)
+    deleteKey(@Token() token: TokenPayload, @Param(&#x27;id&#x27;) id: string) {
+        return this.cryptoService.deleteKey(token.sub, id);
+    }
 }
 </code></pre>
     </div>
 </div>
+
+
+
+
+
+
+
+
 
 
 
@@ -480,8 +551,8 @@ export interface CryptoImplementation {
 
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'interface';
-            var COMPODOC_CURRENT_PAGE_URL = 'CryptoImplementation.html';
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'controller';
+            var COMPODOC_CURRENT_PAGE_URL = 'KeyController.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

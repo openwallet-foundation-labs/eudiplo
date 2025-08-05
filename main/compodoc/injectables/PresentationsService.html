@@ -354,8 +354,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="152"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:152</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="150"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:150</a></div>
                         </td>
                     </tr>
 
@@ -451,8 +451,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="162"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:162</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="160"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:160</a></div>
                         </td>
                     </tr>
 
@@ -546,8 +546,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="128"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:128</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="126"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:126</a></div>
                         </td>
                     </tr>
 
@@ -703,8 +703,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="251"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:251</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="249"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:249</a></div>
                         </td>
                     </tr>
 
@@ -796,8 +796,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="141"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:141</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="139"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:139</a></div>
                         </td>
                     </tr>
 
@@ -893,8 +893,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="183"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:183</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="181"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:181</a></div>
                         </td>
                     </tr>
 
@@ -1016,7 +1016,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="234" class="link-to-prism">src/verifier/presentations/presentations.service.ts:234</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="232" class="link-to-prism">src/verifier/presentations/presentations.service.ts:232</a></div>
                         </td>
                     </tr>
 
@@ -1111,7 +1111,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="219" class="link-to-prism">src/verifier/presentations/presentations.service.ts:219</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="217" class="link-to-prism">src/verifier/presentations/presentations.service.ts:217</a></div>
                         </td>
                     </tr>
 
@@ -1167,7 +1167,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="196" class="link-to-prism">src/verifier/presentations/presentations.service.ts:196</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="194" class="link-to-prism">src/verifier/presentations/presentations.service.ts:194</a></div>
                         </td>
                     </tr>
 
@@ -1299,13 +1299,11 @@ export class PresentationsService implements OnModuleInit {
                     );
 
                     payload.id &#x3D; file.replace(&#x27;.json&#x27;, &#x27;&#x27;);
-                    if (
-                        (await this.getPresentationConfig(
-                            payload.id,
-                            tenant.name,
-                        )) &amp;&amp;
-                        !force
-                    ) {
+                    const presentationExists &#x3D; await this.getPresentationConfig(
+                        payload.id,
+                        tenant.name,
+                    ).catch(() &#x3D;&gt; false);
+                    if (presentationExists &amp;&amp; !force) {
                         continue; // Skip if config already exists and force is not set
                     }
 
@@ -1392,7 +1390,7 @@ export class PresentationsService implements OnModuleInit {
                 tenantId,
             })
             .catch(() &#x3D;&gt; {
-                throw new ConflictException(&#x27;Request ID invalid not found&#x27;);
+                throw new ConflictException(&#x60;Request ID ${id} not found&#x60;);
             });
     }
 

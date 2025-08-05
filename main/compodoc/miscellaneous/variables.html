@@ -280,7 +280,7 @@ This decorator can be used to determine the media type of the request.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-    CRYPTO_ALG: Joi.string().valid(&#x27;ES256&#x27;, &#x27;Ed25519&#x27;).default(&#x27;ES256&#x27;),
+    CRYPTO_ALG: Joi.string().valid(&#x27;ES256&#x27;).default(&#x27;ES256&#x27;),
 }</code>
                     </td>
                 </tr>
@@ -556,11 +556,6 @@ This decorator can be used to determine the media type of the request.</p>
     VAULT_TOKEN: Joi.string().when(&#x27;KM_TYPE&#x27;, {
         is: &#x27;vault&#x27;,
         then: Joi.required(),
-        otherwise: Joi.optional(),
-    }),
-    VAULT_KEY_ID: Joi.string().when(&#x27;KM_TYPE&#x27;, {
-        is: &#x27;vault&#x27;,
-        then: Joi.string().default(&#x27;key-id&#x27;),
         otherwise: Joi.optional(),
     }),
 }</code>

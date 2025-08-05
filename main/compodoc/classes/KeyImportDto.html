@@ -80,195 +80,240 @@
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
-               <div class="content module">
+               <div class="content class">
                    <div class="content-data">
 
 
 
+
+
+
+
+
+
+
+
+
 <ol class="breadcrumb">
-    <li class="breadcrumb-item">Modules</li>
-    <li class="breadcrumb-item" >KeyModule</li>
+  <li class="breadcrumb-item">Classes</li>
+  <li class="breadcrumb-item" >KeyImportDto</li>
 </ol>
 
-
 <ul class="nav nav-tabs" role="tablist">
-    <li class="nav-item">
-        <a href="#info" 
-            class="nav-link"
-            class="nav-link active"
-            role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
-    </li>
-    <li class="nav-item">
-        <a href="#source" 
-            class="nav-link"
-            
-            role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
-    </li>
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
 </ul>
 
 <div class="tab-content">
     <div class="tab-pane fade active in" id="info">
-
         <p class="comment">
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/crypto/key/key.module.ts</code>
+            <code>src/crypto/key/dto/key-import.dto.ts</code>
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>DTO for importing a key.</p>
+
+            </p>
 
 
 
-        <div class="container-fluid module">
-            <div class="row">
-            </div>
-        </div>
 
-        <section data-compodoc="block-methods">
+            <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
+                                <a href="#crt" >crt</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                <a href="#privateKey" >privateKey</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+
+            <section data-compodoc="block-properties">
     
-    <h3 id="methods">
-        Methods
+    <h3 id="inputs">
+        Properties
     </h3>
     <table class="table table-sm table-bordered">
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="forRoot"></a>
+                    <a name="crt"></a>
                     <span class="name">
-                            <span class="modifier">Static</span>
-                        <span ><b>forRoot</b></span>
-                        <a href="#forRoot"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
+                        <span ><b>crt</b></span>
+                        <a href="#crt"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>forRoot()</code>
-                </td>
-            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
 
-
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @IsString()<br />@IsOptional()<br />
+                        </code>
+                    </td>
+                </tr>
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="34"
-                                    class="link-to-prism">src/crypto/key/key.module.ts:34</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/crypto/key/dto/key-import.dto.ts:36</a></div>
                         </td>
                     </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Optional certificate in PEM format.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="privateKey"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                        <span ><b>privateKey</b></span>
+                        <a href="#privateKey"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../classes/Key.html" target="_self" >Key</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @IsObject()<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="29" class="link-to-prism">src/crypto/key/dto/key-import.dto.ts:29</a></div>
+                        </td>
+                    </tr>
 
             <tr>
                 <td class="col-md-4">
-
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>DynamicModule</code>
-
-                        </div>
+                    <div class="io-description"><p>The private key in JWK format.</p>
+</div>
                 </td>
             </tr>
+
         </tbody>
     </table>
 </section>
+
+
+
+
+
+
+
     </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { DynamicModule, Global, Module } from &#x27;@nestjs/common&#x27;;
-import { FileSystemKeyService } from &#x27;./filesystem-key.service&#x27;;
-import { VaultKeyService } from &#x27;./vault-key.service&#x27;;
-import { CryptoModule } from &#x27;./crypto/crypto.module&#x27;;
-import { CryptoImplementationService } from &#x27;./crypto/crypto.service&#x27;;
-import { ConfigModule, ConfigService } from &#x27;@nestjs/config&#x27;;
-import { HttpModule, HttpService } from &#x27;@nestjs/axios&#x27;;
-import * as Joi from &#x27;joi&#x27;;
-import { CertEntity } from &#x27;./entities/cert.entity&#x27;;
-import { Repository } from &#x27;typeorm/repository/Repository&#x27;;
-import { TypeOrmModule } from &#x27;@nestjs/typeorm&#x27;;
-import { getRepositoryToken } from &#x27;@nestjs/typeorm&#x27;;
-import { PinoLogger } from &#x27;nestjs-pino&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { IsEnum, IsObject, IsOptional, IsString } from &#x27;class-validator&#x27;;
+import { JWK } from &#x27;jose&#x27;;
 
-export const KEY_VALIDATION_SCHEMA &#x3D; {
-    KM_TYPE: Joi.string().valid(&#x27;file&#x27;, &#x27;vault&#x27;).default(&#x27;file&#x27;),
+class Key implements JWK {
+    @IsString()
+    kid: string; // Key ID
+    @IsEnum([&#x27;EC&#x27;])
+    kty: string; // Key Type
+    @IsString()
+    x: string; // X coordinate for EC keys
+    @IsString()
+    y: string; // Y coordinate for EC keys
+    @IsString()
+    crv: string; // Curve name for EC keys
+    @IsString()
+    d: string; // Private key value for EC keys
+    @IsString()
+    alg: string; // Algorithm used with the key
+}
 
-    // Vault-related config
-    VAULT_URL: Joi.string().uri().when(&#x27;KM_TYPE&#x27;, {
-        is: &#x27;vault&#x27;,
-        then: Joi.required(),
-        otherwise: Joi.optional(),
-    }),
-    VAULT_TOKEN: Joi.string().when(&#x27;KM_TYPE&#x27;, {
-        is: &#x27;vault&#x27;,
-        then: Joi.required(),
-        otherwise: Joi.optional(),
-    }),
-};
+/**
+ * DTO for importing a key.
+ */
+export class KeyImportDto {
+    /**
+     * The private key in JWK format.
+     */
+    @IsObject()
+    privateKey: Key;
 
-@Global()
-@Module({})
-export class KeyModule {
-    static forRoot(): DynamicModule {
-        return {
-            module: KeyModule,
-            imports: [
-                HttpModule,
-                ConfigModule,
-                CryptoModule,
-                TypeOrmModule.forFeature([CertEntity]),
-            ],
-            providers: [
-                {
-                    provide: &#x27;KeyService&#x27;,
-                    useFactory: (
-                        configService: ConfigService,
-                        httpService: HttpService,
-                        cryptoService: CryptoImplementationService,
-                        certRepository: Repository&lt;CertEntity&gt;,
-                        logger: PinoLogger,
-                    ) &#x3D;&gt; {
-                        const kmType &#x3D; configService.get&lt;&#x27;vault&#x27; | &#x27;file&#x27;&gt;(
-                            &#x27;KM_TYPE&#x27;,
-                        );
-                        if (kmType &#x3D;&#x3D;&#x3D; &#x27;vault&#x27;) {
-                            return new VaultKeyService(
-                                httpService,
-                                configService,
-                                cryptoService,
-                                certRepository,
-                            );
-                        }
-
-                        return new FileSystemKeyService(
-                            configService,
-                            cryptoService,
-                            certRepository,
-                            logger,
-                        );
-                    },
-                    inject: [
-                        ConfigService,
-                        HttpService,
-                        CryptoImplementationService,
-                        getRepositoryToken(CertEntity),
-                        PinoLogger,
-                    ],
-                },
-            ],
-            exports: [&#x27;KeyService&#x27;],
-        };
-    }
+    /**
+     * Optional certificate in PEM format.
+     */
+    @IsString()
+    @IsOptional()
+    crt?: string;
 }
 </code></pre>
     </div>
 </div>
-
-
-
-
-
-
-
-
 
 
 
@@ -303,8 +348,8 @@ export class KeyModule {
 
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'module';
-            var COMPODOC_CURRENT_PAGE_URL = 'KeyModule.html';
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
+            var COMPODOC_CURRENT_PAGE_URL = 'KeyImportDto.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

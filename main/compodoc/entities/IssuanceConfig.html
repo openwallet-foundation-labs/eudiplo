@@ -151,7 +151,7 @@
                             </li>
                             <li>
                                     <span class="modifier"></span>
-                                <a href="#credentialConfigs" >credentialConfigs</a>
+                                <a href="#credentialIssuanceBindings" >credentialIssuanceBindings</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
@@ -280,17 +280,17 @@ This determines which OpenID4VC flow to use:</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="credentialConfigs"></a>
+                    <a name="credentialIssuanceBindings"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                        <span ><b>credentialConfigs</b></span>
-                        <a href="#credentialConfigs"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>credentialIssuanceBindings</b></span>
+                        <a href="#credentialIssuanceBindings"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../entitys/CredentialConfig.html" target="_self" >CredentialConfig[]</a></code>
+                        <i>Type : </i>        <code><a href="../entitys/CredentialIssuanceBinding.html" target="_self" >CredentialIssuanceBinding[]</a></code>
 
                     </td>
                 </tr>
@@ -299,7 +299,7 @@ This determines which OpenID4VC flow to use:</p>
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ManyToMany(undefined, credentialConfig &#x3D;&gt; credentialConfig.issuanceConfig)<br />
+                            @OneToMany(undefined, binding &#x3D;&gt; binding.issuanceConfig)<br />
                         </code>
                     </td>
                 </tr>
@@ -311,7 +311,7 @@ This determines which OpenID4VC flow to use:</p>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><p>Links to all credential configs that are included in this issuance config.</p>
+                    <div class="io-description"><p>Links to all credential config bindings that are included in this issuance config.</p>
 </div>
                 </td>
             </tr>
@@ -451,11 +451,11 @@ This determines which OpenID4VC flow to use:</p>
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { IsObject } from &#x27;class-validator&#x27;;
-import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from &#x27;typeorm&#x27;;
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from &#x27;typeorm&#x27;;
 import { ApiHideProperty } from &#x27;@nestjs/swagger&#x27;;
-import { CredentialConfig } from &#x27;../../credentials/entities/credential.entity&#x27;;
 import type { AuthenticationConfig } from &#x27;../dto/authentication-config.dto&#x27;;
 import { WebhookConfig } from &#x27;../../../utils/webhook/webhook.dto&#x27;;
+import { CredentialIssuanceBinding } from &#x27;./credential-issuance-binding.entity&#x27;;
 
 /**
  * Entity to manage issuance configs
@@ -476,13 +476,13 @@ export class IssuanceConfig {
     tenantId: string;
 
     /**
-     * Links to all credential configs that are included in this issuance config.
+     * Links to all credential config bindings that are included in this issuance config.
      */
-    @ManyToMany(
-        () &#x3D;&gt; CredentialConfig,
-        (credentialConfig) &#x3D;&gt; credentialConfig.issuanceConfig,
+    @OneToMany(
+        () &#x3D;&gt; CredentialIssuanceBinding,
+        (binding) &#x3D;&gt; binding.issuanceConfig,
     )
-    credentialConfigs: CredentialConfig[];
+    credentialIssuanceBindings: CredentialIssuanceBinding[];
 
     /**
      * Authentication configuration for the issuance process.

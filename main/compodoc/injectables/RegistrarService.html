@@ -432,8 +432,8 @@ If the access certificate already exists, it will be returned.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="273"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:273</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="276"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:276</a></div>
                         </td>
                     </tr>
 
@@ -740,8 +740,8 @@ If it is revoked, it will add a new one.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="330"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:330</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="333"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:333</a></div>
                         </td>
                     </tr>
 
@@ -1005,8 +1005,8 @@ This method is called periodically to ensure the access token is valid.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="353"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:353</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="356"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:356</a></div>
                         </td>
                     </tr>
 
@@ -1486,6 +1486,7 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         config: RegistrarConfig,
         tenantId: string,
     ): Promise&lt;string&gt; {
+        const keyId &#x3D; await this.cryptoService.keyService.getKid(tenantId);
         const host &#x3D; this.configService
             .getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;)
             .replace(&#x27;https://&#x27;, &#x27;&#x27;);
@@ -1495,21 +1496,23 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
                 publicKey: await this.cryptoService.keyService.getPublicKey(
                     &#x27;pem&#x27;,
                     tenantId,
+                    keyId,
                 ),
                 dns: [host],
             },
             path: {
                 rp: config.id,
             },
-        }).then((res) &#x3D;&gt; {
+        }).then(async (res) &#x3D;&gt; {
             if (res.error) {
                 console.error(&#x27;Error adding access certificate:&#x27;, res.error);
                 throw new Error(&#x27;Error adding access certificate&#x27;);
             }
             //store the cert
-            this.cryptoService.storeAccessCertificate(
+            await this.cryptoService.storeAccessCertificate(
                 res.data![&#x27;crt&#x27;],
                 tenantId,
+                keyId,
             );
             config.accessCertificateId &#x3D; res.data![&#x27;id&#x27;];
             this.saveConfig(config, tenantId);

@@ -393,8 +393,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="216"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:216</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="202"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:202</a></div>
                         </td>
                     </tr>
 
@@ -488,8 +488,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="266"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:266</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="252"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:252</a></div>
                         </td>
                     </tr>
 
@@ -677,21 +677,11 @@ export class Oid4vpService {
                         },
                         vp_formats: {
                             mso_mdoc: {
-                                alg: [&#x27;EdDSA&#x27;, &#x27;ES256&#x27;, &#x27;ES384&#x27;],
+                                alg: [&#x27;ES256&#x27;],
                             },
                             &#x27;dc+sd-jwt&#x27;: {
-                                &#x27;kb-jwt_alg_values&#x27;: [
-                                    &#x27;EdDSA&#x27;,
-                                    &#x27;ES256&#x27;,
-                                    &#x27;ES384&#x27;,
-                                    &#x27;ES256K&#x27;,
-                                ],
-                                &#x27;sd-jwt_alg_values&#x27;: [
-                                    &#x27;EdDSA&#x27;,
-                                    &#x27;ES256&#x27;,
-                                    &#x27;ES384&#x27;,
-                                    &#x27;ES256K&#x27;,
-                                ],
+                                &#x27;kb-jwt_alg_values&#x27;: [&#x27;ES256&#x27;],
+                                &#x27;sd-jwt_alg_values&#x27;: [&#x27;ES256&#x27;],
                             },
                         },
                         authorization_encrypted_response_alg: &#x27;ECDH-ES&#x27;,
@@ -718,19 +708,10 @@ export class Oid4vpService {
                 },
             };
 
-            let accessCert: string[] | undefined &#x3D; undefined;
-            try {
-                accessCert &#x3D; this.cryptoService.getCertChain(
-                    &#x27;access&#x27;,
-                    session.tenantId,
-                );
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            } catch (err: any) {
-                accessCert &#x3D; this.cryptoService.getCertChain(
-                    &#x27;signing&#x27;,
-                    session.tenantId,
-                );
-            }
+            const accessCert &#x3D; await this.cryptoService.getCertChain(
+                &#x27;access&#x27;,
+                session.tenantId,
+            );
 
             const header &#x3D; {
                 ...request.header,
@@ -738,10 +719,15 @@ export class Oid4vpService {
                 x5c: accessCert,
             };
 
+            const keyId &#x3D; await this.cryptoService.keyService.getKid(
+                session.tenantId,
+                &#x27;access&#x27;,
+            );
             const signedJwt &#x3D; await this.cryptoService.signJwt(
                 header,
                 request.payload,
                 session.tenantId,
+                keyId,
             );
 
             this.sessionLogger.logSession(

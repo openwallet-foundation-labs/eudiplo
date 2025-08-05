@@ -172,12 +172,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(oid4vciService: <a href="../injectables/Oid4vciService.html" target="_self">Oid4vciService</a>, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, authorizeService: <a href="../injectables/AuthorizeService.html" target="_self">AuthorizeService</a>)</code>
+<code>constructor(oid4vciService: <a href="../injectables/Oid4vciService.html" target="_self">Oid4vciService</a>, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, authorizeService: <a href="../injectables/AuthorizeService.html" target="_self">AuthorizeService</a>, cryptoImplementationService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/well-known/well-known.service.ts:15</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="16" class="link-to-prism">src/well-known/well-known.service.ts:16</a></div>
                             </td>
                         </tr>
 
@@ -232,6 +232,18 @@
                                                     </td>
                                                     
                                                 </tr>
+                                                <tr>
+                                                        <td>cryptoImplementationService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/CryptoImplementationService.html" target="_self" >CryptoImplementationService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
                                         </tbody>
                                     </table>
                             </div>
@@ -266,8 +278,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="70"
-                                    class="link-to-prism">src/well-known/well-known.service.ts:70</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="77"
+                                    class="link-to-prism">src/well-known/well-known.service.ts:77</a></div>
                         </td>
                     </tr>
 
@@ -337,8 +349,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="37"
-                                    class="link-to-prism">src/well-known/well-known.service.ts:37</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="39"
+                                    class="link-to-prism">src/well-known/well-known.service.ts:39</a></div>
                         </td>
                     </tr>
 
@@ -425,8 +437,8 @@ The metadata can be returned in two formats:</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="80"
-                                    class="link-to-prism">src/well-known/well-known.service.ts:80</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="87"
+                                    class="link-to-prism">src/well-known/well-known.service.ts:87</a></div>
                         </td>
                     </tr>
 
@@ -489,6 +501,7 @@ import { Oauth2AuthorizationServerResponse } from &#x27;./dto/oauth-authorizatio
 import { JwksResponseDto } from &#x27;./dto/jwks-response.dto&#x27;;
 import { MediaType } from &#x27;../utils/mediaType/media-type.enum&#x27;;
 import { Session } from &#x27;../session/entities/session.entity&#x27;;
+import { CryptoImplementationService } from &#x27;../crypto/key/crypto/crypto.service&#x27;;
 
 /**
  * Service to handle well-known endpoints and metadata retrieval.
@@ -505,6 +518,7 @@ export class WellKnownService {
         private readonly oid4vciService: Oid4vciService,
         private readonly cryptoService: CryptoService,
         private readonly authorizeService: AuthorizeService,
+        private readonly cryptoImplementationService: CryptoImplementationService,
     ) {}
 
     /**
@@ -521,11 +535,15 @@ export class WellKnownService {
             .credentialIssuer as unknown as CredentialIssuerMetadataDto;
 
         if (contentType &#x3D;&#x3D;&#x3D; MediaType.APPLICATION_JWT) {
+            const keyId &#x3D; await this.cryptoService.keyService.getKid(
+                session.tenantId,
+                &#x27;access&#x27;,
+            );
             return this.cryptoService.signJwt(
                 {
                     typ: &#x27;openidvci-issuer-metadata+jwt&#x27;,
-                    alg: this.cryptoService.getAlgorithm(session.tenantId),
-                    x5c: this.cryptoService.getCertChain(
+                    alg: this.cryptoImplementationService.getAlg(),
+                    x5c: await this.cryptoService.getCertChain(
                         &#x27;access&#x27;,
                         session.tenantId,
                     ),
@@ -539,6 +557,7 @@ export class WellKnownService {
                     //MM: the value makes sense when we cache the issuer metadata so it must not be signed on every request. Like when it is issued every hour, its lifetime is 1 hour and the jwt is in the cache.
                 },
                 session.tenantId,
+                keyId,
             );
         }
 

@@ -999,27 +999,36 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-credential-configurations" class="md-nav__link">
+  <a href="#1-cryptographic-keys" class="md-nav__link">
     <span class="md-ellipsis">
-      1. Credential Configurations
+      1. Cryptographic Keys
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-issuance-configurations" class="md-nav__link">
+  <a href="#2-credential-configurations" class="md-nav__link">
     <span class="md-ellipsis">
-      2. Issuance Configurations
+      2. Credential Configurations
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-presentation-configurations" class="md-nav__link">
+  <a href="#3-issuance-configurations" class="md-nav__link">
     <span class="md-ellipsis">
-      3. Presentation Configurations
+      3. Issuance Configurations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-presentation-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Presentation Configurations
     </span>
   </a>
   
@@ -1655,27 +1664,36 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-credential-configurations" class="md-nav__link">
+  <a href="#1-cryptographic-keys" class="md-nav__link">
     <span class="md-ellipsis">
-      1. Credential Configurations
+      1. Cryptographic Keys
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-issuance-configurations" class="md-nav__link">
+  <a href="#2-credential-configurations" class="md-nav__link">
     <span class="md-ellipsis">
-      2. Issuance Configurations
+      2. Credential Configurations
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-presentation-configurations" class="md-nav__link">
+  <a href="#3-issuance-configurations" class="md-nav__link">
     <span class="md-ellipsis">
-      3. Presentation Configurations
+      3. Issuance Configurations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-presentation-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Presentation Configurations
     </span>
   </a>
   
@@ -1915,49 +1933,90 @@ starts. This is particularly useful for:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>assets/
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>└── config/
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    ├── tenant1/
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    │   ├── issuance/
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    │   │   ├── credentials/
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    │   │   │   ├── employee-badge.json
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    │   │   │   └── student-id.json
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    │   │   └── issuance/
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    │   │       ├── employee-onboarding.json
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    │   │       └── student-enrollment.json
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    │   └── presentation/
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    │       ├── age-verification.json
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    │       └── identity-check.json
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    ├── tenant2/
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    │   ├── issuance/
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>    │   │   ├── credentials/
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>    │   │   └── issuance/
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>    │   └── presentation/
-<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>    └── company-xyz/
-<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>        ├── issuance/
-<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>        │   ├── credentials/
-<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>        │   └── issuance/
-<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>        └── presentation/
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    │   ├── keys/
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    │   │   ├── 039af178-3ca0-48f4-a2e4-7b1209f30376.json  # Key ID: &quot;039af178-3ca0-48f4-a2e4-7b1209f30376&quot;
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    │   │   ├── 7d8e9f10-1234-5678-9abc-def012345678.json  # Key ID: &quot;7d8e9f10-1234-5678-9abc-def012345678&quot;
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    │   │   └── a1b2c3d4-e5f6-7890-abcd-ef1234567890.json  # Key ID: &quot;a1b2c3d4-e5f6-7890-abcd-ef1234567890&quot;
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    │   ├── issuance/
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    │   │   ├── credentials/
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    │   │   │   ├── employee-badge.json
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    │   │   │   └── student-id.json
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    │   │   └── issuance/
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    │   │       ├── employee-onboarding.json
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    │   │       └── student-enrollment.json
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    │   └── presentation/
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>    │       ├── age-verification.json
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>    │       └── identity-check.json
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>    ├── tenant2/
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>    │   ├── keys/
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>    │   │   └── f8e7d6c5-b4a3-9281-7065-432109876543.json  # Key ID: &quot;f8e7d6c5-b4a3-9281-7065-432109876543&quot;
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>    │   ├── issuance/
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>    │   │   ├── credentials/
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>    │   │   └── issuance/
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>    │   └── presentation/
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>    └── company-xyz/
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>        ├── keys/
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>        │   ├── 12345678-abcd-ef12-3456-789012345678.json  # Key ID: &quot;12345678-abcd-ef12-3456-789012345678&quot;
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>        │   └── 98765432-fedc-ba98-7654-321098765432.json  # Key ID: &quot;98765432-fedc-ba98-7654-321098765432&quot;
+<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>        ├── issuance/
+<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>        │   ├── credentials/
+<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>        │   └── issuance/
+<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>        └── presentation/
 </code></pre></div>
 <h3 id="key-points">Key Points<a class="headerlink" href="#key-points" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Tenant isolation</strong>: Each tenant has its own folder (e.g., <code>tenant1</code>,
   <code>company-xyz</code>)</li>
-<li><strong>Configuration types</strong>: Three types of configurations are supported</li>
+<li><strong>Configuration types</strong>: Four types of configurations are supported</li>
 <li><strong>File naming</strong>: JSON file names become the configuration ID (without <code>.json</code>
   extension)</li>
+<li><strong>Key ID mapping</strong>: For keys, the id is based on the <code>kid</code> field in the JSON
+  file and not based on the filename.</li>
 <li><strong>Nested structure</strong>: Credentials and issuance configs are grouped under
   <code>issuance/</code></li>
+<li><strong>Key management</strong>: Cryptographic keys are stored in the <code>keys/</code> directory and
+  will be imported automatically. After the import, the keys can be removed from
+  the import folder.</li>
 </ul>
 <h2 id="configuration-types">Configuration Types<a class="headerlink" href="#configuration-types" title="Permanent link">&para;</a></h2>
-<h3 id="1-credential-configurations">1. Credential Configurations<a class="headerlink" href="#1-credential-configurations" title="Permanent link">&para;</a></h3>
+<h3 id="1-cryptographic-keys">1. Cryptographic Keys<a class="headerlink" href="#1-cryptographic-keys" title="Permanent link">&para;</a></h3>
+<p><strong>Location</strong>: <code>config/config/{tenant}/keys/*.json</code></p>
+<p>Import cryptographic keys for signing and certificate operations.</p>
+<p><strong>Example Structure</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="nt">&quot;privateKey&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">        </span><span class="nt">&quot;kty&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;EC&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">        </span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">        </span><span class="nt">&quot;y&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">        </span><span class="nt">&quot;crv&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;P-256&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">        </span><span class="nt">&quot;d&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">        </span><span class="nt">&quot;kid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;039af178-3ca0-48f4-a2e4-7b1209f30376&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">        </span><span class="nt">&quot;alg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ES256&quot;</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">    </span><span class="nt">&quot;crt&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----&quot;</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="p">}</span>
+</code></pre></div>
+<p><strong>Key Features</strong>:</p>
+<ul>
+<li><strong>Multiple keys per tenant</strong>: Import several keys for different issuance
+  configurations</li>
+<li><strong>Key ID from filename</strong>: The filename (without <code>.json</code>) becomes the key ID
+  (typically a UUID)</li>
+<li><strong>Optional certificates</strong>: Include X.509 certificates in PEM format</li>
+<li><strong>Algorithm support</strong>: ES256 (ECDSA P-256)</li>
+<li><strong>Validation</strong>: Full schema validation during import</li>
+</ul>
+<h3 id="2-credential-configurations">2. Credential Configurations<a class="headerlink" href="#2-credential-configurations" title="Permanent link">&para;</a></h3>
 <p><strong>Location</strong>: <code>config/config/{tenant}/issuance/credentials/*.json</code></p>
 <p>Define credential templates and schemas.</p>
 <p><strong>Schema Reference</strong>:
 <a href="https://openwallet-foundation-labs.github.io/eudiplo/main/api/index.html#credentialconfig">Credential Config API</a></p>
-<h3 id="2-issuance-configurations">2. Issuance Configurations<a class="headerlink" href="#2-issuance-configurations" title="Permanent link">&para;</a></h3>
+<h3 id="3-issuance-configurations">3. Issuance Configurations<a class="headerlink" href="#3-issuance-configurations" title="Permanent link">&para;</a></h3>
 <p><strong>Location</strong>: <code>config/config/{tenant}/issuance/issuance/*.json</code></p>
 <p>Define issuance workflows and authentication requirements.</p>
 <p><strong>Schema Reference</strong>:
 <a href="https://openwallet-foundation-labs.github.io/eudiplo/main/api/index.html#issuanceconfig">Issuance Config API</a></p>
-<h3 id="3-presentation-configurations">3. Presentation Configurations<a class="headerlink" href="#3-presentation-configurations" title="Permanent link">&para;</a></h3>
+<h3 id="4-presentation-configurations">4. Presentation Configurations<a class="headerlink" href="#4-presentation-configurations" title="Permanent link">&para;</a></h3>
 <p><strong>Location</strong>: <code>config/config/{tenant}/presentation/*.json</code></p>
 <p>Define verification requirements for credential presentations.</p>
 <p><strong>Schema Reference</strong>:
@@ -1989,26 +2048,33 @@ starts. This is particularly useful for:</p>
 </ul>
 <h2 id="logging">Logging<a class="headerlink" href="#logging" title="Permanent link">&para;</a></h2>
 <p>Import activities are logged with structured information:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="nt">&quot;event&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Import&quot;</span><span class="p">,</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="nt">&quot;tenant&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;company-xyz&quot;</span><span class="p">,</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="nt">&quot;files&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;5 credential configs imported for company-xyz&quot;</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="nt">&quot;event&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Import&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="nt">&quot;tenant&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;company-xyz&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="nt">&quot;files&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;5 credential configs imported for company-xyz&quot;</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="p">}</span>
+</code></pre></div>
+<p><strong>Key import logging</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="nt">&quot;event&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Import&quot;</span><span class="p">,</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="nt">&quot;tenant&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;company-xyz&quot;</span><span class="p">,</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;3 keys imported for company-xyz&quot;</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="p">}</span>
 </code></pre></div>
 <p><strong>Error logging</strong> includes detailed validation information:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="nt">&quot;event&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ValidationError&quot;</span><span class="p">,</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="nt">&quot;file&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;invalid-config.json&quot;</span><span class="p">,</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="nt">&quot;tenant&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;company-xyz&quot;</span><span class="p">,</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="nt">&quot;errors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">        </span><span class="p">{</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">            </span><span class="nt">&quot;property&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;credentialConfigs&quot;</span><span class="p">,</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">            </span><span class="nt">&quot;constraints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;isArray&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;credentialConfigs must be an array&quot;</span><span class="w"> </span><span class="p">},</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">            </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;not-an-array&quot;</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">    </span><span class="p">]</span>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="nt">&quot;event&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ValidationError&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="nt">&quot;file&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;invalid-config.json&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="nt">&quot;tenant&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;company-xyz&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="nt">&quot;errors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">        </span><span class="p">{</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">            </span><span class="nt">&quot;property&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;credentialConfigs&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">            </span><span class="nt">&quot;constraints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;isArray&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;credentialConfigs must be an array&quot;</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">            </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;not-an-array&quot;</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="p">]</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="p">}</span>
 </code></pre></div>
 <h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
 <h3 id="1-configuration-management">1. Configuration Management<a class="headerlink" href="#1-configuration-management" title="Permanent link">&para;</a></h3>
@@ -2025,11 +2091,20 @@ starts. This is particularly useful for:</p>
 <li><strong>Manage configurations via API</strong> after initial import</li>
 </ul>
 <h3 id="3-multi-tenant-setup">3. Multi-Tenant Setup<a class="headerlink" href="#3-multi-tenant-setup" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Organize by tenant/organization</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>assets/config/
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>├──<span class="w"> </span>acme-corp/
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>├──<span class="w"> </span>university-x/
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>└──<span class="w"> </span>government-agency/
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Organize by tenant/organization</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>assets/config/
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>├──<span class="w"> </span>acme-corp/
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>│<span class="w">   </span>├──<span class="w"> </span>keys/
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>│<span class="w">   </span>├──<span class="w"> </span>issuance/
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>│<span class="w">   </span>└──<span class="w"> </span>presentation/
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>├──<span class="w"> </span>university-x/
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>│<span class="w">   </span>├──<span class="w"> </span>keys/
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>│<span class="w">   </span>├──<span class="w"> </span>issuance/
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>│<span class="w">   </span>└──<span class="w"> </span>presentation/
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>└──<span class="w"> </span>government-agency/
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">    </span>├──<span class="w"> </span>keys/
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">    </span>├──<span class="w"> </span>issuance/
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">    </span>└──<span class="w"> </span>presentation/
 </code></pre></div>
 <p>Even when you just have one tenant, use a folder structure to prepare for future
 multi-tenancy.</p>
@@ -2042,6 +2117,10 @@ existing</p>
 requirements</p>
 <p><strong>Missing dependencies</strong>: Ensure credential configs are imported before issuance
 configs that reference them</p>
+<p><strong>Key validation errors</strong>: Check that imported keys use supported algorithms
+(ES256) and have valid JWK format</p>
+<p><strong>Certificate import issues</strong>: Verify certificates are in PEM format and match
+the imported private key</p>
 <h2 id="security-considerations">Security Considerations<a class="headerlink" href="#security-considerations" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>File permissions</strong> - Ensure config files have appropriate read permissions</li>
@@ -2053,6 +2132,7 @@ variables for security.</p>
 </blockquote>
 <h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
 <ul>
+<li><a href="../key-management/">Key Management</a> - Detailed key management architecture</li>
 <li><a href="../../api/authentication/">API Authentication</a></li>
 <li><a href="../tenant/">Multi-tenant Architecture</a></li>
 <li><a href="../database/">Database Architecture</a></li>

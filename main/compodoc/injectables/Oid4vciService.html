@@ -443,8 +443,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="184"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:184</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="186"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:186</a></div>
                         </td>
                     </tr>
 
@@ -524,8 +524,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="301"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:301</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="303"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:303</a></div>
                         </td>
                     </tr>
 
@@ -925,7 +925,9 @@ export class Oid4vciService implements OnModuleInit {
             });
         const credentialConfigurationIds &#x3D;
             body.credentialConfigurationIds ||
-            issuanceConfig.credentialConfigs.map((config) &#x3D;&gt; config.id);
+            issuanceConfig.credentialIssuanceBindings.map(
+                (config) &#x3D;&gt; config.credentialConfigId,
+            );
 
         let authorization_code: string | undefined;
         let grants: any;

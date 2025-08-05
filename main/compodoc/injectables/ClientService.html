@@ -601,8 +601,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="141"
-                                    class="link-to-prism">src/auth/client.service.ts:141</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="142"
+                                    class="link-to-prism">src/auth/client.service.ts:142</a></div>
                         </td>
                     </tr>
 
@@ -894,7 +894,8 @@ export class ClientService implements OnApplicationBootstrap {
                 // create it to signl that the client getting set up
                 await this.clientRepository.save({ id });
                 await this.setUpClient(id).catch(async (err) &#x3D;&gt; {
-                    // if there is an error, update the client status
+                    console.error(err);
+                    // if there is an error, update the client status&quot;
                     await this.clientRepository.update(
                         { id },
                         { status: &#x27;error&#x27;, error: err.message },
