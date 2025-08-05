@@ -1,13 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { KeyService } from './key.service';
+import { KeyObj, KeyService } from './key.service';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { importSPKI, exportJWK, JWTHeaderParameters, JWK } from 'jose';
 import { ConfigService } from '@nestjs/config';
 import { JwtPayload, Signer } from '@sd-jwt/types';
-import { CryptoService, CryptoType } from './crypto/crypto.service';
-import { writeFileSync } from 'fs';
+import {
+    CryptoImplementationService,
+    CryptoType,
+} from './crypto/crypto.service';
 import { join } from 'path';
+import { KeyImportDto } from './dto/key-import.dto';
+import { v4 } from 'uuid';
+import { CertEntity } from './entities/cert.entity';
+import { Repository } from 'typeorm/repository/Repository';
 
 @Injectable()
 export class VaultKeyService extends KeyService {
@@ -20,10 +26,11 @@ export class VaultKeyService extends KeyService {
 
     constructor(
         private httpService: HttpService,
-        private configService: ConfigService,
-        private cryptoService: CryptoService,
+        configService: ConfigService,
+        private cryptoService: CryptoImplementationService,
+        certRepository: Repository<CertEntity>,
     ) {
-        super();
+        super(configService, certRepository);
         this.folder = join(
             this.configService.getOrThrow<string>('FOLDER'),
             'keys',
@@ -40,15 +47,54 @@ export class VaultKeyService extends KeyService {
     }
 
     /**
-     * Check if the vault has a key with the given id
+     * Create a new transit for the tenant.
+     * @param tenantId
      */
     async init(tenantId: string) {
-        //TODO: need to update this since signing cert is not created by the vault
-        await this.getPublicKey('pem', tenantId)
-            .then((res) => {
-                writeFileSync(join(this.folder, 'public-key.pem'), res);
-            })
-            .catch(async () => this.create(tenantId));
+        //TODO: what to do when it throws an error e.g. when the transit already exists?
+        await firstValueFrom(
+            this.httpService.post(
+                `${this.vaultUrl}/v1/sys/mounts/keys/${tenantId}`,
+                {
+                    type: 'transit',
+                },
+                this.headers,
+            ),
+        ).catch((err) => {
+            console.error(JSON.stringify(err.response.data, null, 2));
+        });
+        return this.create(tenantId);
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    import(tenantId: string, body: KeyImportDto): Promise<string> {
+        throw new Error('Method not implemented.');
+    }
+
+    getKeys(tenantId: string): Promise<KeyObj[]> {
+        return firstValueFrom(
+            this.httpService.get<any>(
+                `${this.vaultUrl}/v1/${tenantId}/keys?list=true`,
+                this.headers,
+            ),
+        ).then((res) => {
+            //TODO: get all the public keys from the vault
+            return Promise.all(
+                res.data.data.keys.map(async (id: string) => {
+                    const publicKey = await this.getPublicKey(
+                        'pem',
+                        tenantId,
+                        id,
+                    );
+                    const crt = await this.getCertificate(tenantId, id);
+                    return {
+                        id,
+                        publicKey,
+                        crt,
+                    } as KeyObj;
+                }),
+            );
+        });
     }
 
     /**
@@ -60,7 +106,7 @@ export class VaultKeyService extends KeyService {
     }
 
     /**
-     * Creates a new keypair in the vault.
+     * Creates a new keypair in the vault
      * @param createKeyDto
      * @param user
      * @returns
@@ -68,11 +114,10 @@ export class VaultKeyService extends KeyService {
     async create(tenantId: string) {
         const types: Map<CryptoType, string> = new Map();
         types.set('ES256', 'ecdsa-p256');
-        types.set('Ed25519', 'ed25519');
-
-        const res = await firstValueFrom(
+        const id = v4();
+        await firstValueFrom(
             this.httpService.post(
-                `${this.vaultUrl}/keys/${tenantId}`,
+                `${this.vaultUrl}/v1/${tenantId}/keys/${id}`,
                 {
                     exportable: false,
                     type: types.get(this.cryptoService.getAlg()),
@@ -80,16 +125,36 @@ export class VaultKeyService extends KeyService {
                 this.headers,
             ),
         );
-        const jwk = await this.getPublicKey('jwk', tenantId);
-        return {
-            id: res.data.id,
-            publicKey: jwk,
-        };
+        return id;
     }
 
+    /**
+     * Get all keys and take the first one.
+     * @param tenantId
+     * @returns
+     */
     getKid(tenantId: string): Promise<string> {
-        //TODO: check if this is the right way to get the key id.
-        return Promise.resolve(tenantId);
+        return firstValueFrom(
+            this.httpService.get<any>(
+                `${this.vaultUrl}/v1/${tenantId}/keys?list=true`,
+                this.headers,
+            ),
+        ).then(
+            (res) => {
+                if (
+                    !res.data.data.keys ||
+                    (res.data.data.keys as string[]).length === 0
+                ) {
+                    throw new Error('No keys found');
+                }
+                return (res.data.data.keys as string[])[0];
+            },
+            (err) => {
+                throw new Error(
+                    `Error getting keys for tenant ${tenantId}: ${err.message}`,
+                );
+            },
+        );
     }
 
     /**
@@ -97,15 +162,28 @@ export class VaultKeyService extends KeyService {
      * @param id
      * @returns
      */
-    async getPublicKey(type: 'pem', tenantId: string): Promise<string>;
-    async getPublicKey(type: 'jwk', tenantId: string): Promise<JWK>;
+    async getPublicKey(
+        type: 'pem',
+        tenantId: string,
+        keyId?: string,
+    ): Promise<string>;
+    async getPublicKey(
+        type: 'jwk',
+        tenantId: string,
+        keyId: string,
+    ): Promise<JWK>;
     async getPublicKey(
         type: 'jwk' | 'pem',
         tenantId: string,
+        keyId?: string,
     ): Promise<JWK | string> {
+        if (!keyId) {
+            keyId = await this.getKid(tenantId);
+        }
+
         return firstValueFrom(
             this.httpService.get<any>(
-                `${this.vaultUrl}/keys/${tenantId}`,
+                `${this.vaultUrl}/v1/${tenantId}/keys/${keyId}`,
                 this.headers,
             ),
         ).then(async (res) => {
@@ -134,10 +212,17 @@ export class VaultKeyService extends KeyService {
      * @param value
      * @returns
      */
-    sign(value: string, tenantId: string): Promise<string> {
+    async sign(
+        value: string,
+        tenantId: string,
+        keyId?: string,
+    ): Promise<string> {
+        if (!keyId) {
+            keyId = await this.getKid(tenantId);
+        }
         return firstValueFrom(
             this.httpService.post(
-                `${this.vaultUrl}/sign/${tenantId}`,
+                `${this.vaultUrl}/v1/${tenantId}/sign/${keyId}`,
                 {
                     input: Buffer.from(value).toString('base64'),
                 },
@@ -157,6 +242,7 @@ export class VaultKeyService extends KeyService {
         payload: JwtPayload,
         header: JWTHeaderParameters,
         tenantId: string,
+        keyId?: string,
     ): Promise<string> {
         // Convert header and payload to Base64 to prepare for Vault
         const encodedHeader = Buffer.from(JSON.stringify(header)).toString(
@@ -169,7 +255,7 @@ export class VaultKeyService extends KeyService {
 
         // Request to Vault for signing
         try {
-            const signature = await this.sign(signingInput, tenantId);
+            const signature = await this.sign(signingInput, tenantId, keyId);
             return `${encodedHeader}.${encodedPayload}.${signature}`;
         } catch (error) {
             console.error('Error signing JWT with Vault:', error);

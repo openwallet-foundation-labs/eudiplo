@@ -9,6 +9,14 @@ import { Type } from 'class-transformer';
 import { AuthenticationConfigDto } from './authentication-config.dto';
 import { WebhookConfig } from '../../../utils/webhook/webhook.dto';
 
+export class CredentialConfigMapping {
+    @IsString()
+    id: string;
+    @IsString()
+    @IsOptional()
+    keyId?: string;
+}
+
 /**
  * DTO for Issuance Configuration.
  */
@@ -22,9 +30,10 @@ export class IssuanceDto {
     /**
      * Ids of the credential configurations associated with this issuance configuration.
      */
-    @IsString({ each: true })
     @IsArray()
-    credentialConfigs: string[];
+    @ValidateNested({ each: true })
+    @Type(() => CredentialConfigMapping)
+    credentialConfigs: CredentialConfigMapping[];
 
     /**
      * Authentication configuration for the issuance process.

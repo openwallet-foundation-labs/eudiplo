@@ -93,7 +93,7 @@ export class StatusListService implements OnModuleInit {
         const preHeader: StatusListJWTHeaderParameters = {
             alg: 'ES256',
             typ: 'statuslist+jwt',
-            x5c: this.cryptoService.getCertChain('signing', tenantId),
+            x5c: await this.cryptoService.getCertChain('signing', tenantId),
         };
         const { header, payload } = createHeaderAndPayload(
             list,

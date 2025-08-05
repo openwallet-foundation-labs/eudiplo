@@ -1,17 +1,4 @@
 services:
-    eudiplo:
-        image: ghcr.io/openwallet-foundation-labs/eudiplo:latest
-        restart: always
-        env_file:
-            - .env
-        ports:
-            - '3000:3000'
-        volumes:
-            - ./config:/app/config
-        depends_on:
-            - database
-            - vault
-
     vault:
         image: hashicorp/vault:latest
         restart: always

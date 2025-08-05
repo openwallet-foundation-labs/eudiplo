@@ -120,21 +120,11 @@ export class Oid4vpService {
                         },
                         vp_formats: {
                             mso_mdoc: {
-                                alg: ['EdDSA', 'ES256', 'ES384'],
+                                alg: ['ES256'],
                             },
                             'dc+sd-jwt': {
-                                'kb-jwt_alg_values': [
-                                    'EdDSA',
-                                    'ES256',
-                                    'ES384',
-                                    'ES256K',
-                                ],
-                                'sd-jwt_alg_values': [
-                                    'EdDSA',
-                                    'ES256',
-                                    'ES384',
-                                    'ES256K',
-                                ],
+                                'kb-jwt_alg_values': ['ES256'],
+                                'sd-jwt_alg_values': ['ES256'],
                             },
                         },
                         authorization_encrypted_response_alg: 'ECDH-ES',
@@ -161,19 +151,10 @@ export class Oid4vpService {
                 },
             };
 
-            let accessCert: string[] | undefined = undefined;
-            try {
-                accessCert = this.cryptoService.getCertChain(
-                    'access',
-                    session.tenantId,
-                );
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            } catch (err: any) {
-                accessCert = this.cryptoService.getCertChain(
-                    'signing',
-                    session.tenantId,
-                );
-            }
+            const accessCert = await this.cryptoService.getCertChain(
+                'access',
+                session.tenantId,
+            );
 
             const header = {
                 ...request.header,
@@ -181,10 +162,15 @@ export class Oid4vpService {
                 x5c: accessCert,
             };
 
+            const keyId = await this.cryptoService.keyService.getKid(
+                session.tenantId,
+                'access',
+            );
             const signedJwt = await this.cryptoService.signJwt(
                 header,
                 request.payload,
                 session.tenantId,
+                keyId,
             );
 
             this.sessionLogger.logSession(

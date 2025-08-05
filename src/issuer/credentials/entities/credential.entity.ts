@@ -1,9 +1,9 @@
 import { CredentialConfigurationSupported } from '@openid4vc/openid4vci';
 import { IsObject, IsOptional } from 'class-validator';
-import { Column, Entity, JoinTable, ManyToMany } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { VCT } from '../../credentials-metadata/dto/credential-config.dto';
 import { SchemaResponse } from '../../credentials-metadata/dto/schema-response.dto';
-import { IssuanceConfig } from '../../issuance/entities/issuance-config.entity';
+import { CredentialIssuanceBinding } from '../../issuance/entities/credential-issuance-binding.entity';
 
 /**
  * Entity to manage a credential configuration
@@ -53,13 +53,11 @@ export class CredentialConfig {
     @IsOptional()
     schema?: SchemaResponse;
     /**
-     * Link to all the issuance configs that are using this credential.
+     * Link to all the issuance config bindings that are using this credential.
      */
-    @ManyToMany(
-        () => IssuanceConfig,
-        (issuanceConfig) => issuanceConfig.credentialConfigs,
-        { cascade: true },
+    @OneToMany(
+        () => CredentialIssuanceBinding,
+        (binding) => binding.credentialConfig,
     )
-    @JoinTable()
-    issuanceConfig: IssuanceConfig[];
+    credentialIssuanceBindings: CredentialIssuanceBinding[];
 }

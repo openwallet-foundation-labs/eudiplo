@@ -7,6 +7,7 @@ import { Oauth2AuthorizationServerResponse } from './dto/oauth-authorization-ser
 import { JwksResponseDto } from './dto/jwks-response.dto';
 import { MediaType } from '../utils/mediaType/media-type.enum';
 import { Session } from '../session/entities/session.entity';
+import { CryptoImplementationService } from '../crypto/key/crypto/crypto.service';
 
 /**
  * Service to handle well-known endpoints and metadata retrieval.
@@ -23,6 +24,7 @@ export class WellKnownService {
         private readonly oid4vciService: Oid4vciService,
         private readonly cryptoService: CryptoService,
         private readonly authorizeService: AuthorizeService,
+        private readonly cryptoImplementationService: CryptoImplementationService,
     ) {}
 
     /**
@@ -39,11 +41,15 @@ export class WellKnownService {
             .credentialIssuer as unknown as CredentialIssuerMetadataDto;
 
         if (contentType === MediaType.APPLICATION_JWT) {
+            const keyId = await this.cryptoService.keyService.getKid(
+                session.tenantId,
+                'access',
+            );
             return this.cryptoService.signJwt(
                 {
                     typ: 'openidvci-issuer-metadata+jwt',
-                    alg: this.cryptoService.getAlgorithm(session.tenantId),
-                    x5c: this.cryptoService.getCertChain(
+                    alg: this.cryptoImplementationService.getAlg(),
+                    x5c: await this.cryptoService.getCertChain(
                         'access',
                         session.tenantId,
                     ),
@@ -57,6 +63,7 @@ export class WellKnownService {
                     //MM: the value makes sense when we cache the issuer metadata so it must not be signed on every request. Like when it is issued every hour, its lifetime is 1 hour and the jwt is in the cache.
                 },
                 session.tenantId,
+                keyId,
             );
         }
 

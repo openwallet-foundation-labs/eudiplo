@@ -1,10 +1,9 @@
-import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { IssuanceConfig } from './entities/issuance-config.entity';
 import { CredentialConfigService } from '../credentials/credential-config/credential-config.service';
 import { IssuanceDto } from './dto/issuance.dto';
-import { CredentialConfig } from '../credentials/entities/credential.entity';
 import { AuthenticationConfig } from './dto/authentication-config.dto';
 import { ConfigService } from '@nestjs/config';
 import { join } from 'path';
@@ -12,13 +11,16 @@ import { readdirSync, readFileSync } from 'fs';
 import { PinoLogger } from 'nestjs-pino';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
+import { CredentialIssuanceBinding } from './entities/credential-issuance-binding.entity';
+import { CredentialConfig } from '../credentials/entities/credential.entity';
+import { CryptoService } from '../../crypto/crypto.service';
 
 /**
  * Service for managing issuance configurations.
  * It provides methods to get, store, and delete issuance configurations.
  */
 @Injectable()
-export class IssuanceService implements OnApplicationBootstrap {
+export class IssuanceService implements OnModuleInit {
     /**
      * Constructor for IssuanceService.
      * @param issuanceConfigRepo
@@ -27,15 +29,26 @@ export class IssuanceService implements OnApplicationBootstrap {
     constructor(
         @InjectRepository(IssuanceConfig)
         private issuanceConfigRepo: Repository<IssuanceConfig>,
+        @InjectRepository(CredentialIssuanceBinding)
+        private credentialIssuanceBindingRepo: Repository<CredentialIssuanceBinding>,
         private credentialsConfigService: CredentialConfigService,
         private configService: ConfigService,
         private logger: PinoLogger,
+        private cryptoService: CryptoService,
     ) {}
 
     /**
-     * Imports issuance configurations from a predefined directory structure.
+     * Import issuance configurations and the credential configurations from the configured folder.
      */
-    async onApplicationBootstrap() {
+    async onModuleInit() {
+        await this.credentialsConfigService.import();
+        await this.import();
+    }
+
+    /**
+     * Import issuance configurations from the configured folder.
+     */
+    private async import() {
         const configPath = this.configService.getOrThrow('CONFIG_FOLDER');
         const subfolder = 'issuance/issuance';
         const force = this.configService.get<boolean>('CONFIG_IMPORT_FORCE');
@@ -54,13 +67,11 @@ export class IssuanceService implements OnApplicationBootstrap {
                     );
 
                     payload.id = file.replace('.json', '');
-                    if (
-                        (await this.getIssuanceConfigurationById(
-                            payload.id,
-                            tenant.name,
-                        )) &&
-                        !force
-                    ) {
+                    const exists = await this.getIssuanceConfigurationById(
+                        payload.id,
+                        tenant.name,
+                    ).catch(() => false);
+                    if (exists && !force) {
                         continue; // Skip if config already exists and force is not set
                     }
 
@@ -85,18 +96,40 @@ export class IssuanceService implements OnApplicationBootstrap {
                         continue; // Skip this invalid config
                     }
 
-                    await this.storeIssuanceConfiguration(
-                        tenant.name,
-                        issuanceDto,
+                    // check that the key exists
+                    for (const credentialConfigId of issuanceDto.credentialConfigs) {
+                        if (credentialConfigId.keyId) {
+                            const hasEntry = await this.cryptoService.hasEntry(
+                                tenant.name,
+                                credentialConfigId.keyId,
+                            );
+                            if (!hasEntry) {
+                                this.logger.error(
+                                    {
+                                        event: 'KeyNotFound',
+                                        file,
+                                        tenant: tenant.name,
+                                        keyId: credentialConfigId.keyId,
+                                    },
+                                    `Key with ID ${credentialConfigId.keyId} not found for issuance config ${file} in tenant ${tenant.name}`,
+                                );
+                                continue; // Skip this config if key is not found
+                            }
+                        }
+
+                        await this.storeIssuanceConfiguration(
+                            tenant.name,
+                            issuanceDto,
+                        );
+                        counter++;
+                    }
+                    this.logger.info(
+                        {
+                            event: 'Import',
+                        },
+                        `${counter} issuance configs imported for ${tenant.name}`,
                     );
-                    counter++;
                 }
-                this.logger.info(
-                    {
-                        event: 'Import',
-                    },
-                    `${counter} issuance configs imported for ${tenant.name}`,
-                );
             }
         }
     }
@@ -109,15 +142,6 @@ export class IssuanceService implements OnApplicationBootstrap {
     public async getIssuanceConfiguration(tenantId: string) {
         return this.issuanceConfigRepo.find({
             where: { tenantId },
-            relations: ['credentialConfigs'],
-            select: {
-                id: true,
-                tenantId: true,
-                // Add other fields you want from IssuanceConfig
-                credentialConfigs: {
-                    id: true, // Only select the id from credentialConfigs
-                },
-            },
         });
     }
 
@@ -133,7 +157,7 @@ export class IssuanceService implements OnApplicationBootstrap {
     ): Promise<IssuanceConfig> {
         return this.issuanceConfigRepo.findOneOrFail({
             where: { id: issuanceConfigId, tenantId },
-            relations: ['credentialConfigs'],
+            relations: ['credentialIssuanceBindings'],
         });
     }
 
@@ -144,15 +168,17 @@ export class IssuanceService implements OnApplicationBootstrap {
      * @returns
      */
     async storeIssuanceConfiguration(tenantId: string, value: IssuanceDto) {
-        const credentials: CredentialConfig[] = [];
+        const credentials: { config: CredentialConfig; keyId?: string }[] = [];
+        //check if all credential configs exist
         for (const credentialConfigId of value.credentialConfigs) {
             const credential = await this.credentialsConfigService.getById(
                 tenantId,
-                credentialConfigId,
+                credentialConfigId.id,
             );
-            if (credential) {
-                credentials.push(credential);
-            }
+            credentials.push({
+                config: credential,
+                keyId: credentialConfigId.keyId,
+            });
         }
 
         // Convert AuthenticationConfigDto to AuthenticationConfig union type
@@ -187,13 +213,21 @@ export class IssuanceService implements OnApplicationBootstrap {
             );
         }
 
-        const issuanceConfig = this.issuanceConfigRepo.create({
+        const issuanceConfig = await this.issuanceConfigRepo.save({
             ...value,
             tenantId,
-            credentialConfigs: credentials,
             authenticationConfig,
         });
-        return this.issuanceConfigRepo.save(issuanceConfig);
+
+        //store the binding between credential and isuance
+        for (const credentialConfig of credentials) {
+            await this.credentialIssuanceBindingRepo.save({
+                credentialConfig: credentialConfig.config,
+                issuanceConfig,
+                keyID: credentialConfig.keyId,
+            });
+        }
+        return issuanceConfig;
     }
 
     /**

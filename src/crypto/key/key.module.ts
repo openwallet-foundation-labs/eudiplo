@@ -2,12 +2,15 @@ import { DynamicModule, Global, Module } from '@nestjs/common';
 import { FileSystemKeyService } from './filesystem-key.service';
 import { VaultKeyService } from './vault-key.service';
 import { CryptoModule } from './crypto/crypto.module';
-import { CryptoService } from './crypto/crypto.service';
+import { CryptoImplementationService } from './crypto/crypto.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { HttpModule, HttpService } from '@nestjs/axios';
 import * as Joi from 'joi';
-import { TypeOrmModule } from '@nestjs/typeorm/dist/typeorm.module';
-import { KeyEntity } from './entities/key.entity';
+import { CertEntity } from './entities/cert.entity';
+import { Repository } from 'typeorm/repository/Repository';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { PinoLogger } from 'nestjs-pino';
 
 export const KEY_VALIDATION_SCHEMA = {
     KM_TYPE: Joi.string().valid('file', 'vault').default('file'),
@@ -23,11 +26,6 @@ export const KEY_VALIDATION_SCHEMA = {
         then: Joi.required(),
         otherwise: Joi.optional(),
     }),
-    VAULT_KEY_ID: Joi.string().when('KM_TYPE', {
-        is: 'vault',
-        then: Joi.string().default('key-id'),
-        otherwise: Joi.optional(),
-    }),
 };
 
 @Global()
@@ -40,7 +38,7 @@ export class KeyModule {
                 HttpModule,
                 ConfigModule,
                 CryptoModule,
-                TypeOrmModule.forFeature([KeyEntity]),
+                TypeOrmModule.forFeature([CertEntity]),
             ],
             providers: [
                 {
@@ -48,7 +46,9 @@ export class KeyModule {
                     useFactory: (
                         configService: ConfigService,
                         httpService: HttpService,
-                        cryptoService: CryptoService,
+                        cryptoService: CryptoImplementationService,
+                        certRepository: Repository<CertEntity>,
+                        logger: PinoLogger,
                     ) => {
                         const kmType = configService.get<'vault' | 'file'>(
                             'KM_TYPE',
@@ -58,15 +58,24 @@ export class KeyModule {
                                 httpService,
                                 configService,
                                 cryptoService,
+                                certRepository,
                             );
                         }
 
                         return new FileSystemKeyService(
                             configService,
                             cryptoService,
+                            certRepository,
+                            logger,
                         );
                     },
-                    inject: [ConfigService, HttpService, CryptoService],
+                    inject: [
+                        ConfigService,
+                        HttpService,
+                        CryptoImplementationService,
+                        getRepositoryToken(CertEntity),
+                        PinoLogger,
+                    ],
                 },
             ],
             exports: ['KeyService'],

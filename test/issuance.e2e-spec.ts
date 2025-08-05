@@ -55,6 +55,7 @@ describe('Issuance', () => {
         app.useGlobalPipes(new ValidationPipe());
 
         const configService = app.get(ConfigService);
+        configService.set('CONFIG_IMPORT_FORCE', true);
         clientId = configService.getOrThrow<string>('AUTH_CLIENT_ID');
         clientSecret = configService.getOrThrow<string>('AUTH_CLIENT_SECRET');
         host = configService.getOrThrow<string>('PUBLIC_URL');
@@ -75,6 +76,26 @@ describe('Issuance', () => {
 
         authToken = tokenResponse.body.access_token;
         expect(authToken).toBeDefined();
+
+        //import key
+
+        const privateKey = {
+            kty: 'EC',
+            x: 'pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho',
+            y: 'rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o',
+            crv: 'P-256',
+            d: 'rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU',
+            kid: '039af178-3ca0-48f4-a2e4-7b1209f30376',
+            alg: 'ES256',
+        };
+
+        await request(app.getHttpServer())
+            .post('/key')
+            .set('Authorization', `Bearer ${authToken}`)
+            .send({
+                privateKey,
+            })
+            .expect(201);
 
         //import the pid credential configuration
         const pidCredentialConfiguration = JSON.parse(
@@ -231,6 +252,9 @@ describe('Issuance', () => {
         //use jose to verify the signature
         const { payload } = await jwtVerify(res.text, key, {
             algorithms: [jwtHeader.alg],
+        }).catch((err) => {
+            console.error('JWT verification failed:', err);
+            throw err;
         });
         expect(payload.iss).toBeDefined();
     });

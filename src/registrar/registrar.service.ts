@@ -233,6 +233,7 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         config: RegistrarConfig,
         tenantId: string,
     ): Promise<string> {
+        const keyId = await this.cryptoService.keyService.getKid(tenantId);
         const host = this.configService
             .getOrThrow<string>('PUBLIC_URL')
             .replace('https://', '');
@@ -242,21 +243,23 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
                 publicKey: await this.cryptoService.keyService.getPublicKey(
                     'pem',
                     tenantId,
+                    keyId,
                 ),
                 dns: [host],
             },
             path: {
                 rp: config.id,
             },
-        }).then((res) => {
+        }).then(async (res) => {
             if (res.error) {
                 console.error('Error adding access certificate:', res.error);
                 throw new Error('Error adding access certificate');
             }
             //store the cert
-            this.cryptoService.storeAccessCertificate(
+            await this.cryptoService.storeAccessCertificate(
                 res.data!['crt'],
                 tenantId,
+                keyId,
             );
             config.accessCertificateId = res.data!['id'];
             this.saveConfig(config, tenantId);
