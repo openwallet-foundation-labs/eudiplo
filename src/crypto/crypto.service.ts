@@ -54,12 +54,6 @@ export class CryptoService implements OnModuleInit {
         await this.hasCerts(tenantId);
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    getAlgorithm(tenantId: string): string {
-        //TODO: implement logic to fetch algorithm for the tenant
-        return 'ES256';
-    }
-
     /**
      * Imports a key into the key service.
      * @param tenantId
@@ -189,6 +183,24 @@ export class CryptoService implements OnModuleInit {
         }
     }
 
+    /**
+     * Check if a certificate exists for the given tenant and keyId.
+     * @param tenantId
+     * @param keyId
+     * @returns
+     */
+    hasEntry(tenantId: string, keyId: string): Promise<boolean> {
+        return this.certRepository
+            .findOneBy({ tenantId, keyId })
+            .then((cert) => !!cert);
+    }
+
+    /**
+     * Get the certificate for the given tenant and keyId.
+     * @param tenantId
+     * @param keyId
+     * @returns
+     */
     getCert(tenantId: string, keyId: string): Promise<string> {
         return this.certRepository
             .findOneBy({ tenantId, keyId })

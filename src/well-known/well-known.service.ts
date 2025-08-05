@@ -7,6 +7,7 @@ import { Oauth2AuthorizationServerResponse } from './dto/oauth-authorization-ser
 import { JwksResponseDto } from './dto/jwks-response.dto';
 import { MediaType } from '../utils/mediaType/media-type.enum';
 import { Session } from '../session/entities/session.entity';
+import { CryptoImplementationService } from '../crypto/key/crypto/crypto.service';
 
 /**
  * Service to handle well-known endpoints and metadata retrieval.
@@ -23,6 +24,7 @@ export class WellKnownService {
         private readonly oid4vciService: Oid4vciService,
         private readonly cryptoService: CryptoService,
         private readonly authorizeService: AuthorizeService,
+        private readonly cryptoImplementationService: CryptoImplementationService,
     ) {}
 
     /**
@@ -42,7 +44,7 @@ export class WellKnownService {
             return this.cryptoService.signJwt(
                 {
                     typ: 'openidvci-issuer-metadata+jwt',
-                    alg: this.cryptoService.getAlgorithm(session.tenantId),
+                    alg: this.cryptoImplementationService.getAlg(),
                     x5c: await this.cryptoService.getCertChain(
                         'access',
                         session.tenantId,

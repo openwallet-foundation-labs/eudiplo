@@ -13,6 +13,7 @@ import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
 import { CredentialIssuanceBinding } from './entities/credential-issuance-binding.entity';
 import { CredentialConfig } from '../credentials/entities/credential.entity';
+import { CryptoService } from '../../crypto/crypto.service';
 
 /**
  * Service for managing issuance configurations.
@@ -33,13 +34,20 @@ export class IssuanceService implements OnModuleInit {
         private credentialsConfigService: CredentialConfigService,
         private configService: ConfigService,
         private logger: PinoLogger,
+        private cryptoService: CryptoService,
     ) {}
 
+    /**
+     * Import issuance configurations and the credential configurations from the configured folder.
+     */
     async onModuleInit() {
         await this.credentialsConfigService.import();
         await this.import();
     }
 
+    /**
+     * Import issuance configurations from the configured folder.
+     */
     private async import() {
         const configPath = this.configService.getOrThrow('CONFIG_FOLDER');
         const subfolder = 'issuance/issuance';
@@ -88,18 +96,40 @@ export class IssuanceService implements OnModuleInit {
                         continue; // Skip this invalid config
                     }
 
-                    await this.storeIssuanceConfiguration(
-                        tenant.name,
-                        issuanceDto,
+                    // check that the key exists
+                    for (const credentialConfigId of issuanceDto.credentialConfigs) {
+                        if (credentialConfigId.keyId) {
+                            const hasEntry = await this.cryptoService.hasEntry(
+                                tenant.name,
+                                credentialConfigId.keyId,
+                            );
+                            if (!hasEntry) {
+                                this.logger.error(
+                                    {
+                                        event: 'KeyNotFound',
+                                        file,
+                                        tenant: tenant.name,
+                                        keyId: credentialConfigId.keyId,
+                                    },
+                                    `Key with ID ${credentialConfigId.keyId} not found for issuance config ${file} in tenant ${tenant.name}`,
+                                );
+                                continue; // Skip this config if key is not found
+                            }
+                        }
+
+                        await this.storeIssuanceConfiguration(
+                            tenant.name,
+                            issuanceDto,
+                        );
+                        counter++;
+                    }
+                    this.logger.info(
+                        {
+                            event: 'Import',
+                        },
+                        `${counter} issuance configs imported for ${tenant.name}`,
                     );
-                    counter++;
                 }
-                this.logger.info(
-                    {
-                        event: 'Import',
-                    },
-                    `${counter} issuance configs imported for ${tenant.name}`,
-                );
             }
         }
     }

@@ -14,7 +14,7 @@ export class CredentialConfigMapping {
     id: string;
     @IsString()
     @IsOptional()
-    keyId: string;
+    keyId?: string;
 }
 
 /**
