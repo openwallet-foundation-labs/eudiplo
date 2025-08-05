@@ -1,3 +1,21 @@
+# [1.4.0](https://github.com/openwallet-foundation-labs/eudiplo/compare/v1.3.0...v1.4.0) (2025-08-05)
+
+
+### Bug Fixes
+
+* add list of compatible wallets ([#22](https://github.com/openwallet-foundation-labs/eudiplo/issues/22)) ([a946a08](https://github.com/openwallet-foundation-labs/eudiplo/commit/a946a083af94a072721c349f4f00de57c7f198ee))
+* config folder ([39b17b8](https://github.com/openwallet-foundation-labs/eudiplo/commit/39b17b89e0e5be3336736273b141f95034763700))
+* improve issuance config return ([#18](https://github.com/openwallet-foundation-labs/eudiplo/issues/18)) ([e17bb4a](https://github.com/openwallet-foundation-labs/eudiplo/commit/e17bb4a1d12b531f71a908244d38dc1f0c79b8a7))
+* rename repo user to openwallet-foundation-labs ([#15](https://github.com/openwallet-foundation-labs/eudiplo/issues/15)) ([7337c24](https://github.com/openwallet-foundation-labs/eudiplo/commit/7337c2450dc38769fc10d02bca5e58b317d91ec8))
+* typo ([#25](https://github.com/openwallet-foundation-labs/eudiplo/issues/25)) ([36492f7](https://github.com/openwallet-foundation-labs/eudiplo/commit/36492f78654ab9b74d7aa215ccaee8611468e269))
+* update tenant setup ([#28](https://github.com/openwallet-foundation-labs/eudiplo/issues/28)) ([88fbb1f](https://github.com/openwallet-foundation-labs/eudiplo/commit/88fbb1f4309b46c804e73b31f2ff81a87308afdc))
+
+
+### Features
+
+* add signed metadata feature for issuer ([#19](https://github.com/openwallet-foundation-labs/eudiplo/issues/19)) ([0bd3568](https://github.com/openwallet-foundation-labs/eudiplo/commit/0bd35686e469c62437adabcb50b386fbc896a83c))
+* monitor ([#29](https://github.com/openwallet-foundation-labs/eudiplo/issues/29)) ([8dc4986](https://github.com/openwallet-foundation-labs/eudiplo/commit/8dc49869c617f5f4b8df3e98b3193f8471042375))
+
 # [1.3.0](https://github.com/openwallet-foundation-labs/eudiplo/compare/v1.2.3...v1.3.0) (2025-07-28)
 
 ### Bug Fixes
