@@ -25,7 +25,7 @@ export class IssuerManagementController {
     constructor(private readonly oid4vciService: Oid4vciService) {}
 
     /**
-     * Create an offer for a credential. This endpoint may be protected
+     * Create an offer for a credential.
      * @param res
      * @param body
      */

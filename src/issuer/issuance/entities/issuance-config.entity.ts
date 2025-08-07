@@ -54,4 +54,14 @@ export class IssuanceConfig {
      */
     @Column('json', { nullable: true })
     notifyWebhook: WebhookConfig;
+
+    /**
+     * Value to determine the amount of credentials that are issued in a batch.
+     * Default is 1.
+     */
+    @Column('int', { default: 1 })
+    batch_size?: number;
+
+    @Column('boolean', { default: false })
+    key_binding?: boolean;
 }

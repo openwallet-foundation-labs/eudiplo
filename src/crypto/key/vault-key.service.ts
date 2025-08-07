@@ -46,6 +46,13 @@ export class VaultKeyService extends KeyService {
         };
     }
 
+    importFromFileSystem() {
+        throw new Error(
+            'VaultKeyService does not support importing from file system.',
+        );
+        return Promise.resolve();
+    }
+
     /**
      * Create a new transit for the tenant.
      * @param tenantId

@@ -17,11 +17,7 @@ import {
 } from 'jose';
 import { v4 } from 'uuid';
 import { KeyObj, KeyService } from './key.service';
-import {
-    ConflictException,
-    Injectable,
-    OnApplicationBootstrap,
-} from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { Signer } from '@sd-jwt/types';
 import { ConfigService } from '@nestjs/config';
 import { CryptoImplementation } from './crypto/crypto-implementation';
@@ -38,10 +34,7 @@ import { PinoLogger } from 'nestjs-pino';
  * The key service is responsible for managing the keys of the issuer.
  */
 @Injectable()
-export class FileSystemKeyService
-    extends KeyService
-    implements OnApplicationBootstrap
-{
+export class FileSystemKeyService extends KeyService {
     private crypto: CryptoImplementation;
 
     constructor(
@@ -54,7 +47,7 @@ export class FileSystemKeyService
         this.crypto = cryptoService.getCrypto();
     }
 
-    async onApplicationBootstrap() {
+    async importFromFileSystem() {
         if (this.configService.get<boolean>('CONFIG_IMPORT')) {
             const configPath = this.configService.getOrThrow('CONFIG_FOLDER');
             const subfolder = 'keys';
@@ -75,10 +68,10 @@ export class FileSystemKeyService
                             readFileSync(join(path, file), 'utf8'),
                         );
 
-                        payload.id = file.replace('.json', '');
+                        const id = file.replace('.json', '');
                         const exists = await this.getPrivateKey(
                             tenant.name,
-                            payload.id,
+                            id,
                         ).catch(() => false);
                         if (exists && !force) {
                             continue; // Skip if config already exists and force is not set
@@ -86,7 +79,10 @@ export class FileSystemKeyService
 
                         // Validate the payload against KeyImportDto
                         const config = plainToClass(KeyImportDto, payload);
-                        const validationErrors = await validate(config);
+                        const validationErrors = await validate(config, {
+                            whitelist: true,
+                            forbidNonWhitelisted: true,
+                        });
 
                         if (validationErrors.length > 0) {
                             this.logger.error(
@@ -104,7 +100,6 @@ export class FileSystemKeyService
                             );
                             continue; // Skip this invalid config
                         }
-
                         await this.import(tenant.name, config);
                         counter++;
                     }

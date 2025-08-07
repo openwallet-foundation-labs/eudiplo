@@ -13,6 +13,9 @@ import { Repository } from 'typeorm';
 import { CredentialConfig } from './entities/credential.entity';
 import { VCT } from '../credentials-metadata/dto/credential-config.dto';
 import { IssuanceService } from '../issuance/issuance.service';
+import { IssuanceConfig } from '../issuance/entities/issuance-config.entity';
+import { CryptoImplementationService } from '../../crypto/key/crypto/crypto.service';
+import { JWTwithStatusListPayload } from '@sd-jwt/jwt-status-list';
 
 @Injectable()
 export class CredentialsService {
@@ -23,6 +26,7 @@ export class CredentialsService {
         @InjectRepository(CredentialConfig)
         private credentialConfigRepo: Repository<CredentialConfig>,
         private issuanceConfigService: IssuanceService,
+        private cryptoImplementationService: CryptoImplementationService,
     ) {}
 
     /**
@@ -31,16 +35,42 @@ export class CredentialsService {
      * @returns
      */
     async getCredentialConfigurationSupported(
-        tenantId: string,
+        session: Session,
+        issuanceConfig: IssuanceConfig,
     ): Promise<Record<string, CredentialConfigurationSupported>> {
         const credential_configurations_supported: Record<
             string,
             CredentialConfigurationSupported
         > = {};
 
-        const configs = await this.credentialConfigRepo.findBy({ tenantId });
+        const configs = await this.credentialConfigRepo.findBy({
+            tenantId: session.tenantId,
+        });
+
+        //add key binding when required:
+        const kb = {
+            proof_types_supported: {
+                jwt: {
+                    proof_signing_alg_values_supported: [
+                        this.cryptoImplementationService.getAlg(),
+                    ],
+                },
+            },
+            credential_signing_alg_values_supported: [
+                this.cryptoImplementationService.getAlg(),
+            ],
+            cryptographic_binding_methods_supported: ['jwk'],
+        };
 
         for (const value of configs) {
+            const isUsed = issuanceConfig.credentialIssuanceBindings.find(
+                (binding) => binding.credentialConfigId === value.id,
+            );
+            if (isUsed?.credentialConfig)
+                value.config = {
+                    ...value.config,
+                    ...kb,
+                };
             credential_configurations_supported[value.id] = value.config;
         }
         return credential_configurations_supported;
@@ -80,7 +110,7 @@ export class CredentialsService {
         const sdjwt = new SDJwtVcInstance({
             signer: await this.cryptoService.keyService.signer(
                 session.tenantId,
-                binding?.keyID,
+                binding?.credentialConfig.keyId,
             ),
             signAlg: 'ES256',
             hasher: digest,
@@ -88,6 +118,20 @@ export class CredentialsService {
             saltGenerator: generateSalt,
             loadTypeMetadataFormat: true,
         });
+
+        const credentialConfig =
+            await this.credentialConfigRepo.findOneByOrFail({
+                id: credentialConfigurationId,
+                tenantId: session.tenantId,
+            });
+
+        let status: JWTwithStatusListPayload | undefined;
+        if (credentialConfig.statusManagement) {
+            status = await this.statusListService.createEntry(
+                session,
+                credentialConfigurationId,
+            );
+        }
 
         return sdjwt.issue(
             {
@@ -97,11 +141,8 @@ export class CredentialsService {
                 cnf: {
                     jwk: cnf,
                 },
-                ...(await this.statusListService.createEntry(
-                    session,
-                    credentialConfigurationId,
-                )),
                 ...claims,
+                ...status,
             },
             disclosureFrame,
             {
@@ -110,7 +151,7 @@ export class CredentialsService {
                         'signing',
                         session.tenantId,
                     ),
-                    alg: 'ES256',
+                    alg: this.cryptoImplementationService.getAlg(),
                 },
             },
         );

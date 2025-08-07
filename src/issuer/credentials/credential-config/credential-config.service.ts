@@ -36,8 +36,8 @@ export class CredentialConfigService {
             const tenantFolders = readdirSync(configPath, {
                 withFileTypes: true,
             }).filter((tenant) => tenant.isDirectory());
-            let counter = 0;
             for (const tenant of tenantFolders) {
+                let counter = 0;
                 //iterate over all elements in the folder and import them
                 const path = join(configPath, tenant.name, subfolder);
                 const files = readdirSync(path);
@@ -46,18 +46,19 @@ export class CredentialConfigService {
                         readFileSync(join(path, file), 'utf8'),
                     );
 
-                    payload.id = file.replace('.json', '');
-                    const exists = await this.getById(
-                        tenant.name,
-                        payload.id,
-                    ).catch(() => false);
+                    const id = file.replace('.json', '');
+                    const exists = await this.getById(tenant.name, id).catch(
+                        () => false,
+                    );
                     if (exists && !force) {
                         continue; // Skip if config already exists and force is not set
                     }
 
                     // Validate the payload against CredentialConfig
                     const config = plainToClass(CredentialConfig, payload);
-                    const validationErrors = await validate(config);
+                    const validationErrors = await validate(config, {
+                        whitelist: true,
+                    });
 
                     if (validationErrors.length > 0) {
                         this.logger.error(
@@ -76,6 +77,8 @@ export class CredentialConfigService {
                         continue; // Skip this invalid config
                     }
 
+                    config.id = id; // Set the ID from the file name
+
                     await this.store(tenant.name, config);
                     counter++;
                 }
@@ -83,7 +86,7 @@ export class CredentialConfigService {
                     {
                         event: 'Import',
                     },
-                    `${counter} issuance configs imported for ${tenant.name}`,
+                    `${counter} credential configs imported for ${tenant.name}`,
                 );
             }
         }

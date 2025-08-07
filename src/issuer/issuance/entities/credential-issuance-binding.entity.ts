@@ -2,6 +2,7 @@ import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 import { CredentialConfig } from '../../credentials/entities/credential.entity';
 import { IssuanceConfig } from './issuance-config.entity';
 
+//TODO: check if we really need this table and not just go with a many-to-many relationship
 /**
  * Junction entity for the many-to-many relationship between CredentialConfig and IssuanceConfig
  * with additional keyID attribute for specifying which key should be used for signing.
@@ -31,12 +32,6 @@ export class CredentialIssuanceBinding {
         (issuanceConfig) => issuanceConfig.credentialIssuanceBindings,
     )
     issuanceConfig: IssuanceConfig;
-
-    /**
-     * Key ID that should be used for signing this specific credential in this issuance config.
-     */
-    @Column('varchar', { nullable: true })
-    keyID: string;
 
     /**
      * The timestamp when the binding was created.

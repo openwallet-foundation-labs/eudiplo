@@ -1,5 +1,6 @@
 import {
     IsArray,
+    IsNumber,
     IsObject,
     IsOptional,
     IsString,
@@ -9,12 +10,15 @@ import { Type } from 'class-transformer';
 import { AuthenticationConfigDto } from './authentication-config.dto';
 import { WebhookConfig } from '../../../utils/webhook/webhook.dto';
 
+/**
+ * DTO for mapping credential configurations in issuance.
+ */
 export class CredentialConfigMapping {
+    /**
+     * Unique identifier for the credential configuration.
+     */
     @IsString()
     id: string;
-    @IsString()
-    @IsOptional()
-    keyId?: string;
 }
 
 /**
@@ -52,4 +56,12 @@ export class IssuanceDto {
     @ValidateNested()
     @Type(() => WebhookConfig)
     notifyWebhook?: WebhookConfig;
+
+    /**
+     * Value to determine the amount of credentials that are issued in a batch.
+     * Default is 1.
+     */
+    @IsNumber()
+    @IsOptional()
+    batch_size?: number;
 }
