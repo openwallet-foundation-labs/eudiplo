@@ -1,17 +1,17 @@
 import {
+    Body,
     Controller,
     Delete,
     Get,
     Param,
     Post,
-    Body,
     UseGuards,
 } from '@nestjs/common';
 import { ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../../auth/auth.guard';
 import { Token, TokenPayload } from '../../auth/token.decorator';
 import { CredentialConfigService } from './credential-config/credential-config.service';
 import { CredentialConfig } from './entities/credential.entity';
-import { JwtAuthGuard } from '../../auth/auth.guard';
 
 /**
  * Controller for managing credential configurations.

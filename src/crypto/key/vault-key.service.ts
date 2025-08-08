@@ -1,19 +1,19 @@
-import { Injectable } from '@nestjs/common';
-import { KeyObj, KeyService } from './key.service';
 import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
-import { importSPKI, exportJWK, JWTHeaderParameters, JWK } from 'jose';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtPayload, Signer } from '@sd-jwt/types';
+import { exportJWK, importSPKI, JWK, JWTHeaderParameters } from 'jose';
+import { join } from 'path';
+import { firstValueFrom } from 'rxjs';
+import { Repository } from 'typeorm/repository/Repository';
+import { v4 } from 'uuid';
 import {
     CryptoImplementationService,
     CryptoType,
 } from './crypto-implementation/crypto-implementation.service';
-import { join } from 'path';
 import { KeyImportDto } from './dto/key-import.dto';
-import { v4 } from 'uuid';
 import { CertEntity } from './entities/cert.entity';
-import { Repository } from 'typeorm/repository/Repository';
+import { KeyObj, KeyService } from './key.service';
 
 @Injectable()
 export class VaultKeyService extends KeyService {
@@ -22,8 +22,6 @@ export class VaultKeyService extends KeyService {
     // headers for the vault api
     private headers: { headers: { 'X-Vault-Token': string } };
 
-    private folder: string;
-
     constructor(
         private httpService: HttpService,
         configService: ConfigService,
@@ -31,10 +29,6 @@ export class VaultKeyService extends KeyService {
         certRepository: Repository<CertEntity>,
     ) {
         super(configService, certRepository);
-        this.folder = join(
-            this.configService.getOrThrow<string>('FOLDER'),
-            'keys',
-        );
 
         this.vaultUrl = this.configService.get<string>('VAULT_URL') as string;
         this.headers = {

@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import {
     BadRequestException,
     ConflictException,
@@ -6,11 +8,11 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
+    authorizationCodeGrantIdentifier,
     type HttpMethod,
     Oauth2ResourceServer,
-    SupportedAuthenticationScheme,
-    authorizationCodeGrantIdentifier,
     preAuthorizedCodeGrantIdentifier,
+    SupportedAuthenticationScheme,
 } from '@openid4vc/oauth2';
 import {
     type CredentialResponse,
@@ -19,22 +21,20 @@ import {
     Openid4vciIssuer,
 } from '@openid4vc/openid4vci';
 import type { Request } from 'express';
-import { CredentialsService } from '../credentials/credentials.service';
-import { CryptoService } from '../../crypto/crypto.service';
-import { AuthorizeService } from '../authorize/authorize.service';
-import { getHeadersFromRequest } from './util';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { SessionService } from '../../session/session.service';
 import { v4 } from 'uuid';
-import { OfferRequestDto, OfferResponse } from './dto/offer-request.dto';
-import { NotificationRequestDto } from './dto/notification-request.dto';
+import { TokenPayload } from '../../auth/token.decorator';
+import { CryptoService } from '../../crypto/crypto.service';
+import { Session, SessionStatus } from '../../session/entities/session.entity';
+import { SessionService } from '../../session/session.service';
 import { SessionLoggerService } from '../../utils/logger/session-logger.service';
 import { SessionLogContext } from '../../utils/logger/session-logger-context';
-import { TokenPayload } from '../../auth/token.decorator';
-import { IssuanceService } from '../issuance/issuance.service';
 import { WebhookService } from '../../utils/webhook/webhook.service';
-import { Session, SessionStatus } from '../../session/entities/session.entity';
+import { AuthorizeService } from '../authorize/authorize.service';
+import { CredentialsService } from '../credentials/credentials.service';
+import { IssuanceService } from '../issuance/issuance.service';
+import { NotificationRequestDto } from './dto/notification-request.dto';
+import { OfferRequestDto, OfferResponse } from './dto/offer-request.dto';
+import { getHeadersFromRequest } from './util';
 
 @Injectable()
 export class Oid4vciService implements OnModuleInit {

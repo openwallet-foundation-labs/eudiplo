@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { CryptoService } from './crypto.service';
 import { EncryptionService } from './encryption/encryption.service';
-import { KeyController } from './key/key.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { CertEntity } from './key/entities/cert.entity';
+import { KeyController } from './key/key.controller';
 
 @Module({
     imports: [TypeOrmModule.forFeature([CertEntity])],

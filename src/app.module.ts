@@ -1,30 +1,30 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import * as Joi from 'joi';
+import { LoggerModule } from 'nestjs-pino';
+import { isAbsolute, join } from 'path';
+import { AppController } from './app/app.controller';
+import { AUTH_VALIDATION_SCHEMA, AuthModule } from './auth/auth.module';
 import { CryptoModule } from './crypto/crypto.module';
-import { WellKnownController } from './well-known/well-known.controller';
+import { CRYPTO_VALIDATION_SCHEMA } from './crypto/key/crypto-implementation/crypto-implementation.module';
+import { KEY_VALIDATION_SCHEMA, KeyModule } from './crypto/key/key.module';
+import { DatabaseModule } from './database/database.module';
+import { HealthModule } from './health/health.module';
 import { ISSUER_VALIDATION_SCHEMA, IssuerModule } from './issuer/issuer.module';
-import { VerifierModule } from './verifier/verifier.module';
+import { MetricModule } from './metric/metric.module';
 import {
     REGISTRAR_VALIDATION_SCHEMA,
     RegistrarModule,
 } from './registrar/registrar.module';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join, isAbsolute } from 'path';
-import { KEY_VALIDATION_SCHEMA, KeyModule } from './crypto/key/key.module';
-import { CRYPTO_VALIDATION_SCHEMA } from './crypto/key/crypto-implementation/crypto-implementation.module';
 import {
     SESSION_VALIDATION_SCHEMA,
     SessionModule,
 } from './session/session.module';
-import { ScheduleModule } from '@nestjs/schedule';
-import { DatabaseModule } from './database/database.module';
-import { HealthModule } from './health/health.module';
-import { AUTH_VALIDATION_SCHEMA, AuthModule } from './auth/auth.module';
-import { LoggerModule } from 'nestjs-pino';
+import { VerifierModule } from './verifier/verifier.module';
+import { WellKnownController } from './well-known/well-known.controller';
 import { WellKnownService } from './well-known/well-known.service';
-import { AppController } from './app/app.controller';
-import { MetricModule } from './metric/metric.module';
 
 @Module({
     imports: [

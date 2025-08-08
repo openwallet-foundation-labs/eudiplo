@@ -1,8 +1,8 @@
+import { X509Certificate } from 'node:crypto';
+import { HttpService } from '@nestjs/axios';
 import { ConflictException, Injectable } from '@nestjs/common';
 import { JWK, JWTPayload } from 'jose';
-import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
-import { X509Certificate } from 'node:crypto';
 import { IssuerMetadata } from './dto/issuer-metadata.dto';
 
 /**

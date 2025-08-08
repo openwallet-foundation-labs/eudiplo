@@ -1,17 +1,17 @@
 import {
-    Controller,
-    Post,
     Body,
-    UnauthorizedException,
+    Controller,
     Headers,
+    Post,
+    UnauthorizedException,
 } from '@nestjs/common';
-import { ApiTags, ApiResponse, ApiBody } from '@nestjs/swagger';
-import { JwtService } from './jwt.service';
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ClientService } from './client.service';
-import { Public } from './public.decorator';
 import { ClientCredentialsDto } from './dto/client-credentials.dto';
-import { TokenPayload } from './token.decorator';
 import { TokenResponse } from './dto/token-response.dto';
+import { JwtService } from './jwt.service';
+import { Public } from './public.decorator';
+import { TokenPayload } from './token.decorator';
 
 @ApiTags('Authentication')
 @Controller('auth')

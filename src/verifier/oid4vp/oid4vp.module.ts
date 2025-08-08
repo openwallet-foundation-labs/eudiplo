@@ -1,20 +1,20 @@
-import { Module } from '@nestjs/common';
-import { Oid4vpService } from './oid4vp.service';
-import { Oid4vpController } from './oid4vp.controller';
+import { HttpModule } from '@nestjs/axios';
+import { forwardRef, Module } from '@nestjs/common';
 import { CryptoModule } from '../../crypto/crypto.module';
 import { RegistrarModule } from '../../registrar/registrar.module';
-import { PresentationsModule } from '../presentations/presentations.module';
 import { SessionModule } from '../../session/session.module';
-import { HttpModule } from '@nestjs/axios';
 import { SessionLoggerInterceptor } from '../../utils/logger/session-logger.interceptor';
 import { SessionLoggerService } from '../../utils/logger/session-logger.service';
 import { WebhookService } from '../../utils/webhook/webhook.service';
+import { PresentationsModule } from '../presentations/presentations.module';
+import { Oid4vpController } from './oid4vp.controller';
+import { Oid4vpService } from './oid4vp.service';
 
 @Module({
     imports: [
         CryptoModule,
-        RegistrarModule,
-        PresentationsModule,
+        forwardRef(() => RegistrarModule),
+        forwardRef(() => PresentationsModule),
         SessionModule,
         HttpModule,
     ],

@@ -1,9 +1,9 @@
-import { beforeAll, describe, expect, test } from 'vitest';
-import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from '../src/app.module';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { App } from 'supertest/types';
+import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
+import { App } from 'supertest/types';
+import { beforeAll, describe, expect, test } from 'vitest';
+import { AppModule } from '../src/app.module';
 
 describe('Home', () => {
     let app: INestApplication<App>;
@@ -19,7 +19,7 @@ describe('Home', () => {
         await app.init();
     });
 
-    test('GET / returns EUDIPLO', async () => {
+    test('GET / returns EUDIPLO', () => {
         return request(app.getHttpServer())
             .get('/')
             .expect(200)

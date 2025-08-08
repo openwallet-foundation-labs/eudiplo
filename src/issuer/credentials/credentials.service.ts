@@ -1,21 +1,21 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type { Jwk } from '@openid4vc/oauth2';
-import { digest, generateSalt } from '@sd-jwt/crypto-nodejs';
-import { SDJwtVcInstance } from '@sd-jwt/sd-jwt-vc';
-import { CryptoService } from '../../crypto/crypto.service';
-import { StatusListService } from '../status-list/status-list.service';
-import { CredentialConfigurationSupported } from '@openid4vc/openid4vci';
-import { Session } from '../../session/entities/session.entity';
-import { SchemaResponse } from '../credentials-metadata/dto/schema-response.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { CredentialConfig } from './entities/credential.entity';
-import { VCT } from '../credentials-metadata/dto/credential-config.dto';
-import { IssuanceService } from '../issuance/issuance.service';
-import { IssuanceConfig } from '../issuance/entities/issuance-config.entity';
-import { CryptoImplementationService } from '../../crypto/key/crypto-implementation/crypto-implementation.service';
+import type { Jwk } from '@openid4vc/oauth2';
+import { CredentialConfigurationSupported } from '@openid4vc/openid4vci';
+import { digest, generateSalt } from '@sd-jwt/crypto-nodejs';
 import { JWTwithStatusListPayload } from '@sd-jwt/jwt-status-list';
+import { SDJwtVcInstance } from '@sd-jwt/sd-jwt-vc';
+import { Repository } from 'typeorm';
+import { CryptoService } from '../../crypto/crypto.service';
+import { CryptoImplementationService } from '../../crypto/key/crypto-implementation/crypto-implementation.service';
+import { Session } from '../../session/entities/session.entity';
+import { VCT } from '../credentials-metadata/dto/credential-config.dto';
+import { SchemaResponse } from '../credentials-metadata/dto/schema-response.dto';
+import { IssuanceConfig } from '../issuance/entities/issuance-config.entity';
+import { IssuanceService } from '../issuance/issuance.service';
+import { StatusListService } from '../status-list/status-list.service';
+import { CredentialConfig } from './entities/credential.entity';
 
 /**
  * Service for managing credentials and their configurations.

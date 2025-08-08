@@ -1,9 +1,9 @@
 import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { AppModule } from './app.module';
 import { writeFileSync } from 'fs';
-import { ConfigService } from '@nestjs/config';
+import { AppModule } from './app.module';
 
 /**
  * Bootstrap function to initialize the NestJS application.

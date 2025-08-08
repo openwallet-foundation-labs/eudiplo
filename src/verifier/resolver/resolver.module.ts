@@ -1,6 +1,6 @@
+import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { ResolverService } from './resolver.service';
-import { HttpModule } from '@nestjs/axios';
 
 @Module({
     imports: [HttpModule],

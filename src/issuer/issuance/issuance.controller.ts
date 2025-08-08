@@ -1,17 +1,17 @@
 import {
+    Body,
     Controller,
     Delete,
     Get,
     Param,
     Post,
     UseGuards,
-    Body,
 } from '@nestjs/common';
-import { Token, TokenPayload } from '../../auth/token.decorator';
-import { ApiTags, ApiSecurity } from '@nestjs/swagger';
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/auth.guard';
-import { IssuanceService } from './issuance.service';
+import { Token, TokenPayload } from '../../auth/token.decorator';
 import { IssuanceDto } from './dto/issuance.dto';
+import { IssuanceService } from './issuance.service';
 
 @ApiTags('Issuer management')
 @UseGuards(JwtAuthGuard)

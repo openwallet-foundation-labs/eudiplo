@@ -2,9 +2,9 @@ import { randomUUID } from 'node:crypto';
 import { ConflictException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
-    authorizationCodeGrantIdentifier,
     type AuthorizationCodeGrantIdentifier,
     type AuthorizationServerMetadata,
+    authorizationCodeGrantIdentifier,
     type HttpMethod,
     Jwk,
     Oauth2AuthorizationServer,
@@ -14,14 +14,14 @@ import {
 } from '@openid4vc/oauth2';
 import type { Request, Response } from 'express';
 import { CryptoService } from '../../crypto/crypto.service';
-import { getHeadersFromRequest } from '../oid4vci/util';
-import { AuthorizeQueries } from './dto/authorize-request.dto';
-import { Oid4vpService } from '../../verifier/oid4vp/oid4vp.service';
+import { Session } from '../../session/entities/session.entity';
 import { SessionService } from '../../session/session.service';
 import { WebhookConfig } from '../../utils/webhook/webhook.dto';
-import { IssuanceService } from '../issuance/issuance.service';
+import { Oid4vpService } from '../../verifier/oid4vp/oid4vp.service';
 import { AuthenticationConfigHelper } from '../issuance/dto/authentication-config.helper';
-import { Session } from '../../session/entities/session.entity';
+import { IssuanceService } from '../issuance/issuance.service';
+import { getHeadersFromRequest } from '../oid4vci/util';
+import { AuthorizeQueries } from './dto/authorize-request.dto';
 
 export interface ParsedAccessTokenAuthorizationCodeRequestGrant {
     grantType: AuthorizationCodeGrantIdentifier;

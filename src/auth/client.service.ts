@@ -4,17 +4,17 @@ import {
     OnApplicationBootstrap,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { InjectMetric } from '@willsoto/nestjs-prometheus';
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
+import { Gauge } from 'prom-client';
+import { Repository } from 'typeorm/repository/Repository';
 import { CryptoService } from '../crypto/crypto.service';
 import { EncryptionService } from '../crypto/encryption/encryption.service';
 import { StatusListService } from '../issuer/status-list/status-list.service';
 import { RegistrarService } from '../registrar/registrar.service';
-import { InjectRepository } from '@nestjs/typeorm';
 import { ClientEntry } from './entitites/client.entity';
-import { Repository } from 'typeorm/repository/Repository';
-import { InjectMetric } from '@willsoto/nestjs-prometheus';
-import { Gauge } from 'prom-client';
 
 // Client interface for service integration
 export interface Client {

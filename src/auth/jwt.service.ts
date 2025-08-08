@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { SignJWT, jwtVerify, decodeJwt } from 'jose';
+import { decodeJwt, jwtVerify, SignJWT } from 'jose';
 import { TokenPayload } from './token.decorator';
 
 export interface GenerateTokenOptions {

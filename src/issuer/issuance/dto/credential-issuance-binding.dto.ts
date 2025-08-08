@@ -1,5 +1,5 @@
-import { IsString, IsUUID } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsUUID } from 'class-validator';
 
 /**
  * DTO for creating a new credential-issuance binding.

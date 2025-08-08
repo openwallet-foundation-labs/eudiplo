@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { CredentialsMetadataController } from './credentials-metadata.controller';
-import { describe, beforeEach, it, expect } from 'vitest';
 
 describe('CredentialsMetadataController', () => {
     let controller: CredentialsMetadataController;

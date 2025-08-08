@@ -1,8 +1,8 @@
-import { IsString, IsObject, IsEmpty, IsOptional } from 'class-validator';
+import { ApiHideProperty } from '@nestjs/swagger';
+import { IsEmpty, IsObject, IsOptional, IsString } from 'class-validator';
+import { Column, Entity } from 'typeorm';
 import { WebhookConfig } from '../../../utils/webhook/webhook.dto';
 import { RegistrationCertificateRequest } from '../dto/vp-request.dto';
-import { Column, Entity } from 'typeorm';
-import { ApiHideProperty } from '@nestjs/swagger';
 
 /**
  * Entity representing a configuration for a Verifiable Presentation (VP) request.

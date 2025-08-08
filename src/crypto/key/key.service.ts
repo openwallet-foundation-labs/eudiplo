@@ -1,10 +1,10 @@
-import { Signer } from '@sd-jwt/types';
-import { JWK, JWTPayload, JoseHeaderParameters } from 'jose';
-import { KeyImportDto } from './dto/key-import.dto';
-import { ConfigService } from '@nestjs/config';
-import { Repository } from 'typeorm';
-import { CertEntity, CertificateType } from './entities/cert.entity';
 import { ConflictException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { Signer } from '@sd-jwt/types';
+import { JoseHeaderParameters, JWK, JWTPayload } from 'jose';
+import { Repository } from 'typeorm';
+import { KeyImportDto } from './dto/key-import.dto';
+import { CertEntity, CertificateType } from './entities/cert.entity';
 
 /**
  * Represents a key entity with its unique identifier, public key, and certificate.

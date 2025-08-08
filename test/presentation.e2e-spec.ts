@@ -1,17 +1,17 @@
-import { beforeAll, describe, expect, test } from 'vitest';
-import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from '../src/app.module';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { App } from 'supertest/types';
-import request from 'supertest';
 import { ConfigService } from '@nestjs/config';
+import { Test, TestingModule } from '@nestjs/testing';
 import {
     Openid4vpAuthorizationRequest,
     Openid4vpClient,
 } from '@openid4vc/openid4vp';
-import { callbacks, preparePresentation } from './utils';
 import { readFileSync } from 'fs';
-import { importJWK, CryptoKey, EncryptJWT, JWK } from 'jose';
+import { CryptoKey, EncryptJWT, importJWK, JWK } from 'jose';
+import request from 'supertest';
+import { App } from 'supertest/types';
+import { beforeAll, describe, expect, test } from 'vitest';
+import { AppModule } from '../src/app.module';
+import { callbacks, preparePresentation } from './utils';
 
 describe('Presentation', () => {
     let app: INestApplication<App>;

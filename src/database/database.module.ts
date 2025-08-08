@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { join } from 'path';
 import * as Joi from 'joi';
+import { join } from 'path';
 
 export const DB_VALIDATION_SCHEMA = {
     DB_TYPE: Joi.string().valid('sqlite', 'postgres').default('sqlite'),

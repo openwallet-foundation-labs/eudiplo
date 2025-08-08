@@ -1,6 +1,6 @@
+import { codecovVitePlugin } from '@codecov/vite-plugin';
 import swc from 'unplugin-swc';
 import { defineConfig } from 'vitest/config';
-import { codecovVitePlugin } from '@codecov/vite-plugin';
 
 export default defineConfig({
     test: {

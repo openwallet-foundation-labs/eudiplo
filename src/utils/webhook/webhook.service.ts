@@ -1,9 +1,9 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
+import { Notification, Session } from '../../session/entities/session.entity';
 import { SessionService } from '../../session/session.service';
 import { SessionLoggerService } from '../logger/session-logger.service';
-import { Notification, Session } from '../../session/entities/session.entity';
 import { SessionLogContext } from '../logger/session-logger-context';
 
 /**

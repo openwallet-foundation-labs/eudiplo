@@ -135,6 +135,7 @@ nav:
   - Development:
       - development/index.md
       - Running Locally: development/running-locally.md
+      - Code Quality: development/code-quality.md
       - Versioning: development/versioning.md
       - Contributing Guide: development/contributing.md      
       - Testing: development/testing.md

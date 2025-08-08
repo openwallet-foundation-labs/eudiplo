@@ -11,9 +11,9 @@ import {
 import { ApiSecurity } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/auth.guard';
 import { Token, TokenPayload } from '../../auth/token.decorator';
-import { KeyObj, KeyService } from './key.service';
-import { KeyImportDto } from './dto/key-import.dto';
 import { CryptoService } from '../crypto.service';
+import { KeyImportDto } from './dto/key-import.dto';
+import { KeyObj, KeyService } from './key.service';
 
 /**
  * KeyController is responsible for managing keys in the system.

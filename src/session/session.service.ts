@@ -1,6 +1,9 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
-import { Session, SessionStatus } from './entities/session.entity';
+import { ConfigService } from '@nestjs/config';
+import { SchedulerRegistry } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
+import { InjectMetric } from '@willsoto/nestjs-prometheus/dist/injector';
+import { Gauge } from 'prom-client';
 import {
     DeepPartial,
     FindOptionsWhere,
@@ -10,10 +13,7 @@ import {
     Repository,
 } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
-import { SchedulerRegistry } from '@nestjs/schedule';
-import { ConfigService } from '@nestjs/config';
-import { Gauge } from 'prom-client';
-import { InjectMetric } from '@willsoto/nestjs-prometheus/dist/injector';
+import { Session, SessionStatus } from './entities/session.entity';
 
 @Injectable()
 export class SessionService implements OnApplicationBootstrap {

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { importJWK, exportJWK, generateKeyPair, jwtDecrypt, JWK } from 'jose';
+import { exportJWK, generateKeyPair, importJWK, JWK, jwtDecrypt } from 'jose';
 import { join } from 'path';
 
 /**
