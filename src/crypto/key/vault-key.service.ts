@@ -29,10 +29,6 @@ export class VaultKeyService extends KeyService {
         certRepository: Repository<CertEntity>,
     ) {
         super(configService, certRepository);
-        this.folder = join(
-            this.configService.getOrThrow<string>('FOLDER'),
-            'keys',
-        );
 
         this.vaultUrl = this.configService.get<string>('VAULT_URL') as string;
         this.headers = {

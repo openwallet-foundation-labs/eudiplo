@@ -1,5 +1,5 @@
 import { HttpModule } from '@nestjs/axios';
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { CryptoModule } from '../../crypto/crypto.module';
 import { RegistrarModule } from '../../registrar/registrar.module';
 import { SessionModule } from '../../session/session.module';
@@ -13,8 +13,8 @@ import { Oid4vpService } from './oid4vp.service';
 @Module({
     imports: [
         CryptoModule,
-        RegistrarModule,
-        PresentationsModule,
+        forwardRef(() => RegistrarModule),
+        forwardRef(() => PresentationsModule),
         SessionModule,
         HttpModule,
     ],
