@@ -6,6 +6,7 @@
 swagger.json
 docs/compodoc
 venv/
+.cache/
 
 # Logs
 logs

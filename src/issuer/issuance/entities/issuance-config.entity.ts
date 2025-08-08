@@ -61,7 +61,4 @@ export class IssuanceConfig {
      */
     @Column('int', { default: 1 })
     batch_size?: number;
-
-    @Column('boolean', { default: false })
-    key_binding?: boolean;
 }

@@ -58,6 +58,13 @@ export class PresentationsService implements OnModuleInit {
      * Imports presentation configurations from a predefined directory structure.
      */
     async onApplicationBootstrap() {
+        await this.import();
+    }
+
+    /**
+     * Imports presentation configurations from a predefined directory structure.
+     */
+    private async import() {
         const configPath = this.configService.getOrThrow('CONFIG_FOLDER');
         const subfolder = 'presentation';
         const force = this.configService.get<boolean>('CONFIG_IMPORT_FORCE');

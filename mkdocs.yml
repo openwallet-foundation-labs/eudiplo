@@ -83,6 +83,7 @@ plugins:
     - glightbox
     - neoteroi.mkdocsoad:
         use_pymdownx: true
+    - privacy
 
 extra:
   version:
@@ -102,8 +103,19 @@ nav:
       - Quick Start: getting-started/quick-start.md      
       - Wallet Compatibility: getting-started/wallet-compatibility.md
       - Flows:
-        - Issuance: getting-started/issuance.md
-        - Presentation: getting-started/presentation.md
+        - Issuance:
+          - Overview: getting-started/issuance/index.md
+          - Credential Configuration: getting-started/issuance/credential-configuration.md
+          - Advanced Features: getting-started/issuance/advanced-features.md
+          - Authentication: getting-started/issuance/authentication.md
+          - API Guide: getting-started/issuance/api-guide.md
+          - Revocation: getting-started/issuance/revocation.md          
+        - Presentation:
+          - Overview: getting-started/presentation/index.md
+          - Presentation Configuration: getting-started/presentation/presentation-configuration.md
+          - Authentication: getting-started/presentation/authentication.md
+          - API Guide: getting-started/presentation/api-guide.md
+          - Integration Examples: getting-started/presentation/integration-examples.md          
       - Advanced:
         - Registrar: getting-started/registrar.md
         - Monitor: getting-started/monitor.md

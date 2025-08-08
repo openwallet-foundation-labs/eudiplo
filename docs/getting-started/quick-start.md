@@ -99,9 +99,9 @@ EUDIPLO is now running and ready for credential issuance and verification.
 
 ### What's Next?
 
-- 📝 **[Issue Your First Credential](./issuance.md)** - Learn credential
+- 📝 **[Issue Your First Credential](./issuance/index.md)** - Learn credential
   issuance flows
-- 🔍 **[Verify Credentials](./presentation.md)** - Set up credential
+- 🔍 **[Verify Credentials](./presentation/index.md)** - Set up credential
   verification
 - ⚙️ **[Production Setup](../architecture/overview.md)** - Deploy for production
   use

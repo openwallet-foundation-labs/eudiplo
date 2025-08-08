@@ -78,6 +78,8 @@ export class CredentialsService {
             const isUsed = issuanceConfig.credentialIssuanceBindings.find(
                 (binding) => binding.credentialConfigId === value.id,
             );
+            value.config.vct = `${this.configService.getOrThrow<string>('PUBLIC_URL')}/${session.tenantId}/credentials/vct/${value.id}`;
+
             if (isUsed?.credentialConfig)
                 value.config = {
                     ...value.config,
@@ -161,10 +163,10 @@ export class CredentialsService {
         }
 
         const iat = Math.round(new Date().getTime() / 1000);
-        // Set expiration time if liveTime is defined
+        // Set expiration time if lifeTime is defined
         let exp: number | undefined;
-        if (credentialConfig.liveTime) {
-            exp = iat + credentialConfig.liveTime;
+        if (credentialConfig.lifeTime) {
+            exp = iat + credentialConfig.lifeTime;
         }
 
         // If key binding is enabled, include the JWK in the cnf

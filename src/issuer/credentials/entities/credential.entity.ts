@@ -29,8 +29,10 @@ export class CredentialConfig {
     @IsEmpty()
     @Column('varchar', { primary: true })
     tenantId: string;
+
+    //TODO: only allow display config for now
     /**
-     * OID4VCI issuer metadata crddential configuration element.
+     * OID4VCI issuer metadata credential configuration element.
      */
     @Column('json')
     @IsObject()
@@ -86,7 +88,7 @@ export class CredentialConfig {
     @IsNumber()
     @IsOptional()
     @Column('int', { nullable: true })
-    liveTime?: number;
+    lifeTime?: number;
 
     /**
      * json schema that is used during issuance for the validation of the claims.
