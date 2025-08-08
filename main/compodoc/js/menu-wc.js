@@ -69,13 +69,13 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="modules/AppModule.html" data-type="entity-link" >AppModule</a>
                                     <li class="chapter inner">
                                         <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ?
-                                            'data-bs-target="#controllers-links-module-AppModule-5c20508214beee678798895898bfd640930baaf9b5a9cb3e55945ed19071bc797b215533336f43f2876fdf514bbc3f7d69008fc8b63fce6e489a7f507ba89ce0"' : 'data-bs-target="#xs-controllers-links-module-AppModule-5c20508214beee678798895898bfd640930baaf9b5a9cb3e55945ed19071bc797b215533336f43f2876fdf514bbc3f7d69008fc8b63fce6e489a7f507ba89ce0"' }>
+                                            'data-bs-target="#controllers-links-module-AppModule-32acf1898c0c0852a174c21d6f10ef12a2c3e71132492a357b6b7147e2d4b05f4ebc358f3ea29ad15830cda23ea752d47696c9fdb0a38f277afb6789087cc35a"' : 'data-bs-target="#xs-controllers-links-module-AppModule-32acf1898c0c0852a174c21d6f10ef12a2c3e71132492a357b6b7147e2d4b05f4ebc358f3ea29ad15830cda23ea752d47696c9fdb0a38f277afb6789087cc35a"' }>
                                             <span class="icon ion-md-swap"></span>
                                             <span>Controllers</span>
                                             <span class="icon ion-ios-arrow-down"></span>
                                         </div>
-                                        <ul class="links collapse" ${ isNormalMode ? 'id="controllers-links-module-AppModule-5c20508214beee678798895898bfd640930baaf9b5a9cb3e55945ed19071bc797b215533336f43f2876fdf514bbc3f7d69008fc8b63fce6e489a7f507ba89ce0"' :
-                                            'id="xs-controllers-links-module-AppModule-5c20508214beee678798895898bfd640930baaf9b5a9cb3e55945ed19071bc797b215533336f43f2876fdf514bbc3f7d69008fc8b63fce6e489a7f507ba89ce0"' }>
+                                        <ul class="links collapse" ${ isNormalMode ? 'id="controllers-links-module-AppModule-32acf1898c0c0852a174c21d6f10ef12a2c3e71132492a357b6b7147e2d4b05f4ebc358f3ea29ad15830cda23ea752d47696c9fdb0a38f277afb6789087cc35a"' :
+                                            'id="xs-controllers-links-module-AppModule-32acf1898c0c0852a174c21d6f10ef12a2c3e71132492a357b6b7147e2d4b05f4ebc358f3ea29ad15830cda23ea752d47696c9fdb0a38f277afb6789087cc35a"' }>
                                             <li class="link">
                                                 <a href="controllers/AppController.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >AppController</a>
                                             </li>
@@ -86,13 +86,13 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                     </li>
                                 <li class="chapter inner">
                                     <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ?
-                                        'data-bs-target="#injectables-links-module-AppModule-5c20508214beee678798895898bfd640930baaf9b5a9cb3e55945ed19071bc797b215533336f43f2876fdf514bbc3f7d69008fc8b63fce6e489a7f507ba89ce0"' : 'data-bs-target="#xs-injectables-links-module-AppModule-5c20508214beee678798895898bfd640930baaf9b5a9cb3e55945ed19071bc797b215533336f43f2876fdf514bbc3f7d69008fc8b63fce6e489a7f507ba89ce0"' }>
+                                        'data-bs-target="#injectables-links-module-AppModule-32acf1898c0c0852a174c21d6f10ef12a2c3e71132492a357b6b7147e2d4b05f4ebc358f3ea29ad15830cda23ea752d47696c9fdb0a38f277afb6789087cc35a"' : 'data-bs-target="#xs-injectables-links-module-AppModule-32acf1898c0c0852a174c21d6f10ef12a2c3e71132492a357b6b7147e2d4b05f4ebc358f3ea29ad15830cda23ea752d47696c9fdb0a38f277afb6789087cc35a"' }>
                                         <span class="icon ion-md-arrow-round-down"></span>
                                         <span>Injectables</span>
                                         <span class="icon ion-ios-arrow-down"></span>
                                     </div>
-                                    <ul class="links collapse" ${ isNormalMode ? 'id="injectables-links-module-AppModule-5c20508214beee678798895898bfd640930baaf9b5a9cb3e55945ed19071bc797b215533336f43f2876fdf514bbc3f7d69008fc8b63fce6e489a7f507ba89ce0"' :
-                                        'id="xs-injectables-links-module-AppModule-5c20508214beee678798895898bfd640930baaf9b5a9cb3e55945ed19071bc797b215533336f43f2876fdf514bbc3f7d69008fc8b63fce6e489a7f507ba89ce0"' }>
+                                    <ul class="links collapse" ${ isNormalMode ? 'id="injectables-links-module-AppModule-32acf1898c0c0852a174c21d6f10ef12a2c3e71132492a357b6b7147e2d4b05f4ebc358f3ea29ad15830cda23ea752d47696c9fdb0a38f277afb6789087cc35a"' :
+                                        'id="xs-injectables-links-module-AppModule-32acf1898c0c0852a174c21d6f10ef12a2c3e71132492a357b6b7147e2d4b05f4ebc358f3ea29ad15830cda23ea752d47696c9fdb0a38f277afb6789087cc35a"' }>
                                         <li class="link">
                                             <a href="injectables/WellKnownService.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >WellKnownService</a>
                                         </li>
@@ -140,6 +140,23 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 </li>
                             </li>
                             <li class="link">
+                                <a href="modules/CryptoImplementatationModule.html" data-type="entity-link" >CryptoImplementatationModule</a>
+                                <li class="chapter inner">
+                                    <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ?
+                                        'data-bs-target="#injectables-links-module-CryptoImplementatationModule-61115413b19a3e9775b728b8d40c0d155fe97f1e8827b171dbd9717d0ee43fa5bf44b643d80a7c6b389f26a0306014206af5f10dccce326e9fdd8d3841e03744"' : 'data-bs-target="#xs-injectables-links-module-CryptoImplementatationModule-61115413b19a3e9775b728b8d40c0d155fe97f1e8827b171dbd9717d0ee43fa5bf44b643d80a7c6b389f26a0306014206af5f10dccce326e9fdd8d3841e03744"' }>
+                                        <span class="icon ion-md-arrow-round-down"></span>
+                                        <span>Injectables</span>
+                                        <span class="icon ion-ios-arrow-down"></span>
+                                    </div>
+                                    <ul class="links collapse" ${ isNormalMode ? 'id="injectables-links-module-CryptoImplementatationModule-61115413b19a3e9775b728b8d40c0d155fe97f1e8827b171dbd9717d0ee43fa5bf44b643d80a7c6b389f26a0306014206af5f10dccce326e9fdd8d3841e03744"' :
+                                        'id="xs-injectables-links-module-CryptoImplementatationModule-61115413b19a3e9775b728b8d40c0d155fe97f1e8827b171dbd9717d0ee43fa5bf44b643d80a7c6b389f26a0306014206af5f10dccce326e9fdd8d3841e03744"' }>
+                                        <li class="link">
+                                            <a href="injectables/CryptoImplementationService.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >CryptoImplementationService</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </li>
+                            <li class="link">
                                 <a href="modules/CryptoModule.html" data-type="entity-link" >CryptoModule</a>
                                     <li class="chapter inner">
                                         <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ?
@@ -169,23 +186,6 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                         </li>
                                         <li class="link">
                                             <a href="injectables/EncryptionService.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >EncryptionService</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                            </li>
-                            <li class="link">
-                                <a href="modules/CryptoModule.html" data-type="entity-link" >CryptoModule</a>
-                                <li class="chapter inner">
-                                    <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ?
-                                        'data-bs-target="#injectables-links-module-CryptoModule-d1642129ab7c9037b8430e4be3082a55f4d92c2a48cf56b44e21d5b18c6cf1b0b9c0bf7eb477f5598cac3c915d7f45b07fd3f4c904333d772d2c504d97cf254a-1"' : 'data-bs-target="#xs-injectables-links-module-CryptoModule-d1642129ab7c9037b8430e4be3082a55f4d92c2a48cf56b44e21d5b18c6cf1b0b9c0bf7eb477f5598cac3c915d7f45b07fd3f4c904333d772d2c504d97cf254a-1"' }>
-                                        <span class="icon ion-md-arrow-round-down"></span>
-                                        <span>Injectables</span>
-                                        <span class="icon ion-ios-arrow-down"></span>
-                                    </div>
-                                    <ul class="links collapse" ${ isNormalMode ? 'id="injectables-links-module-CryptoModule-d1642129ab7c9037b8430e4be3082a55f4d92c2a48cf56b44e21d5b18c6cf1b0b9c0bf7eb477f5598cac3c915d7f45b07fd3f4c904333d772d2c504d97cf254a-1"' :
-                                        'id="xs-injectables-links-module-CryptoModule-d1642129ab7c9037b8430e4be3082a55f4d92c2a48cf56b44e21d5b18c6cf1b0b9c0bf7eb477f5598cac3c915d7f45b07fd3f4c904333d772d2c504d97cf254a-1"' }>
-                                        <li class="link">
-                                            <a href="injectables/CryptoImplementationService.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >CryptoImplementationService</a>
                                         </li>
                                     </ul>
                                 </li>

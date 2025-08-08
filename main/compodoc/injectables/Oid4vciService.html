@@ -350,8 +350,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="116"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:116</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="126"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:126</a></div>
                         </td>
                     </tr>
 
@@ -443,8 +443,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="186"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:186</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="196"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:196</a></div>
                         </td>
                     </tr>
 
@@ -524,8 +524,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="303"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:303</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="313"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:313</a></div>
                         </td>
                     </tr>
 
@@ -880,21 +880,31 @@ export class Oid4vciService implements OnModuleInit {
         const authorizationServerMetadata &#x3D;
             this.authzService.authzMetadata(session);
 
+        const issuanceConfig &#x3D;
+            await this.issuanceService.getIssuanceConfigurationById(
+                session.issuanceId as string,
+                session.tenantId,
+            );
+
         let credentialIssuer &#x3D; this.issuer.createCredentialIssuerMetadata({
             credential_issuer,
             credential_configurations_supported:
                 await this.credentialsService.getCredentialConfigurationSupported(
-                    session.tenantId,
+                    session,
+                    issuanceConfig,
                 ),
             credential_endpoint: &#x60;${credential_issuer}/vci/credential&#x60;,
             authorization_servers: [authorizationServerMetadata.issuer],
             authorization_server: authorizationServerMetadata.issuer,
             notification_endpoint: &#x60;${credential_issuer}/vci/notification&#x60;,
-            batch_credential_issuance: {
-                batch_size: 1,
-            },
             display,
         });
+
+        if (issuanceConfig.batch_size) {
+            credentialIssuer.batch_credential_issuance &#x3D; {
+                batch_size: issuanceConfig.batch_size,
+            };
+        }
 
         //replace placeholders in the issuer metadata
         credentialIssuer &#x3D; JSON.parse(

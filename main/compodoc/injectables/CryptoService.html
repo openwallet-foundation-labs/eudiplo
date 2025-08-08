@@ -1614,7 +1614,7 @@ export class CryptoService implements OnModuleInit {
 
         // &#x3D;&#x3D;&#x3D; Helper to run shell commands &#x3D;&#x3D;&#x3D;
         const run &#x3D; (cmd) &#x3D;&gt; {
-            execSync(cmd, { stdio: &#x27;inherit&#x27; });
+            execSync(cmd, { stdio: &#x27;pipe&#x27; });
         };
 
         // &#x3D;&#x3D;&#x3D; Step-by-step &#x3D;&#x3D;&#x3D;

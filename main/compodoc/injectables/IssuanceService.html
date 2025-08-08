@@ -317,8 +317,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="239"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:239</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="218"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:218</a></div>
                         </td>
                     </tr>
 
@@ -401,8 +401,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="142"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:142</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="122"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:122</a></div>
                         </td>
                     </tr>
 
@@ -472,8 +472,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="154"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:154</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="134"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:134</a></div>
                         </td>
                     </tr>
 
@@ -638,8 +638,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="170"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:170</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="150"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:150</a></div>
                         </td>
                     </tr>
 
@@ -763,8 +763,8 @@ export class IssuanceService implements OnModuleInit {
             const tenantFolders &#x3D; readdirSync(configPath, {
                 withFileTypes: true,
             }).filter((tenant) &#x3D;&gt; tenant.isDirectory());
-            let counter &#x3D; 0;
             for (const tenant of tenantFolders) {
+                let counter &#x3D; 0;
                 //iterate over all elements in the folder and import them
                 const path &#x3D; join(configPath, tenant.name, subfolder);
                 const files &#x3D; readdirSync(path);
@@ -784,7 +784,10 @@ export class IssuanceService implements OnModuleInit {
 
                     // Validate the payload against IssuanceDto
                     const issuanceDto &#x3D; plainToClass(IssuanceDto, payload);
-                    const validationErrors &#x3D; await validate(issuanceDto);
+                    const validationErrors &#x3D; await validate(issuanceDto, {
+                        whitelist: true,
+                        forbidNonWhitelisted: true,
+                    });
 
                     if (validationErrors.length &gt; 0) {
                         this.logger.error(
@@ -802,41 +805,18 @@ export class IssuanceService implements OnModuleInit {
                         );
                         continue; // Skip this invalid config
                     }
-
-                    // check that the key exists
-                    for (const credentialConfigId of issuanceDto.credentialConfigs) {
-                        if (credentialConfigId.keyId) {
-                            const hasEntry &#x3D; await this.cryptoService.hasEntry(
-                                tenant.name,
-                                credentialConfigId.keyId,
-                            );
-                            if (!hasEntry) {
-                                this.logger.error(
-                                    {
-                                        event: &#x27;KeyNotFound&#x27;,
-                                        file,
-                                        tenant: tenant.name,
-                                        keyId: credentialConfigId.keyId,
-                                    },
-                                    &#x60;Key with ID ${credentialConfigId.keyId} not found for issuance config ${file} in tenant ${tenant.name}&#x60;,
-                                );
-                                continue; // Skip this config if key is not found
-                            }
-                        }
-
-                        await this.storeIssuanceConfiguration(
-                            tenant.name,
-                            issuanceDto,
-                        );
-                        counter++;
-                    }
-                    this.logger.info(
-                        {
-                            event: &#x27;Import&#x27;,
-                        },
-                        &#x60;${counter} issuance configs imported for ${tenant.name}&#x60;,
+                    await this.storeIssuanceConfiguration(
+                        tenant.name,
+                        issuanceDto,
                     );
+                    counter++;
                 }
+                this.logger.info(
+                    {
+                        event: &#x27;Import&#x27;,
+                    },
+                    &#x60;${counter} issuance configs imported for ${tenant.name}&#x60;,
+                );
             }
         }
     }
@@ -864,7 +844,7 @@ export class IssuanceService implements OnModuleInit {
     ): Promise&lt;IssuanceConfig&gt; {
         return this.issuanceConfigRepo.findOneOrFail({
             where: { id: issuanceConfigId, tenantId },
-            relations: [&#x27;credentialIssuanceBindings&#x27;],
+            relations: [&#x27;credentialIssuanceBindings.credentialConfig&#x27;],
         });
     }
 
@@ -884,7 +864,6 @@ export class IssuanceService implements OnModuleInit {
             );
             credentials.push({
                 config: credential,
-                keyId: credentialConfigId.keyId,
             });
         }
 

@@ -184,7 +184,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:42</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="46" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:46</a></div>
                         </td>
                     </tr>
 
@@ -210,7 +210,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:41</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="45" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:45</a></div>
                         </td>
                     </tr>
 
@@ -251,18 +251,22 @@ export class OfferRequestDto {
     response_type: ResponseType;
 
     /**
+     * Issuance config id to reference the issuance configuration.
      * @example &quot;pid&quot;
      */
     @IsString()
     issuanceId: string;
 
     /**
-     * @example [&quot;pid&quot;]
+     * Overrides the default values for the credential ids.
      */
     @IsArray()
     @IsOptional()
     credentialConfigurationIds?: string[];
 
+    /**
+     * Override the default values for the credential claims.
+     */
     @IsObject()
     @IsOptional()
     values?: { [key: string]: Record&lt;string, any&gt; };

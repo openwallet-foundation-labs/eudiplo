@@ -177,8 +177,8 @@
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { DynamicModule, Global, Module } from &#x27;@nestjs/common&#x27;;
 import { FileSystemKeyService } from &#x27;./filesystem-key.service&#x27;;
 import { VaultKeyService } from &#x27;./vault-key.service&#x27;;
-import { CryptoModule } from &#x27;./crypto/crypto.module&#x27;;
-import { CryptoImplementationService } from &#x27;./crypto/crypto.service&#x27;;
+import { CryptoImplementatationModule } from &#x27;./crypto-implementation/crypto-implementation.module&#x27;;
+import { CryptoImplementationService } from &#x27;./crypto-implementation/crypto-implementation.service&#x27;;
 import { ConfigModule, ConfigService } from &#x27;@nestjs/config&#x27;;
 import { HttpModule, HttpService } from &#x27;@nestjs/axios&#x27;;
 import * as Joi from &#x27;joi&#x27;;
@@ -213,7 +213,7 @@ export class KeyModule {
             imports: [
                 HttpModule,
                 ConfigModule,
-                CryptoModule,
+                CryptoImplementatationModule,
                 TypeOrmModule.forFeature([CertEntity]),
             ],
             providers: [

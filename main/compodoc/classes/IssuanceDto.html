@@ -156,6 +156,12 @@
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
+                                <a href="#batch_size" >batch_size</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                 <a href="#credentialConfigs" >credentialConfigs</a>
                             </li>
@@ -221,7 +227,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="45" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:45</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="49" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:49</a></div>
                         </td>
                     </tr>
 
@@ -229,6 +235,51 @@
                 <td class="col-md-4">
                     <div class="io-description"><p>Authentication configuration for the issuance process.
 This includes details like the authentication method and any required parameters.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="batch_size"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
+                        <span ><b>batch_size</b></span>
+                        <a href="#batch_size"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @IsNumber()<br />@IsOptional()<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="66" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:66</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Value to determine the amount of credentials that are issued in a batch.
+Default is 1.</p>
 </div>
                 </td>
             </tr>
@@ -266,7 +317,7 @@ This includes details like the authentication method and any required parameters
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:36</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="40" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:40</a></div>
                         </td>
                     </tr>
 
@@ -308,7 +359,7 @@ This includes details like the authentication method and any required parameters
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="28" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:28</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="32" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:32</a></div>
                         </td>
                     </tr>
 
@@ -354,7 +405,7 @@ This includes details like the authentication method and any required parameters
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="54" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:54</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="58" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:58</a></div>
                         </td>
                     </tr>
 
@@ -381,6 +432,7 @@ This includes details like the authentication method and any required parameters
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
     IsArray,
+    IsNumber,
     IsObject,
     IsOptional,
     IsString,
@@ -390,12 +442,15 @@ import { Type } from &#x27;class-transformer&#x27;;
 import { AuthenticationConfigDto } from &#x27;./authentication-config.dto&#x27;;
 import { WebhookConfig } from &#x27;../../../utils/webhook/webhook.dto&#x27;;
 
+/**
+ * DTO for mapping credential configurations in issuance.
+ */
 export class CredentialConfigMapping {
+    /**
+     * Unique identifier for the credential configuration.
+     */
     @IsString()
     id: string;
-    @IsString()
-    @IsOptional()
-    keyId?: string;
 }
 
 /**
@@ -433,6 +488,14 @@ export class IssuanceDto {
     @ValidateNested()
     @Type(() &#x3D;&gt; WebhookConfig)
     notifyWebhook?: WebhookConfig;
+
+    /**
+     * Value to determine the amount of credentials that are issued in a batch.
+     * Default is 1.
+     */
+    @IsNumber()
+    @IsOptional()
+    batch_size?: number;
 }
 </code></pre>
     </div>

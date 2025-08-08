@@ -211,13 +211,14 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="33" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:33</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="34" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:34</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><b>Example :</b><div><pre class="line-numbers"><code class="language-html"></code></pre></div></div>
+                    <div class="io-description"><p>Overrides the default values for the credential ids.</p>
+</div>
                 </td>
             </tr>
 
@@ -252,13 +253,14 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="26" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:26</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="27" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:27</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><b>Example :</b><div><pre class="line-numbers"><code class="language-html"></code></pre></div></div>
+                    <div class="io-description"><p>Issuance config id to reference the issuance configuration.</p>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-html"></code></pre></div></div>
                 </td>
             </tr>
 
@@ -337,10 +339,16 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="37" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:37</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:41</a></div>
                         </td>
                     </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Override the default values for the credential claims.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -378,18 +386,22 @@ export class OfferRequestDto {
     response_type: ResponseType;
 
     /**
+     * Issuance config id to reference the issuance configuration.
      * @example &quot;pid&quot;
      */
     @IsString()
     issuanceId: string;
 
     /**
-     * @example [&quot;pid&quot;]
+     * Overrides the default values for the credential ids.
      */
     @IsArray()
     @IsOptional()
     credentialConfigurationIds?: string[];
 
+    /**
+     * Override the default values for the credential claims.
+     */
     @IsObject()
     @IsOptional()
     values?: { [key: string]: Record&lt;string, any&gt; };
