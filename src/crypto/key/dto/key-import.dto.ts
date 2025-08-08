@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import { IsEnum, IsObject, IsOptional, IsString } from 'class-validator';
 import { JWK } from 'jose';
 
@@ -26,6 +27,7 @@ export class KeyImportDto {
      * The private key in JWK format.
      */
     @IsObject()
+    @Type(() => Key)
     privateKey: Key;
 
     /**

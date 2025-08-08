@@ -1,5 +1,4 @@
 {
-    "$schema": "../../../config-schemas/key.json",
     "privateKey": {
         "kty": "EC",
         "x": "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",

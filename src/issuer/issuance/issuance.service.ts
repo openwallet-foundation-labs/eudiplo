@@ -56,8 +56,8 @@ export class IssuanceService implements OnModuleInit {
             const tenantFolders = readdirSync(configPath, {
                 withFileTypes: true,
             }).filter((tenant) => tenant.isDirectory());
-            let counter = 0;
             for (const tenant of tenantFolders) {
+                let counter = 0;
                 //iterate over all elements in the folder and import them
                 const path = join(configPath, tenant.name, subfolder);
                 const files = readdirSync(path);
@@ -77,7 +77,10 @@ export class IssuanceService implements OnModuleInit {
 
                     // Validate the payload against IssuanceDto
                     const issuanceDto = plainToClass(IssuanceDto, payload);
-                    const validationErrors = await validate(issuanceDto);
+                    const validationErrors = await validate(issuanceDto, {
+                        whitelist: true,
+                        forbidNonWhitelisted: true,
+                    });
 
                     if (validationErrors.length > 0) {
                         this.logger.error(
@@ -95,41 +98,18 @@ export class IssuanceService implements OnModuleInit {
                         );
                         continue; // Skip this invalid config
                     }
-
-                    // check that the key exists
-                    for (const credentialConfigId of issuanceDto.credentialConfigs) {
-                        if (credentialConfigId.keyId) {
-                            const hasEntry = await this.cryptoService.hasEntry(
-                                tenant.name,
-                                credentialConfigId.keyId,
-                            );
-                            if (!hasEntry) {
-                                this.logger.error(
-                                    {
-                                        event: 'KeyNotFound',
-                                        file,
-                                        tenant: tenant.name,
-                                        keyId: credentialConfigId.keyId,
-                                    },
-                                    `Key with ID ${credentialConfigId.keyId} not found for issuance config ${file} in tenant ${tenant.name}`,
-                                );
-                                continue; // Skip this config if key is not found
-                            }
-                        }
-
-                        await this.storeIssuanceConfiguration(
-                            tenant.name,
-                            issuanceDto,
-                        );
-                        counter++;
-                    }
-                    this.logger.info(
-                        {
-                            event: 'Import',
-                        },
-                        `${counter} issuance configs imported for ${tenant.name}`,
+                    await this.storeIssuanceConfiguration(
+                        tenant.name,
+                        issuanceDto,
                     );
+                    counter++;
                 }
+                this.logger.info(
+                    {
+                        event: 'Import',
+                    },
+                    `${counter} issuance configs imported for ${tenant.name}`,
+                );
             }
         }
     }
@@ -157,7 +137,7 @@ export class IssuanceService implements OnModuleInit {
     ): Promise<IssuanceConfig> {
         return this.issuanceConfigRepo.findOneOrFail({
             where: { id: issuanceConfigId, tenantId },
-            relations: ['credentialIssuanceBindings'],
+            relations: ['credentialIssuanceBindings.credentialConfig'],
         });
     }
 
@@ -177,7 +157,6 @@ export class IssuanceService implements OnModuleInit {
             );
             credentials.push({
                 config: credential,
-                keyId: credentialConfigId.keyId,
             });
         }
 

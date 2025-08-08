@@ -58,6 +58,13 @@ export class PresentationsService implements OnModuleInit {
      * Imports presentation configurations from a predefined directory structure.
      */
     async onApplicationBootstrap() {
+        await this.import();
+    }
+
+    /**
+     * Imports presentation configurations from a predefined directory structure.
+     */
+    private async import() {
         const configPath = this.configService.getOrThrow('CONFIG_FOLDER');
         const subfolder = 'presentation';
         const force = this.configService.get<boolean>('CONFIG_IMPORT_FORCE');
@@ -65,8 +72,8 @@ export class PresentationsService implements OnModuleInit {
             const tenantFolders = readdirSync(configPath, {
                 withFileTypes: true,
             }).filter((tenant) => tenant.isDirectory());
-            let counter = 0;
             for (const tenant of tenantFolders) {
+                let counter = 0;
                 //iterate over all elements in the folder and import them
                 const path = join(configPath, tenant.name, subfolder);
                 const files = readdirSync(path);
@@ -75,9 +82,10 @@ export class PresentationsService implements OnModuleInit {
                         readFileSync(join(path, file), 'utf8'),
                     );
 
-                    payload.id = file.replace('.json', '');
+                    const id = file.replace('.json', '');
+                    payload.id = id;
                     const presentationExists = await this.getPresentationConfig(
-                        payload.id,
+                        id,
                         tenant.name,
                     ).catch(() => false);
                     if (presentationExists && !force) {
@@ -86,7 +94,10 @@ export class PresentationsService implements OnModuleInit {
 
                     // Validate the payload against PresentationConfig
                     const config = plainToClass(PresentationConfig, payload);
-                    const validationErrors = await validate(config);
+                    const validationErrors = await validate(config, {
+                        whitelist: true,
+                        forbidNonWhitelisted: true,
+                    });
 
                     if (validationErrors.length > 0) {
                         this.logger.error(
@@ -100,7 +111,7 @@ export class PresentationsService implements OnModuleInit {
                                     value: error.value,
                                 })),
                             },
-                            `Validation failed for issuance config ${file} in tenant ${tenant.name}`,
+                            `Validation failed for presentation config ${file} in tenant ${tenant.name}`,
                         );
                         continue; // Skip this invalid config
                     }

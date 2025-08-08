@@ -1,4 +1,4 @@
-import { IsString, IsObject } from 'class-validator';
+import { IsString, IsObject, IsEmpty, IsOptional } from 'class-validator';
 import { WebhookConfig } from '../../../utils/webhook/webhook.dto';
 import { RegistrationCertificateRequest } from '../dto/vp-request.dto';
 import { Column, Entity } from 'typeorm';
@@ -21,6 +21,7 @@ export class PresentationConfig {
      */
     @ApiHideProperty()
     @Column('varchar', { primary: true })
+    @IsEmpty()
     tenantId: string;
 
     /**
@@ -33,9 +34,10 @@ export class PresentationConfig {
     /**
      * The registration certificate request containing the necessary details.
      */
+    @IsOptional()
     @IsObject()
     @Column('json')
-    registrationCert: RegistrationCertificateRequest;
+    registrationCert?: RegistrationCertificateRequest;
     /**
      * Optional webhook URL to receive the response.
      */
@@ -46,6 +48,7 @@ export class PresentationConfig {
     /**
      * The timestamp when the VP request was created.
      */
+    @IsEmpty()
     @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date;
 }

@@ -41,6 +41,11 @@ export abstract class KeyService {
     abstract init(tenantId): Promise<string>;
 
     /**
+     * Import keys into the key service.
+     */
+    abstract importFromFileSystem(): Promise<void>;
+
+    /**
      * Creates a new keypair
      * @param tenantId
      * @return key id of the generated key.

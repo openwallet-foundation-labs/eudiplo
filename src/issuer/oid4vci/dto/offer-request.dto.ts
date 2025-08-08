@@ -20,18 +20,22 @@ export class OfferRequestDto {
     response_type: ResponseType;
 
     /**
+     * Issuance config id to reference the issuance configuration.
      * @example "pid"
      */
     @IsString()
     issuanceId: string;
 
     /**
-     * @example ["pid"]
+     * Overrides the default values for the credential ids.
      */
     @IsArray()
     @IsOptional()
     credentialConfigurationIds?: string[];
 
+    /**
+     * Override the default values for the credential claims.
+     */
     @IsObject()
     @IsOptional()
     values?: { [key: string]: Record<string, any> };

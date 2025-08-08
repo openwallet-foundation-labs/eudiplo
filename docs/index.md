@@ -73,8 +73,8 @@ docker run -p 3000:3000 \
 ```
 
 ➡️ Read the [Quickstart Guide](./getting-started/quick-start.md)  
-📘 Learn how to [configure credentials](./getting-started/issuance.md) or
-[verify them](./getting-started/presentation.md)
+📘 Learn how to [configure credentials](./getting-started/issuance/index.md) or
+[verify them](./getting-started/presentation/index.md)
 
 ---
 

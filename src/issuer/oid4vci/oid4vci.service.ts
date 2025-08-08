@@ -82,21 +82,31 @@ export class Oid4vciService implements OnModuleInit {
         const authorizationServerMetadata =
             this.authzService.authzMetadata(session);
 
+        const issuanceConfig =
+            await this.issuanceService.getIssuanceConfigurationById(
+                session.issuanceId as string,
+                session.tenantId,
+            );
+
         let credentialIssuer = this.issuer.createCredentialIssuerMetadata({
             credential_issuer,
             credential_configurations_supported:
                 await this.credentialsService.getCredentialConfigurationSupported(
-                    session.tenantId,
+                    session,
+                    issuanceConfig,
                 ),
             credential_endpoint: `${credential_issuer}/vci/credential`,
             authorization_servers: [authorizationServerMetadata.issuer],
             authorization_server: authorizationServerMetadata.issuer,
             notification_endpoint: `${credential_issuer}/vci/notification`,
-            batch_credential_issuance: {
-                batch_size: 1,
-            },
             display,
         });
+
+        if (issuanceConfig.batch_size) {
+            credentialIssuer.batch_credential_issuance = {
+                batch_size: issuanceConfig.batch_size,
+            };
+        }
 
         //replace placeholders in the issuer metadata
         credentialIssuer = JSON.parse(

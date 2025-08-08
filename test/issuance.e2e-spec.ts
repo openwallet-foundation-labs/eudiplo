@@ -31,6 +31,8 @@ import {
     Openid4vpAuthorizationRequest,
     Openid4vpClient,
 } from '@openid4vc/openid4vp';
+import { SDJwtVcInstance } from '@sd-jwt/sd-jwt-vc';
+import { digest } from '@sd-jwt/crypto-nodejs';
 
 setGlobalDispatcher(
     new Agent({
@@ -45,6 +47,11 @@ describe('Issuance', () => {
     let clientId: string;
     let clientSecret: string;
     let host: string;
+
+    const sdjwt = new SDJwtVcInstance({
+        hasher: digest,
+        hashAlg: 'sha-256',
+    });
 
     beforeAll(async () => {
         const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -516,6 +523,22 @@ describe('Issuance', () => {
                 jwt: proofJwt,
             },
         });
+
+        const credential: string = credentialResponse.credentialResponse
+            .credentials?.[0] as string;
+        expect(credential).toBeDefined();
+
+        const claims: any = await sdjwt.getClaims(credential);
+
+        // exp need to be defined
+        expect(claims.exp).toBeDefined();
+        // lifetime should be 1 hour
+        expect(claims.exp - claims.iat).toBe(3600);
+        // status should be defined
+        expect(claims.status).toBeDefined();
+        //check that a key is present in the cnf
+        expect(claims.cnf).toBeDefined();
+
         await client.sendNotification({
             issuerMetadata,
             notification: {
@@ -734,6 +757,22 @@ describe('Issuance', () => {
                 jwt: proofJwt,
             },
         });
+
+        expect(
+            credentialResponse.credentialResponse.credentials?.[0],
+        ).toBeDefined();
+
+        const claims: any = await sdjwt.getClaims(
+            credentialResponse.credentialResponse.credentials![0] as string,
+        );
+
+        // status list should not be present
+        expect(claims.status).toBeUndefined();
+        // exp should not be present
+        expect(claims.exp).toBeUndefined();
+        // key binding should not be present
+        expect(claims.cnf).toBeUndefined();
+
         await client.sendNotification({
             issuerMetadata,
             notification: {

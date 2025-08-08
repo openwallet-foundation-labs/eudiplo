@@ -18,6 +18,11 @@ export class CryptoImplementationService {
         return this.configServie.get('CRYPTO_ALG') as CryptoType;
     }
 
+    /**
+     * Returns the crypto implementation based on the configured algorithm.
+     * @param alg
+     * @returns
+     */
     getCrypto(
         alg = this.configServie.get<string>('CRYPTO_ALG'),
     ): CryptoImplementation {
