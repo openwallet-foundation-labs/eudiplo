@@ -118,10 +118,6 @@
 <title>cluster_PresentationsModule</title>
 <polygon fill="none" stroke="black" stroke-dasharray="1,5" points="74,-70 74,-268 422,-268 422,-70 74,-70"/>
 </g>
-<g id="clust4" class="cluster">
-<title>cluster_PresentationsModule_exports</title>
-<polygon fill="none" stroke="black" points="160,-208 160,-260 312,-260 312,-208 160,-208"/>
-</g>
 <g id="clust6" class="cluster">
 <title>cluster_PresentationsModule_providers</title>
 <polygon fill="none" stroke="black" points="216,-78 216,-130 414,-130 414,-78 216,-78"/>
@@ -129,6 +125,10 @@
 <g id="clust3" class="cluster">
 <title>cluster_PresentationsModule_imports</title>
 <polygon fill="none" stroke="black" points="82,-78 82,-130 208,-130 208,-78 82,-78"/>
+</g>
+<g id="clust4" class="cluster">
+<title>cluster_PresentationsModule_exports</title>
+<polygon fill="none" stroke="black" points="160,-208 160,-260 312,-260 312,-208 160,-208"/>
 </g>
 <!-- ResolverModule -->
 <g id="node1" class="node">
@@ -264,14 +264,14 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { forwardRef, Module } from &#x27;@nestjs/common&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { HttpModule } from &#x27;@nestjs/axios&#x27;;
+import { forwardRef, Module } from &#x27;@nestjs/common&#x27;;
+import { TypeOrmModule } from &#x27;@nestjs/typeorm&#x27;;
+import { Oid4vpModule } from &#x27;../oid4vp/oid4vp.module&#x27;;
+import { ResolverModule } from &#x27;../resolver/resolver.module&#x27;;
+import { PresentationConfig } from &#x27;./entities/presentation-config.entity&#x27;;
 import { PresentationManagementController } from &#x27;./presentations.controller&#x27;;
 import { PresentationsService } from &#x27;./presentations.service&#x27;;
-import { ResolverModule } from &#x27;../resolver/resolver.module&#x27;;
-import { HttpModule } from &#x27;@nestjs/axios&#x27;;
-import { Oid4vpModule } from &#x27;../oid4vp/oid4vp.module&#x27;;
-import { TypeOrmModule } from &#x27;@nestjs/typeorm&#x27;;
-import { PresentationConfig } from &#x27;./entities/presentation-config.entity&#x27;;
 
 @Module({
     imports: [

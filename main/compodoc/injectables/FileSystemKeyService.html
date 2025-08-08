@@ -346,7 +346,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:199</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:203</a></code>
 </div>
                         </td>
                     </tr>
@@ -499,7 +499,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:270</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:274</a></code>
 </div>
                         </td>
                     </tr>
@@ -590,8 +590,8 @@ If no key exists, it will throw an error.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="240"
-                                    class="link-to-prism">src/crypto/key/filesystem-key.service.ts:240</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="244"
+                                    class="link-to-prism">src/crypto/key/filesystem-key.service.ts:244</a></div>
                         </td>
                     </tr>
 
@@ -748,7 +748,7 @@ If no key exists, it will throw an error.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:286</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:290</a></code>
 </div>
                         </td>
                     </tr>
@@ -840,8 +840,8 @@ If no key exists, it will throw an error.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="287"
-                                    class="link-to-prism">src/crypto/key/filesystem-key.service.ts:287</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="291"
+                                    class="link-to-prism">src/crypto/key/filesystem-key.service.ts:291</a></div>
                         </td>
                     </tr>
 
@@ -932,8 +932,8 @@ If no key exists, it will throw an error.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="292"
-                                    class="link-to-prism">src/crypto/key/filesystem-key.service.ts:292</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="296"
+                                    class="link-to-prism">src/crypto/key/filesystem-key.service.ts:296</a></div>
                         </td>
                     </tr>
 
@@ -1161,7 +1161,7 @@ If no key exists, it will throw an error.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:190</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:194</a></code>
 </div>
                         </td>
                     </tr>
@@ -1239,7 +1239,7 @@ This will create the keys if they do not exist.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:231</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:235</a></code>
 </div>
                         </td>
                     </tr>
@@ -1328,7 +1328,7 @@ This will create the keys if they do not exist.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:327</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:331</a></code>
 </div>
                         </td>
                     </tr>
@@ -1542,34 +1542,34 @@ This will create the keys if they do not exist.</p>
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
     existsSync,
     mkdirSync,
-    writeFileSync,
-    readFileSync,
     readdirSync,
+    readFileSync,
+    writeFileSync,
 } from &#x27;node:fs&#x27;;
+import { join } from &#x27;node:path&#x27;;
+import { ConflictException, Injectable } from &#x27;@nestjs/common&#x27;;
+import { ConfigService } from &#x27;@nestjs/config&#x27;;
+import { Signer } from &#x27;@sd-jwt/types&#x27;;
+import { plainToClass } from &#x27;class-transformer&#x27;;
+import { validate } from &#x27;class-validator&#x27;;
 import {
+    CryptoKey,
+    exportJWK,
+    exportSPKI,
+    importJWK,
     JWK,
     JWTHeaderParameters,
     JWTPayload,
-    CryptoKey,
     SignJWT,
-    importJWK,
-    exportSPKI,
-    exportJWK,
 } from &#x27;jose&#x27;;
+import { PinoLogger } from &#x27;nestjs-pino&#x27;;
+import { Repository } from &#x27;typeorm/repository/Repository&#x27;;
 import { v4 } from &#x27;uuid&#x27;;
-import { KeyObj, KeyService } from &#x27;./key.service&#x27;;
-import { ConflictException, Injectable } from &#x27;@nestjs/common&#x27;;
-import { Signer } from &#x27;@sd-jwt/types&#x27;;
-import { ConfigService } from &#x27;@nestjs/config&#x27;;
 import { CryptoImplementation } from &#x27;./crypto-implementation/crypto-implementation&#x27;;
 import { CryptoImplementationService } from &#x27;./crypto-implementation/crypto-implementation.service&#x27;;
-import { join } from &#x27;node:path&#x27;;
 import { KeyImportDto } from &#x27;./dto/key-import.dto&#x27;;
 import { CertEntity, CertificateType } from &#x27;./entities/cert.entity&#x27;;
-import { Repository } from &#x27;typeorm/repository/Repository&#x27;;
-import { plainToClass } from &#x27;class-transformer&#x27;;
-import { validate } from &#x27;class-validator&#x27;;
-import { PinoLogger } from &#x27;nestjs-pino&#x27;;
+import { KeyObj, KeyService } from &#x27;./key.service&#x27;;
 
 /**
  * The key service is responsible for managing the keys of the issuer.
@@ -1718,8 +1718,12 @@ export class FileSystemKeyService extends KeyService {
      * @returns
      */
     private getPubFromPrivateKey(privateKey: JWK): JWK {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { d, key_ops, ext, ...publicKey } &#x3D; privateKey;
+        const {
+            d: _d,
+            key_ops: _key_ops,
+            ext: _ext,
+            ...publicKey
+        } &#x3D; privateKey;
         return publicKey;
     }
 

@@ -268,19 +268,19 @@ Accepts client credentials either in Authorization header (Basic auth) or reques
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
-    Controller,
-    Post,
     Body,
-    UnauthorizedException,
+    Controller,
     Headers,
+    Post,
+    UnauthorizedException,
 } from &#x27;@nestjs/common&#x27;;
-import { ApiTags, ApiResponse, ApiBody } from &#x27;@nestjs/swagger&#x27;;
-import { JwtService } from &#x27;./jwt.service&#x27;;
+import { ApiBody, ApiResponse, ApiTags } from &#x27;@nestjs/swagger&#x27;;
 import { ClientService } from &#x27;./client.service&#x27;;
-import { Public } from &#x27;./public.decorator&#x27;;
 import { ClientCredentialsDto } from &#x27;./dto/client-credentials.dto&#x27;;
-import { TokenPayload } from &#x27;./token.decorator&#x27;;
 import { TokenResponse } from &#x27;./dto/token-response.dto&#x27;;
+import { JwtService } from &#x27;./jwt.service&#x27;;
+import { Public } from &#x27;./public.decorator&#x27;;
+import { TokenPayload } from &#x27;./token.decorator&#x27;;
 
 @ApiTags(&#x27;Authentication&#x27;)
 @Controller(&#x27;auth&#x27;)

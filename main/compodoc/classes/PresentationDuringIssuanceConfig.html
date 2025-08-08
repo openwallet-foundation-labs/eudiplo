@@ -229,14 +229,14 @@ Used for OID4VP flow where a credential presentation request is sent</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Type } from &#x27;class-transformer&#x27;;
+import {
+    IsIn,
     IsObject,
     IsOptional,
     IsUrl,
-    IsIn,
     ValidateNested,
 } from &#x27;class-validator&#x27;;
-import { Type } from &#x27;class-transformer&#x27;;
 import { WebhookConfig } from &#x27;../../../utils/webhook/webhook.dto&#x27;;
 import { PresentationDuringIssuance } from &#x27;../../credentials-metadata/dto/credential-config.dto&#x27;;
 

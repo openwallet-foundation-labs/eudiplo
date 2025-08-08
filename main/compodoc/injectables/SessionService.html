@@ -771,8 +771,11 @@ This will run every hour by default, but can be configured via the <code>SESSION
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, OnApplicationBootstrap } from &#x27;@nestjs/common&#x27;;
-import { Session, SessionStatus } from &#x27;./entities/session.entity&#x27;;
+import { ConfigService } from &#x27;@nestjs/config&#x27;;
+import { SchedulerRegistry } from &#x27;@nestjs/schedule&#x27;;
 import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
+import { InjectMetric } from &#x27;@willsoto/nestjs-prometheus/dist/injector&#x27;;
+import { Gauge } from &#x27;prom-client&#x27;;
 import {
     DeepPartial,
     FindOptionsWhere,
@@ -782,10 +785,7 @@ import {
     Repository,
 } from &#x27;typeorm&#x27;;
 import { QueryDeepPartialEntity } from &#x27;typeorm/query-builder/QueryPartialEntity&#x27;;
-import { SchedulerRegistry } from &#x27;@nestjs/schedule&#x27;;
-import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { Gauge } from &#x27;prom-client&#x27;;
-import { InjectMetric } from &#x27;@willsoto/nestjs-prometheus/dist/injector&#x27;;
+import { Session, SessionStatus } from &#x27;./entities/session.entity&#x27;;
 
 @Injectable()
 export class SessionService implements OnApplicationBootstrap {

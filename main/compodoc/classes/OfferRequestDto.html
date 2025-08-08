@@ -364,7 +364,8 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiProperty } from &#x27;@nestjs/swagger&#x27;;
+import {
     IsArray,
     IsEnum,
     IsObject,
@@ -372,7 +373,6 @@
     IsString,
 } from &#x27;class-validator&#x27;;
 import { ResponseType } from &#x27;../../../verifier/oid4vp/dto/presentation-request.dto&#x27;;
-import { ApiProperty } from &#x27;@nestjs/swagger&#x27;;
 
 export class OfferRequestDto {
     /**

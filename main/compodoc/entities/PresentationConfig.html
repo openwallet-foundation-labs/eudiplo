@@ -458,11 +458,11 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { IsString, IsObject, IsEmpty, IsOptional } from &#x27;class-validator&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiHideProperty } from &#x27;@nestjs/swagger&#x27;;
+import { IsEmpty, IsObject, IsOptional, IsString } from &#x27;class-validator&#x27;;
+import { Column, Entity } from &#x27;typeorm&#x27;;
 import { WebhookConfig } from &#x27;../../../utils/webhook/webhook.dto&#x27;;
 import { RegistrationCertificateRequest } from &#x27;../dto/vp-request.dto&#x27;;
-import { Column, Entity } from &#x27;typeorm&#x27;;
-import { ApiHideProperty } from &#x27;@nestjs/swagger&#x27;;
 
 /**
  * Entity representing a configuration for a Verifiable Presentation (VP) request.

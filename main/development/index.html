@@ -1407,6 +1407,8 @@
       
         
       
+        
+      
     
     
     
@@ -1468,6 +1470,29 @@
   
   <span class="md-ellipsis">
     Running Locally
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="code-quality/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Code Quality
     
   </span>
   
@@ -1732,17 +1757,38 @@ codebase, including:</p>
 <ul>
 <li><a href="../api/authentication/">API Authentication</a> - Guide for using OAuth2
   authentication with the API</li>
+<li><a href="code-quality/">Code Quality Standards</a> - Code formatting, linting, and style guidelines</li>
 <li><a href="contributing/">Contributing Guidelines</a> - How to contribute to the project</li>
 <li><a href="testing/">Testing Guide</a> - How to run and write tests</li>
 <li><a href="logging-configuration/">Logging</a> - Configuring logging for development
   and production</li>
+<li><a href="documentation-versioning/">Documentation Versioning</a> - Managing documentation versions</li>
 </ul>
 <h2 id="scripts">Scripts<a class="headerlink" href="#scripts" title="Permanent link">&para;</a></h2>
 <p>Useful development scripts:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pnpm<span class="w"> </span>run<span class="w"> </span>start:dev<span class="w">        </span><span class="c1"># Start the app in watch mode</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>pnpm<span class="w"> </span>run<span class="w"> </span><span class="nb">test</span><span class="w">             </span><span class="c1"># Run unit tests</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>pnpm<span class="w"> </span>run<span class="w"> </span>compodoc<span class="w">         </span><span class="c1"># Generate Compodoc documentation</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>pnpm<span class="w"> </span>run<span class="w"> </span>compodoc:serve<span class="w">   </span><span class="c1"># Serve the generated docs locally</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Development</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>pnpm<span class="w"> </span>run<span class="w"> </span>start:dev<span class="w">        </span><span class="c1"># Start the app in watch mode</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>pnpm<span class="w"> </span>run<span class="w"> </span>start:debug<span class="w">      </span><span class="c1"># Start with debug mode and watch</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>pnpm<span class="w"> </span>run<span class="w"> </span>build<span class="w">            </span><span class="c1"># Build the application</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="c1"># Testing</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>pnpm<span class="w"> </span>run<span class="w"> </span><span class="nb">test</span><span class="w">             </span><span class="c1"># Run unit tests</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>pnpm<span class="w"> </span>run<span class="w"> </span>test:watch<span class="w">       </span><span class="c1"># Run tests in watch mode</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>pnpm<span class="w"> </span>run<span class="w"> </span>test:e2e<span class="w">         </span><span class="c1"># Run end-to-end tests</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>pnpm<span class="w"> </span>run<span class="w"> </span>test:cov<span class="w">         </span><span class="c1"># Run tests with coverage</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>pnpm<span class="w"> </span>run<span class="w"> </span>test:debug<span class="w">       </span><span class="c1"># Run tests with debug mode</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="c1"># Code Quality</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>pnpm<span class="w"> </span>run<span class="w"> </span>format<span class="w">           </span><span class="c1"># Format all files with Biome</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>pnpm<span class="w"> </span>run<span class="w"> </span>format:check<span class="w">     </span><span class="c1"># Check formatting without changes</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>pnpm<span class="w"> </span>run<span class="w"> </span>lint<span class="w">             </span><span class="c1"># Run linting checks</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>pnpm<span class="w"> </span>run<span class="w"> </span>lint:fix<span class="w">         </span><span class="c1"># Fix linting issues automatically</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="c1"># Documentation</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>pnpm<span class="w"> </span>run<span class="w"> </span>compodoc<span class="w">         </span><span class="c1"># Generate Compodoc documentation</span>
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>pnpm<span class="w"> </span>run<span class="w"> </span>compodoc:serve<span class="w">   </span><span class="c1"># Serve Compodoc docs locally (port 3001)</span>
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>pnpm<span class="w"> </span>run<span class="w"> </span>doc:watch<span class="w">        </span><span class="c1"># Serve MkDocs documentation with live reload</span>
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>pnpm<span class="w"> </span>run<span class="w"> </span>doc:build<span class="w">        </span><span class="c1"># Build all documentation (Swagger + Compodoc + MkDocs)</span>
 </code></pre></div>
 <blockquote>
 <p>💡 Compodoc output is stored in the <code>doc/compodoc</code> folder and served

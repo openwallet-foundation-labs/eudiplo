@@ -397,14 +397,14 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Controller, Get, Param, Post, UseGuards, Body } from &#x27;@nestjs/common&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Body, Controller, Get, Param, Post, UseGuards } from &#x27;@nestjs/common&#x27;;
 import { ApiSecurity, ApiTags } from &#x27;@nestjs/swagger&#x27;;
-import { SessionService } from &#x27;./session.service&#x27;;
-import { Session } from &#x27;./entities/session.entity&#x27;;
 import { JwtAuthGuard } from &#x27;../auth/auth.guard&#x27;;
 import { Token, TokenPayload } from &#x27;../auth/token.decorator&#x27;;
 import { StatusUpdateDto } from &#x27;../issuer/status-list/dto/status-update.dto&#x27;;
 import { StatusListService } from &#x27;../issuer/status-list/status-list.service&#x27;;
+import { Session } from &#x27;./entities/session.entity&#x27;;
+import { SessionService } from &#x27;./session.service&#x27;;
 
 @ApiTags(&#x27;Session management&#x27;)
 @UseGuards(JwtAuthGuard)

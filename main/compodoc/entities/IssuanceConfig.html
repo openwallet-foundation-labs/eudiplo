@@ -499,11 +499,11 @@ Default is 1.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { IsObject } from &#x27;class-validator&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiHideProperty } from &#x27;@nestjs/swagger&#x27;;
+import { IsObject } from &#x27;class-validator&#x27;;
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from &#x27;typeorm&#x27;;
-import { ApiHideProperty } from &#x27;@nestjs/swagger&#x27;;
-import type { AuthenticationConfig } from &#x27;../dto/authentication-config.dto&#x27;;
 import { WebhookConfig } from &#x27;../../../utils/webhook/webhook.dto&#x27;;
+import type { AuthenticationConfig } from &#x27;../dto/authentication-config.dto&#x27;;
 import { CredentialIssuanceBinding } from &#x27;./credential-issuance-binding.entity&#x27;;
 
 /**

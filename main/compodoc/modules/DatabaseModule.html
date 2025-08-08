@@ -133,8 +133,8 @@
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &#x27;@nestjs/common&#x27;;
 import { ConfigModule, ConfigService } from &#x27;@nestjs/config&#x27;;
 import { TypeOrmModule, TypeOrmModuleOptions } from &#x27;@nestjs/typeorm&#x27;;
-import { join } from &#x27;path&#x27;;
 import * as Joi from &#x27;joi&#x27;;
+import { join } from &#x27;path&#x27;;
 
 export const DB_VALIDATION_SCHEMA &#x3D; {
     DB_TYPE: Joi.string().valid(&#x27;sqlite&#x27;, &#x27;postgres&#x27;).default(&#x27;sqlite&#x27;),

@@ -229,9 +229,9 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Global, Module } from &#x27;@nestjs/common&#x27;;
+import { ConfigModule } from &#x27;@nestjs/config&#x27;;
 import * as Joi from &#x27;joi&#x27;;
 import { CryptoImplementationService } from &#x27;./crypto-implementation.service&#x27;;
-import { ConfigModule } from &#x27;@nestjs/config&#x27;;
 
 export const CRYPTO_VALIDATION_SCHEMA &#x3D; {
     CRYPTO_ALG: Joi.string().valid(&#x27;ES256&#x27;).default(&#x27;ES256&#x27;),

@@ -294,7 +294,7 @@
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &#x27;@nestjs/common&#x27;;
 import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { SignJWT, jwtVerify, decodeJwt } from &#x27;jose&#x27;;
+import { decodeJwt, jwtVerify, SignJWT } from &#x27;jose&#x27;;
 import { TokenPayload } from &#x27;./token.decorator&#x27;;
 
 export interface GenerateTokenOptions {

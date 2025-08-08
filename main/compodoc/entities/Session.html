@@ -915,9 +915,9 @@ request URI, authorization queries, and more.</p>
     NotificationEvent,
 } from &#x27;@openid4vc/openid4vci&#x27;;
 import { VerificationResult } from &#x27;@sd-jwt/sd-jwt-vc&#x27;;
+import { Column, Entity, PrimaryColumn } from &#x27;typeorm&#x27;;
 import { AuthorizeQueries } from &#x27;../../issuer/authorize/dto/authorize-request.dto&#x27;;
 import { OfferRequestDto } from &#x27;../../issuer/oid4vci/dto/offer-request.dto&#x27;;
-import { Column, Entity, PrimaryColumn } from &#x27;typeorm&#x27;;
 import { WebhookConfig } from &#x27;../../utils/webhook/webhook.dto&#x27;;
 
 export type SessionStatus &#x3D; &#x27;active&#x27; | &#x27;completed&#x27; | &#x27;expired&#x27; | &#x27;failed&#x27;;

@@ -172,7 +172,6 @@
                                 <a href="#deletePresentationConfig" >deletePresentationConfig</a>
                             </li>
                             <li>
-                                    <span class="modifier">Async</span>
                                 <a href="#getPresentationConfig" >getPresentationConfig</a>
                             </li>
                             <li>
@@ -440,7 +439,6 @@
                 <td class="col-md-4">
                     <a name="getPresentationConfig"></a>
                     <span class="name">
-                            <span class="modifier">Async</span>
                         <span ><b>getPresentationConfig</b></span>
                         <a href="#getPresentationConfig"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -448,8 +446,7 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getPresentationConfig(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+<code>getPresentationConfig(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
@@ -1270,22 +1267,22 @@
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { HttpService } from &#x27;@nestjs/axios&#x27;;
 import { ConflictException, Injectable, OnModuleInit } from &#x27;@nestjs/common&#x27;;
+import { ConfigService } from &#x27;@nestjs/config&#x27;;
+import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
 import { digest, ES256 } from &#x27;@sd-jwt/crypto-nodejs&#x27;;
 import { SDJwtVcInstance } from &#x27;@sd-jwt/sd-jwt-vc&#x27;;
 import { KbVerifier, Verifier } from &#x27;@sd-jwt/types&#x27;;
-import { importJWK, JWK, JWTPayload, jwtVerify } from &#x27;jose&#x27;;
-import { firstValueFrom } from &#x27;rxjs&#x27;;
-import { ResolverService } from &#x27;../resolver/resolver.service&#x27;;
-import { PresentationConfig } from &#x27;./entities/presentation-config.entity&#x27;;
-import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
-import { Repository } from &#x27;typeorm/repository/Repository&#x27;;
-import { AuthResponse } from &#x27;./dto/auth-response.dto&#x27;;
-import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { readdirSync, readFileSync } from &#x27;fs&#x27;;
-import { join } from &#x27;path&#x27;;
-import { PinoLogger } from &#x27;nestjs-pino&#x27;;
 import { plainToClass } from &#x27;class-transformer&#x27;;
 import { validate } from &#x27;class-validator&#x27;;
+import { readdirSync, readFileSync } from &#x27;fs&#x27;;
+import { importJWK, JWK, JWTPayload, jwtVerify } from &#x27;jose&#x27;;
+import { PinoLogger } from &#x27;nestjs-pino&#x27;;
+import { join } from &#x27;path&#x27;;
+import { firstValueFrom } from &#x27;rxjs&#x27;;
+import { Repository } from &#x27;typeorm/repository/Repository&#x27;;
+import { ResolverService } from &#x27;../resolver/resolver.service&#x27;;
+import { AuthResponse } from &#x27;./dto/auth-response.dto&#x27;;
+import { PresentationConfig } from &#x27;./entities/presentation-config.entity&#x27;;
 
 /**
  * Service for managing Verifiable Presentations (VPs) and handling SD-JWT-VCs.
@@ -1438,7 +1435,7 @@ export class PresentationsService implements OnModuleInit {
      * @param tenantId - The ID of the tenant for which to retrieve the configuration.
      * @returns A promise that resolves to the requested PresentationConfig entity.
      */
-    async getPresentationConfig(
+    getPresentationConfig(
         id: string,
         tenantId: string,
     ): Promise&lt;PresentationConfig&gt; {
@@ -1495,7 +1492,7 @@ export class PresentationsService implements OnModuleInit {
      * @param uri
      * @returns
      */
-    private statusListFetcher: (uri: string) &#x3D;&gt; Promise&lt;string&gt; &#x3D; async (
+    private statusListFetcher: (uri: string) &#x3D;&gt; Promise&lt;string&gt; &#x3D; (
         uri: string,
     ) &#x3D;&gt; {
         return firstValueFrom(this.httpService.get&lt;string&gt;(uri)).then(

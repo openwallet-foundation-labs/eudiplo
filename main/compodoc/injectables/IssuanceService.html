@@ -149,11 +149,9 @@ It provides methods to get, store, and delete issuance configurations.</p>
                             </li>
                             <li>
                                     <span class="modifier">Public</span>
-                                    <span class="modifier">Async</span>
                                 <a href="#getIssuanceConfiguration" >getIssuanceConfiguration</a>
                             </li>
                             <li>
-                                    <span class="modifier">Async</span>
                                 <a href="#getIssuanceConfigurationById" >getIssuanceConfigurationById</a>
                             </li>
                             <li>
@@ -187,7 +185,7 @@ It provides methods to get, store, and delete issuance configurations.</p>
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(issuanceConfigRepo: <a href="../entitys/IssuanceConfig.html" target="_self">Repository&lt;IssuanceConfig&gt;</a>, credentialIssuanceBindingRepo: <a href="../entitys/CredentialIssuanceBinding.html" target="_self">Repository&lt;CredentialIssuanceBinding&gt;</a>, credentialsConfigService: <a href="../injectables/CredentialConfigService.html" target="_self">CredentialConfigService</a>, configService: ConfigService, logger: PinoLogger, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>)</code>
+<code>constructor(issuanceConfigRepo: <a href="../entitys/IssuanceConfig.html" target="_self">Repository&lt;IssuanceConfig&gt;</a>, credentialIssuanceBindingRepo: <a href="../entitys/CredentialIssuanceBinding.html" target="_self">Repository&lt;CredentialIssuanceBinding&gt;</a>, credentialsConfigService: <a href="../injectables/CredentialConfigService.html" target="_self">CredentialConfigService</a>, configService: ConfigService, logger: PinoLogger, _cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>)</code>
                     </td>
                 </tr>
                         <tr>
@@ -272,7 +270,7 @@ It provides methods to get, store, and delete issuance configurations.</p>
                                                     
                                                 </tr>
                                                 <tr>
-                                                        <td>cryptoService</td>
+                                                        <td>_cryptoService</td>
                                                   
                                                         <td>
                                                                         <code><a href="../injectables/CryptoService.html" target="_self" >CryptoService</a></code>
@@ -317,8 +315,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="218"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:218</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="220"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:220</a></div>
                         </td>
                     </tr>
 
@@ -385,7 +383,6 @@ It provides methods to get, store, and delete issuance configurations.</p>
                     <a name="getIssuanceConfiguration"></a>
                     <span class="name">
                             <span class="modifier">Public</span>
-                            <span class="modifier">Async</span>
                         <span ><b>getIssuanceConfiguration</b></span>
                         <a href="#getIssuanceConfiguration"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -440,7 +437,7 @@ It provides methods to get, store, and delete issuance configurations.</p>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>unknown</code>
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
 
                         </div>
                             <div class="io-description">
@@ -456,7 +453,6 @@ It provides methods to get, store, and delete issuance configurations.</p>
                 <td class="col-md-4">
                     <a name="getIssuanceConfigurationById"></a>
                     <span class="name">
-                            <span class="modifier">Async</span>
                         <span ><b>getIssuanceConfigurationById</b></span>
                         <a href="#getIssuanceConfigurationById"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -464,8 +460,7 @@ It provides methods to get, store, and delete issuance configurations.</p>
             </tr>
             <tr>
                 <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getIssuanceConfigurationById(issuanceConfigId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+<code>getIssuanceConfigurationById(issuanceConfigId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
@@ -706,21 +701,21 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, OnModuleInit } from &#x27;@nestjs/common&#x27;;
-import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
-import { Repository } from &#x27;typeorm&#x27;;
-import { IssuanceConfig } from &#x27;./entities/issuance-config.entity&#x27;;
-import { CredentialConfigService } from &#x27;../credentials/credential-config/credential-config.service&#x27;;
-import { IssuanceDto } from &#x27;./dto/issuance.dto&#x27;;
-import { AuthenticationConfig } from &#x27;./dto/authentication-config.dto&#x27;;
 import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { join } from &#x27;path&#x27;;
-import { readdirSync, readFileSync } from &#x27;fs&#x27;;
-import { PinoLogger } from &#x27;nestjs-pino&#x27;;
+import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
 import { plainToClass } from &#x27;class-transformer&#x27;;
 import { validate } from &#x27;class-validator&#x27;;
-import { CredentialIssuanceBinding } from &#x27;./entities/credential-issuance-binding.entity&#x27;;
-import { CredentialConfig } from &#x27;../credentials/entities/credential.entity&#x27;;
+import { readdirSync, readFileSync } from &#x27;fs&#x27;;
+import { PinoLogger } from &#x27;nestjs-pino&#x27;;
+import { join } from &#x27;path&#x27;;
+import { Repository } from &#x27;typeorm&#x27;;
 import { CryptoService } from &#x27;../../crypto/crypto.service&#x27;;
+import { CredentialConfigService } from &#x27;../credentials/credential-config/credential-config.service&#x27;;
+import { CredentialConfig } from &#x27;../credentials/entities/credential.entity&#x27;;
+import { AuthenticationConfig } from &#x27;./dto/authentication-config.dto&#x27;;
+import { IssuanceDto } from &#x27;./dto/issuance.dto&#x27;;
+import { CredentialIssuanceBinding } from &#x27;./entities/credential-issuance-binding.entity&#x27;;
+import { IssuanceConfig } from &#x27;./entities/issuance-config.entity&#x27;;
 
 /**
  * Service for managing issuance configurations.
@@ -741,7 +736,7 @@ export class IssuanceService implements OnModuleInit {
         private credentialsConfigService: CredentialConfigService,
         private configService: ConfigService,
         private logger: PinoLogger,
-        private cryptoService: CryptoService,
+        _cryptoService: CryptoService,
     ) {}
 
     /**
@@ -826,7 +821,7 @@ export class IssuanceService implements OnModuleInit {
      * @param tenantId
      * @returns
      */
-    public async getIssuanceConfiguration(tenantId: string) {
+    public getIssuanceConfiguration(tenantId: string) {
         return this.issuanceConfigRepo.find({
             where: { tenantId },
         });
@@ -838,7 +833,7 @@ export class IssuanceService implements OnModuleInit {
      * @param tenantId
      * @returns
      */
-    async getIssuanceConfigurationById(
+    getIssuanceConfigurationById(
         issuanceConfigId: string,
         tenantId: string,
     ): Promise&lt;IssuanceConfig&gt; {
@@ -895,7 +890,9 @@ export class IssuanceService implements OnModuleInit {
             };
         } else {
             throw new Error(
-                &#x60;Invalid authentication method: ${(value.authenticationConfig as any).method}&#x60;,
+                &#x60;Invalid authentication method: ${
+                    (value.authenticationConfig as any).method
+                }&#x60;,
             );
         }
 

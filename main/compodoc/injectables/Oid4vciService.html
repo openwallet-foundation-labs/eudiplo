@@ -796,7 +796,9 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { readFileSync } from &#x27;node:fs&#x27;;
+import { join } from &#x27;node:path&#x27;;
+import {
     BadRequestException,
     ConflictException,
     Injectable,
@@ -804,11 +806,11 @@
 } from &#x27;@nestjs/common&#x27;;
 import { ConfigService } from &#x27;@nestjs/config&#x27;;
 import {
+    authorizationCodeGrantIdentifier,
     type HttpMethod,
     Oauth2ResourceServer,
-    SupportedAuthenticationScheme,
-    authorizationCodeGrantIdentifier,
     preAuthorizedCodeGrantIdentifier,
+    SupportedAuthenticationScheme,
 } from &#x27;@openid4vc/oauth2&#x27;;
 import {
     type CredentialResponse,
@@ -817,22 +819,20 @@ import {
     Openid4vciIssuer,
 } from &#x27;@openid4vc/openid4vci&#x27;;
 import type { Request } from &#x27;express&#x27;;
-import { CredentialsService } from &#x27;../credentials/credentials.service&#x27;;
-import { CryptoService } from &#x27;../../crypto/crypto.service&#x27;;
-import { AuthorizeService } from &#x27;../authorize/authorize.service&#x27;;
-import { getHeadersFromRequest } from &#x27;./util&#x27;;
-import { readFileSync } from &#x27;node:fs&#x27;;
-import { join } from &#x27;node:path&#x27;;
-import { SessionService } from &#x27;../../session/session.service&#x27;;
 import { v4 } from &#x27;uuid&#x27;;
-import { OfferRequestDto, OfferResponse } from &#x27;./dto/offer-request.dto&#x27;;
-import { NotificationRequestDto } from &#x27;./dto/notification-request.dto&#x27;;
+import { TokenPayload } from &#x27;../../auth/token.decorator&#x27;;
+import { CryptoService } from &#x27;../../crypto/crypto.service&#x27;;
+import { Session, SessionStatus } from &#x27;../../session/entities/session.entity&#x27;;
+import { SessionService } from &#x27;../../session/session.service&#x27;;
 import { SessionLoggerService } from &#x27;../../utils/logger/session-logger.service&#x27;;
 import { SessionLogContext } from &#x27;../../utils/logger/session-logger-context&#x27;;
-import { TokenPayload } from &#x27;../../auth/token.decorator&#x27;;
-import { IssuanceService } from &#x27;../issuance/issuance.service&#x27;;
 import { WebhookService } from &#x27;../../utils/webhook/webhook.service&#x27;;
-import { Session, SessionStatus } from &#x27;../../session/entities/session.entity&#x27;;
+import { AuthorizeService } from &#x27;../authorize/authorize.service&#x27;;
+import { CredentialsService } from &#x27;../credentials/credentials.service&#x27;;
+import { IssuanceService } from &#x27;../issuance/issuance.service&#x27;;
+import { NotificationRequestDto } from &#x27;./dto/notification-request.dto&#x27;;
+import { OfferRequestDto, OfferResponse } from &#x27;./dto/offer-request.dto&#x27;;
+import { getHeadersFromRequest } from &#x27;./util&#x27;;
 
 @Injectable()
 export class Oid4vciService implements OnModuleInit {

@@ -241,17 +241,17 @@
     OnApplicationBootstrap,
 } from &#x27;@nestjs/common&#x27;;
 import { ConfigService } from &#x27;@nestjs/config&#x27;;
+import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
+import { InjectMetric } from &#x27;@willsoto/nestjs-prometheus&#x27;;
 import { existsSync, mkdirSync, writeFileSync } from &#x27;fs&#x27;;
 import { join } from &#x27;path&#x27;;
+import { Gauge } from &#x27;prom-client&#x27;;
+import { Repository } from &#x27;typeorm/repository/Repository&#x27;;
 import { CryptoService } from &#x27;../crypto/crypto.service&#x27;;
 import { EncryptionService } from &#x27;../crypto/encryption/encryption.service&#x27;;
 import { StatusListService } from &#x27;../issuer/status-list/status-list.service&#x27;;
 import { RegistrarService } from &#x27;../registrar/registrar.service&#x27;;
-import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
 import { ClientEntry } from &#x27;./entitites/client.entity&#x27;;
-import { Repository } from &#x27;typeorm/repository/Repository&#x27;;
-import { InjectMetric } from &#x27;@willsoto/nestjs-prometheus&#x27;;
-import { Gauge } from &#x27;prom-client&#x27;;
 
 // Client interface for service integration
 export interface Client {

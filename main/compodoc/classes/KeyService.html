@@ -1247,13 +1247,13 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Signer } from &#x27;@sd-jwt/types&#x27;;
-import { JWK, JWTPayload, JoseHeaderParameters } from &#x27;jose&#x27;;
-import { KeyImportDto } from &#x27;./dto/key-import.dto&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ConflictException } from &#x27;@nestjs/common&#x27;;
 import { ConfigService } from &#x27;@nestjs/config&#x27;;
+import { Signer } from &#x27;@sd-jwt/types&#x27;;
+import { JoseHeaderParameters, JWK, JWTPayload } from &#x27;jose&#x27;;
 import { Repository } from &#x27;typeorm&#x27;;
+import { KeyImportDto } from &#x27;./dto/key-import.dto&#x27;;
 import { CertEntity, CertificateType } from &#x27;./entities/cert.entity&#x27;;
-import { ConflictException } from &#x27;@nestjs/common&#x27;;
 
 /**
  * Represents a key entity with its unique identifier, public key, and certificate.

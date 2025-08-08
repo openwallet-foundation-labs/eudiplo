@@ -555,23 +555,23 @@ It initializes the session logging context and logs the start of the flow.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ConflictException, Injectable } from &#x27;@nestjs/common&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { randomUUID } from &#x27;node:crypto&#x27;;
+import { ConflictException, Injectable } from &#x27;@nestjs/common&#x27;;
 import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { randomUUID } from &#x27;node:crypto&#x27;;
-import { CryptoService } from &#x27;../../crypto/crypto.service&#x27;;
-import { AuthorizationResponse } from &#x27;./dto/authorization-response.dto&#x27;;
-import { RegistrarService } from &#x27;../../registrar/registrar.service&#x27;;
-import { PresentationsService } from &#x27;../presentations/presentations.service&#x27;;
-import { AuthResponse } from &#x27;../presentations/dto/auth-response.dto&#x27;;
-import { EncryptionService } from &#x27;../../crypto/encryption/encryption.service&#x27;;
 import { v4 } from &#x27;uuid&#x27;;
-import { SessionService } from &#x27;../../session/session.service&#x27;;
+import { CryptoService } from &#x27;../../crypto/crypto.service&#x27;;
+import { EncryptionService } from &#x27;../../crypto/encryption/encryption.service&#x27;;
 import { OfferResponse } from &#x27;../../issuer/oid4vci/dto/offer-request.dto&#x27;;
-import { PresentationRequestOptions } from &#x27;./dto/presentation-request-options.dto&#x27;;
-import { WebhookService } from &#x27;../../utils/webhook/webhook.service&#x27;;
+import { RegistrarService } from &#x27;../../registrar/registrar.service&#x27;;
+import { Session } from &#x27;../../session/entities/session.entity&#x27;;
+import { SessionService } from &#x27;../../session/session.service&#x27;;
 import { SessionLoggerService } from &#x27;../../utils/logger/session-logger.service&#x27;;
 import { SessionLogContext } from &#x27;../../utils/logger/session-logger-context&#x27;;
-import { Session } from &#x27;../../session/entities/session.entity&#x27;;
+import { WebhookService } from &#x27;../../utils/webhook/webhook.service&#x27;;
+import { AuthResponse } from &#x27;../presentations/dto/auth-response.dto&#x27;;
+import { PresentationsService } from &#x27;../presentations/presentations.service&#x27;;
+import { AuthorizationResponse } from &#x27;./dto/authorization-response.dto&#x27;;
+import { PresentationRequestOptions } from &#x27;./dto/presentation-request-options.dto&#x27;;
 
 @Injectable()
 export class Oid4vpService {

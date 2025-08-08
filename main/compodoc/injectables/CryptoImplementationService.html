@@ -325,11 +325,11 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ConfigService } from &#x27;@nestjs/config&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &#x27;@nestjs/common&#x27;;
+import { ConfigService } from &#x27;@nestjs/config&#x27;;
 import { ES256 } from &#x27;@sd-jwt/crypto-nodejs&#x27;;
-import { ED25519 } from &#x27;./ed25519&#x27;;
 import { CryptoImplementation } from &#x27;./crypto-implementation&#x27;;
-import { Injectable } from &#x27;@nestjs/common&#x27;;
+import { ED25519 } from &#x27;./ed25519&#x27;;
 
 export type CryptoType &#x3D; &#x27;ES256&#x27; | &#x27;Ed25519&#x27;;
 

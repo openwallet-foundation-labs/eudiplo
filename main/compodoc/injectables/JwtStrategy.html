@@ -458,12 +458,12 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &#x27;@nestjs/common&#x27;;
-import { PassportStrategy } from &#x27;@nestjs/passport&#x27;;
-import { ExtractJwt, Strategy } from &#x27;passport-jwt&#x27;;
-import { passportJwtSecret } from &#x27;jwks-rsa&#x27;;
 import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { TokenPayload } from &#x27;./token.decorator&#x27;;
+import { PassportStrategy } from &#x27;@nestjs/passport&#x27;;
+import { passportJwtSecret } from &#x27;jwks-rsa&#x27;;
+import { ExtractJwt, Strategy } from &#x27;passport-jwt&#x27;;
 import { ClientService } from &#x27;./client.service&#x27;;
+import { TokenPayload } from &#x27;./token.decorator&#x27;;
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, &#x27;jwt&#x27;) {

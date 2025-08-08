@@ -194,7 +194,6 @@
                                 <a href="#onTenantInit" >onTenantInit</a>
                             </li>
                             <li>
-                                    <span class="modifier">Async</span>
                                 <a href="#signJwt" >signJwt</a>
                             </li>
                             <li>
@@ -1125,7 +1124,6 @@ If not it will be created.</p>
                 <td class="col-md-4">
                     <a name="signJwt"></a>
                     <span class="name">
-                            <span class="modifier">Async</span>
                         <span ><b>signJwt</b></span>
                         <a href="#signJwt"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -1133,8 +1131,7 @@ If not it will be created.</p>
             </tr>
             <tr>
                 <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>signJwt(header: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, payload: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, keyId?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+<code>signJwt(header: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, payload: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, keyId?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
@@ -1492,7 +1489,8 @@ If not it will be created.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { createHash, randomBytes } from &#x27;node:crypto&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { execSync } from &#x27;node:child_process&#x27;;
+import { createHash, randomBytes } from &#x27;node:crypto&#x27;;
 import {
     existsSync,
     mkdirSync,
@@ -1500,25 +1498,24 @@ import {
     rmSync,
     writeFileSync,
 } from &#x27;node:fs&#x27;;
+import { join } from &#x27;node:path&#x27;;
 import { Inject, Injectable, OnModuleInit } from &#x27;@nestjs/common&#x27;;
+import { ConfigService } from &#x27;@nestjs/config&#x27;;
+import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
 import {
     type CallbackContext,
+    calculateJwkThumbprint,
+    clientAuthenticationNone,
     HashAlgorithm,
     type Jwk,
     SignJwtCallback,
-    calculateJwkThumbprint,
-    clientAuthenticationNone,
 } from &#x27;@openid4vc/oauth2&#x27;;
-import { type JWK, importJWK, jwtVerify } from &#x27;jose&#x27;;
-import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { join } from &#x27;node:path&#x27;;
-import { KeyService } from &#x27;./key/key.service&#x27;;
-import { EC_Public } from &#x27;../well-known/dto/jwks-response.dto&#x27;;
-import { execSync } from &#x27;node:child_process&#x27;;
-import { KeyImportDto } from &#x27;./key/dto/key-import.dto&#x27;;
-import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
+import { importJWK, type JWK, jwtVerify } from &#x27;jose&#x27;;
 import { Repository } from &#x27;typeorm/repository/Repository&#x27;;
+import { EC_Public } from &#x27;../well-known/dto/jwks-response.dto&#x27;;
+import { KeyImportDto } from &#x27;./key/dto/key-import.dto&#x27;;
 import { CertEntity, CertificateType } from &#x27;./key/entities/cert.entity&#x27;;
+import { KeyService } from &#x27;./key/key.service&#x27;;
 
 @Injectable()
 export class CryptoService implements OnModuleInit {
@@ -1675,7 +1672,7 @@ export class CryptoService implements OnModuleInit {
                 tenantId,
                 type: &#x27;access&#x27;,
             })
-            .then(async (count) &#x3D;&gt; {
+            .then((count) &#x3D;&gt; {
                 if (count &#x3D;&#x3D;&#x3D; 0) {
                     return this.certRepository.save({
                         tenantId,
@@ -1764,7 +1761,7 @@ export class CryptoService implements OnModuleInit {
      * @param tenantId
      * @returns
      */
-    async signJwt(
+    signJwt(
         header: any,
         payload: any,
         tenantId: string,

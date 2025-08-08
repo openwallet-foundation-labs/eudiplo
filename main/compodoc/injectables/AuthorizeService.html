@@ -936,9 +936,9 @@
 import { ConflictException, Injectable } from &#x27;@nestjs/common&#x27;;
 import { ConfigService } from &#x27;@nestjs/config&#x27;;
 import {
-    authorizationCodeGrantIdentifier,
     type AuthorizationCodeGrantIdentifier,
     type AuthorizationServerMetadata,
+    authorizationCodeGrantIdentifier,
     type HttpMethod,
     Jwk,
     Oauth2AuthorizationServer,
@@ -948,14 +948,14 @@ import {
 } from &#x27;@openid4vc/oauth2&#x27;;
 import type { Request, Response } from &#x27;express&#x27;;
 import { CryptoService } from &#x27;../../crypto/crypto.service&#x27;;
-import { getHeadersFromRequest } from &#x27;../oid4vci/util&#x27;;
-import { AuthorizeQueries } from &#x27;./dto/authorize-request.dto&#x27;;
-import { Oid4vpService } from &#x27;../../verifier/oid4vp/oid4vp.service&#x27;;
+import { Session } from &#x27;../../session/entities/session.entity&#x27;;
 import { SessionService } from &#x27;../../session/session.service&#x27;;
 import { WebhookConfig } from &#x27;../../utils/webhook/webhook.dto&#x27;;
-import { IssuanceService } from &#x27;../issuance/issuance.service&#x27;;
+import { Oid4vpService } from &#x27;../../verifier/oid4vp/oid4vp.service&#x27;;
 import { AuthenticationConfigHelper } from &#x27;../issuance/dto/authentication-config.helper&#x27;;
-import { Session } from &#x27;../../session/entities/session.entity&#x27;;
+import { IssuanceService } from &#x27;../issuance/issuance.service&#x27;;
+import { getHeadersFromRequest } from &#x27;../oid4vci/util&#x27;;
+import { AuthorizeQueries } from &#x27;./dto/authorize-request.dto&#x27;;
 
 export interface ParsedAccessTokenAuthorizationCodeRequestGrant {
     grantType: AuthorizationCodeGrantIdentifier;
