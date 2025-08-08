@@ -12,7 +12,7 @@ import {
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join, isAbsolute } from 'path';
 import { KEY_VALIDATION_SCHEMA, KeyModule } from './crypto/key/key.module';
-import { CRYPTO_VALIDATION_SCHEMA } from './crypto/key/crypto/crypto.module';
+import { CRYPTO_VALIDATION_SCHEMA } from './crypto/key/crypto-implementation/crypto-implementation.module';
 import {
     SESSION_VALIDATION_SCHEMA,
     SessionModule,

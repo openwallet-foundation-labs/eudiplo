@@ -137,7 +137,7 @@ export class IssuanceService implements OnModuleInit {
     ): Promise<IssuanceConfig> {
         return this.issuanceConfigRepo.findOneOrFail({
             where: { id: issuanceConfigId, tenantId },
-            relations: ['credentialIssuanceBindings'],
+            relations: ['credentialIssuanceBindings.credentialConfig'],
         });
     }
 

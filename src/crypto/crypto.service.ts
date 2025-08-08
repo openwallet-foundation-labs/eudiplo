@@ -120,7 +120,7 @@ export class CryptoService implements OnModuleInit {
 
         // === Helper to run shell commands ===
         const run = (cmd) => {
-            execSync(cmd, { stdio: 'inherit' });
+            execSync(cmd, { stdio: 'pipe' });
         };
 
         // === Step-by-step ===

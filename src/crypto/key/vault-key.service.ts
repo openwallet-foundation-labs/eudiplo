@@ -8,7 +8,7 @@ import { JwtPayload, Signer } from '@sd-jwt/types';
 import {
     CryptoImplementationService,
     CryptoType,
-} from './crypto/crypto.service';
+} from './crypto-implementation/crypto-implementation.service';
 import { join } from 'path';
 import { KeyImportDto } from './dto/key-import.dto';
 import { v4 } from 'uuid';

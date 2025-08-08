@@ -7,7 +7,7 @@ import { Oauth2AuthorizationServerResponse } from './dto/oauth-authorization-ser
 import { JwksResponseDto } from './dto/jwks-response.dto';
 import { MediaType } from '../utils/mediaType/media-type.enum';
 import { Session } from '../session/entities/session.entity';
-import { CryptoImplementationService } from '../crypto/key/crypto/crypto.service';
+import { CryptoImplementationService } from '../crypto/key/crypto-implementation/crypto-implementation.service';
 
 /**
  * Service to handle well-known endpoints and metadata retrieval.

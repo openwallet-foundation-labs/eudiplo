@@ -1,8 +1,8 @@
 import { DynamicModule, Global, Module } from '@nestjs/common';
 import { FileSystemKeyService } from './filesystem-key.service';
 import { VaultKeyService } from './vault-key.service';
-import { CryptoModule } from './crypto/crypto.module';
-import { CryptoImplementationService } from './crypto/crypto.service';
+import { CryptoImplementatationModule } from './crypto-implementation/crypto-implementation.module';
+import { CryptoImplementationService } from './crypto-implementation/crypto-implementation.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { HttpModule, HttpService } from '@nestjs/axios';
 import * as Joi from 'joi';
@@ -37,7 +37,7 @@ export class KeyModule {
             imports: [
                 HttpModule,
                 ConfigModule,
-                CryptoModule,
+                CryptoImplementatationModule,
                 TypeOrmModule.forFeature([CertEntity]),
             ],
             providers: [

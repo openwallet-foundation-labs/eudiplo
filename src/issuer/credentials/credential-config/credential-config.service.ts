@@ -47,6 +47,7 @@ export class CredentialConfigService {
                     );
 
                     const id = file.replace('.json', '');
+                    payload.id = id;
                     const exists = await this.getById(tenant.name, id).catch(
                         () => false,
                     );
@@ -58,6 +59,7 @@ export class CredentialConfigService {
                     const config = plainToClass(CredentialConfig, payload);
                     const validationErrors = await validate(config, {
                         whitelist: true,
+                        forbidNonWhitelisted: true,
                     });
 
                     if (validationErrors.length > 0) {
@@ -76,8 +78,6 @@ export class CredentialConfigService {
                         );
                         continue; // Skip this invalid config
                     }
-
-                    config.id = id; // Set the ID from the file name
 
                     await this.store(tenant.name, config);
                     counter++;

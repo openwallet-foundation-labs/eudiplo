@@ -1,6 +1,6 @@
 import { Global, Module } from '@nestjs/common';
 import * as Joi from 'joi';
-import { CryptoImplementationService } from './crypto.service';
+import { CryptoImplementationService } from './crypto-implementation.service';
 import { ConfigModule } from '@nestjs/config';
 
 export const CRYPTO_VALIDATION_SCHEMA = {
@@ -13,4 +13,4 @@ export const CRYPTO_VALIDATION_SCHEMA = {
     providers: [CryptoImplementationService],
     exports: [CryptoImplementationService],
 })
-export class CryptoModule {}
+export class CryptoImplementatationModule {}

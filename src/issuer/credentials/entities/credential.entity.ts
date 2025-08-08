@@ -1,6 +1,7 @@
 import { CredentialConfigurationSupported } from '@openid4vc/openid4vci';
 import {
     IsBoolean,
+    IsEmpty,
     IsNumber,
     IsObject,
     IsOptional,
@@ -19,11 +20,13 @@ export class CredentialConfig {
     /**
      * Unique identifier for the configuration to reference it.
      */
+    @IsString()
     @Column('varchar', { primary: true })
     id: string;
     /**
      * Tenant ID for the issuance configuration.
      */
+    @IsEmpty()
     @Column('varchar', { primary: true })
     tenantId: string;
     /**
@@ -94,6 +97,7 @@ export class CredentialConfig {
     /**
      * Link to all the issuance config bindings that are using this credential.
      */
+    @IsEmpty()
     @OneToMany(
         () => CredentialIssuanceBinding,
         (binding) => binding.credentialConfig,

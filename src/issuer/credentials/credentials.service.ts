@@ -14,11 +14,23 @@ import { CredentialConfig } from './entities/credential.entity';
 import { VCT } from '../credentials-metadata/dto/credential-config.dto';
 import { IssuanceService } from '../issuance/issuance.service';
 import { IssuanceConfig } from '../issuance/entities/issuance-config.entity';
-import { CryptoImplementationService } from '../../crypto/key/crypto/crypto.service';
+import { CryptoImplementationService } from '../../crypto/key/crypto-implementation/crypto-implementation.service';
 import { JWTwithStatusListPayload } from '@sd-jwt/jwt-status-list';
 
+/**
+ * Service for managing credentials and their configurations.
+ */
 @Injectable()
 export class CredentialsService {
+    /**
+     * Constructor for CredentialsService.
+     * @param cryptoService
+     * @param configService
+     * @param statusListService
+     * @param credentialConfigRepo
+     * @param issuanceConfigService
+     * @param cryptoImplementationService
+     */
     constructor(
         private cryptoService: CryptoService,
         private configService: ConfigService,
@@ -76,9 +88,16 @@ export class CredentialsService {
         return credential_configurations_supported;
     }
 
+    /**
+     * Issues a credential based on the provided configuration and session.
+     * @param credentialConfigurationId
+     * @param holderCnf
+     * @param session
+     * @returns
+     */
     async getCredential(
         credentialConfigurationId: string,
-        cnf: Jwk,
+        holderCnf: Jwk,
         session: Session,
     ) {
         const credentialConfiguration = await this.credentialConfigRepo
@@ -107,12 +126,19 @@ export class CredentialsService {
                 binding.credentialConfigId === credentialConfigurationId,
         );
 
+        const keyId =
+            binding?.credentialConfig?.keyId ??
+            (await this.cryptoService.keyService.getKid(
+                session.tenantId,
+                'signing',
+            ));
+
         const sdjwt = new SDJwtVcInstance({
             signer: await this.cryptoService.keyService.signer(
                 session.tenantId,
-                binding?.credentialConfig.keyId,
+                keyId,
             ),
-            signAlg: 'ES256',
+            signAlg: this.cryptoImplementationService.getAlg(),
             hasher: digest,
             hashAlg: 'sha-256',
             saltGenerator: generateSalt,
@@ -125,6 +151,7 @@ export class CredentialsService {
                 tenantId: session.tenantId,
             });
 
+        // If status management is enabled, create a status entry
         let status: JWTwithStatusListPayload | undefined;
         if (credentialConfig.statusManagement) {
             status = await this.statusListService.createEntry(
@@ -133,14 +160,29 @@ export class CredentialsService {
             );
         }
 
+        const iat = Math.round(new Date().getTime() / 1000);
+        // Set expiration time if liveTime is defined
+        let exp: number | undefined;
+        if (credentialConfig.liveTime) {
+            exp = iat + credentialConfig.liveTime;
+        }
+
+        // If key binding is enabled, include the JWK in the cnf
+        let cnf: { jwk: Jwk } | undefined;
+
+        if (credentialConfig.keyBinding) {
+            cnf = {
+                jwk: holderCnf,
+            };
+        }
+
         return sdjwt.issue(
             {
                 iss: this.configService.getOrThrow<string>('PUBLIC_URL'),
-                iat: Math.round(new Date().getTime() / 1000),
+                iat,
+                exp,
                 vct: `${this.configService.getOrThrow<string>('PUBLIC_URL')}/${session.tenantId}/credentials/vct/${credentialConfigurationId}`,
-                cnf: {
-                    jwk: cnf,
-                },
+                cnf,
                 ...claims,
                 ...status,
             },
