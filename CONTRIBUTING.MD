@@ -1,6 +1,33 @@
 # Contributing to EUDIPLO
 
-Thanks for your interest in contributing to **EUDIPLO** – your help is highly
+Thanks for your interest in contr## Pull Request Checklist
+
+Before submitting:
+
+- [ ] Code is tested and builds without errors
+- [ ] Code formatting passes (`pnpm run format:check`)
+- [ ] Linting passes (`pnpm run lint`)
+- [ ] You've added/updated documentation as needed
+- [ ] PR is focused on a single topic
+
+Please **create your PR against the `main` branch**.
+
+### Code Quality
+
+This project uses [Biome](https://biomejs.dev/) for code formatting and linting:
+
+```bash
+# Format your code
+pnpm run format
+
+# Check for linting issues
+pnpm run lint
+
+# Fix linting issues automatically
+pnpm run lint:fix
+```
+
+See [Code Quality Standards](docs/development/code-quality.md) for detailed guidelines. **EUDIPLO** – your help is highly
 appreciated! 🎉
 
 This guide will walk you through the steps to report issues, suggest features,
@@ -16,10 +43,10 @@ If you find a bug, glitch, or unclear behavior:
    [issues](https://github.com/openwallet-foundation-labs/eudiplo/issues) to
    avoid duplicates.
 2. If not found, **open a new issue** and include:
-    - A short description
-    - Steps to reproduce
-    - Your environment (OS, Docker version, etc.)
-    - Logs or screenshots if possible
+   - A short description
+   - Steps to reproduce
+   - Your environment (OS, Docker version, etc.)
+   - Logs or screenshots if possible
 
 ---
 
@@ -31,9 +58,9 @@ Have an idea to improve EUDIPLO?
   [feature request](https://github.com/openwallet-foundation-labs/eudiplo/issues)
   already exists
 - Open a new issue with a `feature request` label and describe:
-    - The problem you want to solve
-    - The proposed solution
-    - Alternatives considered (if any)
+  - The problem you want to solve
+  - The proposed solution
+  - Alternatives considered (if any)
 
 ---
 
@@ -41,17 +68,17 @@ Have an idea to improve EUDIPLO?
 
 1. Fork this repo and clone your fork:
 
-    ```bash
-    git clone https://github.com/YOUR_USERNAME/eudiplo
-    cd EUDIPLO
-    ```
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/eudiplo
+   cd EUDIPLO
+   ```
 
 2. Install dependencies (requires Node.js + Docker):
 
-    ```bash
-    corepack enable
-    pnpm install
-    ```
+   ```bash
+   corepack enable
+   pnpm install
+   ```
 
 3. Use a local `.env` file for config. See the
    [installation guide](docs/getting-started/installation.md) for details.
