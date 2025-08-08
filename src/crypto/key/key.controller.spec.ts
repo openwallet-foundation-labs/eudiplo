@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { KeyController } from './key.controller';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { KeyController } from './key.controller';
 
 describe('KeyController', () => {
     let controller: KeyController;

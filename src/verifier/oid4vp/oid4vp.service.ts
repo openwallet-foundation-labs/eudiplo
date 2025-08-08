@@ -1,20 +1,20 @@
+import { randomUUID } from 'node:crypto';
 import { ConflictException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { randomUUID } from 'node:crypto';
-import { CryptoService } from '../../crypto/crypto.service';
-import { AuthorizationResponse } from './dto/authorization-response.dto';
-import { RegistrarService } from '../../registrar/registrar.service';
-import { PresentationsService } from '../presentations/presentations.service';
-import { AuthResponse } from '../presentations/dto/auth-response.dto';
-import { EncryptionService } from '../../crypto/encryption/encryption.service';
 import { v4 } from 'uuid';
-import { SessionService } from '../../session/session.service';
+import { CryptoService } from '../../crypto/crypto.service';
+import { EncryptionService } from '../../crypto/encryption/encryption.service';
 import { OfferResponse } from '../../issuer/oid4vci/dto/offer-request.dto';
-import { PresentationRequestOptions } from './dto/presentation-request-options.dto';
-import { WebhookService } from '../../utils/webhook/webhook.service';
+import { RegistrarService } from '../../registrar/registrar.service';
+import { Session } from '../../session/entities/session.entity';
+import { SessionService } from '../../session/session.service';
 import { SessionLoggerService } from '../../utils/logger/session-logger.service';
 import { SessionLogContext } from '../../utils/logger/session-logger-context';
-import { Session } from '../../session/entities/session.entity';
+import { WebhookService } from '../../utils/webhook/webhook.service';
+import { AuthResponse } from '../presentations/dto/auth-response.dto';
+import { PresentationsService } from '../presentations/presentations.service';
+import { AuthorizationResponse } from './dto/authorization-response.dto';
+import { PresentationRequestOptions } from './dto/presentation-request-options.dto';
 
 @Injectable()
 export class Oid4vpService {

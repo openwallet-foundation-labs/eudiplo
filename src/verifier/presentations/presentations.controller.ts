@@ -15,8 +15,8 @@ import {
     ApiSecurity,
     ApiTags,
 } from '@nestjs/swagger';
-import { PresentationsService } from './presentations.service';
-import { PresentationConfig } from './entities/presentation-config.entity';
+import { Response } from 'express';
+import * as QRCode from 'qrcode';
 import { JwtAuthGuard } from '../../auth/auth.guard';
 import { Token, TokenPayload } from '../../auth/token.decorator';
 import { OfferResponse } from '../../issuer/oid4vci/dto/offer-request.dto';
@@ -25,8 +25,8 @@ import {
     ResponseType,
 } from '../oid4vp/dto/presentation-request.dto';
 import { Oid4vpService } from '../oid4vp/oid4vp.service';
-import * as QRCode from 'qrcode';
-import { Response } from 'express';
+import { PresentationConfig } from './entities/presentation-config.entity';
+import { PresentationsService } from './presentations.service';
 
 @ApiTags('Presentation management')
 @UseGuards(JwtAuthGuard)

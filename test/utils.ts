@@ -1,5 +1,8 @@
-import { CallbackContext, Jwk, SignJwtCallback } from '@openid4vc/oauth2';
 import crypto from 'node:crypto';
+import { CallbackContext, Jwk, SignJwtCallback } from '@openid4vc/oauth2';
+import { digest, ES256 } from '@sd-jwt/crypto-nodejs';
+import { SDJwtVcInstance } from '@sd-jwt/sd-jwt-vc';
+import { kbPayload } from '@sd-jwt/types';
 import {
     calculateJwkThumbprint,
     exportJWK,
@@ -9,9 +12,6 @@ import {
     jwtVerify,
     SignJWT,
 } from 'jose';
-import { digest, ES256 } from '@sd-jwt/crypto-nodejs';
-import { SDJwtVcInstance } from '@sd-jwt/sd-jwt-vc';
-import { kbPayload } from '@sd-jwt/types';
 
 export async function preparePresentation(kb: Omit<kbPayload, 'sd_hash'>) {
     const credential = {
@@ -87,7 +87,7 @@ export const callbacks: any = {
                 signerJwk: jwk,
             };
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (error) {
+        } catch (_error) {
             return {
                 verified: false,
             };

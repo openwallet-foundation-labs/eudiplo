@@ -1,3 +1,4 @@
+import { execSync } from 'node:child_process';
 import { createHash, randomBytes } from 'node:crypto';
 import {
     existsSync,
@@ -6,25 +7,24 @@ import {
     rmSync,
     writeFileSync,
 } from 'node:fs';
+import { join } from 'node:path';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
 import {
     type CallbackContext,
+    calculateJwkThumbprint,
+    clientAuthenticationNone,
     HashAlgorithm,
     type Jwk,
     SignJwtCallback,
-    calculateJwkThumbprint,
-    clientAuthenticationNone,
 } from '@openid4vc/oauth2';
-import { type JWK, importJWK, jwtVerify } from 'jose';
-import { ConfigService } from '@nestjs/config';
-import { join } from 'node:path';
-import { KeyService } from './key/key.service';
-import { EC_Public } from '../well-known/dto/jwks-response.dto';
-import { execSync } from 'node:child_process';
-import { KeyImportDto } from './key/dto/key-import.dto';
-import { InjectRepository } from '@nestjs/typeorm';
+import { importJWK, type JWK, jwtVerify } from 'jose';
 import { Repository } from 'typeorm/repository/Repository';
+import { EC_Public } from '../well-known/dto/jwks-response.dto';
+import { KeyImportDto } from './key/dto/key-import.dto';
 import { CertEntity, CertificateType } from './key/entities/cert.entity';
+import { KeyService } from './key/key.service';
 
 @Injectable()
 export class CryptoService implements OnModuleInit {
@@ -181,7 +181,7 @@ export class CryptoService implements OnModuleInit {
                 tenantId,
                 type: 'access',
             })
-            .then(async (count) => {
+            .then((count) => {
                 if (count === 0) {
                     return this.certRepository.save({
                         tenantId,
@@ -270,7 +270,7 @@ export class CryptoService implements OnModuleInit {
      * @param tenantId
      * @returns
      */
-    async signJwt(
+    signJwt(
         header: any,
         payload: any,
         tenantId: string,

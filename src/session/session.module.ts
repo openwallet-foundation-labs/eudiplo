@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { SessionService } from './session.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Session } from './entities/session.entity';
-import { SessionController } from './session.controller';
+import { makeGaugeProvider } from '@willsoto/nestjs-prometheus';
 import * as Joi from 'joi';
 import { StatusListModule } from '../issuer/status-list/status-list.module';
-import { makeGaugeProvider } from '@willsoto/nestjs-prometheus';
+import { Session } from './entities/session.entity';
+import { SessionController } from './session.controller';
+import { SessionService } from './session.service';
 
 /**
  * Module for managing user sessions.

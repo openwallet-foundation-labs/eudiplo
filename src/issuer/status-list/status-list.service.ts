@@ -1,6 +1,6 @@
-import { ConflictException, Injectable, OnModuleInit } from '@nestjs/common';
-import { join } from 'path';
-import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { ConflictException, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
 import {
     BitsPerStatus,
     createHeaderAndPayload,
@@ -9,13 +9,13 @@ import {
     StatusListJWTHeaderParameters,
 } from '@sd-jwt/jwt-status-list';
 import { JwtPayload } from '@sd-jwt/types';
-import { ConfigService } from '@nestjs/config';
-import { CryptoService } from '../../crypto/crypto.service';
-import { InjectRepository } from '@nestjs/typeorm';
-import { StatusMapping } from './entities/status-mapping.entity';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { join } from 'path';
 import { Repository } from 'typeorm';
-import { StatusUpdateDto } from './dto/status-update.dto';
+import { CryptoService } from '../../crypto/crypto.service';
 import { Session } from '../../session/entities/session.entity';
+import { StatusUpdateDto } from './dto/status-update.dto';
+import { StatusMapping } from './entities/status-mapping.entity';
 
 interface StatusListFile {
     elements: number[];
@@ -25,7 +25,7 @@ interface StatusListFile {
 }
 
 @Injectable()
-export class StatusListService implements OnModuleInit {
+export class StatusListService {
     private fileName: string = 'status-list.json';
 
     constructor(
@@ -34,7 +34,6 @@ export class StatusListService implements OnModuleInit {
         @InjectRepository(StatusMapping)
         private statusMappingRepository: Repository<StatusMapping>,
     ) {}
-    onModuleInit() {}
 
     onTenantInit(tenantId: string) {
         return this.init(tenantId);

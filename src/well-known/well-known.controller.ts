@@ -1,18 +1,18 @@
 import { Controller, Get, Header, UseGuards } from '@nestjs/common';
-import { WellKnownService } from './well-known.service';
-import { JwksResponseDto } from './dto/jwks-response.dto';
-import { Oauth2AuthorizationServerResponse } from './dto/oauth-authorization-server-response.dto';
 import {
     ApiExcludeController,
     ApiOperation,
     ApiParam,
     ApiProduces,
 } from '@nestjs/swagger';
+import { Session } from '../session/entities/session.entity';
+import { SessionEntity } from '../session/session.decorator';
+import { SessionGuard } from '../session/session.guard';
 import { ContentType } from '../utils/mediaType/media-type.decorator';
 import { MediaType } from '../utils/mediaType/media-type.enum';
-import { SessionGuard } from '../session/session.guard';
-import { SessionEntity } from '../session/session.decorator';
-import { Session } from '../session/entities/session.entity';
+import { JwksResponseDto } from './dto/jwks-response.dto';
+import { Oauth2AuthorizationServerResponse } from './dto/oauth-authorization-server-response.dto';
+import { WellKnownService } from './well-known.service';
 
 /**
  * Controller for the OpenID4VCI well-known endpoints.
@@ -44,7 +44,7 @@ export class WellKnownController {
     //we can not set the accept in the apiheader via swagger.
     @ApiProduces(MediaType.APPLICATION_JSON, MediaType.APPLICATION_JWT)
     @Get('openid-credential-issuer')
-    async issuerMetadata(
+    issuerMetadata(
         @SessionEntity() session: Session,
         @ContentType() contentType: MediaType,
     ) {
@@ -68,7 +68,7 @@ export class WellKnownController {
      */
     @Header('Content-Type', 'application/jwk-set+json')
     @Get('jwks.json')
-    async getJwks(@SessionEntity() session: Session): Promise<JwksResponseDto> {
+    getJwks(@SessionEntity() session: Session): Promise<JwksResponseDto> {
         return this.wellKnownService.getJwks(session.tenantId);
     }
 }

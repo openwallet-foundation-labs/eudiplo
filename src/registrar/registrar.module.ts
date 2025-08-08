@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { RegistrarService } from './registrar.service';
-import { CryptoModule } from '../crypto/crypto.module';
 import * as Joi from 'joi';
+import { CryptoModule } from '../crypto/crypto.module';
 import { PresentationsModule } from '../verifier/presentations/presentations.module';
+import { RegistrarService } from './registrar.service';
 
 /**
  * Validation schema for the registrar module.

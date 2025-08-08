@@ -6,16 +6,16 @@ import {
     UseGuards,
     UseInterceptors,
 } from '@nestjs/common';
+import { ApiExcludeController, ApiParam } from '@nestjs/swagger';
 import type { CredentialResponse } from '@openid4vc/openid4vci';
 import type { Request } from 'express';
 import { Oid4vciService } from '../../issuer/oid4vci/oid4vci.service';
-import { NotificationRequestDto } from './dto/notification-request.dto';
+import { Session } from '../../session/entities/session.entity';
+import { SessionEntity } from '../../session/session.decorator';
+import { SessionGuard } from '../../session/session.guard';
 import { SessionLogger } from '../../utils/logger//session-logger.decorator';
 import { SessionLoggerInterceptor } from '../../utils/logger/session-logger.interceptor';
-import { SessionGuard } from '../../session/session.guard';
-import { SessionEntity } from '../../session/session.decorator';
-import { Session } from '../../session/entities/session.entity';
-import { ApiExcludeController, ApiParam } from '@nestjs/swagger';
+import { NotificationRequestDto } from './dto/notification-request.dto';
 
 /**
  * Controller for handling OID4VCI (OpenID for Verifiable Credential Issuance) requests.

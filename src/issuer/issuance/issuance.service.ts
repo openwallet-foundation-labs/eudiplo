@@ -1,19 +1,19 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { IssuanceConfig } from './entities/issuance-config.entity';
-import { CredentialConfigService } from '../credentials/credential-config/credential-config.service';
-import { IssuanceDto } from './dto/issuance.dto';
-import { AuthenticationConfig } from './dto/authentication-config.dto';
 import { ConfigService } from '@nestjs/config';
-import { join } from 'path';
-import { readdirSync, readFileSync } from 'fs';
-import { PinoLogger } from 'nestjs-pino';
+import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
-import { CredentialIssuanceBinding } from './entities/credential-issuance-binding.entity';
-import { CredentialConfig } from '../credentials/entities/credential.entity';
+import { readdirSync, readFileSync } from 'fs';
+import { PinoLogger } from 'nestjs-pino';
+import { join } from 'path';
+import { Repository } from 'typeorm';
 import { CryptoService } from '../../crypto/crypto.service';
+import { CredentialConfigService } from '../credentials/credential-config/credential-config.service';
+import { CredentialConfig } from '../credentials/entities/credential.entity';
+import { AuthenticationConfig } from './dto/authentication-config.dto';
+import { IssuanceDto } from './dto/issuance.dto';
+import { CredentialIssuanceBinding } from './entities/credential-issuance-binding.entity';
+import { IssuanceConfig } from './entities/issuance-config.entity';
 
 /**
  * Service for managing issuance configurations.
@@ -34,7 +34,7 @@ export class IssuanceService implements OnModuleInit {
         private credentialsConfigService: CredentialConfigService,
         private configService: ConfigService,
         private logger: PinoLogger,
-        private cryptoService: CryptoService,
+        _cryptoService: CryptoService,
     ) {}
 
     /**
@@ -119,7 +119,7 @@ export class IssuanceService implements OnModuleInit {
      * @param tenantId
      * @returns
      */
-    public async getIssuanceConfiguration(tenantId: string) {
+    public getIssuanceConfiguration(tenantId: string) {
         return this.issuanceConfigRepo.find({
             where: { tenantId },
         });
@@ -131,7 +131,7 @@ export class IssuanceService implements OnModuleInit {
      * @param tenantId
      * @returns
      */
-    async getIssuanceConfigurationById(
+    getIssuanceConfigurationById(
         issuanceConfigId: string,
         tenantId: string,
     ): Promise<IssuanceConfig> {
@@ -188,7 +188,9 @@ export class IssuanceService implements OnModuleInit {
             };
         } else {
             throw new Error(
-                `Invalid authentication method: ${(value.authenticationConfig as any).method}`,
+                `Invalid authentication method: ${
+                    (value.authenticationConfig as any).method
+                }`,
             );
         }
 

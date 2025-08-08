@@ -3,9 +3,9 @@ import {
     NotificationEvent,
 } from '@openid4vc/openid4vci';
 import { VerificationResult } from '@sd-jwt/sd-jwt-vc';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { AuthorizeQueries } from '../../issuer/authorize/dto/authorize-request.dto';
 import { OfferRequestDto } from '../../issuer/oid4vci/dto/offer-request.dto';
-import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { WebhookConfig } from '../../utils/webhook/webhook.dto';
 
 export type SessionStatus = 'active' | 'completed' | 'expired' | 'failed';

@@ -6,16 +6,16 @@ import {
     ApiSecurity,
     ApiTags,
 } from '@nestjs/swagger';
+import { Response } from 'express';
+import * as QRCode from 'qrcode';
 import { JwtAuthGuard } from '../../auth/auth.guard';
 import { Token, TokenPayload } from '../../auth/token.decorator';
 import { Oid4vciService } from '../../issuer/oid4vci/oid4vci.service';
-import {
-    OfferResponse,
-    OfferRequestDto,
-} from '../oid4vci/dto/offer-request.dto';
 import { ResponseType } from '../../verifier/oid4vp/dto/presentation-request.dto';
-import * as QRCode from 'qrcode';
-import { Response } from 'express';
+import {
+    OfferRequestDto,
+    OfferResponse,
+} from '../oid4vci/dto/offer-request.dto';
 
 @ApiTags('Issuer management')
 @UseGuards(JwtAuthGuard)

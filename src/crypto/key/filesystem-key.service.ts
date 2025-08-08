@@ -1,34 +1,34 @@
 import {
     existsSync,
     mkdirSync,
-    writeFileSync,
-    readFileSync,
     readdirSync,
+    readFileSync,
+    writeFileSync,
 } from 'node:fs';
+import { join } from 'node:path';
+import { ConflictException, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { Signer } from '@sd-jwt/types';
+import { plainToClass } from 'class-transformer';
+import { validate } from 'class-validator';
 import {
+    CryptoKey,
+    exportJWK,
+    exportSPKI,
+    importJWK,
     JWK,
     JWTHeaderParameters,
     JWTPayload,
-    CryptoKey,
     SignJWT,
-    importJWK,
-    exportSPKI,
-    exportJWK,
 } from 'jose';
+import { PinoLogger } from 'nestjs-pino';
+import { Repository } from 'typeorm/repository/Repository';
 import { v4 } from 'uuid';
-import { KeyObj, KeyService } from './key.service';
-import { ConflictException, Injectable } from '@nestjs/common';
-import { Signer } from '@sd-jwt/types';
-import { ConfigService } from '@nestjs/config';
 import { CryptoImplementation } from './crypto-implementation/crypto-implementation';
 import { CryptoImplementationService } from './crypto-implementation/crypto-implementation.service';
-import { join } from 'node:path';
 import { KeyImportDto } from './dto/key-import.dto';
 import { CertEntity, CertificateType } from './entities/cert.entity';
-import { Repository } from 'typeorm/repository/Repository';
-import { plainToClass } from 'class-transformer';
-import { validate } from 'class-validator';
-import { PinoLogger } from 'nestjs-pino';
+import { KeyObj, KeyService } from './key.service';
 
 /**
  * The key service is responsible for managing the keys of the issuer.
@@ -177,8 +177,12 @@ export class FileSystemKeyService extends KeyService {
      * @returns
      */
     private getPubFromPrivateKey(privateKey: JWK): JWK {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { d, key_ops, ext, ...publicKey } = privateKey;
+        const {
+            d: _d,
+            key_ops: _key_ops,
+            ext: _ext,
+            ...publicKey
+        } = privateKey;
         return publicKey;
     }
 

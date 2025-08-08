@@ -1,21 +1,21 @@
 import { HttpService } from '@nestjs/axios';
 import { ConflictException, Injectable, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
 import { digest, ES256 } from '@sd-jwt/crypto-nodejs';
 import { SDJwtVcInstance } from '@sd-jwt/sd-jwt-vc';
 import { KbVerifier, Verifier } from '@sd-jwt/types';
-import { importJWK, JWK, JWTPayload, jwtVerify } from 'jose';
-import { firstValueFrom } from 'rxjs';
-import { ResolverService } from '../resolver/resolver.service';
-import { PresentationConfig } from './entities/presentation-config.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm/repository/Repository';
-import { AuthResponse } from './dto/auth-response.dto';
-import { ConfigService } from '@nestjs/config';
-import { readdirSync, readFileSync } from 'fs';
-import { join } from 'path';
-import { PinoLogger } from 'nestjs-pino';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
+import { readdirSync, readFileSync } from 'fs';
+import { importJWK, JWK, JWTPayload, jwtVerify } from 'jose';
+import { PinoLogger } from 'nestjs-pino';
+import { join } from 'path';
+import { firstValueFrom } from 'rxjs';
+import { Repository } from 'typeorm/repository/Repository';
+import { ResolverService } from '../resolver/resolver.service';
+import { AuthResponse } from './dto/auth-response.dto';
+import { PresentationConfig } from './entities/presentation-config.entity';
 
 /**
  * Service for managing Verifiable Presentations (VPs) and handling SD-JWT-VCs.
@@ -168,7 +168,7 @@ export class PresentationsService implements OnModuleInit {
      * @param tenantId - The ID of the tenant for which to retrieve the configuration.
      * @returns A promise that resolves to the requested PresentationConfig entity.
      */
-    async getPresentationConfig(
+    getPresentationConfig(
         id: string,
         tenantId: string,
     ): Promise<PresentationConfig> {
@@ -225,7 +225,7 @@ export class PresentationsService implements OnModuleInit {
      * @param uri
      * @returns
      */
-    private statusListFetcher: (uri: string) => Promise<string> = async (
+    private statusListFetcher: (uri: string) => Promise<string> = (
         uri: string,
     ) => {
         return firstValueFrom(this.httpService.get<string>(uri)).then(

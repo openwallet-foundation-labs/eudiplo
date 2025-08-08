@@ -1,14 +1,11 @@
 {
-    "editor.formatOnSave": true,
-    "[markdown]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
-    "sqltools.connections": [
-        {
-            "previewLimit": 50,
-            "driver": "SQLite",
-            "name": "eudiplo",
-            "database": "./tmp/service.db"
-        }
-    ]
+  "editor.formatOnSave": true,
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "driver": "SQLite",
+      "name": "eudiplo",
+      "database": "./tmp/service.db"
+    }
+  ]
 }

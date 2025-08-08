@@ -1,9 +1,9 @@
-import { describe, test, expect, beforeAll, afterAll } from 'vitest';
-import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from '../src/app.module';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import request from 'supertest';
 import { ConfigService } from '@nestjs/config';
+import { Test, TestingModule } from '@nestjs/testing';
+import request from 'supertest';
+import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import { AppModule } from '../src/app.module';
 
 describe('Authentication (e2e)', () => {
     let app: INestApplication;

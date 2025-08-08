@@ -1,18 +1,18 @@
 import { Module } from '@nestjs/common';
-import { PassportModule } from '@nestjs/passport';
-import { JwtStrategy } from './jwt.strategy';
-import { JwtAuthGuard } from './auth.guard';
-import { JwtService } from './jwt.service';
-import { AuthController } from './auth.controller';
-import { ClientService } from './client.service';
-import * as Joi from 'joi';
 import { ConfigModule } from '@nestjs/config';
+import { PassportModule } from '@nestjs/passport';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { makeGaugeProvider } from '@willsoto/nestjs-prometheus';
+import * as Joi from 'joi';
 import { CryptoModule } from '../crypto/crypto.module';
 import { StatusListModule } from '../issuer/status-list/status-list.module';
 import { RegistrarModule } from '../registrar/registrar.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthController } from './auth.controller';
+import { JwtAuthGuard } from './auth.guard';
+import { ClientService } from './client.service';
 import { ClientEntry } from './entitites/client.entity';
-import { makeGaugeProvider } from '@willsoto/nestjs-prometheus';
+import { JwtService } from './jwt.service';
+import { JwtStrategy } from './jwt.strategy';
 
 export const AUTH_VALIDATION_SCHEMA = {
     OIDC: Joi.string().optional(),

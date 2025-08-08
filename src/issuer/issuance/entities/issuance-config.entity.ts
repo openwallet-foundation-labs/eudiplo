@@ -1,8 +1,8 @@
+import { ApiHideProperty } from '@nestjs/swagger';
 import { IsObject } from 'class-validator';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { ApiHideProperty } from '@nestjs/swagger';
-import type { AuthenticationConfig } from '../dto/authentication-config.dto';
 import { WebhookConfig } from '../../../utils/webhook/webhook.dto';
+import type { AuthenticationConfig } from '../dto/authentication-config.dto';
 import { CredentialIssuanceBinding } from './credential-issuance-binding.entity';
 
 /**

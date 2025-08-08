@@ -1,6 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { CredentialsService } from '../credentials/credentials.service';
 import { ApiExcludeController } from '@nestjs/swagger';
+import { CredentialsService } from '../credentials/credentials.service';
 
 @ApiExcludeController(process.env.SWAGGER_ALL !== 'true')
 @Controller(':tenantId/credentials-metadata')

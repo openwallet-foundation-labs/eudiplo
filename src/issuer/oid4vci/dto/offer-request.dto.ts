@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
     IsArray,
     IsEnum,
@@ -6,7 +7,6 @@ import {
     IsString,
 } from 'class-validator';
 import { ResponseType } from '../../../verifier/oid4vp/dto/presentation-request.dto';
-import { ApiProperty } from '@nestjs/swagger';
 
 export class OfferRequestDto {
     /**

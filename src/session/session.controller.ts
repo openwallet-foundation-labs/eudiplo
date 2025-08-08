@@ -1,11 +1,11 @@
-import { Controller, Get, Param, Post, UseGuards, Body } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiSecurity, ApiTags } from '@nestjs/swagger';
-import { SessionService } from './session.service';
-import { Session } from './entities/session.entity';
 import { JwtAuthGuard } from '../auth/auth.guard';
 import { Token, TokenPayload } from '../auth/token.decorator';
 import { StatusUpdateDto } from '../issuer/status-list/dto/status-update.dto';
 import { StatusListService } from '../issuer/status-list/status-list.service';
+import { Session } from './entities/session.entity';
+import { SessionService } from './session.service';
 
 @ApiTags('Session management')
 @UseGuards(JwtAuthGuard)

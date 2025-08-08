@@ -1,11 +1,11 @@
+import { Type } from 'class-transformer';
 import {
+    IsIn,
     IsObject,
     IsOptional,
     IsUrl,
-    IsIn,
     ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 import { WebhookConfig } from '../../../utils/webhook/webhook.dto';
 import { PresentationDuringIssuance } from '../../credentials-metadata/dto/credential-config.dto';
 

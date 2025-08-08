@@ -1,16 +1,15 @@
+import { HttpModule, HttpService } from '@nestjs/axios';
 import { DynamicModule, Global, Module } from '@nestjs/common';
-import { FileSystemKeyService } from './filesystem-key.service';
-import { VaultKeyService } from './vault-key.service';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
+import * as Joi from 'joi';
+import { PinoLogger } from 'nestjs-pino';
+import { Repository } from 'typeorm/repository/Repository';
 import { CryptoImplementatationModule } from './crypto-implementation/crypto-implementation.module';
 import { CryptoImplementationService } from './crypto-implementation/crypto-implementation.service';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { HttpModule, HttpService } from '@nestjs/axios';
-import * as Joi from 'joi';
 import { CertEntity } from './entities/cert.entity';
-import { Repository } from 'typeorm/repository/Repository';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { PinoLogger } from 'nestjs-pino';
+import { FileSystemKeyService } from './filesystem-key.service';
+import { VaultKeyService } from './vault-key.service';
 
 export const KEY_VALIDATION_SCHEMA = {
     KM_TYPE: Joi.string().valid('file', 'vault').default('file'),

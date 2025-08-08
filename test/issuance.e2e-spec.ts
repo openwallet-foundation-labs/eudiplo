@@ -1,10 +1,23 @@
-import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { Test, TestingModule } from '@nestjs/testing';
+import {
+    clientAuthenticationAnonymous,
+    Jwk,
+    JwtSignerJwk,
+} from '@openid4vc/oauth2';
 import {
     AuthorizationFlow,
     extractScopesForCredentialConfigurationIds,
     Openid4vciClient,
 } from '@openid4vc/openid4vci';
-import { callbacks, getSignJwtCallback, preparePresentation } from './utils';
+import {
+    Openid4vpAuthorizationRequest,
+    Openid4vpClient,
+} from '@openid4vc/openid4vp';
+import { digest } from '@sd-jwt/crypto-nodejs';
+import { SDJwtVcInstance } from '@sd-jwt/sd-jwt-vc';
+import { readFileSync } from 'fs';
 import {
     EncryptJWT,
     exportJWK,
@@ -14,25 +27,12 @@ import {
     JWK,
     jwtVerify,
 } from 'jose';
-import {
-    Jwk,
-    JwtSignerJwk,
-    clientAuthenticationAnonymous,
-} from '@openid4vc/oauth2';
-import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from '../src/app.module';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { App } from 'supertest/types';
 import request from 'supertest';
-import { readFileSync } from 'fs';
-import { fetch, setGlobalDispatcher, Agent } from 'undici';
-import { ConfigService } from '@nestjs/config';
-import {
-    Openid4vpAuthorizationRequest,
-    Openid4vpClient,
-} from '@openid4vc/openid4vp';
-import { SDJwtVcInstance } from '@sd-jwt/sd-jwt-vc';
-import { digest } from '@sd-jwt/crypto-nodejs';
+import { App } from 'supertest/types';
+import { Agent, fetch, setGlobalDispatcher } from 'undici';
+import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import { AppModule } from '../src/app.module';
+import { callbacks, getSignJwtCallback, preparePresentation } from './utils';
 
 setGlobalDispatcher(
     new Agent({

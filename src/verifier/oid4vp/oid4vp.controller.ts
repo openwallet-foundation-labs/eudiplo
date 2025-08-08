@@ -6,14 +6,14 @@ import {
     UseGuards,
     UseInterceptors,
 } from '@nestjs/common';
-import { Oid4vpService } from './oid4vp.service';
-import { AuthorizationResponse } from './dto/authorization-response.dto';
+import { ApiExcludeController, ApiParam } from '@nestjs/swagger';
+import { Session } from '../../session/entities/session.entity';
+import { SessionEntity } from '../../session/session.decorator';
+import { SessionGuard } from '../../session/session.guard';
 import { SessionLogger } from '../../utils/logger/session-logger.decorator';
 import { SessionLoggerInterceptor } from '../../utils/logger/session-logger.interceptor';
-import { SessionEntity } from '../../session/session.decorator';
-import { Session } from '../../session/entities/session.entity';
-import { SessionGuard } from '../../session/session.guard';
-import { ApiExcludeController, ApiParam } from '@nestjs/swagger';
+import { AuthorizationResponse } from './dto/authorization-response.dto';
+import { Oid4vpService } from './oid4vp.service';
 
 /**
  * Controller for handling OID4VP (OpenID for Verifiable Presentations) requests.

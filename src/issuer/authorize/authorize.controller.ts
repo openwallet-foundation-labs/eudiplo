@@ -9,15 +9,15 @@ import {
     Res,
     UseGuards,
 } from '@nestjs/common';
+import { ApiBody, ApiExcludeController } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
+import { Session } from '../../session/entities/session.entity';
+import { SessionEntity } from '../../session/session.decorator';
+import { SessionGuard } from '../../session/session.guard';
+import { SessionService } from '../../session/session.service';
 import { AuthorizeService } from './authorize.service';
 import { AuthorizeQueries } from './dto/authorize-request.dto';
-import { SessionService } from '../../session/session.service';
 import { ParResponseDto } from './dto/par-response.dto';
-import { ApiBody, ApiExcludeController } from '@nestjs/swagger';
-import { SessionEntity } from '../../session/session.decorator';
-import { Session } from '../../session/entities/session.entity';
-import { SessionGuard } from '../../session/session.guard';
 
 /**
  * Controller for the OpenID4VCI authorization endpoints.
@@ -38,7 +38,7 @@ export class AuthorizeController {
      * @param res
      */
     @Get()
-    async authorize(@Query() queries: AuthorizeQueries, @Res() res: Response) {
+    authorize(@Query() queries: AuthorizeQueries, @Res() res: Response) {
         return this.authorizeService.sendAuthorizationResponse(queries, res);
     }
 
@@ -74,7 +74,7 @@ export class AuthorizeController {
      */
     @UseGuards(SessionGuard)
     @Post('token')
-    async token(
+    token(
         @Body() body: any,
         @Req() req: Request,
         @SessionEntity() session: Session,

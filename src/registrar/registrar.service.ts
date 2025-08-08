@@ -1,11 +1,15 @@
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { OAuth2Client } from '@badgateway/oauth2-client';
 import {
     Injectable,
     OnApplicationBootstrap,
     OnModuleInit,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { OAuth2Client } from '@badgateway/oauth2-client';
-import { client } from './generated/client.gen';
+import { CryptoService } from '../crypto/crypto.service';
+import { RegistrationCertificateRequest } from '../verifier/presentations/dto/vp-request.dto';
+import { PresentationsService } from '../verifier/presentations/presentations.service';
 import {
     accessCertificateControllerFindOne,
     accessCertificateControllerRegister,
@@ -14,12 +18,8 @@ import {
     relyingPartyControllerFindAll,
     relyingPartyControllerRegister,
 } from './generated';
-import { CryptoService } from '../crypto/crypto.service';
-import { RegistrationCertificateRequest } from '../verifier/presentations/dto/vp-request.dto';
-import { PresentationsService } from '../verifier/presentations/presentations.service';
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { client } from './generated/client.gen';
 import { RegistrarConfig } from './registrar-config';
-import { join } from 'node:path';
 
 /**
  * Repsonse of access certificate request.

@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { CryptoService } from '../crypto/crypto.service';
-import { Oid4vciService } from '../issuer/oid4vci/oid4vci.service';
-import { AuthorizeService } from '../issuer/authorize/authorize.service';
-import { CredentialIssuerMetadataDto } from './dto/credential-issuer-metadata.dto';
-import { Oauth2AuthorizationServerResponse } from './dto/oauth-authorization-server-response.dto';
-import { JwksResponseDto } from './dto/jwks-response.dto';
-import { MediaType } from '../utils/mediaType/media-type.enum';
-import { Session } from '../session/entities/session.entity';
 import { CryptoImplementationService } from '../crypto/key/crypto-implementation/crypto-implementation.service';
+import { AuthorizeService } from '../issuer/authorize/authorize.service';
+import { Oid4vciService } from '../issuer/oid4vci/oid4vci.service';
+import { Session } from '../session/entities/session.entity';
+import { MediaType } from '../utils/mediaType/media-type.enum';
+import { CredentialIssuerMetadataDto } from './dto/credential-issuer-metadata.dto';
+import { JwksResponseDto } from './dto/jwks-response.dto';
+import { Oauth2AuthorizationServerResponse } from './dto/oauth-authorization-server-response.dto';
 
 /**
  * Service to handle well-known endpoints and metadata retrieval.
@@ -84,7 +84,7 @@ export class WellKnownService {
      * Returns the JSON Web Key Set (JWKS) for a given tenant.
      * @returns
      */
-    async getJwks(tenantId: string): Promise<JwksResponseDto> {
+    getJwks(tenantId: string): Promise<JwksResponseDto> {
         return this.cryptoService.getJwks(tenantId).then((key) => ({
             keys: [key],
         }));

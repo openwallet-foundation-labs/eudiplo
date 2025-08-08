@@ -1,8 +1,8 @@
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ES256 } from '@sd-jwt/crypto-nodejs';
-import { ED25519 } from './ed25519';
 import { CryptoImplementation } from './crypto-implementation';
-import { Injectable } from '@nestjs/common';
+import { ED25519 } from './ed25519';
 
 export type CryptoType = 'ES256' | 'Ed25519';
 
