@@ -20,8 +20,8 @@ export const AUTH_VALIDATION_SCHEMA = {
         then: Joi.string().required(),
         otherwise: Joi.string().optional(),
     }),
-    KEYCLOAK_CLIENT_ID: Joi.when('OIDC', {
-        then: Joi.string().required(),
+    KEYCLOAK_ALGORITHM: Joi.when('OIDC', {
+        then: Joi.string().default('RS256'),
         otherwise: Joi.string().optional(),
     }),
     JWT_SECRET: Joi.when('OIDC', {

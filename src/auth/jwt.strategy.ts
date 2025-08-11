@@ -54,10 +54,8 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
                 },
             }),
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            //TODO: configure algorithms based on Keycloak settings
-            algorithms: ['RS256'],
+            algorithms: [configService.get('KEYCLOAK_ALGORITHM')],
             issuer: keycloakIssuerUrl,
-            //audience: configService.get('KEYCLOAK_CLIENT_ID'), // You may want to add this to validation schema
         };
     }
 
@@ -92,11 +90,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         await this.clientService.isSetUp(payload.sub);
 
         if (useExternalOIDC) {
-            console.log('✅ External OIDC validation successful');
             // External OIDC: Extract user info from external provider token
             return payload;
         } else {
-            console.log('✅ Integrated OAuth2 validation successful');
             // Integrated OAuth2: Use integrated server token validation
             return payload;
         }
