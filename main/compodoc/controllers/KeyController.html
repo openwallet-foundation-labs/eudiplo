@@ -208,8 +208,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="48"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:48</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="50"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:50</a></div>
                         </td>
                     </tr>
 
@@ -298,8 +298,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="63"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:63</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="65"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:65</a></div>
                         </td>
                     </tr>
 
@@ -388,8 +388,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="36"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:36</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="38"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:38</a></div>
                         </td>
                     </tr>
 
@@ -427,7 +427,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;KeyObj[]&gt;</code>
+                            <b>Returns : </b>        <code><a href="../entitys/CertEntity.html" target="_self" >Promise&lt;CertEntity[]&gt;</a></code>
 
                         </div>
                             <div class="io-description">
@@ -456,7 +456,9 @@ import { JwtAuthGuard } from &#x27;../../auth/auth.guard&#x27;;
 import { Token, TokenPayload } from &#x27;../../auth/token.decorator&#x27;;
 import { CryptoService } from &#x27;../crypto.service&#x27;;
 import { KeyImportDto } from &#x27;./dto/key-import.dto&#x27;;
-import { KeyObj, KeyService } from &#x27;./key.service&#x27;;
+import { KeyObj } from &#x27;./dto/key-object.dto&#x27;;
+import { CertEntity } from &#x27;./entities/cert.entity&#x27;;
+import { KeyService } from &#x27;./key.service&#x27;;
 
 /**
  * KeyController is responsible for managing keys in the system.
@@ -476,9 +478,9 @@ export class KeyController {
      * @returns
      */
     @Get()
-    getKeys(@Token() token: TokenPayload): Promise&lt;KeyObj[]&gt; {
+    getKeys(@Token() token: TokenPayload): Promise&lt;CertEntity[]&gt; {
         const tenantId &#x3D; token.sub;
-        return this.keyService.getKeys(tenantId);
+        return this.cryptoService.getCerts(tenantId);
     }
 
     /**

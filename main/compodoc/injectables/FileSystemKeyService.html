@@ -169,10 +169,6 @@
                                 <a href="#create" >create</a>
                             </li>
                             <li>
-                                    <span class="modifier">Async</span>
-                                <a href="#getKeys" >getKeys</a>
-                            </li>
-                            <li>
                                 <a href="#getKid" >getKid</a>
                             </li>
                             <li>
@@ -196,10 +192,6 @@
                             </li>
                             <li>
                                 <a href="#import" >import</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Async</span>
-                                <a href="#importFromFileSystem" >importFromFileSystem</a>
                             </li>
                             <li>
                                 <a href="#init" >init</a>
@@ -234,12 +226,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(configService: ConfigService, cryptoService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>, certRepository: <a href="../entitys/CertEntity.html" target="_self">Repository&lt;CertEntity&gt;</a>, logger: PinoLogger)</code>
+<code>constructor(configService: ConfigService, cryptoService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>, certRepository: <a href="../entitys/CertEntity.html" target="_self">Repository&lt;CertEntity&gt;</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="38" class="link-to-prism">src/crypto/key/filesystem-key.service.ts:38</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/crypto/key/filesystem-key.service.ts:42</a></div>
                             </td>
                         </tr>
 
@@ -292,18 +284,6 @@
                                                     </td>
                                                     
                                                 </tr>
-                                                <tr>
-                                                        <td>logger</td>
-                                                  
-                                                        <td>
-                                                                    <code>PinoLogger</code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
                                         </tbody>
                                     </table>
                             </div>
@@ -346,7 +326,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:203</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:108</a></code>
 </div>
                         </td>
                     </tr>
@@ -400,83 +380,6 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getKeys"></a>
-                    <span class="name">
-                            <span class="modifier">Async</span>
-                        <span ><b>getKeys</b></span>
-                        <a href="#getKeys"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getKeys(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
-</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:148</a></code>
-</div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Returns the keys for the given tenant.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;KeyObj[]&gt;</code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
                     <a name="getKid"></a>
                     <span class="name">
                         <span ><b>getKid</b></span>
@@ -499,7 +402,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:274</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:179</a></code>
 </div>
                         </td>
                     </tr>
@@ -590,8 +493,8 @@ If no key exists, it will throw an error.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="244"
-                                    class="link-to-prism">src/crypto/key/filesystem-key.service.ts:244</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="149"
+                                    class="link-to-prism">src/crypto/key/filesystem-key.service.ts:149</a></div>
                         </td>
                     </tr>
 
@@ -666,22 +569,22 @@ If no key exists, it will throw an error.</p>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getPubFromPrivateKey(privateKey: JWK)</code>
+                    <code>getPubFromPrivateKey(privateKey: JWK_EC_Private)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="179"
-                                    class="link-to-prism">src/crypto/key/filesystem-key.service.ts:179</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="84"
+                                    class="link-to-prism">src/crypto/key/filesystem-key.service.ts:84</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Get the puvlic key from the private key.</p>
+                        <div class="io-description"><p>Get the public key from the private key.</p>
 </div>
 
                             <div class="io-description">
@@ -699,7 +602,7 @@ If no key exists, it will throw an error.</p>
                                         <tr>
                                                 <td>privateKey</td>
                                             <td>
-                                                        <code>JWK</code>
+                                                        <code>JWK_EC_Private</code>
                                             </td>
 
                                             <td>
@@ -712,7 +615,7 @@ If no key exists, it will throw an error.</p>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>JWK</code>
+                            <b>Returns : </b>        <code><a href="../classes/EC_Public.html" target="_self" >EC_Public</a></code>
 
                         </div>
                             <div class="io-description">
@@ -748,7 +651,7 @@ If no key exists, it will throw an error.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:290</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:195</a></code>
 </div>
                         </td>
                     </tr>
@@ -840,8 +743,8 @@ If no key exists, it will throw an error.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="291"
-                                    class="link-to-prism">src/crypto/key/filesystem-key.service.ts:291</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="196"
+                                    class="link-to-prism">src/crypto/key/filesystem-key.service.ts:196</a></div>
                         </td>
                     </tr>
 
@@ -932,8 +835,8 @@ If no key exists, it will throw an error.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="296"
-                                    class="link-to-prism">src/crypto/key/filesystem-key.service.ts:296</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="201"
+                                    class="link-to-prism">src/crypto/key/filesystem-key.service.ts:201</a></div>
                         </td>
                     </tr>
 
@@ -1029,7 +932,7 @@ If no key exists, it will throw an error.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:123</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:59</a></code>
 </div>
                         </td>
                     </tr>
@@ -1094,51 +997,6 @@ If no key exists, it will throw an error.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="importFromFileSystem"></a>
-                    <span class="name">
-                            <span class="modifier">Async</span>
-                        <span ><b>importFromFileSystem</b></span>
-                        <a href="#importFromFileSystem"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>importFromFileSystem()</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
-</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:50</a></code>
-</div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
-                        </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
                     <a name="init"></a>
                     <span class="name">
                         <span ><b>init</b></span>
@@ -1161,7 +1019,7 @@ If no key exists, it will throw an error.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:194</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:99</a></code>
 </div>
                         </td>
                     </tr>
@@ -1239,7 +1097,7 @@ This will create the keys if they do not exist.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:235</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:140</a></code>
 </div>
                         </td>
                     </tr>
@@ -1328,7 +1186,7 @@ This will create the keys if they do not exist.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:331</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:238</a></code>
 </div>
                         </td>
                     </tr>
@@ -1439,7 +1297,7 @@ This will create the keys if they do not exist.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:110</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:86</a></code>
 </div>
                         </td>
                     </tr>
@@ -1526,7 +1384,7 @@ This will create the keys if they do not exist.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="38" class="link-to-prism">src/crypto/key/filesystem-key.service.ts:38</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/crypto/key/filesystem-key.service.ts:42</a></div>
                         </td>
                     </tr>
 
@@ -1558,6 +1416,8 @@ import {
     exportSPKI,
     importJWK,
     JWK,
+    JWK_EC_Private,
+    JWK_EC_Public,
     JWTHeaderParameters,
     JWTPayload,
     SignJWT,
@@ -1565,11 +1425,13 @@ import {
 import { PinoLogger } from &#x27;nestjs-pino&#x27;;
 import { Repository } from &#x27;typeorm/repository/Repository&#x27;;
 import { v4 } from &#x27;uuid&#x27;;
+import { EC_Public } from &#x27;../../well-known/dto/jwks-response.dto&#x27;;
 import { CryptoImplementation } from &#x27;./crypto-implementation/crypto-implementation&#x27;;
 import { CryptoImplementationService } from &#x27;./crypto-implementation/crypto-implementation.service&#x27;;
 import { KeyImportDto } from &#x27;./dto/key-import.dto&#x27;;
+import { KeyObj } from &#x27;./dto/key-object.dto&#x27;;
 import { CertEntity, CertificateType } from &#x27;./entities/cert.entity&#x27;;
-import { KeyObj, KeyService } from &#x27;./key.service&#x27;;
+import { KeyService } from &#x27;./key.service&#x27;;
 
 /**
  * The key service is responsible for managing the keys of the issuer.
@@ -1582,77 +1444,9 @@ export class FileSystemKeyService extends KeyService {
         configService: ConfigService,
         private cryptoService: CryptoImplementationService,
         certRepository: Repository&lt;CertEntity&gt;,
-        private logger: PinoLogger,
     ) {
         super(configService, certRepository);
         this.crypto &#x3D; cryptoService.getCrypto();
-    }
-
-    async importFromFileSystem() {
-        if (this.configService.get&lt;boolean&gt;(&#x27;CONFIG_IMPORT&#x27;)) {
-            const configPath &#x3D; this.configService.getOrThrow(&#x27;CONFIG_FOLDER&#x27;);
-            const subfolder &#x3D; &#x27;keys&#x27;;
-            const force &#x3D; this.configService.get&lt;boolean&gt;(
-                &#x27;CONFIG_IMPORT_FORCE&#x27;,
-            );
-            if (this.configService.get&lt;boolean&gt;(&#x27;CONFIG_IMPORT&#x27;)) {
-                const tenantFolders &#x3D; readdirSync(configPath, {
-                    withFileTypes: true,
-                }).filter((tenant) &#x3D;&gt; tenant.isDirectory());
-                let counter &#x3D; 0;
-                for (const tenant of tenantFolders) {
-                    //iterate over all elements in the folder and import them
-                    const path &#x3D; join(configPath, tenant.name, subfolder);
-                    const files &#x3D; readdirSync(path);
-                    for (const file of files) {
-                        const payload &#x3D; JSON.parse(
-                            readFileSync(join(path, file), &#x27;utf8&#x27;),
-                        );
-
-                        const id &#x3D; file.replace(&#x27;.json&#x27;, &#x27;&#x27;);
-                        const exists &#x3D; await this.getPrivateKey(
-                            tenant.name,
-                            id,
-                        ).catch(() &#x3D;&gt; false);
-                        if (exists &amp;&amp; !force) {
-                            continue; // Skip if config already exists and force is not set
-                        }
-
-                        // Validate the payload against KeyImportDto
-                        const config &#x3D; plainToClass(KeyImportDto, payload);
-                        const validationErrors &#x3D; await validate(config, {
-                            whitelist: true,
-                            forbidNonWhitelisted: true,
-                        });
-
-                        if (validationErrors.length &gt; 0) {
-                            this.logger.error(
-                                {
-                                    event: &#x27;ValidationError&#x27;,
-                                    file,
-                                    tenant: tenant.name,
-                                    errors: validationErrors.map((error) &#x3D;&gt; ({
-                                        property: error.property,
-                                        constraints: error.constraints,
-                                        value: error.value,
-                                    })),
-                                },
-                                &#x60;Validation failed for key config ${file} in tenant ${tenant.name}&#x60;,
-                            );
-                            continue; // Skip this invalid config
-                        }
-                        await this.import(tenant.name, config);
-                        counter++;
-                    }
-                    this.logger.info(
-                        {
-                            event: &#x27;Import&#x27;,
-                        },
-                        &#x60;${counter} keys imported for ${tenant.name}&#x60;,
-                    );
-                }
-            }
-        }
     }
 
     /**
@@ -1682,49 +1476,18 @@ export class FileSystemKeyService extends KeyService {
     }
 
     /**
-     * Returns the keys for the given tenant.
-     * @param tenantId
-     * @returns
-     */
-    async getKeys(tenantId: string): Promise&lt;KeyObj[]&gt; {
-        const folder &#x3D; join(
-            this.configService.getOrThrow&lt;string&gt;(&#x27;FOLDER&#x27;),
-            tenantId,
-            &#x27;keys&#x27;,
-            &#x27;keys&#x27;,
-        );
-        if (!existsSync(folder)) {
-            mkdirSync(folder, { recursive: true });
-        }
-        const files &#x3D; readdirSync(folder);
-        const keys: KeyObj[] &#x3D; [];
-        for (const file of files) {
-            const keyData &#x3D; readFileSync(join(folder, file), &#x27;utf-8&#x27;);
-            const privateKey &#x3D; JSON.parse(keyData) as JWK;
-
-            const publicKey &#x3D; this.getPubFromPrivateKey(privateKey);
-            const crt &#x3D; await this.getCertificate(
-                tenantId,
-                privateKey.kid as string,
-            );
-            keys.push({ id: privateKey.kid as string, publicKey, crt });
-        }
-        return Promise.resolve(keys);
-    }
-
-    /**
-     * Get the puvlic key from the private key.
+     * Get the public key from the private key.
      * @param privateKey
      * @returns
      */
-    private getPubFromPrivateKey(privateKey: JWK): JWK {
+    private getPubFromPrivateKey(privateKey: JWK_EC_Private): EC_Public {
         const {
             d: _d,
             key_ops: _key_ops,
             ext: _ext,
             ...publicKey
         } &#x3D; privateKey;
-        return publicKey;
+        return publicKey as EC_Public;
     }
 
     /**
@@ -1850,7 +1613,9 @@ export class FileSystemKeyService extends KeyService {
         );
 
         // Export it as a JWK to get the public key components
-        const privateKeyJWK &#x3D; await exportJWK(privateKeyInstance);
+        const privateKeyJWK &#x3D; (await exportJWK(
+            privateKeyInstance,
+        )) as JWK_EC_Private;
 
         // Remove private key components to get only the public key
 

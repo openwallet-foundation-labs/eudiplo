@@ -92,7 +92,7 @@
 
 <ol class="breadcrumb">
   <li class="breadcrumb-item">Injectables</li>
-  <li class="breadcrumb-item" >CredentialConfigService</li>
+  <li class="breadcrumb-item" >OAuthService</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -116,17 +116,10 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/issuer/credentials/credential-config/credential-config.service.ts</code>
+            <code>src/oauth/oauth.service.ts</code>
         </p>
 
 
-            <p class="comment">
-                <h3>Description</h3>
-            </p>
-            <p class="comment">
-                <p>Service for managing credential configurations.</p>
-
-            </p>
 
 
 
@@ -134,6 +127,22 @@
     <h3 id="index">Index</h3>
     <table class="table table-sm table-bordered index-table">
         <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Readonly</span>
+                                <a href="#clients" >clients</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
 
                 <tr>
                     <td class="col-md-4">
@@ -144,21 +153,30 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
-                                <a href="#delete" >delete</a>
+                                <a href="#addClient" >addClient</a>
                             </li>
                             <li>
-                                <a href="#get" >get</a>
-                            </li>
-                            <li>
-                                <a href="#getById" >getById</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Private</span>
                                     <span class="modifier">Async</span>
-                                <a href="#import" >import</a>
+                                <a href="#generateAccessToken" >generateAccessToken</a>
                             </li>
                             <li>
-                                <a href="#store" >store</a>
+                                    <span class="modifier">Async</span>
+                                <a href="#handleClientCredentialsGrant" >handleClientCredentialsGrant</a>
+                            </li>
+                            <li>
+                                <a href="#hasClient" >hasClient</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#initializeClients" >initializeClients</a>
+                            </li>
+                            <li>
+                                <a href="#removeClient" >removeClient</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#validateClientCredentials" >validateClientCredentials</a>
                             </li>
                         </ul>
                     </td>
@@ -178,19 +196,17 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(credentialConfigRepository: <a href="../entitys/CredentialConfig.html" target="_self">Repository&lt;CredentialConfig&gt;</a>, configService: ConfigService, logger: PinoLogger, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>)</code>
+<code>constructor(configService: ConfigService, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="17" class="link-to-prism">src/issuer/credentials/credential-config/credential-config.service.ts:17</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="10" class="link-to-prism">src/oauth/oauth.service.ts:10</a></div>
                             </td>
                         </tr>
 
                 <tr>
                     <td class="col-md-4">
-                            <div class="io-description"><p>Constructor for CredentialConfigService.</p>
-</div>
                             <div>
                                     <b>Parameters :</b>
                                     <table class="params">
@@ -199,28 +215,9 @@
                                                 <td>Name</td>
                                                     <td>Type</td>
                                                 <td>Optional</td>
-                                                    <td>Description</td>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                                <tr>
-                                                        <td>credentialConfigRepository</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../entitys/CredentialConfig.html" target="_self" >Repository&lt;CredentialConfig&gt;</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                        <td>
-                                                                <ul>
-<li>Repository for CredentialConfig entity.</li>
-</ul>
-
-                                                        </td>
-                                                </tr>
                                                 <tr>
                                                         <td>configService</td>
                                                   
@@ -232,22 +229,6 @@
                                                             No
                                                     </td>
                                                     
-                                                        <td>
-                                                        </td>
-                                                </tr>
-                                                <tr>
-                                                        <td>logger</td>
-                                                  
-                                                        <td>
-                                                                    <code>PinoLogger</code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                        <td>
-                                                        </td>
                                                 </tr>
                                                 <tr>
                                                         <td>cryptoService</td>
@@ -260,8 +241,6 @@
                                                             No
                                                     </td>
                                                     
-                                                        <td>
-                                                        </td>
                                                 </tr>
                                         </tbody>
                                     </table>
@@ -281,204 +260,30 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="delete"></a>
+                    <a name="addClient"></a>
                     <span class="name">
-                        <span ><b>delete</b></span>
-                        <a href="#delete"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>addClient</b></span>
+                        <a href="#addClient"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>delete(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+<code>addClient(clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientSecret: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="172"
-                                    class="link-to-prism">src/issuer/credentials/credential-config/credential-config.service.ts:172</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="92"
+                                    class="link-to-prism">src/oauth/oauth.service.ts:92</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Deletes a credential configuration for a given tenant.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>The ID of the tenant.</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>id</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>The ID of the CredentialConfig entity to delete.</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                <p>A promise that resolves to the result of the delete operation.</p>
-
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="get"></a>
-                    <span class="name">
-                        <span ><b>get</b></span>
-                        <a href="#get"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>get(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="132"
-                                    class="link-to-prism">src/issuer/credentials/credential-config/credential-config.service.ts:132</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Retrieves all credential configurations for a given tenant.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>The ID of the tenant.</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                <p>A promise that resolves to an array of CredentialConfig entities.</p>
-
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getById"></a>
-                    <span class="name">
-                        <span ><b>getById</b></span>
-                        <a href="#getById"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getById(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="145"
-                                    class="link-to-prism">src/issuer/credentials/credential-config/credential-config.service.ts:145</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Retrieves a credential configuration by its ID for a given tenant.</p>
-</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -493,7 +298,7 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>tenantId</td>
+                                                <td>clientId</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -505,7 +310,7 @@
 
                                         </tr>
                                         <tr>
-                                                <td>id</td>
+                                                <td>clientSecret</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -520,7 +325,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
 
                         </div>
                             <div class="io-description">
@@ -534,19 +339,100 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="import"></a>
+                    <a name="generateAccessToken"></a>
                     <span class="name">
-                            <span class="modifier">Public</span>
+                            <span class="modifier">Private</span>
                             <span class="modifier">Async</span>
-                        <span ><b>import</b></span>
-                        <a href="#import"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>generateAccessToken</b></span>
+                        <a href="#generateAccessToken"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>import()</code>
+                    <code>generateAccessToken(clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, scope?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="68"
+                                    class="link-to-prism">src/oauth/oauth.service.ts:68</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>clientId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>scope</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="handleClientCredentialsGrant"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>handleClientCredentialsGrant</b></span>
+                        <a href="#handleClientCredentialsGrant"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>handleClientCredentialsGrant(request: <a href="../classes/TokenRequestDto.html" target="_self">TokenRequestDto</a>)</code>
                 </td>
             </tr>
 
@@ -554,55 +440,13 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="33"
-                                    class="link-to-prism">src/issuer/credentials/credential-config/credential-config.service.ts:33</a></div>
+                                    class="link-to-prism">src/oauth/oauth.service.ts:33</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Imports the configs</p>
-</div>
-
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
-                        </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="store"></a>
-                    <span class="name">
-                        <span ><b>store</b></span>
-                        <a href="#store"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>store(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, config: <a href="../entitys/CredentialConfig.html" target="_self">CredentialConfig</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="159"
-                                    class="link-to-prism">src/issuer/credentials/credential-config/credential-config.service.ts:159</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Stores a credential configuration for a given tenant.
-If the configuration already exists, it will be overwritten.</p>
-</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -613,12 +457,78 @@ If the configuration already exists, it will be overwritten.</p>
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
-                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>tenantId</td>
+                                                <td>request</td>
+                                            <td>
+                                                            <code><a href="../classes/TokenRequestDto.html" target="_self" >TokenRequestDto</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../miscellaneous/variables.html#Token" target="_self" >Promise&lt;TokenResponseDto&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="hasClient"></a>
+                    <span class="name">
+                        <span ><b>hasClient</b></span>
+                        <a href="#hasClient"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>hasClient(clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="100"
+                                    class="link-to-prism">src/oauth/oauth.service.ts:100</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>clientId</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -628,17 +538,105 @@ If the configuration already exists, it will be overwritten.</p>
                                             </td>
 
 
-                                            <td>
-                                                    <ul>
-<li>The ID of the tenant.</li>
-</ul>
-
-                                            </td>
                                         </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="initializeClients"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>initializeClients</b></span>
+                        <a href="#initializeClients"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>initializeClients()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="20"
+                                    class="link-to-prism">src/oauth/oauth.service.ts:20</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="removeClient"></a>
+                    <span class="name">
+                        <span ><b>removeClient</b></span>
+                        <a href="#removeClient"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>removeClient(clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="96"
+                                    class="link-to-prism">src/oauth/oauth.service.ts:96</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
                                         <tr>
-                                                <td>config</td>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>clientId</td>
                                             <td>
-                                                            <code><a href="../entitys/CredentialConfig.html" target="_self" >CredentialConfig</a></code>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
 
                                             <td>
@@ -646,26 +644,133 @@ If the configuration already exists, it will be overwritten.</p>
                                             </td>
 
 
-                                            <td>
-                                                    <ul>
-<li>The CredentialConfig entity to store.</li>
-</ul>
-
-                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
 
                         </div>
                             <div class="io-description">
-                                <p>A promise that resolves to the stored CredentialConfig entity.</p>
-
+                                
                             </div>
                 </td>
             </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="validateClientCredentials"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>validateClientCredentials</b></span>
+                        <a href="#validateClientCredentials"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>validateClientCredentials(clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientSecret: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="60"
+                                    class="link-to-prism">src/oauth/oauth.service.ts:60</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>clientId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>clientSecret</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+            <section data-compodoc="block-properties">
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="clients"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Readonly</span>
+                        <span ><b>clients</b></span>
+                        <a href="#clients"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>new Map&lt;string, string&gt;()</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="10" class="link-to-prism">src/oauth/oauth.service.ts:10</a></div>
+                        </td>
+                    </tr>
+
+
         </tbody>
     </table>
 </section>
@@ -674,182 +779,107 @@ If the configuration already exists, it will be overwritten.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &#x27;@nestjs/common&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, UnauthorizedException } from &#x27;@nestjs/common&#x27;;
 import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
-import { plainToClass } from &#x27;class-transformer&#x27;;
-import { validate } from &#x27;class-validator&#x27;;
-import { readdirSync, readFileSync } from &#x27;fs&#x27;;
-import { PinoLogger } from &#x27;nestjs-pino&#x27;;
-import { join } from &#x27;path&#x27;;
-import { Repository } from &#x27;typeorm&#x27;;
-import { CryptoService } from &#x27;../../../crypto/crypto.service&#x27;;
-import { CredentialConfig } from &#x27;../entities/credential.entity&#x27;;
+import { CryptoService } from &#x27;../crypto/crypto.service&#x27;;
+import { TokenRequestDto } from &#x27;./dto/token-request.dto&#x27;;
+import { TokenResponseDto } from &#x27;./dto/token-response.dto&#x27;;
 
-/**
- * Service for managing credential configurations.
- */
 @Injectable()
-export class CredentialConfigService {
-    /**
-     * Constructor for CredentialConfigService.
-     * @param credentialConfigRepository - Repository for CredentialConfig entity.
-     */
+export class OAuthService {
+    // In a real implementation, you&#x27;d store these securely in a database
+    private readonly clients &#x3D; new Map&lt;string, string&gt;();
+
     constructor(
-        @InjectRepository(CredentialConfig)
-        private readonly credentialConfigRepository: Repository&lt;CredentialConfig&gt;,
-        private configService: ConfigService,
-        private logger: PinoLogger,
-        private cryptoService: CryptoService,
-    ) {}
+        private readonly configService: ConfigService,
+        private readonly cryptoService: CryptoService,
+    ) {
+        // Initialize with some default clients - you can move this to configuration
+        this.initializeClients();
+    }
 
-    /**
-     * Imports the configs
-     */
-    public async import() {
-        const configPath &#x3D; this.configService.getOrThrow(&#x27;CONFIG_FOLDER&#x27;);
-        const subfolder &#x3D; &#x27;issuance/credentials&#x27;;
-        const force &#x3D; this.configService.get&lt;boolean&gt;(&#x27;CONFIG_IMPORT_FORCE&#x27;);
-        if (this.configService.get&lt;boolean&gt;(&#x27;CONFIG_IMPORT&#x27;)) {
-            const tenantFolders &#x3D; readdirSync(configPath, {
-                withFileTypes: true,
-            }).filter((tenant) &#x3D;&gt; tenant.isDirectory());
-            for (const tenant of tenantFolders) {
-                let counter &#x3D; 0;
-                //iterate over all elements in the folder and import them
-                const path &#x3D; join(configPath, tenant.name, subfolder);
-                const files &#x3D; readdirSync(path);
-                for (const file of files) {
-                    const payload &#x3D; JSON.parse(
-                        readFileSync(join(path, file), &#x27;utf8&#x27;),
-                    );
+    private initializeClients() {
+        // Add default client from environment variables if available
+        const defaultClientId &#x3D;
+            this.configService.get&lt;string&gt;(&#x27;OAUTH_CLIENT_ID&#x27;);
+        const defaultClientSecret &#x3D; this.configService.get&lt;string&gt;(
+            &#x27;OAUTH_CLIENT_SECRET&#x27;,
+        );
 
-                    const id &#x3D; file.replace(&#x27;.json&#x27;, &#x27;&#x27;);
-                    payload.id &#x3D; id;
-                    const exists &#x3D; await this.getById(tenant.name, id).catch(
-                        () &#x3D;&gt; false,
-                    );
-                    if (exists &amp;&amp; !force) {
-                        continue; // Skip if config already exists and force is not set
-                    }
-
-                    // Validate the payload against CredentialConfig
-                    const config &#x3D; plainToClass(CredentialConfig, payload);
-                    const validationErrors &#x3D; await validate(config, {
-                        whitelist: true,
-                        forbidNonWhitelisted: true,
-                    });
-
-                    // Check if keyId is provided and if the certificate exists
-                    if (config.keyId) {
-                        const cert &#x3D; await this.cryptoService.getCertEntry(
-                            tenant.name,
-                            config.keyId,
-                        );
-                        if (!cert) {
-                            this.logger.error(
-                                {
-                                    event: &#x27;ValidationError&#x27;,
-                                    file,
-                                    tenant: tenant.name,
-                                    errors: [
-                                        {
-                                            property: &#x27;keyId&#x27;,
-                                            constraints: {
-                                                isDefined:
-                                                    &#x27;Key ID must be defined in the crypto service.&#x27;,
-                                            },
-                                            value: config.keyId,
-                                        },
-                                    ],
-                                },
-                                &#x60;Validation failed for credentials config ${file} in tenant ${tenant.name}&#x60;,
-                            );
-                            continue; // Skip this invalid config
-                        }
-                        config.key &#x3D; cert;
-                    }
-
-                    if (validationErrors.length &gt; 0) {
-                        this.logger.error(
-                            {
-                                event: &#x27;ValidationError&#x27;,
-                                file,
-                                tenant: tenant.name,
-                                errors: validationErrors.map((error) &#x3D;&gt; ({
-                                    property: error.property,
-                                    constraints: error.constraints,
-                                    value: error.value,
-                                })),
-                            },
-                            &#x60;Validation failed for credentials config ${file} in tenant ${tenant.name}&#x60;,
-                        );
-                        continue; // Skip this invalid config
-                    }
-
-                    await this.store(tenant.name, config);
-                    counter++;
-                }
-                this.logger.info(
-                    {
-                        event: &#x27;Import&#x27;,
-                    },
-                    &#x60;${counter} credential configs imported for ${tenant.name}&#x60;,
-                );
-            }
+        if (defaultClientId &amp;&amp; defaultClientSecret) {
+            this.clients.set(defaultClientId, defaultClientSecret);
         }
     }
 
-    /**
-     * Retrieves all credential configurations for a given tenant.
-     * @param tenantId - The ID of the tenant.
-     * @returns A promise that resolves to an array of CredentialConfig entities.
-     */
-    get(tenantId: string) {
-        return this.credentialConfigRepository.find({
-            where: { tenantId },
-            relations: [&#x27;key&#x27;],
-        });
+    async handleClientCredentialsGrant(
+        request: TokenRequestDto,
+    ): Promise&lt;TokenResponseDto&gt; {
+        // Validate client credentials
+        if (
+            !this.validateClientCredentials(
+                request.client_id,
+                request.client_secret,
+            )
+        ) {
+            throw new UnauthorizedException(&#x27;Invalid client credentials&#x27;);
+        }
+
+        // Generate access token
+        const accessToken &#x3D; await this.generateAccessToken(
+            request.client_id,
+            request.scope,
+        );
+
+        return {
+            access_token: accessToken,
+            token_type: &#x27;Bearer&#x27;,
+            expires_in: 3600, // 1 hour
+            scope: request.scope || &#x27;openid&#x27;,
+        };
     }
 
-    /**
-     * Retrieves a credential configuration by its ID for a given tenant.
-     * @param tenantId
-     * @param id
-     * @returns
-     */
-    getById(tenantId: string, id: string) {
-        return this.credentialConfigRepository.findOneByOrFail({
-            id,
-            tenantId,
-        });
+    private validateClientCredentials(
+        clientId: string,
+        clientSecret: string,
+    ): boolean {
+        const storedSecret &#x3D; this.clients.get(clientId);
+        return storedSecret &#x3D;&#x3D;&#x3D; clientSecret;
     }
 
-    /**
-     * Stores a credential configuration for a given tenant.
-     * If the configuration already exists, it will be overwritten.
-     * @param tenantId - The ID of the tenant.
-     * @param config - The CredentialConfig entity to store.
-     * @returns A promise that resolves to the stored CredentialConfig entity.
-     */
-    store(tenantId: string, config: CredentialConfig) {
-        return this.credentialConfigRepository.save({
-            ...config,
+    private async generateAccessToken(
+        clientId: string,
+        scope?: string,
+    ): Promise&lt;string&gt; {
+        const payload &#x3D; {
+            sub: clientId,
+            aud: this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;),
+            iss: this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;),
+            scope: scope || &#x27;openid&#x27;,
+            exp: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
+            iat: Math.floor(Date.now() / 1000),
+        };
+
+        // For now, we&#x27;ll use the root tenant for signing
+        // In a real implementation, you might want to use a dedicated OAuth signing key
+        const tenantId &#x3D; &#x27;root&#x27;;
+        return await this.cryptoService.signJwt(
+            payload,
+            { alg: &#x27;RS256&#x27; },
             tenantId,
-        });
+        );
     }
 
-    /**
-     * Deletes a credential configuration for a given tenant.
-     * @param tenantId - The ID of the tenant.
-     * @param id - The ID of the CredentialConfig entity to delete.
-     * @returns A promise that resolves to the result of the delete operation.
-     */
-    delete(tenantId: string, id: string) {
-        return this.credentialConfigRepository.delete({
-            id,
-            tenantId,
-        });
+    // Methods to manage clients dynamically
+    addClient(clientId: string, clientSecret: string): void {
+        this.clients.set(clientId, clientSecret);
+    }
+
+    removeClient(clientId: string): void {
+        this.clients.delete(clientId);
+    }
+
+    hasClient(clientId: string): boolean {
+        return this.clients.has(clientId);
     }
 }
 </code></pre>
@@ -895,7 +925,7 @@ export class CredentialConfigService {
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'injectable';
-            var COMPODOC_CURRENT_PAGE_URL = 'CredentialConfigService.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'OAuthService.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

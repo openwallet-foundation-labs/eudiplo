@@ -185,12 +185,12 @@ It provides methods to get, store, and delete issuance configurations.</p>
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(issuanceConfigRepo: <a href="../entitys/IssuanceConfig.html" target="_self">Repository&lt;IssuanceConfig&gt;</a>, credentialIssuanceBindingRepo: <a href="../entitys/CredentialIssuanceBinding.html" target="_self">Repository&lt;CredentialIssuanceBinding&gt;</a>, credentialsConfigService: <a href="../injectables/CredentialConfigService.html" target="_self">CredentialConfigService</a>, configService: ConfigService, logger: PinoLogger, _cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>)</code>
+<code>constructor(issuanceConfigRepo: <a href="../entitys/IssuanceConfig.html" target="_self">Repository&lt;IssuanceConfig&gt;</a>, credentialIssuanceBindingRepo: <a href="../entitys/CredentialIssuanceBinding.html" target="_self">Repository&lt;CredentialIssuanceBinding&gt;</a>, credentialsConfigService: <a href="../injectables/CredentialConfigService.html" target="_self">CredentialConfigService</a>, configService: ConfigService, logger: PinoLogger, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="23" class="link-to-prism">src/issuer/issuance/issuance.service.ts:23</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="24" class="link-to-prism">src/issuer/issuance/issuance.service.ts:24</a></div>
                             </td>
                         </tr>
 
@@ -270,7 +270,7 @@ It provides methods to get, store, and delete issuance configurations.</p>
                                                     
                                                 </tr>
                                                 <tr>
-                                                        <td>_cryptoService</td>
+                                                        <td>cryptoService</td>
                                                   
                                                         <td>
                                                                         <code><a href="../injectables/CryptoService.html" target="_self" >CryptoService</a></code>
@@ -315,8 +315,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="220"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:220</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="223"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:223</a></div>
                         </td>
                     </tr>
 
@@ -398,8 +398,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="122"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:122</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="124"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:124</a></div>
                         </td>
                     </tr>
 
@@ -467,8 +467,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="134"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:134</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="137"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:137</a></div>
                         </td>
                     </tr>
 
@@ -551,8 +551,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="51"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:51</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="53"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:53</a></div>
                         </td>
                     </tr>
 
@@ -592,8 +592,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="43"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:43</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="44"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:44</a></div>
                         </td>
                     </tr>
 
@@ -633,8 +633,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="150"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:150</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="153"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:153</a></div>
                         </td>
                     </tr>
 
@@ -700,7 +700,7 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, OnModuleInit } from &#x27;@nestjs/common&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Inject, Injectable, OnModuleInit } from &#x27;@nestjs/common&#x27;;
 import { ConfigService } from &#x27;@nestjs/config&#x27;;
 import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
 import { plainToClass } from &#x27;class-transformer&#x27;;
@@ -710,6 +710,7 @@ import { PinoLogger } from &#x27;nestjs-pino&#x27;;
 import { join } from &#x27;path&#x27;;
 import { Repository } from &#x27;typeorm&#x27;;
 import { CryptoService } from &#x27;../../crypto/crypto.service&#x27;;
+import { KeyService } from &#x27;../../crypto/key/key.service&#x27;;
 import { CredentialConfigService } from &#x27;../credentials/credential-config/credential-config.service&#x27;;
 import { CredentialConfig } from &#x27;../credentials/entities/credential.entity&#x27;;
 import { AuthenticationConfig } from &#x27;./dto/authentication-config.dto&#x27;;
@@ -736,13 +737,14 @@ export class IssuanceService implements OnModuleInit {
         private credentialsConfigService: CredentialConfigService,
         private configService: ConfigService,
         private logger: PinoLogger,
-        _cryptoService: CryptoService,
+        private cryptoService: CryptoService,
     ) {}
 
     /**
      * Import issuance configurations and the credential configurations from the configured folder.
      */
     async onModuleInit() {
+        await this.cryptoService.import();
         await this.credentialsConfigService.import();
         await this.import();
     }
@@ -824,6 +826,7 @@ export class IssuanceService implements OnModuleInit {
     public getIssuanceConfiguration(tenantId: string) {
         return this.issuanceConfigRepo.find({
             where: { tenantId },
+            relations: [&#x27;credentialIssuanceBindings&#x27;],
         });
     }
 

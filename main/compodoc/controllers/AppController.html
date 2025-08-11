@@ -137,7 +137,7 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier"></span>
-                                <a href="#getHello" >getHello</a>
+                                <a href="#main" >main</a>
                             </li>
                         </ul>
                     </td>
@@ -160,18 +160,18 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getHello"></a>
+                    <a name="main"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                        <span ><b>getHello</b></span>
-                        <a href="#getHello"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>main</b></span>
+                        <a href="#main"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getHello()</code>
+                    <code>main()</code>
                 </td>
             </tr>
 
@@ -213,7 +213,7 @@ import { ApiExcludeController } from &#x27;@nestjs/swagger&#x27;;
 @Controller()
 export class AppController {
     @Get()
-    getHello(): string {
+    main(): string {
         return &#x27;EUDIPLO is up and running, more information at &lt;a href&#x3D;&quot;https://openwallet-foundation-labs.github.io/eudiplo/latest/&quot;&gt;https://openwallet-foundation-labs.github.io/eudiplo/latest/&lt;/a&gt;&#x27;;
     }
 }

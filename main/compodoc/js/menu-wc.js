@@ -284,6 +284,37 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="modules/MetricModule.html" data-type="entity-link" >MetricModule</a>
                             </li>
                             <li class="link">
+                                <a href="modules/OAuthModule.html" data-type="entity-link" >OAuthModule</a>
+                                    <li class="chapter inner">
+                                        <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ?
+                                            'data-bs-target="#controllers-links-module-OAuthModule-5e41f36bf3d6041c896b4b7ac031908a9ef1d8c20d97776124e5631601c95add92af6834a5333a5f6baa012ad49afb161d10eabdf3bec7d341bbf31d61349775"' : 'data-bs-target="#xs-controllers-links-module-OAuthModule-5e41f36bf3d6041c896b4b7ac031908a9ef1d8c20d97776124e5631601c95add92af6834a5333a5f6baa012ad49afb161d10eabdf3bec7d341bbf31d61349775"' }>
+                                            <span class="icon ion-md-swap"></span>
+                                            <span>Controllers</span>
+                                            <span class="icon ion-ios-arrow-down"></span>
+                                        </div>
+                                        <ul class="links collapse" ${ isNormalMode ? 'id="controllers-links-module-OAuthModule-5e41f36bf3d6041c896b4b7ac031908a9ef1d8c20d97776124e5631601c95add92af6834a5333a5f6baa012ad49afb161d10eabdf3bec7d341bbf31d61349775"' :
+                                            'id="xs-controllers-links-module-OAuthModule-5e41f36bf3d6041c896b4b7ac031908a9ef1d8c20d97776124e5631601c95add92af6834a5333a5f6baa012ad49afb161d10eabdf3bec7d341bbf31d61349775"' }>
+                                            <li class="link">
+                                                <a href="controllers/OAuthController.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >OAuthController</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                <li class="chapter inner">
+                                    <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ?
+                                        'data-bs-target="#injectables-links-module-OAuthModule-5e41f36bf3d6041c896b4b7ac031908a9ef1d8c20d97776124e5631601c95add92af6834a5333a5f6baa012ad49afb161d10eabdf3bec7d341bbf31d61349775"' : 'data-bs-target="#xs-injectables-links-module-OAuthModule-5e41f36bf3d6041c896b4b7ac031908a9ef1d8c20d97776124e5631601c95add92af6834a5333a5f6baa012ad49afb161d10eabdf3bec7d341bbf31d61349775"' }>
+                                        <span class="icon ion-md-arrow-round-down"></span>
+                                        <span>Injectables</span>
+                                        <span class="icon ion-ios-arrow-down"></span>
+                                    </div>
+                                    <ul class="links collapse" ${ isNormalMode ? 'id="injectables-links-module-OAuthModule-5e41f36bf3d6041c896b4b7ac031908a9ef1d8c20d97776124e5631601c95add92af6834a5333a5f6baa012ad49afb161d10eabdf3bec7d341bbf31d61349775"' :
+                                        'id="xs-injectables-links-module-OAuthModule-5e41f36bf3d6041c896b4b7ac031908a9ef1d8c20d97776124e5631601c95add92af6834a5333a5f6baa012ad49afb161d10eabdf3bec7d341bbf31d61349775"' }>
+                                        <li class="link">
+                                            <a href="injectables/OAuthService.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >OAuthService</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </li>
+                            <li class="link">
                                 <a href="modules/Oid4vpModule.html" data-type="entity-link" >Oid4vpModule</a>
                                     <li class="chapter inner">
                                         <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ?
@@ -549,6 +580,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/KeyObj.html" data-type="entity-link" >KeyObj</a>
                             </li>
                             <li class="link">
+                                <a href="classes/KeyResponseDto.html" data-type="entity-link" >KeyResponseDto</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/KeyService.html" data-type="entity-link" >KeyService</a>
                             </li>
                             <li class="link">
@@ -588,7 +622,13 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/StatusUpdateDto.html" data-type="entity-link" >StatusUpdateDto</a>
                             </li>
                             <li class="link">
+                                <a href="classes/TokenRequestDto.html" data-type="entity-link" >TokenRequestDto</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/TokenResponse.html" data-type="entity-link" >TokenResponse</a>
+                            </li>
+                            <li class="link">
+                                <a href="classes/TokenResponseDto.html" data-type="entity-link" >TokenResponseDto</a>
                             </li>
                             <li class="link">
                                 <a href="classes/UpdateCredentialIssuanceBindingDto.html" data-type="entity-link" >UpdateCredentialIssuanceBindingDto</a>
@@ -664,6 +704,12 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             </li>
                             <li class="link">
                                 <a href="interfaces/LoggerConfiguration.html" data-type="entity-link" >LoggerConfiguration</a>
+                            </li>
+                            <li class="link">
+                                <a href="interfaces/OidcDiscoveryDto.html" data-type="entity-link" >OidcDiscoveryDto</a>
+                            </li>
+                            <li class="link">
+                                <a href="interfaces/OidcDiscoveryDto-1.html" data-type="entity-link" >OidcDiscoveryDto</a>
                             </li>
                             <li class="link">
                                 <a href="interfaces/ParsedAccessTokenAuthorizationCodeRequestGrant.html" data-type="entity-link" >ParsedAccessTokenAuthorizationCodeRequestGrant</a>

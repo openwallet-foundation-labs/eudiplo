@@ -170,6 +170,7 @@
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                     <span class="modifier">Optional</span>
                                 <a href="#webhook" >webhook</a>
                             </li>
@@ -221,7 +222,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="53" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:53</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="54" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:54</a></div>
                         </td>
                     </tr>
 
@@ -346,7 +347,7 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsOptional()<br />@IsObject()<br />@Column(&#x27;json&#x27;)<br />
+                            @IsOptional()<br />@IsObject()<br />@Column(&#x27;json&#x27;, {nullable: true})<br />
                         </code>
                     </td>
                 </tr>
@@ -417,6 +418,7 @@
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                             <span class="modifier">Optional</span>
                         <span ><b>webhook</b></span>
                         <a href="#webhook"><span class="icon ion-ios-link"></span></a>
@@ -434,13 +436,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @Column(&#x27;json&#x27;, {nullable: true})<br />@IsObject()<br />
+                            @Column(&#x27;json&#x27;, {nullable: true})<br />@IsOptional()<br />@IsObject()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="46" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:46</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:47</a></div>
                         </td>
                     </tr>
 
@@ -496,12 +498,13 @@ export class PresentationConfig {
      */
     @IsOptional()
     @IsObject()
-    @Column(&#x27;json&#x27;)
+    @Column(&#x27;json&#x27;, { nullable: true })
     registrationCert?: RegistrationCertificateRequest;
     /**
      * Optional webhook URL to receive the response.
      */
     @Column(&#x27;json&#x27;, { nullable: true })
+    @IsOptional()
     @IsObject()
     webhook?: WebhookConfig;
 

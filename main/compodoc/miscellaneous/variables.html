@@ -137,6 +137,9 @@
                             <a href="#KEY_VALIDATION_SCHEMA" title="src/crypto/key/key.module.ts" ><b>KEY_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../key.module.ts)</a>
                         </li>
                         <li>
+                            <a href="#OAUTH_VALIDATION_SCHEMA" title="src/oauth/oauth.module.ts" ><b>OAUTH_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../oauth.module.ts)</a>
+                        </li>
+                        <li>
                             <a href="#Public" title="src/auth/public.decorator.ts" ><b>Public</b>&nbsp;&nbsp;&nbsp;(src/.../public.decorator.ts)</a>
                         </li>
                         <li>
@@ -558,6 +561,38 @@ This decorator can be used to determine the media type of the request.</p>
         then: Joi.required(),
         otherwise: Joi.optional(),
     }),
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/oauth/oauth.module.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="OAUTH_VALIDATION_SCHEMA"></a>
+                    <span class="name">
+                        <span ><b>OAUTH_VALIDATION_SCHEMA</b></span>
+                        <a href="#OAUTH_VALIDATION_SCHEMA"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object" target="_blank" >object</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>{
+    OAUTH_CLIENT_ID: Joi.string().optional(),
+    OAUTH_CLIENT_SECRET: Joi.string().optional(),
 }</code>
                     </td>
                 </tr>
