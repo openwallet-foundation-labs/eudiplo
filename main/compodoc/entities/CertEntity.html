@@ -150,7 +150,7 @@
                             </li>
                             <li>
                                     <span class="modifier"></span>
-                                <a href="#keyId" >keyId</a>
+                                <a href="#id" >id</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
@@ -267,11 +267,11 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="keyId"></a>
+                    <a name="id"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                        <span ><b>keyId</b></span>
-                        <a href="#keyId"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>id</b></span>
+                        <a href="#id"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
@@ -407,7 +407,7 @@ export class CertEntity {
      * Unique identifier for the key.
      */
     @Column(&#x27;varchar&#x27;, { primary: true })
-    keyId: string;
+    id: string;
 
     /**
      * Tenant ID for the key.

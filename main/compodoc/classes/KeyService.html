@@ -1218,7 +1218,7 @@ export abstract class KeyService {
         return this.certRepository
             .findOneByOrFail({
                 tenantId,
-                keyId,
+                id: keyId,
             })
             .then(
                 (cert) &#x3D;&gt; cert.crt,
