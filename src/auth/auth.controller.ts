@@ -7,7 +7,13 @@ import {
     UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+    ApiBody,
+    ApiExcludeController,
+    ApiOperation,
+    ApiResponse,
+    ApiTags,
+} from '@nestjs/swagger';
 import { KeyResponseDto } from '../crypto/key/dto/key-response.dto';
 import { ClientService } from './client.service';
 import { ClientCredentialsDto } from './dto/client-credentials.dto';
@@ -16,6 +22,7 @@ import { TokenResponse } from './dto/token-response.dto';
 import { JwtService } from './jwt.service';
 import { TokenPayload } from './token.decorator';
 
+@ApiExcludeController(process.env.SWAGGER_ALL !== 'true')
 @ApiTags('Authentication')
 @Controller('')
 export class AuthController {

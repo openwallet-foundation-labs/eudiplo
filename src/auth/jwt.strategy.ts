@@ -14,23 +14,35 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     ) {
         const useExternalOIDC = configService.get<boolean>('OIDC');
 
-        super(
-            useExternalOIDC
-                ? JwtStrategy.getExternalOIDCConfig(configService)
-                : JwtStrategy.getIntegratedOAuth2Config(configService),
-        );
+        const config = useExternalOIDC
+            ? JwtStrategy.getExternalOIDCConfig(configService)
+            : JwtStrategy.getIntegratedOAuth2Config(configService);
+
+        super(config);
+    }
+
+    // Override authenticate to add debugging
+    authenticate(req: any, options?: any) {
+        return super.authenticate(req, {
+            ...options,
+            failWithError: true, // This will throw errors instead of just returning 401
+        });
     }
 
     private static getExternalOIDCConfig(configService: ConfigService) {
-        //TODO: test it
+        const keycloakIssuerUrl = configService.get(
+            'KEYCLOAK_INTERNAL_ISSUER_URL',
+        );
+        const jwksUri = `${keycloakIssuerUrl}/protocol/openid-connect/certs`;
+
         return {
             secretOrKeyProvider: passportJwtSecret({
                 cache: true,
                 rateLimit: true,
                 jwksRequestsPerMinute: 5,
-                jwksUri: `${configService.get('KEYCLOAK_INTERNAL_ISSUER_URL')}/protocol/openid-connect/certs`,
+                jwksUri: jwksUri,
                 handleSigningKeyError: (err, cb) => {
-                    console.log('Keycloak JWKS error:', err);
+                    console.error('❌ Keycloak JWKS error:', err);
                     if (err instanceof Error) {
                         return cb(err);
                     }
@@ -42,9 +54,10 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
                 },
             }),
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            //TODO: configure algorithms based on Keycloak settings
             algorithms: ['RS256'],
-            issuer: configService.get('KEYCLOAK_INTERNAL_ISSUER_URL'),
-            audience: configService.get('KEYCLOAK_CLIENT_ID'), // You may want to add this to validation schema
+            issuer: keycloakIssuerUrl,
+            //audience: configService.get('KEYCLOAK_CLIENT_ID'), // You may want to add this to validation schema
         };
     }
 
@@ -75,12 +88,15 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     async validate(payload: TokenPayload): Promise<unknown> {
         const useExternalOIDC =
             this.configService.get<boolean>('OIDC') !== undefined;
+
         await this.clientService.isSetUp(payload.sub);
 
         if (useExternalOIDC) {
+            console.log('✅ External OIDC validation successful');
             // External OIDC: Extract user info from external provider token
             return payload;
         } else {
+            console.log('✅ Integrated OAuth2 validation successful');
             // Integrated OAuth2: Use integrated server token validation
             return payload;
         }
