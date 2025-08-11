@@ -203,8 +203,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="186"
-                                    class="link-to-prism">src/auth/auth.controller.ts:186</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="193"
+                                    class="link-to-prism">src/auth/auth.controller.ts:193</a></div>
                         </td>
                     </tr>
 
@@ -256,8 +256,8 @@ This provides the JSON Web Key Set for verifying tokens issued by this server.</
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="63"
-                                    class="link-to-prism">src/auth/auth.controller.ts:63</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="70"
+                                    class="link-to-prism">src/auth/auth.controller.ts:70</a></div>
                         </td>
                     </tr>
 
@@ -349,8 +349,8 @@ Accepts client credentials either in Authorization header (Basic auth) or reques
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="151"
-                                    class="link-to-prism">src/auth/auth.controller.ts:151</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="158"
+                                    class="link-to-prism">src/auth/auth.controller.ts:158</a></div>
                         </td>
                     </tr>
 
@@ -383,7 +383,13 @@ that need to authenticate using client_id and client_secret.</p>
     UnauthorizedException,
 } from &#x27;@nestjs/common&#x27;;
 import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from &#x27;@nestjs/swagger&#x27;;
+import {
+    ApiBody,
+    ApiExcludeController,
+    ApiOperation,
+    ApiResponse,
+    ApiTags,
+} from &#x27;@nestjs/swagger&#x27;;
 import { KeyResponseDto } from &#x27;../crypto/key/dto/key-response.dto&#x27;;
 import { ClientService } from &#x27;./client.service&#x27;;
 import { ClientCredentialsDto } from &#x27;./dto/client-credentials.dto&#x27;;
@@ -392,6 +398,7 @@ import { TokenResponse } from &#x27;./dto/token-response.dto&#x27;;
 import { JwtService } from &#x27;./jwt.service&#x27;;
 import { TokenPayload } from &#x27;./token.decorator&#x27;;
 
+@ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &#x27;true&#x27;)
 @ApiTags(&#x27;Authentication&#x27;)
 @Controller(&#x27;&#x27;)
 export class AuthController {

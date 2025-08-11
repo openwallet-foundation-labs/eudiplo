@@ -1656,48 +1656,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#authentication" class="md-nav__link">
-    <span class="md-ellipsis">
-      Authentication
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Authentication">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#post-oauth2token" class="md-nav__link">
-    <span class="md-ellipsis">
-      POST /oauth2/token
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#get-well-knownoauth-authorization-server" class="md-nav__link">
-    <span class="md-ellipsis">
-      GET /.well-known/oauth-authorization-server
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#get-well-knownjwksjson" class="md-nav__link">
-    <span class="md-ellipsis">
-      GET /.well-known/jwks.json
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#prometheus" class="md-nav__link">
     <span class="md-ellipsis">
       Prometheus
@@ -1762,15 +1720,6 @@
   <a href="#certentity" class="md-nav__link">
     <span class="md-ellipsis">
       CertEntity
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#clientcredentialsdto" class="md-nav__link">
-    <span class="md-ellipsis">
-      ClientCredentialsDto
     </span>
   </a>
   
@@ -1906,15 +1855,6 @@
   <a href="#statusupdatedto" class="md-nav__link">
     <span class="md-ellipsis">
       StatusUpdateDto
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#tokenresponse" class="md-nav__link">
-    <span class="md-ellipsis">
-      TokenResponse
     </span>
   </a>
   
@@ -2501,48 +2441,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#authentication" class="md-nav__link">
-    <span class="md-ellipsis">
-      Authentication
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Authentication">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#post-oauth2token" class="md-nav__link">
-    <span class="md-ellipsis">
-      POST /oauth2/token
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#get-well-knownoauth-authorization-server" class="md-nav__link">
-    <span class="md-ellipsis">
-      GET /.well-known/oauth-authorization-server
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#get-well-knownjwksjson" class="md-nav__link">
-    <span class="md-ellipsis">
-      GET /.well-known/jwks.json
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#prometheus" class="md-nav__link">
     <span class="md-ellipsis">
       Prometheus
@@ -2607,15 +2505,6 @@
   <a href="#certentity" class="md-nav__link">
     <span class="md-ellipsis">
       CertEntity
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#clientcredentialsdto" class="md-nav__link">
-    <span class="md-ellipsis">
-      ClientCredentialsDto
     </span>
   </a>
   
@@ -2751,15 +2640,6 @@
   <a href="#statusupdatedto" class="md-nav__link">
     <span class="md-ellipsis">
       StatusUpdateDto
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#tokenresponse" class="md-nav__link">
-    <span class="md-ellipsis">
-      TokenResponse
     </span>
   </a>
   
@@ -4662,154 +4542,6 @@ updated.</p>
 </div>
 </div>
 </div>
-<h2 id="authentication"><span class="api-tag">Authentication</span><a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h2>
-<hr class="operation-separator" />
-
-<h3 id="post-oauth2token"><span class="http-post">POST</span> /oauth2/token<a class="headerlink" href="#post-oauth2token" title="Permanent link">&para;</a></h3>
-<p>OAuth2 Token endpoint - supports client credentials flow only
-Accepts client credentials either in Authorization header (Basic auth) or
-request body</p>
-<p class="request-body-title"><strong>Request body</strong></p>
-
-<div class="tabbed-set tabbed-alternate" data-tabs="21:1"><input checked="checked" id="__tabbed_21_1" name="__tabbed_21" type="radio" /><div class="tabbed-labels"><label for="__tabbed_21_1">application/json</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a><span class="p">{</span>
-<a id="__codelineno-44-2" name="__codelineno-44-2" href="#__codelineno-44-2"></a><span class="w">    </span><span class="nt">&quot;grant_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;client_credentials&quot;</span><span class="p">,</span>
-<a id="__codelineno-44-3" name="__codelineno-44-3" href="#__codelineno-44-3"></a><span class="w">    </span><span class="nt">&quot;client_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;root&quot;</span><span class="p">,</span>
-<a id="__codelineno-44-4" name="__codelineno-44-4" href="#__codelineno-44-4"></a><span class="w">    </span><span class="nt">&quot;client_secret&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;root&quot;</span>
-<a id="__codelineno-44-5" name="__codelineno-44-5" href="#__codelineno-44-5"></a><span class="p">}</span>
-</code></pre></div>
-<details class="hint">
-<summary>Schema of the request body</summary>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a><span class="p">{</span>
-<a id="__codelineno-45-2" name="__codelineno-45-2" href="#__codelineno-45-2"></a><span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
-<a id="__codelineno-45-3" name="__codelineno-45-3" href="#__codelineno-45-3"></a><span class="w">    </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-45-4" name="__codelineno-45-4" href="#__codelineno-45-4"></a><span class="w">        </span><span class="nt">&quot;client_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-45-5" name="__codelineno-45-5" href="#__codelineno-45-5"></a><span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<a id="__codelineno-45-6" name="__codelineno-45-6" href="#__codelineno-45-6"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-45-7" name="__codelineno-45-7" href="#__codelineno-45-7"></a><span class="w">        </span><span class="nt">&quot;client_secret&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-45-8" name="__codelineno-45-8" href="#__codelineno-45-8"></a><span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<a id="__codelineno-45-9" name="__codelineno-45-9" href="#__codelineno-45-9"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-45-10" name="__codelineno-45-10" href="#__codelineno-45-10"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-45-11" name="__codelineno-45-11" href="#__codelineno-45-11"></a><span class="w">    </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-45-12" name="__codelineno-45-12" href="#__codelineno-45-12"></a><span class="w">        </span><span class="s2">&quot;client_id&quot;</span><span class="p">,</span>
-<a id="__codelineno-45-13" name="__codelineno-45-13" href="#__codelineno-45-13"></a><span class="w">        </span><span class="s2">&quot;client_secret&quot;</span>
-<a id="__codelineno-45-14" name="__codelineno-45-14" href="#__codelineno-45-14"></a><span class="w">    </span><span class="p">]</span>
-<a id="__codelineno-45-15" name="__codelineno-45-15" href="#__codelineno-45-15"></a><span class="p">}</span>
-</code></pre></div>
-</details>
-</div>
-</div>
-</div>
-<p class="response-title">
-    <strong>Response <span class="response-code code-200">200</span>&nbsp;<span class="status-phrase">OK</span></strong>
-</p>
-
-<div class="tabbed-set tabbed-alternate" data-tabs="22:1"><input checked="checked" id="__tabbed_22_1" name="__tabbed_22" type="radio" /><div class="tabbed-labels"><label for="__tabbed_22_1">application/json</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a><span class="p">{</span>
-<a id="__codelineno-46-2" name="__codelineno-46-2" href="#__codelineno-46-2"></a><span class="w">    </span><span class="nt">&quot;access_token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...&quot;</span><span class="p">,</span>
-<a id="__codelineno-46-3" name="__codelineno-46-3" href="#__codelineno-46-3"></a><span class="w">    </span><span class="nt">&quot;token_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Bearer&quot;</span><span class="p">,</span>
-<a id="__codelineno-46-4" name="__codelineno-46-4" href="#__codelineno-46-4"></a><span class="w">    </span><span class="nt">&quot;expires_in&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">86400</span>
-<a id="__codelineno-46-5" name="__codelineno-46-5" href="#__codelineno-46-5"></a><span class="p">}</span>
-</code></pre></div>
-<details class="hint">
-<summary>Schema of the response body</summary>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a><span class="p">{</span>
-<a id="__codelineno-47-2" name="__codelineno-47-2" href="#__codelineno-47-2"></a><span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
-<a id="__codelineno-47-3" name="__codelineno-47-3" href="#__codelineno-47-3"></a><span class="w">    </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-47-4" name="__codelineno-47-4" href="#__codelineno-47-4"></a><span class="w">        </span><span class="nt">&quot;access_token&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-47-5" name="__codelineno-47-5" href="#__codelineno-47-5"></a><span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<a id="__codelineno-47-6" name="__codelineno-47-6" href="#__codelineno-47-6"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-47-7" name="__codelineno-47-7" href="#__codelineno-47-7"></a><span class="w">        </span><span class="nt">&quot;token_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-47-8" name="__codelineno-47-8" href="#__codelineno-47-8"></a><span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<a id="__codelineno-47-9" name="__codelineno-47-9" href="#__codelineno-47-9"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-47-10" name="__codelineno-47-10" href="#__codelineno-47-10"></a><span class="w">        </span><span class="nt">&quot;expires_in&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-47-11" name="__codelineno-47-11" href="#__codelineno-47-11"></a><span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;number&quot;</span>
-<a id="__codelineno-47-12" name="__codelineno-47-12" href="#__codelineno-47-12"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-47-13" name="__codelineno-47-13" href="#__codelineno-47-13"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-47-14" name="__codelineno-47-14" href="#__codelineno-47-14"></a><span class="w">    </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-47-15" name="__codelineno-47-15" href="#__codelineno-47-15"></a><span class="w">        </span><span class="s2">&quot;access_token&quot;</span><span class="p">,</span>
-<a id="__codelineno-47-16" name="__codelineno-47-16" href="#__codelineno-47-16"></a><span class="w">        </span><span class="s2">&quot;token_type&quot;</span><span class="p">,</span>
-<a id="__codelineno-47-17" name="__codelineno-47-17" href="#__codelineno-47-17"></a><span class="w">        </span><span class="s2">&quot;expires_in&quot;</span>
-<a id="__codelineno-47-18" name="__codelineno-47-18" href="#__codelineno-47-18"></a><span class="w">    </span><span class="p">]</span>
-<a id="__codelineno-47-19" name="__codelineno-47-19" href="#__codelineno-47-19"></a><span class="p">}</span>
-</code></pre></div>
-</details>
-</div>
-</div>
-</div>
-<p class="response-title">
-    <strong>Response <span class="response-code code-201">201</span>&nbsp;<span class="status-phrase">Created</span></strong>
-</p>
-
-<div class="tabbed-set tabbed-alternate" data-tabs="23:1"><input checked="checked" id="__tabbed_23_1" name="__tabbed_23" type="radio" /><div class="tabbed-labels"><label for="__tabbed_23_1">application/json</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a><span class="p">{</span>
-<a id="__codelineno-48-2" name="__codelineno-48-2" href="#__codelineno-48-2"></a><span class="w">    </span><span class="nt">&quot;access_token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<a id="__codelineno-48-3" name="__codelineno-48-3" href="#__codelineno-48-3"></a><span class="w">    </span><span class="nt">&quot;token_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<a id="__codelineno-48-4" name="__codelineno-48-4" href="#__codelineno-48-4"></a><span class="w">    </span><span class="nt">&quot;expires_in&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">10.12</span>
-<a id="__codelineno-48-5" name="__codelineno-48-5" href="#__codelineno-48-5"></a><span class="p">}</span>
-</code></pre></div>
-<span class="small-note">⚠️</span>&nbsp;<em class="small-note warning">This example has been generated automatically from the schema and it is not accurate. Refer to the schema for more information.</em></p>
-<details class="hint">
-<summary>Schema of the response body</summary>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a><span class="p">{</span>
-<a id="__codelineno-49-2" name="__codelineno-49-2" href="#__codelineno-49-2"></a><span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
-<a id="__codelineno-49-3" name="__codelineno-49-3" href="#__codelineno-49-3"></a><span class="w">    </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-49-4" name="__codelineno-49-4" href="#__codelineno-49-4"></a><span class="w">        </span><span class="nt">&quot;access_token&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-49-5" name="__codelineno-49-5" href="#__codelineno-49-5"></a><span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<a id="__codelineno-49-6" name="__codelineno-49-6" href="#__codelineno-49-6"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-49-7" name="__codelineno-49-7" href="#__codelineno-49-7"></a><span class="w">        </span><span class="nt">&quot;token_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-49-8" name="__codelineno-49-8" href="#__codelineno-49-8"></a><span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span>
-<a id="__codelineno-49-9" name="__codelineno-49-9" href="#__codelineno-49-9"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-49-10" name="__codelineno-49-10" href="#__codelineno-49-10"></a><span class="w">        </span><span class="nt">&quot;expires_in&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-49-11" name="__codelineno-49-11" href="#__codelineno-49-11"></a><span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;number&quot;</span>
-<a id="__codelineno-49-12" name="__codelineno-49-12" href="#__codelineno-49-12"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-49-13" name="__codelineno-49-13" href="#__codelineno-49-13"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-49-14" name="__codelineno-49-14" href="#__codelineno-49-14"></a><span class="w">    </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-49-15" name="__codelineno-49-15" href="#__codelineno-49-15"></a><span class="w">        </span><span class="s2">&quot;access_token&quot;</span><span class="p">,</span>
-<a id="__codelineno-49-16" name="__codelineno-49-16" href="#__codelineno-49-16"></a><span class="w">        </span><span class="s2">&quot;token_type&quot;</span><span class="p">,</span>
-<a id="__codelineno-49-17" name="__codelineno-49-17" href="#__codelineno-49-17"></a><span class="w">        </span><span class="s2">&quot;expires_in&quot;</span>
-<a id="__codelineno-49-18" name="__codelineno-49-18" href="#__codelineno-49-18"></a><span class="w">    </span><span class="p">]</span>
-<a id="__codelineno-49-19" name="__codelineno-49-19" href="#__codelineno-49-19"></a><span class="p">}</span>
-</code></pre></div>
-</details>
-</div>
-</div>
-</div>
-<p class="response-title">
-    <strong>Response <span class="response-code code-401">401</span>&nbsp;<span class="status-phrase">Unauthorized</span></strong>
-</p>
-
-<hr class="operation-separator" />
-
-<h3 id="get-well-knownoauth-authorization-server"><span class="http-get">GET</span> /.well-known/oauth-authorization-server<a class="headerlink" href="#get-well-knownoauth-authorization-server" title="Permanent link">&para;</a></h3>
-<p>OIDC Discovery Configuration</p>
-<details class="note">
-<summary>Description</summary>
-<p>Returns the OpenID Connect discovery configuration for client credentials
-authentication.</p>
-</details>
-<p class="response-title">
-    <strong>Response <span class="response-code code-200">200</span>&nbsp;<span class="status-phrase">OK</span></strong>
-</p>
-
-<hr class="operation-separator" />
-
-<h3 id="get-well-knownjwksjson"><span class="http-get">GET</span> /.well-known/jwks.json<a class="headerlink" href="#get-well-knownjwksjson" title="Permanent link">&para;</a></h3>
-<p>JSON Web Key Set</p>
-<details class="note">
-<summary>Description</summary>
-<p>Returns the JSON Web Key Set for token verification.</p>
-</details>
-<p class="response-title">
-    <strong>Response <span class="response-code code-200">200</span>&nbsp;<span class="status-phrase">OK</span></strong>
-</p>
-
 <h2 id="prometheus"><span class="api-tag">Prometheus</span><a class="headerlink" href="#prometheus" title="Permanent link">&para;</a></h2>
 <hr class="operation-separator" />
 
@@ -4944,26 +4676,6 @@ authentication.</p>
         <tr>
             <td><code>type</code></td>
             <td></td>
-        </tr>
-    </tbody>
-</table>
-
-<h3 id="clientcredentialsdto">ClientCredentialsDto<a class="headerlink" href="#clientcredentialsdto" title="Permanent link">&para;</a></h3>
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td><code>client_id</code></td>
-            <td><span class="string-type">string</span></td>
-        </tr>
-        <tr>
-            <td><code>client_secret</code></td>
-            <td><span class="string-type">string</span></td>
         </tr>
     </tbody>
 </table>
@@ -5456,30 +5168,6 @@ authentication.</p>
         <tr>
             <td><code>status</code></td>
             <td><span class="number-type">number</span></td>
-        </tr>
-    </tbody>
-</table>
-
-<h3 id="tokenresponse">TokenResponse<a class="headerlink" href="#tokenresponse" title="Permanent link">&para;</a></h3>
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td><code>access_token</code></td>
-            <td><span class="string-type">string</span></td>
-        </tr>
-        <tr>
-            <td><code>expires_in</code></td>
-            <td><span class="number-type">number</span></td>
-        </tr>
-        <tr>
-            <td><code>token_type</code></td>
-            <td><span class="string-type">string</span></td>
         </tr>
     </tbody>
 </table>
