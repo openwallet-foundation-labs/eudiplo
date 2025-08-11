@@ -30,7 +30,7 @@ describe('Authentication (e2e)', () => {
 
     test('should get OAuth2 token with valid client credentials in request body', async () => {
         const response = await request(app.getHttpServer())
-            .post('/auth/oauth2/token')
+            .post('/oauth2/token')
             .send({
                 grant_type: 'client_credentials',
                 client_id: clientId,
@@ -50,7 +50,7 @@ describe('Authentication (e2e)', () => {
         );
 
         const response = await request(app.getHttpServer())
-            .post('/auth/oauth2/token')
+            .post('/oauth2/token')
             .set('Authorization', `Basic ${credentials}`)
             .send({
                 grant_type: 'client_credentials',
@@ -65,7 +65,7 @@ describe('Authentication (e2e)', () => {
 
     test('should reject invalid client credentials', async () => {
         await request(app.getHttpServer())
-            .post('/auth/oauth2/token')
+            .post('/oauth2/token')
             .send({
                 grant_type: 'client_credentials',
                 client_id: 'invalid-client',
@@ -79,7 +79,7 @@ describe('Authentication (e2e)', () => {
 
     test('should reject missing grant_type', async () => {
         await request(app.getHttpServer())
-            .post('/auth/oauth2/token')
+            .post('/oauth2/token')
             .send({
                 client_id: clientId,
                 client_secret: clientSecret,
@@ -95,7 +95,7 @@ describe('Authentication (e2e)', () => {
 
     test('should reject unsupported grant type', async () => {
         await request(app.getHttpServer())
-            .post('/auth/oauth2/token')
+            .post('/oauth2/token')
             .send({
                 grant_type: 'authorization_code',
                 client_id: clientId,
@@ -111,7 +111,7 @@ describe('Authentication (e2e)', () => {
 
     test('should reject missing client credentials', async () => {
         await request(app.getHttpServer())
-            .post('/auth/oauth2/token')
+            .post('/oauth2/token')
             .send({
                 grant_type: 'client_credentials',
                 client_id: clientId,

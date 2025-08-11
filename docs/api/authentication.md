@@ -35,36 +35,37 @@ for service-to-service authentication where no user interaction is required.
 EUDIPLO includes a built-in OAuth2 server for simple deployments:
 
 1. **Swagger UI Authentication:**
-    - Navigate to the Swagger UI at `/api`
-    - Click the "Authorize" button
-    - Select "oauth2"
-    - Enter client ID and secret (configured via environment variables)
-    - Click "Authorize"
+
+   - Navigate to the Swagger UI at `/api`
+   - Click the "Authorize" button
+   - Select "oauth2"
+   - Enter client ID and secret (configured via environment variables)
+   - Click "Authorize"
 
 2. **Programmatic Access:**
 
-    **Option 1: Credentials in Authorization Header (OAuth2 Standard):**
+   **Option 1: Credentials in Authorization Header (OAuth2 Standard):**
 
-    ```bash
-    curl -X POST http://localhost:3000/auth/oauth2/token \
-      -H "Content-Type: application/json" \
-      -H "Authorization: Basic $(echo -n 'client_id:client_secret' | base64)" \
-      -d '{
-        "grant_type": "client_credentials"
-      }'
-    ```
+   ```bash
+   curl -X POST http://localhost:3000/oauth2/token \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Basic $(echo -n 'client_id:client_secret' | base64)" \
+     -d '{
+       "grant_type": "client_credentials"
+     }'
+   ```
 
-    **Option 2: Credentials in Request Body:**
+   **Option 2: Credentials in Request Body:**
 
-    ```bash
-    curl -X POST http://localhost:3000/auth/oauth2/token \
-      -H "Content-Type: application/json" \
-      -d '{
-        "grant_type": "client_credentials",
-        "client_id": "your-client-id",
-        "client_secret": "your-client-secret"
-      }'
-    ```
+   ```bash
+   curl -X POST http://localhost:3000/oauth2/token \
+     -H "Content-Type: application/json" \
+     -d '{
+       "grant_type": "client_credentials",
+       "client_id": "your-client-id",
+       "client_secret": "your-client-secret"
+     }'
+   ```
 
 ### External OIDC Provider
 

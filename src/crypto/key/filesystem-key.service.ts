@@ -185,7 +185,7 @@ export class FileSystemKeyService extends KeyService {
                 tenantId,
                 type,
             })
-            .then((cert) => cert.keyId);
+            .then((cert) => cert.id);
     }
 
     /**

@@ -11,7 +11,7 @@ export class CertEntity {
      * Unique identifier for the key.
      */
     @Column('varchar', { primary: true })
-    keyId: string;
+    id: string;
 
     /**
      * Tenant ID for the key.

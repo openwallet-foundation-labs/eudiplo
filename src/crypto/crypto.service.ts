@@ -165,37 +165,38 @@ export class CryptoService implements OnModuleInit {
      * @returns
      */
     async importKey(tenantId: string, body: KeyImportDto): Promise<string> {
-        const keyId = await this.keyService.import(tenantId, body);
+        const id = await this.keyService.import(tenantId, body);
         // If the private key has a certificate, write it to the certs folder
         if (body.crt) {
             await this.certRepository.save({
                 tenantId,
-                keyId,
+                id,
                 crt: body.crt,
                 description: body.description,
             });
         } else {
             // If no certificate is provided, generate a self-signed certificate
-            await this.hasCerts(tenantId, keyId);
-            console.log('update');
-            await this.certRepository.update(
-                { tenantId, keyId },
-                { description: body.description },
-            );
+            await this.hasCerts(tenantId, id);
+            if (body.description) {
+                await this.certRepository.update(
+                    { tenantId, id },
+                    { description: body.description },
+                );
+            }
         }
-        return keyId;
+        return id;
     }
 
     /**
      * Checks if there is a signing certificate and access certificate available.
      * If not it will be created.
      */
-    async hasCerts(tenantId: string, keyId?: string) {
-        keyId = keyId || (await this.keyService.getKid(tenantId));
+    async hasCerts(tenantId: string, id?: string) {
+        id = id || (await this.keyService.getKid(tenantId));
 
         const certObj = await this.certRepository.findOneBy({
             tenantId,
-            keyId,
+            id: id,
         });
 
         //when there is no cert, create one
@@ -206,22 +207,22 @@ export class CryptoService implements OnModuleInit {
         const publicKey = await this.keyService.getPublicKey(
             'pem',
             tenantId,
-            keyId,
+            id,
         );
 
-        const folder = join(this.folder, tenantId, keyId);
+        const folder = join(this.folder, tenantId, id);
         // create a temporary folder for the cert generation
         if (!existsSync(folder)) {
             mkdirSync(folder, { recursive: true });
         }
-        const publicKeyPath = join(folder, `public-key.${keyId}.pem`);
+        const publicKeyPath = join(folder, `public-key.${id}.pem`);
         writeFileSync(publicKeyPath, publicKey);
         const dummyKey = join(folder, 'dummy_key.pem');
         const dummyCsr = join(folder, 'dummy.csr');
         const issuerKey = join(folder, 'issuer_key.pem');
         const issuerCert = join(folder, 'issuer_cert.pem');
 
-        const certOut = join(folder, `${keyId}.pem`);
+        const certOut = join(folder, `${id}.pem`);
         const sanExt = join(folder, 'san.ext');
 
         // === Configurable parameters (you can parameterize these when calling the script) ===
@@ -279,7 +280,7 @@ export class CryptoService implements OnModuleInit {
         // Store the certificate in the database
         await this.certRepository.save({
             tenantId,
-            keyId,
+            id,
             crt,
             type: 'signing',
         });
@@ -297,7 +298,7 @@ export class CryptoService implements OnModuleInit {
                 if (count === 0) {
                     return this.certRepository.save({
                         tenantId,
-                        keyId,
+                        id,
                         crt,
                         type: 'access',
                     });
@@ -313,7 +314,7 @@ export class CryptoService implements OnModuleInit {
      */
     hasEntry(tenantId: string, keyId: string): Promise<boolean> {
         return this.certRepository
-            .findOneBy({ tenantId, keyId })
+            .findOneBy({ tenantId, id: keyId })
             .then((cert) => !!cert);
     }
 
@@ -324,7 +325,7 @@ export class CryptoService implements OnModuleInit {
      * @returns
      */
     getCertEntry(tenantId: string, keyId: string): Promise<CertEntity | null> {
-        return this.certRepository.findOneBy({ tenantId, keyId });
+        return this.certRepository.findOneBy({ tenantId, id: keyId });
     }
 
     /**
@@ -335,7 +336,7 @@ export class CryptoService implements OnModuleInit {
      */
     getCert(tenantId: string, keyId: string): Promise<string> {
         return this.certRepository
-            .findOneBy({ tenantId, keyId })
+            .findOneBy({ tenantId, id: keyId })
             .then((cert) => cert!.crt);
     }
 
@@ -376,10 +377,10 @@ export class CryptoService implements OnModuleInit {
      * @param crt
      * @param tenantId
      */
-    async storeAccessCertificate(crt: string, tenantId: string, keyId: string) {
+    async storeAccessCertificate(crt: string, tenantId: string, id: string) {
         await this.certRepository.save({
             tenantId,
-            keyId,
+            id,
             crt,
             type: 'access',
         });

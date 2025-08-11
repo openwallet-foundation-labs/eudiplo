@@ -9,7 +9,6 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { KeyResponseDto } from '../crypto/key/dto/key-response.dto';
-import { EC_Public } from '../well-known/dto/jwks-response.dto';
 import { ClientService } from './client.service';
 import { ClientCredentialsDto } from './dto/client-credentials.dto';
 import { OidcDiscoveryDto } from './dto/oidc-discovery.dto';
