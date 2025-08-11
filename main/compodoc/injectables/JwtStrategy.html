@@ -409,8 +409,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="64"
-                                    class="link-to-prism">src/auth/jwt.strategy.ts:64</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="62"
+                                    class="link-to-prism">src/auth/jwt.strategy.ts:62</a></div>
                         </td>
                     </tr>
 
@@ -478,8 +478,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="88"
-                                    class="link-to-prism">src/auth/jwt.strategy.ts:88</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="86"
+                                    class="link-to-prism">src/auth/jwt.strategy.ts:86</a></div>
                         </td>
                     </tr>
 
@@ -595,10 +595,8 @@ export class JwtStrategy extends PassportStrategy(Strategy, &#x27;jwt&#x27;) {
                 },
             }),
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            //TODO: configure algorithms based on Keycloak settings
-            algorithms: [&#x27;RS256&#x27;],
+            algorithms: [configService.get(&#x27;KEYCLOAK_ALGORITHM&#x27;)],
             issuer: keycloakIssuerUrl,
-            //audience: configService.get(&#x27;KEYCLOAK_CLIENT_ID&#x27;), // You may want to add this to validation schema
         };
     }
 
@@ -633,11 +631,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, &#x27;jwt&#x27;) {
         await this.clientService.isSetUp(payload.sub);
 
         if (useExternalOIDC) {
-            console.log(&#x27;✅ External OIDC validation successful&#x27;);
             // External OIDC: Extract user info from external provider token
             return payload;
         } else {
-            console.log(&#x27;✅ Integrated OAuth2 validation successful&#x27;);
             // Integrated OAuth2: Use integrated server token validation
             return payload;
         }

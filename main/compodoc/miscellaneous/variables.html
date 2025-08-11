@@ -194,8 +194,8 @@
         then: Joi.string().required(),
         otherwise: Joi.string().optional(),
     }),
-    KEYCLOAK_CLIENT_ID: Joi.when(&#x27;OIDC&#x27;, {
-        then: Joi.string().required(),
+    KEYCLOAK_ALGORITHM: Joi.when(&#x27;OIDC&#x27;, {
+        then: Joi.string().default(&#x27;RS256&#x27;),
         otherwise: Joi.string().optional(),
     }),
     JWT_SECRET: Joi.when(&#x27;OIDC&#x27;, {
