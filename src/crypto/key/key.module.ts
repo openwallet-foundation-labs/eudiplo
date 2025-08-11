@@ -47,7 +47,6 @@ export class KeyModule {
                         httpService: HttpService,
                         cryptoService: CryptoImplementationService,
                         certRepository: Repository<CertEntity>,
-                        logger: PinoLogger,
                     ) => {
                         const kmType = configService.get<'vault' | 'file'>(
                             'KM_TYPE',
@@ -65,7 +64,6 @@ export class KeyModule {
                             configService,
                             cryptoService,
                             certRepository,
-                            logger,
                         );
                     },
                     inject: [
@@ -73,7 +71,6 @@ export class KeyModule {
                         HttpService,
                         CryptoImplementationService,
                         getRepositoryToken(CertEntity),
-                        PinoLogger,
                     ],
                 },
             ],

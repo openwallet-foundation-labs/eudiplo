@@ -7,6 +7,7 @@ import { readdirSync, readFileSync } from 'fs';
 import { PinoLogger } from 'nestjs-pino';
 import { join } from 'path';
 import { Repository } from 'typeorm';
+import { CryptoService } from '../../../crypto/crypto.service';
 import { CredentialConfig } from '../entities/credential.entity';
 
 /**
@@ -23,6 +24,7 @@ export class CredentialConfigService {
         private readonly credentialConfigRepository: Repository<CredentialConfig>,
         private configService: ConfigService,
         private logger: PinoLogger,
+        private cryptoService: CryptoService,
     ) {}
 
     /**
@@ -62,6 +64,36 @@ export class CredentialConfigService {
                         forbidNonWhitelisted: true,
                     });
 
+                    // Check if keyId is provided and if the certificate exists
+                    if (config.keyId) {
+                        const cert = await this.cryptoService.getCertEntry(
+                            tenant.name,
+                            config.keyId,
+                        );
+                        if (!cert) {
+                            this.logger.error(
+                                {
+                                    event: 'ValidationError',
+                                    file,
+                                    tenant: tenant.name,
+                                    errors: [
+                                        {
+                                            property: 'keyId',
+                                            constraints: {
+                                                isDefined:
+                                                    'Key ID must be defined in the crypto service.',
+                                            },
+                                            value: config.keyId,
+                                        },
+                                    ],
+                                },
+                                `Validation failed for credentials config ${file} in tenant ${tenant.name}`,
+                            );
+                            continue; // Skip this invalid config
+                        }
+                        config.key = cert;
+                    }
+
                     if (validationErrors.length > 0) {
                         this.logger.error(
                             {
@@ -100,6 +132,7 @@ export class CredentialConfigService {
     get(tenantId: string) {
         return this.credentialConfigRepository.find({
             where: { tenantId },
+            relations: ['key'],
         });
     }
 

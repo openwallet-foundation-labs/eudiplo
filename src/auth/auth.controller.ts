@@ -1,24 +1,29 @@
 import {
     Body,
     Controller,
+    Get,
     Headers,
     Post,
     UnauthorizedException,
 } from '@nestjs/common';
-import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { KeyResponseDto } from '../crypto/key/dto/key-response.dto';
+import { EC_Public } from '../well-known/dto/jwks-response.dto';
 import { ClientService } from './client.service';
 import { ClientCredentialsDto } from './dto/client-credentials.dto';
+import { OidcDiscoveryDto } from './dto/oidc-discovery.dto';
 import { TokenResponse } from './dto/token-response.dto';
 import { JwtService } from './jwt.service';
-import { Public } from './public.decorator';
 import { TokenPayload } from './token.decorator';
 
 @ApiTags('Authentication')
-@Controller('auth')
+@Controller('')
 export class AuthController {
     constructor(
         private jwtService: JwtService,
         private clientService: ClientService,
+        private configService: ConfigService,
     ) {}
 
     /**
@@ -28,7 +33,6 @@ export class AuthController {
      * @param headers
      * @returns
      */
-    @Public()
     @Post('oauth2/token')
     @ApiBody({
         type: ClientCredentialsDto,
@@ -127,6 +131,64 @@ export class AuthController {
             access_token: token,
             token_type: 'Bearer',
             expires_in: 86400, // 24 hours in seconds
+        };
+    }
+
+    /**
+     * OIDC Discovery endpoint for client credentials flow.
+     * This endpoint provides the OpenID Connect configuration for applications
+     * that need to authenticate using client_id and client_secret.
+     */
+    @Get('.well-known/oauth-authorization-server')
+    @ApiOperation({
+        summary: 'OIDC Discovery Configuration',
+        description:
+            'Returns the OpenID Connect discovery configuration for client credentials authentication.',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'OIDC Discovery Configuration',
+    })
+    getOidcDiscovery(): OidcDiscoveryDto {
+        const publicUrl = this.configService.getOrThrow<string>('PUBLIC_URL');
+
+        return {
+            issuer: publicUrl,
+            token_endpoint: `${publicUrl}/oauth2/token`,
+            jwks_uri: `${publicUrl}/.well-known/jwks.json`,
+            response_types_supported: ['token'],
+            grant_types_supported: ['client_credentials'],
+            token_endpoint_auth_methods_supported: [
+                'client_secret_basic',
+                'client_secret_post',
+            ],
+            subject_types_supported: ['public'],
+            id_token_signing_alg_values_supported: ['ES256'],
+            scopes_supported: ['openid'],
+            claims_supported: ['iss', 'sub', 'aud', 'exp', 'iat'],
+            service_documentation:
+                'https://openwallet-foundation-labs.github.io/eudiplo/latest/',
+        };
+    }
+
+    /**
+     * Global JWKS endpoint for client credentials flow.
+     * This provides the JSON Web Key Set for verifying tokens issued by this server.
+     */
+    @Get('.well-known/jwks.json')
+    @ApiOperation({
+        summary: 'JSON Web Key Set',
+        description: 'Returns the JSON Web Key Set for token verification.',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'JSON Web Key Set',
+    })
+    getGlobalJwks(): KeyResponseDto {
+        // For now, return an empty key set since the actual keys are tenant-specific
+        // This can be enhanced later to include global signing keys if needed
+        return {
+            keys: [],
         };
     }
 }

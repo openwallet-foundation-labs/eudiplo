@@ -7,7 +7,8 @@ import {
     IsOptional,
     IsString,
 } from 'class-validator';
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { CertEntity } from '../../../crypto/key/entities/cert.entity';
 import { VCT } from '../../credentials-metadata/dto/credential-config.dto';
 import { SchemaResponse } from '../../credentials-metadata/dto/schema-response.dto';
 import { CredentialIssuanceBinding } from '../../issuance/entities/credential-issuance-binding.entity';
@@ -72,8 +73,12 @@ export class CredentialConfig {
      */
     @IsString()
     @IsOptional()
-    @Column('varchar', { nullable: true })
     keyId?: string;
+
+    @IsEmpty()
+    @ManyToOne(() => CertEntity)
+    key: CertEntity;
+
     /**
      * Optional status management flag for the credential configuration.
      * If true, a status management will be applied to the credential.

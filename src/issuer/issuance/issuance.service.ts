@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
@@ -8,6 +8,7 @@ import { PinoLogger } from 'nestjs-pino';
 import { join } from 'path';
 import { Repository } from 'typeorm';
 import { CryptoService } from '../../crypto/crypto.service';
+import { KeyService } from '../../crypto/key/key.service';
 import { CredentialConfigService } from '../credentials/credential-config/credential-config.service';
 import { CredentialConfig } from '../credentials/entities/credential.entity';
 import { AuthenticationConfig } from './dto/authentication-config.dto';
@@ -34,13 +35,14 @@ export class IssuanceService implements OnModuleInit {
         private credentialsConfigService: CredentialConfigService,
         private configService: ConfigService,
         private logger: PinoLogger,
-        _cryptoService: CryptoService,
+        private cryptoService: CryptoService,
     ) {}
 
     /**
      * Import issuance configurations and the credential configurations from the configured folder.
      */
     async onModuleInit() {
+        await this.cryptoService.import();
         await this.credentialsConfigService.import();
         await this.import();
     }
@@ -122,6 +124,7 @@ export class IssuanceService implements OnModuleInit {
     public getIssuanceConfiguration(tenantId: string) {
         return this.issuanceConfigRepo.find({
             where: { tenantId },
+            relations: ['credentialIssuanceBindings'],
         });
     }
 

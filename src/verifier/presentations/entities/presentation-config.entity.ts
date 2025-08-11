@@ -36,12 +36,13 @@ export class PresentationConfig {
      */
     @IsOptional()
     @IsObject()
-    @Column('json')
+    @Column('json', { nullable: true })
     registrationCert?: RegistrationCertificateRequest;
     /**
      * Optional webhook URL to receive the response.
      */
     @Column('json', { nullable: true })
+    @IsOptional()
     @IsObject()
     webhook?: WebhookConfig;
 

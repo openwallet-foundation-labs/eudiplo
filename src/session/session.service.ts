@@ -171,4 +171,14 @@ export class SessionService implements OnApplicationBootstrap {
             createdAt: LessThan(new Date(Date.now() - ttl)),
         });
     }
+
+    /**
+     * Deletes a session by its ID and tenant ID.
+     * @param id
+     * @param sub
+     * @returns
+     */
+    delete(id: string, sub: string): Promise<any> {
+        return this.sessionRepository.delete({ id, tenantId: sub });
+    }
 }

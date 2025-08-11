@@ -4,25 +4,8 @@ import { Signer } from '@sd-jwt/types';
 import { JoseHeaderParameters, JWK, JWTPayload } from 'jose';
 import { Repository } from 'typeorm';
 import { KeyImportDto } from './dto/key-import.dto';
+import { KeyObj } from './dto/key-object.dto';
 import { CertEntity, CertificateType } from './entities/cert.entity';
-
-/**
- * Represents a key entity with its unique identifier, public key, and certificate.
- */
-export class KeyObj {
-    /**
-     * Unique identifier for the key.
-     */
-    id: string;
-    /**
-     * Public key in JWK format.
-     */
-    publicKey: JWK;
-    /**
-     * Certificate in PEM format.
-     */
-    crt: string;
-}
 
 /**
  * Generic interface for a key service
@@ -39,11 +22,6 @@ export abstract class KeyService {
      * @returns key id of the initialized key.
      */
     abstract init(tenantId): Promise<string>;
-
-    /**
-     * Import keys into the key service.
-     */
-    abstract importFromFileSystem(): Promise<void>;
 
     /**
      * Creates a new keypair
@@ -70,8 +48,6 @@ export abstract class KeyService {
      * @returns
      */
     abstract getKid(tenantId: string, type?: CertificateType): Promise<string>;
-
-    abstract getKeys(tenantId: string): Promise<KeyObj[]>;
 
     /**
      * Get the public key

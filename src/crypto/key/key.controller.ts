@@ -13,7 +13,9 @@ import { JwtAuthGuard } from '../../auth/auth.guard';
 import { Token, TokenPayload } from '../../auth/token.decorator';
 import { CryptoService } from '../crypto.service';
 import { KeyImportDto } from './dto/key-import.dto';
-import { KeyObj, KeyService } from './key.service';
+import { KeyObj } from './dto/key-object.dto';
+import { CertEntity } from './entities/cert.entity';
+import { KeyService } from './key.service';
 
 /**
  * KeyController is responsible for managing keys in the system.
@@ -33,9 +35,9 @@ export class KeyController {
      * @returns
      */
     @Get()
-    getKeys(@Token() token: TokenPayload): Promise<KeyObj[]> {
+    getKeys(@Token() token: TokenPayload): Promise<CertEntity[]> {
         const tenantId = token.sub;
-        return this.keyService.getKeys(tenantId);
+        return this.cryptoService.getCerts(tenantId);
     }
 
     /**

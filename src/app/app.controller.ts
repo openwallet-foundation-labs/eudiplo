@@ -5,7 +5,7 @@ import { ApiExcludeController } from '@nestjs/swagger';
 @Controller()
 export class AppController {
     @Get()
-    getHello(): string {
+    main(): string {
         return 'EUDIPLO is up and running, more information at <a href="https://openwallet-foundation-labs.github.io/eudiplo/latest/">https://openwallet-foundation-labs.github.io/eudiplo/latest/</a>';
     }
 }

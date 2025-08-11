@@ -51,7 +51,7 @@ async function bootstrap() {
                     type: 'oauth2',
                     flows: {
                         clientCredentials: {
-                            tokenUrl: `${publicUrl}/auth/oauth2/token`,
+                            tokenUrl: `${publicUrl}/oauth2/token`,
                             scopes: {},
                         },
                     },

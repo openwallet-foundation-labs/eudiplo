@@ -36,4 +36,11 @@ export class KeyImportDto {
     @IsString()
     @IsOptional()
     crt?: string;
+
+    /**
+     * Description of the key.
+     */
+    @IsString()
+    @IsOptional()
+    description?: string;
 }

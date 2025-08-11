@@ -3,6 +3,7 @@ import { createHash, randomBytes } from 'node:crypto';
 import {
     existsSync,
     mkdirSync,
+    readdirSync,
     readFileSync,
     rmSync,
     writeFileSync,
@@ -19,23 +20,43 @@ import {
     type Jwk,
     SignJwtCallback,
 } from '@openid4vc/oauth2';
+import { plainToClass } from 'class-transformer';
+import { validate } from 'class-validator';
 import { importJWK, type JWK, jwtVerify } from 'jose';
+import { PinoLogger } from 'nestjs-pino';
 import { Repository } from 'typeorm/repository/Repository';
 import { EC_Public } from '../well-known/dto/jwks-response.dto';
 import { KeyImportDto } from './key/dto/key-import.dto';
 import { CertEntity, CertificateType } from './key/entities/cert.entity';
 import { KeyService } from './key/key.service';
 
+/**
+ * Service for cryptographic operations, including key management and certificate handling.
+ */
 @Injectable()
 export class CryptoService implements OnModuleInit {
+    /**
+     * Folder where the keys are stored.
+     */
     folder: string;
 
+    /**
+     * Constructor for CryptoService.
+     * @param configService
+     * @param keyService
+     * @param certRepository
+     */
     constructor(
         private readonly configService: ConfigService,
         @Inject('KeyService') public readonly keyService: KeyService,
         @InjectRepository(CertEntity)
         private certRepository: Repository<CertEntity>,
+        private logger: PinoLogger,
     ) {}
+
+    /**
+     * Initializes the crypto service by creating the folder if it does not exist.
+     */
     onModuleInit() {
         this.folder = join(this.configService.getOrThrow<string>('FOLDER'));
         if (!existsSync(this.folder)) {
@@ -43,6 +64,10 @@ export class CryptoService implements OnModuleInit {
         }
     }
 
+    /**
+     * Initializes the key service for a specific tenant.
+     * @param tenantId
+     */
     async onTenantInit(tenantId: string) {
         const folder = join(this.folder, tenantId, 'keys');
         if (!existsSync(folder)) {
@@ -50,6 +75,87 @@ export class CryptoService implements OnModuleInit {
         }
         const keyId = await this.keyService.init(tenantId);
         await this.hasCerts(tenantId, keyId);
+    }
+
+    /**
+     * Imports keys and certificates from the configured folder.
+     * @param tenantId
+     * @returns
+     */
+    getCerts(tenantId: string): Promise<CertEntity[]> {
+        return this.certRepository.findBy({
+            tenantId,
+            type: 'signing',
+        });
+    }
+
+    /**
+     * Imports keys from the file system into the key service.
+     */
+    async import() {
+        if (this.configService.get<boolean>('CONFIG_IMPORT')) {
+            const configPath = this.configService.getOrThrow('CONFIG_FOLDER');
+            const subfolder = 'keys';
+            const force = this.configService.get<boolean>(
+                'CONFIG_IMPORT_FORCE',
+            );
+            if (this.configService.get<boolean>('CONFIG_IMPORT')) {
+                const tenantFolders = readdirSync(configPath, {
+                    withFileTypes: true,
+                }).filter((tenant) => tenant.isDirectory());
+                let counter = 0;
+                for (const tenant of tenantFolders) {
+                    //iterate over all elements in the folder and import them
+                    const path = join(configPath, tenant.name, subfolder);
+                    const files = readdirSync(path);
+                    for (const file of files) {
+                        const payload = JSON.parse(
+                            readFileSync(join(path, file), 'utf8'),
+                        );
+
+                        const id = payload.kid;
+                        const exists = await this.keyService
+                            .getPublicKey('jwk', tenant.name, id)
+                            .catch(() => false);
+                        if (exists && !force) {
+                            continue; // Skip if config already exists and force is not set
+                        }
+
+                        // Validate the payload against KeyImportDto
+                        const config = plainToClass(KeyImportDto, payload);
+                        const validationErrors = await validate(config, {
+                            whitelist: true,
+                            forbidNonWhitelisted: true,
+                        });
+
+                        if (validationErrors.length > 0) {
+                            this.logger.error(
+                                {
+                                    event: 'ValidationError',
+                                    file,
+                                    tenant: tenant.name,
+                                    errors: validationErrors.map((error) => ({
+                                        property: error.property,
+                                        constraints: error.constraints,
+                                        value: error.value,
+                                    })),
+                                },
+                                `Validation failed for key config ${file} in tenant ${tenant.name}`,
+                            );
+                            continue; // Skip this invalid config
+                        }
+                        await this.importKey(tenant.name, config);
+                        counter++;
+                    }
+                    this.logger.info(
+                        {
+                            event: 'Import',
+                        },
+                        `${counter} keys imported for ${tenant.name}`,
+                    );
+                }
+            }
+        }
     }
 
     /**
@@ -66,10 +172,16 @@ export class CryptoService implements OnModuleInit {
                 tenantId,
                 keyId,
                 crt: body.crt,
+                description: body.description,
             });
         } else {
             // If no certificate is provided, generate a self-signed certificate
             await this.hasCerts(tenantId, keyId);
+            console.log('update');
+            await this.certRepository.update(
+                { tenantId, keyId },
+                { description: body.description },
+            );
         }
         return keyId;
     }
@@ -203,6 +315,16 @@ export class CryptoService implements OnModuleInit {
         return this.certRepository
             .findOneBy({ tenantId, keyId })
             .then((cert) => !!cert);
+    }
+
+    /**
+     * Get a certificate entry by tenantId and keyId.
+     * @param tenantId
+     * @param keyId
+     * @returns
+     */
+    getCertEntry(tenantId: string, keyId: string): Promise<CertEntity | null> {
+        return this.certRepository.findOneBy({ tenantId, keyId });
     }
 
     /**

@@ -17,6 +17,8 @@ import {
     exportSPKI,
     importJWK,
     JWK,
+    JWK_EC_Private,
+    JWK_EC_Public,
     JWTHeaderParameters,
     JWTPayload,
     SignJWT,
@@ -24,11 +26,13 @@ import {
 import { PinoLogger } from 'nestjs-pino';
 import { Repository } from 'typeorm/repository/Repository';
 import { v4 } from 'uuid';
+import { EC_Public } from '../../well-known/dto/jwks-response.dto';
 import { CryptoImplementation } from './crypto-implementation/crypto-implementation';
 import { CryptoImplementationService } from './crypto-implementation/crypto-implementation.service';
 import { KeyImportDto } from './dto/key-import.dto';
+import { KeyObj } from './dto/key-object.dto';
 import { CertEntity, CertificateType } from './entities/cert.entity';
-import { KeyObj, KeyService } from './key.service';
+import { KeyService } from './key.service';
 
 /**
  * The key service is responsible for managing the keys of the issuer.
@@ -41,77 +45,9 @@ export class FileSystemKeyService extends KeyService {
         configService: ConfigService,
         private cryptoService: CryptoImplementationService,
         certRepository: Repository<CertEntity>,
-        private logger: PinoLogger,
     ) {
         super(configService, certRepository);
         this.crypto = cryptoService.getCrypto();
-    }
-
-    async importFromFileSystem() {
-        if (this.configService.get<boolean>('CONFIG_IMPORT')) {
-            const configPath = this.configService.getOrThrow('CONFIG_FOLDER');
-            const subfolder = 'keys';
-            const force = this.configService.get<boolean>(
-                'CONFIG_IMPORT_FORCE',
-            );
-            if (this.configService.get<boolean>('CONFIG_IMPORT')) {
-                const tenantFolders = readdirSync(configPath, {
-                    withFileTypes: true,
-                }).filter((tenant) => tenant.isDirectory());
-                let counter = 0;
-                for (const tenant of tenantFolders) {
-                    //iterate over all elements in the folder and import them
-                    const path = join(configPath, tenant.name, subfolder);
-                    const files = readdirSync(path);
-                    for (const file of files) {
-                        const payload = JSON.parse(
-                            readFileSync(join(path, file), 'utf8'),
-                        );
-
-                        const id = file.replace('.json', '');
-                        const exists = await this.getPrivateKey(
-                            tenant.name,
-                            id,
-                        ).catch(() => false);
-                        if (exists && !force) {
-                            continue; // Skip if config already exists and force is not set
-                        }
-
-                        // Validate the payload against KeyImportDto
-                        const config = plainToClass(KeyImportDto, payload);
-                        const validationErrors = await validate(config, {
-                            whitelist: true,
-                            forbidNonWhitelisted: true,
-                        });
-
-                        if (validationErrors.length > 0) {
-                            this.logger.error(
-                                {
-                                    event: 'ValidationError',
-                                    file,
-                                    tenant: tenant.name,
-                                    errors: validationErrors.map((error) => ({
-                                        property: error.property,
-                                        constraints: error.constraints,
-                                        value: error.value,
-                                    })),
-                                },
-                                `Validation failed for key config ${file} in tenant ${tenant.name}`,
-                            );
-                            continue; // Skip this invalid config
-                        }
-                        await this.import(tenant.name, config);
-                        counter++;
-                    }
-                    this.logger.info(
-                        {
-                            event: 'Import',
-                        },
-                        `${counter} keys imported for ${tenant.name}`,
-                    );
-                }
-            }
-        }
     }
 
     /**
@@ -141,49 +77,18 @@ export class FileSystemKeyService extends KeyService {
     }
 
     /**
-     * Returns the keys for the given tenant.
-     * @param tenantId
-     * @returns
-     */
-    async getKeys(tenantId: string): Promise<KeyObj[]> {
-        const folder = join(
-            this.configService.getOrThrow<string>('FOLDER'),
-            tenantId,
-            'keys',
-            'keys',
-        );
-        if (!existsSync(folder)) {
-            mkdirSync(folder, { recursive: true });
-        }
-        const files = readdirSync(folder);
-        const keys: KeyObj[] = [];
-        for (const file of files) {
-            const keyData = readFileSync(join(folder, file), 'utf-8');
-            const privateKey = JSON.parse(keyData) as JWK;
-
-            const publicKey = this.getPubFromPrivateKey(privateKey);
-            const crt = await this.getCertificate(
-                tenantId,
-                privateKey.kid as string,
-            );
-            keys.push({ id: privateKey.kid as string, publicKey, crt });
-        }
-        return Promise.resolve(keys);
-    }
-
-    /**
-     * Get the puvlic key from the private key.
+     * Get the public key from the private key.
      * @param privateKey
      * @returns
      */
-    private getPubFromPrivateKey(privateKey: JWK): JWK {
+    private getPubFromPrivateKey(privateKey: JWK_EC_Private): EC_Public {
         const {
             d: _d,
             key_ops: _key_ops,
             ext: _ext,
             ...publicKey
         } = privateKey;
-        return publicKey;
+        return publicKey as EC_Public;
     }
 
     /**
@@ -309,7 +214,9 @@ export class FileSystemKeyService extends KeyService {
         );
 
         // Export it as a JWK to get the public key components
-        const privateKeyJWK = await exportJWK(privateKeyInstance);
+        const privateKeyJWK = (await exportJWK(
+            privateKeyInstance,
+        )) as JWK_EC_Private;
 
         // Remove private key components to get only the public key
 

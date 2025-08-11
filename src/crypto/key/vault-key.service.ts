@@ -12,8 +12,9 @@ import {
     CryptoType,
 } from './crypto-implementation/crypto-implementation.service';
 import { KeyImportDto } from './dto/key-import.dto';
+import { KeyObj } from './dto/key-object.dto';
 import { CertEntity } from './entities/cert.entity';
-import { KeyObj, KeyService } from './key.service';
+import { KeyService } from './key.service';
 
 @Injectable()
 export class VaultKeyService extends KeyService {
@@ -83,7 +84,7 @@ export class VaultKeyService extends KeyService {
             return Promise.all(
                 res.data.data.keys.map(async (id: string) => {
                     const publicKey = await this.getPublicKey(
-                        'pem',
+                        'jwk',
                         tenantId,
                         id,
                     );

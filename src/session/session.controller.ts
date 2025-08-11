@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    Post,
+    UseGuards,
+} from '@nestjs/common';
 import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/auth.guard';
 import { Token, TokenPayload } from '../auth/token.decorator';
@@ -31,6 +39,20 @@ export class SessionController {
     @Get(':id')
     getSession(@Param('id') id: string): Promise<Session> {
         return this.sessionService.get(id);
+    }
+
+    /**
+     * Deletes a session by its ID.
+     * @param id
+     * @param user
+     * @returns
+     */
+    @Delete(':id')
+    deleteSession(
+        @Param('id') id: string,
+        @Token() user: TokenPayload,
+    ): Promise<void> {
+        return this.sessionService.delete(id, user.sub);
     }
 
     /**
