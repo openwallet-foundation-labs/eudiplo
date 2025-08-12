@@ -1,11 +1,11 @@
 name: Setup Node + pnpm (Corepack) and install
-description: Sets up Node.js, enables Corepack, restores pnpm cache, and runs install
+description: Sets up Node.js, uses Corepack with packageManager, restores pnpm cache, installs deps
 inputs:
   node-version:
     description: Node.js version (e.g. 22)
     required: true
   install-args:
-    description: Extra args for pnpm install (default --frozen-lockfile)
+    description: Extra args for pnpm install
     required: false
     default: --frozen-lockfile
   cache-dependency-path:
@@ -28,13 +28,13 @@ runs:
         cache: pnpm
         cache-dependency-path: ${{ inputs.cache-dependency-path }}
 
-    - name: Enable Corepack (use pnpm from packageManager)
-      shell: bash
-      run: corepack enable
-
-    - name: Print pnpm & node versions
+    - name: Enable Corepack and install shims from packageManager
       shell: bash
       run: |
+        set -euxo pipefail
+        corepack enable
+        # This reads package.json#packageManager and installs the exact pnpm shim
+        corepack install
         node -v
         pnpm -v
 
