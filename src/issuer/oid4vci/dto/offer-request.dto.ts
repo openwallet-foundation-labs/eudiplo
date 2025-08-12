@@ -5,6 +5,7 @@ import {
     IsObject,
     IsOptional,
     IsString,
+    IsUUID,
 } from 'class-validator';
 import { ResponseType } from '../../../verifier/oid4vp/dto/presentation-request.dto';
 
@@ -39,6 +40,13 @@ export class OfferRequestDto {
     @IsObject()
     @IsOptional()
     values?: { [key: string]: Record<string, any> };
+
+    /**
+     * Pre defined session id
+     */
+    @IsUUID()
+    @IsOptional()
+    session?: string;
 }
 
 export class OfferResponse {

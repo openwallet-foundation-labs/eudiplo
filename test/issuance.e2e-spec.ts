@@ -30,6 +30,7 @@ import {
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { Agent, fetch, setGlobalDispatcher } from 'undici';
+import { v4 } from 'uuid';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { AppModule } from '../src/app.module';
 import { callbacks, getSignJwtCallback, preparePresentation } from './utils';
@@ -291,6 +292,24 @@ describe('Issuance', () => {
             });
     });
 
+    test('create oid4vci offier with defined session', async () => {
+        const sessionId = v4();
+        const res = await request(app.getHttpServer())
+            .post('/issuer-management/offer')
+            .trustLocalhost()
+            .set('Authorization', `Bearer ${authToken}`)
+            .send({
+                response_type: 'uri',
+                issuanceId: 'pid',
+                session: sessionId,
+            })
+            .expect(201);
+
+        expect(res.body).toBeDefined();
+        const session = res.body.session;
+        expect(session).toBe(sessionId);
+    });
+
     test('ask for an invalid oid4vci offer', async () => {
         await request(app.getHttpServer())
             .post('/issuer-management/offer')
@@ -405,7 +424,9 @@ describe('Issuance', () => {
         expect(notificationObj).toBeDefined();
         expect(notificationObj.event).toBe('credential_accepted');
     });
+
     test('authorized code flow', async () => {
+        const sessionId = 'fd3ebf28-8ad6-4909-8a7a-a739c2c412c0';
         const offerResponse = await request(app.getHttpServer())
             .post('/issuer-management/offer')
             .trustLocalhost()
@@ -413,6 +434,7 @@ describe('Issuance', () => {
             .send({
                 response_type: 'uri',
                 issuanceId: 'pid',
+                session: sessionId,
             })
             .expect(201);
 
