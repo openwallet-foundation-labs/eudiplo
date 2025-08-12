@@ -184,7 +184,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="46" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:46</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="54" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:54</a></div>
                         </td>
                     </tr>
 
@@ -210,7 +210,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="45" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:45</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="53" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:53</a></div>
                         </td>
                     </tr>
 
@@ -236,6 +236,7 @@ import {
     IsObject,
     IsOptional,
     IsString,
+    IsUUID,
 } from &#x27;class-validator&#x27;;
 import { ResponseType } from &#x27;../../../verifier/oid4vp/dto/presentation-request.dto&#x27;;
 
@@ -270,6 +271,13 @@ export class OfferRequestDto {
     @IsObject()
     @IsOptional()
     values?: { [key: string]: Record&lt;string, any&gt; };
+
+    /**
+     * Pre defined session id
+     */
+    @IsUUID()
+    @IsOptional()
+    session?: string;
 }
 
 export class OfferResponse {

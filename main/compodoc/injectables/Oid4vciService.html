@@ -201,7 +201,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="43" class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:43</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="44" class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:44</a></div>
                             </td>
                         </tr>
 
@@ -350,8 +350,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="126"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:126</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="137"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:137</a></div>
                         </td>
                     </tr>
 
@@ -443,8 +443,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="196"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:196</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="207"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:207</a></div>
                         </td>
                     </tr>
 
@@ -524,8 +524,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="313"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:313</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="325"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:325</a></div>
                         </td>
                     </tr>
 
@@ -619,8 +619,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="66"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:66</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="67"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:67</a></div>
                         </td>
                     </tr>
 
@@ -686,8 +686,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="55"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:55</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="56"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:56</a></div>
                         </td>
                     </tr>
 
@@ -730,7 +730,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="48" class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:48</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="49" class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:49</a></div>
                         </td>
                     </tr>
 
@@ -757,7 +757,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:41</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:42</a></div>
                         </td>
                     </tr>
 
@@ -783,7 +783,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="43" class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:43</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="44" class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:44</a></div>
                         </td>
                     </tr>
 
@@ -829,6 +829,7 @@ import { SessionLogContext } from &#x27;../../utils/logger/session-logger-contex
 import { WebhookService } from &#x27;../../utils/webhook/webhook.service&#x27;;
 import { AuthorizeService } from &#x27;../authorize/authorize.service&#x27;;
 import { CredentialsService } from &#x27;../credentials/credentials.service&#x27;;
+import { AuthenticationConfigHelper } from &#x27;../issuance/dto/authentication-config.helper&#x27;;
 import { IssuanceService } from &#x27;../issuance/issuance.service&#x27;;
 import { NotificationRequestDto } from &#x27;./dto/notification-request.dto&#x27;;
 import { OfferRequestDto, OfferResponse } from &#x27;./dto/offer-request.dto&#x27;;
@@ -877,14 +878,24 @@ export class Oid4vciService implements OnModuleInit {
             ),
         );
 
-        const authorizationServerMetadata &#x3D;
-            this.authzService.authzMetadata(session);
-
         const issuanceConfig &#x3D;
             await this.issuanceService.getIssuanceConfigurationById(
                 session.issuanceId as string,
                 session.tenantId,
             );
+
+        const authorizationServerMetadata &#x3D;
+            this.authzService.authzMetadata(session);
+
+        let authServer &#x3D; authorizationServerMetadata.issuer;
+
+        if (
+            AuthenticationConfigHelper.isAuthUrlAuth(
+                issuanceConfig.authenticationConfig,
+            )
+        ) {
+            authServer &#x3D; issuanceConfig.authenticationConfig.config.url;
+        }
 
         let credentialIssuer &#x3D; this.issuer.createCredentialIssuerMetadata({
             credential_issuer,
@@ -894,8 +905,8 @@ export class Oid4vciService implements OnModuleInit {
                     issuanceConfig,
                 ),
             credential_endpoint: &#x60;${credential_issuer}/vci/credential&#x60;,
-            authorization_servers: [authorizationServerMetadata.issuer],
-            authorization_server: authorizationServerMetadata.issuer,
+            authorization_servers: [authServer],
+            authorization_server: authServer,
             notification_endpoint: &#x60;${credential_issuer}/vci/notification&#x60;,
             display,
         });
@@ -941,7 +952,7 @@ export class Oid4vciService implements OnModuleInit {
 
         let authorization_code: string | undefined;
         let grants: any;
-        const issuer_state &#x3D; v4();
+        const issuer_state &#x3D; body.session ?? v4();
         if (issuanceConfig.authenticationConfig.method &#x3D;&#x3D;&#x3D; &#x27;none&#x27;) {
             authorization_code &#x3D; v4();
             grants &#x3D; {
@@ -1010,6 +1021,7 @@ export class Oid4vciService implements OnModuleInit {
         ).protocol;
 
         const headers &#x3D; getHeadersFromRequest(req);
+
         const { tokenPayload } &#x3D;
             await this.resourceServer.verifyResourceRequest({
                 authorizationServers: issuerMetadata.authorizationServers,

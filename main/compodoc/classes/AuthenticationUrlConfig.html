@@ -150,7 +150,7 @@ Used for OID4VCI authorized code flow where the user will be redirected for auth
                         <ul class="index-list">
                             <li>
                                     <span class="modifier"></span>
-                                <a href="#authUrl" >authUrl</a>
+                                <a href="#url" >url</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
@@ -183,11 +183,11 @@ Used for OID4VCI authorized code flow where the user will be redirected for auth
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="authUrl"></a>
+                    <a name="url"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                        <span ><b>authUrl</b></span>
-                        <a href="#authUrl"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>url</b></span>
+                        <a href="#url"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
@@ -301,7 +301,7 @@ export class AuthenticationUrlConfig {
      * This URL is where users will be redirected for authentication.
      */
     @IsUrl()
-    authUrl: string;
+    url: string;
 
     /**
      * Optional webhook configuration for authentication callbacks
