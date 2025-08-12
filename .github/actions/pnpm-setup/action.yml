@@ -21,5 +21,7 @@ runs:
         with:
           node-version: ${{ inputs.node-version }}
           cache: "pnpm"
+
       - name: Install dependencies
+        shell: bash        
         run: pnpm install ${{ inputs.install-args }}
