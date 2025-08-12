@@ -4,18 +4,31 @@
   "projectType": "application",
   "prefix": "app",
   "sourceRoot": "apps/web/src",
+  "tags": [
+    "scope:web",
+    "type:app"
+  ],
   "targets": {
     "build": {
       "executor": "@nx/angular:application",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/apps/web",
         "index": "apps/web/src/index.html",
         "browser": "apps/web/src/main.ts",
-        "polyfills": ["zone.js"],
+        "polyfills": [
+          "zone.js"
+        ],
         "tsConfig": "apps/web/tsconfig.app.json",
-        "assets": ["apps/web/src/favicon.ico", "apps/web/src/assets"],
-        "styles": ["apps/web/src/styles.scss"]
+        "assets": [
+          "apps/web/src/favicon.ico",
+          "apps/web/src/assets"
+        ],
+        "styles": [
+          "apps/web/src/styles.scss"
+        ]
       },
       "configurations": {
         "production": {
@@ -61,19 +74,23 @@
       "executor": "@nx/angular:extract-i18n"
     },
     "lint": {
-      "executor": "@nx/eslint:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["apps/web/**/*.ts", "apps/web/**/*.html"]
-      }
+      "executor": "@nx/eslint:lint"
     },
     "test": {
       "executor": "@nx/angular:karma",
       "options": {
-        "polyfills": ["zone.js", "zone.js/testing"],
+        "polyfills": [
+          "zone.js",
+          "zone.js/testing"
+        ],
         "tsConfig": "apps/web/tsconfig.spec.json",
-        "assets": ["apps/web/src/favicon.ico", "apps/web/src/assets"],
-        "styles": ["apps/web/src/styles.scss"]
+        "assets": [
+          "apps/web/src/favicon.ico",
+          "apps/web/src/assets"
+        ],
+        "styles": [
+          "apps/web/src/styles.scss"
+        ]
       }
     },
     "generate-api-client": {
@@ -102,26 +119,38 @@
     },
     "lint:fix": {
       "executor": "@nx/eslint:eslint",
-      "outputs": ["{options.outputFile}"],
+      "outputs": [
+        "{options.outputFile}"
+      ],
       "options": {
-        "lintFilePatterns": ["apps/web/**/*.ts", "apps/web/**/*.html"],
+        "lintFilePatterns": [
+          "apps/web/**/*.ts",
+          "apps/web/**/*.html"
+        ],
         "fix": true
       }
     },
     "check": {
       "executor": "nx:run-commands",
       "options": {
-        "commands": ["nx lint:fix web", "nx format web"],
+        "commands": [
+          "nx lint:fix web",
+          "nx format web"
+        ],
         "parallel": false
       }
     },
     "container": {
       "executor": "@nx-tools/nx-container:build",
-      "dependsOn": ["build"],
+      "dependsOn": [
+        "build"
+      ],
       "options": {
         "engine": "docker",
         "metadata": {
-          "images": ["ghcr.io/openwallet-foundation-labs/eudiplo-client"],
+          "images": [
+            "ghcr.io/openwallet-foundation-labs/eudiplo-client"
+          ],
           "tags": [
             "type=ref,event=branch",
             "type=ref,event=pr",
@@ -133,7 +162,9 @@
         "ci": {
           "push": true,
           "metadata": {
-            "images": ["ghcr.io/openwallet-foundation-labs/eudiplo-client"],
+            "images": [
+              "ghcr.io/openwallet-foundation-labs/eudiplo-client"
+            ],
             "tags": [
               "type=ref,event=branch",
               "type=ref,event=pr",
@@ -144,7 +175,9 @@
         "release": {
           "push": true,
           "metadata": {
-            "images": ["ghcr.io/openwallet-foundation-labs/eudiplo-client"],
+            "images": [
+              "ghcr.io/openwallet-foundation-labs/eudiplo-client"
+            ],
             "tags": [
               "type=semver,pattern={{version}}",
               "type=semver,pattern={{major}}.{{minor}}",
@@ -155,6 +188,5 @@
         }
       }
     }
-  },
-  "tags": ["scope:web", "type:app"]
+  }
 }

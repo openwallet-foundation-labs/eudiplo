@@ -1,32 +1,17 @@
 {
-  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=827846
   "recommendations": [
-    // Angular
     "angular.ng-template",
-    
-    // Nx
     "nrwl.angular-console",
-    
-    // Code Quality & Formatting
     "biomejs.biome",
     "ms-vscode.vscode-eslint",
-    
-    // Development Tools
     "ms-vscode.vscode-typescript-next",
     "bradlc.vscode-tailwindcss",
-    
-    // Docker & Containers
     "ms-vscode-remote.remote-containers",
-    
-    // Database
     "mtxr.sqltools",
     "mtxr.sqltools-driver-sqlite",
-    
-    // CloudFlare Workers
     "cloudflare.vscode-cloudflare-workers",
-    
-    // Testing
     "ms-vscode.test-adapter-converter",
-    "hbenl.vscode-test-explorer"
+    "hbenl.vscode-test-explorer",
+    "dbaeumer.vscode-eslint"
   ]
 }
