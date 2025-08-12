@@ -123,7 +123,8 @@
         "env": {
           "JWT_SECRET": "your-secret-key-here-minimum-32-characters",
           "AUTH_CLIENT_ID": "root",
-          "AUTH_CLIENT_SECRET": "root"
+          "AUTH_CLIENT_SECRET": "root",
+          "PUBLIC_URL": "http://localhost:3000"
         }
       }
     },
