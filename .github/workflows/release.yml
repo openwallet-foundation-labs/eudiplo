@@ -2,89 +2,106 @@ name: Version release
 
 # Configures this workflow to run every time a change is pushed to the branch called `release`.
 on:
-    workflow_dispatch:
+  workflow_dispatch:
 jobs:
-    build-and-push-image:
-        runs-on: ubuntu-latest
-        permissions:
-            contents: write
-            packages: write
-            pull-requests: write
-            actions: read
-            pages: write
-            id-token: write
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
-              with:
-                  fetch-depth: 0 # Fetch full history for mike versioning
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      pull-requests: write
+      actions: read
+      pages: write
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch full history for mike versioning
 
-            - name: Set up Node.js with pnpm
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 22
+      - name: Copy env file
+        run: cp .env.example .env
 
-            - name: Enable pnpm
-              run: corepack enable
+      - name: Set up Node.js with pnpm
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
 
-            - name: Install dependencies
-              run: pnpm install
+      - name: Enable pnpm
+        run: corepack enable
 
-            - name: Run semantic-release
-              id: semantic_release
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  DOCKER_REGISTRY_USER: ${{ github.actor }}
-                  DOCKER_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-              run: |
-                  echo "Running semantic-release..."
-                  npx semantic-release
+      - name: Install dependencies
+        run: pnpm install
 
-                  # Check if a new release was created by checking if a new tag was created
-                  echo "Checking for new tags..."
-                  git fetch --tags
-                  NEW_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-                  echo "Latest tag found: $NEW_TAG"
+      - name: Run Nx Release
+        id: nx_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: github-actions[bot]@users.noreply.github.com
+        run: |
+          # Configure git for commits
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-                  if [ -n "$NEW_TAG" ]; then
-                      echo "New release detected: $NEW_TAG"
-                      echo "new_release=true" >> $GITHUB_OUTPUT
-                      echo "version=$NEW_TAG" >> $GITHUB_OUTPUT
-                  else
-                      echo "No new release detected"
-                      echo "new_release=false" >> $GITHUB_OUTPUT
-                  fi
+          # Run nx release (this handles versioning, changelog, and git tagging)
+          npx nx release --yes
 
-            - name: Debug release detection
-              run: |
-                  echo "New release: ${{ steps.semantic_release.outputs.new_release }}"
-                  echo "Version: ${{ steps.semantic_release.outputs.version }}"
+          # Check if a new release was created
+          NEW_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          echo "Latest tag found: $NEW_TAG"
 
-            - name: Set up Python for docs
-              if: steps.semantic_release.outputs.new_release == 'true'
-              uses: actions/setup-python@v5
-              with:
-                  python-version: '3.11'
+          if [ -n "$NEW_TAG" ] && [ "$NEW_TAG" != "0.0.1" ]; then
+              echo "New release detected: $NEW_TAG"
+              echo "new_release=true" >> $GITHUB_OUTPUT
+              echo "version=$NEW_TAG" >> $GITHUB_OUTPUT
+          else
+              echo "No new release detected"
+              echo "new_release=false" >> $GITHUB_OUTPUT
+          fi
 
-            - name: Install Python dependencies for docs
-              if: steps.semantic_release.outputs.new_release == 'true'
-              run: pip install -r requirements.txt
+      - name: Debug release detection
+        run: |
+          echo "New release: ${{ steps.nx_release.outputs.new_release }}"
+          echo "Version: ${{ steps.nx_release.outputs.version }}"
 
-            - name: Copy env file for docs
-              if: steps.semantic_release.outputs.new_release == 'true'
-              run: cp .env.example .env
+      - name: Set up Python for docs
+        if: steps.nx_release.outputs.new_release == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-            - name: Configure git for mike
-              if: steps.semantic_release.outputs.new_release == 'true'
-              run: |
-                  git config user.name "github-actions[bot]"
-                  git config user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Install Python dependencies for docs
+        if: steps.nx_release.outputs.new_release == 'true'
+        run: pip install -r requirements.txt
 
-            - name: Build and deploy release docs
-              if: steps.semantic_release.outputs.new_release == 'true'
-              run: |
-                  pnpm run swagger
-                  pnpm run compodoc
-                  # Deploy to latest and set as default
-                  mike deploy --push --update-aliases latest
-                  mike set-default --push latest
+      - name: Build release artifacts
+        if: steps.nx_release.outputs.new_release == 'true'
+        run: npx nx run-many -t build,swagger,compodoc --projects=api,web
+
+      - name: Build and push release containers
+        if: steps.nx_release.outputs.new_release == 'true'
+        run: npx nx run-many -t container --configuration=release --projects=api,web
+        env:
+          NX_CONTAINER_REGISTRY: ghcr.io/openwallet-foundation-labs
+          INPUT_REGISTRY: ghcr.io
+          INPUT_USERNAME: ${{ github.actor }}
+          INPUT_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_VERSION: ${{ steps.nx_release.outputs.version }}
+
+      - name: Configure git for mike
+        if: steps.nx_release.outputs.new_release == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Build and deploy release docs
+        if: steps.nx_release.outputs.new_release == 'true'
+        run: |
+          # Documentation is already built by the previous step
+          # Deploy to latest and set as default
+          mike deploy --push --update-aliases latest ${{ steps.nx_release.outputs.version }}
+          mike set-default --push latest

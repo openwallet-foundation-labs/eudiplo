@@ -1,0 +1,160 @@
+{
+  "name": "web",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "app",
+  "sourceRoot": "apps/web/src",
+  "targets": {
+    "build": {
+      "executor": "@nx/angular:application",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/web",
+        "index": "apps/web/src/index.html",
+        "browser": "apps/web/src/main.ts",
+        "polyfills": ["zone.js"],
+        "tsConfig": "apps/web/tsconfig.app.json",
+        "assets": ["apps/web/src/favicon.ico", "apps/web/src/assets"],
+        "styles": ["apps/web/src/styles.scss"]
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "2MB",
+              "maximumError": "5MB"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "6kB",
+              "maximumError": "10kB"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@nx/angular:dev-server",
+      "configurations": {
+        "production": {
+          "buildTarget": "web:build:production"
+        },
+        "development": {
+          "buildTarget": "web:build:development"
+        }
+      },
+      "defaultConfiguration": "development",
+      "options": {
+        "port": 4200,
+        "host": "localhost"
+      }
+    },
+    "extract-i18n": {
+      "executor": "@nx/angular:extract-i18n"
+    },
+    "lint": {
+      "executor": "@nx/eslint:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/web/**/*.ts", "apps/web/**/*.html"]
+      }
+    },
+    "test": {
+      "executor": "@nx/angular:karma",
+      "options": {
+        "polyfills": ["zone.js", "zone.js/testing"],
+        "tsConfig": "apps/web/tsconfig.spec.json",
+        "assets": ["apps/web/src/favicon.ico", "apps/web/src/assets"],
+        "styles": ["apps/web/src/styles.scss"]
+      }
+    },
+    "generate-api-client": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx @hey-api/openapi-ts -i http://localhost:3000/api-json -o ./apps/web/src/app/generated -c @hey-api/client-fetch"
+      }
+    },
+    "watch": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "nx build web --watch --configuration development"
+      }
+    },
+    "format": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "prettier --write \"apps/web/src/**/*.{ts,html,css,scss,json}\""
+      }
+    },
+    "format:check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "prettier --check \"apps/web/src/**/*.{ts,html,css,scss,json}\""
+      }
+    },
+    "lint:fix": {
+      "executor": "@nx/eslint:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/web/**/*.ts", "apps/web/**/*.html"],
+        "fix": true
+      }
+    },
+    "check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["nx lint:fix web", "nx format web"],
+        "parallel": false
+      }
+    },
+    "container": {
+      "executor": "@nx-tools/nx-container:build",
+      "dependsOn": ["build"],
+      "options": {
+        "engine": "docker",
+        "metadata": {
+          "images": ["ghcr.io/openwallet-foundation-labs/eudiplo-client"],
+          "tags": [
+            "type=ref,event=branch",
+            "type=ref,event=pr",
+            "type=sha,prefix=sha-"
+          ]
+        }
+      },
+      "configurations": {
+        "ci": {
+          "push": true,
+          "metadata": {
+            "images": ["ghcr.io/openwallet-foundation-labs/eudiplo-client"],
+            "tags": [
+              "type=ref,event=branch",
+              "type=ref,event=pr",
+              "type=sha,prefix=sha-"
+            ]
+          }
+        },
+        "release": {
+          "push": true,
+          "metadata": {
+            "images": ["ghcr.io/openwallet-foundation-labs/eudiplo-client"],
+            "tags": [
+              "type=semver,pattern={{version}}",
+              "type=semver,pattern={{major}}.{{minor}}",
+              "type=semver,pattern={{major}}",
+              "type=raw,value=latest"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "tags": ["scope:web", "type:app"]
+}

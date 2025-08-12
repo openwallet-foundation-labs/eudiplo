@@ -1,0 +1,369 @@
+@if (session) {
+<div fxLayout="column" fxFlex fxLayoutGap="16px">
+  <!-- Header with navigation -->
+  <div fxLayout="row" fxLayoutAlign="space-between center">
+    <h2>Session Details: {{ session.id }}</h2>
+    <div>
+      <button mat-icon-button (click)="goBack()" matTooltip="Go back">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Status chip with polling indicator -->
+  <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+    <mat-chip [class]="getStatusClass(session.status)" selected>
+      {{ getStatusDisplayText(session.status) }}
+    </mat-chip>
+    @if (isPolling()) {
+    <div class="polling-indicator">
+      <mat-icon class="spinning">refresh</mat-icon>
+      <span class="polling-text">Live updates</span>
+    </div>
+    }
+    <span class="creation-date">Created: {{ formatDate(session.createdAt) }}</span>
+  </div>
+
+  <!-- Main session information -->
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>General Information</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="info-grid">
+        <div class="info-item">
+          <strong>Session ID:</strong>
+          <span class="value-with-copy">
+            {{ session.id }}
+            <button mat-icon-button (click)="copyToClipboard(session.id)" matTooltip="Copy ID">
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </span>
+        </div>
+
+        @if (session.issuanceId) {
+        <div class="info-item">
+          <strong>Issuance ID:</strong>
+          <span class="value-with-copy">
+            {{ session.issuanceId }}
+            <button
+              mat-icon-button
+              (click)="copyToClipboard(session.issuanceId)"
+              matTooltip="Copy Issuance ID"
+            >
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </span>
+        </div>
+        } @if (session.requestId) {
+        <div class="info-item">
+          <strong>Request ID:</strong>
+          <span class="value-with-copy">
+            {{ session.requestId }}
+            <button
+              mat-icon-button
+              (click)="copyToClipboard(session.requestId)"
+              matTooltip="Copy Request ID"
+            >
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </span>
+        </div>
+        } @if (session.authorization_code) {
+        <div class="info-item">
+          <strong>Authorization Code:</strong>
+          <span class="value-with-copy">
+            {{ session.authorization_code }}
+            <button
+              mat-icon-button
+              (click)="copyToClipboard(session.authorization_code)"
+              matTooltip="Copy Authorization Code"
+            >
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </span>
+        </div>
+        } @if (session.request_uri) {
+        <div class="info-item">
+          <strong>Request URI:</strong>
+          <span class="value-with-copy">
+            {{ session.request_uri }}
+            <button
+              mat-icon-button
+              (click)="copyToClipboard(session.request_uri)"
+              matTooltip="Copy Request URI"
+            >
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </span>
+        </div>
+        } @if (session.vp_nonce) {
+        <div class="info-item">
+          <strong>VP Nonce:</strong>
+          <span class="value-with-copy">
+            {{ session.vp_nonce }}
+            <button
+              mat-icon-button
+              (click)="copyToClipboard(session.vp_nonce)"
+              matTooltip="Copy VP Nonce"
+            >
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </span>
+        </div>
+        }
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- QR Code Section -->
+  <mat-card class="qr-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>qr_code</mat-icon>
+        @if (isIssuanceSession()) { Issuance Offer QR Code } @else { Presentation Offer QR Code }
+      </mat-card-title>
+      <div class="spacer"></div>
+      @if (getOfferUri()) {
+      <button
+        mat-icon-button
+        (click)="generateQRCode(getOfferUri()!)"
+        [disabled]="generatingQR"
+        matTooltip="Generate QR Code"
+      >
+        <mat-icon>refresh</mat-icon>
+      </button>
+      }
+    </mat-card-header>
+    <mat-card-content>
+      @if (getOfferUri()) {
+      <div class="qr-section">
+        <!-- Offer URI -->
+        <div class="info-item">
+          <strong>Offer URI:</strong>
+          <div class="value-with-copy">
+            <span class="uri-value">{{ getOfferUri() }}</span>
+            <button
+              mat-icon-button
+              (click)="copyToClipboard(getOfferUri()!)"
+              matTooltip="Copy offer URI"
+            >
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- QR Code Display -->
+        @if (qrCodeDataUrl) {
+        <div class="qr-container">
+          <img [src]="qrCodeDataUrl" alt="QR Code for offer" class="qr-image" />
+        </div>
+        } @else if (generatingQR) {
+        <div class="qr-placeholder">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Generating QR code...</p>
+        </div>
+        } @else {
+        <div class="qr-placeholder">
+          <mat-icon>qr_code</mat-icon>
+          <p>Click refresh to generate QR code</p>
+        </div>
+        }
+      </div>
+      } @else {
+      <div class="no-uri-message">
+        <mat-icon>info</mat-icon>
+        <p>No offer URI available for this session</p>
+      </div>
+      }
+    </mat-card-content>
+    @if (qrCodeDataUrl) {
+    <mat-card-actions>
+      <button mat-raised-button color="accent" (click)="copyToClipboard(getOfferUri()!)">
+        <mat-icon>content_copy</mat-icon>
+        Copy URI
+      </button>
+      <button mat-button (click)="downloadQRCode()">
+        <mat-icon>download</mat-icon>
+        Download QR Code
+      </button>
+    </mat-card-actions>
+    }
+  </mat-card>
+
+  <!-- Detailed information in tabs -->
+  <mat-tab-group>
+    <!-- Credentials Tab -->
+    @if (session.credentials && session.credentials.length > 0) {
+    <mat-tab label="Credentials ({{ session.credentials.length }})">
+      <div class="tab-content">
+        @for (credential of session.credentials; track $index) {
+        <mat-card class="credential-card">
+          <mat-card-header>
+            <mat-card-title>Credential {{ $index + 1 }}</mat-card-title>
+            <div class="spacer"></div>
+            <button
+              mat-icon-button
+              (click)="copyToClipboard(formatJson(credential))"
+              matTooltip="Copy credential"
+            >
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </mat-card-header>
+          <mat-card-content>
+            <pre class="json-display">{{ formatJson(credential) }}</pre>
+          </mat-card-content>
+        </mat-card>
+        }
+      </div>
+    </mat-tab>
+    }
+
+    <!-- Offer Tab -->
+    @if (session.offer) {
+    <mat-tab label="Offer">
+      <div class="tab-content">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Credential Offer</mat-card-title>
+            <div class="spacer"></div>
+            <button
+              mat-icon-button
+              (click)="copyToClipboard(formatJson(session.offer))"
+              matTooltip="Copy offer"
+            >
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </mat-card-header>
+          <mat-card-content>
+            <pre class="json-display">{{ formatJson(session.offer) }}</pre>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+    }
+
+    <!-- Credential Payload Tab -->
+    @if (session.credentialPayload) {
+    <mat-tab label="Credential Payload">
+      <div class="tab-content">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Credential Payload</mat-card-title>
+            <div class="spacer"></div>
+            <button
+              mat-icon-button
+              (click)="copyToClipboard(formatJson(session.credentialPayload))"
+              matTooltip="Copy payload"
+            >
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </mat-card-header>
+          <mat-card-content>
+            <pre class="json-display">{{ formatJson(session.credentialPayload) }}</pre>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+    }
+
+    <!-- Authorization Queries Tab -->
+    @if (session.auth_queries) {
+    <mat-tab label="Auth Queries">
+      <div class="tab-content">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Authorization Queries</mat-card-title>
+            <div class="spacer"></div>
+            <button
+              mat-icon-button
+              (click)="copyToClipboard(formatJson(session.auth_queries))"
+              matTooltip="Copy auth queries"
+            >
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </mat-card-header>
+          <mat-card-content>
+            <pre class="json-display">{{ formatJson(session.auth_queries) }}</pre>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+    }
+
+    <!-- Webhooks Tab -->
+    @if (session.webhook || session.notifyWebhook) {
+    <mat-tab label="Webhooks">
+      <div class="tab-content">
+        @if (session.webhook) {
+        <mat-card class="webhook-card">
+          <mat-card-header>
+            <mat-card-title>Main Webhook</mat-card-title>
+            <div class="spacer"></div>
+            <button
+              mat-icon-button
+              (click)="copyToClipboard(formatJson(session.webhook))"
+              matTooltip="Copy webhook config"
+            >
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </mat-card-header>
+          <mat-card-content>
+            <pre class="json-display">{{ formatJson(session.webhook) }}</pre>
+          </mat-card-content>
+        </mat-card>
+        } @if (session.notifyWebhook) {
+        <mat-card class="webhook-card">
+          <mat-card-header>
+            <mat-card-title>Notification Webhook</mat-card-title>
+            <div class="spacer"></div>
+            <button
+              mat-icon-button
+              (click)="copyToClipboard(formatJson(session.notifyWebhook))"
+              matTooltip="Copy notification webhook config"
+            >
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </mat-card-header>
+          <mat-card-content>
+            <pre class="json-display">{{ formatJson(session.notifyWebhook) }}</pre>
+          </mat-card-content>
+        </mat-card>
+        }
+      </div>
+    </mat-tab>
+    }
+
+    <!-- Notifications Tab -->
+    @if (session.notifications && session.notifications.length > 0) {
+    <mat-tab label="Notifications ({{ session.notifications.length }})">
+      <div class="tab-content">
+        @for (notification of session.notifications; track $index) {
+        <mat-card class="notification-card">
+          <mat-card-header>
+            <mat-card-title>Notification {{ $index + 1 }}</mat-card-title>
+            <div class="spacer"></div>
+            <button
+              mat-icon-button
+              (click)="copyToClipboard(formatJson(notification))"
+              matTooltip="Copy notification"
+            >
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </mat-card-header>
+          <mat-card-content>
+            <pre class="json-display">{{ formatJson(notification) }}</pre>
+          </mat-card-content>
+        </mat-card>
+        }
+      </div>
+    </mat-tab>
+    }
+  </mat-tab-group>
+</div>
+} @else {
+<div fxLayout="column" fxLayoutAlign="center center" fxFill>
+  <mat-icon class="loading-icon">hourglass_empty</mat-icon>
+  <p>Loading session details...</p>
+</div>
+}
