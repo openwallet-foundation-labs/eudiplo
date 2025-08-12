@@ -19,7 +19,7 @@ export class AuthenticationUrlConfig {
      * This URL is where users will be redirected for authentication.
      */
     @IsUrl()
-    authUrl: string;
+    url: string;
 
     /**
      * Optional webhook configuration for authentication callbacks

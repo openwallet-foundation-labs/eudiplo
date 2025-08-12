@@ -31,6 +31,7 @@ import { SessionLogContext } from '../../utils/logger/session-logger-context';
 import { WebhookService } from '../../utils/webhook/webhook.service';
 import { AuthorizeService } from '../authorize/authorize.service';
 import { CredentialsService } from '../credentials/credentials.service';
+import { AuthenticationConfigHelper } from '../issuance/dto/authentication-config.helper';
 import { IssuanceService } from '../issuance/issuance.service';
 import { NotificationRequestDto } from './dto/notification-request.dto';
 import { OfferRequestDto, OfferResponse } from './dto/offer-request.dto';
@@ -79,14 +80,24 @@ export class Oid4vciService implements OnModuleInit {
             ),
         );
 
-        const authorizationServerMetadata =
-            this.authzService.authzMetadata(session);
-
         const issuanceConfig =
             await this.issuanceService.getIssuanceConfigurationById(
                 session.issuanceId as string,
                 session.tenantId,
             );
+
+        const authorizationServerMetadata =
+            this.authzService.authzMetadata(session);
+
+        let authServer = authorizationServerMetadata.issuer;
+
+        if (
+            AuthenticationConfigHelper.isAuthUrlAuth(
+                issuanceConfig.authenticationConfig,
+            )
+        ) {
+            authServer = issuanceConfig.authenticationConfig.config.url;
+        }
 
         let credentialIssuer = this.issuer.createCredentialIssuerMetadata({
             credential_issuer,
@@ -96,8 +107,8 @@ export class Oid4vciService implements OnModuleInit {
                     issuanceConfig,
                 ),
             credential_endpoint: `${credential_issuer}/vci/credential`,
-            authorization_servers: [authorizationServerMetadata.issuer],
-            authorization_server: authorizationServerMetadata.issuer,
+            authorization_servers: [authServer],
+            authorization_server: authServer,
             notification_endpoint: `${credential_issuer}/vci/notification`,
             display,
         });
@@ -143,7 +154,7 @@ export class Oid4vciService implements OnModuleInit {
 
         let authorization_code: string | undefined;
         let grants: any;
-        const issuer_state = v4();
+        const issuer_state = body.session ?? v4();
         if (issuanceConfig.authenticationConfig.method === 'none') {
             authorization_code = v4();
             grants = {
@@ -212,6 +223,7 @@ export class Oid4vciService implements OnModuleInit {
         ).protocol;
 
         const headers = getHeadersFromRequest(req);
+
         const { tokenPayload } =
             await this.resourceServer.verifyResourceRequest({
                 authorizationServers: issuerMetadata.authorizationServers,
