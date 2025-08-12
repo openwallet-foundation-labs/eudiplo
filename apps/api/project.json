@@ -1,0 +1,185 @@
+{
+  "name": "api",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/api/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "command": "nest build",
+        "cwd": "apps/api"
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "nest start --watch",
+        "cwd": "apps/api"
+      }
+    },
+    "start": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "nest start",
+        "cwd": "apps/api"
+      }
+    },
+    "start:debug": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "nest start --debug --watch",
+        "cwd": "apps/api"
+      }
+    },
+    "start:prod": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node ../../dist/apps/api/main"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "biome lint apps/api/"
+      }
+    },
+    "lint:fix": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "biome check --fix apps/api/"
+      }
+    },
+    "format": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "biome format --write apps/api/"
+      }
+    },
+    "format:check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "biome format apps/api/"
+      }
+    },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "passWithNoTests": true,
+        "reportsDirectory": "../../coverage/apps/api"
+      }
+    },
+    "test:watch": {
+      "executor": "@nx/vitest:test",
+      "options": {
+        "passWithNoTests": true,
+        "reportsDirectory": "../../coverage/apps/api",
+        "watch": true
+      }
+    },
+    "test:cov": {
+      "executor": "@nx/vitest:test",
+      "options": {
+        "passWithNoTests": true,
+        "reportsDirectory": "../../coverage/apps/api",
+        "coverage": true
+      }
+    },
+    "test:debug": {
+      "executor": "@nx/vitest:test",
+      "options": {
+        "passWithNoTests": true,
+        "reportsDirectory": "../../coverage/apps/api",
+        "inspect": true
+      }
+    },
+    "test:e2e": {
+      "executor": "@nx/vitest:test",
+      "options": {
+        "config": "apps/api/test/vitest.config.ts",
+        "coverage": true
+      }
+    },
+    "test:e2e:watch": {
+      "executor": "@nx/vitest:test",
+      "options": {
+        "config": "apps/api/test/vitest.config.ts",
+        "watch": true
+      }
+    },
+    "generate-registrar-client": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx @hey-api/openapi-ts -i https://funke-wallet.de/-json -o ./apps/api/src/registrar/generated -c @hey-api/client-fetch"
+      }
+    },
+    "swagger": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "SWAGGER_JSON=true nest start --watch",
+        "cwd": "apps/api",
+        "env": {
+          "JWT_SECRET": "your-secret-key-here-minimum-32-characters",
+          "AUTH_CLIENT_ID": "root",
+          "AUTH_CLIENT_SECRET": "root",
+          "PUBLIC_URL": "http://localhost:3000"
+        }
+      }
+    },
+    "compodoc": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "compodoc -p apps/api/tsconfig.json --theme material -d docs/compodoc"
+      }
+    },
+    "compodoc:serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "compodoc -p apps/api/tsconfig.json --theme material -d docs/compodoc -s -r 3001 -w"
+      }
+    },
+    "container": {
+      "executor": "@nx-tools/nx-container:build",
+      "dependsOn": ["build"],
+      "options": {
+        "engine": "docker",
+        "metadata": {
+          "images": ["ghcr.io/openwallet-foundation-labs/eudiplo"],
+          "tags": [
+            "type=ref,event=branch",
+            "type=ref,event=pr", 
+            "type=sha,prefix=sha-"
+          ]
+        }
+      },
+      "configurations": {
+        "ci": {
+          "push": true,
+          "metadata": {
+            "images": ["ghcr.io/openwallet-foundation-labs/eudiplo"],
+            "tags": [
+              "type=ref,event=branch",
+              "type=ref,event=pr",
+              "type=sha,prefix=sha-"
+            ]
+          }
+        },
+        "release": {
+          "push": true,
+          "metadata": {
+            "images": ["ghcr.io/openwallet-foundation-labs/eudiplo"],
+            "tags": [
+              "type=semver,pattern={{version}}",
+              "type=semver,pattern={{major}}.{{minor}}",
+              "type=semver,pattern={{major}}",
+              "type=raw,value=latest"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "tags": ["scope:api", "type:app"]
+}

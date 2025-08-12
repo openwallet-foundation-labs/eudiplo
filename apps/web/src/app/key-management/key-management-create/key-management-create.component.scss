@@ -1,0 +1,12 @@
+.info-card {
+  background-color: #f5f5f5;
+  margin: 16px 0;
+
+  .info-icon {
+    color: #666;
+  }
+
+  mat-card-content {
+    padding: 12px !important;
+  }
+}

@@ -17,6 +17,16 @@
   "[jsonc]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
+  "[html]": {
+    "editor.defaultFormatter": "biomejs.biome",
+    "editor.formatOnSave": true
+  },
+  "[css]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[scss]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
   "sqltools.connections": [
     {
       "previewLimit": 50,
@@ -24,5 +34,14 @@
       "name": "eudiplo",
       "database": "./tmp/service.db"
     }
-  ]
+  ],
+  "nxConsole.generateAiAgentRules": true,
+  
+  // Angular specific settings
+  "angular.experimental-ivy": true,
+  "typescript.preferences.importModuleSpecifier": "relative",
+  
+  // Test settings
+  "vitest.enable": true,
+  "jest.jestCommandLine": "npx nx test"
 }

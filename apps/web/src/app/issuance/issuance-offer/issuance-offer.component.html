@@ -1,0 +1,154 @@
+<div fxLayout="column" fxFlex fxLayoutGap="24px">
+  <!-- Header -->
+  <div fxLayout="row" fxLayoutAlign="space-between center">
+    <h2>Generate Issuance Offer</h2>
+    <button mat-icon-button [routerLink]="['../']" matTooltip="Back to Issuance">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading) {
+  <div fxLayout="row" fxLayoutAlign="center center" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <span>Loading configurations...</span>
+  </div>
+  }
+
+  <!-- Main Content -->
+  @if (!loading) {
+  <div fxLayout="column" fxLayoutGap="24px">
+    <!-- Form Section -->
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <!-- Configuration Selection Card -->
+      <mat-card class="form-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>settings</mat-icon>
+            Offer Configuration
+          </mat-card-title>
+          <mat-card-subtitle>
+            Select an issuance configuration to generate an offer
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content fxLayout="column" fxLayoutGap="16px">
+          <!-- Issuance Configuration Selection -->
+          <mat-form-field class="full-width">
+            <mat-label>Issuance Configuration</mat-label>
+            <mat-select formControlName="issuanceId" [disabled]="generatingOffer">
+              <mat-option value="">Select a configuration</mat-option>
+              @for (config of configs; track config.id) {
+              <mat-option [value]="config.id">
+                {{ config.id }}
+              </mat-option>
+              }
+            </mat-select>
+            <mat-icon matSuffix>rule</mat-icon>
+            @if (form.get('issuanceId')?.invalid && form.get('issuanceId')?.touched) {
+            <mat-error>Please select an issuance configuration</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Credential Configuration IDs (Optional) -->
+          @if (selectedConfig) {
+          <mat-form-field class="full-width">
+            <mat-label>Credential Configuration IDs (Optional)</mat-label>
+            <mat-select
+              formControlName="credentialConfigurationIds"
+              multiple
+              [disabled]="generatingOffer"
+            >
+              @for ( binding of selectedConfig.credentialIssuanceBindings; track
+              binding.credentialConfigId ) {
+              <mat-option [value]="binding.credentialConfigId">
+                {{ binding.credentialConfigId }}
+              </mat-option>
+              }
+            </mat-select>
+            <mat-icon matSuffix>badge</mat-icon>
+            <mat-hint
+              >Leave empty to use all configurations from the selected issuance config</mat-hint
+            >
+          </mat-form-field>
+          }
+        </mat-card-content>
+        <mat-card-actions fxLayout="row" fxLayoutAlign="end center">
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="form.invalid || generatingOffer"
+          >
+            Generate Offer
+          </button>
+          <button mat-button type="button" (click)="resetForm()" [disabled]="generatingOffer">
+            Reset
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </form>
+
+    <!-- Selected Configuration Preview -->
+    <div>
+      @if (selectedConfig) {
+      <mat-card class="preview-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>preview</mat-icon>
+            Configuration Preview
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="config-preview">
+            <div class="preview-item">
+              <strong>Configuration ID:</strong>
+              <span>{{ selectedConfig.id }}</span>
+            </div>
+
+            @if (selectedConfig.batch_size) {
+            <div class="preview-item">
+              <strong>Batch Size:</strong>
+              <span>{{ selectedConfig.batch_size }}</span>
+            </div>
+            } @if (selectedConfig.credentialIssuanceBindings.length) {
+            <div class="preview-item">
+              <strong>Credential Configurations:</strong>
+              <div class="credential-list">
+                @for ( binding of selectedConfig.credentialIssuanceBindings; track
+                binding.credentialConfigId ) {
+                <div class="credential-item">
+                  {{ binding.credentialConfigId }}
+                </div>
+                }
+              </div>
+            </div>
+            } @if (selectedConfig.createdAt) {
+            <div class="preview-item">
+              <strong>Created:</strong>
+              <span>{{ selectedConfig.createdAt | date : 'short' }}</span>
+            </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+      }
+    </div>
+  </div>
+
+  <!-- No Configurations State -->
+  @if (configs.length === 0) {
+  <mat-card class="empty-state">
+    <mat-card-content>
+      <div fxLayout="column" fxLayoutAlign="center center" class="empty-content">
+        <mat-icon>warning</mat-icon>
+        <h3>No Issuance Configurations</h3>
+        <p>You need to create at least one issuance configuration before generating offers.</p>
+        <button mat-raised-button color="primary" [routerLink]="['../issuance-config/create']">
+          <mat-icon>add</mat-icon>
+          Create Issuance Configuration
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+  } }
+</div>

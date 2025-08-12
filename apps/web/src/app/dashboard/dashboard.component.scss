@@ -1,0 +1,123 @@
+// Dashboard styles using flexbox layout
+
+// Ensure dashboard component fills available space
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0; // Allow flex item to shrink
+}
+
+.dashboard-container {
+  flex: 1;
+  padding: 20px;
+  min-height: 0; // Allow flex to work properly
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.welcome-card {
+  max-width: 100%;
+  width: 100%;
+  margin: 20px 0;
+}
+
+.config-card {
+  max-width: 100%;
+  width: 100%;
+  margin: 20px 0;
+
+  .config-item {
+    padding: 8px 0;
+  }
+
+  .config-label {
+    font-weight: 500;
+    color: #666;
+    min-width: 140px;
+  }
+
+  .config-value {
+    font-family: 'Courier New', monospace;
+    background-color: #f5f5f5;
+    color: #333;
+    font-size: 12px;
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &.enabled {
+      background-color: #c8e6c9;
+      color: #2e7d32;
+    }
+
+    &.disabled {
+      background-color: #ffcdd2;
+      color: #c62828;
+    }
+  }
+}
+
+.navigation-card {
+  max-width: 100%;
+  width: 100%;
+  margin: 20px 0;
+}
+
+.quick-nav {
+  .nav-card {
+    flex: 1;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    border: 2px solid transparent;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      border-color: #1976d2;
+    }
+
+    mat-card-content {
+      padding: 24px;
+      text-align: center;
+    }
+
+    .nav-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      color: #1976d2;
+    }
+
+    span {
+      font-weight: 500;
+      font-size: 14px;
+      color: #333;
+    }
+  }
+}
+
+.alert-section {
+  background-color: #fff3cd;
+  border: 1px solid #ffeeba;
+  border-radius: 4px;
+  padding: 12px;
+  color: #856404;
+}
+
+.warning-icon {
+  color: #ff9800;
+}
+
+// Mobile specific adjustments
+@media (max-width: 599px) {
+  .dashboard-container {
+    padding: 10px;
+  }
+
+  .welcome-card {
+    margin: 10px 0;
+  }
+}

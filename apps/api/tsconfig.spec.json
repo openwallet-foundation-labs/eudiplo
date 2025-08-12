@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "module": "commonjs",
+    "types": ["vitest/globals", "node"],
+    "emitDecoratorMetadata": true,
+    "target": "es2021"
+  },
+  "include": ["vitest.config.ts", "src/**/*.spec.ts", "src/**/*.test.ts"]
+}

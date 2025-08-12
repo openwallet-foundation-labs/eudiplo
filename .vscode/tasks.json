@@ -1,0 +1,79 @@
+{
+  // For more information, visit: https://go.microsoft.com/fwlink/?LinkId=733558
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "nx: serve web",
+      "type": "shell",
+      "command": "npx nx serve web",
+      "group": "build",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "typescript",
+        "pattern": "$tsc",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": {
+            "regexp": "(.*?)"
+          },
+          "endsPattern": {
+            "regexp": "bundle generation complete"
+          }
+        }
+      }
+    },
+    {
+      "label": "nx: test web",
+      "type": "shell", 
+      "command": "npx nx test web",
+      "group": "test",
+      "isBackground": true
+    },
+    {
+      "label": "nx: serve api",
+      "type": "shell",
+      "command": "npx nx serve api",
+      "group": "build",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "typescript",
+        "pattern": "$tsc",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": {
+            "regexp": "(.*?)"
+          },
+          "endsPattern": {
+            "regexp": "started successfully"
+          }
+        }
+      }
+    },
+    {
+      "label": "nx: serve webhook",
+      "type": "shell",
+      "command": "npx nx serve webhook", 
+      "group": "build",
+      "isBackground": true
+    },
+    {
+      "label": "nx: build all",
+      "type": "shell",
+      "command": "npx nx run-many --target=build --projects=api,web,webhook",
+      "group": "build",
+      "problemMatcher": "$tsc"
+    },
+    {
+      "label": "nx: test all",
+      "type": "shell",
+      "command": "npx nx run-many --target=test --projects=api,web,webhook",
+      "group": "test"
+    },
+    {
+      "label": "nx: lint all",
+      "type": "shell",
+      "command": "npx nx run-many --target=lint --projects=api,web,webhook",
+      "group": "build"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "authenticationConfig": {
+    "method": "auth",
+    "config": {
+      "url": "http://localhost:8787/oid4vci/auth"
+    }
+  },
+  "credentialConfigs": [
+    {
+      "id": "pid"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "recommendations": [
+    "angular.ng-template",
+    "nrwl.angular-console",
+    "biomejs.biome",
+    "ms-vscode.vscode-eslint",
+    "ms-vscode.vscode-typescript-next",
+    "bradlc.vscode-tailwindcss",
+    "ms-vscode-remote.remote-containers",
+    "mtxr.sqltools",
+    "mtxr.sqltools-driver-sqlite",
+    "cloudflare.vscode-cloudflare-workers",
+    "ms-vscode.test-adapter-converter",
+    "hbenl.vscode-test-explorer",
+    "dbaeumer.vscode-eslint"
+  ]
+}

@@ -1,0 +1,26 @@
+name: Setup Node + pnpm (Corepack) and install
+description: Sets up Node.js, uses Corepack with packageManager, restores pnpm cache, installs deps
+inputs:
+  node-version:
+    description: Node.js version (e.g. 22)
+    required: true
+  install-args:
+    description: Extra args for pnpm install
+    required: false
+    default: --frozen-lockfile
+runs:
+  using: composite
+  steps:
+      - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Use Node.js ${{ inputs.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        shell: bash        
+        run: pnpm install ${{ inputs.install-args }}

@@ -1,198 +1,201 @@
 name: CI / Docker Release
 
 on:
-    push:
-        branches: ['main']
-    pull_request:
-        types: [opened, synchronize, reopened]
+  push:
+    branches: ['main']
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-    lint:
-        name: Lint Codebase
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
+  main:
+    name: Main CI Pipeline
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: tree:0
 
-            - name: Set up Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 22
+      - name: Fetch base branch for comparison
+        if: github.event_name == 'pull_request'
+        run: git fetch origin main:main
 
-            - name: Enable Corepack
-              run: corepack enable
+      - name: Copy env file
+        run: cp .env.example .env
 
-            - name: Restore pnpm cache
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 22
-                  cache: 'pnpm'
+      - name: Setup Node + pnpm
+        uses: ./.github/actions/pnpm-setup
+        with:
+          node-version: 22
 
-            - name: Install dependencies
-              run: pnpm install
+      - name: Set up Nx SHAs
+        uses: nrwl/nx-set-shas@v4
+        with:
+          main-branch-name: main
 
-            - name: Run linter
-              run: pnpm run lint
+      - name: Run affected linting
+        run: pnpm exec nx affected -t lint
 
-            - name: Run license check
-              run:
-                  npx license-checker --onlyAllow
-                  "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;0BSD"
+      - name: Run license check
+        run: pnpm dlx license-checker --onlyAllow "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;0BSD"
 
-    build:
-        name: Build Application
-        runs-on: ubuntu-latest
-        needs: [lint]
-        steps:
-            - uses: actions/checkout@v4
+      - name: Run affected builds and tests
+        run: pnpm exec nx affected -t build,test
 
-            - name: Copy env file
-              run: cp .env.example .env
+      - name: Build affected containers (validation only)
+        if: github.event_name == 'pull_request'
+        run: pnpm exec nx affected -t container
+        env:
+          NX_CONTAINER_REGISTRY: ghcr.io/openwallet-foundation-labs
 
-            - name: Set up Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 22
+      - run: npx nx-cloud fix-ci
+        if: always()
 
-            - name: Enable Corepack
-              run: corepack enable
+  documentation:
+    name: Build Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-            - name: Restore pnpm cache
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 22
-                  cache: 'pnpm'
+      - name: Fetch base branch for comparison
+        if: github.event_name == 'pull_request'
+        run: git fetch origin main:main
 
-            - name: Install dependencies
-              run: pnpm install
+      - name: Copy env file
+        run: cp .env.example .env
 
-            - name: Build the application
-              run: pnpm run build
+      - name: Setup Node + pnpm
+        uses: ./.github/actions/pnpm-setup
+        with:
+          node-version: 22
 
-    build-doc:
-        name: Build Documentation
-        runs-on: ubuntu-latest
-        needs: [lint]
-        steps:
-            - uses: actions/checkout@v4
+      - name: Set up Nx SHAs
+        uses: nrwl/nx-set-shas@v4
+        with:
+          main-branch-name: main
 
-            - name: Copy env file
-              run: cp .env.example .env
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-            - name: Set up Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 22
-            - name: Enable Corepack
-              run: corepack enable
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
 
-            - name: Restore pnpm cache
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 22
-                  cache: 'pnpm'
+      - name: Build documentation
+        run: pnpm run doc:build
 
-            - name: Install dependencies
-              run: pnpm install
+      - name: Upload built documentation
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-docs
+          path: site/
 
-            - name: Set up Python
-              uses: actions/setup-python@v5
-              with:
-                  python-version: '3.11'
+      - run: npx nx-cloud fix-ci
+        if: always()
 
-            - name: Install Python dependencies
-              run: pip install -r requirements.txt
+  test-e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: [main]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-            - name: Build documentation
-              run: pnpm run doc:build
+      - name: Fetch base branch for comparison
+        if: github.event_name == 'pull_request'
+        run: git fetch origin main:main
 
-            - name: Upload built documentation
-              uses: actions/upload-artifact@v4
-              with:
-                  name: generated-docs
-                  path: site/
+      - name: Add entry to /etc/hosts
+        run: echo "127.0.0.1 host.testcontainers.internal" | sudo tee -a /etc/hosts
 
-    test-e2e:
-        name: E2E Tests
-        runs-on: ubuntu-latest
-        needs: [build]
-        steps:
-            - uses: actions/checkout@v4
+      - name: Copy env file
+        run: cp .env.example .env
 
-            - name: Add entry to /etc/hosts
-              run:
-                  echo "127.0.0.1       host.testcontainers.internal" | sudo tee
-                  -a /etc/hosts
+      - name: Setup Node + pnpm
+        uses: ./.github/actions/pnpm-setup
+        with:
+          node-version: 22
 
-            - name: Copy env file
-              run: cp .env.example .env
+      - name: setup test webhooks
+        run: |
+          cd test/webhook
+          pnpm install --frozen-lockfile
+          nohup pnpm run start &
+        # if test/webhook isn't part of the workspace, include a minimal package.json there
 
-            - name: Set up Node.js with pnpm
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 22
+      - name: Set up Nx SHAs
+        uses: nrwl/nx-set-shas@v4
+        with:
+          main-branch-name: main
 
-            - name: Enable Corepack
-              run: corepack enable
+      - name: Run affected E2E tests
+        run: pnpm exec nx affected -t test:e2e
 
-            - name: Restore pnpm cache
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 22
-                  cache: 'pnpm'
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage-e2e/coverage-final.json
+          flags: e2e-test
+          name: codecov-umbrella
+          fail_ci_if_error: false
 
-            - name: Install dependencies
-              run: pnpm install
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
-            - name: setup test webhooks
-              run: |
-                  # Ensure the webhook server is running
-                  cd test/webhook
-                  npm ci
-                  nohup npm run start &
+      - run: npx nx-cloud fix-ci
+        if: always()
 
-            - name: Run E2E tests
-              run: pnpm run test:e2e
+  docker-main:
+    name: Build & Push Container Images
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [main, test-e2e]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-            - name: Upload coverage to Codecov
-              uses: codecov/codecov-action@v5
-              with:
-                  token: ${{ secrets.CODECOV_TOKEN }}
-                  files: ./coverage-e2e/coverage-final.json
-                  flags: e2e-test
-                  name: codecov-umbrella
-                  fail_ci_if_error: false
+      - name: Copy env file
+        run: cp .env.example .env
 
-            - name: Upload test results to Codecov
-              if: ${{ !cancelled() }}
-              uses: codecov/test-results-action@v1
-              with:
-                  token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Setup Node + pnpm
+        uses: ./.github/actions/pnpm-setup
+        with:
+          node-version: 22
+          # example: if your workspace root isn't repo root
+          # working-directory: ./apps/backend
 
-    docker-main:
-        name: Build & Push Docker Image (main)
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        needs: [test-e2e]
-        runs-on: ubuntu-latest
-        permissions:
-            contents: read
-            packages: write
-        steps:
-            - uses: actions/checkout@v4
+      - name: Set up Nx SHAs
+        uses: nrwl/nx-set-shas@v4
+        with:
+          main-branch-name: main
 
-            - name: Log in to GitHub Container Registry
-              run:
-                  echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u
-                  ${{ github.actor }} --password-stdin
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Build Docker image
-              run:
-                  docker build -t
-                  ghcr.io/openwallet-foundation-labs/eudiplo:main --build-arg
-                  VERSION=main .
-
-            - name: Push Docker image
-              run: docker push ghcr.io/openwallet-foundation-labs/eudiplo:main
+      - name: Build and push affected containers to registry
+        run: pnpm exec nx affected -t container --configuration=ci
+        env:
+          NX_CONTAINER_REGISTRY: ghcr.io/openwallet-foundation-labs
+          INPUT_REGISTRY: ghcr.io
+          INPUT_USERNAME: ${{ github.actor }}
+          INPUT_PASSWORD: ${{ secrets.GITHUB_TOKEN }}

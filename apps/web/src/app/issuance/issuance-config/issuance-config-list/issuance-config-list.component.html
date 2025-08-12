@@ -1,0 +1,58 @@
+<div fxLayout="row" fxLayoutAlign="space-between center">
+  <h2>Issuance Configurations</h2>
+  <div>
+    <button mat-button [routerLink]="['create']" matTooltip="Create New Issuance Configuration">
+      <mat-icon>add</mat-icon>
+      Add config
+    </button>
+    <button
+      mat-button
+      [routerLink]="['/offer/issuance']"
+      matTooltip="Create New Issuance Configuration"
+    >
+      <mat-icon>add</mat-icon>
+      Create offer
+    </button>
+  </div>
+</div>
+
+<table mat-table [dataSource]="configs" class="mat-elevation-z8">
+  <ng-container matColumnDef="id">
+    <th mat-header-cell *matHeaderCellDef>ID</th>
+    <td mat-cell *matCellDef="let config">{{ config.id }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="authenticationConfig">
+    <th mat-header-cell *matHeaderCellDef>Authentication Config</th>
+    <td mat-cell *matCellDef="let config">
+      {{ config.authenticationConfig.method }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="credentialIssuanceBindings">
+    <th mat-header-cell *matHeaderCellDef>Credential Issuance Bindings</th>
+    <td mat-cell *matCellDef="let config">
+      @for (binding of config.credentialIssuanceBindings; track binding) {
+      <a [routerLink]="['/credential-config', binding.credentialConfigId]">{{
+        binding.credentialConfigId
+      }}</a
+      ><br />
+      }
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef>Actions</th>
+    <td mat-cell *matCellDef="let config">
+      <button mat-icon-button [routerLink]="[config.id]">
+        <mat-icon>visibility</mat-icon>
+      </button>
+      <button mat-icon-button [routerLink]="[config.id, 'edit']">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+</table>

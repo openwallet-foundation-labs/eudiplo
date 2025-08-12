@@ -1,0 +1,11 @@
+{
+  "authenticationConfig": {
+    "method": "none"
+  },
+  "credentialConfigs": [
+    {
+      "id": "pid"
+    }
+  ],
+  "batch_size": 10
+}

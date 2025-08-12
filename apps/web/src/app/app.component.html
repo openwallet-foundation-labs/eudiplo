@@ -1,0 +1,89 @@
+@if (shouldShowToolbar) {
+<mat-toolbar class="app-toolbar">
+  <button mat-icon-button (click)="toggleSidenav()" fxHide.gt-sm>
+    <mat-icon>menu</mat-icon>
+  </button>
+  <span>eudiplo client</span>
+
+  <!-- Spacer -->
+  <span fxFlex></span>
+
+  <button matIconButton [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+    <mat-icon>more_vert</mat-icon>
+  </button>
+  <mat-menu #menu="matMenu">
+    <button mat-menu-item disabled>
+      <mat-icon>account_circle</mat-icon>
+      <span>Client ID: {{ apiService.getClientId() }}</span>
+    </button>
+    <button mat-menu-item disabled>
+      <mat-icon>business</mat-icon>
+      <span>Instance: {{ apiService.getBaseUrl() }}</span>
+    </button>
+    <button mat-menu-item (click)="logout()" matTooltip="Logout">
+      <mat-icon>logout</mat-icon>
+      Logout
+    </button>
+  </mat-menu>
+</mat-toolbar>
+<mat-sidenav-container class="sidenav-container">
+  <!-- Side Navigation -->
+  <mat-sidenav #sidenav [mode]="sidenavMode" [opened]="sidenavOpened" class="app-sidenav">
+    <mat-nav-list>
+      <!-- Dashboard -->
+      <mat-list-item [routerLink]="['/dashboard']" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>dashboard</mat-icon>
+        <span matListItemTitle>Dashboard</span>
+      </mat-list-item>
+
+      <mat-divider></mat-divider>
+
+      <!-- Core Configuration -->
+      <div mat-subheader>Issuance</div>
+
+      <mat-list-item [routerLink]="['/issuance-config']" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>badge</mat-icon>
+        <span matListItemTitle>Issuance Configurations</span>
+      </mat-list-item>
+
+      <mat-list-item [routerLink]="['/credential-config']" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>settings</mat-icon>
+        <span matListItemTitle>Credential Configurations</span>
+      </mat-list-item>
+
+      <mat-list-item [routerLink]="['/key-management']" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>vpn_key</mat-icon>
+        <span matListItemTitle>Key Management</span>
+      </mat-list-item>
+
+      <mat-divider></mat-divider>
+
+      <!-- Verification Workflow -->
+      <div mat-subheader>Credential Verification</div>
+
+      <mat-list-item [routerLink]="['/presentation-config']" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>verified</mat-icon>
+        <span matListItemTitle>Presentation Configuration</span>
+      </mat-list-item>
+
+      <mat-divider></mat-divider>
+
+      <!-- Monitoring -->
+      <div mat-subheader>Monitoring & Sessions</div>
+
+      <mat-list-item [routerLink]="['/session-management']" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>history</mat-icon>
+        <span matListItemTitle>Session Management</span>
+      </mat-list-item>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <!-- Main Content -->
+  <mat-sidenav-content class="main-content">
+    <!-- Top Toolbar -->
+    <router-outlet></router-outlet>
+  </mat-sidenav-content>
+</mat-sidenav-container>
+} @else {
+<router-outlet></router-outlet>
+}
