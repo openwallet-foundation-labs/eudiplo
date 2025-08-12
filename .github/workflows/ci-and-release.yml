@@ -52,6 +52,9 @@ jobs:
         env:
           NX_CONTAINER_REGISTRY: ghcr.io/openwallet-foundation-labs
 
+      - run: npx nx-cloud fix-ci
+        if: always()
+
   documentation:
     name: Build Documentation
     runs-on: ubuntu-latest
@@ -93,6 +96,9 @@ jobs:
         with:
           name: generated-docs
           path: site/
+
+      - run: npx nx-cloud fix-ci
+        if: always()
 
   test-e2e:
     name: E2E Tests
@@ -147,6 +153,9 @@ jobs:
         uses: codecov/test-results-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+
+      - run: npx nx-cloud fix-ci
+        if: always()
 
   docker-main:
     name: Build & Push Container Images
