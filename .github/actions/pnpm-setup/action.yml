@@ -1,0 +1,44 @@
+name: Setup Node + pnpm (Corepack) and install
+description: Sets up Node.js, enables Corepack, restores pnpm cache, and runs install
+inputs:
+  node-version:
+    description: Node.js version (e.g. 22)
+    required: true
+  install-args:
+    description: Extra args for pnpm install (default --frozen-lockfile)
+    required: false
+    default: --frozen-lockfile
+  cache-dependency-path:
+    description: Newline-separated list of pnpm-lock.yaml paths to seed cache
+    required: false
+    default: |
+      pnpm-lock.yaml
+      **/pnpm-lock.yaml
+  working-directory:
+    description: Directory to run pnpm install in
+    required: false
+    default: .
+runs:
+  using: composite
+  steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: pnpm
+        cache-dependency-path: ${{ inputs.cache-dependency-path }}
+
+    - name: Enable Corepack (use pnpm from packageManager)
+      shell: bash
+      run: corepack enable
+
+    - name: Print pnpm & node versions
+      shell: bash
+      run: |
+        node -v
+        pnpm -v
+
+    - name: Install dependencies
+      working-directory: ${{ inputs.working-directory }}
+      shell: bash
+      run: pnpm install ${{ inputs.install-args }}
