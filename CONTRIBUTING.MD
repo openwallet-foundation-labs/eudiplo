@@ -1,18 +1,76 @@
 # Contributing to EUDIPLO
 
-Thanks for your interest in contr## Pull Request Checklist
+Thanks for your interest in contributing to **EUDIPLO** – your help is highly appreciated! 🎉
 
-Before submitting:
+This guide will walk you through the steps to report issues, suggest features, and contribute code or documentation.
 
-- [ ] Code is tested and builds without errors
-- [ ] Code formatting passes (`pnpm run format:check`)
-- [ ] Linting passes (`pnpm run lint`)
-- [ ] You've added/updated documentation as needed
-- [ ] PR is focused on a single topic
+---
 
-Please **create your PR against the `main` branch**.
+## Reporting Issues
 
-### Code Quality
+If you find a bug, glitch, or unclear behavior:
+
+1. **Search** existing [issues](https://github.com/openwallet-foundation-labs/eudiplo/issues) to avoid duplicates.
+2. If not found, **open a new issue** and include:
+   - A short description
+   - Steps to reproduce
+   - Your environment (OS, Docker version, etc.)
+   - Logs or screenshots if possible
+
+---
+
+## Suggesting Enhancements
+
+Have an idea to improve EUDIPLO?
+
+- Check if a [feature request](https://github.com/openwallet-foundation-labs/eudiplo/issues) already exists
+- Open a new issue with a `feature request` label and describe:
+  - The problem you want to solve
+  - The proposed solution
+  - Alternatives considered (if any)
+
+---
+
+## Getting Started
+
+1. **Fork the repo** and clone it locally:
+
+   ```bash
+   git clone https://github.com/your-username/eudiplo.git
+   cd eudiplo
+   ```
+
+2. **Install dependencies** for the entire workspace:
+
+   ```bash
+   corepack enable
+   pnpm install
+   ```
+
+3. **Set up your environment** for development:
+
+   ```bash
+   cp .env.example .env
+   # Optional: Set up Python environment for documentation
+   pnpm run setup
+   ```
+
+4. **Start the application(s)** you want to work on:
+
+   ```bash
+   # Start just the backend
+   pnpm --filter @eudiplo/backend run start:dev
+   
+   # Start just the client
+   pnpm --filter @eudiplo/client run dev
+   
+   # Or start both with Docker Compose
+   docker compose up -d
+   ```
+
+---
+
+## Code Quality
 
 This project uses [Biome](https://biomejs.dev/) for code formatting and linting:
 
@@ -27,61 +85,7 @@ pnpm run lint
 pnpm run lint:fix
 ```
 
-See [Code Quality Standards](docs/development/code-quality.md) for detailed guidelines. **EUDIPLO** – your help is highly
-appreciated! 🎉
-
-This guide will walk you through the steps to report issues, suggest features,
-and contribute code or documentation.
-
----
-
-## Reporting Issues
-
-If you find a bug, glitch, or unclear behavior:
-
-1. **Search** existing
-   [issues](https://github.com/openwallet-foundation-labs/eudiplo/issues) to
-   avoid duplicates.
-2. If not found, **open a new issue** and include:
-   - A short description
-   - Steps to reproduce
-   - Your environment (OS, Docker version, etc.)
-   - Logs or screenshots if possible
-
----
-
-## Suggesting Enhancements
-
-Have an idea to improve EUDIPLO?
-
-- Check if a
-  [feature request](https://github.com/openwallet-foundation-labs/eudiplo/issues)
-  already exists
-- Open a new issue with a `feature request` label and describe:
-  - The problem you want to solve
-  - The proposed solution
-  - Alternatives considered (if any)
-
----
-
-## 🔧 Development Setup
-
-1. Fork this repo and clone your fork:
-
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/eudiplo
-   cd EUDIPLO
-   ```
-
-2. Install dependencies (requires Node.js + Docker):
-
-   ```bash
-   corepack enable
-   pnpm install
-   ```
-
-3. Use a local `.env` file for config. See the
-   [installation guide](docs/getting-started/installation.md) for details.
+See [Code Quality Standards](docs/development/code-quality.md) for detailed guidelines.
 
 ---
 
@@ -90,8 +94,9 @@ Have an idea to improve EUDIPLO?
 Before submitting:
 
 - [ ] Code is tested and builds without errors
+- [ ] Code formatting passes (`pnpm run format:check`)
 - [ ] Linting passes (`pnpm run lint`)
-- [ ] You’ve added/updated documentation as needed
+- [ ] You've added/updated documentation as needed
 - [ ] PR is focused on a single topic
 
 Please **create your PR against the `main` branch**.
@@ -100,29 +105,36 @@ Please **create your PR against the `main` branch**.
 
 ## Documentation Contributions
 
-Docs are in the `docs/` folder and use [MkDocs](https://www.mkdocs.org/). To
-preview locally:
+Documentation is in the `docs/` folder and uses [MkDocs](https://www.mkdocs.org/). To work with documentation:
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
-python3 -m pip install -r requirements.txt
-mkdocs serve
+# Set up Python environment for documentation (one-time setup)
+pnpm run setup:python
+
+# Build documentation
+pnpm run doc:build
+
+# Serve documentation with live reload
+pnpm run doc:watch
 ```
+
+The documentation includes:
+- User guides in `docs/getting-started/`
+- Developer guides in `docs/development/`
+- API documentation generated from code
+- Architecture documentation
 
 ---
 
 ## Community & Conduct
 
-We follow a [Code of Conduct](CODE_OF_CONDUCT.md) to foster an inclusive and
-respectful environment. Please be kind and constructive.
+We follow a [Code of Conduct](CODE_OF_CONDUCT.md) to foster an inclusive and respectful environment. Please be kind and constructive.
 
 ---
 
 ## Need Help?
 
-- Open a discussion or issue on
-  [GitHub](https://github.com/openwallet-foundation-labs/eudiplo/issues)
+- Open a discussion or issue on [GitHub](https://github.com/openwallet-foundation-labs/eudiplo/issues)
 - Contact the maintainers for guidance
 
 Thanks for helping improve EUDIPLO!

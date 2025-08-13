@@ -1,0 +1,166 @@
+<div fxLayout="column" fxLayoutGap="24px">
+  <!-- Header -->
+  <div fxLayout="row" fxLayoutAlign="space-between center">
+    <h2>Sessions</h2>
+    <div fxLayout="row" fxLayoutGap="16px">
+      <button
+        mat-raised-button
+        color="primary"
+        [routerLink]="['/offer/issuance']"
+        matTooltip="Create New Session"
+      >
+        <mat-icon>add</mat-icon>
+        Issuance Offer
+      </button>
+      <button
+        mat-raised-button
+        color="primary"
+        [routerLink]="['/offer/presentation']"
+        matTooltip="Create New Session"
+      >
+        <mat-icon>add</mat-icon>
+        Presentation Offer
+      </button>
+    </div>
+  </div>
+
+  <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="start center">
+    <mat-form-field appearance="outline">
+      <mat-label>Session Type</mat-label>
+      <mat-select [formControl]="typeFilter">
+        @for (option of typeOptions; track option.value) {
+          <mat-option [value]="option.value">
+            {{ option.label }}
+          </mat-option>
+        }
+      </mat-select>
+      <mat-icon matSuffix>category</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Status</mat-label>
+      <mat-select [formControl]="statusFilter">
+        @for (option of statusOptions; track option.value) {
+          <mat-option [value]="option.value">
+            {{ option.label }}
+          </mat-option>
+        }
+      </mat-select>
+      <mat-icon matSuffix>flag</mat-icon>
+    </mat-form-field>
+
+    <button mat-button (click)="refreshSessions()">
+      <mat-icon>refresh</mat-icon>
+      Refresh
+    </button>
+
+    <!-- Bulk Actions -->
+    @if (selection.selected.length > 0) {
+      <div fxLayout="row" fxLayoutGap="8px" fxLayoutAlign="start center" class="bulk-actions">
+        <span class="selection-info">{{ selection.selected.length }} selected</span>
+        <button
+          mat-raised-button
+          color="warn"
+          (click)="deleteSelectedSessions()"
+          [disabled]="deletingSelected"
+          matTooltip="Delete selected sessions"
+        >
+          <mat-icon>delete</mat-icon>
+          @if (deletingSelected) {
+            Deleting...
+          } @else {
+            Delete Selected
+          }
+        </button>
+        <button mat-button (click)="clearSelection()" matTooltip="Clear selection">
+          <mat-icon>clear</mat-icon>
+          Clear
+        </button>
+      </div>
+    }
+  </div>
+
+  <table mat-table [dataSource]="dataSource" matSort class="sessions-table">
+    <!-- Checkbox Column -->
+    <ng-container matColumnDef="select">
+      <th mat-header-cell *matHeaderCellDef>
+        <mat-checkbox
+          (change)="$event ? masterToggle() : null"
+          [checked]="selection.hasValue() && isAllSelected()"
+          [indeterminate]="selection.hasValue() && !isAllSelected()"
+          [aria-label]="checkboxLabel()"
+        >
+        </mat-checkbox>
+      </th>
+      <td mat-cell *matCellDef="let session">
+        <mat-checkbox
+          (click)="$event.stopPropagation()"
+          (change)="$event ? selection.toggle(session) : null"
+          [checked]="selection.isSelected(session)"
+          [aria-label]="checkboxLabel(session)"
+        >
+        </mat-checkbox>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Session ID</th>
+      <td mat-cell *matCellDef="let session">
+        <span class="session-id">{{ session.id }}</span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="type">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
+      <td mat-cell *matCellDef="let session">
+        @if (session.issuanceId) {
+          <span class="type-badge issuance"> Issuance </span>
+        } @else {
+          <span class="type-badge presentation"> Presentation </span>
+        }
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+      <td mat-cell *matCellDef="let session">
+        <span class="status-badge" [class]="getStatusClass(session.status)">
+          {{ getSessionStatus(session) | titlecase }}
+        </span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="createdAt">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header="createdAt">Created At</th>
+      <td mat-cell *matCellDef="let session">
+        <span class="date-text">{{ session.createdAt | date: 'short' }}</span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let session">
+        <button mat-icon-button [routerLink]="[session.id]" matTooltip="View Session Details">
+          <mat-icon>visibility</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns" class="session-row"></tr>
+  </table>
+
+  @if (dataSource.data.length === 0) {
+    <div fxLayout="column" fxLayoutAlign="center center" class="empty-state">
+      <mat-icon>inbox</mat-icon>
+      <p>No sessions found</p>
+      <p class="subtitle">
+        @if (typeFilter.value !== 'all' || statusFilter.value !== 'all') {
+          Try adjusting your filters or create your first session to get started
+        } @else {
+          Create your first session to get started
+        }
+      </p>
+    </div>
+  }
+</div>

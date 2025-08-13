@@ -50,24 +50,78 @@ management, scalable database support, and clean API boundaries.
 
 ## 🚀 Quick Start
 
+### Demo Setup (Easiest)
+
+For quick testing and demos, you can run EUDIPLO with minimal configuration:
+
+```bash
+# Clone the repository
+git clone https://github.com/openwallet-foundation-labs/eudiplo.git
+cd eudiplo
+
+# Start with default demo credentials (includes security warnings)
+docker compose up -d
+
+# Access the services
+# Backend API: http://localhost:3000
+# Client UI: http://localhost:4200
+```
+
+⚠️  **Demo mode uses default credentials** - perfect for testing, but change them for production!
+
+### Option 1: Using Docker Compose (Recommended for Production)
+
 ```bash
 # Clone and configure
 git clone https://github.com/openwallet-foundation-labs/eudiplo.git
 cd eudiplo
 cp .env.example .env
 
-# Configure authentication
+# Configure secure authentication
 echo "JWT_SECRET=$(openssl rand -base64 32)" >> .env
 echo "AUTH_CLIENT_SECRET=$(openssl rand -base64 24)" >> .env
 
-# Start with Docker
+# Start both backend and client with Docker Compose
+docker compose up -d
+
+# Access the services
+# Backend API: http://localhost:3000
+# Client UI: http://localhost:4200
+```
+
+### Option 2: Using Individual Docker Images
+
+```bash
+# Run just the backend
 docker run -p 3000:3000 \
   -e PUBLIC_URL=https://example.com \
   -e JWT_SECRET=your-32-character-secret \
   -e AUTH_CLIENT_SECRET=your-issuer-secret \
-  -v $(pwd)/config:/app/config \
+  -v $(pwd)/assets:/app/config \
   ghcr.io/openwallet-foundation-labs/eudiplo:latest
 
+# Run the client (optional - web interface)
+docker run -p 4200:80 \
+  -e API_BASE_URL=http://localhost:3000 \
+  ghcr.io/openwallet-foundation-labs/eudiplo-client:latest
+```
+
+### Option 3: Local Development
+
+```bash
+# Install dependencies
+pnpm install
+
+# Start backend
+pnpm --filter @eudiplo/backend run start:dev
+
+# Start client (in another terminal)
+pnpm --filter @eudiplo/client run dev
+```
+
+### Get Started with the API
+
+```bash
 # Get a token and start using the API
 curl -X POST http://localhost:3000/oauth2/token \
   -H "Content-Type: application/json" \

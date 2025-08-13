@@ -1,0 +1,141 @@
+<div class="login-container">
+  <mat-card class="login-card">
+    <mat-card-header>
+      <mat-card-title>Client</mat-card-title>
+      <mat-card-subtitle>
+        Enter your credentials to authenticate
+        @if (isDevelopmentMode) {
+          <span class="dev-indicator"> (Development Mode - Form pre-filled) </span>
+        }
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <img mat-card-image src="eudiplo.png" alt="Eudiplo Logo" class="logo" />
+    <mat-card-content>
+      @if (loginForm) {
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+          <!-- API URL Field -->
+          <mat-form-field class="full-width">
+            <mat-label>EUDIPLO Instance</mat-label>
+            <input
+              matInput
+              formControlName="apiUrl"
+              placeholder="https://your-api.com"
+              type="url"
+            />
+            <mat-icon matSuffix>api</mat-icon>
+            @if (loginForm.get('apiUrl')?.invalid && loginForm.get('apiUrl')?.touched) {
+              <mat-error>
+                {{ getErrorMessage('apiUrl') }}
+              </mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Server URL Field -->
+          <mat-form-field class="full-width">
+            <mat-label>Authentication Server</mat-label>
+            <input
+              matInput
+              formControlName="oidcUrl"
+              placeholder="https://your-eudiplo-server.com"
+              type="url"
+            />
+            <mat-icon matSuffix>dns</mat-icon>
+            @if (loginForm.get('oidcUrl')?.invalid && loginForm.get('oidcUrl')?.touched) {
+              <mat-error>
+                {{ getErrorMessage('oidcUrl') }}
+              </mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Client ID Field -->
+          <mat-form-field class="full-width">
+            <mat-label>Client ID</mat-label>
+            <input matInput formControlName="clientId" placeholder="your-client-id" />
+            <mat-icon matSuffix>account_circle</mat-icon>
+            @if (loginForm.get('clientId')?.invalid && loginForm.get('clientId')?.touched) {
+              <mat-error>
+                {{ getErrorMessage('clientId') }}
+              </mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Client Secret Field -->
+          <mat-form-field class="full-width">
+            <mat-label>Client Secret</mat-label>
+            <input
+              matInput
+              formControlName="clientSecret"
+              [type]="hideClientSecret ? 'password' : 'text'"
+              placeholder="your-client-secret"
+            />
+            <button
+              mat-icon-button
+              matSuffix
+              type="button"
+              (click)="toggleClientSecretVisibility()"
+              [attr.aria-label]="'Hide client secret'"
+              [attr.aria-pressed]="hideClientSecret"
+            >
+              <mat-icon>{{ hideClientSecret ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            @if (loginForm.get('clientSecret')?.invalid && loginForm.get('clientSecret')?.touched) {
+              <mat-error>
+                {{ getErrorMessage('clientSecret') }}
+              </mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Login Button -->
+          <div
+            class="button-container"
+            fxLayout="column"
+            fxLayoutAlign="center center"
+            fxLayoutGap="8px"
+          >
+            <button
+              matButton="filled"
+              color="primary"
+              type="submit"
+              [disabled]="isLoading || loginForm.invalid"
+              class="login-button"
+            >
+              @if (isLoading) {
+                <mat-spinner diameter="20" class="button-spinner"> </mat-spinner>
+              }
+              @if (!isLoading) {
+                <span>Login</span>
+              }
+              @if (isLoading) {
+                <span>Authenticating...</span>
+              }
+            </button>
+
+            <a
+              mat-button
+              href="https://openwallet-foundation-labs.github.io/eudiplo/main/"
+              target="_blank"
+              rel="noopener"
+            >
+              <mat-icon>help_outline</mat-icon>
+              Help
+            </a>
+
+            @if (isDevelopmentMode) {
+              <button
+                mat-button
+                type="button"
+                (click)="copyShareableUrl()"
+                color="accent"
+                class="share-button"
+              >
+                <mat-icon>link</mat-icon>
+                Copy Shareable URL
+              </button>
+            }
+          </div>
+        </form>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

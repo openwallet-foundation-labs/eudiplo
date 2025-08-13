@@ -1,0 +1,165 @@
+@if (config) {
+  <div fxLayout="column" fxFlex fxLayoutGap="24px">
+    <!-- Header -->
+    <div fxLayout="row" fxLayoutAlign="space-between center">
+      <h2>Issuance Configuration: {{ config.id }}</h2>
+      <div>
+        <button mat-icon-button [routerLink]="['../']" matTooltip="Back to list">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <button mat-icon-button [routerLink]="['edit']" matTooltip="Edit configuration">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          (click)="deleteConfig()"
+          matTooltip="Delete configuration"
+          color="warn"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Basic Information Card -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>settings</mat-icon>
+          Basic Information
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content fxLayout="column" fxLayoutGap="16px">
+        <div fxLayout="row" fxLayoutGap="32px" fxLayout.lt-md="column">
+          <div fxFlex>
+            <div><strong>Configuration ID:</strong></div>
+            <div class="value-text">{{ config.id }}</div>
+          </div>
+          <div fxFlex>
+            <div><strong>Created At:</strong></div>
+            <div class="value-text">{{ formatDate(config.createdAt) }}</div>
+          </div>
+          <div fxFlex>
+            <div><strong>Batch Size:</strong></div>
+            <div class="value-text">{{ config.batch_size || 1 }}</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Authentication Configuration Card -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>security</mat-icon>
+          Authentication Configuration
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content fxLayout="column" fxLayoutGap="16px">
+        <div>
+          <div><strong>Authentication Type:</strong></div>
+          <div class="value-text">{{ getAuthenticationType(config.authenticationConfig) }}</div>
+        </div>
+
+        @if (getObjectKeys(config.authenticationConfig).length > 0) {
+          <div>
+            <div><strong>Configuration Details:</strong></div>
+            <pre class="config-value">{{ formatJsonValue(config.authenticationConfig) }}</pre>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Credential Bindings Card -->
+    @if (config.credentialIssuanceBindings && config.credentialIssuanceBindings.length > 0) {
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>link</mat-icon>
+            Credential Configurations ({{ config.credentialIssuanceBindings.length }})
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div fxLayout="column" fxLayoutGap="16px">
+            @for (binding of config.credentialIssuanceBindings; track binding.credentialConfigId) {
+              <mat-card class="binding-card">
+                <mat-card-content fxLayout="column" fxLayoutGap="8px">
+                  <div fxLayout="row" fxLayoutAlign="space-between center">
+                    <div>
+                      <div><strong>Credential Config ID:</strong></div>
+                      <div class="value-text">
+                        <a
+                          [routerLink]="['/issuance/credential-config', binding.credentialConfigId]"
+                        >
+                          {{ binding.credentialConfigId }}
+                        </a>
+                      </div>
+                    </div>
+                    @if (binding.createdAt) {
+                      <div>
+                        <div><strong>Bound At:</strong></div>
+                        <div class="value-text">{{ formatDate(binding.createdAt) }}</div>
+                      </div>
+                    }
+                  </div>
+                  @if (binding.credentialConfig) {
+                    <mat-divider></mat-divider>
+                    <div>
+                      <div><strong>Credential Type:</strong></div>
+                      <div class="value-text">
+                        {{ binding.credentialConfig.vct?.name || 'Not specified' }}
+                      </div>
+                    </div>
+                    @if (binding.credentialConfig.vct?.description) {
+                      <div>
+                        <div><strong>Description:</strong></div>
+                        <div class="value-text">
+                          {{ binding.credentialConfig.vct?.description }}
+                        </div>
+                      </div>
+                    }
+                  }
+                </mat-card-content>
+              </mat-card>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <!-- Webhook Configuration Card -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>webhook</mat-icon>
+          Notification Webhook
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content fxLayout="column" fxLayoutGap="16px">
+        <div>
+          <div><strong>URL:</strong></div>
+          <div class="value-text">{{ config.notifyWebhook.url || 'Not configured' }}</div>
+        </div>
+
+        @if (config.notifyWebhook.auth) {
+          <div>
+            <div><strong>Authentication:</strong></div>
+            <div class="value-text">Configured</div>
+          </div>
+        }
+
+        @if (getObjectKeys(config.notifyWebhook).length > 1) {
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <mat-icon>tune</mat-icon>
+                Webhook Details
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <pre class="config-value">{{ formatJsonValue(config.notifyWebhook) }}</pre>
+          </mat-expansion-panel>
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
+}

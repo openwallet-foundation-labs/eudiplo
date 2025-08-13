@@ -1,6 +1,96 @@
+# Dependencies
 node_modules/
+**/node_modules/
+
+# Build outputs and temporary files
 dist/
-tests/
+**/dist/
 tmp/
-.vscode/
+.cache/
+.cache_ggshield
+
+# Python virtual environment
 venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git and version control
+.git/
+.gitignore
+.gitguardian.yaml
+
+# CI/CD files (not needed in container)
+.github/
+.codecov.yml
+.releaserc
+
+# Documentation and markdown files (not needed in runtime)
+README.md
+*.md
+CHANGELOG.md
+CODE_OF_CONDUCT.md
+CONTRIBUTING.MD
+LICENSE
+MAINTAINERS.md
+SECURITY.md
+docs/
+mkdocs.yml
+
+# Other applications (exclude other apps when building specific one)
+apps/client/
+apps/webhook/
+
+# Development and testing
+test/
+tests/
+coverage/
+*.lcov
+test-report.junit.xml
+vitest.config.ts
+
+# Environment files (should be provided at runtime)
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Package manager files (some lock files can be large, but pnpm-lock.yaml is needed)
+yarn.lock
+package-lock.json
+
+# Development tools
+biome.json
+.npmrc
+
+# Deployment and monitoring (not needed in app container)
+deployment/
+monitor/
+docker-compose.yml
+
+# Asset sources (if not needed at runtime)
+assets/config/

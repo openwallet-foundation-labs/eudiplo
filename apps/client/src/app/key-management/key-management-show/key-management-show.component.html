@@ -1,0 +1,111 @@
+@if (key) {
+  <div fxLayout="column" fxFlex fxLayoutGap="16px">
+    <div fxLayout="row" fxLayoutAlign="space-between center">
+      <h2>Key Configuration: {{ key.id }}</h2>
+      <div>
+        <button mat-icon-button [routerLink]="['../']">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <button mat-icon-button [routerLink]="['edit']">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button (click)="deleteKey()">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+    <p><strong>Description:</strong> {{ key.description }}</p>
+
+    @if (key.crt) {
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Certificate Information</mat-card-title>
+          <div class="spacer"></div>
+          <button
+            mat-icon-button
+            (click)="copyCertificateToClipboard()"
+            matTooltip="Copy certificate to clipboard"
+          >
+            <mat-icon>content_copy</mat-icon>
+          </button>
+        </mat-card-header>
+        <mat-card-content>
+          @if (certificateInfo) {
+            <div class="cert-info">
+              <h4>Certificate Details:</h4>
+              <table class="cert-details-table">
+                <tr>
+                  <td><strong>Subject:</strong></td>
+                  <td>{{ certificateInfo.subject }}</td>
+                </tr>
+                <tr>
+                  <td><strong>Issuer:</strong></td>
+                  <td>{{ certificateInfo.issuer }}</td>
+                </tr>
+                <tr>
+                  <td><strong>Valid From:</strong></td>
+                  <td>{{ certificateInfo.validFrom }}</td>
+                </tr>
+                <tr>
+                  <td><strong>Valid To:</strong></td>
+                  <td>
+                    <span [class]="certificateInfo.isExpired ? 'expired' : 'valid'">
+                      {{ certificateInfo.validTo }}
+                      @if (certificateInfo.isExpired) {
+                        <mat-icon class="status-icon expired">warning</mat-icon>
+                        <span class="status-text">EXPIRED</span>
+                      } @else {
+                        <mat-icon class="status-icon valid">check_circle</mat-icon>
+                        <span class="status-text">VALID</span>
+                      }
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Serial Number:</strong></td>
+                  <td>{{ certificateInfo.serialNumber }}</td>
+                </tr>
+                <tr>
+                  <td><strong>Signature Algorithm:</strong></td>
+                  <td>{{ certificateInfo.algorithm }}</td>
+                </tr>
+                <tr>
+                  <td><strong>Public Key Algorithm:</strong></td>
+                  <td>{{ certificateInfo.publicKeyAlgorithm }}</td>
+                </tr>
+                <tr>
+                  <td><strong>Key Usage:</strong></td>
+                  <td>
+                    @for (usage of certificateInfo.keyUsage; track usage) {
+                      <span class="key-usage-tag">{{ usage }}</span>
+                    }
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Fingerprint (SHA-1):</strong></td>
+                  <td class="fingerprint">{{ certificateInfo.fingerprint }}</td>
+                </tr>
+              </table>
+            </div>
+          }
+
+          <div class="cert-pem-section">
+            <h4>PEM Certificate:</h4>
+            <div class="pem-container">
+              <pre class="pem-certificate">{{ formatPemCertificate(key.crt) }}</pre>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    } @else {
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Certificate</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p class="no-cert-message">No certificate available for this key.</p>
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+}

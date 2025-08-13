@@ -1,1 +1,1 @@
-[OAD(swagger.json)]
+[OAD(apps/backend/swagger.json)]

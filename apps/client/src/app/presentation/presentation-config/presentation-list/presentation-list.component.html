@@ -1,0 +1,53 @@
+<div fxLayout="row" fxLayoutAlign="space-between center">
+  <h2>Presentation Configurations</h2>
+  <div>
+    <button mat-button [routerLink]="['create']" matTooltip="Create New Issuance Configuration">
+      <mat-icon>add</mat-icon>
+      Add config
+    </button>
+    <button
+      mat-button
+      [routerLink]="['/offer/presentation']"
+      matTooltip="Create New Presentation Offer"
+    >
+      <mat-icon>add</mat-icon>
+      Create offer
+    </button>
+  </div>
+</div>
+<table mat-table [dataSource]="configurations" class="mat-elevation-z8">
+  <ng-container matColumnDef="id">
+    <th mat-header-cell *matHeaderCellDef>ID</th>
+    <td mat-cell *matCellDef="let config">{{ config.id }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="createdAt">
+    <th mat-header-cell *matHeaderCellDef>Created At</th>
+    <td mat-cell *matCellDef="let config">{{ config.createdAt | date }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="hasWebhook">
+    <th mat-header-cell *matHeaderCellDef>Has Webhook</th>
+    <td mat-cell *matCellDef="let config">{{ config.hasWebhook ? 'Yes' : 'No' }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef>Actions</th>
+    <td mat-cell *matCellDef="let config">
+      <button
+        mat-icon-button
+        [routerLink]="[config.id]"
+        routerLinkActive="router-link-active"
+        matTooltip="View Configuration"
+      >
+        <mat-icon>visibility</mat-icon>
+      </button>
+      <button mat-icon-button [routerLink]="[config.id, 'edit']" matTooltip="Edit Configuration">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+</table>

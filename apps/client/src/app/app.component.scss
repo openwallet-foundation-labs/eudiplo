@@ -1,0 +1,82 @@
+// App component styles
+
+// Ensure app component takes full height and provides flex layout
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+}
+
+// App toolbar
+.app-toolbar {
+  position: relative;
+  z-index: 1000;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 16px; // Standard Material toolbar padding
+  min-height: 64px; // Ensure consistent height
+  display: flex; // Ensure flex layout
+  align-items: center; // Center items vertically
+  flex-shrink: 0; // Don't shrink the toolbar
+}
+
+// Sidenav container
+.sidenav-container {
+  flex: 1;
+  height: calc(100vh - 64px); // Account for toolbar height
+  display: flex;
+}
+
+// Sidenav styling
+.app-sidenav {
+  width: 280px;
+}
+
+// Main content area
+.main-content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto; // Allow scrolling if content overflows
+  height: calc(100vh - 104px); // Account for toolbar height
+  background-color: #f6f6f6;
+}
+
+.active-link {
+  background-color: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+
+  mat-icon {
+    color: var(--mat-sys-on-primary-container);
+  }
+}
+
+.warning-icon {
+  color: #ff9800;
+}
+
+// Mobile specific adjustments
+@media (max-width: 599px) {
+  .app-toolbar {
+    padding: 0 8px; // Reduced padding on mobile
+    min-height: 56px; // Mobile toolbar height
+  }
+
+  .sidenav-container {
+    height: calc(100vh - 56px); // Account for mobile toolbar height
+  }
+
+  .app-sidenav {
+    width: 100%;
+  }
+
+  .main-content {
+    padding: 16px;
+  }
+}
+
+.mat-mdc-button.router-link-active {
+  color: var(--mat-sys-on-primary-fixed-variant); // Use CSS custom property with fallback
+  font-weight: bold; // Make active links bold
+}

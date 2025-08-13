@@ -1,8 +1,30 @@
 # Development
 
-This project is built with [NestJS](https://nestjs.com/), a progressive Node.js
-framework for building efficient, scalable server-side applications using
-TypeScript.
+EUDIPLO is organized as a **monorepo workspace** containing multiple applications:
+
+- **Backend**: NestJS API server (`apps/backend/`)
+- **Client**: Angular web interface (`apps/client/`)  
+- **Webhook**: Cloudflare Worker for testing (`apps/webhook/`)
+
+## Quick Start
+
+```bash
+# Install all dependencies
+pnpm install
+
+# Start all applications
+pnpm run dev
+
+# Or start specific applications
+pnpm --filter @eudiplo/backend run start:dev
+pnpm --filter @eudiplo/client run dev
+```
+
+See [Workspace Structure](workspace-structure.md) for detailed information about the monorepo organization.
+
+## Backend (NestJS)
+
+The backend is built with [NestJS](https://nestjs.com/), a progressive Node.js framework for building efficient, scalable server-side applications using TypeScript.
 
 ## Documentation with Compodoc
 

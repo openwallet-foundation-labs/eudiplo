@@ -1,198 +1,215 @@
 name: CI / Docker Release
 
 on:
-    push:
-        branches: ['main']
-    pull_request:
-        types: [opened, synchronize, reopened]
+  push:
+    branches: ['main']
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-    lint:
-        name: Lint Codebase
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
+  lint:
+    name: Lint Codebase
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
 
-            - name: Set up Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 22
+      - name: Run linter
+        run: pnpm run lint
 
-            - name: Enable Corepack
-              run: corepack enable
+      - name: Run license check (backend, production)
+        working-directory: apps/backend
+        run: pnpm dlx license-checker --production --onlyAllow "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;0BSD;ISC"
 
-            - name: Restore pnpm cache
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 22
-                  cache: 'pnpm'
+      - name: Run license check (client, production)
+        working-directory: apps/client
+        run: pnpm dlx license-checker --production --onlyAllow "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;0BSD;ISC"
 
-            - name: Install dependencies
-              run: pnpm install
+  build-backend:
+    name: Build Backend
+    runs-on: ubuntu-latest
+    needs: [lint]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Build backend
+        run: pnpm --filter @eudiplo/backend build
 
-            - name: Run linter
-              run: pnpm run lint
+  build-client:
+    name: Build Client
+    runs-on: ubuntu-latest
+    needs: [lint]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
 
-            - name: Run license check
-              run:
-                  npx license-checker --onlyAllow
-                  "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;0BSD"
+      - name: Build client
+        run: pnpm --filter @eudiplo/client build
 
-    build:
-        name: Build Application
-        runs-on: ubuntu-latest
-        needs: [lint]
-        steps:
-            - uses: actions/checkout@v4
+  build-webhook:
+    name: Build Webhook
+    runs-on: ubuntu-latest
+    needs: [lint]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
 
-            - name: Copy env file
-              run: cp .env.example .env
+      - name: Build webhook
+        run: pnpm --filter test-rp build
 
-            - name: Set up Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 22
+  build-doc:
+    name: Build Documentation
+    runs-on: ubuntu-latest
+    needs: [lint]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
 
-            - name: Enable Corepack
-              run: corepack enable
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-            - name: Restore pnpm cache
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 22
-                  cache: 'pnpm'
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
 
-            - name: Install dependencies
-              run: pnpm install
+      - name: Build documentation
+        run: pnpm run swagger && pnpm run compodoc && mkdocs build --strict
 
-            - name: Build the application
-              run: pnpm run build
+      - name: Upload built documentation
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-docs
+          path: site/
 
-    build-doc:
-        name: Build Documentation
-        runs-on: ubuntu-latest
-        needs: [lint]
-        steps:
-            - uses: actions/checkout@v4
+  test-e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: [build-backend, build-client, build-webhook]
+    steps:
+      - uses: actions/checkout@v4
 
-            - name: Copy env file
-              run: cp .env.example .env
+      #      - name: Add entry to /etc/hosts
+      #        run: echo "127.0.0.1       host.testcontainers.internal" | sudo tee
+      #          -a /etc/hosts
 
-            - name: Set up Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 22
-            - name: Enable Corepack
-              run: corepack enable
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      - name: setup test webhooks
+        run: |
+          nohup pnpm --filter test-rp dev &
 
-            - name: Restore pnpm cache
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 22
-                  cache: 'pnpm'
+      - name: Run E2E tests
+        run: pnpm run --filter @eudiplo/backend test:e2e
 
-            - name: Install dependencies
-              run: pnpm install
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage-e2e/coverage-final.json
+          flags: e2e-test
+          name: codecov-umbrella
+          fail_ci_if_error: false
 
-            - name: Set up Python
-              uses: actions/setup-python@v5
-              with:
-                  python-version: '3.11'
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
-            - name: Install Python dependencies
-              run: pip install -r requirements.txt
+  docker-backend:
+    name: Build & Push Backend Docker Image
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [test-e2e]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
 
-            - name: Build documentation
-              run: pnpm run doc:build
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u
+          ${{ github.actor }} --password-stdin
 
-            - name: Upload built documentation
-              uses: actions/upload-artifact@v4
-              with:
-                  name: generated-docs
-                  path: site/
+      - name: Build Backend Docker image
+        run: docker build -t
+          ghcr.io/openwallet-foundation-labs/eudiplo:main --build-arg
+          VERSION=main -f apps/backend/Dockerfile .
 
-    test-e2e:
-        name: E2E Tests
-        runs-on: ubuntu-latest
-        needs: [build]
-        steps:
-            - uses: actions/checkout@v4
+      - name: Push Backend Docker image
+        run: docker push ghcr.io/openwallet-foundation-labs/eudiplo:main
 
-            - name: Add entry to /etc/hosts
-              run:
-                  echo "127.0.0.1       host.testcontainers.internal" | sudo tee
-                  -a /etc/hosts
+  docker-client:
+    name: Build & Push Client Docker Image
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [build-client]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
 
-            - name: Copy env file
-              run: cp .env.example .env
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u
+          ${{ github.actor }} --password-stdin
 
-            - name: Set up Node.js with pnpm
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 22
+      - name: Build Client Docker image
+        working-directory: ./apps/client
+        run: docker build -t
+          ghcr.io/openwallet-foundation-labs/eudiplo-client:main .
 
-            - name: Enable Corepack
-              run: corepack enable
-
-            - name: Restore pnpm cache
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 22
-                  cache: 'pnpm'
-
-            - name: Install dependencies
-              run: pnpm install
-
-            - name: setup test webhooks
-              run: |
-                  # Ensure the webhook server is running
-                  cd test/webhook
-                  npm ci
-                  nohup npm run start &
-
-            - name: Run E2E tests
-              run: pnpm run test:e2e
-
-            - name: Upload coverage to Codecov
-              uses: codecov/codecov-action@v5
-              with:
-                  token: ${{ secrets.CODECOV_TOKEN }}
-                  files: ./coverage-e2e/coverage-final.json
-                  flags: e2e-test
-                  name: codecov-umbrella
-                  fail_ci_if_error: false
-
-            - name: Upload test results to Codecov
-              if: ${{ !cancelled() }}
-              uses: codecov/test-results-action@v1
-              with:
-                  token: ${{ secrets.CODECOV_TOKEN }}
-
-    docker-main:
-        name: Build & Push Docker Image (main)
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        needs: [test-e2e]
-        runs-on: ubuntu-latest
-        permissions:
-            contents: read
-            packages: write
-        steps:
-            - uses: actions/checkout@v4
-
-            - name: Log in to GitHub Container Registry
-              run:
-                  echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u
-                  ${{ github.actor }} --password-stdin
-
-            - name: Build Docker image
-              run:
-                  docker build -t
-                  ghcr.io/openwallet-foundation-labs/eudiplo:main --build-arg
-                  VERSION=main .
-
-            - name: Push Docker image
-              run: docker push ghcr.io/openwallet-foundation-labs/eudiplo:main
+      - name: Push Client Docker image
+        run: docker push ghcr.io/openwallet-foundation-labs/eudiplo-client:main

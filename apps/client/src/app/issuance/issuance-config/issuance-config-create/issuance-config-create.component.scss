@@ -1,0 +1,65 @@
+.full-width {
+  width: 100%;
+}
+
+.json-textarea {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.option-description {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+  margin-top: 2px;
+}
+
+.selected-configs {
+  margin-top: 8px;
+
+  mat-chip-set {
+    margin: 4px;
+  }
+}
+
+.button-spinner {
+  margin-right: 8px;
+}
+
+mat-card {
+  margin-bottom: 24px;
+
+  mat-card-header {
+    margin-bottom: 16px;
+
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 18px;
+      font-weight: 500;
+    }
+  }
+}
+
+mat-form-field {
+  margin-bottom: 8px;
+}
+
+// Form validation styles
+.mat-mdc-form-field.mat-form-field-invalid .mat-mdc-text-field-wrapper {
+  border-color: #f44336;
+}
+
+// Readonly input styles
+input[readonly] {
+  color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+// Action buttons container
+div[fxLayoutAlign='end center'] {
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+}

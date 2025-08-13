@@ -1,0 +1,49 @@
+@if (presentation) {
+  <div fxLayout="column" fxFlex fxLayoutGap="16px">
+    <div fxLayout="row" fxLayoutAlign="space-between center">
+      <h2>Presentation Configuration: {{ presentation.id }}</h2>
+      <div>
+        <button mat-icon-button [routerLink]="['../']">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <button mat-icon-button [routerLink]="['edit']">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button (click)="deletePresentation()" class="delete-button">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+    <p><strong>Created At:</strong> {{ presentation.createdAt | date }}</p>
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>DCQL</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <pre>{{ presentation.dcql_query | json }}</pre>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Registration Certificate</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <pre>{{ presentation.registrationCert | json }}</pre>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Webhook</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <pre>{{ presentation.webhook | json }}</pre>
+      </mat-card-content>
+    </mat-card>
+  </div>
+} @else {
+  <div class="no-presentation-message" fxLayout="column" fxFlex>
+    <p>No presentation configuration selected.</p>
+  </div>
+}
