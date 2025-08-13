@@ -76,6 +76,13 @@ export class Session {
      */
     @Column('varchar', { nullable: true })
     vp_nonce?: string;
+
+    /**
+     * Nonce used for the OID4VCI flow.
+     */
+    @Column('varchar', { nullable: true })
+    nonce?: string;
+
     /**
      * Credential offer object containing details about the credential offer or presentation request.
      */

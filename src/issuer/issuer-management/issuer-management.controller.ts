@@ -57,6 +57,14 @@ export class IssuerManagementController {
                     issuanceId: 'pid',
                 } as OfferRequestDto,
             },
+            authfixed: {
+                summary: 'Auth flow with fixed session',
+                value: {
+                    response_type: ResponseType.QRCode,
+                    issuanceId: 'pid',
+                    session: 'fd3ebf28-8ad6-4909-8a7a-a739c2c412c0',
+                } as OfferRequestDto,
+            },
             override: {
                 summary: 'Override',
                 value: {

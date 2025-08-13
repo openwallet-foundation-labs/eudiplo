@@ -1,0 +1,13 @@
+{
+    "authenticationConfig": {
+        "method": "auth",
+        "config": {
+            "url": "https://auth.eudi-wallet.dev/realms/eudiplo"
+        }
+    },
+    "credentialConfigs": [
+        {
+            "id": "pid"
+        }
+    ]
+}

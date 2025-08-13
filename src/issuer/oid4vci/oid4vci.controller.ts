@@ -1,6 +1,7 @@
 import {
     Body,
     Controller,
+    Get,
     Post,
     Req,
     UseGuards,
@@ -55,6 +56,12 @@ export class Oid4vciController {
         @SessionEntity() session: Session,
     ) {
         return this.oid4vciService.handleNotification(req, body, session);
+    }
+
+    @Post('nonce')
+    @SessionLogger('nonce', 'OID4VCI')
+    nonce(@SessionEntity() session: Session) {
+        return this.oid4vciService.nonceRequest(session);
     }
 
     //TODO: this endpoint may be relevant for the wallet attestation.
