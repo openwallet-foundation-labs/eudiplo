@@ -15,25 +15,18 @@ jobs:
     name: Lint Codebase
     runs-on: ubuntu-latest
     steps:
-      - name: Use Node.js 22 + pnpm cache
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-          cache-dependency-path: |
-            pnpm-lock.yaml
-
+      - uses: actions/checkout@v4
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 10
-          run_install: false
-
-      - name: Prefetch deps (fills pnpm store)
-        run: pnpm fetch
-
-      - name: Install dependencies (offline from cache)
-        run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
 
       - name: Run linter
         run: pnpm run lint
@@ -47,27 +40,17 @@ jobs:
     needs: [lint]
     steps:
       - uses: actions/checkout@v4
-
-      - name: Copy env file
-        run: cp .env.example .env
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
         with:
-          node-version: 22
-
-      - name: Enable Corepack
-        run: corepack enable
-
-      - name: Restore pnpm cache
+          version: 10
+      - name: Use Node.js 22
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'pnpm'
-
       - name: Install dependencies
         run: pnpm install
-
       - name: Build backend
         run: pnpm --filter @eudiplo/backend build
 
@@ -77,21 +60,15 @@ jobs:
     needs: [lint]
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
         with:
-          node-version: 22
-
-      - name: Enable Corepack
-        run: corepack enable
-
-      - name: Restore pnpm cache
+          version: 10
+      - name: Use Node.js 22
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'pnpm'
-
       - name: Install dependencies
         run: pnpm install
 
@@ -104,21 +81,15 @@ jobs:
     needs: [lint]
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
         with:
-          node-version: 22
-
-      - name: Enable Corepack
-        run: corepack enable
-
-      - name: Restore pnpm cache
+          version: 10
+      - name: Use Node.js 22
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'pnpm'
-
       - name: Install dependencies
         run: pnpm install
 
@@ -131,23 +102,15 @@ jobs:
     needs: [lint]
     steps:
       - uses: actions/checkout@v4
-
-      - name: Copy env file
-        run: cp .env.example .env
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
         with:
-          node-version: 22
-      - name: Enable Corepack
-        run: corepack enable
-
-      - name: Restore pnpm cache
+          version: 10
+      - name: Use Node.js 22
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'pnpm'
-
       - name: Install dependencies
         run: pnpm install
 
