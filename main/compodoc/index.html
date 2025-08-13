@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>eudiplo documentation</title>
+        <title>@eudiplo/backend documentation</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -65,7 +65,7 @@
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
-                    <a href="./" class="navbar-brand">eudiplo documentation</a>
+                    <a href="./" class="navbar-brand">@eudiplo/backend documentation</a>
                     <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
                </div>
         </div>
@@ -80,110 +80,1032 @@
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
-               <div class="content getting-started">
+               <div class="content overview">
                    <div class="content-data">
 
-<p><img src="./docs/eudiplo.png" alt="Logo" class="img-responsive"></p>
-<p><a href="https://github.com/openwallet-foundation-labs/eudiplo/actions"><img src="https://github.com/openwallet-foundation-labs/eudiplo/actions/workflows/ci-and-release.yml/badge.svg" alt="Build Status" class="img-responsive"></a>
-<img src="https://img.shields.io/github/license/openwallet-foundation-labs/eudiplo" alt="License" class="img-responsive">
-<a href="https://openwallet-foundation-labs.github.io/eudiplo/latest/"><img src="https://img.shields.io/badge/website-eudiplo-blue" alt="Website" class="img-responsive"></a>
-<a href="https://openwallet-foundation-labs.github.io/eudiplo/main/compodoc/coverage.html"><img src="https://openwallet-foundation-labs.github.io/eudiplo/main/compodoc/images/coverage-badge-documentation.svg" alt="Documentation Coverage" class="img-responsive"></a>
-<a href="https://codecov.io/github/openwallet-foundation-labs/eudiplo"><img src="https://codecov.io/github/openwallet-foundation-labs/eudiplo/graph/badge.svg?token=pt4TLHJYrO" alt="codecov" class="img-responsive"></a>
-<a href="https://discord.gg/58ys8XfXDu"><img src="https://img.shields.io/discord/1022962884864643214?label=Join%20our%20Discord&logo=discord&color=7289DA&labelColor=2C2F33" alt="Join our Discord" class="img-responsive"></a></p>
-<p><strong>Your Diplomatic Layer for EUDI Wallet Integration</strong></p>
-<p>EUDIPLO is an open-source middleware that bridges your backend and EUDI Wallets
-using a unified API and standardized protocols.</p>
-<hr>
-<h2>🧭 Overview</h2>
-<p>Organizations joining the EUDI Wallet ecosystem face a tough choice: patch
-together protocol libraries that may not exist for their stack, or rely on
-proprietary solutions that risk vendor lock-in.</p>
-<p><strong>EUDIPLO</strong> solves this by providing a lightweight, source-available, protocol
-abstraction layer. It communicates over HTTP and integrates easily with your
-existing backend stack—so you can focus on your business logic, not
-cryptographic plumbing.</p>
-<p>It supports all core flows of electronic attribute attestations—<strong>issuing</strong>,
-<strong>requesting</strong>, and even <strong>requesting during issuance</strong>—and is already
-compatible with multiple
-<a href="./docs/getting-started/wallet-compatibility.md">wallets</a>.</p>
-<p>While still in early development, EUDIPLO is built for production: secure key
-management, scalable database support, and clean API boundaries.</p>
-<h2><img src="./docs/overview.excalidraw.svg" alt="Overview" class="img-responsive"></h2>
-<h2>🧩 Features</h2>
-<ul>
-<li>✅ Supports <strong>OID4VCI</strong>, <strong>OID4VP</strong>, <strong>SD-JWT VC</strong>, and <strong>OAuth Token Status
-List</strong></li>
-<li>✅ JSON-based credential configuration</li>
-<li>✅ Client credentials authentication for easy service integration</li>
-<li>✅ Runs via Docker with <code>.env</code> config</li>
-<li>✅ HTTP-based integration with any backend</li>
-<li>✅ Secure key management &amp; pluggable storage</li>
-<li>✅ Privacy-friendly: no external calls, no long-term storage</li>
-</ul>
-<hr>
-<h2>🚀 Quick Start</h2>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-bash"># Clone and configure
-git clone https://github.com/openwallet-foundation-labs/eudiplo.git
-cd eudiplo
-cp .env.example .env
 
-# Configure authentication
-echo &quot;JWT_SECRET=$(openssl rand -base64 32)&quot; &gt;&gt; .env
-echo &quot;AUTH_CLIENT_SECRET=$(openssl rand -base64 24)&quot; &gt;&gt; .env
+<ol class="breadcrumb">
+    <li class="breadcrumb-item">Overview</li>
+</ol>
+  
+<div class="text-center module-graph-container">
+    <div id="module-graph-svg">
+        <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.47.0 (20210316.0004)
+ -->
+<!-- Title: dependencies Pages: 1 -->
+<svg width="6193pt" height="431pt"
+ viewBox="0.00 0.00 6193.00 431.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 427)">
+<title>dependencies</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-427 6189,-427 6189,4 -4,4"/>
+<text text-anchor="start" x="3071.51" y="-42.4" font-family="Times-12" font-weight="bold" font-size="14.00">Legend</text>
+<polygon fill="#ffffb3" stroke="transparent" points="2858.5,-10 2858.5,-30 2878.5,-30 2878.5,-10 2858.5,-10"/>
+<text text-anchor="start" x="2882.13" y="-15.4" font-family="Times-12" font-size="14.00"> &#160;Declarations</text>
+<polygon fill="#8dd3c7" stroke="transparent" points="2971.5,-10 2971.5,-30 2991.5,-30 2991.5,-10 2971.5,-10"/>
+<text text-anchor="start" x="2995.23" y="-15.4" font-family="Times-12" font-size="14.00"> &#160;Module</text>
+<polygon fill="#80b1d3" stroke="transparent" points="3057.5,-10 3057.5,-30 3077.5,-30 3077.5,-10 3057.5,-10"/>
+<text text-anchor="start" x="3081.28" y="-15.4" font-family="Times-12" font-size="14.00"> &#160;Bootstrap</text>
+<polygon fill="#fdb462" stroke="transparent" points="3154.5,-10 3154.5,-30 3174.5,-30 3174.5,-10 3154.5,-10"/>
+<text text-anchor="start" x="3178.17" y="-15.4" font-family="Times-12" font-size="14.00"> &#160;Providers</text>
+<polygon fill="#fb8072" stroke="transparent" points="3250.5,-10 3250.5,-30 3270.5,-30 3270.5,-10 3250.5,-10"/>
+<text text-anchor="start" x="3274.23" y="-15.4" font-family="Times-12" font-size="14.00"> &#160;Exports</text>
+<g id="clust1" class="cluster">
+<title>cluster_AppModule</title>
+<polygon fill="none" stroke="black" stroke-dasharray="1,5" points="1983,-138 1983,-415 2891,-415 2891,-138 1983,-138"/>
+</g>
+<g id="clust3" class="cluster">
+<title>cluster_AppModule_imports</title>
+<polygon fill="none" stroke="black" points="2189,-146 2189,-350 2883,-350 2883,-146 2189,-146"/>
+</g>
+<g id="clust6" class="cluster">
+<title>cluster_AppModule_providers</title>
+<polygon fill="none" stroke="black" points="1991,-298 1991,-350 2181,-350 2181,-298 1991,-298"/>
+</g>
+<g id="clust7" class="cluster">
+<title>cluster_AuthModule</title>
+<polygon fill="none" stroke="black" stroke-dasharray="1,5" points="8,-214 8,-282 1045,-282 1045,-214 8,-214"/>
+</g>
+<g id="clust9" class="cluster">
+<title>cluster_AuthModule_imports</title>
+<polygon fill="none" stroke="black" points="905,-222 905,-274 1037,-274 1037,-222 905,-222"/>
+</g>
+<g id="clust10" class="cluster">
+<title>cluster_AuthModule_exports</title>
+<polygon fill="none" stroke="black" points="577,-222 577,-274 897,-274 897,-222 577,-222"/>
+</g>
+<g id="clust12" class="cluster">
+<title>cluster_AuthModule_providers</title>
+<polygon fill="none" stroke="black" points="16,-222 16,-274 569,-274 569,-222 16,-222"/>
+</g>
+<g id="clust13" class="cluster">
+<title>cluster_CryptoImplementatationModule</title>
+<polygon fill="none" stroke="black" stroke-dasharray="1,5" points="5889,-70 5889,-282 6177,-282 6177,-70 5889,-70"/>
+</g>
+<g id="clust16" class="cluster">
+<title>cluster_CryptoImplementatationModule_exports</title>
+<polygon fill="none" stroke="black" points="5930,-222 5930,-274 6136,-274 6136,-222 5930,-222"/>
+</g>
+<g id="clust18" class="cluster">
+<title>cluster_CryptoImplementatationModule_providers</title>
+<polygon fill="none" stroke="black" points="5897,-78 5897,-130 6169,-130 6169,-78 5897,-78"/>
+</g>
+<g id="clust19" class="cluster">
+<title>cluster_CryptoModule</title>
+<polygon fill="none" stroke="black" stroke-dasharray="1,5" points="1053,-214 1053,-282 1669,-282 1669,-214 1053,-214"/>
+</g>
+<g id="clust22" class="cluster">
+<title>cluster_CryptoModule_exports</title>
+<polygon fill="none" stroke="black" points="1403,-222 1403,-274 1661,-274 1661,-222 1403,-222"/>
+</g>
+<g id="clust24" class="cluster">
+<title>cluster_CryptoModule_providers</title>
+<polygon fill="none" stroke="black" points="1061,-222 1061,-274 1395,-274 1395,-222 1061,-222"/>
+</g>
+<g id="clust37" class="cluster">
+<title>cluster_IssuerModule</title>
+<polygon fill="none" stroke="black" stroke-dasharray="1,5" points="2899,-138 2899,-282 4723,-282 4723,-138 2899,-138"/>
+</g>
+<g id="clust39" class="cluster">
+<title>cluster_IssuerModule_imports</title>
+<polygon fill="none" stroke="black" points="4118,-222 4118,-274 4236,-274 4236,-222 4118,-222"/>
+</g>
+<g id="clust40" class="cluster">
+<title>cluster_IssuerModule_exports</title>
+<polygon fill="none" stroke="black" points="2907,-146 2907,-198 3165,-198 3165,-146 2907,-146"/>
+</g>
+<g id="clust42" class="cluster">
+<title>cluster_IssuerModule_providers</title>
+<polygon fill="none" stroke="black" points="3173,-146 3173,-198 4715,-198 4715,-146 3173,-146"/>
+</g>
+<g id="clust55" class="cluster">
+<title>cluster_OAuthModule</title>
+<polygon fill="none" stroke="black" stroke-dasharray="1,5" points="5037,-138 5037,-358 5201,-358 5201,-138 5037,-138"/>
+</g>
+<g id="clust58" class="cluster">
+<title>cluster_OAuthModule_exports</title>
+<polygon fill="none" stroke="black" points="5053,-298 5053,-350 5169,-350 5169,-298 5053,-298"/>
+</g>
+<g id="clust60" class="cluster">
+<title>cluster_OAuthModule_providers</title>
+<polygon fill="none" stroke="black" points="5045,-146 5045,-198 5193,-198 5193,-146 5045,-146"/>
+</g>
+<g id="clust61" class="cluster">
+<title>cluster_Oid4vpModule</title>
+<polygon fill="none" stroke="black" stroke-dasharray="1,5" points="4731,-138 4731,-206 5029,-206 5029,-138 4731,-138"/>
+</g>
+<g id="clust64" class="cluster">
+<title>cluster_Oid4vpModule_exports</title>
+<polygon fill="none" stroke="black" points="4901,-146 4901,-198 5021,-198 5021,-146 4901,-146"/>
+</g>
+<g id="clust66" class="cluster">
+<title>cluster_Oid4vpModule_providers</title>
+<polygon fill="none" stroke="black" points="4739,-146 4739,-198 4893,-198 4893,-146 4739,-146"/>
+</g>
+<g id="clust67" class="cluster">
+<title>cluster_PresentationsModule</title>
+<polygon fill="none" stroke="black" stroke-dasharray="1,5" points="5209,-70 5209,-282 5557,-282 5557,-70 5209,-70"/>
+</g>
+<g id="clust69" class="cluster">
+<title>cluster_PresentationsModule_imports</title>
+<polygon fill="none" stroke="black" points="5423,-78 5423,-130 5549,-130 5549,-78 5423,-78"/>
+</g>
+<g id="clust70" class="cluster">
+<title>cluster_PresentationsModule_exports</title>
+<polygon fill="none" stroke="black" points="5217,-222 5217,-274 5369,-274 5369,-222 5217,-222"/>
+</g>
+<g id="clust72" class="cluster">
+<title>cluster_PresentationsModule_providers</title>
+<polygon fill="none" stroke="black" points="5217,-78 5217,-130 5415,-130 5415,-78 5217,-78"/>
+</g>
+<g id="clust73" class="cluster">
+<title>cluster_RegistrarModule</title>
+<polygon fill="none" stroke="black" stroke-dasharray="1,5" points="2899,-290 2899,-358 3217,-358 3217,-290 2899,-290"/>
+</g>
+<g id="clust76" class="cluster">
+<title>cluster_RegistrarModule_exports</title>
+<polygon fill="none" stroke="black" points="3081,-298 3081,-350 3209,-350 3209,-298 3081,-298"/>
+</g>
+<g id="clust78" class="cluster">
+<title>cluster_RegistrarModule_providers</title>
+<polygon fill="none" stroke="black" points="2907,-298 2907,-350 3073,-350 3073,-298 2907,-298"/>
+</g>
+<g id="clust79" class="cluster">
+<title>cluster_ResolverModule</title>
+<polygon fill="none" stroke="black" stroke-dasharray="1,5" points="5565,-138 5565,-206 5881,-206 5881,-138 5565,-138"/>
+</g>
+<g id="clust82" class="cluster">
+<title>cluster_ResolverModule_exports</title>
+<polygon fill="none" stroke="black" points="5745,-146 5745,-198 5873,-198 5873,-146 5745,-146"/>
+</g>
+<g id="clust84" class="cluster">
+<title>cluster_ResolverModule_providers</title>
+<polygon fill="none" stroke="black" points="5573,-146 5573,-198 5737,-198 5737,-146 5573,-146"/>
+</g>
+<g id="clust85" class="cluster">
+<title>cluster_SessionModule</title>
+<polygon fill="none" stroke="black" stroke-dasharray="1,5" points="1677,-214 1677,-282 1975,-282 1975,-214 1677,-214"/>
+</g>
+<g id="clust88" class="cluster">
+<title>cluster_SessionModule_exports</title>
+<polygon fill="none" stroke="black" points="1847,-222 1847,-274 1967,-274 1967,-222 1847,-222"/>
+</g>
+<g id="clust90" class="cluster">
+<title>cluster_SessionModule_providers</title>
+<polygon fill="none" stroke="black" points="1685,-222 1685,-274 1839,-274 1839,-222 1685,-222"/>
+</g>
+<g id="clust91" class="cluster">
+<title>cluster_StatusListModule</title>
+<polygon fill="none" stroke="black" stroke-dasharray="1,5" points="795,-138 795,-206 1127,-206 1127,-138 795,-138"/>
+</g>
+<g id="clust94" class="cluster">
+<title>cluster_StatusListModule_exports</title>
+<polygon fill="none" stroke="black" points="985,-146 985,-198 1119,-198 1119,-146 985,-146"/>
+</g>
+<g id="clust96" class="cluster">
+<title>cluster_StatusListModule_providers</title>
+<polygon fill="none" stroke="black" points="803,-146 803,-198 977,-198 977,-146 803,-146"/>
+</g>
+<!-- AuthModule -->
+<g id="node1" class="node">
+<title>AuthModule</title>
+<polygon fill="#8dd3c7" stroke="black" points="2539.55,-342 2536.55,-346 2515.55,-346 2512.55,-342 2452.45,-342 2452.45,-306 2539.55,-306 2539.55,-342"/>
+<text text-anchor="middle" x="2496" y="-319.8" font-family="Times,serif" font-size="14.00">AuthModule</text>
+</g>
+<!-- AppModule -->
+<g id="node11" class="node">
+<title>AppModule</title>
+<polygon fill="#8dd3c7" stroke="black" points="2434.66,-407 2431.66,-411 2410.66,-411 2407.66,-407 2351.34,-407 2351.34,-371 2434.66,-371 2434.66,-407"/>
+<text text-anchor="middle" x="2393" y="-384.8" font-family="Times,serif" font-size="14.00">AppModule</text>
+</g>
+<!-- AuthModule&#45;&gt;AppModule -->
+<g id="edge1" class="edge">
+<title>AuthModule&#45;&gt;AppModule</title>
+<path fill="none" stroke="black" d="M2452.23,-330C2439.65,-330 2429.26,-330 2429.26,-330 2429.26,-330 2429.26,-360.98 2429.26,-360.98"/>
+<polygon fill="black" stroke="black" points="2425.76,-360.98 2429.26,-370.98 2432.76,-360.98 2425.76,-360.98"/>
+</g>
+<!-- JwtAuthGuard  -->
+<g id="node14" class="node">
+<title>JwtAuthGuard </title>
+<polygon fill="#fb8072" stroke="black" points="888.92,-266 787.08,-266 787.08,-230 888.92,-230 888.92,-266"/>
+<text text-anchor="middle" x="838" y="-243.8" font-family="Times,serif" font-size="14.00">JwtAuthGuard </text>
+</g>
+<!-- AuthModule&#45;&gt;JwtAuthGuard  -->
+<g id="edge16" class="edge">
+<title>AuthModule&#45;&gt;JwtAuthGuard </title>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M2496.72,-305.88C2496.72,-291.22 2496.72,-273 2496.72,-273 2496.72,-273 838,-273 838,-273 838,-273 838,-272.32 838,-272.32"/>
+<polygon fill="black" stroke="black" points="841.5,-276.17 838,-266.17 834.5,-276.17 841.5,-276.17"/>
+</g>
+<!-- JwtService  -->
+<g id="node15" class="node">
+<title>JwtService </title>
+<polygon fill="#fb8072" stroke="black" points="769.42,-266 688.58,-266 688.58,-230 769.42,-230 769.42,-266"/>
+<text text-anchor="middle" x="729" y="-243.8" font-family="Times,serif" font-size="14.00">JwtService </text>
+</g>
+<!-- AuthModule&#45;&gt;JwtService  -->
+<g id="edge17" class="edge">
+<title>AuthModule&#45;&gt;JwtService </title>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M2490.36,-305.85C2490.36,-292.26 2490.36,-276 2490.36,-276 2490.36,-276 729,-276 729,-276 729,-276 729,-275.02 729,-275.02"/>
+<polygon fill="black" stroke="black" points="732.5,-276.21 729,-266.21 725.5,-276.21 732.5,-276.21"/>
+</g>
+<!-- JwtStrategy  -->
+<g id="node16" class="node">
+<title>JwtStrategy </title>
+<polygon fill="#fb8072" stroke="black" points="670.6,-266 585.4,-266 585.4,-230 670.6,-230 670.6,-266"/>
+<text text-anchor="middle" x="628" y="-243.8" font-family="Times,serif" font-size="14.00">JwtStrategy </text>
+</g>
+<!-- AuthModule&#45;&gt;JwtStrategy  -->
+<g id="edge18" class="edge">
+<title>AuthModule&#45;&gt;JwtStrategy </title>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M2484.01,-305.85C2484.01,-293.73 2484.01,-280 2484.01,-280 2484.01,-280 628,-280 628,-280 628,-280 628,-276.24 628,-276.24"/>
+<polygon fill="black" stroke="black" points="631.5,-276.24 628,-266.24 624.5,-276.24 631.5,-276.24"/>
+</g>
+<!-- CryptoModule -->
+<g id="node2" class="node">
+<title>CryptoModule</title>
+<polygon fill="#8dd3c7" stroke="black" points="2755.44,-190 2752.44,-194 2731.44,-194 2728.44,-190 2656.56,-190 2656.56,-154 2755.44,-154 2755.44,-190"/>
+<text text-anchor="middle" x="2706" y="-167.8" font-family="Times,serif" font-size="14.00">CryptoModule</text>
+</g>
+<!-- CryptoModule&#45;&gt;AuthModule -->
+<g id="edge13" class="edge">
+<title>CryptoModule&#45;&gt;AuthModule</title>
+<path fill="none" stroke="black" d="M2686.68,-190.17C2686.68,-192.45 2686.68,-194 2686.68,-194 2686.68,-194 2531.64,-194 2531.64,-194 2531.64,-194 2531.64,-295.92 2531.64,-295.92"/>
+<polygon fill="black" stroke="black" points="2528.14,-295.92 2531.64,-305.92 2535.14,-295.92 2528.14,-295.92"/>
+</g>
+<!-- IssuerModule -->
+<g id="node5" class="node">
+<title>IssuerModule</title>
+<polygon fill="#8dd3c7" stroke="black" points="2746.47,-266 2743.47,-270 2722.47,-270 2719.47,-266 2653.53,-266 2653.53,-230 2746.47,-230 2746.47,-266"/>
+<text text-anchor="middle" x="2700" y="-243.8" font-family="Times,serif" font-size="14.00">IssuerModule</text>
+</g>
+<!-- CryptoModule&#45;&gt;IssuerModule -->
+<g id="edge29" class="edge">
+<title>CryptoModule&#45;&gt;IssuerModule</title>
+<path fill="none" stroke="black" d="M2691.67,-190.01C2691.67,-190.01 2691.67,-219.85 2691.67,-219.85"/>
+<polygon fill="black" stroke="black" points="2688.17,-219.85 2691.67,-229.85 2695.17,-219.85 2688.17,-219.85"/>
+</g>
+<!-- RegistrarModule -->
+<g id="node8" class="node">
+<title>RegistrarModule</title>
+<polygon fill="#8dd3c7" stroke="black" points="2875.36,-266 2872.36,-270 2851.36,-270 2848.36,-266 2764.64,-266 2764.64,-230 2875.36,-230 2875.36,-266"/>
+<text text-anchor="middle" x="2820" y="-243.8" font-family="Times,serif" font-size="14.00">RegistrarModule</text>
+</g>
+<!-- CryptoModule&#45;&gt;RegistrarModule -->
+<g id="edge56" class="edge">
+<title>CryptoModule&#45;&gt;RegistrarModule</title>
+<path fill="none" stroke="black" d="M2752.31,-190.2C2752.31,-214.36 2752.31,-254 2752.31,-254 2752.31,-254 2754.41,-254 2754.41,-254"/>
+<polygon fill="black" stroke="black" points="2754.41,-257.5 2764.41,-254 2754.41,-250.5 2754.41,-257.5"/>
+</g>
+<!-- VerifierModule -->
+<g id="node10" class="node">
+<title>VerifierModule</title>
+<polygon fill="#8dd3c7" stroke="black" points="2683.85,-342 2680.85,-346 2659.85,-346 2656.85,-342 2580.15,-342 2580.15,-306 2683.85,-306 2683.85,-342"/>
+<text text-anchor="middle" x="2632" y="-319.8" font-family="Times,serif" font-size="14.00">VerifierModule</text>
+</g>
+<!-- CryptoModule&#45;&gt;VerifierModule -->
+<g id="edge68" class="edge">
+<title>CryptoModule&#45;&gt;VerifierModule</title>
+<path fill="none" stroke="black" d="M2656.7,-172C2650.33,-172 2645.97,-172 2645.97,-172 2645.97,-172 2645.97,-295.97 2645.97,-295.97"/>
+<polygon fill="black" stroke="black" points="2642.47,-295.97 2645.97,-305.97 2649.47,-295.97 2642.47,-295.97"/>
+</g>
+<!-- CryptoModule&#45;&gt;AppModule -->
+<g id="edge2" class="edge">
+<title>CryptoModule&#45;&gt;AppModule</title>
+<path fill="none" stroke="black" d="M2749.4,-190C2749.4,-242.55 2749.4,-392 2749.4,-392 2749.4,-392 2444.93,-392 2444.93,-392"/>
+<polygon fill="black" stroke="black" points="2444.93,-388.5 2434.93,-392 2444.93,-395.5 2444.93,-388.5"/>
+</g>
+<!-- StatusListModule -->
+<g id="node13" class="node">
+<title>StatusListModule</title>
+<polygon fill="#8dd3c7" stroke="black" points="1028.55,-266 1025.55,-270 1004.55,-270 1001.55,-266 913.45,-266 913.45,-230 1028.55,-230 1028.55,-266"/>
+<text text-anchor="middle" x="971" y="-243.8" font-family="Times,serif" font-size="14.00">StatusListModule</text>
+</g>
+<!-- CryptoModule&#45;&gt;StatusListModule -->
+<g id="edge65" class="edge">
+<title>CryptoModule&#45;&gt;StatusListModule</title>
+<path fill="none" stroke="black" d="M2689.59,-153.79C2689.59,-148.45 2689.59,-144 2689.59,-144 2689.59,-144 980.94,-144 980.94,-144 980.94,-144 980.94,-219.88 980.94,-219.88"/>
+<polygon fill="black" stroke="black" points="977.44,-219.88 980.94,-229.88 984.44,-219.88 977.44,-219.88"/>
+</g>
+<!-- CryptoService  -->
+<g id="node24" class="node">
+<title>CryptoService </title>
+<polygon fill="#fb8072" stroke="black" points="1653.37,-266 1552.63,-266 1552.63,-230 1653.37,-230 1653.37,-266"/>
+<text text-anchor="middle" x="1603" y="-243.8" font-family="Times,serif" font-size="14.00">CryptoService </text>
+</g>
+<!-- CryptoModule&#45;&gt;CryptoService  -->
+<g id="edge25" class="edge">
+<title>CryptoModule&#45;&gt;CryptoService </title>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M2681.7,-190.18C2681.7,-203.04 2681.7,-218 2681.7,-218 2681.7,-218 1603,-218 1603,-218 1603,-218 1603,-219.86 1603,-219.86"/>
+<polygon fill="black" stroke="black" points="1599.5,-219.86 1603,-229.86 1606.5,-219.86 1599.5,-219.86"/>
+</g>
+<!-- EncryptionService  -->
+<g id="node25" class="node">
+<title>EncryptionService </title>
+<polygon fill="#fb8072" stroke="black" points="1534.69,-266 1411.31,-266 1411.31,-230 1534.69,-230 1534.69,-266"/>
+<text text-anchor="middle" x="1473" y="-243.8" font-family="Times,serif" font-size="14.00">EncryptionService </text>
+</g>
+<!-- CryptoModule&#45;&gt;EncryptionService  -->
+<g id="edge26" class="edge">
+<title>CryptoModule&#45;&gt;EncryptionService </title>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M2676.72,-190.15C2676.72,-202.27 2676.72,-216 2676.72,-216 2676.72,-216 1473,-216 1473,-216 1473,-216 1473,-219.76 1473,-219.76"/>
+<polygon fill="black" stroke="black" points="1469.5,-219.76 1473,-229.76 1476.5,-219.76 1469.5,-219.76"/>
+</g>
+<!-- Oid4vpModule -->
+<g id="node28" class="node">
+<title>Oid4vpModule</title>
+<polygon fill="#8dd3c7" stroke="black" points="4227.55,-266 4224.55,-270 4203.55,-270 4200.55,-266 4126.45,-266 4126.45,-230 4227.55,-230 4227.55,-266"/>
+<text text-anchor="middle" x="4177" y="-243.8" font-family="Times,serif" font-size="14.00">Oid4vpModule</text>
+</g>
+<!-- CryptoModule&#45;&gt;Oid4vpModule -->
+<g id="edge46" class="edge">
+<title>CryptoModule&#45;&gt;Oid4vpModule</title>
+<path fill="none" stroke="black" d="M2741.5,-190.07C2741.5,-199.46 2741.5,-209 2741.5,-209 2741.5,-209 4160.08,-209 4160.08,-209 4160.08,-209 4160.08,-219.87 4160.08,-219.87"/>
+<polygon fill="black" stroke="black" points="4156.58,-219.87 4160.08,-229.87 4163.58,-219.87 4156.58,-219.87"/>
+</g>
+<!-- OAuthModule -->
+<g id="node39" class="node">
+<title>OAuthModule</title>
+<polygon fill="#8dd3c7" stroke="black" points="5159.65,-266 5156.65,-270 5135.65,-270 5132.65,-266 5062.35,-266 5062.35,-230 5159.65,-230 5159.65,-266"/>
+<text text-anchor="middle" x="5111" y="-243.8" font-family="Times,serif" font-size="14.00">OAuthModule</text>
+</g>
+<!-- CryptoModule&#45;&gt;OAuthModule -->
+<g id="edge43" class="edge">
+<title>CryptoModule&#45;&gt;OAuthModule</title>
+<path fill="none" stroke="black" d="M2722.41,-153.87C2722.41,-143.69 2722.41,-133 2722.41,-133 2722.41,-133 4476.3,-133 4476.3,-133 4476.3,-133 4476.3,-236 4476.3,-236 4476.3,-236 5052.25,-236 5052.25,-236"/>
+<polygon fill="black" stroke="black" points="5052.25,-239.5 5062.25,-236 5052.25,-232.5 5052.25,-239.5"/>
+</g>
+<!-- DatabaseModule -->
+<g id="node3" class="node">
+<title>DatabaseModule</title>
+<polygon fill="#8dd3c7" stroke="black" points="2638.35,-190 2635.35,-194 2614.35,-194 2611.35,-190 2527.65,-190 2527.65,-154 2638.35,-154 2638.35,-190"/>
+<text text-anchor="middle" x="2583" y="-167.8" font-family="Times,serif" font-size="14.00">DatabaseModule</text>
+</g>
+<!-- DatabaseModule&#45;&gt;AppModule -->
+<g id="edge3" class="edge">
+<title>DatabaseModule&#45;&gt;AppModule</title>
+<path fill="none" stroke="black" d="M2566.64,-190.27C2566.64,-241.36 2566.64,-382 2566.64,-382 2566.64,-382 2445.03,-382 2445.03,-382"/>
+<polygon fill="black" stroke="black" points="2445.03,-378.5 2435.03,-382 2445.03,-385.5 2445.03,-378.5"/>
+</g>
+<!-- DatabaseModule&#45;&gt;AppModule -->
+<g id="edge4" class="edge">
+<title>DatabaseModule&#45;&gt;AppModule</title>
+<path fill="none" stroke="black" d="M2553.21,-190.19C2553.21,-240.36 2553.21,-377 2553.21,-377 2553.21,-377 2444.67,-377 2444.67,-377"/>
+<polygon fill="black" stroke="black" points="2444.67,-373.5 2434.67,-377 2444.67,-380.5 2444.67,-373.5"/>
+</g>
+<!-- HealthModule -->
+<g id="node4" class="node">
+<title>HealthModule</title>
+<polygon fill="#8dd3c7" stroke="black" points="2293.37,-190 2290.37,-194 2269.37,-194 2266.37,-190 2196.63,-190 2196.63,-154 2293.37,-154 2293.37,-190"/>
+<text text-anchor="middle" x="2245" y="-167.8" font-family="Times,serif" font-size="14.00">HealthModule</text>
+</g>
+<!-- HealthModule&#45;&gt;AppModule -->
+<g id="edge5" class="edge">
+<title>HealthModule&#45;&gt;AppModule</title>
+<path fill="none" stroke="black" d="M2245,-190.13C2245,-242.28 2245,-389 2245,-389 2245,-389 2340.99,-389 2340.99,-389"/>
+<polygon fill="black" stroke="black" points="2340.99,-392.5 2350.99,-389 2340.98,-385.5 2340.99,-392.5"/>
+</g>
+<!-- IssuerModule&#45;&gt;AppModule -->
+<g id="edge6" class="edge">
+<title>IssuerModule&#45;&gt;AppModule</title>
+<path fill="none" stroke="black" d="M2653.44,-248C2574.7,-248 2423.7,-248 2423.7,-248 2423.7,-248 2423.7,-360.86 2423.7,-360.86"/>
+<polygon fill="black" stroke="black" points="2420.2,-360.86 2423.7,-370.86 2427.2,-360.86 2420.2,-360.86"/>
+</g>
+<!-- AuthorizeService  -->
+<g id="node29" class="node">
+<title>AuthorizeService </title>
+<polygon fill="#fb8072" stroke="black" points="3156.96,-190 3039.04,-190 3039.04,-154 3156.96,-154 3156.96,-190"/>
+<text text-anchor="middle" x="3098" y="-167.8" font-family="Times,serif" font-size="14.00">AuthorizeService </text>
+</g>
+<!-- IssuerModule&#45;&gt;AuthorizeService  -->
+<g id="edge33" class="edge">
+<title>IssuerModule&#45;&gt;AuthorizeService </title>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M2736.52,-229.95C2736.52,-215.63 2736.52,-198 2736.52,-198 2736.52,-198 3052.33,-198 3052.33,-198 3052.33,-198 3052.33,-197.21 3052.33,-197.21"/>
+<polygon fill="black" stroke="black" points="3055.83,-200.06 3052.33,-190.06 3048.83,-200.06 3055.83,-200.06"/>
+</g>
+<!-- Oid4vciService  -->
+<g id="node30" class="node">
+<title>Oid4vciService </title>
+<polygon fill="#fb8072" stroke="black" points="3021.08,-190 2914.92,-190 2914.92,-154 3021.08,-154 3021.08,-190"/>
+<text text-anchor="middle" x="2968" y="-167.8" font-family="Times,serif" font-size="14.00">Oid4vciService </text>
+</g>
+<!-- IssuerModule&#45;&gt;Oid4vciService  -->
+<g id="edge34" class="edge">
+<title>IssuerModule&#45;&gt;Oid4vciService </title>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M2731.54,-229.81C2731.54,-214.82 2731.54,-196 2731.54,-196 2731.54,-196 2950.24,-196 2950.24,-196 2950.24,-196 2950.24,-195.42 2950.24,-195.42"/>
+<polygon fill="black" stroke="black" points="2953.74,-200.19 2950.24,-190.19 2946.74,-200.19 2953.74,-200.19"/>
+</g>
+<!-- KeyModule -->
+<g id="node6" class="node">
+<title>KeyModule</title>
+<polygon fill="#8dd3c7" stroke="black" points="2394.37,-190 2391.37,-194 2370.37,-194 2367.37,-190 2311.63,-190 2311.63,-154 2394.37,-154 2394.37,-190"/>
+<text text-anchor="middle" x="2353" y="-167.8" font-family="Times,serif" font-size="14.00">KeyModule</text>
+</g>
+<!-- KeyModule&#45;&gt;AppModule -->
+<g id="edge7" class="edge">
+<title>KeyModule&#45;&gt;AppModule</title>
+<path fill="none" stroke="black" d="M2380.01,-190.13C2380.01,-190.13 2380.01,-360.77 2380.01,-360.77"/>
+<polygon fill="black" stroke="black" points="2376.51,-360.77 2380.01,-370.77 2383.51,-360.77 2376.51,-360.77"/>
+</g>
+<!-- MetricModule -->
+<g id="node7" class="node">
+<title>MetricModule</title>
+<polygon fill="#8dd3c7" stroke="black" points="2509.37,-190 2506.37,-194 2485.37,-194 2482.37,-190 2412.63,-190 2412.63,-154 2509.37,-154 2509.37,-190"/>
+<text text-anchor="middle" x="2461" y="-167.8" font-family="Times,serif" font-size="14.00">MetricModule</text>
+</g>
+<!-- MetricModule&#45;&gt;AppModule -->
+<g id="edge8" class="edge">
+<title>MetricModule&#45;&gt;AppModule</title>
+<path fill="none" stroke="black" d="M2418.13,-190.13C2418.13,-190.13 2418.13,-360.77 2418.13,-360.77"/>
+<polygon fill="black" stroke="black" points="2414.63,-360.77 2418.13,-370.77 2421.63,-360.77 2414.63,-360.77"/>
+</g>
+<!-- RegistrarModule&#45;&gt;AuthModule -->
+<g id="edge14" class="edge">
+<title>RegistrarModule&#45;&gt;AuthModule</title>
+<path fill="none" stroke="black" d="M2792.28,-266.01C2792.28,-282.05 2792.28,-303 2792.28,-303 2792.28,-303 2535.71,-303 2535.71,-303 2535.71,-303 2535.71,-303.29 2535.71,-303.29"/>
+<polygon fill="black" stroke="black" points="2532.21,-295.92 2535.71,-305.92 2539.21,-295.92 2532.21,-295.92"/>
+</g>
+<!-- RegistrarModule&#45;&gt;VerifierModule -->
+<g id="edge71" class="edge">
+<title>RegistrarModule&#45;&gt;VerifierModule</title>
+<path fill="none" stroke="black" d="M2820,-266.01C2820,-288.49 2820,-324 2820,-324 2820,-324 2693.87,-324 2693.87,-324"/>
+<polygon fill="black" stroke="black" points="2693.87,-320.5 2683.87,-324 2693.87,-327.5 2693.87,-320.5"/>
+</g>
+<!-- RegistrarModule&#45;&gt;AppModule -->
+<g id="edge9" class="edge">
+<title>RegistrarModule&#45;&gt;AppModule</title>
+<path fill="none" stroke="black" d="M2847.72,-266.27C2847.72,-307.06 2847.72,-402 2847.72,-402 2847.72,-402 2444.96,-402 2444.96,-402"/>
+<polygon fill="black" stroke="black" points="2444.96,-398.5 2434.96,-402 2444.96,-405.5 2444.96,-398.5"/>
+</g>
+<!-- RegistrarService  -->
+<g id="node48" class="node">
+<title>RegistrarService </title>
+<polygon fill="#fb8072" stroke="black" points="3201.29,-342 3088.71,-342 3088.71,-306 3201.29,-306 3201.29,-342"/>
+<text text-anchor="middle" x="3145" y="-319.8" font-family="Times,serif" font-size="14.00">RegistrarService </text>
+</g>
+<!-- RegistrarModule&#45;&gt;RegistrarService  -->
+<g id="edge58" class="edge">
+<title>RegistrarModule&#45;&gt;RegistrarService </title>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M2875.51,-252C2962.89,-252 3122.67,-252 3122.67,-252 3122.67,-252 3122.67,-295.83 3122.67,-295.83"/>
+<polygon fill="black" stroke="black" points="3119.17,-295.83 3122.67,-305.83 3126.17,-295.83 3119.17,-295.83"/>
+</g>
+<!-- SessionModule -->
+<g id="node9" class="node">
+<title>SessionModule</title>
+<polygon fill="#8dd3c7" stroke="black" points="2875.33,-190 2872.33,-194 2851.33,-194 2848.33,-190 2772.67,-190 2772.67,-154 2875.33,-154 2875.33,-190"/>
+<text text-anchor="middle" x="2824" y="-167.8" font-family="Times,serif" font-size="14.00">SessionModule</text>
+</g>
+<!-- SessionModule&#45;&gt;IssuerModule -->
+<g id="edge31" class="edge">
+<title>SessionModule&#45;&gt;IssuerModule</title>
+<path fill="none" stroke="black" d="M2772.63,-163C2763.88,-163 2757.56,-163 2757.56,-163 2757.56,-163 2757.56,-242 2757.56,-242 2757.56,-242 2756.47,-242 2756.47,-242"/>
+<polygon fill="black" stroke="black" points="2756.73,-238.5 2746.73,-242 2756.73,-245.5 2756.73,-238.5"/>
+</g>
+<!-- SessionModule&#45;&gt;VerifierModule -->
+<g id="edge72" class="edge">
+<title>SessionModule&#45;&gt;VerifierModule</title>
+<path fill="none" stroke="black" d="M2772.56,-172C2765.11,-172 2759.89,-172 2759.89,-172 2759.89,-172 2759.89,-315 2759.89,-315 2759.89,-315 2694.02,-315 2694.02,-315"/>
+<polygon fill="black" stroke="black" points="2694.02,-311.5 2684.02,-315 2694.02,-318.5 2694.02,-311.5"/>
+</g>
+<!-- SessionModule&#45;&gt;AppModule -->
+<g id="edge10" class="edge">
+<title>SessionModule&#45;&gt;AppModule</title>
+<path fill="none" stroke="black" d="M2772.71,-181C2766.46,-181 2762.23,-181 2762.23,-181 2762.23,-181 2762.23,-397 2762.23,-397 2762.23,-397 2445,-397 2445,-397"/>
+<polygon fill="black" stroke="black" points="2445,-393.5 2435,-397 2445,-400.5 2445,-393.5"/>
+</g>
+<!-- SessionModule&#45;&gt;Oid4vpModule -->
+<g id="edge47" class="edge">
+<title>SessionModule&#45;&gt;Oid4vpModule</title>
+<path fill="none" stroke="black" d="M2875.3,-172C2889.72,-172 2901.55,-172 2901.55,-172 2901.55,-172 2901.55,-238 2901.55,-238 2901.55,-238 4116.21,-238 4116.21,-238"/>
+<polygon fill="black" stroke="black" points="4116.21,-241.5 4126.21,-238 4116.21,-234.5 4116.21,-241.5"/>
+</g>
+<!-- SessionService  -->
+<g id="node52" class="node">
+<title>SessionService </title>
+<polygon fill="#fb8072" stroke="black" points="1959.25,-266 1854.75,-266 1854.75,-230 1959.25,-230 1959.25,-266"/>
+<text text-anchor="middle" x="1907" y="-243.8" font-family="Times,serif" font-size="14.00">SessionService </text>
+</g>
+<!-- SessionModule&#45;&gt;SessionService  -->
+<g id="edge63" class="edge">
+<title>SessionModule&#45;&gt;SessionService </title>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M2834.23,-190.25C2834.23,-204.18 2834.23,-221 2834.23,-221 2834.23,-221 1907,-221 1907,-221 1907,-221 1907,-221.88 1907,-221.88"/>
+<polygon fill="black" stroke="black" points="1903.5,-219.84 1907,-229.84 1910.5,-219.84 1903.5,-219.84"/>
+</g>
+<!-- VerifierModule&#45;&gt;AppModule -->
+<g id="edge11" class="edge">
+<title>VerifierModule&#45;&gt;AppModule</title>
+<path fill="none" stroke="black" d="M2632,-342.22C2632,-360.83 2632,-387 2632,-387 2632,-387 2444.9,-387 2444.9,-387"/>
+<polygon fill="black" stroke="black" points="2444.9,-383.5 2434.9,-387 2444.9,-390.5 2444.9,-383.5"/>
+</g>
+<!-- WellKnownService -->
+<g id="node12" class="node">
+<title>WellKnownService</title>
+<ellipse fill="#fdb462" stroke="black" cx="2086" cy="-324" rx="87.38" ry="18"/>
+<text text-anchor="middle" x="2086" y="-319.8" font-family="Times,serif" font-size="14.00">WellKnownService</text>
+</g>
+<!-- WellKnownService&#45;&gt;AppModule -->
+<g id="edge12" class="edge">
+<title>WellKnownService&#45;&gt;AppModule</title>
+<path fill="none" stroke="black" d="M2168.37,-318C2250.85,-318 2365.59,-318 2365.59,-318 2365.59,-318 2365.59,-360.72 2365.59,-360.72"/>
+<polygon fill="black" stroke="black" points="2362.09,-360.72 2365.59,-370.72 2369.09,-360.72 2362.09,-360.72"/>
+</g>
+<!-- StatusListModule&#45;&gt;AuthModule -->
+<g id="edge15" class="edge">
+<title>StatusListModule&#45;&gt;AuthModule</title>
+<path fill="none" stroke="black" d="M971,-266.17C971,-268.45 971,-270 971,-270 971,-270 2503.08,-270 2503.08,-270 2503.08,-270 2503.08,-295.72 2503.08,-295.72"/>
+<polygon fill="black" stroke="black" points="2499.58,-295.72 2503.08,-305.72 2506.58,-295.72 2499.58,-295.72"/>
+</g>
+<!-- StatusListModule&#45;&gt;IssuerModule -->
+<g id="edge32" class="edge">
+<title>StatusListModule&#45;&gt;IssuerModule</title>
+<path fill="none" stroke="black" d="M1019.9,-229.89C1019.9,-220.1 1019.9,-210 1019.9,-210 1019.9,-210 2661.76,-210 2661.76,-210 2661.76,-210 2661.76,-219.89 2661.76,-219.89"/>
+<polygon fill="black" stroke="black" points="2658.26,-219.89 2661.76,-229.89 2665.26,-219.89 2658.26,-219.89"/>
+</g>
+<!-- StatusListModule&#45;&gt;SessionModule -->
+<g id="edge62" class="edge">
+<title>StatusListModule&#45;&gt;SessionModule</title>
+<path fill="none" stroke="black" d="M1011.02,-229.97C1011.02,-213.6 1011.02,-192 1011.02,-192 1011.02,-192 2793.3,-192 2793.3,-192 2793.3,-192 2793.3,-191.82 2793.3,-191.82"/>
+<polygon fill="black" stroke="black" points="2796.8,-200.15 2793.3,-190.15 2789.8,-200.15 2796.8,-200.15"/>
+</g>
+<!-- StatusListService  -->
+<g id="node54" class="node">
+<title>StatusListService </title>
+<polygon fill="#fb8072" stroke="black" points="1110.98,-190 993.02,-190 993.02,-154 1110.98,-154 1110.98,-190"/>
+<text text-anchor="middle" x="1052" y="-167.8" font-family="Times,serif" font-size="14.00">StatusListService </text>
+</g>
+<!-- StatusListModule&#45;&gt;StatusListService  -->
+<g id="edge66" class="edge">
+<title>StatusListModule&#45;&gt;StatusListService </title>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M1002.14,-229.99C1002.14,-229.99 1002.14,-200.15 1002.14,-200.15"/>
+<polygon fill="black" stroke="black" points="1005.64,-200.15 1002.14,-190.15 998.64,-200.15 1005.64,-200.15"/>
+</g>
+<!-- ClientService -->
+<g id="node17" class="node">
+<title>ClientService</title>
+<ellipse fill="#fdb462" stroke="black" cx="497" cy="-248" rx="63.7" ry="18"/>
+<text text-anchor="middle" x="497" y="-243.8" font-family="Times,serif" font-size="14.00">ClientService</text>
+</g>
+<!-- ClientService&#45;&gt;AuthModule -->
+<g id="edge19" class="edge">
+<title>ClientService&#45;&gt;AuthModule</title>
+<path fill="none" stroke="black" d="M497,-266.32C497,-274.79 497,-283 497,-283 497,-283 2477.65,-283 2477.65,-283 2477.65,-283 2477.65,-295.9 2477.65,-295.9"/>
+<polygon fill="black" stroke="black" points="2474.15,-295.9 2477.65,-305.9 2481.15,-295.9 2474.15,-295.9"/>
+</g>
+<!-- JwtAuthGuard -->
+<g id="node18" class="node">
+<title>JwtAuthGuard</title>
+<ellipse fill="#fdb462" stroke="black" cx="348" cy="-248" rx="67.78" ry="18"/>
+<text text-anchor="middle" x="348" y="-243.8" font-family="Times,serif" font-size="14.00">JwtAuthGuard</text>
+</g>
+<!-- JwtAuthGuard&#45;&gt;AuthModule -->
+<g id="edge20" class="edge">
+<title>JwtAuthGuard&#45;&gt;AuthModule</title>
+<path fill="none" stroke="black" d="M348,-266.11C348,-275.9 348,-286 348,-286 348,-286 2471.3,-286 2471.3,-286 2471.3,-286 2471.3,-295.89 2471.3,-295.89"/>
+<polygon fill="black" stroke="black" points="2467.8,-295.89 2471.3,-305.89 2474.8,-295.89 2467.8,-295.89"/>
+</g>
+<!-- JwtService -->
+<g id="node19" class="node">
+<title>JwtService</title>
+<ellipse fill="#fdb462" stroke="black" cx="209" cy="-248" rx="53.31" ry="18"/>
+<text text-anchor="middle" x="209" y="-243.8" font-family="Times,serif" font-size="14.00">JwtService</text>
+</g>
+<!-- JwtService&#45;&gt;AuthModule -->
+<g id="edge21" class="edge">
+<title>JwtService&#45;&gt;AuthModule</title>
+<path fill="none" stroke="black" d="M209,-266.06C209,-277.44 209,-290 209,-290 209,-290 2464.94,-290 2464.94,-290 2464.94,-290 2464.94,-295.81 2464.94,-295.81"/>
+<polygon fill="black" stroke="black" points="2461.44,-295.81 2464.94,-305.81 2468.44,-295.81 2461.44,-295.81"/>
+</g>
+<!-- JwtStrategy -->
+<g id="node20" class="node">
+<title>JwtStrategy</title>
+<ellipse fill="#fdb462" stroke="black" cx="81" cy="-248" rx="56.76" ry="18"/>
+<text text-anchor="middle" x="81" y="-243.8" font-family="Times,serif" font-size="14.00">JwtStrategy</text>
+</g>
+<!-- JwtStrategy&#45;&gt;AuthModule -->
+<g id="edge22" class="edge">
+<title>JwtStrategy&#45;&gt;AuthModule</title>
+<path fill="none" stroke="black" d="M81,-266.04C81,-278.56 81,-293 81,-293 81,-293 2458.58,-293 2458.58,-293 2458.58,-293 2458.58,-295.97 2458.58,-295.97"/>
+<polygon fill="black" stroke="black" points="2455.08,-295.97 2458.58,-305.97 2462.08,-295.97 2455.08,-295.97"/>
+</g>
+<!-- CryptoImplementationService  -->
+<g id="node21" class="node">
+<title>CryptoImplementationService </title>
+<polygon fill="#fb8072" stroke="black" points="6127.51,-266 5938.49,-266 5938.49,-230 6127.51,-230 6127.51,-266"/>
+<text text-anchor="middle" x="6033" y="-243.8" font-family="Times,serif" font-size="14.00">CryptoImplementationService </text>
+</g>
+<!-- CryptoImplementatationModule -->
+<g id="node22" class="node">
+<title>CryptoImplementatationModule</title>
+<polygon fill="#8dd3c7" stroke="black" points="6131.69,-190 6128.69,-194 6107.69,-194 6104.69,-190 5934.31,-190 5934.31,-154 6131.69,-154 6131.69,-190"/>
+<text text-anchor="middle" x="6033" y="-167.8" font-family="Times,serif" font-size="14.00">CryptoImplementatationModule</text>
+</g>
+<!-- CryptoImplementatationModule&#45;&gt;CryptoImplementationService  -->
+<g id="edge23" class="edge">
+<title>CryptoImplementatationModule&#45;&gt;CryptoImplementationService </title>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M6033,-190.01C6033,-190.01 6033,-219.85 6033,-219.85"/>
+<polygon fill="black" stroke="black" points="6029.5,-219.85 6033,-229.85 6036.5,-219.85 6029.5,-219.85"/>
+</g>
+<!-- CryptoImplementationService -->
+<g id="node23" class="node">
+<title>CryptoImplementationService</title>
+<ellipse fill="#fdb462" stroke="black" cx="6033" cy="-104" rx="127.93" ry="18"/>
+<text text-anchor="middle" x="6033" y="-99.8" font-family="Times,serif" font-size="14.00">CryptoImplementationService</text>
+</g>
+<!-- CryptoImplementationService&#45;&gt;CryptoImplementatationModule -->
+<g id="edge24" class="edge">
+<title>CryptoImplementationService&#45;&gt;CryptoImplementatationModule</title>
+<path fill="none" stroke="black" d="M6033,-122.22C6033,-122.22 6033,-143.73 6033,-143.73"/>
+<polygon fill="black" stroke="black" points="6029.5,-143.73 6033,-153.73 6036.5,-143.73 6029.5,-143.73"/>
+</g>
+<!-- CryptoService -->
+<g id="node26" class="node">
+<title>CryptoService</title>
+<ellipse fill="#fdb462" stroke="black" cx="1320" cy="-248" rx="66.63" ry="18"/>
+<text text-anchor="middle" x="1320" y="-243.8" font-family="Times,serif" font-size="14.00">CryptoService</text>
+</g>
+<!-- CryptoService&#45;&gt;CryptoModule -->
+<g id="edge27" class="edge">
+<title>CryptoService&#45;&gt;CryptoModule</title>
+<path fill="none" stroke="black" d="M1320,-229.81C1320,-221.72 1320,-214 1320,-214 1320,-214 2671.73,-214 2671.73,-214 2671.73,-214 2671.73,-200.06 2671.73,-200.06"/>
+<polygon fill="black" stroke="black" points="2675.23,-200.06 2671.73,-190.06 2668.23,-200.06 2675.23,-200.06"/>
+</g>
+<!-- EncryptionService -->
+<g id="node27" class="node">
+<title>EncryptionService</title>
+<ellipse fill="#fdb462" stroke="black" cx="1152" cy="-248" rx="82.81" ry="18"/>
+<text text-anchor="middle" x="1152" y="-243.8" font-family="Times,serif" font-size="14.00">EncryptionService</text>
+</g>
+<!-- EncryptionService&#45;&gt;CryptoModule -->
+<g id="edge28" class="edge">
+<title>EncryptionService&#45;&gt;CryptoModule</title>
+<path fill="none" stroke="black" d="M1172.82,-230.42C1172.82,-221.28 1172.82,-212 1172.82,-212 1172.82,-212 2666.75,-212 2666.75,-212 2666.75,-212 2666.75,-200.13 2666.75,-200.13"/>
+<polygon fill="black" stroke="black" points="2670.25,-200.13 2666.75,-190.13 2663.25,-200.13 2670.25,-200.13"/>
+</g>
+<!-- Oid4vpModule&#45;&gt;IssuerModule -->
+<g id="edge30" class="edge">
+<title>Oid4vpModule&#45;&gt;IssuerModule</title>
+<path fill="none" stroke="black" d="M4177,-266.15C4177,-279.74 4177,-296 4177,-296 4177,-296 2725.63,-296 2725.63,-296 2725.63,-296 2725.63,-276.15 2725.63,-276.15"/>
+<polygon fill="black" stroke="black" points="2729.13,-276.15 2725.63,-266.15 2722.13,-276.15 2729.13,-276.15"/>
+</g>
+<!-- Oid4vpModule&#45;&gt;VerifierModule -->
+<g id="edge69" class="edge">
+<title>Oid4vpModule&#45;&gt;VerifierModule</title>
+<path fill="none" stroke="black" d="M4126.09,-245C3887.15,-245 2888.49,-245 2888.49,-245 2888.49,-245 2888.49,-333 2888.49,-333 2888.49,-333 2693.9,-333 2693.9,-333"/>
+<polygon fill="black" stroke="black" points="2693.91,-329.5 2683.9,-333 2693.9,-336.5 2693.91,-329.5"/>
+</g>
+<!-- Oid4vpService  -->
+<g id="node42" class="node">
+<title>Oid4vpService </title>
+<polygon fill="#fb8072" stroke="black" points="5012.98,-190 4909.02,-190 4909.02,-154 5012.98,-154 5012.98,-190"/>
+<text text-anchor="middle" x="4961" y="-167.8" font-family="Times,serif" font-size="14.00">Oid4vpService </text>
+</g>
+<!-- Oid4vpModule&#45;&gt;Oid4vpService  -->
+<g id="edge48" class="edge">
+<title>Oid4vpModule&#45;&gt;Oid4vpService </title>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M4227.84,-260C4401.57,-260 4961,-260 4961,-260 4961,-260 4961,-200.23 4961,-200.23"/>
+<polygon fill="black" stroke="black" points="4964.5,-200.23 4961,-190.23 4957.5,-200.23 4964.5,-200.23"/>
+</g>
+<!-- AuthorizeService -->
+<g id="node31" class="node">
+<title>AuthorizeService</title>
+<ellipse fill="#fdb462" stroke="black" cx="3842" cy="-172" rx="78.71" ry="18"/>
+<text text-anchor="middle" x="3842" y="-167.8" font-family="Times,serif" font-size="14.00">AuthorizeService</text>
+</g>
+<!-- AuthorizeService&#45;&gt;IssuerModule -->
+<g id="edge35" class="edge">
+<title>AuthorizeService&#45;&gt;IssuerModule</title>
+<path fill="none" stroke="black" d="M3842,-190.04C3842,-197.75 3842,-205 3842,-205 3842,-205 2711.6,-205 2711.6,-205 2711.6,-205 2711.6,-219.51 2711.6,-219.51"/>
+<polygon fill="black" stroke="black" points="2708.1,-219.51 2711.6,-229.51 2715.1,-219.51 2708.1,-219.51"/>
+</g>
+<!-- CredentialConfigService -->
+<g id="node32" class="node">
+<title>CredentialConfigService</title>
+<ellipse fill="#fdb462" stroke="black" cx="3638" cy="-172" rx="107.08" ry="18"/>
+<text text-anchor="middle" x="3638" y="-167.8" font-family="Times,serif" font-size="14.00">CredentialConfigService</text>
+</g>
+<!-- CredentialConfigService&#45;&gt;IssuerModule -->
+<g id="edge36" class="edge">
+<title>CredentialConfigService&#45;&gt;IssuerModule</title>
+<path fill="none" stroke="black" d="M3638,-190.03C3638,-196.85 3638,-203 3638,-203 3638,-203 2706.62,-203 2706.62,-203 2706.62,-203 2706.62,-219.96 2706.62,-219.96"/>
+<polygon fill="black" stroke="black" points="2703.12,-219.96 2706.62,-229.96 2710.12,-219.96 2703.12,-219.96"/>
+</g>
+<!-- CredentialsService -->
+<g id="node33" class="node">
+<title>CredentialsService</title>
+<ellipse fill="#fdb462" stroke="black" cx="3429" cy="-172" rx="83.94" ry="18"/>
+<text text-anchor="middle" x="3429" y="-167.8" font-family="Times,serif" font-size="14.00">CredentialsService</text>
+</g>
+<!-- CredentialsService&#45;&gt;IssuerModule -->
+<g id="edge37" class="edge">
+<title>CredentialsService&#45;&gt;IssuerModule</title>
+<path fill="none" stroke="black" d="M3429,-190.2C3429,-196.03 3429,-201 3429,-201 3429,-201 2701.63,-201 2701.63,-201 2701.63,-201 2701.63,-219.96 2701.63,-219.96"/>
+<polygon fill="black" stroke="black" points="2698.13,-219.96 2701.63,-229.96 2705.13,-219.96 2698.13,-219.96"/>
+</g>
+<!-- IssuanceService -->
+<g id="node34" class="node">
+<title>IssuanceService</title>
+<ellipse fill="#fdb462" stroke="black" cx="3254" cy="-172" rx="73.47" ry="18"/>
+<text text-anchor="middle" x="3254" y="-167.8" font-family="Times,serif" font-size="14.00">IssuanceService</text>
+</g>
+<!-- IssuanceService&#45;&gt;IssuerModule -->
+<g id="edge38" class="edge">
+<title>IssuanceService&#45;&gt;IssuerModule</title>
+<path fill="none" stroke="black" d="M3191.08,-181.48C3191.08,-189.6 3191.08,-200 3191.08,-200 3191.08,-200 2696.65,-200 2696.65,-200 2696.65,-200 2696.65,-219.85 2696.65,-219.85"/>
+<polygon fill="black" stroke="black" points="2693.15,-219.85 2696.65,-229.85 2700.15,-219.85 2693.15,-219.85"/>
+</g>
+<!-- Oid4vciService -->
+<g id="node35" class="node">
+<title>Oid4vciService</title>
+<ellipse fill="#fdb462" stroke="black" cx="4010" cy="-172" rx="71.21" ry="18"/>
+<text text-anchor="middle" x="4010" y="-167.8" font-family="Times,serif" font-size="14.00">Oid4vciService</text>
+</g>
+<!-- Oid4vciService&#45;&gt;IssuerModule -->
+<g id="edge39" class="edge">
+<title>Oid4vciService&#45;&gt;IssuerModule</title>
+<path fill="none" stroke="black" d="M4010,-190.32C4010,-198.79 4010,-207 4010,-207 4010,-207 2716.59,-207 2716.59,-207 2716.59,-207 2716.59,-219.9 2716.59,-219.9"/>
+<polygon fill="black" stroke="black" points="2713.09,-219.9 2716.59,-229.9 2720.09,-219.9 2713.09,-219.9"/>
+</g>
+<!-- SessionLoggerInterceptor -->
+<g id="node36" class="node">
+<title>SessionLoggerInterceptor</title>
+<ellipse fill="#fdb462" stroke="black" cx="4596" cy="-172" rx="110.57" ry="18"/>
+<text text-anchor="middle" x="4596" y="-167.8" font-family="Times,serif" font-size="14.00">SessionLoggerInterceptor</text>
+</g>
+<!-- SessionLoggerInterceptor&#45;&gt;IssuerModule -->
+<g id="edge40" class="edge">
+<title>SessionLoggerInterceptor&#45;&gt;IssuerModule</title>
+<path fill="none" stroke="black" d="M4632.93,-189C4632.93,-223.82 4632.93,-300 4632.93,-300 4632.93,-300 2704.78,-300 2704.78,-300 2704.78,-300 2704.78,-276.19 2704.78,-276.19"/>
+<polygon fill="black" stroke="black" points="2708.28,-276.19 2704.78,-266.19 2701.28,-276.19 2708.28,-276.19"/>
+</g>
+<!-- SessionLoggerInterceptor&#45;&gt;Oid4vpModule -->
+<g id="edge50" class="edge">
+<title>SessionLoggerInterceptor&#45;&gt;Oid4vpModule</title>
+<path fill="none" stroke="black" d="M4559.07,-189.25C4559.07,-211.67 4559.07,-248 4559.07,-248 4559.07,-248 4237.74,-248 4237.74,-248"/>
+<polygon fill="black" stroke="black" points="4237.74,-244.5 4227.74,-248 4237.74,-251.5 4237.74,-244.5"/>
+</g>
+<!-- SessionLoggerService -->
+<g id="node37" class="node">
+<title>SessionLoggerService</title>
+<ellipse fill="#fdb462" stroke="black" cx="4370" cy="-172" rx="97.27" ry="18"/>
+<text text-anchor="middle" x="4370" y="-167.8" font-family="Times,serif" font-size="14.00">SessionLoggerService</text>
+</g>
+<!-- SessionLoggerService&#45;&gt;IssuerModule -->
+<g id="edge41" class="edge">
+<title>SessionLoggerService&#45;&gt;IssuerModule</title>
+<path fill="none" stroke="black" d="M4337.54,-189.1C4337.54,-205.25 4337.54,-227 4337.54,-227 4337.54,-227 2726.55,-227 2726.55,-227 2726.55,-227 2726.55,-227.29 2726.55,-227.29"/>
+<polygon fill="black" stroke="black" points="2723.05,-219.92 2726.55,-229.92 2730.05,-219.92 2723.05,-219.92"/>
+</g>
+<!-- SessionLoggerService&#45;&gt;Oid4vpModule -->
+<g id="edge51" class="edge">
+<title>SessionLoggerService&#45;&gt;Oid4vpModule</title>
+<path fill="none" stroke="black" d="M4402.46,-189.3C4402.46,-210.03 4402.46,-242 4402.46,-242 4402.46,-242 4237.6,-242 4237.6,-242"/>
+<polygon fill="black" stroke="black" points="4237.6,-238.5 4227.6,-242 4237.6,-245.5 4237.6,-238.5"/>
+</g>
+<!-- WebhookService -->
+<g id="node38" class="node">
+<title>WebhookService</title>
+<ellipse fill="#fdb462" stroke="black" cx="4177" cy="-172" rx="77.57" ry="18"/>
+<text text-anchor="middle" x="4177" y="-167.8" font-family="Times,serif" font-size="14.00">WebhookService</text>
+</g>
+<!-- WebhookService&#45;&gt;IssuerModule -->
+<g id="edge42" class="edge">
+<title>WebhookService&#45;&gt;IssuerModule</title>
+<path fill="none" stroke="black" d="M4112.85,-182.22C4112.85,-197.62 4112.85,-225 4112.85,-225 4112.85,-225 2721.57,-225 2721.57,-225 2721.57,-225 2721.57,-225.49 2721.57,-225.49"/>
+<polygon fill="black" stroke="black" points="2718.07,-219.88 2721.57,-229.88 2725.07,-219.88 2718.07,-219.88"/>
+</g>
+<!-- WebhookService&#45;&gt;Oid4vpModule -->
+<g id="edge52" class="edge">
+<title>WebhookService&#45;&gt;Oid4vpModule</title>
+<path fill="none" stroke="black" d="M4193.92,-189.63C4193.92,-189.63 4193.92,-219.94 4193.92,-219.94"/>
+<polygon fill="black" stroke="black" points="4190.42,-219.94 4193.92,-229.94 4197.42,-219.94 4190.42,-219.94"/>
+</g>
+<!-- OAuthService  -->
+<g id="node40" class="node">
+<title>OAuthService </title>
+<polygon fill="#fb8072" stroke="black" points="5160.58,-342 5061.42,-342 5061.42,-306 5160.58,-306 5160.58,-342"/>
+<text text-anchor="middle" x="5111" y="-319.8" font-family="Times,serif" font-size="14.00">OAuthService </text>
+</g>
+<!-- OAuthModule&#45;&gt;OAuthService  -->
+<g id="edge44" class="edge">
+<title>OAuthModule&#45;&gt;OAuthService </title>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M5111,-266.01C5111,-266.01 5111,-295.85 5111,-295.85"/>
+<polygon fill="black" stroke="black" points="5107.5,-295.85 5111,-305.85 5114.5,-295.85 5107.5,-295.85"/>
+</g>
+<!-- OAuthService -->
+<g id="node41" class="node">
+<title>OAuthService</title>
+<ellipse fill="#fdb462" stroke="black" cx="5119" cy="-172" rx="66.05" ry="18"/>
+<text text-anchor="middle" x="5119" y="-167.8" font-family="Times,serif" font-size="14.00">OAuthService</text>
+</g>
+<!-- OAuthService&#45;&gt;OAuthModule -->
+<g id="edge45" class="edge">
+<title>OAuthService&#45;&gt;OAuthModule</title>
+<path fill="none" stroke="black" d="M5111,-190.01C5111,-190.01 5111,-219.85 5111,-219.85"/>
+<polygon fill="black" stroke="black" points="5107.5,-219.85 5111,-229.85 5114.5,-219.85 5107.5,-219.85"/>
+</g>
+<!-- Oid4vpService -->
+<g id="node43" class="node">
+<title>Oid4vpService</title>
+<ellipse fill="#fdb462" stroke="black" cx="4816" cy="-172" rx="68.92" ry="18"/>
+<text text-anchor="middle" x="4816" y="-167.8" font-family="Times,serif" font-size="14.00">Oid4vpService</text>
+</g>
+<!-- Oid4vpService&#45;&gt;Oid4vpModule -->
+<g id="edge49" class="edge">
+<title>Oid4vpService&#45;&gt;Oid4vpModule</title>
+<path fill="none" stroke="black" d="M4816,-190.2C4816,-214.36 4816,-254 4816,-254 4816,-254 4237.68,-254 4237.68,-254"/>
+<polygon fill="black" stroke="black" points="4237.68,-250.5 4227.68,-254 4237.68,-257.5 4237.68,-250.5"/>
+</g>
+<!-- ResolverModule -->
+<g id="node44" class="node">
+<title>ResolverModule</title>
+<polygon fill="#8dd3c7" stroke="black" points="5540.81,-122 5537.81,-126 5516.81,-126 5513.81,-122 5431.19,-122 5431.19,-86 5540.81,-86 5540.81,-122"/>
+<text text-anchor="middle" x="5486" y="-99.8" font-family="Times,serif" font-size="14.00">ResolverModule</text>
+</g>
+<!-- PresentationsModule -->
+<g id="node45" class="node">
+<title>PresentationsModule</title>
+<polygon fill="#8dd3c7" stroke="black" points="5383.2,-190 5380.2,-194 5359.2,-194 5356.2,-190 5248.8,-190 5248.8,-154 5383.2,-154 5383.2,-190"/>
+<text text-anchor="middle" x="5316" y="-167.8" font-family="Times,serif" font-size="14.00">PresentationsModule</text>
+</g>
+<!-- ResolverModule&#45;&gt;PresentationsModule -->
+<g id="edge53" class="edge">
+<title>ResolverModule&#45;&gt;PresentationsModule</title>
+<path fill="none" stroke="black" d="M5467.78,-122.27C5467.78,-140.56 5467.78,-166 5467.78,-166 5467.78,-166 5393.46,-166 5393.46,-166"/>
+<polygon fill="black" stroke="black" points="5393.46,-162.5 5383.46,-166 5393.46,-169.5 5393.46,-162.5"/>
+</g>
+<!-- ResolverService  -->
+<g id="node50" class="node">
+<title>ResolverService </title>
+<polygon fill="#fb8072" stroke="black" points="5864.74,-190 5753.26,-190 5753.26,-154 5864.74,-154 5864.74,-190"/>
+<text text-anchor="middle" x="5809" y="-167.8" font-family="Times,serif" font-size="14.00">ResolverService </text>
+</g>
+<!-- ResolverModule&#45;&gt;ResolverService  -->
+<g id="edge60" class="edge">
+<title>ResolverModule&#45;&gt;ResolverService </title>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M5540.79,-104C5632.95,-104 5809,-104 5809,-104 5809,-104 5809,-143.78 5809,-143.78"/>
+<polygon fill="black" stroke="black" points="5805.5,-143.78 5809,-153.78 5812.5,-143.78 5805.5,-143.78"/>
+</g>
+<!-- PresentationsModule&#45;&gt;RegistrarModule -->
+<g id="edge57" class="edge">
+<title>PresentationsModule&#45;&gt;RegistrarModule</title>
+<path fill="none" stroke="black" d="M5304.98,-190.04C5304.98,-206.73 5304.98,-229 5304.98,-229 5304.98,-229 2854.7,-229 2854.7,-229 2854.7,-229 2854.7,-229.08 2854.7,-229.08"/>
+<polygon fill="black" stroke="black" points="2851.2,-219.82 2854.7,-229.82 2858.2,-219.82 2851.2,-219.82"/>
+</g>
+<!-- PresentationsModule&#45;&gt;VerifierModule -->
+<g id="edge70" class="edge">
+<title>PresentationsModule&#45;&gt;VerifierModule</title>
+<path fill="none" stroke="black" d="M5276.94,-190.12C5276.94,-204.78 5276.94,-223 5276.94,-223 5276.94,-223 2609.25,-223 2609.25,-223 2609.25,-223 2609.25,-295.94 2609.25,-295.94"/>
+<polygon fill="black" stroke="black" points="2605.75,-295.94 2609.25,-305.94 2612.75,-295.94 2605.75,-295.94"/>
+</g>
+<!-- PresentationsService  -->
+<g id="node46" class="node">
+<title>PresentationsService </title>
+<polygon fill="#fb8072" stroke="black" points="5361.13,-266 5224.87,-266 5224.87,-230 5361.13,-230 5361.13,-266"/>
+<text text-anchor="middle" x="5293" y="-243.8" font-family="Times,serif" font-size="14.00">PresentationsService </text>
+</g>
+<!-- PresentationsModule&#45;&gt;PresentationsService  -->
+<g id="edge54" class="edge">
+<title>PresentationsModule&#45;&gt;PresentationsService </title>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M5333.02,-190.01C5333.02,-190.01 5333.02,-219.85 5333.02,-219.85"/>
+<polygon fill="black" stroke="black" points="5329.52,-219.85 5333.02,-229.85 5336.52,-219.85 5329.52,-219.85"/>
+</g>
+<!-- PresentationsService -->
+<g id="node47" class="node">
+<title>PresentationsService</title>
+<ellipse fill="#fdb462" stroke="black" cx="5316" cy="-104" rx="91.47" ry="18"/>
+<text text-anchor="middle" x="5316" y="-99.8" font-family="Times,serif" font-size="14.00">PresentationsService</text>
+</g>
+<!-- PresentationsService&#45;&gt;PresentationsModule -->
+<g id="edge55" class="edge">
+<title>PresentationsService&#45;&gt;PresentationsModule</title>
+<path fill="none" stroke="black" d="M5316,-122.22C5316,-122.22 5316,-143.73 5316,-143.73"/>
+<polygon fill="black" stroke="black" points="5312.5,-143.73 5316,-153.73 5319.5,-143.73 5312.5,-143.73"/>
+</g>
+<!-- RegistrarService -->
+<g id="node49" class="node">
+<title>RegistrarService</title>
+<ellipse fill="#fdb462" stroke="black" cx="2990" cy="-324" rx="75.27" ry="18"/>
+<text text-anchor="middle" x="2990" y="-319.8" font-family="Times,serif" font-size="14.00">RegistrarService</text>
+</g>
+<!-- RegistrarService&#45;&gt;RegistrarModule -->
+<g id="edge59" class="edge">
+<title>RegistrarService&#45;&gt;RegistrarModule</title>
+<path fill="none" stroke="black" d="M2985.76,-305.89C2985.76,-286.66 2985.76,-259 2985.76,-259 2985.76,-259 2885.66,-259 2885.66,-259"/>
+<polygon fill="black" stroke="black" points="2885.66,-255.5 2875.66,-259 2885.66,-262.5 2885.66,-255.5"/>
+</g>
+<!-- ResolverService -->
+<g id="node51" class="node">
+<title>ResolverService</title>
+<ellipse fill="#fdb462" stroke="black" cx="5655" cy="-172" rx="74.13" ry="18"/>
+<text text-anchor="middle" x="5655" y="-167.8" font-family="Times,serif" font-size="14.00">ResolverService</text>
+</g>
+<!-- ResolverService&#45;&gt;ResolverModule -->
+<g id="edge61" class="edge">
+<title>ResolverService&#45;&gt;ResolverModule</title>
+<path fill="none" stroke="black" d="M5584.91,-178C5545.53,-178 5504.22,-178 5504.22,-178 5504.22,-178 5504.22,-132.29 5504.22,-132.29"/>
+<polygon fill="black" stroke="black" points="5507.72,-132.29 5504.22,-122.29 5500.72,-132.29 5507.72,-132.29"/>
+</g>
+<!-- SessionService -->
+<g id="node53" class="node">
+<title>SessionService</title>
+<ellipse fill="#fdb462" stroke="black" cx="1762" cy="-248" rx="69.5" ry="18"/>
+<text text-anchor="middle" x="1762" y="-243.8" font-family="Times,serif" font-size="14.00">SessionService</text>
+</g>
+<!-- SessionService&#45;&gt;SessionModule -->
+<g id="edge64" class="edge">
+<title>SessionService&#45;&gt;SessionModule</title>
+<path fill="none" stroke="black" d="M1762,-229.79C1762,-224.45 1762,-220 1762,-220 1762,-220 2813.77,-220 2813.77,-220 2813.77,-220 2813.77,-200.15 2813.77,-200.15"/>
+<polygon fill="black" stroke="black" points="2817.27,-200.15 2813.77,-190.15 2810.27,-200.15 2817.27,-200.15"/>
+</g>
+<!-- StatusListService -->
+<g id="node55" class="node">
+<title>StatusListService</title>
+<ellipse fill="#fdb462" stroke="black" cx="890" cy="-172" rx="78.74" ry="18"/>
+<text text-anchor="middle" x="890" y="-167.8" font-family="Times,serif" font-size="14.00">StatusListService</text>
+</g>
+<!-- StatusListService&#45;&gt;StatusListModule -->
+<g id="edge67" class="edge">
+<title>StatusListService&#45;&gt;StatusListModule</title>
+<path fill="none" stroke="black" d="M940.92,-185.94C940.92,-185.94 940.92,-219.84 940.92,-219.84"/>
+<polygon fill="black" stroke="black" points="937.42,-219.84 940.92,-229.84 944.42,-219.84 937.42,-219.84"/>
+</g>
+</g>
+</svg>
 
-# Start with Docker
-docker run -p 3000:3000 \
-  -e PUBLIC_URL=https://example.com \
-  -e JWT_SECRET=your-32-character-secret \
-  -e AUTH_CLIENT_SECRET=your-issuer-secret \
-  -v $(pwd)/config:/app/config \
-  ghcr.io/openwallet-foundation-labs/eudiplo:latest
-
-# Get a token and start using the API
-curl -X POST http://localhost:3000/oauth2/token \
-  -H &quot;Content-Type: application/json&quot; \
-  -d &#39;{
-    &quot;client_id&quot;: &quot;root&quot;,
-    &quot;client_secret&quot;: &quot;root&quot;
-  }&#39;</code></pre></div><p>📚 API:
-<a href="https://openwallet-foundation-labs.github.io/eudiplo/latest/api/">https://openwallet-foundation-labs.github.io/eudiplo/latest/api/</a><br>📦
-Full setup:
-<a href="https://openwallet-foundation-labs.github.io/eudiplo/latest/getting-started/quick-start/">Quickstart Guide</a></p>
-<hr>
-<h2>📚 Documentation</h2>
-<p><strong>Choose your documentation version:</strong></p>
-<ul>
-<li>🚀 <strong>Latest Stable</strong> (recommended):
-<a href="https://openwallet-foundation-labs.github.io/eudiplo/latest/">https://openwallet-foundation-labs.github.io/eudiplo/latest/</a> -
-Documentation for the most recent major release</li>
-<li>🔬 <strong>Development</strong>:
-<a href="https://openwallet-foundation-labs.github.io/eudiplo/main/">https://openwallet-foundation-labs.github.io/eudiplo/main/</a> -
-Latest features from the main branch</li>
-<li>📚 <strong>Specific Major Versions</strong>:
-<a href="https://openwallet-foundation-labs.github.io/eudiplo/1/">v1</a>,
-<a href="https://openwallet-foundation-labs.github.io/eudiplo/2/">v2</a>, etc.</li>
-</ul>
-<p><strong>Key sections:</strong></p>
-<ul>
-<li><a href="https://openwallet-foundation-labs.github.io/eudiplo/latest/architecture/overview/">Architecture</a></li>
-<li><a href="https://openwallet-foundation-labs.github.io/eudiplo/latest/architecture/supported-protocols/">Supported Protocols</a></li>
-<li><a href="https://openwallet-foundation-labs.github.io/eudiplo/latest/api/">API Reference</a></li>
-<li><a href="https://openwallet-foundation-labs.github.io/eudiplo/latest/compodoc/">Code Documentation</a></li>
-</ul>
-<hr>
-<h2>🤝 Contributing</h2>
-<p>We welcome PRs from wallet developers, institutions, and contributors interested
-in advancing the EUDI Wallet ecosystem.</p>
-<p>See <a href="CONTRIBUTING.md">CONTRIBUTING.md</a> for guidelines.</p>
-<p>💬 <strong>Have questions?</strong> Join our
-<a href="https://discord.gg/58ys8XfXDu">Discord community</a> to ask questions, get help,
-and connect with other developers.</p>
-<hr>
-<h2>📝 License</h2>
-<p>Licensed under the <a href="LICENSE">Apache 2.0 License</a></p>
-
-
-
+    </div>
+    <i id="fullscreen" class="icon ion-ios-resize module-graph-fullscreen-btn" aria-hidden="true"></i>
+    <div class="btn-group size-buttons">
+        <button id="zoom-in" class="btn btn-default btn-sm">Zoom in</button>
+        <button id="reset" class="btn btn-default btn-sm">Reset</button>
+        <button id="zoom-out" class="btn btn-default btn-sm">Zoom out</button>
+    </div>
+</div>
+  
+<div class="tab-content overview">
+    <div class="row">
+        <div class="col-sm-3">
+            <div class="card text-center">
+                <div class="card-block">
+                    <h4 class="card-title"><span class="icon ion-ios-archive"></span></h4>
+                    <p class="card-text">
+                        <a href="./modules.html">17 Modules</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="card text-center">
+                <div class="card-block">
+                    <h4 class="card-title"><span class="icon ion-md-swap"></span></h4>
+                    <p class="card-text">16 Controllers</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="card text-center">
+                <div class="card-block">
+                    <h4 class="card-title"><span class="icon ion-md-swap"></span></h4>
+                    <p class="card-text">8 Entities</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="card text-center">
+                <div class="card-block">
+                    <h4 class="card-title"><span class="icon ion-md-arrow-round-down"></span></h4>
+                    <p class="card-text">26 Injectables</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="card text-center">
+                <div class="card-block">
+                    <h4 class="card-title"><span class="icon ion-ios-paper"></span></h4>
+                    <p class="card-text">39 Classes</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="card text-center">
+                <div class="card-block">
+                    <h4 class="card-title"><span class="icon ion-ios-lock"></span></h4>
+                    <p class="card-text">1 Guard</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="card text-center">
+                <div class="card-block">
+                    <h4 class="card-title"><span class="icon ion-md-information-circle-outline"></span></h4>
+                    <p class="card-text">15 Interfaces</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="js/libs/svg-pan-zoom.min.js"></script>
+<script src="js/svg-pan-zoom.controls.js"></script> 
 
 
 
@@ -227,7 +1149,7 @@ and connect with other developers.</p>
 
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 0;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'getting-started';
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'overview';
             var COMPODOC_CURRENT_PAGE_URL = 'index.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>

@@ -12,7 +12,7 @@
         <link rel="prev" href="../">
       
       
-        <link rel="next" href="../openapi/">
+        <link rel="next" href="../running-locally/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -20,7 +20,7 @@
     
     
       
-        <title>Authentication - EUDIPLO</title>
+        <title>Workspace Structure - EUDIPLO</title>
       
     
     
@@ -81,7 +81,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#api-authentication" class="md-skip">
+        <a href="#workspace-structure" class="md-skip">
           Skip to content
         </a>
       
@@ -121,7 +121,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Authentication
+              Workspace Structure
             
           </span>
         </div>
@@ -270,13 +270,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../api/" class="md-tabs__link">
           
   
   
@@ -294,11 +292,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../development/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
           
   
   
@@ -1292,8 +1292,6 @@
       
   
   
-    
-  
   
   
     
@@ -1311,23 +1309,22 @@
     
     
       
-        
-        
-      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../" class="md-nav__link ">
+            <a href="../../api/" class="md-nav__link ">
               
   
   
@@ -1340,13 +1337,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             API
@@ -1359,32 +1356,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Authentication
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
         
   
   
@@ -1395,218 +1370,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#authentication-architecture" class="md-nav__link">
-    <span class="md-ellipsis">
-      Authentication Architecture
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Authentication Architecture">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#design-principles" class="md-nav__link">
-    <span class="md-ellipsis">
-      Design Principles
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#security-model" class="md-nav__link">
-    <span class="md-ellipsis">
-      Security Model
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#oauth2-client-credentials-authentication" class="md-nav__link">
-    <span class="md-ellipsis">
-      OAuth2 Client Credentials Authentication
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="OAuth2 Client Credentials Authentication">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#built-in-oauth2-server-recommended-for-getting-started" class="md-nav__link">
-    <span class="md-ellipsis">
-      Built-in OAuth2 Server (Recommended for Getting Started)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#external-oidc-provider" class="md-nav__link">
-    <span class="md-ellipsis">
-      External OIDC Provider
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      Configuration
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Configuration">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#external-oidc-provider_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      External OIDC Provider
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#integrated-oauth2-server" class="md-nav__link">
-    <span class="md-ellipsis">
-      Integrated OAuth2 Server
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#protected-endpoints" class="md-nav__link">
-    <span class="md-ellipsis">
-      Protected Endpoints
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#troubleshooting" class="md-nav__link">
-    <span class="md-ellipsis">
-      Troubleshooting
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Troubleshooting">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#token-validation-errors" class="md-nav__link">
-    <span class="md-ellipsis">
-      Token Validation Errors
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#integrated-oauth2-server-issues" class="md-nav__link">
-    <span class="md-ellipsis">
-      Integrated OAuth2 Server Issues
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#security-considerations" class="md-nav__link">
-    <span class="md-ellipsis">
-      Security Considerations
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#related-documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Related Documentation
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Related Documentation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#architecture-design" class="md-nav__link">
-    <span class="md-ellipsis">
-      Architecture &amp; Design
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#implementation-guides" class="md-nav__link">
-    <span class="md-ellipsis">
-      Implementation Guides
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#operations" class="md-nav__link">
-    <span class="md-ellipsis">
-      Operations
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1619,7 +1382,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../openapi/" class="md-nav__link">
+      <a href="../../api/openapi/" class="md-nav__link">
         
   
   
@@ -1646,6 +1409,8 @@
       
   
   
+    
+  
   
   
     
@@ -1675,22 +1440,23 @@
     
     
       
+        
+        
+      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../development/" class="md-nav__link ">
+            <a href="../" class="md-nav__link ">
               
   
   
@@ -1703,13 +1469,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             Development
@@ -1722,10 +1488,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../development/workspace-structure/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Workspace Structure
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1736,6 +1524,170 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#directory-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      📁 Directory Structure
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#applications" class="md-nav__link">
+    <span class="md-ellipsis">
+      🏗️ Applications
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🏗️ Applications">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#backend-eudiplobackend" class="md-nav__link">
+    <span class="md-ellipsis">
+      Backend (@eudiplo/backend)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#client-eudiploclient" class="md-nav__link">
+    <span class="md-ellipsis">
+      Client (@eudiplo/client)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#webhook-test-rp" class="md-nav__link">
+    <span class="md-ellipsis">
+      Webhook (test-rp)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workspace-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 Workspace Commands
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 Workspace Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#development" class="md-nav__link">
+    <span class="md-ellipsis">
+      Development
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#building" class="md-nav__link">
+    <span class="md-ellipsis">
+      Building
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linting-formatting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Linting &amp; Formatting
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#docker-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      🐳 Docker Integration
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dependency-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      📦 Dependency Management
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📦 Dependency Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adding-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding Dependencies
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#benefits" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚀 Benefits
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1748,7 +1700,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/running-locally/" class="md-nav__link">
+      <a href="../running-locally/" class="md-nav__link">
         
   
   
@@ -1771,7 +1723,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/code-quality/" class="md-nav__link">
+      <a href="../code-quality/" class="md-nav__link">
         
   
   
@@ -1794,7 +1746,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/versioning/" class="md-nav__link">
+      <a href="../versioning/" class="md-nav__link">
         
   
   
@@ -1817,7 +1769,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/contributing/" class="md-nav__link">
+      <a href="../contributing/" class="md-nav__link">
         
   
   
@@ -1840,7 +1792,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/testing/" class="md-nav__link">
+      <a href="../testing/" class="md-nav__link">
         
   
   
@@ -1863,7 +1815,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/logging-configuration/" class="md-nav__link">
+      <a href="../logging-configuration/" class="md-nav__link">
         
   
   
@@ -1886,7 +1838,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/documentation-versioning/" class="md-nav__link">
+      <a href="../documentation-versioning/" class="md-nav__link">
         
   
   
@@ -1936,28 +1888,46 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#authentication-architecture" class="md-nav__link">
+  <a href="#directory-structure" class="md-nav__link">
     <span class="md-ellipsis">
-      Authentication Architecture
+      📁 Directory Structure
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Authentication Architecture">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#applications" class="md-nav__link">
+    <span class="md-ellipsis">
+      🏗️ Applications
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🏗️ Applications">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#design-principles" class="md-nav__link">
+  <a href="#backend-eudiplobackend" class="md-nav__link">
     <span class="md-ellipsis">
-      Design Principles
+      Backend (@eudiplo/backend)
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#security-model" class="md-nav__link">
+  <a href="#client-eudiploclient" class="md-nav__link">
     <span class="md-ellipsis">
-      Security Model
+      Client (@eudiplo/client)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#webhook-test-rp" class="md-nav__link">
+    <span class="md-ellipsis">
+      Webhook (test-rp)
     </span>
   </a>
   
@@ -1969,28 +1939,46 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#oauth2-client-credentials-authentication" class="md-nav__link">
+  <a href="#workspace-commands" class="md-nav__link">
     <span class="md-ellipsis">
-      OAuth2 Client Credentials Authentication
+      🔧 Workspace Commands
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="OAuth2 Client Credentials Authentication">
+    <nav class="md-nav" aria-label="🔧 Workspace Commands">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#built-in-oauth2-server-recommended-for-getting-started" class="md-nav__link">
+  <a href="#development" class="md-nav__link">
     <span class="md-ellipsis">
-      Built-in OAuth2 Server (Recommended for Getting Started)
+      Development
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#external-oidc-provider" class="md-nav__link">
+  <a href="#building" class="md-nav__link">
     <span class="md-ellipsis">
-      External OIDC Provider
+      Building
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linting-formatting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Linting &amp; Formatting
     </span>
   </a>
   
@@ -2002,28 +1990,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#configuration" class="md-nav__link">
+  <a href="#docker-integration" class="md-nav__link">
     <span class="md-ellipsis">
-      Configuration
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Configuration">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#external-oidc-provider_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      External OIDC Provider
+      🐳 Docker Integration
     </span>
   </a>
   
 </li>
+      
+        <li class="md-nav__item">
+  <a href="#dependency-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      📦 Dependency Management
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📦 Dependency Management">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#integrated-oauth2-server" class="md-nav__link">
+  <a href="#adding-dependencies" class="md-nav__link">
     <span class="md-ellipsis">
-      Integrated OAuth2 Server
+      Adding Dependencies
     </span>
   </a>
   
@@ -2035,95 +2023,11 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#protected-endpoints" class="md-nav__link">
+  <a href="#benefits" class="md-nav__link">
     <span class="md-ellipsis">
-      Protected Endpoints
+      🚀 Benefits
     </span>
   </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#troubleshooting" class="md-nav__link">
-    <span class="md-ellipsis">
-      Troubleshooting
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Troubleshooting">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#token-validation-errors" class="md-nav__link">
-    <span class="md-ellipsis">
-      Token Validation Errors
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#integrated-oauth2-server-issues" class="md-nav__link">
-    <span class="md-ellipsis">
-      Integrated OAuth2 Server Issues
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#security-considerations" class="md-nav__link">
-    <span class="md-ellipsis">
-      Security Considerations
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#related-documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Related Documentation
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Related Documentation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#architecture-design" class="md-nav__link">
-    <span class="md-ellipsis">
-      Architecture &amp; Design
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#implementation-guides" class="md-nav__link">
-    <span class="md-ellipsis">
-      Implementation Guides
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#operations" class="md-nav__link">
-    <span class="md-ellipsis">
-      Operations
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2143,7 +2047,7 @@
 
 
   
-    <a href="https://github.com/openwallet-foundation-labs/eudiplo/edit/main/docs/api/authentication.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/openwallet-foundation-labs/eudiplo/edit/main/docs/development/workspace-structure.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2152,155 +2056,148 @@
     
       
     
-    <a href="https://github.com/openwallet-foundation-labs/eudiplo/raw/main/docs/api/authentication.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/openwallet-foundation-labs/eudiplo/raw/main/docs/development/workspace-structure.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
   
 
 
-<h1 id="api-authentication">API Authentication<a class="headerlink" href="#api-authentication" title="Permanent link">&para;</a></h1>
-<p>EUDIPLO uses OAuth 2.0 Client Credentials flow for API authentication, designed
-for service-to-service communication without user interaction.</p>
-<h2 id="authentication-architecture">Authentication Architecture<a class="headerlink" href="#authentication-architecture" title="Permanent link">&para;</a></h2>
-<h3 id="design-principles">Design Principles<a class="headerlink" href="#design-principles" title="Permanent link">&para;</a></h3>
+<h1 id="workspace-structure">Workspace Structure<a class="headerlink" href="#workspace-structure" title="Permanent link">&para;</a></h1>
+<p>EUDIPLO is organized as a <strong>monorepo workspace</strong> using pnpm workspaces. This structure allows us to manage multiple related applications in a single repository while maintaining clear separation of concerns.</p>
+<h2 id="directory-structure">📁 Directory Structure<a class="headerlink" href="#directory-structure" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>eudiplo/
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── apps/                          # Application packages
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│   ├── backend/                   # NestJS API server
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│   │   ├── src/                   # Backend source code
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│   │   ├── test/                  # Backend tests
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│   │   ├── package.json           # Backend dependencies
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│   │   └── Dockerfile            # Backend container definition
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│   ├── client/                    # Angular web interface
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│   │   ├── src/                   # Client source code
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│   │   ├── package.json           # Client dependencies
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│   │   └── Dockerfile            # Client container definition
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│   └── webhook/                   # Cloudflare Worker for testing
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│       ├── src/                   # Webhook source code
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│       └── package.json           # Webhook dependencies
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>├── assets/                        # Configuration and assets
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>├── docs/                          # Documentation
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>├── deployment/                    # Docker Compose configurations
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>├── package.json                   # Root workspace configuration
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>├── pnpm-workspace.yaml           # pnpm workspace definition
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>└── docker-compose.yml            # Development compose file
+</code></pre></div>
+<h2 id="applications">🏗️ Applications<a class="headerlink" href="#applications" title="Permanent link">&para;</a></h2>
+<h3 id="backend-eudiplobackend">Backend (<code>@eudiplo/backend</code>)<a class="headerlink" href="#backend-eudiplobackend" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>Service-to-Service</strong>: No user interaction required</li>
-<li><strong>Tenant Isolation</strong>: JWT <code>sub</code> claim identifies and isolates tenants</li>
-<li><strong>Pluggable Identity</strong>: Support for both built-in and external OIDC providers</li>
-<li><strong>Stateless</strong>: JWT tokens enable horizontal scaling</li>
+<li><strong>Technology</strong>: NestJS with TypeScript</li>
+<li><strong>Purpose</strong>: Core API server for EUDI Wallet integration</li>
+<li><strong>Port</strong>: 3000</li>
+<li><strong>Key Features</strong>:</li>
+<li>OID4VCI, OID4VP, SD-JWT VC support</li>
+<li>OAuth2 authentication</li>
+<li>Pluggable key management</li>
+<li>Database abstraction</li>
 </ul>
-<h3 id="security-model">Security Model<a class="headerlink" href="#security-model" title="Permanent link">&para;</a></h3>
+<h3 id="client-eudiploclient">Client (<code>@eudiplo/client</code>)<a class="headerlink" href="#client-eudiploclient" title="Permanent link">&para;</a></h3>
 <ul>
-<li>All management endpoints require authentication</li>
-<li>Tenant data is isolated using JWT subject claims</li>
-<li>Tokens are signed and validated for integrity</li>
-<li>Support for token expiration and rotation</li>
+<li><strong>Technology</strong>: Angular with TypeScript</li>
+<li><strong>Purpose</strong>: Web interface for EUDIPLO management</li>
+<li><strong>Port</strong>: 4200</li>
+<li><strong>Key Features</strong>:</li>
+<li>Credential issuance configuration</li>
+<li>Presentation request management</li>
+<li>Real-time monitoring</li>
+<li>Admin dashboard</li>
 </ul>
-<p><strong>Related Architecture:</strong> For multi-tenant configuration and session management,
-see <a href="../../architecture/tenant/">Tenant-Based Architecture</a> and
-<a href="../../architecture/sessions/">Sessions</a>.</p>
-<hr />
-<h2 id="oauth2-client-credentials-authentication">OAuth2 Client Credentials Authentication<a class="headerlink" href="#oauth2-client-credentials-authentication" title="Permanent link">&para;</a></h2>
-<p>This API exclusively uses the OAuth2 client credentials flow, which is designed
-for service-to-service authentication where no user interaction is required.</p>
-<h3 id="built-in-oauth2-server-recommended-for-getting-started">Built-in OAuth2 Server (Recommended for Getting Started)<a class="headerlink" href="#built-in-oauth2-server-recommended-for-getting-started" title="Permanent link">&para;</a></h3>
-<p>EUDIPLO includes a built-in OAuth2 server for simple deployments:</p>
+<h3 id="webhook-test-rp">Webhook (<code>test-rp</code>)<a class="headerlink" href="#webhook-test-rp" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Technology</strong>: Cloudflare Worker</li>
+<li><strong>Purpose</strong>: Testing relying party implementation</li>
+<li><strong>Key Features</strong>:</li>
+<li>Webhook endpoints for testing</li>
+<li>Presentation verification</li>
+<li>Development utilities</li>
+</ul>
+<h2 id="workspace-commands">🔧 Workspace Commands<a class="headerlink" href="#workspace-commands" title="Permanent link">&para;</a></h2>
+<p>The workspace provides several convenient commands:</p>
+<h3 id="development">Development<a class="headerlink" href="#development" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Install all dependencies</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>pnpm<span class="w"> </span>install
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Start all applications</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>pnpm<span class="w"> </span>run<span class="w"> </span>dev
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="c1"># Start specific application</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>pnpm<span class="w"> </span>--filter<span class="w"> </span>@eudiplo/backend<span class="w"> </span>run<span class="w"> </span>start:dev
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>pnpm<span class="w"> </span>--filter<span class="w"> </span>@eudiplo/client<span class="w"> </span>run<span class="w"> </span>dev
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>pnpm<span class="w"> </span>--filter<span class="w"> </span>test-rp<span class="w"> </span>run<span class="w"> </span>dev
+</code></pre></div>
+<h3 id="building">Building<a class="headerlink" href="#building" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Build all applications</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>pnpm<span class="w"> </span>run<span class="w"> </span>build
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Build specific application</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>pnpm<span class="w"> </span>--filter<span class="w"> </span>@eudiplo/backend<span class="w"> </span>run<span class="w"> </span>build
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>pnpm<span class="w"> </span>--filter<span class="w"> </span>@eudiplo/client<span class="w"> </span>run<span class="w"> </span>build
+</code></pre></div>
+<h3 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Test all applications</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>pnpm<span class="w"> </span>run<span class="w"> </span><span class="nb">test</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># Test specific application</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>pnpm<span class="w"> </span>--filter<span class="w"> </span>@eudiplo/backend<span class="w"> </span>run<span class="w"> </span><span class="nb">test</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>pnpm<span class="w"> </span>--filter<span class="w"> </span>@eudiplo/client<span class="w"> </span>run<span class="w"> </span><span class="nb">test</span>
+</code></pre></div>
+<h3 id="linting-formatting">Linting &amp; Formatting<a class="headerlink" href="#linting-formatting" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Check code quality across workspace</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>pnpm<span class="w"> </span>run<span class="w"> </span>lint
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>pnpm<span class="w"> </span>run<span class="w"> </span>format:check
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="c1"># Fix issues automatically</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>pnpm<span class="w"> </span>run<span class="w"> </span>lint:fix
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>pnpm<span class="w"> </span>run<span class="w"> </span>format
+</code></pre></div>
+<h2 id="docker-integration">🐳 Docker Integration<a class="headerlink" href="#docker-integration" title="Permanent link">&para;</a></h2>
+<p>Each application has its own optimized Dockerfile:</p>
+<ul>
+<li><strong>Backend</strong>: <code>apps/backend/Dockerfile</code> - Multi-stage build with workspace support</li>
+<li><strong>Client</strong>: <code>apps/client/Dockerfile</code> - Angular build with nginx serving</li>
+</ul>
+<p>The root <code>docker-compose.yml</code> orchestrates both services:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Start both services</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># Build and start</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--build
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="c1"># View logs</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f
+</code></pre></div>
+<h2 id="dependency-management">📦 Dependency Management<a class="headerlink" href="#dependency-management" title="Permanent link">&para;</a></h2>
+<p>The workspace uses <strong>pnpm</strong> for efficient dependency management:</p>
+<ul>
+<li><strong>Shared dependencies</strong> are hoisted to the root <code>node_modules</code></li>
+<li><strong>App-specific dependencies</strong> remain in their respective <code>node_modules</code></li>
+<li><strong>Lockfile</strong> (<code>pnpm-lock.yaml</code>) ensures consistent installs across environments</li>
+</ul>
+<h3 id="adding-dependencies">Adding Dependencies<a class="headerlink" href="#adding-dependencies" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Add to workspace root (shared utilities)</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>pnpm<span class="w"> </span>add<span class="w"> </span>dependency-name
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># Add to specific application</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>pnpm<span class="w"> </span>--filter<span class="w"> </span>@eudiplo/backend<span class="w"> </span>add<span class="w"> </span>dependency-name
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>pnpm<span class="w"> </span>--filter<span class="w"> </span>@eudiplo/client<span class="w"> </span>add<span class="w"> </span>dependency-name
+</code></pre></div>
+<h2 id="benefits">🚀 Benefits<a class="headerlink" href="#benefits" title="Permanent link">&para;</a></h2>
+<p>This workspace structure provides:</p>
 <ol>
-<li>
-<p><strong>Swagger UI Authentication:</strong></p>
-</li>
-<li>
-<p>Navigate to the Swagger UI at <code>/api</code></p>
-</li>
-<li>Click the "Authorize" button</li>
-<li>Select "oauth2"</li>
-<li>Enter client ID and secret (configured via environment variables)</li>
-<li>
-<p>Click "Authorize"</p>
-</li>
-<li>
-<p><strong>Programmatic Access:</strong></p>
-</li>
+<li><strong>Code Sharing</strong>: Common utilities and types can be shared between applications</li>
+<li><strong>Unified Tooling</strong>: Single configuration for linting, formatting, and testing</li>
+<li><strong>Atomic Changes</strong>: Related changes across applications can be made in single commits</li>
+<li><strong>Efficient CI/CD</strong>: Build and test processes can be optimized for the entire workspace</li>
+<li><strong>Developer Experience</strong>: Single repository clone with all related code</li>
 </ol>
-<p><strong>Option 1: Credentials in Authorization Header (OAuth2 Standard):</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3000/oauth2/token<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Basic </span><span class="k">$(</span><span class="nb">echo</span><span class="w"> </span>-n<span class="w"> </span><span class="s1">&#39;client_id:client_secret&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="s1">    &quot;grant_type&quot;: &quot;client_credentials&quot;</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="s1">  }&#39;</span>
-</code></pre></div>
-<p><strong>Option 2: Credentials in Request Body:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3000/oauth2/token<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="s1">    &quot;grant_type&quot;: &quot;client_credentials&quot;,</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="s1">    &quot;client_id&quot;: &quot;your-client-id&quot;,</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="s1">    &quot;client_secret&quot;: &quot;your-client-secret&quot;</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="s1">  }&#39;</span>
-</code></pre></div>
-<h3 id="external-oidc-provider">External OIDC Provider<a class="headerlink" href="#external-oidc-provider" title="Permanent link">&para;</a></h3>
-<p>For enterprise deployments with existing identity infrastructure, EUDIPLO can
-integrate with external OIDC providers like Keycloak, Auth0, or Azure AD.</p>
-<p><strong>Configuration:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>OIDC=https://your-keycloak.example.com/realms/your-realm
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>PUBLIC_URL=https://your-api.example.com
-</code></pre></div>
-<p><strong>Authentication Flow:</strong></p>
-<ol>
-<li>Use your OIDC provider's token endpoint with client credentials flow</li>
-<li>Include the access token in API requests: <code>Authorization: Bearer &lt;token&gt;</code></li>
-</ol>
-<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
-<h3 id="external-oidc-provider_1">External OIDC Provider<a class="headerlink" href="#external-oidc-provider_1" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Enable external OIDC</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nv">OIDC</span><span class="o">=</span><span class="nb">true</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nv">KEYCLOAK_INTERNAL_ISSUER_URL</span><span class="o">=</span>https://your-keycloak.example.com/realms/your-realm
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="nv">PUBLIC_URL</span><span class="o">=</span>https://your-api.example.com
-</code></pre></div>
-<h3 id="integrated-oauth2-server">Integrated OAuth2 Server<a class="headerlink" href="#integrated-oauth2-server" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Leave OIDC undefined for integrated OAuth2 server</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nv">PUBLIC_URL</span><span class="o">=</span>https://your-api.example.com
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nv">JWT_SECRET</span><span class="o">=</span>your-secret-key-here-minimum-32-characters
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="nv">AUTH_CLIENT_ID</span><span class="o">=</span>root
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="nv">AUTH_CLIENT_SECRET</span><span class="o">=</span>root
-</code></pre></div>
-<p><strong>Configuration Reference:</strong> For complete configuration options and environment
-variables, see <a href="../../architecture/key-management/">Key Management</a> and
-<a href="../../architecture/database/">Database Configuration</a>.</p>
-<h2 id="protected-endpoints">Protected Endpoints<a class="headerlink" href="#protected-endpoints" title="Permanent link">&para;</a></h2>
-<p>All administrative endpoints require OAuth2 authentication:</p>
-<ul>
-<li><strong>Issuer Management</strong> (<code>/issuer-management/*</code>) - Credential issuance
-  management</li>
-<li><strong>Presentation Management</strong> (<code>/presentation-management/*</code>) - Presentation
-  verification management</li>
-<li><strong>Session Management</strong> (<code>/session/*</code>) - Session lifecycle management</li>
-</ul>
-<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
-<h3 id="token-validation-errors">Token Validation Errors<a class="headerlink" href="#token-validation-errors" title="Permanent link">&para;</a></h3>
-<ol>
-<li>Verify that tokens include the correct audience (<code>eudiplo-service</code>)</li>
-<li>Ensure clock synchronization between client and server</li>
-<li>Check token expiration times</li>
-</ol>
-<h3 id="integrated-oauth2-server-issues">Integrated OAuth2 Server Issues<a class="headerlink" href="#integrated-oauth2-server-issues" title="Permanent link">&para;</a></h3>
-<ol>
-<li>Verify <code>JWT_SECRET</code> is at least 32 characters</li>
-<li>Ensure client credentials (<code>AUTH_CLIENT_ID</code>/<code>AUTH_CLIENT_SECRET</code>) are
-   configured correctly</li>
-<li>Check that <code>PUBLIC_URL</code> is accessible for OAuth2 flows</li>
-</ol>
-<h2 id="security-considerations">Security Considerations<a class="headerlink" href="#security-considerations" title="Permanent link">&para;</a></h2>
-<ul>
-<li><strong>Token Lifetime</strong>: Tokens expire after 24 hours for client credentials flow</li>
-<li><strong>Secure Storage</strong>: Store client credentials and tokens securely and never
-  expose them in logs or URLs</li>
-<li><strong>Service-to-Service</strong>: This API is designed for service-to-service
-  authentication without user interaction</li>
-</ul>
-<hr />
-<h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
-<h3 id="architecture-design">Architecture &amp; Design<a class="headerlink" href="#architecture-design" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong><a href="../../architecture/tenant/">Tenant-Based Architecture</a></strong> - Multi-tenant
-  isolation and configuration</li>
-<li><strong><a href="../../architecture/sessions/">Sessions</a></strong> - Session lifecycle and management</li>
-<li><strong><a href="../../architecture/key-management/">Key Management</a></strong> - Cryptographic key
-  handling and security</li>
-</ul>
-<h3 id="implementation-guides">Implementation Guides<a class="headerlink" href="#implementation-guides" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong><a href="../../getting-started/quick-start/">Quick Start</a></strong> - Get authentication
-  working in 5 minutes</li>
-<li><strong><a href="../">API Overview</a></strong> - Complete API reference and endpoints</li>
-</ul>
-<h3 id="operations">Operations<a class="headerlink" href="#operations" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong><a href="../../development/running-locally/">Development Setup</a></strong> - Local development
-  authentication setup</li>
-</ul>
 
 
 
@@ -2336,7 +2233,7 @@ variables, see <a href="../../architecture/key-management/">Key Management</a> a
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: Overview">
+          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: Development">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2346,20 +2243,20 @@ variables, see <a href="../../architecture/key-management/">Key Management</a> a
                 Previous
               </span>
               <div class="md-ellipsis">
-                Overview
+                Development
               </div>
             </div>
           </a>
         
         
           
-          <a href="../openapi/" class="md-footer__link md-footer__link--next" aria-label="Next: OpenApi">
+          <a href="../running-locally/" class="md-footer__link md-footer__link--next" aria-label="Next: Running Locally">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                OpenApi
+                Running Locally
               </div>
             </div>
             <div class="md-footer__button md-icon">
