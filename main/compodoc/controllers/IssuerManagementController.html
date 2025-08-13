@@ -199,8 +199,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="75"
-                                    class="link-to-prism">src/issuer/issuer-management/issuer-management.controller.ts:75</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="83"
+                                    class="link-to-prism">src/issuer/issuer-management/issuer-management.controller.ts:83</a></div>
                         </td>
                     </tr>
 
@@ -333,6 +333,14 @@ export class IssuerManagementController {
                 value: {
                     response_type: ResponseType.URI,
                     issuanceId: &#x27;pid&#x27;,
+                } as OfferRequestDto,
+            },
+            authfixed: {
+                summary: &#x27;Auth flow with fixed session&#x27;,
+                value: {
+                    response_type: ResponseType.QRCode,
+                    issuanceId: &#x27;pid&#x27;,
+                    session: &#x27;fd3ebf28-8ad6-4909-8a7a-a739c2c412c0&#x27;,
                 } as OfferRequestDto,
             },
             override: {

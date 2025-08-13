@@ -24,71 +24,71 @@
 <title>cluster_RegistrarModule</title>
 <polygon fill="none" stroke="black" stroke-dasharray="1,5" points="20,-70 20,-268 476,-268 476,-70 20,-70"/>
 </g>
-<g id="clust6" class="cluster">
-<title>cluster_RegistrarModule_providers</title>
-<polygon fill="none" stroke="black" points="302,-78 302,-130 468,-130 468,-78 302,-78"/>
+<g id="clust4" class="cluster">
+<title>cluster_RegistrarModule_exports</title>
+<polygon fill="none" stroke="black" points="213,-208 213,-260 341,-260 341,-208 213,-208"/>
 </g>
 <g id="clust3" class="cluster">
 <title>cluster_RegistrarModule_imports</title>
-<polygon fill="none" stroke="black" points="28,-78 28,-130 294,-130 294,-78 28,-78"/>
+<polygon fill="none" stroke="black" points="202,-78 202,-130 468,-130 468,-78 202,-78"/>
 </g>
-<g id="clust4" class="cluster">
-<title>cluster_RegistrarModule_exports</title>
-<polygon fill="none" stroke="black" points="173,-208 173,-260 301,-260 301,-208 173,-208"/>
+<g id="clust6" class="cluster">
+<title>cluster_RegistrarModule_providers</title>
+<polygon fill="none" stroke="black" points="28,-78 28,-130 194,-130 194,-78 28,-78"/>
 </g>
 <!-- CryptoModule -->
 <g id="node1" class="node">
 <title>CryptoModule</title>
-<polygon fill="#8dd3c7" stroke="black" points="286.44,-122 283.44,-126 262.44,-126 259.44,-122 187.56,-122 187.56,-86 286.44,-86 286.44,-122"/>
-<text text-anchor="middle" x="237" y="-99.8" font-family="Times,serif" font-size="14.00">CryptoModule</text>
+<polygon fill="#8dd3c7" stroke="black" points="460.44,-122 457.44,-126 436.44,-126 433.44,-122 361.56,-122 361.56,-86 460.44,-86 460.44,-122"/>
+<text text-anchor="middle" x="411" y="-99.8" font-family="Times,serif" font-size="14.00">CryptoModule</text>
 </g>
 <!-- RegistrarModule -->
 <g id="node3" class="node">
 <title>RegistrarModule</title>
-<polygon fill="#8dd3c7" stroke="black" points="292.36,-187 289.36,-191 268.36,-191 265.36,-187 181.64,-187 181.64,-151 292.36,-151 292.36,-187"/>
-<text text-anchor="middle" x="237" y="-164.8" font-family="Times,serif" font-size="14.00">RegistrarModule</text>
+<polygon fill="#8dd3c7" stroke="black" points="332.36,-187 329.36,-191 308.36,-191 305.36,-187 221.64,-187 221.64,-151 332.36,-151 332.36,-187"/>
+<text text-anchor="middle" x="277" y="-164.8" font-family="Times,serif" font-size="14.00">RegistrarModule</text>
 </g>
 <!-- CryptoModule&#45;&gt;RegistrarModule -->
 <g id="edge1" class="edge">
 <title>CryptoModule&#45;&gt;RegistrarModule</title>
-<path fill="none" stroke="black" d="M237,-122.11C237,-122.11 237,-140.99 237,-140.99"/>
-<polygon fill="black" stroke="black" points="233.5,-140.99 237,-150.99 240.5,-140.99 233.5,-140.99"/>
+<path fill="none" stroke="black" d="M411,-122.11C411,-141.34 411,-169 411,-169 411,-169 342.66,-169 342.66,-169"/>
+<polygon fill="black" stroke="black" points="342.66,-165.5 332.66,-169 342.66,-172.5 342.66,-165.5"/>
 </g>
 <!-- PresentationsModule -->
 <g id="node2" class="node">
 <title>PresentationsModule</title>
-<polygon fill="#8dd3c7" stroke="black" points="170.2,-122 167.2,-126 146.2,-126 143.2,-122 35.8,-122 35.8,-86 170.2,-86 170.2,-122"/>
-<text text-anchor="middle" x="103" y="-99.8" font-family="Times,serif" font-size="14.00">PresentationsModule</text>
+<polygon fill="#8dd3c7" stroke="black" points="344.2,-122 341.2,-126 320.2,-126 317.2,-122 209.8,-122 209.8,-86 344.2,-86 344.2,-122"/>
+<text text-anchor="middle" x="277" y="-99.8" font-family="Times,serif" font-size="14.00">PresentationsModule</text>
 </g>
 <!-- PresentationsModule&#45;&gt;RegistrarModule -->
 <g id="edge2" class="edge">
 <title>PresentationsModule&#45;&gt;RegistrarModule</title>
-<path fill="none" stroke="black" d="M103,-122.11C103,-141.34 103,-169 103,-169 103,-169 171.34,-169 171.34,-169"/>
-<polygon fill="black" stroke="black" points="171.34,-172.5 181.34,-169 171.34,-165.5 171.34,-172.5"/>
+<path fill="none" stroke="black" d="M277,-122.11C277,-122.11 277,-140.99 277,-140.99"/>
+<polygon fill="black" stroke="black" points="273.5,-140.99 277,-150.99 280.5,-140.99 273.5,-140.99"/>
 </g>
 <!-- RegistrarService  -->
 <g id="node4" class="node">
 <title>RegistrarService </title>
-<polygon fill="#fb8072" stroke="black" points="293.29,-252 180.71,-252 180.71,-216 293.29,-216 293.29,-252"/>
-<text text-anchor="middle" x="237" y="-229.8" font-family="Times,serif" font-size="14.00">RegistrarService </text>
+<polygon fill="#fb8072" stroke="black" points="333.29,-252 220.71,-252 220.71,-216 333.29,-216 333.29,-252"/>
+<text text-anchor="middle" x="277" y="-229.8" font-family="Times,serif" font-size="14.00">RegistrarService </text>
 </g>
 <!-- RegistrarModule&#45;&gt;RegistrarService  -->
 <g id="edge3" class="edge">
 <title>RegistrarModule&#45;&gt;RegistrarService </title>
-<path fill="none" stroke="black" stroke-dasharray="5,2" d="M237,-187.11C237,-187.11 237,-205.99 237,-205.99"/>
-<polygon fill="black" stroke="black" points="233.5,-205.99 237,-215.99 240.5,-205.99 233.5,-205.99"/>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M277,-187.11C277,-187.11 277,-205.99 277,-205.99"/>
+<polygon fill="black" stroke="black" points="273.5,-205.99 277,-215.99 280.5,-205.99 273.5,-205.99"/>
 </g>
 <!-- RegistrarService -->
 <g id="node5" class="node">
 <title>RegistrarService</title>
-<ellipse fill="#fdb462" stroke="black" cx="385" cy="-104" rx="75.27" ry="18"/>
-<text text-anchor="middle" x="385" y="-99.8" font-family="Times,serif" font-size="14.00">RegistrarService</text>
+<ellipse fill="#fdb462" stroke="black" cx="111" cy="-104" rx="75.27" ry="18"/>
+<text text-anchor="middle" x="111" y="-99.8" font-family="Times,serif" font-size="14.00">RegistrarService</text>
 </g>
 <!-- RegistrarService&#45;&gt;RegistrarModule -->
 <g id="edge4" class="edge">
 <title>RegistrarService&#45;&gt;RegistrarModule</title>
-<path fill="none" stroke="black" d="M385,-122.11C385,-141.34 385,-169 385,-169 385,-169 302.53,-169 302.53,-169"/>
-<polygon fill="black" stroke="black" points="302.53,-165.5 292.53,-169 302.53,-172.5 302.53,-165.5"/>
+<path fill="none" stroke="black" d="M111,-122.11C111,-141.34 111,-169 111,-169 111,-169 211.26,-169 211.26,-169"/>
+<polygon fill="black" stroke="black" points="211.26,-172.5 221.26,-169 211.26,-165.5 211.26,-172.5"/>
 </g>
 </g>
 </svg>
