@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { HttpService } from '@nestjs/axios';
 import {
     BadRequestException,
     ConflictException,
@@ -8,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
+    AuthorizationServerMetadata,
     authorizationCodeGrantIdentifier,
     type HttpMethod,
     Oauth2ResourceServer,
@@ -21,6 +23,7 @@ import {
     Openid4vciIssuer,
 } from '@openid4vc/openid4vci';
 import type { Request } from 'express';
+import { firstValueFrom } from 'rxjs';
 import { v4 } from 'uuid';
 import { TokenPayload } from '../../auth/token.decorator';
 import { CryptoService } from '../../crypto/crypto.service';
@@ -52,6 +55,7 @@ export class Oid4vciService implements OnModuleInit {
         private readonly sessionLogger: SessionLoggerService,
         private readonly issuanceService: IssuanceService,
         private readonly webhookService: WebhookService,
+        private readonly httpService: HttpService,
     ) {}
     onModuleInit() {
         //TODO: align for tenant
@@ -86,10 +90,9 @@ export class Oid4vciService implements OnModuleInit {
                 session.tenantId,
             );
 
-        const authorizationServerMetadata =
-            this.authzService.authzMetadata(session);
+        let authorizationServerMetadata: AuthorizationServerMetadata;
 
-        let authServer = authorizationServerMetadata.issuer;
+        let authServer: string;
 
         if (
             AuthenticationConfigHelper.isAuthUrlAuth(
@@ -97,6 +100,32 @@ export class Oid4vciService implements OnModuleInit {
             )
         ) {
             authServer = issuanceConfig.authenticationConfig.config.url;
+            // fetch the authorization server metadata
+            authorizationServerMetadata = await firstValueFrom(
+                this.httpService.get(
+                    `${authServer}/.well-known/openid-configuration`,
+                ),
+            ).then(
+                (response) => response.data,
+                (err) => {
+                    const logContext: SessionLogContext = {
+                        sessionId: session.id,
+                        tenantId: session.tenantId,
+                        flowType: 'OID4VCI',
+                        stage: 'credential_request',
+                    };
+                    this.sessionLogger.logFlowError(logContext, err);
+                    throw new BadRequestException(
+                        'Failed to fetch authorization server metadata',
+                    );
+                },
+            );
+        } else {
+            authServer =
+                this.configService.getOrThrow<string>('PUBLIC_URL') +
+                `/${session.id}`;
+            authorizationServerMetadata =
+                this.authzService.authzMetadata(session);
         }
 
         let credentialIssuer = this.issuer.createCredentialIssuerMetadata({
@@ -110,6 +139,7 @@ export class Oid4vciService implements OnModuleInit {
             authorization_servers: [authServer],
             authorization_server: authServer,
             notification_endpoint: `${credential_issuer}/vci/notification`,
+            nonce_endpoint: `${credential_issuer}/vci/nonce`,
             display,
         });
 
@@ -204,6 +234,19 @@ export class Oid4vciService implements OnModuleInit {
             );
     }
 
+    /**
+     * Create a nonce an store it in the session entity
+     * @param session
+     * @returns
+     */
+    async nonceRequest(session: Session) {
+        const nonce = v4();
+        await this.sessionService.add(session.id, { nonce });
+        return {
+            c_nonce: nonce,
+        };
+    }
+
     async getCredential(
         req: Request,
         session: Session,
@@ -232,10 +275,12 @@ export class Oid4vciService implements OnModuleInit {
                     method: req.method as HttpMethod,
                     headers,
                 },
+                //TODO: Keycloak is setting aud to `account`, but it should be the value of resource server
                 resourceServer:
                     issuerMetadata.credentialIssuer.credential_issuer,
                 allowedAuthenticationSchemes: [
                     SupportedAuthenticationScheme.DPoP,
+                    SupportedAuthenticationScheme.Bearer,
                 ],
             });
 
@@ -259,11 +304,16 @@ export class Oid4vciService implements OnModuleInit {
 
         try {
             const credentials: string[] = [];
+            const expectedNonce =
+                (tokenPayload.nonce as string) || session.nonce;
+            if (expectedNonce === undefined) {
+                throw new BadRequestException('Nonce not found');
+            }
             for (const jwt of parsedCredentialRequest.proofs.jwt) {
                 const verifiedProof =
                     await this.issuer.verifyCredentialRequestJwtProof({
                         //check if this is correct or if the passed nonce is validated.
-                        expectedNonce: tokenPayload.nonce as string,
+                        expectedNonce,
                         issuerMetadata: await this.issuerMetadata(session),
                         jwt,
                     });

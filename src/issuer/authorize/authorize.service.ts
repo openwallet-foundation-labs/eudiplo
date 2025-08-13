@@ -185,7 +185,7 @@ export class AuthorizeService {
             });
             dpopValue = dpop;
         }
-        const cNonce = randomUUID();
+        //const cNonce = randomUUID();
         return this.getAuthorizationServer(tenantId).createAccessTokenResponse({
             audience: `${this.configService.getOrThrow<string>('PUBLIC_URL')}/${session.id}`,
             signer: {
@@ -199,8 +199,8 @@ export class AuthorizeService {
             subject: session.id,
             expiresInSeconds: 300,
             authorizationServer: authorizationServerMetadata.issuer,
-            cNonce,
-            cNonceExpiresIn: 100,
+            /* cNonce,
+            cNonceExpiresIn: 100, */
             clientId: 'wallet', // must be same as the client attestation
             dpop: dpopValue,
         });

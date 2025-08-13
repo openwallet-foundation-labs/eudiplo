@@ -8,7 +8,6 @@ import { PinoLogger } from 'nestjs-pino';
 import { join } from 'path';
 import { Repository } from 'typeorm';
 import { CryptoService } from '../../crypto/crypto.service';
-import { KeyService } from '../../crypto/key/key.service';
 import { CredentialConfigService } from '../credentials/credential-config/credential-config.service';
 import { CredentialConfig } from '../credentials/entities/credential.entity';
 import { AuthenticationConfig } from './dto/authentication-config.dto';
@@ -79,12 +78,49 @@ export class IssuanceService implements OnModuleInit {
 
                     // Validate the payload against IssuanceDto
                     const issuanceDto = plainToClass(IssuanceDto, payload);
+                    //TOODO: it does not validate the different config options
                     const validationErrors = await validate(issuanceDto, {
                         whitelist: true,
                         forbidNonWhitelisted: true,
                     });
 
                     if (validationErrors.length > 0) {
+                        const extractErrorMessages = (error: any): string[] => {
+                            const messages: string[] = [];
+
+                            // Add constraints from the current level
+                            if (error.constraints) {
+                                messages.push(
+                                    ...Object.values(
+                                        error.constraints as Record<
+                                            string,
+                                            string
+                                        >,
+                                    ),
+                                );
+                            }
+
+                            // Recursively add constraints from children
+                            if (error.children && error.children.length > 0) {
+                                for (const child of error.children) {
+                                    messages.push(
+                                        ...extractErrorMessages(child),
+                                    );
+                                }
+                            }
+
+                            return messages;
+                        };
+
+                        const errorMessages = validationErrors
+                            .map((error) => {
+                                const messages = extractErrorMessages(error);
+                                return messages.length > 0
+                                    ? `${error.property}: ${messages.join(', ')}`
+                                    : error.property;
+                            })
+                            .join('; ');
+
                         this.logger.error(
                             {
                                 event: 'ValidationError',
@@ -96,7 +132,7 @@ export class IssuanceService implements OnModuleInit {
                                     value: error.value,
                                 })),
                             },
-                            `Validation failed for issuance config ${file} in tenant ${tenant.name}`,
+                            `Validation failed for issuance config ${file} in tenant ${tenant.name}: ${errorMessages}`,
                         );
                         continue; // Skip this invalid config
                     }
