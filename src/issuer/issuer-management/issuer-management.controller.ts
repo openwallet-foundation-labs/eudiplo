@@ -65,6 +65,18 @@ export class IssuerManagementController {
                     session: 'fd3ebf28-8ad6-4909-8a7a-a739c2c412c0',
                 } as OfferRequestDto,
             },
+            override: {
+                summary: 'Override',
+                value: {
+                    response_type: ResponseType.QRCode,
+                    issuanceId: 'pid-none',
+                    claims: {
+                        pid: {
+                            given_name: 'Max',
+                        },
+                    },
+                } as OfferRequestDto,
+            },
         },
     })
     @Post('offer')

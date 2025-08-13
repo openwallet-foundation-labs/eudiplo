@@ -114,7 +114,7 @@ export class CredentialsService {
             });
 
         const claims =
-            session.credentialPayload?.values?.[credentialConfigurationId] ??
+            session.credentialPayload?.claims?.[credentialConfigurationId] ??
             credentialConfiguration.claims;
         const disclosureFrame = credentialConfiguration.disclosureFrame;
 
