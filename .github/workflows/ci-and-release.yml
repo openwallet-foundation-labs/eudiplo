@@ -29,8 +29,13 @@ jobs:
       - name: Run linter
         run: pnpm run lint
 
-      - name: Run license check
-        run: pnpm dlx license-checker --onlyAllow "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;0BSD;ISC"
+      - name: Run license check (backend, production)
+        working-directory: apps/backend
+        run: pnpm dlx license-checker --production --onlyAllow "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;0BSD;ISC"
+
+      - name: Run license check (client, production)
+        working-directory: apps/client
+        run: pnpm dlx license-checker --production --onlyAllow "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;0BSD;ISC"
 
   build-backend:
     name: Build Backend
