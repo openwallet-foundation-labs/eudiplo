@@ -80,16 +80,23 @@
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
-               <div class="content controller">
+               <div class="content class">
                    <div class="content-data">
 
 
 
 
 
+
+
+
+
+
+
+
 <ol class="breadcrumb">
-  <li class="breadcrumb-item">Controllers</li>
-  <li class="breadcrumb-item" >IssuerManagementController</li>
+  <li class="breadcrumb-item">Classes</li>
+  <li class="breadcrumb-item" >AuthConfigValidator</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -113,19 +120,25 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/issuer/issuer-management/issuer-management.controller.ts</code>
+            <code>src/issuer/issuance/dto/authentication-config.dto.ts</code>
         </p>
 
+
             <p class="comment">
-                <h3>Prefix</h3>
+                <h3>Description</h3>
             </p>
             <p class="comment">
-                <code>issuer-management</code>
+                <p>Custom validator to ensure config type matches the authentication method</p>
+
             </p>
 
 
-
-
+            <p class="comment">
+                <h3>Implements</h3>
+            </p>
+            <p class="comment">
+                        <code>ValidatorConstraintInterface</code>
+            </p>
 
 
             <section data-compodoc="block-index">
@@ -142,12 +155,10 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier">Async</span>
-                                <a href="#getOffer" >getOffer</a>
+                                <a href="#defaultMessage" >defaultMessage</a>
+                            </li>
+                            <li>
+                                <a href="#validate" >validate</a>
                             </li>
                         </ul>
                     </td>
@@ -161,6 +172,8 @@
     </table>
 </section>
 
+
+
             <section data-compodoc="block-methods">
     
     <h3 id="methods">
@@ -170,45 +183,30 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getOffer"></a>
+                    <a name="defaultMessage"></a>
                     <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier">Async</span>
-                        <span ><b>getOffer</b></span>
-                        <a href="#getOffer"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>defaultMessage</b></span>
+                        <a href="#defaultMessage"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getOffer(res: Response, body: <a href="../classes/OfferRequestDto.html" target="_self">OfferRequestDto</a>, user: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
+<code>defaultMessage(args: ValidationArguments)</code>
                 </td>
             </tr>
 
-            <tr>
-                <td class="col-md-4">
-                    <b>Decorators : </b>
-                    <br />
-                    <code>@ApiResponse({description: &#x27;JSON response&#x27;, status: 201, type: OfferResponse, content: undefined})<br />@ApiProduces(&#x27;application/json&#x27;, &#x27;image/png&#x27;)<br />@ApiBody({type: OfferRequestDto, examples: undefined})<br />@Post(&#x27;offer&#x27;)<br /></code>
-                </td>
-            </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="71"
-                                    class="link-to-prism">src/issuer/issuer-management/issuer-management.controller.ts:71</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="46"
+                                    class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:46</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Create an offer for a credential.</p>
-</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -223,9 +221,76 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>res</td>
+                                                <td>args</td>
                                             <td>
-                                                        <code>Response</code>
+                                                        <code>ValidationArguments</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../entitys/IssuanceConfig.html" target="_self" >&quot;config must be undefined when method is \&quot;none\&quot;&quot; | &quot;config must be of type AuthenticationUrlConfig when method is \&quot;auth\&quot;&quot; | &quot;config must be of type PresentationDuringIssuanceConfig when method is \&quot;presentationDuringIssuance\&quot;&quot; | &quot;config type does not match the specified method&quot;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="validate"></a>
+                    <span class="name">
+                        <span ><b>validate</b></span>
+                        <a href="#validate"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>validate(config: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, args: ValidationArguments)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="21"
+                                    class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:21</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>config</td>
+                                            <td>
+                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
                                             </td>
 
                                             <td>
@@ -235,21 +300,9 @@
 
                                         </tr>
                                         <tr>
-                                                <td>body</td>
+                                                <td>args</td>
                                             <td>
-                                                            <code><a href="../classes/OfferRequestDto.html" target="_self" >OfferRequestDto</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>user</td>
-                                            <td>
-                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                                        <code>ValidationArguments</code>
                                             </td>
 
                                             <td>
@@ -272,117 +325,155 @@
             </tr>
         </tbody>
     </table>
-</section>    </div>
+</section>
+
+
+
+
+
+    </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Body, Controller, Post, Res, UseGuards } from &#x27;@nestjs/common&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Type } from &#x27;class-transformer&#x27;;
 import {
-    ApiBody,
-    ApiProduces,
-    ApiResponse,
-    ApiSecurity,
-    ApiTags,
-} from &#x27;@nestjs/swagger&#x27;;
-import { Response } from &#x27;express&#x27;;
-import * as QRCode from &#x27;qrcode&#x27;;
-import { JwtAuthGuard } from &#x27;../../auth/auth.guard&#x27;;
-import { Token, TokenPayload } from &#x27;../../auth/token.decorator&#x27;;
-import { Oid4vciService } from &#x27;../../issuer/oid4vci/oid4vci.service&#x27;;
-import { ResponseType } from &#x27;../../verifier/oid4vp/dto/presentation-request.dto&#x27;;
-import {
-    OfferRequestDto,
-    OfferResponse,
-} from &#x27;../oid4vci/dto/offer-request.dto&#x27;;
+    IsIn,
+    IsObject,
+    IsOptional,
+    IsUrl,
+    Validate,
+    ValidateNested,
+    ValidationArguments,
+    ValidatorConstraint,
+    ValidatorConstraintInterface,
+} from &#x27;class-validator&#x27;;
+import { WebhookConfig } from &#x27;../../../utils/webhook/webhook.dto&#x27;;
+import { PresentationDuringIssuance } from &#x27;../../credentials-metadata/dto/credential-config.dto&#x27;;
 
-@ApiTags(&#x27;Issuer management&#x27;)
-@UseGuards(JwtAuthGuard)
-@ApiSecurity(&#x27;oauth2&#x27;)
-@Controller(&#x27;issuer-management&#x27;)
-export class IssuerManagementController {
-    constructor(private readonly oid4vciService: Oid4vciService) {}
+/**
+ * Custom validator to ensure config type matches the authentication method
+ */
+@ValidatorConstraint({ name: &#x27;authConfigValidator&#x27;, async: false })
+export class AuthConfigValidator implements ValidatorConstraintInterface {
+    validate(config: any, args: ValidationArguments) {
+        const obj &#x3D; args.object as AuthenticationConfigDto;
 
-    /**
-     * Create an offer for a credential.
-     * @param res
-     * @param body
-     */
-    @ApiResponse({
-        description: &#x27;JSON response&#x27;,
-        status: 201,
-        //TODO: do not use type, otherwhise the response can not deal with both JSON and PNG.
-        type: OfferResponse,
-        content: {
-            &#x27;application/json&#x27;: { schema: { type: &#x27;object&#x27; } },
-            &#x27;image/png&#x27;: { schema: { type: &#x27;string&#x27;, format: &#x27;binary&#x27; } },
-        },
-    })
-    @ApiProduces(&#x27;application/json&#x27;, &#x27;image/png&#x27;)
-    @ApiBody({
-        type: OfferRequestDto,
-        examples: {
-            qrcode: {
-                summary: &#x27;QR-Code Example&#x27;,
-                value: {
-                    response_type: ResponseType.QRCode,
-                    issuanceId: &#x27;pid&#x27;,
-                } as OfferRequestDto,
-            },
-            uri: {
-                summary: &#x27;URI&#x27;,
-                value: {
-                    response_type: ResponseType.URI,
-                    issuanceId: &#x27;pid&#x27;,
-                } as OfferRequestDto,
-            },
-            authfixed: {
-                summary: &#x27;Auth flow with fixed session&#x27;,
-                value: {
-                    response_type: ResponseType.QRCode,
-                    issuanceId: &#x27;pid&#x27;,
-                    session: &#x27;fd3ebf28-8ad6-4909-8a7a-a739c2c412c0&#x27;,
-                } as OfferRequestDto,
-            },
-        },
-    })
-    @Post(&#x27;offer&#x27;)
-    async getOffer(
-        @Res() res: Response,
-        @Body() body: OfferRequestDto,
-        @Token() user: TokenPayload,
-    ) {
-        // For now, we&#x27;ll just pass the body to the service as before
-        // You can modify the service later to accept user information if needed
-        const values &#x3D; await this.oid4vciService.createOffer(
-            body,
-            user,
-            user.sub,
-        );
-
-        if (body.response_type &#x3D;&#x3D;&#x3D; ResponseType.QRCode) {
-            // Generate QR code as a PNG buffer
-            const qrCodeBuffer &#x3D; await QRCode.toBuffer(values.uri);
-
-            // Set the response content type to image/png
-            res.setHeader(&#x27;Content-Type&#x27;, &#x27;image/png&#x27;);
-
-            // Send the QR code image as the response
-            res.send(qrCodeBuffer);
-        } else {
-            res.send(values);
+        if (obj.method &#x3D;&#x3D;&#x3D; &#x27;none&#x27;) {
+            // For &#x27;none&#x27; method, config should be undefined
+            return config &#x3D;&#x3D;&#x3D; undefined;
         }
+
+        if (obj.method &#x3D;&#x3D;&#x3D; &#x27;auth&#x27;) {
+            // For &#x27;auth&#x27; method, config must be present and have &#x27;url&#x27; property
+            return (
+                config &amp;&amp;
+                typeof config &#x3D;&#x3D;&#x3D; &#x27;object&#x27; &amp;&amp;
+                typeof config.url &#x3D;&#x3D;&#x3D; &#x27;string&#x27;
+            );
+        }
+
+        if (obj.method &#x3D;&#x3D;&#x3D; &#x27;presentationDuringIssuance&#x27;) {
+            // For &#x27;presentationDuringIssuance&#x27; method, config must be present and have &#x27;presentation&#x27; property
+            return config &amp;&amp; typeof config &#x3D;&#x3D;&#x3D; &#x27;object&#x27; &amp;&amp; config.presentation;
+        }
+
+        return false;
+    }
+
+    defaultMessage(args: ValidationArguments) {
+        const obj &#x3D; args.object as AuthenticationConfigDto;
+
+        if (obj.method &#x3D;&#x3D;&#x3D; &#x27;none&#x27;) {
+            return &#x27;config must be undefined when method is &quot;none&quot;&#x27;;
+        }
+
+        if (obj.method &#x3D;&#x3D;&#x3D; &#x27;auth&#x27;) {
+            return &#x27;config must be of type AuthenticationUrlConfig when method is &quot;auth&quot;&#x27;;
+        }
+
+        if (obj.method &#x3D;&#x3D;&#x3D; &#x27;presentationDuringIssuance&#x27;) {
+            return &#x27;config must be of type PresentationDuringIssuanceConfig when method is &quot;presentationDuringIssuance&quot;&#x27;;
+        }
+
+        return &#x27;config type does not match the specified method&#x27;;
     }
 }
+
+/**
+ * Configuration for authentication method &#x27;auth&#x27;
+ * Used for OID4VCI authorized code flow where the user will be redirected for authentication
+ */
+export class AuthenticationUrlConfig {
+    /**
+     * The URL used in the OID4VCI authorized code flow.
+     * This URL is where users will be redirected for authentication.
+     */
+    @IsUrl()
+    url: string;
+
+    /**
+     * Optional webhook configuration for authentication callbacks
+     */
+    @IsObject()
+    @IsOptional()
+    @ValidateNested()
+    @Type(() &#x3D;&gt; WebhookConfig)
+    webhook?: WebhookConfig;
+}
+
+/**
+ * Configuration for authentication method &#x27;presentationDuringIssuance&#x27;
+ * Used for OID4VP flow where a credential presentation request is sent
+ */
+export class PresentationDuringIssuanceConfig {
+    /**
+     * Presentation configuration that specifies what credentials need to be presented via OID4VP
+     */
+    @IsObject()
+    @ValidateNested()
+    @Type(() &#x3D;&gt; PresentationDuringIssuance)
+    presentation: PresentationDuringIssuance;
+}
+
+/**
+ * Base class for authentication configurations
+ * Determines which OpenID4VC flow to use for the issuance process
+ */
+export class AuthenticationConfigDto {
+    /**
+     * The authentication method to use:
+     * - &#x27;none&#x27;: Pre-authorized code flow (no user authentication)
+     * - &#x27;auth&#x27;: OID4VCI authorized code flow (user redirect for authentication)
+     * - &#x27;presentationDuringIssuance&#x27;: OID4VP flow (credential presentation required)
+     */
+    @IsIn([&#x27;none&#x27;, &#x27;auth&#x27;, &#x27;presentationDuringIssuance&#x27;])
+    method: &#x27;none&#x27; | &#x27;auth&#x27; | &#x27;presentationDuringIssuance&#x27;;
+
+    /**
+     * Configuration specific to the selected authentication method
+     * - For &#x27;none&#x27;: no config needed (undefined) - uses pre-authorized code flow
+     * - For &#x27;auth&#x27;: AuthenticationUrlConfig - for OID4VCI authorized code flow
+     * - For &#x27;presentationDuringIssuance&#x27;: PresentationDuringIssuanceConfig - for OID4VP flow
+     */
+    @IsOptional()
+    @Validate(AuthConfigValidator)
+    config?: AuthenticationUrlConfig | PresentationDuringIssuanceConfig;
+}
+
+/**
+ * Union type for authentication configurations
+ * Each method corresponds to a specific OpenID4VC flow
+ */
+export type AuthenticationConfig &#x3D;
+    | { method: &#x27;none&#x27; } // Pre-authorized code flow
+    | { method: &#x27;auth&#x27;; config: AuthenticationUrlConfig } // OID4VCI authorized code flow
+    | {
+          method: &#x27;presentationDuringIssuance&#x27;; // OID4VP flow
+          config: PresentationDuringIssuanceConfig;
+      };
 </code></pre>
     </div>
 </div>
-
-
-
-
-
-
-
 
 
 
@@ -417,8 +508,8 @@ export class IssuerManagementController {
 
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'controller';
-            var COMPODOC_CURRENT_PAGE_URL = 'IssuerManagementController.html';
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
+            var COMPODOC_CURRENT_PAGE_URL = 'AuthConfigValidator.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

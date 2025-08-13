@@ -532,6 +532,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/ApiKeyConfig.html" data-type="entity-link" >ApiKeyConfig</a>
                             </li>
                             <li class="link">
+                                <a href="classes/AuthConfigValidator.html" data-type="entity-link" >AuthConfigValidator</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/AuthenticationConfigDto.html" data-type="entity-link" >AuthenticationConfigDto</a>
                             </li>
                             <li class="link">
