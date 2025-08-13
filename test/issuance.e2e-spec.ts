@@ -293,7 +293,7 @@ describe('Issuance', () => {
     });
 
     test('create oid4vci offer with defined session', async () => {
-        const sessionId = v4();
+        const sessionId = 'fd3ebf28-8ad6-4909-8a7a-a739c2c412c0';
         const res = await request(app.getHttpServer())
             .post('/issuer-management/offer')
             .trustLocalhost()
