@@ -18,7 +18,6 @@ RUN pnpm install --frozen-lockfile
 
 # Copy the backend application code
 COPY apps/backend ./apps/backend/
-COPY assets ./assets/
 
 # Build the NestJS application
 RUN pnpm --filter @eudiplo/backend build
@@ -37,27 +36,31 @@ ENV NODE_ENV=production
 ENV FOLDER=/app/config
 ENV CONFIG_FOLDER=/app/config/config
 
-# Set the working directory
+# Set the working directory at repo root (we'll switch to package dir later)
 WORKDIR /app
 
 # Install pnpm globally and openssl
 RUN apk add --no-cache openssl curl
 
 # Copy only the built application and necessary files
-COPY --from=builder /app/dist/backend ./dist/
+# Place the built backend into the package folder so runtime resolves node_modules correctly
+COPY --from=builder /app/dist/backend ./apps/backend/dist/
 
-# install only production dependencies
+# install only production dependencies for the backend package
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/backend/package.json ./apps/backend/
 RUN corepack enable
-RUN pnpm --filter @eudiplo/backend install --frozen-lockfile --prod
+# Switch to backend package directory and install its prod deps
+WORKDIR /app/apps/backend
+RUN pnpm install --frozen-lockfile --prod
 
-RUN mkdir config
+# Ensure config directory exists at /app/config (independent of workdir)
+RUN mkdir -p /app/config
 
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD curl --fail http://localhost:3000/health || exit 1
 
-# Specify the command to run the application
+# Specify the command to run the application from the backend package directory
 CMD ["node", "dist/main.js"]
