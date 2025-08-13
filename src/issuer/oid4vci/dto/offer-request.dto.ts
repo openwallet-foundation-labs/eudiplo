@@ -39,7 +39,7 @@ export class OfferRequestDto {
      */
     @IsObject()
     @IsOptional()
-    values?: { [key: string]: Record<string, any> };
+    claims?: { [key: string]: Record<string, any> };
 
     /**
      * Pre defined session id

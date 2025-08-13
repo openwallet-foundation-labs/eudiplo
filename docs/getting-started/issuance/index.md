@@ -109,17 +109,118 @@ the [Advanced Features](advanced-features.md) section.
 
 ## Passing Claims
 
-There are three options to pass claims for the credential. They are handled in
-the following order:
+EUDIPLO provides three methods to pass claims (data) for credentials during issuance. Understanding these methods and their priority order is crucial for designing your issuance flows effectively.
 
-1. **Webhook response** during presentation during issuance (highest priority)
-2. **Claims field** in the credential offer request
-3. **Static claims** in the credential configuration (lowest priority)
+### Priority Order
 
-If no claims are provided, the credential will be issued with an empty claims
-set. Claims will not be merged with other claims from e.g. the offer or the
-static defined ones - the higher priority source completely overrides lower
-priority sources.
+Claims are resolved in the following priority order (highest to lowest):
+
+1. **Webhook Response** - Dynamic claims from webhook endpoints
+2. **Credential Offer Values** - Claims passed during offer creation
+3. **Static Claims** - Default claims defined in credential configuration
+
+!!! info Important
+
+      Higher priority sources completely override lower priority sources - claims are not merged between different sources.
+
+### 1. Webhook Response (Highest Priority)
+
+Webhooks allow you to dynamically generate claims based on authentication context or external data sources. This is the most flexible approach for personalized credentials.
+
+**Current Support:** Presentation during issuance flows only (future Enhancement: [General webhook support planned](https://github.com/openwallet-foundation-labs/eudiplo/issues/32))
+
+!!! info "Learn More About Presentation During Issuance"
+
+    For detailed information about presentation during issuance workflows:
+
+    - **[Authentication Guide](authentication.md#3-oid4vp-flow-presentationduringissuance)** - Configuration and setup
+    - **[API Guide](api-guide.md#webhook-integration)** - Implementation examples and webhook payloads
+    - **[Presentation Documentation](../presentation/index.md#presentation-during-issuance)** - Flow diagrams and use cases
+    - **[Webhooks Architecture](../../architecture/webhooks.md#2-presentation-during-issuance)** - Technical details
+
+**When to use:**
+
+- Dynamic claims based on user authentication
+- Claims from external systems or databases
+- Personalized credentials requiring real-time data
+
+**Example webhook response:**
+
+```json
+{
+  "pid": {
+    "given_name": "Max",
+    "family_name": "Mustermann",
+    "birthdate": "1990-01-01",
+    "issuing_country": "DE"
+  }
+}
+```
+
+### 2. Credential Offer Values (Medium Priority)
+
+Pass claims directly when creating a credential offer. This is ideal for scenarios where the issuing service has the required data at offer creation time.
+
+**When to use:**
+
+- Claims known at offer creation time
+- Overriding specific static claims for individual issuances
+- Customizing credentials per recipient
+
+**Example API request:**
+
+```bash
+curl -X 'POST' \
+  'http://localhost:3000/issuer-management/offer' \
+  -H 'Authorization: Bearer your-jwt-token' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "issuanceId": "employee-onboarding",
+    "response_type": "uri",
+    "claims": {
+      "pid": {
+        "given_name": "Max",
+        "family_name": "Mustermann",
+        "employee_id": "EMP12345",
+        "department": "Engineering"
+      }
+    }
+  }'
+```
+
+### 3. Static Claims (Lowest Priority)
+
+Define default claims directly in the credential configuration. These serve as fallback values when no higher priority source provides claims.
+
+**When to use:**
+
+- Default values for all credentials of this type
+- Fixed metadata (e.g., issuing country, authority)
+- Development and testing scenarios
+
+**Example in credential configuration:**
+
+```json
+{
+  "id": "pid",
+  "format": "vc+sd-jwt",
+  "claims": {
+    "issuing_country": "DE",
+    "issuing_authority": "Federal Government",
+    "credential_type": "PersonalID"
+  }
+}
+```
+
+### No Claims Scenario
+
+If no claims are provided through any of the three methods, the credential will be issued with an empty claims set. While technically valid, this is rarely useful in practice.
+
+### Best Practices
+
+- **Combine methods strategically**: Use static claims for fixed metadata, offer values for known recipient data, and webhooks for dynamic personalization
+- **Test priority behavior**: Ensure you understand which claims source will be used in your specific scenario
+- **Validate claim completeness**: Verify that all required claims are provided through at least one method
 
 ---
 
