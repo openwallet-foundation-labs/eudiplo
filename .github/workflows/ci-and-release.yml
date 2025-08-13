@@ -15,31 +15,31 @@ jobs:
     name: Lint Codebase
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Node.js
+      - name: Use Node.js 22 + pnpm cache
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: pnpm
+          cache-dependency-path: |
+            pnpm-lock.yaml
 
-      - name: Enable Corepack
-        run: corepack enable
-
-      - name: Restore pnpm cache
-        uses: actions/setup-node@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
         with:
-          node-version: 22
-          cache: 'pnpm'
+          version: 10
+          run_install: false
 
-      - name: Install dependencies
-        run: pnpm install
+      - name: Prefetch deps (fills pnpm store)
+        run: pnpm fetch
+
+      - name: Install dependencies (offline from cache)
+        run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Run linter
         run: pnpm run lint
 
       - name: Run license check
-        run: npx license-checker --onlyAllow
-          "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;0BSD;ICS"
+        run: pnpm dlx license-checker --onlyAllow "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;0BSD;ISC"
 
   build-backend:
     name: Build Backend
