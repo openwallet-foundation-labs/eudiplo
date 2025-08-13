@@ -30,7 +30,6 @@ import {
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { Agent, fetch, setGlobalDispatcher } from 'undici';
-import { v4 } from 'uuid';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { AppModule } from '../src/app.module';
 import { callbacks, getSignJwtCallback, preparePresentation } from './utils';
@@ -108,7 +107,7 @@ describe('Issuance', () => {
         //import the pid credential configuration
         const pidCredentialConfiguration = JSON.parse(
             readFileSync(
-                'assets/config/root/issuance/credentials/pid.json',
+                '../../assets/config/root/issuance/credentials/pid.json',
                 'utf-8',
             ),
         );
@@ -123,7 +122,7 @@ describe('Issuance', () => {
         //import the pid credential configuration for pre authorized code flow
         const pidNoneIssuanceConfiguration = JSON.parse(
             readFileSync(
-                'assets/config/root/issuance/issuance/pid-none.json',
+                '../../assets/config/root/issuance/issuance/pid-none.json',
                 'utf-8',
             ),
         );
@@ -138,7 +137,7 @@ describe('Issuance', () => {
         //import the pid credential configuration for authorized code flow
         const pidIssuanceConfiguration = JSON.parse(
             readFileSync(
-                'assets/config/root/issuance/issuance/pid.json',
+                '../../assets/config/root/issuance/issuance/pid.json',
                 'utf-8',
             ),
         );
@@ -153,7 +152,7 @@ describe('Issuance', () => {
         //import citizen that that requires presentation during issuance
 
         const citizenPresentationConfiguration = JSON.parse(
-            readFileSync('assets/config/root/presentation/pid.json', 'utf-8'),
+            readFileSync('../../assets/config/root/presentation/pid.json', 'utf-8'),
         );
         citizenPresentationConfiguration.id = 'pid';
         await request(app.getHttpServer())
@@ -166,7 +165,7 @@ describe('Issuance', () => {
         //import the citizen credential configuration
         const citizenCredentialConfiguration = JSON.parse(
             readFileSync(
-                'assets/config/root/issuance/credentials/citizen.json',
+                '../../assets/config/root/issuance/credentials/citizen.json',
                 'utf-8',
             ),
         );
@@ -180,7 +179,7 @@ describe('Issuance', () => {
 
         const citizenIssuanceConfiguration = JSON.parse(
             readFileSync(
-                'assets/config/root/issuance/issuance/citizen.json',
+                '../../assets/config/root/issuance/issuance/citizen.json',
                 'utf-8',
             ),
         );
