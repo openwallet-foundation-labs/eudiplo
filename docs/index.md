@@ -44,6 +44,7 @@ can run yourself, integrate over HTTP, and configure via JSON.
 | 🔄 **Cross-Flow Support**   | Request credentials as part of an issuance flow                                               |
 | 🔐 **Secure by Default**    | Built-in support for secure key handling and OAuth-based status checking                      |
 | 🧱 **Plug and Play**        | Integrates with your backend over HTTP; no requirement to use a specific programming language |
+| 🖥️ **Web Client Included**  | Comes with a ready-to-use web interface for easy testing and interaction                      |
 | ⚙️ **JSON Configurable**    | Set up templates, trust roots, and issuers through JSON files                                 |
 | 🇪🇺 **Wallet Compatible**    | Works with multiple [wallets](./getting-started/wallet-compatibility.md)                      |
 | 👥 **Multi-Tenant Support** | Isolate configurations for different tenants or clients                                       |

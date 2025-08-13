@@ -134,6 +134,7 @@ nav:
     - OpenApi: api/openapi.md
   - Development:
       - development/index.md
+      - Workspace Structure: development/workspace-structure.md
       - Running Locally: development/running-locally.md
       - Code Quality: development/code-quality.md
       - Versioning: development/versioning.md

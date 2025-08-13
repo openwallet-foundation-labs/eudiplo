@@ -1,0 +1,137 @@
+<form [formGroup]="form" (ngSubmit)="createOrUpdatePresentation()">
+  <button mat-icon-button type="button" [routerLink]="['../']">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        @if (create) {
+          Create Presentation Configuration
+        } @else {
+          Edit Presentation Configuration
+        }
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content fxLayout="column" fxLayoutGap="16px">
+      <!-- ID Field -->
+      <mat-form-field>
+        <mat-label>ID</mat-label>
+        <input matInput formControlName="id" placeholder="Enter unique identifier" />
+        @if (form.controls['id'].hasError('required')) {
+          <mat-error> ID is required </mat-error>
+        }
+      </mat-form-field>
+
+      <!-- DCQL Query Field -->
+      <mat-form-field>
+        <mat-label>DCQL Query</mat-label>
+        <textarea
+          matInput
+          formControlName="dcql_query"
+          placeholder='{"query": "example"}'
+          rows="6"
+          class="json-textarea"
+          (blur)="formatJson()"
+        ></textarea>
+        <mat-hint
+          >Enter the DCQL query in valid JSON format. Click outside to auto-format.</mat-hint
+        >
+        @if (form.controls['dcql_query'].hasError('required')) {
+          <mat-error> DCQL Query is required </mat-error>
+        }
+        @if (form.controls['dcql_query'].hasError('invalidJson')) {
+          <mat-error> Invalid JSON format. Please check your syntax. </mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Example JSON Button -->
+      <button
+        mat-stroked-button
+        type="button"
+        color="accent"
+        (click)="insertExampleJson()"
+        class="example-button"
+      >
+        <mat-icon>code</mat-icon>
+        Insert Example
+      </button>
+
+      <!-- Registration Certificate Field -->
+      <mat-form-field>
+        <mat-label>Registration Certificate</mat-label>
+        <textarea
+          matInput
+          formControlName="registrationCert"
+          placeholder="Enter Registration Certificate"
+          rows="3"
+        ></textarea>
+        @if (form.controls['registrationCert'].hasError('required')) {
+          <mat-error> Registration Certificate is required </mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Webhook Configuration Section -->
+      <div formGroupName="webhook">
+        <h3>Webhook Configuration</h3>
+
+        <!-- Webhook URL -->
+        <mat-form-field>
+          <mat-label>Webhook URL</mat-label>
+          <input matInput formControlName="url" placeholder="https://your-webhook-url.com" />
+          @if (form.get('webhook.url')?.hasError('required')) {
+            <mat-error> Webhook URL is required </mat-error>
+          }
+        </mat-form-field>
+
+        <!-- Webhook Authentication Section -->
+        <div formGroupName="auth">
+          <h4>Authentication</h4>
+
+          <!-- Auth Type -->
+          <mat-form-field>
+            <mat-label>Authentication Type</mat-label>
+            <mat-select formControlName="type">
+              <mat-option value="apiKey">API Key</mat-option>
+            </mat-select>
+            @if (form.get('webhook.auth.type')?.hasError('required')) {
+              <mat-error> Authentication type is required </mat-error>
+            }
+          </mat-form-field>
+
+          <!-- API Key Configuration -->
+          <div formGroupName="config" fxLayout="column" fxLayoutGap="16px">
+            <mat-form-field>
+              <mat-label>Header Name</mat-label>
+              <input matInput formControlName="headerName" placeholder="X-API-Key" />
+              @if (form.get('webhook.auth.config.headerName')?.hasError('required')) {
+                <mat-error> Header name is required </mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>API Key Value</mat-label>
+              <input matInput formControlName="value" placeholder="Your API key" type="password" />
+              @if (form.get('webhook.auth.config.value')?.hasError('required')) {
+                <mat-error> API key value is required </mat-error>
+              }
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+
+    <mat-card-actions fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="end center">
+      <button mat-raised-button type="submit" color="primary" [disabled]="form.invalid">
+        <ng-container>
+          @if (create) {
+            Create Presentation
+          } @else {
+            Update Presentation
+          }
+        </ng-container>
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</form>

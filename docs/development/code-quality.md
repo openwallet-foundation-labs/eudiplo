@@ -114,14 +114,3 @@ export class AuthService {
   }
 }
 ```
-
-## Migration from ESLint/Prettier
-
-This project recently migrated from ESLint and Prettier to Biome for:
-
-- **Better Performance**: ~20x faster than ESLint
-- **Unified Tooling**: Single tool for formatting and linting
-- **Zero Configuration**: Works out of the box with sensible defaults
-- **Better Error Messages**: More helpful diagnostics
-
-If you have old ESLint or Prettier configurations in your editor, make sure to disable them for this project to avoid conflicts with Biome.

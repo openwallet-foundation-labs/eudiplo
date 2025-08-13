@@ -1,19 +1,21 @@
 # Running Locally
 
-This guide will help you run the project locally for development or testing
-purposes. It is intended for developers who want to inspect or modify the code
-and run the service directly using Node.js.
+This guide will help you run the project locally for development or testing purposes. 
+
+EUDIPLO is now organized as a **monorepo workspace** containing:
+- **Backend** (`apps/backend/`) - NestJS API server
+- **Client** (`apps/client/`) - Angular web interface  
+- **Webhook** (`apps/webhook/`) - Cloudflare Worker for testing
 
 ## Prerequisites
 
 Before you start, make sure you have the following tools installed:
 
-- [Node.js](https://nodejs.org/) (version 20+ recommended)
-- [pnpm](https://pnpm.io/)
+- [Node.js](https://nodejs.org/) (version 22+ recommended)
+- [pnpm](https://pnpm.io/) (package manager for monorepo workspaces)
 - [Git](https://git-scm.com/)
 - [ngrok](https://ngrok.com/) (optional, for exposing a public URL)
-- [Docker](https://www.docker.com/) (optional, only for supporting services like
-  PostgreSQL or Vault)
+- [Docker](https://www.docker.com/) (optional, for supporting services or containerized deployment)
 
 ## 1. Clone the Repository
 
@@ -24,10 +26,14 @@ cd eudiplo
 
 ## 2. Install Dependencies
 
+Install all workspace dependencies:
+
 ```bash
 corepack enable
 pnpm install
 ```
+
+This will install dependencies for all applications in the workspace.
 
 ## 3. Set Up Environment Variables
 
@@ -35,6 +41,12 @@ Create a `.env` file in the root of the project:
 
 ```bash
 cp .env.example .env
+```
+
+Configure Python environment for documentation (optional):
+
+```bash
+pnpm run setup:python
 ```
 
 To allow your wallet to interact with your service, a **public HTTPS URL** is
@@ -66,36 +78,67 @@ Check out the [Key Management](../architecture/key-management.md) or
 [Database](../architecture/database.md) sections for more information on how to
 configure key storage and database options beyond the default settings.
 
-## 4. Start the Application
+## 4. Start the Applications
 
-Start the NestJS application in development mode using:
+### Option A: Start All Services with Docker Compose
 
 ```bash
-pnpm run start:dev
+# Start both backend and client
+docker compose up -d
+
+# View logs
+docker compose logs -f
+```
+
+### Option B: Start Individual Applications
+
+**Start the Backend (NestJS API):**
+
+```bash
+pnpm --filter @eudiplo/backend run start:dev
+```
+
+**Start the Client (Angular UI) - in another terminal:**
+
+```bash
+pnpm --filter @eudiplo/client run dev
+```
+
+**Start the Webhook (for testing) - in another terminal:**
+
+```bash
+pnpm --filter test-rp run dev
+```
+
+### Option C: Start All Applications Locally
+
+```bash
+# Start all applications in development mode
+pnpm run dev
 ```
 
 This will:
-
 - Compile and watch your TypeScript code
 - Reload on changes
 - Use your `.env` configuration for keys, database, and registrar access
 
-Make sure any external services (like PostgreSQL or Vault) are available, either
-locally or through Docker.
+Make sure any external services (like PostgreSQL or Vault) are available, either locally or through Docker.
 
-> 🛠️ You do **not** need to use Docker to run the application itself — this
-> guide assumes you're running it via Node.js for local development.
+## 5. Access the Services
 
-## 5. Access the Service
+Once running, the applications are accessible at:
 
-Once running, the application is typically accessible at:
-
+**Backend API:**
 ```
 http://localhost:3000
 ```
 
-Or via the public URL configured with ngrok, for example:
+**Client Web Interface:**
+```
+http://localhost:4200
+```
 
+**Or via the public URL configured with ngrok:**
 ```
 https://f8e3-84-123-45-67.ngrok.io
 ```

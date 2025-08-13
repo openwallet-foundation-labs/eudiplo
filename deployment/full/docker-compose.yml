@@ -14,6 +14,8 @@ services:
             - vault_data:/vault/data
             - vault_logs:/vault/logs
         command: vault server -dev -dev-listen-address=0.0.0.0:8200
+        networks:
+            - eudiplo-network
 
     database:
         image: postgres:latest
@@ -24,6 +26,62 @@ services:
             POSTGRES_DB: ${DB_DATABASE}
         volumes:
             - db_data:/var/lib/postgresql/data
+        networks:
+            - eudiplo-network
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+    eudiplo:
+        image: ghcr.io/openwallet-foundation-labs/eudiplo:latest
+        restart: always
+        env_file:
+            - .env
+        ports:
+            - '3000:3000'
+        volumes:
+            - ../../assets:/app/config
+        depends_on:
+            database:
+                condition: service_healthy
+            vault:
+                condition: service_started
+        networks:
+            - eudiplo-network
+        environment:
+            - DB_HOST=database
+            - VAULT_ADDR=http://vault:8200
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 40s
+
+    eudiplo-client:
+        image: ghcr.io/openwallet-foundation-labs/eudiplo-client:latest
+        restart: always
+        ports:
+            - '4200:80'
+        depends_on:
+            eudiplo:
+                condition: service_healthy
+        networks:
+            - eudiplo-network
+        environment:
+            - API_BASE_URL=http://eudiplo:3000
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:80"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 10s
+
+networks:
+    eudiplo-network:
+        driver: bridge
 
 volumes:
     eudiplo-config:
