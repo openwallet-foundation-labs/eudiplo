@@ -208,7 +208,7 @@ Used for OID4VCI authorized code flow where the user will be redirected for auth
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="75" class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:75</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="22" class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:22</a></div>
                         </td>
                     </tr>
 
@@ -255,7 +255,7 @@ This URL is where users will be redirected for authentication.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="84" class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:84</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:31</a></div>
                         </td>
                     </tr>
 
@@ -286,63 +286,10 @@ import {
     IsObject,
     IsOptional,
     IsUrl,
-    Validate,
     ValidateNested,
-    ValidationArguments,
-    ValidatorConstraint,
-    ValidatorConstraintInterface,
 } from &#x27;class-validator&#x27;;
 import { WebhookConfig } from &#x27;../../../utils/webhook/webhook.dto&#x27;;
 import { PresentationDuringIssuance } from &#x27;../../credentials-metadata/dto/credential-config.dto&#x27;;
-
-/**
- * Custom validator to ensure config type matches the authentication method
- */
-@ValidatorConstraint({ name: &#x27;authConfigValidator&#x27;, async: false })
-export class AuthConfigValidator implements ValidatorConstraintInterface {
-    validate(config: any, args: ValidationArguments) {
-        const obj &#x3D; args.object as AuthenticationConfigDto;
-
-        if (obj.method &#x3D;&#x3D;&#x3D; &#x27;none&#x27;) {
-            // For &#x27;none&#x27; method, config should be undefined
-            return config &#x3D;&#x3D;&#x3D; undefined;
-        }
-
-        if (obj.method &#x3D;&#x3D;&#x3D; &#x27;auth&#x27;) {
-            // For &#x27;auth&#x27; method, config must be present and have &#x27;url&#x27; property
-            return (
-                config &amp;&amp;
-                typeof config &#x3D;&#x3D;&#x3D; &#x27;object&#x27; &amp;&amp;
-                typeof config.url &#x3D;&#x3D;&#x3D; &#x27;string&#x27;
-            );
-        }
-
-        if (obj.method &#x3D;&#x3D;&#x3D; &#x27;presentationDuringIssuance&#x27;) {
-            // For &#x27;presentationDuringIssuance&#x27; method, config must be present and have &#x27;presentation&#x27; property
-            return config &amp;&amp; typeof config &#x3D;&#x3D;&#x3D; &#x27;object&#x27; &amp;&amp; config.presentation;
-        }
-
-        return false;
-    }
-
-    defaultMessage(args: ValidationArguments) {
-        const obj &#x3D; args.object as AuthenticationConfigDto;
-
-        if (obj.method &#x3D;&#x3D;&#x3D; &#x27;none&#x27;) {
-            return &#x27;config must be undefined when method is &quot;none&quot;&#x27;;
-        }
-
-        if (obj.method &#x3D;&#x3D;&#x3D; &#x27;auth&#x27;) {
-            return &#x27;config must be of type AuthenticationUrlConfig when method is &quot;auth&quot;&#x27;;
-        }
-
-        if (obj.method &#x3D;&#x3D;&#x3D; &#x27;presentationDuringIssuance&#x27;) {
-            return &#x27;config must be of type PresentationDuringIssuanceConfig when method is &quot;presentationDuringIssuance&quot;&#x27;;
-        }
-
-        return &#x27;config type does not match the specified method&#x27;;
-    }
-}
 
 /**
  * Configuration for authentication method &#x27;auth&#x27;
@@ -401,7 +348,6 @@ export class AuthenticationConfigDto {
      * - For &#x27;presentationDuringIssuance&#x27;: PresentationDuringIssuanceConfig - for OID4VP flow
      */
     @IsOptional()
-    @Validate(AuthConfigValidator)
     config?: AuthenticationUrlConfig | PresentationDuringIssuanceConfig;
 }
 
