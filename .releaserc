@@ -11,11 +11,19 @@
                 dockerImage: 'eudiplo',
                 dockerProject: 'openwallet-foundation-labs',
                 dockerCacheFrom: 'openwallet-foundation-labs/eudiplo',
+                dockerFile: 'apps/backend/Dockerfile',
+                dockerContext: '.',
                 dockerTags: ['latest', '{{version}}', '{{major}}', '{{major}}.{{minor}}'],
                 dockerArgs: {
                     GITHUB_TOKEN: null,
                     VERSION: '{{version}}',
                 },
+            },
+        ],
+        [
+            '@semantic-release/exec',
+            {
+                publishCmd: "echo $DOCKER_REGISTRY_PASSWORD | docker login ghcr.io -u $DOCKER_REGISTRY_USER --password-stdin && VERSION=${nextRelease.version} && MAJOR=$(echo ${nextRelease.version} | cut -d. -f1) && MINOR=$(echo ${nextRelease.version} | cut -d. -f2) && docker build -t ghcr.io/openwallet-foundation-labs/eudiplo-client:latest -t ghcr.io/openwallet-foundation-labs/eudiplo-client:${nextRelease.version} -t ghcr.io/openwallet-foundation-labs/eudiplo-client:$MAJOR -t ghcr.io/openwallet-foundation-labs/eudiplo-client:$MAJOR.$MINOR apps/client && docker push ghcr.io/openwallet-foundation-labs/eudiplo-client:latest && docker push ghcr.io/openwallet-foundation-labs/eudiplo-client:${nextRelease.version} && docker push ghcr.io/openwallet-foundation-labs/eudiplo-client:$MAJOR && docker push ghcr.io/openwallet-foundation-labs/eudiplo-client:$MAJOR.$MINOR",
             },
         ],
         '@semantic-release/github',
