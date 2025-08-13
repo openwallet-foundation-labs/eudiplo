@@ -102,6 +102,7 @@ nav:
       - What is EUDIPLO: index.md
       - Quick Start: getting-started/quick-start.md      
       - Wallet Compatibility: getting-started/wallet-compatibility.md
+      - Web Client: getting-started/web-client.md
       - Flows:
         - Issuance:
           - Overview: getting-started/issuance/index.md
