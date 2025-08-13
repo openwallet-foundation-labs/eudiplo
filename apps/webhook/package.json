@@ -1,7 +1,7 @@
 {
 	"name": "test-rp",
 	"version": "0.0.0",
-	"private": true,
+	"license": "Apache-2.0",
 	"scripts": {
 		"deploy": "wrangler deploy",
 		"dev": "wrangler dev",
