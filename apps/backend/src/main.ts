@@ -127,11 +127,10 @@ async function bootstrap() {
             }
             
             if (usingDefaults.length > 0) {
-                console.warn('🚨 SECURITY WARNING: Using default credentials for demo purposes!');
-                console.warn(`   Default values detected for: ${usingDefaults.join(', ')}`);
-                console.warn('   🔧 Please set custom values in production environments');
-                console.warn('   📖 See .env.example for configuration guidance');
-                console.warn('');
+                logger.warn('🚨 SECURITY WARNING: Using default credentials for demo purposes!');
+                logger.warn(`   Default values detected for: ${usingDefaults.join(', ')}`);
+                logger.warn('   🔧 Please set custom values in production environments');
+                logger.warn('   📖 See .env.example for configuration guidance');                
             }
         };
         
