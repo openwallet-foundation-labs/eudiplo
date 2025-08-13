@@ -18,7 +18,7 @@ import { Oid4vpService } from './oid4vp.service';
 /**
  * Controller for handling OID4VP (OpenID for Verifiable Presentations) requests.
  */
-@Controller('oid4vp')
+@Controller(':session/oid4vp')
 @UseGuards(SessionGuard)
 @UseInterceptors(SessionLoggerInterceptor)
 @ApiParam({ name: 'session', required: true })
@@ -37,7 +37,7 @@ export class Oid4vpController {
      * @returns
      */
     //TODO: we just need the session that will include the requestId.
-    @Get('request/:session')
+    @Get()
     @SessionLogger('session', 'OID4VP')
     getRequestWithSession(@SessionEntity() session: Session) {
         return this.oid4vpService.createAuthorizationRequest(session);
@@ -48,7 +48,7 @@ export class Oid4vpController {
      * @param body
      * @returns
      */
-    @Post('response/:session')
+    @Post()
     @SessionLogger('session', 'OID4VP')
     getResponse(
         @Body() body: AuthorizationResponse,

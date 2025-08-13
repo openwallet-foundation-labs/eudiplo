@@ -54,6 +54,7 @@ export class Oid4vpService {
 
         try {
             const host = this.configService.getOrThrow<string>('PUBLIC_URL');
+            const tenantHost = `${host}/${session.tenantId}`;
 
             const values =
                 await this.presentationsService.getPresentationConfig(
@@ -65,7 +66,7 @@ export class Oid4vpService {
             const dcql_query = JSON.parse(
                 JSON.stringify(values.dcql_query).replace(
                     /<PUBLIC_URL>/g,
-                    host,
+                    tenantHost,
                 ),
             );
 
@@ -73,7 +74,7 @@ export class Oid4vpService {
                 const registrationCert = JSON.parse(
                     JSON.stringify(values.registrationCert).replace(
                         /<PUBLIC_URL>/g,
-                        host,
+                        tenantHost,
                     ),
                 );
                 regCert =
@@ -106,7 +107,7 @@ export class Oid4vpService {
                 payload: {
                     response_type: 'vp_token',
                     client_id: 'x509_san_dns:' + hostname,
-                    response_uri: `${host}/oid4vp/response/${session.id}`,
+                    response_uri: `${host}/${session.id}/oid4vp`,
                     response_mode: 'direct_post.jwt',
                     nonce,
                     dcql_query,
@@ -229,7 +230,7 @@ export class Oid4vpService {
         ).hostname;
         const params = {
             client_id: `x509_san_dns:${hostname}`,
-            request_uri: `${this.configService.getOrThrow<string>('PUBLIC_URL')}/oid4vp/request/${values.session}`,
+            request_uri: `${this.configService.getOrThrow<string>('PUBLIC_URL')}/${values.session}/oid4vp`,
         };
         const queryString = Object.entries(params)
             .map(
