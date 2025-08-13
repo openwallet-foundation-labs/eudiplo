@@ -209,7 +209,7 @@ describe('Issuance', () => {
             .set('Authorization', `Bearer ${authToken}`)
             .send({
                 response_type: 'uri',
-                issuanceId: 'pid',
+                issuanceId: 'pid-none',
             })
             .expect(201);
 
@@ -234,7 +234,7 @@ describe('Issuance', () => {
             .set('Authorization', `Bearer ${authToken}`)
             .send({
                 response_type: 'uri',
-                issuanceId: 'pid',
+                issuanceId: 'pid-none',
             })
             .expect(201);
 
@@ -274,7 +274,7 @@ describe('Issuance', () => {
             .set('Authorization', `Bearer ${authToken}`)
             .send({
                 response_type: 'uri',
-                issuanceId: 'pid',
+                issuanceId: 'pid-none',
             })
             .expect(201);
 
@@ -292,7 +292,7 @@ describe('Issuance', () => {
             });
     });
 
-    test('create oid4vci offier with defined session', async () => {
+    test('create oid4vci offer with defined session', async () => {
         const sessionId = v4();
         const res = await request(app.getHttpServer())
             .post('/issuer-management/offer')

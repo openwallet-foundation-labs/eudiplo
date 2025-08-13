@@ -103,7 +103,7 @@ export class Oid4vciService implements OnModuleInit {
             // fetch the authorization server metadata
             authorizationServerMetadata = await firstValueFrom(
                 this.httpService.get(
-                    `${authServer}/.well-known/openid-configuration`,
+                    `${authServer}/.well-known/oauth-authorization-server`,
                 ),
             ).then(
                 (response) => response.data,

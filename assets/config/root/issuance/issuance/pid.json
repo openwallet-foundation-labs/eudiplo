@@ -2,7 +2,7 @@
     "authenticationConfig": {
         "method": "auth",
         "config": {
-            "url": "https://service.eudi-wallet.dev/fd3ebf28-8ad6-4909-8a7a-a739c2c412c0"
+            "url": "http://localhost:3000/fd3ebf28-8ad6-4909-8a7a-a739c2c412c0"
         }
     },
     "credentialConfigs": [
