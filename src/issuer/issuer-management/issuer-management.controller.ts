@@ -57,6 +57,18 @@ export class IssuerManagementController {
                     issuanceId: 'pid',
                 } as OfferRequestDto,
             },
+            override: {
+                summary: 'Override',
+                value: {
+                    response_type: ResponseType.QRCode,
+                    issuanceId: 'pid-none',
+                    claims: {
+                        pid: {
+                            given_name: 'Max',
+                        },
+                    },
+                } as OfferRequestDto,
+            },
         },
     })
     @Post('offer')
