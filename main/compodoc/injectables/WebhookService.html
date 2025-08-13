@@ -500,7 +500,7 @@ export class WebhookService {
             async (webhookResponse) &#x3D;&gt; {
                 //TODO: better: just store it when it&#x27;s a presentation during issuance
                 if (webhookResponse.data) {
-                    session.credentialPayload!.values &#x3D; webhookResponse.data;
+                    session.credentialPayload!.claims &#x3D; webhookResponse.data;
                     //store received webhook response
                     await this.sessionService.add(session.id, {
                         credentialPayload: session.credentialPayload,
@@ -571,7 +571,7 @@ export class WebhookService {
             async (webhookResponse) &#x3D;&gt; {
                 //TODO: better: just store it when it&#x27;s a presentation during issuance
                 if (webhookResponse.data) {
-                    session.credentialPayload!.values &#x3D; webhookResponse.data;
+                    session.credentialPayload!.claims &#x3D; webhookResponse.data;
                     //store received webhook response
                     await this.sessionService.add(session.id, {
                         credentialPayload: session.credentialPayload,

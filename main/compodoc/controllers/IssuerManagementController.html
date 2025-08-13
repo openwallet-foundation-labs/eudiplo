@@ -199,8 +199,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="63"
-                                    class="link-to-prism">src/issuer/issuer-management/issuer-management.controller.ts:63</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="75"
+                                    class="link-to-prism">src/issuer/issuer-management/issuer-management.controller.ts:75</a></div>
                         </td>
                     </tr>
 
@@ -333,6 +333,18 @@ export class IssuerManagementController {
                 value: {
                     response_type: ResponseType.URI,
                     issuanceId: &#x27;pid&#x27;,
+                } as OfferRequestDto,
+            },
+            override: {
+                summary: &#x27;Override&#x27;,
+                value: {
+                    response_type: ResponseType.QRCode,
+                    issuanceId: &#x27;pid-none&#x27;,
+                    claims: {
+                        pid: {
+                            given_name: &#x27;Max&#x27;,
+                        },
+                    },
                 } as OfferRequestDto,
             },
         },
