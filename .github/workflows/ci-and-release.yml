@@ -207,7 +207,6 @@ jobs:
           ${{ github.actor }} --password-stdin
 
       - name: Build Client Docker image
-        working-directory: ./apps/client
         run: docker build -t
           ghcr.io/openwallet-foundation-labs/eudiplo-client:main . --target client
 
