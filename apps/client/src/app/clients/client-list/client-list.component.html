@@ -1,0 +1,81 @@
+<div fxLayout="row" fxLayoutAlign="space-between center">
+  <h2>Keycloak Clients</h2>
+  <button
+    mat-icon-button
+    [routerLink]="['create']"
+    matTooltip="Create New Client"
+    *ngIf="hasPermission"
+  >
+    <mat-icon>add</mat-icon>
+  </button>
+</div>
+
+<div *ngIf="!hasPermission" class="permission-denied">
+  <mat-card>
+    <mat-card-content>
+      <div fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="16px">
+        <mat-icon color="warn" class="large-icon">block</mat-icon>
+        <h3>Access Denied</h3>
+        <p>You do not have permission to manage Keycloak clients.</p>
+        <p>Required roles: <strong>admin</strong> or <strong>client-admin</strong></p>
+        <button mat-raised-button color="primary" routerLink="/dashboard">
+          Return to Dashboard
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<div *ngIf="hasPermission">
+  <div *ngIf="loading" class="loading-container">
+    <p>Loading clients...</p>
+  </div>
+
+  <table mat-table [dataSource]="clients" class="mat-elevation-z8" *ngIf="!loading">
+    <ng-container matColumnDef="clientId">
+      <th mat-header-cell *matHeaderCellDef>Client ID</th>
+      <td mat-cell *matCellDef="let client">{{ client.clientId }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="description">
+      <th mat-header-cell *matHeaderCellDef>Description</th>
+      <td mat-cell *matCellDef="let client">{{ client.description || 'No description' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="enabled">
+      <th mat-header-cell *matHeaderCellDef>Status</th>
+      <td mat-cell *matCellDef="let client">
+        <mat-slide-toggle
+          [checked]="client.enabled"
+          (change)="toggleClientStatus(client)"
+          matTooltip="Toggle client status"
+        >
+        </mat-slide-toggle>
+        <span class="status-text">{{ client.enabled ? 'Enabled' : 'Disabled' }}</span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let client">
+        <button mat-icon-button matTooltip="Copy login url" (click)="copyLoginUrl(client)">
+          <mat-icon>link</mat-icon>
+        </button>
+        <button mat-icon-button (click)="deleteClient(client)" matTooltip="Delete Client">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+
+  <div *ngIf="!loading && clients.length === 0" class="no-data">
+    <p>No clients found. Create your first client to get started.</p>
+    <button mat-raised-button color="primary" [routerLink]="['create']">
+      <mat-icon>add</mat-icon>
+      Create Client
+    </button>
+  </div>
+</div>

@@ -1,23 +1,22 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { PassportStrategy } from '@nestjs/passport';
-import { passportJwtSecret } from 'jwks-rsa';
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { ClientService } from './client.service';
-import { TokenPayload } from './token.decorator';
+import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { PassportStrategy } from "@nestjs/passport";
+import { passportJwtSecret } from "jwks-rsa";
+import { ExtractJwt, Strategy } from "passport-jwt";
+import { ClientService } from "./client.service";
+import { TokenPayload } from "./token.decorator";
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
     constructor(
         private configService: ConfigService,
         private clientService: ClientService,
     ) {
-        const useExternalOIDC = configService.get<boolean>('OIDC');
+        const useExternalOIDC = configService.get<boolean>("OIDC");
 
         const config = useExternalOIDC
             ? JwtStrategy.getExternalOIDCConfig(configService)
             : JwtStrategy.getIntegratedOAuth2Config(configService);
-
         super(config);
     }
 
@@ -31,7 +30,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
     private static getExternalOIDCConfig(configService: ConfigService) {
         const keycloakIssuerUrl = configService.get(
-            'KEYCLOAK_INTERNAL_ISSUER_URL',
+            "KEYCLOAK_INTERNAL_ISSUER_URL",
         );
         const jwksUri = `${keycloakIssuerUrl}/protocol/openid-connect/certs`;
 
@@ -42,19 +41,19 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
                 jwksRequestsPerMinute: 5,
                 jwksUri: jwksUri,
                 handleSigningKeyError: (err, cb) => {
-                    console.error('❌ Keycloak JWKS error:', err);
+                    console.error("❌ Keycloak JWKS error:", err);
                     if (err instanceof Error) {
                         return cb(err);
                     }
                     return cb(
                         new Error(
-                            'Could not get the signing key from Keycloak',
+                            "Could not get the signing key from Keycloak",
                         ),
                     );
                 },
             }),
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            algorithms: [configService.get('KEYCLOAK_ALGORITHM')],
+            algorithms: [configService.get("KEYCLOAK_ALGORITHM")],
             issuer: keycloakIssuerUrl,
         };
     }
@@ -63,14 +62,14 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         configService: ConfigService,
     ): any {
         const config = {
-            secretOrKey: configService.get('JWT_SECRET'),
+            secretOrKey: configService.get("JWT_SECRET"),
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            algorithms: ['HS256'], // Using symmetric key for integrated OAuth2
+            algorithms: ["HS256"], // Using symmetric key for integrated OAuth2
             ignoreExpiration: false, // Ensure tokens expire
         };
 
         // Add issuer validation only if JWT_ISSUER is configured
-        const issuer = configService.get('JWT_ISSUER');
+        const issuer = configService.get("JWT_ISSUER");
         if (issuer) {
             (config as any).issuer = issuer;
         }
@@ -85,16 +84,20 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
      */
     async validate(payload: TokenPayload): Promise<unknown> {
         const useExternalOIDC =
-            this.configService.get<boolean>('OIDC') !== undefined;
+            this.configService.get<boolean>("OIDC") !== undefined;
 
         await this.clientService.isSetUp(payload.sub);
 
         if (useExternalOIDC) {
             // External OIDC: Extract user info from external provider token
-            return payload;
+            return {
+                sub: (payload as any).azp,
+            };
         } else {
             // Integrated OAuth2: Use integrated server token validation
-            return payload;
+            return {
+                sub: payload.sub,
+            };
         }
     }
 }

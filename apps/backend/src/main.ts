@@ -1,9 +1,9 @@
-import { ValidationPipe } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { writeFileSync } from 'fs';
-import { AppModule } from './app.module';
+import { ValidationPipe } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { NestFactory } from "@nestjs/core";
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import { writeFileSync } from "fs";
+import { AppModule } from "./app.module";
 
 /**
  * Bootstrap function to initialize the NestJS application.
@@ -16,31 +16,31 @@ async function bootstrap() {
     const configService = app.get(ConfigService);
 
     const config = new DocumentBuilder()
-        .setTitle('EUDIPLO Service API')
+        .setTitle("EUDIPLO Service API")
         .setDescription(
-            'This is the API documentation for the EUDIPLO Service, which provides credential issuance and verification services',
+            "This is the API documentation for the EUDIPLO Service, which provides credential issuance and verification services",
         )
         .setExternalDoc(
-            'Documentation',
-            'https://openwallet-foundation-labs.github.io/eudiplo/latest/',
+            "Documentation",
+            "https://openwallet-foundation-labs.github.io/eudiplo/latest/",
         )
-        .setVersion(process.env.VERSION ?? 'main');
+        .setVersion(process.env.VERSION ?? "main");
     // Add OAuth2 configuration - either external OIDC or integrated OAuth2 server
-    const useExternalOIDC = configService.get<string>('OIDC');
-    const publicUrl = configService.getOrThrow<string>('PUBLIC_URL');
+    const useExternalOIDC = configService.get<string>("OIDC");
+    const publicUrl = configService.getOrThrow<string>("PUBLIC_URL");
 
     if (useExternalOIDC) {
         // External OIDC provider (e.g., Keycloak)
         const oidcIssuerUrl = configService.get<string>(
-            'KEYCLOAK_INTERNAL_ISSUER_URL',
+            "KEYCLOAK_INTERNAL_ISSUER_URL",
         );
         if (oidcIssuerUrl) {
             config.addOAuth2(
                 {
-                    type: 'openIdConnect',
+                    type: "openIdConnect",
                     openIdConnectUrl: `${oidcIssuerUrl}/.well-known/openid-configuration`,
                 },
-                'oauth2',
+                "oauth2",
             );
         }
     } else {
@@ -48,7 +48,7 @@ async function bootstrap() {
         if (publicUrl) {
             config.addOAuth2(
                 {
-                    type: 'oauth2',
+                    type: "oauth2",
                     flows: {
                         clientCredentials: {
                             tokenUrl: `${publicUrl}/oauth2/token`,
@@ -56,7 +56,7 @@ async function bootstrap() {
                         },
                     },
                 },
-                'oauth2',
+                "oauth2",
             );
         }
     }
@@ -67,7 +67,7 @@ async function bootstrap() {
 
     if (process.env.SWAGGER_JSON) {
         writeFileSync(
-            'swagger.json',
+            "swagger.json",
             JSON.stringify(documentFactory(), null, 2),
         );
         process.exit();
@@ -85,57 +85,69 @@ async function bootstrap() {
                 displayOperationId: false, // Cleaner operation display
                 defaultModelsExpandDepth: 1, // Auto-expand request/response models
                 defaultModelExpandDepth: 1,
-                docExpansion: 'list', // Show all operations collapsed by default
-                operationsSorter: 'alpha', // Sort operations alphabetically
-                tagsSorter: 'alpha', // Sort tags alphabetically
+                docExpansion: "list", // Show all operations collapsed by default
+                operationsSorter: "alpha", // Sort operations alphabetically
+                tagsSorter: "alpha", // Sort tags alphabetically
             },
-            customSiteTitle: 'EUDIPLO API Documentation',
+            customSiteTitle: "EUDIPLO API Documentation",
         };
 
         // Add middleware to set cache-control headers for Swagger
-        app.use('/api', (req, res, next) => {
+        app.use("/api", (req, res, next) => {
             res.setHeader(
-                'Cache-Control',
-                'no-cache, no-store, must-revalidate',
+                "Cache-Control",
+                "no-cache, no-store, must-revalidate",
             );
-            res.setHeader('Pragma', 'no-cache');
-            res.setHeader('Expires', '0');
+            res.setHeader("Pragma", "no-cache");
+            res.setHeader("Expires", "0");
             next();
         });
 
-        SwaggerModule.setup('/api', app, documentFactory, swaggerOptions);
-        
+        SwaggerModule.setup("/api", app, documentFactory, swaggerOptions);
+
         // Security warnings for default credentials
-        const logger = app.getHttpAdapter().getInstance().locals?.logger || console;
+        const logger =
+            app.getHttpAdapter().getInstance().locals?.logger || console;
         const warnSecurityDefaults = () => {
             const usingDefaults: string[] = [];
-            
+
             // Check for default JWT secret
-            const jwtSecret = configService.get<string>('JWT_SECRET');
-            if (jwtSecret === 'supersecret') {
-                usingDefaults.push('JWT_SECRET');
+            const jwtSecret = configService.get<string>("JWT_SECRET");
+            if (jwtSecret === "supersecret") {
+                usingDefaults.push("JWT_SECRET");
             }
-            
+
             // Check for default auth credentials
-            const clientId = configService.get<string>('AUTH_CLIENT_ID');
-            const clientSecret = configService.get<string>('AUTH_CLIENT_SECRET');
-            if (clientId === 'root') {
-                usingDefaults.push('AUTH_CLIENT_ID');
+            const clientId = configService.get<string>("AUTH_CLIENT_ID");
+            const clientSecret =
+                configService.get<string>("AUTH_CLIENT_SECRET");
+            if (clientId === "root") {
+                usingDefaults.push("AUTH_CLIENT_ID");
             }
-            if (clientSecret === 'root') {
-                usingDefaults.push('AUTH_CLIENT_SECRET');
+            if (clientSecret === "root") {
+                usingDefaults.push("AUTH_CLIENT_SECRET");
             }
-            
+
             if (usingDefaults.length > 0) {
-                logger.warn('🚨 SECURITY WARNING: Using default credentials for demo purposes!');
-                logger.warn(`   Default values detected for: ${usingDefaults.join(', ')}`);
-                logger.warn('   🔧 Please set custom values in production environments');
-                logger.warn('   📖 See .env.example for configuration guidance');                
+                logger.warn(
+                    "🚨 SECURITY WARNING: Using default credentials for demo purposes!",
+                );
+                logger.warn(
+                    `   Default values detected for: ${usingDefaults.join(", ")}`,
+                );
+                logger.warn(
+                    "   🔧 Please set custom values in production environments",
+                );
+                logger.warn(
+                    "   📖 See .env.example for configuration guidance",
+                );
             }
         };
-        
-        warnSecurityDefaults();
-        
+        const oidc = configService.get<string>("OIDC");
+        if (!oidc) {
+            warnSecurityDefaults();
+        }
+
         await app.listen(process.env.PORT ?? 3000);
     }
 }

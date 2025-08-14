@@ -3,8 +3,7 @@ services:
     image: ghcr.io/openwallet-foundation-labs/eudiplo:latest
     restart: always
     build:
-      context: ./
-      dockerfile: apps/backend/Dockerfile
+      target: eudiplo
     env_file:
       - .env
     ports:
@@ -22,8 +21,7 @@ services:
     image: ghcr.io/openwallet-foundation-labs/eudiplo-client:latest
     restart: always
     build:
-      context: ./apps/client
-      dockerfile: Dockerfile
+      target: client
     ports:
       - '4200:80'
     depends_on:

@@ -15,6 +15,7 @@ import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { ApiService } from './api.service';
+import { JwtService } from './services/jwt.service';
 
 @Component({
   selector: 'app-root',
@@ -50,7 +51,8 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     public apiService: ApiService,
-    private breakpointObserver: BreakpointObserver
+    private breakpointObserver: BreakpointObserver,
+    private jwtService: JwtService
   ) {}
 
   ngOnInit(): void {
@@ -96,5 +98,25 @@ export class AppComponent implements OnInit, OnDestroy {
 
   get canAutoRefresh(): boolean {
     return this.apiService.canRefreshToken();
+  }
+
+  navigateToClientManagement(): void {
+    this.router.navigate(['/clients']);
+  }
+
+  /**
+   * Check if user has permission to manage Keycloak clients
+   */
+  hasClientManagementPermission(): boolean {
+    const token = this.apiService.accessToken;
+    if (!token) {
+      return false;
+    }
+
+    return (
+      this.jwtService.hasRealmRole(token, 'admin') ||
+      this.jwtService.hasRealmRole(token, 'client-admin') ||
+      this.jwtService.hasClientRole(token, 'realm-management', 'manage-clients')
+    );
   }
 }

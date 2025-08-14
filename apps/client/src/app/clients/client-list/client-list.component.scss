@@ -1,0 +1,60 @@
+.loading-container {
+  padding: 20px;
+  text-align: center;
+}
+
+.status-text {
+  margin-left: 8px;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.no-data {
+  padding: 40px;
+  text-align: center;
+
+  p {
+    margin-bottom: 20px;
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  button {
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
+.permission-denied {
+  padding: 20px;
+
+  mat-card {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .large-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+  }
+
+  h3 {
+    margin: 0;
+    color: rgba(0, 0, 0, 0.87);
+  }
+
+  p {
+    margin: 8px 0;
+    color: rgba(0, 0, 0, 0.6);
+
+    &:last-of-type {
+      margin-bottom: 16px;
+    }
+  }
+}
+
+table {
+  width: 100%;
+  margin-top: 16px;
+}

@@ -1,6 +1,8 @@
 packages:
   - 'apps/*'
-  
+syncInjectedDepsAfterScripts:
+- build
+injectWorkspacePackages: true  
 onlyBuiltDependencies:
   - '@compodoc/compodoc'
   - '@nestjs/core'

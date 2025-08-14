@@ -39,6 +39,12 @@
     <!-- Side Navigation -->
     <mat-sidenav #sidenav [mode]="sidenavMode" [opened]="sidenavOpened" class="app-sidenav">
       <mat-nav-list>
+        @if (hasClientManagementPermission()) {
+          <mat-list-item [routerLink]="['/clients']" routerLinkActive="active-link">
+            <mat-icon matListItemIcon>apps</mat-icon>
+            <span matListItemTitle>Clients</span>
+          </mat-list-item>
+        }
         <!-- Dashboard -->
         <mat-list-item [routerLink]="['/dashboard']" routerLinkActive="active-link">
           <mat-icon matListItemIcon>dashboard</mat-icon>

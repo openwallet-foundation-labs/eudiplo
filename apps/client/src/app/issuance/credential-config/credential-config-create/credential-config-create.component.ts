@@ -9,19 +9,25 @@ import {
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { CertEntity } from '../../../generated';
 import { KeyManagementService } from '../../../key-management/key-management.service';
 import { CredentialConfigService } from '../credential-config.service';
+import { JsonViewDialogComponent } from './json-view-dialog/json-view-dialog.component';
+import { configs } from './pre-config';
 
 @Component({
   selector: 'app-credential-config-create',
@@ -35,6 +41,10 @@ import { CredentialConfigService } from '../credential-config.service';
     MatSelectModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
+    MatDialogModule,
+    MatDividerModule,
+    MatMenuModule,
+    MatTooltipModule,
     FlexLayoutModule,
     MatSlideToggleModule,
     MatExpansionModule,
@@ -50,13 +60,16 @@ export class CredentialConfigCreateComponent implements OnInit {
   public loading = false;
   keys: CertEntity[] = [];
 
+  predefinedConfigs = configs;
+
   constructor(
     private credentialConfigService: CredentialConfigService,
     private router: Router,
     private route: ActivatedRoute,
     private snackBar: MatSnackBar,
     private keyManagementService: KeyManagementService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private dialog: MatDialog
   ) {
     this.form = this.fb.group({
       id: ['', [Validators.required]],
@@ -96,16 +109,8 @@ export class CredentialConfigCreateComponent implements OnInit {
               : '',
             vct: config.vct ? JSON.stringify(config.vct, null, 2) : '',
             schema: config.schema ? JSON.stringify(config.schema, null, 2) : '',
+            displayConfigs: config.config?.['display'] || [],
           });
-
-          // Handle display configurations
-          if (config.config?.['display'] && Array.isArray(config.config['display'])) {
-            const displayFormArray = this.form.get('displayConfigs') as FormArray;
-            displayFormArray.clear();
-            config.config['display'].forEach((display: any) => {
-              displayFormArray.push(this.createDisplayConfigGroup(display));
-            });
-          }
 
           //set field as readonly
           this.form.get('id')?.disable();
@@ -137,10 +142,9 @@ export class CredentialConfigCreateComponent implements OnInit {
 
     try {
       // Build the technical configuration
-      const displayConfigs = this.getDisplayConfigsValue();
       formValue.config = {
         format: 'dc+sd-jwt',
-        display: displayConfigs,
+        display: formValue.displayConfigs,
       };
 
       // Parse JSON fields
@@ -193,17 +197,18 @@ export class CredentialConfigCreateComponent implements OnInit {
   }
 
   // Display Configuration Management
-  createDisplayConfigGroup(display?: any): FormGroup {
+  createDisplayConfigGroup(): FormGroup {
     return this.fb.group({
-      name: [display?.name || '', [Validators.required]],
-      description: [display?.description || '', [Validators.required]],
-      locale: [display?.locale || 'en-US', [Validators.required]],
-      background_color: [display?.background_color || '#FFFFFF'],
-      text_color: [display?.text_color || '#000000'],
-      background_image_uri: [display?.background_image?.uri || ''],
-      background_image_url: [display?.background_image?.url || ''],
-      logo_uri: [display?.logo?.uri || ''],
-      logo_url: [display?.logo?.url || ''],
+      name: ['', [Validators.required]],
+      description: ['', [Validators.required]],
+      locale: ['en-US', [Validators.required]],
+      background_color: ['#FFFFFF'],
+      text_color: ['#000000'],
+      // Handle both nested (from API/JSON) and flattened (from form) formats
+      background_image_uri: [''],
+      background_image_url: [''],
+      logo_uri: [''],
+      logo_url: [''],
     });
   }
 
@@ -221,32 +226,119 @@ export class CredentialConfigCreateComponent implements OnInit {
     }
   }
 
-  private getDisplayConfigsValue(): any[] {
-    return this.displayConfigs.value
-      .map((display: any) => ({
-        name: display.name,
-        description: display.description,
-        locale: display.locale,
-        background_color: display.background_color,
-        text_color: display.text_color,
-        background_image: {
-          uri: display.background_image_uri || undefined,
-          url: display.background_image_url || undefined,
-        },
-        logo: {
-          uri: display.logo_uri || undefined,
-          url: display.logo_url || undefined,
-        },
-      }))
-      .map((display: any) => {
-        // Clean up empty image objects
-        if (!display.background_image.uri && !display.background_image.url) {
-          delete display.background_image;
-        }
-        if (!display.logo.uri && !display.logo.url) {
-          delete display.logo;
-        }
-        return display;
+  /**
+   * Open JSON view dialog to show/edit the complete configuration
+   */
+  viewAsJson(): void {
+    const currentConfig = this.getCompleteConfiguration();
+
+    const dialogRef = this.dialog.open(JsonViewDialogComponent, {
+      data: {
+        title: 'Complete Configuration JSON',
+        jsonData: currentConfig,
+        readonly: false
+      },
+      disableClose: false,
+      maxWidth: '95vw',
+      maxHeight: '95vh'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadConfigurationFromJson(result);
+      }
+    });
+  }
+
+  /**
+   * Get the complete configuration object from form values
+   */
+  private getCompleteConfiguration(): any {
+    const formValue = { ...this.form.value };
+    formValue.id = this.route.snapshot.params['id'] || formValue.id;
+
+    try {
+      formValue.config = {
+        format: 'dc+sd-jwt',
+        display: formValue.displayConfigs,
+      };
+
+      // Parse JSON fields
+      formValue.claims = formValue.claims ? JSON.parse(formValue.claims) : undefined;
+      formValue.disclosureFrame = formValue.disclosureFrame
+        ? JSON.parse(formValue.disclosureFrame)
+        : undefined;
+      formValue.vct = formValue.vct ? JSON.parse(formValue.vct) : undefined;
+      formValue.schema = formValue.schema ? JSON.parse(formValue.schema) : undefined;
+
+      // Remove the displayConfigs form array from the final data
+      delete formValue.displayConfigs;
+
+      return formValue;
+    } catch (error) {
+      console.error('Error building configuration:', error);
+      return this.form.value;
+    }
+  }
+
+  /**
+   * Load configuration from JSON object into the form
+   */
+  private loadConfigurationFromJson(config: any): void {
+    try {
+      // Update basic form fields
+      this.form.patchValue({
+        id: config.id || '',
+        keyId: config.keyId || '',
+        lifeTime: config.lifeTime || 3600,
+        keyBinding: config.keyBinding ?? true,
+        statusManagement: config.statusManagement ?? true,
+        claims: config.claims ? JSON.stringify(config.claims, null, 2) : '',
+        disclosureFrame: config.disclosureFrame
+          ? JSON.stringify(config.disclosureFrame, null, 2)
+          : '',
+        vct: config.vct ? JSON.stringify(config.vct, null, 2) : '',
+        schema: config.schema ? JSON.stringify(config.schema, null, 2) : '',
+        displayConfigs: config.config?.display || [],
       });
+
+      this.snackBar.open('Configuration loaded from JSON successfully', 'OK', {
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error('Error loading configuration from JSON:', error);
+      this.snackBar.open('Error loading configuration from JSON', 'Close', {
+        duration: 3000,
+      });
+    }
+  }
+
+  /**
+   * Load a predefined configuration
+   */
+  loadPredefinedConfig(configTemplate: any): void {
+    const config = JSON.parse(JSON.stringify(configTemplate.config)); // Deep clone
+
+    this.loadConfigurationFromJson(config);
+
+    this.snackBar.open(`${configTemplate.name} template loaded successfully`, 'OK', {
+      duration: 3000,
+    });
+  }
+
+  /**
+   * Show predefined configuration in JSON view (readonly)
+   */
+  previewPredefinedConfig(configTemplate: any): void {
+    this.dialog.open(JsonViewDialogComponent, {
+      data: {
+        title: `${configTemplate.name} - Preview`,
+        jsonData: configTemplate.config,
+        readonly: true
+      },
+      disableClose: false,
+      maxWidth: '95vw',
+      maxHeight: '95vh'
+    });
   }
 }

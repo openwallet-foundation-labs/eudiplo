@@ -186,7 +186,7 @@ jobs:
       - name: Build Backend Docker image
         run: docker build -t
           ghcr.io/openwallet-foundation-labs/eudiplo:main --build-arg
-          VERSION=main -f apps/backend/Dockerfile .
+          VERSION=main . --target eudiplo
 
       - name: Push Backend Docker image
         run: docker push ghcr.io/openwallet-foundation-labs/eudiplo:main
@@ -209,7 +209,7 @@ jobs:
       - name: Build Client Docker image
         working-directory: ./apps/client
         run: docker build -t
-          ghcr.io/openwallet-foundation-labs/eudiplo-client:main .
+          ghcr.io/openwallet-foundation-labs/eudiplo-client:main . --target client
 
       - name: Push Client Docker image
         run: docker push ghcr.io/openwallet-foundation-labs/eudiplo-client:main
