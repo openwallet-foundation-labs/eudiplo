@@ -36,4 +36,10 @@ export class CertEntity {
      */
     @Column('varchar', { nullable: true })
     description?: string;
+
+    /**
+     * Creation date of the key.
+     */
+    @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP' })
+    createdAt: Date;
 }

@@ -30,7 +30,7 @@ import { WellKnownService } from './well-known/well-known.service';
     imports: [
         ConfigModule.forRoot({
             validationSchema: Joi.object({
-                FOLDER: Joi.string().default('./tmp'),
+                FOLDER: Joi.string().default('../../tmp'),
                 RP_NAME: Joi.string().default('EUDIPLO'),
                 LOG_LEVEL: Joi.string()
                     .valid('trace', 'debug', 'info', 'warn', 'error', 'fatal')

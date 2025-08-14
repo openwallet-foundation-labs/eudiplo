@@ -13,7 +13,6 @@ import { JwtAuthGuard } from '../../auth/auth.guard';
 import { Token, TokenPayload } from '../../auth/token.decorator';
 import { CryptoService } from '../crypto.service';
 import { KeyImportDto } from './dto/key-import.dto';
-import { KeyObj } from './dto/key-object.dto';
 import { CertEntity } from './entities/cert.entity';
 import { KeyService } from './key.service';
 

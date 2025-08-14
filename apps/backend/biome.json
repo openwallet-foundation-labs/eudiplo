@@ -11,7 +11,8 @@
             "src/**/*.ts",
             "test/**/*.ts",
             "src/**/*.spec.ts",
-            "!**/.wrangler/**/*"
+            "!**/.wrangler/**/*",
+            "!**/client/**/*"
         ]
     },
     "formatter": {

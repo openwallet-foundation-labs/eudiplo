@@ -71,6 +71,12 @@ export class LoginComponent implements OnInit {
       if (queryParams[paramName]) {
         return queryParams[paramName];
       }
+
+      //check if defined in window
+      if ((window as any).env?.[paramName]) {
+        return (window as any).env[paramName];
+      }
+
       // Then check environment values if in development mode
       if (this.environmentService.isDevelopment() && envValue) {
         return envValue;

@@ -24,7 +24,12 @@ import { KeyManagementService } from '../key-management.service';
 export class KeyManagementListComponent implements OnInit {
   keys: CertEntity[] = [];
 
-  displayedColumns: (keyof CertEntity | 'actions')[] = ['id', 'description', 'actions'];
+  displayedColumns: (keyof CertEntity | 'actions')[] = [
+    'id',
+    'description',
+    'createdAt',
+    'actions',
+  ];
 
   constructor(private keyManagementService: KeyManagementService) {}
   ngOnInit(): void {
