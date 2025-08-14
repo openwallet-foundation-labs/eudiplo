@@ -1,3 +1,28 @@
+# [1.5.0](https://github.com/openwallet-foundation-labs/eudiplo/compare/v1.4.0...v1.5.0) (2025-08-14)
+
+
+### Bug Fixes
+
+* add correct url ([4d329fe](https://github.com/openwallet-foundation-labs/eudiplo/commit/4d329fe971c119e8a2cd714f356d5fc23a3cd991))
+* add information on how to pass dynamic claims ([#45](https://github.com/openwallet-foundation-labs/eudiplo/issues/45)) ([b295cc9](https://github.com/openwallet-foundation-labs/eudiplo/commit/b295cc94c3f4ab00c004ade3e37d8172399b15cb))
+* change oid4vp endpoints ([bb74af7](https://github.com/openwallet-foundation-labs/eudiplo/commit/bb74af769dbf0405985aa1269c8d13593be474b0))
+* consume auth server from config ([#42](https://github.com/openwallet-foundation-labs/eudiplo/issues/42)) ([e3c4d06](https://github.com/openwallet-foundation-labs/eudiplo/commit/e3c4d0650a6122eeeef50e38dee8399a459cf47e))
+* docker error in ci ([47aaea8](https://github.com/openwallet-foundation-labs/eudiplo/commit/47aaea8e42e6a163466eb4dadf6f5fd9b100d12c))
+* docker image handling ([#47](https://github.com/openwallet-foundation-labs/eudiplo/issues/47)) ([a948b41](https://github.com/openwallet-foundation-labs/eudiplo/commit/a948b417c0394ed961af5e685594417237038c8c))
+* dockerfile ([c8a7e80](https://github.com/openwallet-foundation-labs/eudiplo/commit/c8a7e8045e4c992af084259577034929e91bbecf))
+* keycloak usage ([26772ff](https://github.com/openwallet-foundation-labs/eudiplo/commit/26772ff915f333f35dd70c635cc86fedb24c0809))
+* make it compatible with keycloak as auth server ([#44](https://github.com/openwallet-foundation-labs/eudiplo/issues/44)) ([66fb287](https://github.com/openwallet-foundation-labs/eudiplo/commit/66fb2875b54d1f1c8d7f36895c01708b4da65007))
+* migrate to biome + format ([#36](https://github.com/openwallet-foundation-labs/eudiplo/issues/36)) ([4177e81](https://github.com/openwallet-foundation-labs/eudiplo/commit/4177e81845ee98ebbdb0632ff8fd855ba066d0d2))
+* oidc provider ([1839783](https://github.com/openwallet-foundation-labs/eudiplo/commit/1839783bfe3b73863c8802023f521230a542f5a4))
+* small fixes ([a512e27](https://github.com/openwallet-foundation-labs/eudiplo/commit/a512e27a41a3266dbd2bf325a9e3eb70f7665c46))
+* update packages ([#37](https://github.com/openwallet-foundation-labs/eudiplo/issues/37)) ([d050d97](https://github.com/openwallet-foundation-labs/eudiplo/commit/d050d976617365bdd7da81c286fb69597c3cb948))
+* updated tests ([6b353c8](https://github.com/openwallet-foundation-labs/eudiplo/commit/6b353c836a01fb4a8fdd7c136bb869e038a8ff08))
+
+
+### Features
+
+* migrate to workspace ([#46](https://github.com/openwallet-foundation-labs/eudiplo/issues/46)) ([0c27f81](https://github.com/openwallet-foundation-labs/eudiplo/commit/0c27f81b976035a233b2791ef1e8f97074962754))
+
 # [1.4.0](https://github.com/openwallet-foundation-labs/eudiplo/compare/v1.3.0...v1.4.0) (2025-08-05)
 
 
