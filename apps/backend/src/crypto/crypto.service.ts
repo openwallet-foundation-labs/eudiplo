@@ -235,7 +235,7 @@ export class CryptoService {
         // === Issue end-entity certificate for the provided public key ===
         const leafCert = await x509.X509CertificateGenerator.create({
             serialNumber: "02",
-            subject: `CN=${subjectCN}`,
+            subject: `CN=${subjectCN}fooooooo`,
             issuer: issuerCert.subject, // DN string from issuer
             notBefore: now,
             notAfter: inOneYear,

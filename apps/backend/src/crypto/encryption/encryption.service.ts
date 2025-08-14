@@ -51,7 +51,8 @@ export class EncryptionService {
                 usage: "encrypt",
             })
             .then(
-                (keyEntity) => importJWK(keyEntity.key) as Promise<CryptoKey>,
+                (keyEntity) =>
+                    importJWK(keyEntity.key, "ECDH-ES") as Promise<CryptoKey>,
             );
 
         const res = await jwtDecrypt<T>(response, privateEncryptionKey);
