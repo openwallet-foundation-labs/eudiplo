@@ -417,7 +417,7 @@ import { WellKnownService } from &#x27;./well-known/well-known.service&#x27;;
     imports: [
         ConfigModule.forRoot({
             validationSchema: Joi.object({
-                FOLDER: Joi.string().default(&#x27;./tmp&#x27;),
+                FOLDER: Joi.string().default(&#x27;../../tmp&#x27;),
                 RP_NAME: Joi.string().default(&#x27;EUDIPLO&#x27;),
                 LOG_LEVEL: Joi.string()
                     .valid(&#x27;trace&#x27;, &#x27;debug&#x27;, &#x27;info&#x27;, &#x27;warn&#x27;, &#x27;error&#x27;, &#x27;fatal&#x27;)
