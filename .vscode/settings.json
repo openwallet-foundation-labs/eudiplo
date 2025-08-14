@@ -1,5 +1,24 @@
 {
-  "editor.formatOnSave": true,  
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "biomejs.biome",
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "editor.codeActionsOnSave": {
+    "quickfix.biome": "explicit",
+    "source.organizeImports.biome": "explicit"
+  },
+  "files.associations": {
+    "*.json": "json"
+  },
+  "biome.enabled": true,
+  "biome.lsp.bin": "biome",
+  "emmet.excludeLanguages": [
+    "markdown"
+  ],
   "sqltools.connections": [
     {
       "previewLimit": 50,
