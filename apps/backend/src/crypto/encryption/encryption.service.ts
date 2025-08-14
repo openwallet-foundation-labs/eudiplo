@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { exportJWK, generateKeyPair, importJWK, JWK, jwtDecrypt } from 'jose';
-import { join } from 'path';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import e from "express";
+import { exportJWK, generateKeyPair, importJWK, JWK, jwtDecrypt } from "jose";
+import { Repository } from "typeorm/repository/Repository";
+import { v4 } from "uuid";
+import { KeyEntity } from "../key/entities/keys.entity";
 
 /**
  * Service for handling encryption and decryption operations.
@@ -13,35 +15,27 @@ export class EncryptionService {
      * Constructor for the EncryptionService.
      * @param configService
      */
-    constructor(private configService: ConfigService) {}
+    constructor(
+        @InjectRepository(KeyEntity)
+        private keyRepository: Repository<KeyEntity>,
+    ) {}
 
     /**
      * Initializes the encryption keys for a given tenant.
      * @param tenantId - The ID of the tenant for which to initialize the keys.
      */
     async onTenantInit(tenantId: string) {
-        const folder = join(
-            this.configService.getOrThrow<string>('FOLDER'),
+        const privateKey = await generateKeyPair("ECDH-ES", {
+            crv: "P-256",
+            extractable: true,
+        }).then(async (secret) => exportJWK(secret.privateKey));
+
+        this.keyRepository.save({
+            id: v4(),
             tenantId,
-            'keys',
-        );
-        const privateEncryptionPath = join(folder, 'private-encryption.json');
-        const publicEncryptionPath = join(folder, 'public-encryption.json');
-        if (!existsSync(privateEncryptionPath)) {
-            await generateKeyPair('ECDH-ES', {
-                crv: 'P-256',
-                extractable: true,
-            }).then(async (secret) => {
-                writeFileSync(
-                    privateEncryptionPath,
-                    JSON.stringify(await exportJWK(secret.privateKey), null, 2),
-                );
-                writeFileSync(
-                    publicEncryptionPath,
-                    JSON.stringify(await exportJWK(secret.publicKey), null, 2),
-                );
-            });
-        }
+            key: privateKey,
+            usage: "encrypt",
+        });
     }
 
     /**
@@ -51,17 +45,15 @@ export class EncryptionService {
      * @returns The encrypted response as a JWE string.
      */
     async decryptJwe<T>(response: string, tenantId: string): Promise<T> {
-        const folder = join(
-            this.configService.getOrThrow<string>('FOLDER'),
-            tenantId,
-            'keys',
-        );
-        const privateEncryptionPath = join(folder, 'private-encryption.json');
-
-        const privateEncryptionKey = await importJWK(
-            JSON.parse(readFileSync(privateEncryptionPath, 'utf-8')),
-            'ECDH-ES',
-        );
+        const privateEncryptionKey = await this.keyRepository
+            .findOneByOrFail({
+                tenantId,
+                usage: "encrypt",
+            })
+            .then(
+                (keyEntity) =>
+                    importJWK(keyEntity.key, "ECDH-ES") as Promise<CryptoKey>,
+            );
 
         const res = await jwtDecrypt<T>(response, privateEncryptionKey);
         return res.payload;
@@ -72,13 +64,15 @@ export class EncryptionService {
      * @param tenantId - The ID of the tenant for which to retrieve the public key.
      * @returns The public encryption key as a JWK.
      */
-    getEncryptionPublicKey(tenantId: string): JWK {
-        const folder = join(
-            this.configService.getOrThrow<string>('FOLDER'),
-            tenantId,
-            'keys',
-        );
-        const publicEncryptionPath = join(folder, 'public-encryption.json');
-        return JSON.parse(readFileSync(publicEncryptionPath, 'utf-8')) as JWK;
+    getEncryptionPublicKey(tenantId: string): Promise<JWK> {
+        return this.keyRepository
+            .findOneByOrFail({
+                tenantId,
+                usage: "encrypt",
+            })
+            .then((entry) => {
+                delete entry.key.d;
+                return entry.key;
+            });
     }
 }

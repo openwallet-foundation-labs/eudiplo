@@ -1,43 +1,24 @@
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { OAuth2Client } from '@badgateway/oauth2-client';
+import { OAuth2Client } from "@badgateway/oauth2-client";
 import {
     Injectable,
     OnApplicationBootstrap,
     OnModuleInit,
-} from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { CryptoService } from '../crypto/crypto.service';
-import { RegistrationCertificateRequest } from '../verifier/presentations/dto/vp-request.dto';
-import { PresentationsService } from '../verifier/presentations/presentations.service';
+} from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { CryptoService } from "../crypto/crypto.service";
+import { RegistrationCertificateRequest } from "../verifier/presentations/dto/vp-request.dto";
+import { PresentationsService } from "../verifier/presentations/presentations.service";
+import { RegistrarEntity } from "./entities/registrar.entity";
 import {
-    accessCertificateControllerFindOne,
     accessCertificateControllerRegister,
     registrationCertificateControllerAll,
     registrationCertificateControllerRegister,
     relyingPartyControllerFindAll,
     relyingPartyControllerRegister,
-} from './generated';
-import { client } from './generated/client.gen';
-import { RegistrarConfig } from './registrar-config';
-
-/**
- * Repsonse of access certificate request.
- */
-interface AccessCertificateResponse {
-    /**
-     * Unique identifier of the access certificate.
-     */
-    id: string;
-    /**
-     * The public key in PEM format.
-     */
-    crt: string;
-    /**
-     * Indicates if the access certificate is revoked.
-     */
-    revoked?: boolean;
-}
+} from "./generated";
+import { client } from "./generated/client.gen";
 
 /**
  * RegistrarService is responsible for managing the interaction with the registrar,
@@ -68,6 +49,8 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         private configService: ConfigService,
         private cryptoService: CryptoService,
         private presentationsService: PresentationsService,
+        @InjectRepository(RegistrarEntity)
+        private registrarRepository: Repository<RegistrarEntity>,
     ) {}
 
     /**
@@ -80,12 +63,12 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         }
 
         const oidcIssuerUrl =
-            this.configService.getOrThrow<string>('REGISTRAR_OIDC_URL');
+            this.configService.getOrThrow<string>("REGISTRAR_OIDC_URL");
         const clientId = this.configService.getOrThrow<string>(
-            'REGISTRAR_OIDC_CLIENT_ID',
+            "REGISTRAR_OIDC_CLIENT_ID",
         );
         const clientSecret = this.configService.getOrThrow<string>(
-            'REGISTRAR_OIDC_CLIENT_SECRET',
+            "REGISTRAR_OIDC_CLIENT_SECRET",
         );
 
         this.oauth2Client = new OAuth2Client({
@@ -97,7 +80,7 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
 
         this.client = client;
         this.client.setConfig({
-            baseUrl: this.configService.getOrThrow<string>('REGISTRAR_URL'),
+            baseUrl: this.configService.getOrThrow<string>("REGISTRAR_URL"),
             auth: () => this.accessToken,
         });
     }
@@ -107,7 +90,7 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
      * @returns True if the registrar service is enabled, false otherwise.
      */
     isEnabled() {
-        return !!this.configService.get<string>('REGISTRAR_URL');
+        return !!this.configService.get<string>("REGISTRAR_URL");
     }
 
     /**
@@ -115,7 +98,7 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
      * It will refresh the access token for the registrar.
      */
     async onApplicationBootstrap() {
-        if (!this.configService.get<string>('REGISTRAR_URL')) {
+        if (!this.configService.get<string>("REGISTRAR_URL")) {
             return;
         }
         await this.refreshAccessToken();
@@ -129,11 +112,18 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         if (!this.isEnabled()) {
             return;
         }
-        const config = this.loadConfig(tenantId);
-        if (!config.id) {
-            config.id = await this.addRp(tenantId);
-        }
-        await this.getAccessCertificateId(config, tenantId);
+        //TODO: pass name by call
+        const name = this.configService.getOrThrow<string>("RP_NAME");
+        const relyingPartyId = await this.addRp(name);
+        const accessCertificateId = await this.addAccessCertificate(
+            tenantId,
+            relyingPartyId,
+        );
+        await this.registrarRepository.save({
+            tenantId,
+            relyingPartyId,
+            accessCertificateId,
+        });
     }
 
     /**
@@ -157,24 +147,20 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
      * Adds a new relying party to the registrar.
      * This is only needed once, when the relying party is created.
      */
-    addRp(tenantId: string): Promise<string> {
-        const name = this.configService.getOrThrow<string>('RP_NAME');
+    addRp(name: string): Promise<string> {
         return relyingPartyControllerRegister({
             client: this.client,
             body: {
                 name,
             },
         }).then(async (response) => {
-            const config = this.loadConfig(tenantId);
+            let rpId: string;
             if (response.error) {
-                config.id = await this.storeExistingRp(name);
-                this.saveConfig(config, tenantId);
-                return config.id!;
+                rpId = await this.getExistingRp(name);
             } else {
-                config.id = response.data!['id'];
-                this.saveConfig(config, tenantId);
-                return response.data!['id'];
+                rpId = response.data!["id"];
             }
+            return rpId;
         });
     }
 
@@ -184,42 +170,14 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
      * @param name - The name of the relying party.
      * @returns The ID of the existing relying party.
      */
-    private storeExistingRp(name: string) {
+    private getExistingRp(name: string) {
         return relyingPartyControllerFindAll({
             client: this.client,
             query: {
                 name,
             },
         }).then((response) => {
-            return response.data!.find((item) => item.name === name)?.id;
-        });
-    }
-
-    /**
-     * Get the access certificate ID from the registrar.
-     * If there is no access certificate ID in the config, it will add a new one.
-     * If there is one, it will check if it is still valid.
-     * If it is revoked, it will add a new one.
-     * @param config
-     */
-    async getAccessCertificateId(config: RegistrarConfig, tenantId: string) {
-        // if there is no access certificate ID in the config, we need to add it
-        if (!config.accessCertificateId) {
-            await this.addAccessCertificate(config, tenantId);
-        }
-        // if there is one, check if it is still valid
-        await accessCertificateControllerFindOne({
-            client: this.client,
-            path: { rp: config.id, id: config.accessCertificateId! },
-        }).then((res) => {
-            if (res.error) {
-                console.error('Error finding access certificate:', res.error);
-            }
-            const data = res.data as AccessCertificateResponse;
-            if (data.revoked) {
-                console.warn('Access certificate is revoked, adding a new one');
-                return this.addAccessCertificate(config, tenantId);
-            }
+            return response.data!.find((item) => item.name === name)?.id!;
         });
     }
 
@@ -230,40 +188,38 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
      * @returns
      */
     private async addAccessCertificate(
-        config: RegistrarConfig,
         tenantId: string,
+        relyingPartyId: string,
     ): Promise<string> {
         const keyId = await this.cryptoService.keyService.getKid(tenantId);
         const host = this.configService
-            .getOrThrow<string>('PUBLIC_URL')
-            .replace('https://', '');
+            .getOrThrow<string>("PUBLIC_URL")
+            .replace("https://", "");
         return accessCertificateControllerRegister({
             client: this.client,
             body: {
                 publicKey: await this.cryptoService.keyService.getPublicKey(
-                    'pem',
+                    "pem",
                     tenantId,
                     keyId,
                 ),
                 dns: [host],
             },
             path: {
-                rp: config.id,
+                rp: relyingPartyId,
             },
         }).then(async (res) => {
             if (res.error) {
-                console.error('Error adding access certificate:', res.error);
-                throw new Error('Error adding access certificate');
+                console.error("Error adding access certificate:", res.error);
+                throw new Error("Error adding access certificate");
             }
             //store the cert
             await this.cryptoService.storeAccessCertificate(
-                res.data!['crt'],
+                res.data!["crt"],
                 tenantId,
                 keyId,
             );
-            config.accessCertificateId = res.data!['id'];
-            this.saveConfig(config, tenantId);
-            return res.data!['id'];
+            return res.data!["id"];
         });
     }
 
@@ -280,7 +236,9 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         requestId: string,
         tenantId: string,
     ) {
-        const rp = this.loadConfig(tenantId).id;
+        const entry = await this.registrarRepository.findOneByOrFail({
+            tenantId,
+        });
 
         //TODO: need to check if the access certificate is bound to the access certificate with the subject. Also that the requested fields are matching.
 
@@ -288,7 +246,7 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
             (await registrationCertificateControllerAll({
                 client: this.client,
                 path: {
-                    rp,
+                    rp: entry.relyingPartyId,
                 },
             }).then((res) =>
                 res.data?.filter(
@@ -304,61 +262,25 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         return registrationCertificateControllerRegister({
             client: this.client,
             path: {
-                rp,
+                rp: entry.relyingPartyId,
             },
             body: req.body,
         }).then(async (res) => {
             if (res.error) {
                 console.error(
-                    'Error adding registration certificate:',
+                    "Error adding registration certificate:",
                     res.error,
                 );
-                throw new Error('Error adding registration certificate');
+                throw new Error("Error adding registration certificate");
             }
 
             //TODO: write the ID to the config so its easier to use it. Easier than writing the comparison algorithm (any maybe someone wants to use a different one)
             await this.presentationsService.storeRCID(
-                res.data!['id'],
+                res.data!["id"],
                 requestId,
                 tenantId,
             );
-            return res.data!['jwt'];
+            return res.data!["jwt"];
         });
-    }
-
-    /**
-     * Load the registrar configuration from the config file.
-     * @returns
-     */
-    private loadConfig(tenantId: string): RegistrarConfig {
-        const filePath = join(
-            this.configService.getOrThrow<string>('FOLDER'),
-            tenantId,
-            'registrar.json',
-        );
-
-        if (!existsSync(filePath)) {
-            // If the config file does not exist, create an empty config
-            const initialConfig: RegistrarConfig = {};
-            writeFileSync(filePath, JSON.stringify(initialConfig, null, 2));
-            return initialConfig;
-        }
-        const config = JSON.parse(
-            readFileSync(filePath, 'utf-8'),
-        ) as RegistrarConfig;
-        return config;
-    }
-
-    /**
-     * Save the registrar configuration to the config file.
-     * @param config
-     */
-    private saveConfig(config: RegistrarConfig, tenantId: string) {
-        const filePath = join(
-            this.configService.getOrThrow<string>('FOLDER'),
-            tenantId,
-            'registrar.json',
-        );
-        writeFileSync(filePath, JSON.stringify(config, null, 2));
     }
 }

@@ -1,27 +1,28 @@
-import { HttpModule, HttpService } from '@nestjs/axios';
-import { DynamicModule, Global, Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
-import * as Joi from 'joi';
-import { PinoLogger } from 'nestjs-pino';
-import { Repository } from 'typeorm/repository/Repository';
-import { CryptoImplementatationModule } from './crypto-implementation/crypto-implementation.module';
-import { CryptoImplementationService } from './crypto-implementation/crypto-implementation.service';
-import { CertEntity } from './entities/cert.entity';
-import { FileSystemKeyService } from './filesystem-key.service';
-import { VaultKeyService } from './vault-key.service';
+import { HttpModule, HttpService } from "@nestjs/axios";
+import { DynamicModule, Global, Module } from "@nestjs/common";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { getRepositoryToken, TypeOrmModule } from "@nestjs/typeorm";
+import * as Joi from "joi";
+import { PinoLogger } from "nestjs-pino";
+import { Repository } from "typeorm/repository/Repository";
+import { FileSystemKeyService } from "./adapters/filesystem-key.service";
+import { VaultKeyService } from "./adapters/vault-key.service";
+import { CryptoImplementatationModule } from "./crypto-implementation/crypto-implementation.module";
+import { CryptoImplementationService } from "./crypto-implementation/crypto-implementation.service";
+import { CertEntity } from "./entities/cert.entity";
+import { KeyEntity } from "./entities/keys.entity";
 
 export const KEY_VALIDATION_SCHEMA = {
-    KM_TYPE: Joi.string().valid('file', 'vault').default('file'),
+    KM_TYPE: Joi.string().valid("file", "vault").default("file"),
 
     // Vault-related config
-    VAULT_URL: Joi.string().uri().when('KM_TYPE', {
-        is: 'vault',
+    VAULT_URL: Joi.string().uri().when("KM_TYPE", {
+        is: "vault",
         then: Joi.required(),
         otherwise: Joi.optional(),
     }),
-    VAULT_TOKEN: Joi.string().when('KM_TYPE', {
-        is: 'vault',
+    VAULT_TOKEN: Joi.string().when("KM_TYPE", {
+        is: "vault",
         then: Joi.required(),
         otherwise: Joi.optional(),
     }),
@@ -37,21 +38,22 @@ export class KeyModule {
                 HttpModule,
                 ConfigModule,
                 CryptoImplementatationModule,
-                TypeOrmModule.forFeature([CertEntity]),
+                TypeOrmModule.forFeature([CertEntity, KeyEntity]),
             ],
             providers: [
                 {
-                    provide: 'KeyService',
+                    provide: "KeyService",
                     useFactory: (
                         configService: ConfigService,
                         httpService: HttpService,
                         cryptoService: CryptoImplementationService,
                         certRepository: Repository<CertEntity>,
+                        keyRepository: Repository<KeyEntity>,
                     ) => {
-                        const kmType = configService.get<'vault' | 'file'>(
-                            'KM_TYPE',
+                        const kmType = configService.get<"vault" | "file">(
+                            "KM_TYPE",
                         );
-                        if (kmType === 'vault') {
+                        if (kmType === "vault") {
                             return new VaultKeyService(
                                 httpService,
                                 configService,
@@ -64,6 +66,7 @@ export class KeyModule {
                             configService,
                             cryptoService,
                             certRepository,
+                            keyRepository,
                         );
                     },
                     inject: [
@@ -71,10 +74,11 @@ export class KeyModule {
                         HttpService,
                         CryptoImplementationService,
                         getRepositoryToken(CertEntity),
+                        getRepositoryToken(KeyEntity),
                     ],
                 },
             ],
-            exports: ['KeyService'],
+            exports: ["KeyService"],
         };
     }
 }

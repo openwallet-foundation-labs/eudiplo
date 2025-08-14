@@ -2,19 +2,18 @@ import {
     BadRequestException,
     Injectable,
     OnApplicationBootstrap,
-} from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
-import { InjectMetric } from '@willsoto/nestjs-prometheus';
-import { existsSync, mkdirSync, writeFileSync } from 'fs';
-import { join } from 'path';
-import { Gauge } from 'prom-client';
-import { Repository } from 'typeorm/repository/Repository';
-import { CryptoService } from '../crypto/crypto.service';
-import { EncryptionService } from '../crypto/encryption/encryption.service';
-import { StatusListService } from '../issuer/status-list/status-list.service';
-import { RegistrarService } from '../registrar/registrar.service';
-import { ClientEntry } from './entitites/client.entity';
+} from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { InjectRepository } from "@nestjs/typeorm";
+import { InjectMetric } from "@willsoto/nestjs-prometheus";
+import { Gauge } from "prom-client";
+import { Repository } from "typeorm/repository/Repository";
+import { CryptoService } from "../crypto/crypto.service";
+import { EncryptionService } from "../crypto/encryption/encryption.service";
+import { Oid4vciService } from "../issuer/oid4vci/oid4vci.service";
+import { StatusListService } from "../issuer/status-list/status-list.service";
+import { RegistrarService } from "../registrar/registrar.service";
+import { ClientEntry } from "./entitites/client.entity";
 
 // Client interface for service integration
 export interface Client {
@@ -32,15 +31,16 @@ export class ClientService implements OnApplicationBootstrap {
         private encryptionService: EncryptionService,
         private statutsListService: StatusListService,
         private registrarService: RegistrarService,
+        private oid4vciService: Oid4vciService,
         @InjectRepository(ClientEntry)
         private clientRepository: Repository<ClientEntry>,
-        @InjectMetric('tenant_client_total')
+        @InjectMetric("tenant_client_total")
         private tenantClientTotal: Gauge<string>,
     ) {}
 
     async onApplicationBootstrap() {
         // Initialize the client metrics
-        const count = await this.clientRepository.countBy({ status: 'set up' });
+        const count = await this.clientRepository.countBy({ status: "set up" });
         this.tenantClientTotal.set({}, count);
     }
 
@@ -62,9 +62,9 @@ export class ClientService implements OnApplicationBootstrap {
         // Default clients for development/testing
         return [
             {
-                id: this.configService.getOrThrow<string>('AUTH_CLIENT_ID'),
+                id: this.configService.getOrThrow<string>("AUTH_CLIENT_ID"),
                 secret: this.configService.getOrThrow<string>(
-                    'AUTH_CLIENT_SECRET',
+                    "AUTH_CLIENT_SECRET",
                 ),
             },
         ];
@@ -98,14 +98,14 @@ export class ClientService implements OnApplicationBootstrap {
      */
     async isSetUp(id: string) {
         void this.clientRepository
-            .countBy({ status: 'set up' })
+            .countBy({ status: "set up" })
             .then((count) => {
                 this.tenantClientTotal.set({}, count);
             });
 
         await this.clientRepository.findOneByOrFail({ id }).then(
             (res) => {
-                if (res.status === 'set up') {
+                if (res.status === "set up") {
                     return true;
                 }
                 throw new BadRequestException(
@@ -120,7 +120,7 @@ export class ClientService implements OnApplicationBootstrap {
                     // if there is an error, update the client status"
                     await this.clientRepository.update(
                         { id },
-                        { status: 'error', error: err.message },
+                        { status: "error", error: err.message },
                     );
                     throw new BadRequestException(
                         `Error setting up client ${id}. Please retry later.`,
@@ -129,7 +129,7 @@ export class ClientService implements OnApplicationBootstrap {
                 // if everything is fine, update the client status
                 return this.clientRepository.update(
                     { id },
-                    { status: 'set up' },
+                    { status: "set up" },
                 );
             },
         );
@@ -140,31 +140,10 @@ export class ClientService implements OnApplicationBootstrap {
      * @param id
      */
     async setUpClient(id: string) {
-        const folder = join(
-            this.configService.getOrThrow<string>('FOLDER'),
-            id,
-        );
-        if (!existsSync(folder)) {
-            mkdirSync(folder, { recursive: true });
-        }
-
-        const displayInfo = [
-            {
-                name: 'EUDI Wallet dev',
-                locale: 'de-DE',
-                logo: {
-                    uri: '<PUBLIC_URL>/issuer.png',
-                    url: '<PUBLIC_URL>/issuer.png',
-                },
-            },
-        ];
-        writeFileSync(
-            join(folder, 'display.json'),
-            JSON.stringify(displayInfo, null, 2),
-        );
         await this.cryptoService.onTenantInit(id);
         await this.encryptionService.onTenantInit(id);
         await this.statutsListService.onTenantInit(id);
         await this.registrarService.onTenantInit(id);
+        await this.oid4vciService.onTenantInit(id);
     }
 }

@@ -284,7 +284,7 @@ export type IssuanceConfig = {
     /**
      * Webhook to send the result of the notification response
      */
-    notifyWebhook: WebhookConfig;
+    notifyWebhook?: WebhookConfig;
     /**
      * Value to determine the amount of credentials that are issued in a batch.
      * Default is 1.

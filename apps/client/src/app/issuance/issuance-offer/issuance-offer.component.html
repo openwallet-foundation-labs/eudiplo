@@ -75,16 +75,16 @@
             }
           </mat-card-content>
           <mat-card-actions fxLayout="row" fxLayoutAlign="end center">
+            <button mat-button type="button" (click)="resetForm()" [disabled]="generatingOffer">
+              Reset
+            </button>
             <button
-              mat-raised-button
+              mat-flat-button
               color="primary"
               type="submit"
               [disabled]="form.invalid || generatingOffer"
             >
               Generate Offer
-            </button>
-            <button mat-button type="button" (click)="resetForm()" [disabled]="generatingOffer">
-              Reset
             </button>
           </mat-card-actions>
         </mat-card>

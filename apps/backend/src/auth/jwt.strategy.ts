@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { passportJwtSecret } from "jwks-rsa";
@@ -84,20 +84,12 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
      */
     async validate(payload: TokenPayload): Promise<unknown> {
         const useExternalOIDC =
-            this.configService.get<boolean>("OIDC") !== undefined;
+            this.configService.get<string>("OIDC") !== undefined;
 
-        await this.clientService.isSetUp(payload.sub);
+        const sub = useExternalOIDC ? (payload as any).azp : payload.sub;
 
-        if (useExternalOIDC) {
-            // External OIDC: Extract user info from external provider token
-            return {
-                sub: (payload as any).azp,
-            };
-        } else {
-            // Integrated OAuth2: Use integrated server token validation
-            return {
-                sub: payload.sub,
-            };
-        }
+        await this.clientService.isSetUp(sub);
+
+        return { sub };
     }
 }
