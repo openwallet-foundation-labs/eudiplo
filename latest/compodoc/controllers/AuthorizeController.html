@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>eudiplo documentation</title>
+        <title>@eudiplo/backend documentation</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -65,7 +65,7 @@
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
-                    <a href="../" class="navbar-brand">eudiplo documentation</a>
+                    <a href="../" class="navbar-brand">@eudiplo/backend documentation</a>
                     <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
                </div>
         </div>
@@ -156,7 +156,6 @@ This controller handles the authorization requests, token requests.</p>
                             </li>
                             <li>
                                     <span class="modifier"></span>
-                                    <span class="modifier">Async</span>
                                 <a href="#authorize" >authorize</a>
                             </li>
                             <li>
@@ -168,7 +167,6 @@ This controller handles the authorization requests, token requests.</p>
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
-                                    <span class="modifier">Async</span>
                                 <a href="#token" >token</a>
                             </li>
                         </ul>
@@ -298,7 +296,6 @@ This controller handles the authorization requests, token requests.</p>
                     <a name="authorize"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                            <span class="modifier">Async</span>
                         <span ><b>authorize</b></span>
                         <a href="#authorize"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -372,7 +369,7 @@ This controller handles the authorization requests, token requests.</p>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>unknown</code>
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
 
                         </div>
                             <div class="io-description">
@@ -470,7 +467,6 @@ This controller handles the authorization requests, token requests.</p>
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
-                            <span class="modifier">Async</span>
                         <span ><b>token</b></span>
                         <a href="#token"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -582,15 +578,15 @@ import {
     Res,
     UseGuards,
 } from &#x27;@nestjs/common&#x27;;
+import { ApiBody, ApiExcludeController } from &#x27;@nestjs/swagger&#x27;;
 import type { Request, Response } from &#x27;express&#x27;;
+import { Session } from &#x27;../../session/entities/session.entity&#x27;;
+import { SessionEntity } from &#x27;../../session/session.decorator&#x27;;
+import { SessionGuard } from &#x27;../../session/session.guard&#x27;;
+import { SessionService } from &#x27;../../session/session.service&#x27;;
 import { AuthorizeService } from &#x27;./authorize.service&#x27;;
 import { AuthorizeQueries } from &#x27;./dto/authorize-request.dto&#x27;;
-import { SessionService } from &#x27;../../session/session.service&#x27;;
 import { ParResponseDto } from &#x27;./dto/par-response.dto&#x27;;
-import { ApiBody, ApiExcludeController } from &#x27;@nestjs/swagger&#x27;;
-import { SessionEntity } from &#x27;../../session/session.decorator&#x27;;
-import { Session } from &#x27;../../session/entities/session.entity&#x27;;
-import { SessionGuard } from &#x27;../../session/session.guard&#x27;;
 
 /**
  * Controller for the OpenID4VCI authorization endpoints.
@@ -611,7 +607,7 @@ export class AuthorizeController {
      * @param res
      */
     @Get()
-    async authorize(@Query() queries: AuthorizeQueries, @Res() res: Response) {
+    authorize(@Query() queries: AuthorizeQueries, @Res() res: Response) {
         return this.authorizeService.sendAuthorizationResponse(queries, res);
     }
 
@@ -647,7 +643,7 @@ export class AuthorizeController {
      */
     @UseGuards(SessionGuard)
     @Post(&#x27;token&#x27;)
-    async token(
+    token(
         @Body() body: any,
         @Req() req: Request,
         @SessionEntity() session: Session,

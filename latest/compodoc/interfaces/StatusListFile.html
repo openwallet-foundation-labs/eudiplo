@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>eudiplo documentation</title>
+        <title>@eudiplo/backend documentation</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -65,7 +65,7 @@
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
-                    <a href="../" class="navbar-brand">eudiplo documentation</a>
+                    <a href="../" class="navbar-brand">@eudiplo/backend documentation</a>
                     <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
                </div>
         </div>
@@ -319,9 +319,9 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ConflictException, Injectable, OnModuleInit } from &#x27;@nestjs/common&#x27;;
-import { join } from &#x27;path&#x27;;
-import { existsSync, readFileSync, writeFileSync } from &#x27;fs&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ConflictException, Injectable } from &#x27;@nestjs/common&#x27;;
+import { ConfigService } from &#x27;@nestjs/config&#x27;;
+import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
 import {
     BitsPerStatus,
     createHeaderAndPayload,
@@ -330,13 +330,13 @@ import {
     StatusListJWTHeaderParameters,
 } from &#x27;@sd-jwt/jwt-status-list&#x27;;
 import { JwtPayload } from &#x27;@sd-jwt/types&#x27;;
-import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { CryptoService } from &#x27;../../crypto/crypto.service&#x27;;
-import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
-import { StatusMapping } from &#x27;./entities/status-mapping.entity&#x27;;
+import { existsSync, readFileSync, writeFileSync } from &#x27;fs&#x27;;
+import { join } from &#x27;path&#x27;;
 import { Repository } from &#x27;typeorm&#x27;;
-import { StatusUpdateDto } from &#x27;./dto/status-update.dto&#x27;;
+import { CryptoService } from &#x27;../../crypto/crypto.service&#x27;;
 import { Session } from &#x27;../../session/entities/session.entity&#x27;;
+import { StatusUpdateDto } from &#x27;./dto/status-update.dto&#x27;;
+import { StatusMapping } from &#x27;./entities/status-mapping.entity&#x27;;
 
 interface StatusListFile {
     elements: number[];
@@ -346,7 +346,7 @@ interface StatusListFile {
 }
 
 @Injectable()
-export class StatusListService implements OnModuleInit {
+export class StatusListService {
     private fileName: string &#x3D; &#x27;status-list.json&#x27;;
 
     constructor(
@@ -355,7 +355,6 @@ export class StatusListService implements OnModuleInit {
         @InjectRepository(StatusMapping)
         private statusMappingRepository: Repository&lt;StatusMapping&gt;,
     ) {}
-    onModuleInit() {}
 
     onTenantInit(tenantId: string) {
         return this.init(tenantId);

@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>eudiplo documentation</title>
+        <title>@eudiplo/backend documentation</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -65,7 +65,7 @@
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
-                    <a href="../" class="navbar-brand">eudiplo documentation</a>
+                    <a href="../" class="navbar-brand">@eudiplo/backend documentation</a>
                     <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
                </div>
         </div>
@@ -152,8 +152,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="34"
-                                    class="link-to-prism">src/crypto/key/key.module.ts:34</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="33"
+                                    class="link-to-prism">src/crypto/key/key.module.ts:33</a></div>
                         </td>
                     </tr>
 
@@ -174,19 +174,18 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { DynamicModule, Global, Module } from &#x27;@nestjs/common&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { HttpModule, HttpService } from &#x27;@nestjs/axios&#x27;;
+import { DynamicModule, Global, Module } from &#x27;@nestjs/common&#x27;;
+import { ConfigModule, ConfigService } from &#x27;@nestjs/config&#x27;;
+import { getRepositoryToken, TypeOrmModule } from &#x27;@nestjs/typeorm&#x27;;
+import * as Joi from &#x27;joi&#x27;;
+import { PinoLogger } from &#x27;nestjs-pino&#x27;;
+import { Repository } from &#x27;typeorm/repository/Repository&#x27;;
+import { CryptoImplementatationModule } from &#x27;./crypto-implementation/crypto-implementation.module&#x27;;
+import { CryptoImplementationService } from &#x27;./crypto-implementation/crypto-implementation.service&#x27;;
+import { CertEntity } from &#x27;./entities/cert.entity&#x27;;
 import { FileSystemKeyService } from &#x27;./filesystem-key.service&#x27;;
 import { VaultKeyService } from &#x27;./vault-key.service&#x27;;
-import { CryptoModule } from &#x27;./crypto/crypto.module&#x27;;
-import { CryptoImplementationService } from &#x27;./crypto/crypto.service&#x27;;
-import { ConfigModule, ConfigService } from &#x27;@nestjs/config&#x27;;
-import { HttpModule, HttpService } from &#x27;@nestjs/axios&#x27;;
-import * as Joi from &#x27;joi&#x27;;
-import { CertEntity } from &#x27;./entities/cert.entity&#x27;;
-import { Repository } from &#x27;typeorm/repository/Repository&#x27;;
-import { TypeOrmModule } from &#x27;@nestjs/typeorm&#x27;;
-import { getRepositoryToken } from &#x27;@nestjs/typeorm&#x27;;
-import { PinoLogger } from &#x27;nestjs-pino&#x27;;
 
 export const KEY_VALIDATION_SCHEMA &#x3D; {
     KM_TYPE: Joi.string().valid(&#x27;file&#x27;, &#x27;vault&#x27;).default(&#x27;file&#x27;),
@@ -213,7 +212,7 @@ export class KeyModule {
             imports: [
                 HttpModule,
                 ConfigModule,
-                CryptoModule,
+                CryptoImplementatationModule,
                 TypeOrmModule.forFeature([CertEntity]),
             ],
             providers: [
@@ -224,7 +223,6 @@ export class KeyModule {
                         httpService: HttpService,
                         cryptoService: CryptoImplementationService,
                         certRepository: Repository&lt;CertEntity&gt;,
-                        logger: PinoLogger,
                     ) &#x3D;&gt; {
                         const kmType &#x3D; configService.get&lt;&#x27;vault&#x27; | &#x27;file&#x27;&gt;(
                             &#x27;KM_TYPE&#x27;,
@@ -242,7 +240,6 @@ export class KeyModule {
                             configService,
                             cryptoService,
                             certRepository,
-                            logger,
                         );
                     },
                     inject: [
@@ -250,7 +247,6 @@ export class KeyModule {
                         HttpService,
                         CryptoImplementationService,
                         getRepositoryToken(CertEntity),
-                        PinoLogger,
                     ],
                 },
             ],

@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>eudiplo documentation</title>
+        <title>@eudiplo/backend documentation</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -65,7 +65,7 @@
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
-                    <a href="../" class="navbar-brand">eudiplo documentation</a>
+                    <a href="../" class="navbar-brand">@eudiplo/backend documentation</a>
                     <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
                </div>
         </div>
@@ -239,9 +239,9 @@
 import { ConflictException, Injectable } from &#x27;@nestjs/common&#x27;;
 import { ConfigService } from &#x27;@nestjs/config&#x27;;
 import {
-    authorizationCodeGrantIdentifier,
     type AuthorizationCodeGrantIdentifier,
     type AuthorizationServerMetadata,
+    authorizationCodeGrantIdentifier,
     type HttpMethod,
     Jwk,
     Oauth2AuthorizationServer,
@@ -251,14 +251,14 @@ import {
 } from &#x27;@openid4vc/oauth2&#x27;;
 import type { Request, Response } from &#x27;express&#x27;;
 import { CryptoService } from &#x27;../../crypto/crypto.service&#x27;;
-import { getHeadersFromRequest } from &#x27;../oid4vci/util&#x27;;
-import { AuthorizeQueries } from &#x27;./dto/authorize-request.dto&#x27;;
-import { Oid4vpService } from &#x27;../../verifier/oid4vp/oid4vp.service&#x27;;
+import { Session } from &#x27;../../session/entities/session.entity&#x27;;
 import { SessionService } from &#x27;../../session/session.service&#x27;;
 import { WebhookConfig } from &#x27;../../utils/webhook/webhook.dto&#x27;;
-import { IssuanceService } from &#x27;../issuance/issuance.service&#x27;;
+import { Oid4vpService } from &#x27;../../verifier/oid4vp/oid4vp.service&#x27;;
 import { AuthenticationConfigHelper } from &#x27;../issuance/dto/authentication-config.helper&#x27;;
-import { Session } from &#x27;../../session/entities/session.entity&#x27;;
+import { IssuanceService } from &#x27;../issuance/issuance.service&#x27;;
+import { getHeadersFromRequest } from &#x27;../oid4vci/util&#x27;;
+import { AuthorizeQueries } from &#x27;./dto/authorize-request.dto&#x27;;
 
 export interface ParsedAccessTokenAuthorizationCodeRequestGrant {
     grantType: AuthorizationCodeGrantIdentifier;
@@ -422,7 +422,7 @@ export class AuthorizeService {
             });
             dpopValue &#x3D; dpop;
         }
-        const cNonce &#x3D; randomUUID();
+        //const cNonce &#x3D; randomUUID();
         return this.getAuthorizationServer(tenantId).createAccessTokenResponse({
             audience: &#x60;${this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;)}/${session.id}&#x60;,
             signer: {
@@ -436,8 +436,8 @@ export class AuthorizeService {
             subject: session.id,
             expiresInSeconds: 300,
             authorizationServer: authorizationServerMetadata.issuer,
-            cNonce,
-            cNonceExpiresIn: 100,
+            /* cNonce,
+            cNonceExpiresIn: 100, */
             clientId: &#x27;wallet&#x27;, // must be same as the client attestation
             dpop: dpopValue,
         });

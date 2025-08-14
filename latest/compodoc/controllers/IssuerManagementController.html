@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>eudiplo documentation</title>
+        <title>@eudiplo/backend documentation</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -65,7 +65,7 @@
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
-                    <a href="../" class="navbar-brand">eudiplo documentation</a>
+                    <a href="../" class="navbar-brand">@eudiplo/backend documentation</a>
                     <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
                </div>
         </div>
@@ -199,15 +199,15 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="63"
-                                    class="link-to-prism">src/issuer/issuer-management/issuer-management.controller.ts:63</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="83"
+                                    class="link-to-prism">src/issuer/issuer-management/issuer-management.controller.ts:83</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Create an offer for a credential. This endpoint may be protected</p>
+                        <div class="io-description"><p>Create an offer for a credential.</p>
 </div>
 
                             <div class="io-description">
@@ -284,16 +284,16 @@ import {
     ApiSecurity,
     ApiTags,
 } from &#x27;@nestjs/swagger&#x27;;
+import { Response } from &#x27;express&#x27;;
+import * as QRCode from &#x27;qrcode&#x27;;
 import { JwtAuthGuard } from &#x27;../../auth/auth.guard&#x27;;
 import { Token, TokenPayload } from &#x27;../../auth/token.decorator&#x27;;
 import { Oid4vciService } from &#x27;../../issuer/oid4vci/oid4vci.service&#x27;;
-import {
-    OfferResponse,
-    OfferRequestDto,
-} from &#x27;../oid4vci/dto/offer-request.dto&#x27;;
 import { ResponseType } from &#x27;../../verifier/oid4vp/dto/presentation-request.dto&#x27;;
-import * as QRCode from &#x27;qrcode&#x27;;
-import { Response } from &#x27;express&#x27;;
+import {
+    OfferRequestDto,
+    OfferResponse,
+} from &#x27;../oid4vci/dto/offer-request.dto&#x27;;
 
 @ApiTags(&#x27;Issuer management&#x27;)
 @UseGuards(JwtAuthGuard)
@@ -303,7 +303,7 @@ export class IssuerManagementController {
     constructor(private readonly oid4vciService: Oid4vciService) {}
 
     /**
-     * Create an offer for a credential. This endpoint may be protected
+     * Create an offer for a credential.
      * @param res
      * @param body
      */
@@ -333,6 +333,26 @@ export class IssuerManagementController {
                 value: {
                     response_type: ResponseType.URI,
                     issuanceId: &#x27;pid&#x27;,
+                } as OfferRequestDto,
+            },
+            authfixed: {
+                summary: &#x27;Auth flow with fixed session&#x27;,
+                value: {
+                    response_type: ResponseType.QRCode,
+                    issuanceId: &#x27;pid&#x27;,
+                    session: &#x27;fd3ebf28-8ad6-4909-8a7a-a739c2c412c0&#x27;,
+                } as OfferRequestDto,
+            },
+            override: {
+                summary: &#x27;Override&#x27;,
+                value: {
+                    response_type: ResponseType.QRCode,
+                    issuanceId: &#x27;pid-none&#x27;,
+                    claims: {
+                        pid: {
+                            given_name: &#x27;Max&#x27;,
+                        },
+                    },
                 } as OfferRequestDto,
             },
         },

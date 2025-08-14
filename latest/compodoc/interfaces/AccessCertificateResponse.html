@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>eudiplo documentation</title>
+        <title>@eudiplo/backend documentation</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -65,7 +65,7 @@
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
-                    <a href="../" class="navbar-brand">eudiplo documentation</a>
+                    <a href="../" class="navbar-brand">@eudiplo/backend documentation</a>
                     <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
                </div>
         </div>
@@ -305,14 +305,18 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { existsSync, readFileSync, writeFileSync } from &#x27;node:fs&#x27;;
+import { join } from &#x27;node:path&#x27;;
+import { OAuth2Client } from &#x27;@badgateway/oauth2-client&#x27;;
+import {
     Injectable,
     OnApplicationBootstrap,
     OnModuleInit,
 } from &#x27;@nestjs/common&#x27;;
 import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { OAuth2Client } from &#x27;@badgateway/oauth2-client&#x27;;
-import { client } from &#x27;./generated/client.gen&#x27;;
+import { CryptoService } from &#x27;../crypto/crypto.service&#x27;;
+import { RegistrationCertificateRequest } from &#x27;../verifier/presentations/dto/vp-request.dto&#x27;;
+import { PresentationsService } from &#x27;../verifier/presentations/presentations.service&#x27;;
 import {
     accessCertificateControllerFindOne,
     accessCertificateControllerRegister,
@@ -321,12 +325,8 @@ import {
     relyingPartyControllerFindAll,
     relyingPartyControllerRegister,
 } from &#x27;./generated&#x27;;
-import { CryptoService } from &#x27;../crypto/crypto.service&#x27;;
-import { RegistrationCertificateRequest } from &#x27;../verifier/presentations/dto/vp-request.dto&#x27;;
-import { PresentationsService } from &#x27;../verifier/presentations/presentations.service&#x27;;
-import { existsSync, readFileSync, writeFileSync } from &#x27;node:fs&#x27;;
+import { client } from &#x27;./generated/client.gen&#x27;;
 import { RegistrarConfig } from &#x27;./registrar-config&#x27;;
-import { join } from &#x27;node:path&#x27;;
 
 /**
  * Repsonse of access certificate request.

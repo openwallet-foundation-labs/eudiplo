@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>eudiplo documentation</title>
+        <title>@eudiplo/backend documentation</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -65,7 +65,7 @@
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
-                    <a href="../" class="navbar-brand">eudiplo documentation</a>
+                    <a href="../" class="navbar-brand">@eudiplo/backend documentation</a>
                     <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
                </div>
         </div>
@@ -269,11 +269,11 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &#x27;@nestjs/common&#x27;;
+import { TypeOrmModule } from &#x27;@nestjs/typeorm&#x27;;
 import { CryptoService } from &#x27;./crypto.service&#x27;;
 import { EncryptionService } from &#x27;./encryption/encryption.service&#x27;;
-import { KeyController } from &#x27;./key/key.controller&#x27;;
-import { TypeOrmModule } from &#x27;@nestjs/typeorm&#x27;;
 import { CertEntity } from &#x27;./key/entities/cert.entity&#x27;;
+import { KeyController } from &#x27;./key/key.controller&#x27;;
 
 @Module({
     imports: [TypeOrmModule.forFeature([CertEntity])],

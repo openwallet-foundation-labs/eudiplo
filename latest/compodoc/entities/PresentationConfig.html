@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>eudiplo documentation</title>
+        <title>@eudiplo/backend documentation</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -65,7 +65,7 @@
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
-                    <a href="../" class="navbar-brand">eudiplo documentation</a>
+                    <a href="../" class="navbar-brand">@eudiplo/backend documentation</a>
                     <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
                </div>
         </div>
@@ -141,6 +141,7 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#createdAt" >createdAt</a>
                             </li>
                             <li>
@@ -156,14 +157,18 @@
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
                                 <a href="#registrationCert" >registrationCert</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#tenantId" >tenantId</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier">Optional</span>
@@ -194,6 +199,7 @@
                     <a name="createdAt"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>createdAt</b></span>
                         <a href="#createdAt"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -210,13 +216,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @Column({type: &#x27;date&#x27;, default: () &#x3D;&gt; CURRENT_TIMESTAMP})<br />
+                            @IsEmpty()<br />@Column({type: &#x27;date&#x27;, default: () &#x3D;&gt; CURRENT_TIMESTAMP})<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="50" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:50</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="54" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:54</a></div>
                         </td>
                     </tr>
 
@@ -259,7 +265,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="32" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:32</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="33" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:33</a></div>
                         </td>
                     </tr>
 
@@ -323,6 +329,8 @@
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
                         <span ><b>registrationCert</b></span>
                         <a href="#registrationCert"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -339,13 +347,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsObject()<br />@Column(&#x27;json&#x27;)<br />
+                            @IsOptional()<br />@IsObject()<br />@Column(&#x27;json&#x27;, {nullable: true})<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="38" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:38</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="40" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:40</a></div>
                         </td>
                     </tr>
 
@@ -366,6 +374,7 @@
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>tenantId</b></span>
                         <a href="#tenantId"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -382,13 +391,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ApiHideProperty()<br />@Column(&#x27;varchar&#x27;, {primary: true})<br />
+                            @ApiHideProperty()<br />@Column(&#x27;varchar&#x27;, {primary: true})<br />@IsEmpty()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="24" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:24</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:25</a></div>
                         </td>
                     </tr>
 
@@ -409,6 +418,7 @@
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                             <span class="modifier">Optional</span>
                         <span ><b>webhook</b></span>
                         <a href="#webhook"><span class="icon ion-ios-link"></span></a>
@@ -426,13 +436,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @Column(&#x27;json&#x27;, {nullable: true})<br />@IsObject()<br />
+                            @Column(&#x27;json&#x27;, {nullable: true})<br />@IsOptional()<br />@IsObject()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="44" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:44</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:47</a></div>
                         </td>
                     </tr>
 
@@ -450,11 +460,11 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { IsString, IsObject } from &#x27;class-validator&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiHideProperty } from &#x27;@nestjs/swagger&#x27;;
+import { IsEmpty, IsObject, IsOptional, IsString } from &#x27;class-validator&#x27;;
+import { Column, Entity } from &#x27;typeorm&#x27;;
 import { WebhookConfig } from &#x27;../../../utils/webhook/webhook.dto&#x27;;
 import { RegistrationCertificateRequest } from &#x27;../dto/vp-request.dto&#x27;;
-import { Column, Entity } from &#x27;typeorm&#x27;;
-import { ApiHideProperty } from &#x27;@nestjs/swagger&#x27;;
 
 /**
  * Entity representing a configuration for a Verifiable Presentation (VP) request.
@@ -473,6 +483,7 @@ export class PresentationConfig {
      */
     @ApiHideProperty()
     @Column(&#x27;varchar&#x27;, { primary: true })
+    @IsEmpty()
     tenantId: string;
 
     /**
@@ -485,19 +496,22 @@ export class PresentationConfig {
     /**
      * The registration certificate request containing the necessary details.
      */
+    @IsOptional()
     @IsObject()
-    @Column(&#x27;json&#x27;)
-    registrationCert: RegistrationCertificateRequest;
+    @Column(&#x27;json&#x27;, { nullable: true })
+    registrationCert?: RegistrationCertificateRequest;
     /**
      * Optional webhook URL to receive the response.
      */
     @Column(&#x27;json&#x27;, { nullable: true })
+    @IsOptional()
     @IsObject()
     webhook?: WebhookConfig;
 
     /**
      * The timestamp when the VP request was created.
      */
+    @IsEmpty()
     @Column({ type: &#x27;date&#x27;, default: () &#x3D;&gt; &#x27;CURRENT_TIMESTAMP&#x27; })
     createdAt: Date;
 }

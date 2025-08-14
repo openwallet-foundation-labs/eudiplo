@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>eudiplo documentation</title>
+        <title>@eudiplo/backend documentation</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -65,7 +65,7 @@
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
-                    <a href="../" class="navbar-brand">eudiplo documentation</a>
+                    <a href="../" class="navbar-brand">@eudiplo/backend documentation</a>
                     <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
                </div>
         </div>
@@ -387,37 +387,37 @@
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &#x27;@nestjs/common&#x27;;
 import { ConfigModule, ConfigService } from &#x27;@nestjs/config&#x27;;
+import { ScheduleModule } from &#x27;@nestjs/schedule&#x27;;
+import { ServeStaticModule } from &#x27;@nestjs/serve-static&#x27;;
 import * as Joi from &#x27;joi&#x27;;
+import { LoggerModule } from &#x27;nestjs-pino&#x27;;
+import { isAbsolute, join } from &#x27;path&#x27;;
+import { AppController } from &#x27;./app/app.controller&#x27;;
+import { AUTH_VALIDATION_SCHEMA, AuthModule } from &#x27;./auth/auth.module&#x27;;
 import { CryptoModule } from &#x27;./crypto/crypto.module&#x27;;
-import { WellKnownController } from &#x27;./well-known/well-known.controller&#x27;;
+import { CRYPTO_VALIDATION_SCHEMA } from &#x27;./crypto/key/crypto-implementation/crypto-implementation.module&#x27;;
+import { KEY_VALIDATION_SCHEMA, KeyModule } from &#x27;./crypto/key/key.module&#x27;;
+import { DatabaseModule } from &#x27;./database/database.module&#x27;;
+import { HealthModule } from &#x27;./health/health.module&#x27;;
 import { ISSUER_VALIDATION_SCHEMA, IssuerModule } from &#x27;./issuer/issuer.module&#x27;;
-import { VerifierModule } from &#x27;./verifier/verifier.module&#x27;;
+import { MetricModule } from &#x27;./metric/metric.module&#x27;;
 import {
     REGISTRAR_VALIDATION_SCHEMA,
     RegistrarModule,
 } from &#x27;./registrar/registrar.module&#x27;;
-import { ServeStaticModule } from &#x27;@nestjs/serve-static&#x27;;
-import { join, isAbsolute } from &#x27;path&#x27;;
-import { KEY_VALIDATION_SCHEMA, KeyModule } from &#x27;./crypto/key/key.module&#x27;;
-import { CRYPTO_VALIDATION_SCHEMA } from &#x27;./crypto/key/crypto/crypto.module&#x27;;
 import {
     SESSION_VALIDATION_SCHEMA,
     SessionModule,
 } from &#x27;./session/session.module&#x27;;
-import { ScheduleModule } from &#x27;@nestjs/schedule&#x27;;
-import { DatabaseModule } from &#x27;./database/database.module&#x27;;
-import { HealthModule } from &#x27;./health/health.module&#x27;;
-import { AUTH_VALIDATION_SCHEMA, AuthModule } from &#x27;./auth/auth.module&#x27;;
-import { LoggerModule } from &#x27;nestjs-pino&#x27;;
+import { VerifierModule } from &#x27;./verifier/verifier.module&#x27;;
+import { WellKnownController } from &#x27;./well-known/well-known.controller&#x27;;
 import { WellKnownService } from &#x27;./well-known/well-known.service&#x27;;
-import { AppController } from &#x27;./app/app.controller&#x27;;
-import { MetricModule } from &#x27;./metric/metric.module&#x27;;
 
 @Module({
     imports: [
         ConfigModule.forRoot({
             validationSchema: Joi.object({
-                FOLDER: Joi.string().default(&#x27;./tmp&#x27;),
+                FOLDER: Joi.string().default(&#x27;../../tmp&#x27;),
                 RP_NAME: Joi.string().default(&#x27;EUDIPLO&#x27;),
                 LOG_LEVEL: Joi.string()
                     .valid(&#x27;trace&#x27;, &#x27;debug&#x27;, &#x27;info&#x27;, &#x27;warn&#x27;, &#x27;error&#x27;, &#x27;fatal&#x27;)
@@ -428,7 +428,7 @@ import { MetricModule } from &#x27;./metric/metric.module&#x27;;
                     ),
                 CONFIG_IMPORT: Joi.boolean().default(false),
                 CONFIG_IMPORT_FORCE: Joi.boolean().default(false),
-                CONFIG_FOLDER: Joi.string().default(&#x27;assets/config&#x27;),
+                CONFIG_FOLDER: Joi.string().default(&#x27;../../assets/config&#x27;),
                 ...AUTH_VALIDATION_SCHEMA,
                 ...REGISTRAR_VALIDATION_SCHEMA,
                 ...KEY_VALIDATION_SCHEMA,

@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>eudiplo documentation</title>
+        <title>@eudiplo/backend documentation</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -65,7 +65,7 @@
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
-                    <a href="../" class="navbar-brand">eudiplo documentation</a>
+                    <a href="../" class="navbar-brand">@eudiplo/backend documentation</a>
                     <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
                </div>
         </div>
@@ -302,11 +302,11 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ConflictException, Injectable } from &#x27;@nestjs/common&#x27;;
-import { JWK, JWTPayload } from &#x27;jose&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { X509Certificate } from &#x27;node:crypto&#x27;;
 import { HttpService } from &#x27;@nestjs/axios&#x27;;
+import { ConflictException, Injectable } from &#x27;@nestjs/common&#x27;;
+import { JWK, JWTPayload } from &#x27;jose&#x27;;
 import { firstValueFrom } from &#x27;rxjs&#x27;;
-import { X509Certificate } from &#x27;node:crypto&#x27;;
 import { IssuerMetadata } from &#x27;./dto/issuer-metadata.dto&#x27;;
 
 /**

@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>eudiplo documentation</title>
+        <title>@eudiplo/backend documentation</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -65,7 +65,7 @@
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
-                    <a href="../" class="navbar-brand">eudiplo documentation</a>
+                    <a href="../" class="navbar-brand">@eudiplo/backend documentation</a>
                     <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
                </div>
         </div>
@@ -120,7 +120,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/crypto/key/key.service.ts</code>
+            <code>src/crypto/key/dto/key-object.dto.ts</code>
         </p>
 
 
@@ -194,7 +194,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="24" class="link-to-prism">src/crypto/key/key.service.ts:24</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/crypto/key/dto/key-object.dto.ts:19</a></div>
                         </td>
                     </tr>
 
@@ -226,7 +226,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="16" class="link-to-prism">src/crypto/key/key.service.ts:16</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="11" class="link-to-prism">src/crypto/key/dto/key-object.dto.ts:11</a></div>
                         </td>
                     </tr>
 
@@ -252,13 +252,13 @@
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>    <code>JWK</code>
+                        <i>Type : </i>        <code><a href="../classes/EC_Public.html" target="_self" >EC_Public</a></code>
 
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="20" class="link-to-prism">src/crypto/key/key.service.ts:20</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/crypto/key/dto/key-object.dto.ts:15</a></div>
                         </td>
                     </tr>
 
@@ -283,17 +283,12 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Signer } from &#x27;@sd-jwt/types&#x27;;
-import { JWK, JWTPayload, JoseHeaderParameters } from &#x27;jose&#x27;;
-import { KeyImportDto } from &#x27;./dto/key-import.dto&#x27;;
-import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { Repository } from &#x27;typeorm&#x27;;
-import { CertEntity, CertificateType } from &#x27;./entities/cert.entity&#x27;;
-import { ConflictException } from &#x27;@nestjs/common&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { EC_Public } from &#x27;../../../well-known/dto/jwks-response.dto&#x27;;
 
 /**
  * Represents a key entity with its unique identifier, public key, and certificate.
  */
+
 export class KeyObj {
     /**
      * Unique identifier for the key.
@@ -302,104 +297,11 @@ export class KeyObj {
     /**
      * Public key in JWK format.
      */
-    publicKey: JWK;
+    publicKey: EC_Public;
     /**
      * Certificate in PEM format.
      */
     crt: string;
-}
-
-/**
- * Generic interface for a key service
- */
-export abstract class KeyService {
-    constructor(
-        protected configService: ConfigService,
-        protected certRepository: Repository&lt;CertEntity&gt;,
-    ) {}
-
-    /**
-     * Initialize the key service
-     * @param tenantId
-     * @returns key id of the initialized key.
-     */
-    abstract init(tenantId): Promise&lt;string&gt;;
-
-    /**
-     * Creates a new keypair
-     * @param tenantId
-     * @return key id of the generated key.
-     */
-    abstract create(tenantId): Promise&lt;string&gt;;
-
-    /**
-     * Import a key into the key service.
-     * @param tenantId
-     * @param body
-     */
-    abstract import(tenantId: string, body: KeyImportDto): Promise&lt;string&gt;;
-
-    /**
-     * Get the callback for the signer function
-     * @param tenantId
-     */
-    abstract signer(tenantId: string, keyId?: string): Promise&lt;Signer&gt;;
-
-    /**
-     * Get the key id
-     * @returns
-     */
-    abstract getKid(tenantId: string, type?: CertificateType): Promise&lt;string&gt;;
-
-    abstract getKeys(tenantId: string): Promise&lt;KeyObj[]&gt;;
-
-    /**
-     * Get the public key
-     * @returns
-     */
-    abstract getPublicKey(
-        type: &#x27;jwk&#x27;,
-        tenantId: string,
-        keyId?: string,
-    ): Promise&lt;JWK&gt;;
-    abstract getPublicKey(
-        type: &#x27;pem&#x27;,
-        tenantId: string,
-        keyId?: string,
-    ): Promise&lt;string&gt;;
-    abstract getPublicKey(
-        type: &#x27;pem&#x27; | &#x27;jwk&#x27;,
-        tenantId: string,
-        keyId?: string,
-    ): Promise&lt;JWK | string&gt;;
-
-    //TODO: this can be handled via the signer callback
-    abstract signJWT(
-        payload: JWTPayload,
-        header: JoseHeaderParameters,
-        tenantId: string,
-        keyId?: string,
-    ): Promise&lt;string&gt;;
-
-    /**
-     * Get the certificate for the given key id.
-     * @param tenantId
-     * @param keyId
-     * @returns
-     */
-    protected getCertificate(tenantId: string, keyId: string): Promise&lt;string&gt; {
-        return this.certRepository
-            .findOneByOrFail({
-                tenantId,
-                keyId,
-            })
-            .then(
-                (cert) &#x3D;&gt; cert.crt,
-                () &#x3D;&gt; {
-                    throw new ConflictException(&#x27;Certificate not found&#x27;);
-                },
-            );
-    }
 }
 </code></pre>
     </div>

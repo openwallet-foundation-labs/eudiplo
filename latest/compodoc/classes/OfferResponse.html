@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>eudiplo documentation</title>
+        <title>@eudiplo/backend documentation</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -65,7 +65,7 @@
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
-                    <a href="../" class="navbar-brand">eudiplo documentation</a>
+                    <a href="../" class="navbar-brand">@eudiplo/backend documentation</a>
                     <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
                </div>
         </div>
@@ -184,7 +184,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:42</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="54" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:54</a></div>
                         </td>
                     </tr>
 
@@ -210,7 +210,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:41</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="53" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:53</a></div>
                         </td>
                     </tr>
 
@@ -229,15 +229,16 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiProperty } from &#x27;@nestjs/swagger&#x27;;
+import {
     IsArray,
     IsEnum,
     IsObject,
     IsOptional,
     IsString,
+    IsUUID,
 } from &#x27;class-validator&#x27;;
 import { ResponseType } from &#x27;../../../verifier/oid4vp/dto/presentation-request.dto&#x27;;
-import { ApiProperty } from &#x27;@nestjs/swagger&#x27;;
 
 export class OfferRequestDto {
     /**
@@ -251,21 +252,32 @@ export class OfferRequestDto {
     response_type: ResponseType;
 
     /**
+     * Issuance config id to reference the issuance configuration.
      * @example &quot;pid&quot;
      */
     @IsString()
     issuanceId: string;
 
     /**
-     * @example [&quot;pid&quot;]
+     * Overrides the default values for the credential ids.
      */
     @IsArray()
     @IsOptional()
     credentialConfigurationIds?: string[];
 
+    /**
+     * Override the default values for the credential claims.
+     */
     @IsObject()
     @IsOptional()
-    values?: { [key: string]: Record&lt;string, any&gt; };
+    claims?: { [key: string]: Record&lt;string, any&gt; };
+
+    /**
+     * Pre defined session id
+     */
+    @IsUUID()
+    @IsOptional()
+    session?: string;
 }
 
 export class OfferResponse {

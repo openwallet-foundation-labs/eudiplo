@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>eudiplo documentation</title>
+        <title>@eudiplo/backend documentation</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -65,7 +65,7 @@
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
-                    <a href="../" class="navbar-brand">eudiplo documentation</a>
+                    <a href="../" class="navbar-brand">@eudiplo/backend documentation</a>
                     <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
                </div>
         </div>
@@ -118,13 +118,13 @@
 <title>cluster_StatusListModule</title>
 <polygon fill="none" stroke="black" stroke-dasharray="1,5" points="92,-70 92,-268 404,-268 404,-70 92,-70"/>
 </g>
-<g id="clust4" class="cluster">
-<title>cluster_StatusListModule_exports</title>
-<polygon fill="none" stroke="black" points="191,-208 191,-260 325,-260 325,-208 191,-208"/>
-</g>
 <g id="clust3" class="cluster">
 <title>cluster_StatusListModule_imports</title>
 <polygon fill="none" stroke="black" points="282,-78 282,-130 396,-130 396,-78 282,-78"/>
+</g>
+<g id="clust4" class="cluster">
+<title>cluster_StatusListModule_exports</title>
+<polygon fill="none" stroke="black" points="191,-208 191,-260 325,-260 325,-208 191,-208"/>
 </g>
 <g id="clust6" class="cluster">
 <title>cluster_StatusListModule_providers</title>
@@ -265,11 +265,11 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &#x27;@nestjs/common&#x27;;
+import { TypeOrmModule } from &#x27;@nestjs/typeorm&#x27;;
+import { CryptoModule } from &#x27;../../crypto/crypto.module&#x27;;
+import { StatusMapping } from &#x27;./entities/status-mapping.entity&#x27;;
 import { StatusListController } from &#x27;./status-list.controller&#x27;;
 import { StatusListService } from &#x27;./status-list.service&#x27;;
-import { CryptoModule } from &#x27;../../crypto/crypto.module&#x27;;
-import { TypeOrmModule } from &#x27;@nestjs/typeorm&#x27;;
-import { StatusMapping } from &#x27;./entities/status-mapping.entity&#x27;;
 
 @Module({
     imports: [CryptoModule, TypeOrmModule.forFeature([StatusMapping])],

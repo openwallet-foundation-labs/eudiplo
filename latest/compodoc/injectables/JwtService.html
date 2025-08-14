@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>eudiplo documentation</title>
+        <title>@eudiplo/backend documentation</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -65,7 +65,7 @@
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
-                    <a href="../" class="navbar-brand">eudiplo documentation</a>
+                    <a href="../" class="navbar-brand">@eudiplo/backend documentation</a>
                     <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
                </div>
         </div>
@@ -173,7 +173,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="13" class="link-to-prism">src/auth/jwt.service.ts:13</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="14" class="link-to-prism">src/auth/jwt.service.ts:14</a></div>
                             </td>
                         </tr>
 
@@ -236,8 +236,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="82"
-                                    class="link-to-prism">src/auth/jwt.service.ts:82</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="89"
+                                    class="link-to-prism">src/auth/jwt.service.ts:89</a></div>
                         </td>
                     </tr>
 
@@ -307,8 +307,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="19"
-                                    class="link-to-prism">src/auth/jwt.service.ts:19</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="26"
+                                    class="link-to-prism">src/auth/jwt.service.ts:26</a></div>
                         </td>
                     </tr>
 
@@ -394,8 +394,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="93"
-                                    class="link-to-prism">src/auth/jwt.service.ts:93</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="100"
+                                    class="link-to-prism">src/auth/jwt.service.ts:100</a></div>
                         </td>
                     </tr>
 
@@ -435,8 +435,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="56"
-                                    class="link-to-prism">src/auth/jwt.service.ts:56</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="63"
+                                    class="link-to-prism">src/auth/jwt.service.ts:63</a></div>
                         </td>
                     </tr>
 
@@ -492,8 +492,9 @@
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &#x27;@nestjs/common&#x27;;
 import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { SignJWT, jwtVerify, decodeJwt } from &#x27;jose&#x27;;
+import { decodeJwt, jwtVerify, SignJWT } from &#x27;jose&#x27;;
 import { TokenPayload } from &#x27;./token.decorator&#x27;;
+import { DEFAULT_JWT_SECRET } from &#x27;./auth.module&#x27;;
 
 export interface GenerateTokenOptions {
     expiresIn?: string;
@@ -503,7 +504,13 @@ export interface GenerateTokenOptions {
 
 @Injectable()
 export class JwtService {
-    constructor(private configService: ConfigService) {}
+    constructor(private configService: ConfigService) {
+        if(this.configService.get&lt;string&gt;(&#x27;JWT_SECRET&#x27;) &#x3D;&#x3D;&#x3D; DEFAULT_JWT_SECRET) {
+            console.warn(
+                &#x27;Using default JWT secret. This is not secure for production environments.&#x27;,
+            );
+        }
+    }
 
     /**
      * Generate a JWT token for integrated OAuth2 server

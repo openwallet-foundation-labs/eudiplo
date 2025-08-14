@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>eudiplo documentation</title>
+        <title>@eudiplo/backend documentation</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -65,7 +65,7 @@
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
-                    <a href="../" class="navbar-brand">eudiplo documentation</a>
+                    <a href="../" class="navbar-brand">@eudiplo/backend documentation</a>
                     <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
                </div>
         </div>
@@ -176,6 +176,10 @@
                                 <a href="#issuerMetadata" >issuerMetadata</a>
                             </li>
                             <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#nonceRequest" >nonceRequest</a>
+                            </li>
+                            <li>
                                 <a href="#onModuleInit" >onModuleInit</a>
                             </li>
                         </ul>
@@ -196,12 +200,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(authzService: <a href="../injectables/AuthorizeService.html" target="_self">AuthorizeService</a>, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, credentialsService: <a href="../injectables/CredentialsService.html" target="_self">CredentialsService</a>, configService: ConfigService, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, sessionLogger: <a href="../injectables/SessionLoggerService.html" target="_self">SessionLoggerService</a>, issuanceService: <a href="../injectables/IssuanceService.html" target="_self">IssuanceService</a>, webhookService: <a href="../injectables/WebhookService.html" target="_self">WebhookService</a>)</code>
+<code>constructor(authzService: <a href="../injectables/AuthorizeService.html" target="_self">AuthorizeService</a>, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, credentialsService: <a href="../injectables/CredentialsService.html" target="_self">CredentialsService</a>, configService: ConfigService, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, sessionLogger: <a href="../injectables/SessionLoggerService.html" target="_self">SessionLoggerService</a>, issuanceService: <a href="../injectables/IssuanceService.html" target="_self">IssuanceService</a>, webhookService: <a href="../injectables/WebhookService.html" target="_self">WebhookService</a>, httpService: HttpService)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="43" class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:43</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:47</a></div>
                             </td>
                         </tr>
 
@@ -314,6 +318,18 @@
                                                     </td>
                                                     
                                                 </tr>
+                                                <tr>
+                                                        <td>httpService</td>
+                                                  
+                                                        <td>
+                                                                    <code>HttpService</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
                                         </tbody>
                                     </table>
                             </div>
@@ -350,8 +366,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="116"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:116</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="167"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:167</a></div>
                         </td>
                     </tr>
 
@@ -443,8 +459,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="186"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:186</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="250"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:250</a></div>
                         </td>
                     </tr>
 
@@ -524,8 +540,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="303"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:303</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="375"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:375</a></div>
                         </td>
                     </tr>
 
@@ -619,8 +635,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="66"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:66</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="71"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:71</a></div>
                         </td>
                     </tr>
 
@@ -670,6 +686,77 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="nonceRequest"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>nonceRequest</b></span>
+                        <a href="#nonceRequest"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>nonceRequest(session: <a href="../entitys/Session.html" target="_self">Session</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="242"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:242</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Create a nonce an store it in the session entity</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>session</td>
+                                            <td>
+                                                            <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>unknown</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="onModuleInit"></a>
                     <span class="name">
                         <span ><b>onModuleInit</b></span>
@@ -686,8 +773,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="55"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:55</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="60"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:60</a></div>
                         </td>
                     </tr>
 
@@ -730,7 +817,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="48" class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:48</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="52" class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:52</a></div>
                         </td>
                     </tr>
 
@@ -757,7 +844,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:41</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="45" class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:45</a></div>
                         </td>
                     </tr>
 
@@ -783,7 +870,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="43" class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:43</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:47</a></div>
                         </td>
                     </tr>
 
@@ -796,7 +883,10 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { readFileSync } from &#x27;node:fs&#x27;;
+import { join } from &#x27;node:path&#x27;;
+import { HttpService } from &#x27;@nestjs/axios&#x27;;
+import {
     BadRequestException,
     ConflictException,
     Injectable,
@@ -804,11 +894,12 @@
 } from &#x27;@nestjs/common&#x27;;
 import { ConfigService } from &#x27;@nestjs/config&#x27;;
 import {
+    AuthorizationServerMetadata,
+    authorizationCodeGrantIdentifier,
     type HttpMethod,
     Oauth2ResourceServer,
-    SupportedAuthenticationScheme,
-    authorizationCodeGrantIdentifier,
     preAuthorizedCodeGrantIdentifier,
+    SupportedAuthenticationScheme,
 } from &#x27;@openid4vc/oauth2&#x27;;
 import {
     type CredentialResponse,
@@ -817,22 +908,22 @@ import {
     Openid4vciIssuer,
 } from &#x27;@openid4vc/openid4vci&#x27;;
 import type { Request } from &#x27;express&#x27;;
-import { CredentialsService } from &#x27;../credentials/credentials.service&#x27;;
-import { CryptoService } from &#x27;../../crypto/crypto.service&#x27;;
-import { AuthorizeService } from &#x27;../authorize/authorize.service&#x27;;
-import { getHeadersFromRequest } from &#x27;./util&#x27;;
-import { readFileSync } from &#x27;node:fs&#x27;;
-import { join } from &#x27;node:path&#x27;;
-import { SessionService } from &#x27;../../session/session.service&#x27;;
+import { firstValueFrom } from &#x27;rxjs&#x27;;
 import { v4 } from &#x27;uuid&#x27;;
-import { OfferRequestDto, OfferResponse } from &#x27;./dto/offer-request.dto&#x27;;
-import { NotificationRequestDto } from &#x27;./dto/notification-request.dto&#x27;;
+import { TokenPayload } from &#x27;../../auth/token.decorator&#x27;;
+import { CryptoService } from &#x27;../../crypto/crypto.service&#x27;;
+import { Session, SessionStatus } from &#x27;../../session/entities/session.entity&#x27;;
+import { SessionService } from &#x27;../../session/session.service&#x27;;
 import { SessionLoggerService } from &#x27;../../utils/logger/session-logger.service&#x27;;
 import { SessionLogContext } from &#x27;../../utils/logger/session-logger-context&#x27;;
-import { TokenPayload } from &#x27;../../auth/token.decorator&#x27;;
-import { IssuanceService } from &#x27;../issuance/issuance.service&#x27;;
 import { WebhookService } from &#x27;../../utils/webhook/webhook.service&#x27;;
-import { Session, SessionStatus } from &#x27;../../session/entities/session.entity&#x27;;
+import { AuthorizeService } from &#x27;../authorize/authorize.service&#x27;;
+import { CredentialsService } from &#x27;../credentials/credentials.service&#x27;;
+import { AuthenticationConfigHelper } from &#x27;../issuance/dto/authentication-config.helper&#x27;;
+import { IssuanceService } from &#x27;../issuance/issuance.service&#x27;;
+import { NotificationRequestDto } from &#x27;./dto/notification-request.dto&#x27;;
+import { OfferRequestDto, OfferResponse } from &#x27;./dto/offer-request.dto&#x27;;
+import { getHeadersFromRequest } from &#x27;./util&#x27;;
 
 @Injectable()
 export class Oid4vciService implements OnModuleInit {
@@ -849,6 +940,7 @@ export class Oid4vciService implements OnModuleInit {
         private readonly sessionLogger: SessionLoggerService,
         private readonly issuanceService: IssuanceService,
         private readonly webhookService: WebhookService,
+        private readonly httpService: HttpService,
     ) {}
     onModuleInit() {
         //TODO: align for tenant
@@ -877,24 +969,70 @@ export class Oid4vciService implements OnModuleInit {
             ),
         );
 
-        const authorizationServerMetadata &#x3D;
-            this.authzService.authzMetadata(session);
+        const issuanceConfig &#x3D;
+            await this.issuanceService.getIssuanceConfigurationById(
+                session.issuanceId as string,
+                session.tenantId,
+            );
+
+        let authorizationServerMetadata: AuthorizationServerMetadata;
+
+        let authServer: string;
+
+        if (
+            AuthenticationConfigHelper.isAuthUrlAuth(
+                issuanceConfig.authenticationConfig,
+            )
+        ) {
+            authServer &#x3D; issuanceConfig.authenticationConfig.config.url;
+            // fetch the authorization server metadata
+            authorizationServerMetadata &#x3D; await firstValueFrom(
+                this.httpService.get(
+                    &#x60;${authServer}/.well-known/oauth-authorization-server&#x60;,
+                ),
+            ).then(
+                (response) &#x3D;&gt; response.data,
+                (err) &#x3D;&gt; {
+                    const logContext: SessionLogContext &#x3D; {
+                        sessionId: session.id,
+                        tenantId: session.tenantId,
+                        flowType: &#x27;OID4VCI&#x27;,
+                        stage: &#x27;credential_request&#x27;,
+                    };
+                    this.sessionLogger.logFlowError(logContext, err);
+                    throw new BadRequestException(
+                        &#x27;Failed to fetch authorization server metadata&#x27;,
+                    );
+                },
+            );
+        } else {
+            authServer &#x3D;
+                this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;) +
+                &#x60;/${session.id}&#x60;;
+            authorizationServerMetadata &#x3D;
+                this.authzService.authzMetadata(session);
+        }
 
         let credentialIssuer &#x3D; this.issuer.createCredentialIssuerMetadata({
             credential_issuer,
             credential_configurations_supported:
                 await this.credentialsService.getCredentialConfigurationSupported(
-                    session.tenantId,
+                    session,
+                    issuanceConfig,
                 ),
             credential_endpoint: &#x60;${credential_issuer}/vci/credential&#x60;,
-            authorization_servers: [authorizationServerMetadata.issuer],
-            authorization_server: authorizationServerMetadata.issuer,
+            authorization_servers: [authServer],
+            authorization_server: authServer,
             notification_endpoint: &#x60;${credential_issuer}/vci/notification&#x60;,
-            batch_credential_issuance: {
-                batch_size: 1,
-            },
+            nonce_endpoint: &#x60;${credential_issuer}/vci/nonce&#x60;,
             display,
         });
+
+        if (issuanceConfig.batch_size) {
+            credentialIssuer.batch_credential_issuance &#x3D; {
+                batch_size: issuanceConfig.batch_size,
+            };
+        }
 
         //replace placeholders in the issuer metadata
         credentialIssuer &#x3D; JSON.parse(
@@ -931,7 +1069,7 @@ export class Oid4vciService implements OnModuleInit {
 
         let authorization_code: string | undefined;
         let grants: any;
-        const issuer_state &#x3D; v4();
+        const issuer_state &#x3D; body.session ?? v4();
         if (issuanceConfig.authenticationConfig.method &#x3D;&#x3D;&#x3D; &#x27;none&#x27;) {
             authorization_code &#x3D; v4();
             grants &#x3D; {
@@ -981,6 +1119,19 @@ export class Oid4vciService implements OnModuleInit {
             );
     }
 
+    /**
+     * Create a nonce an store it in the session entity
+     * @param session
+     * @returns
+     */
+    async nonceRequest(session: Session) {
+        const nonce &#x3D; v4();
+        await this.sessionService.add(session.id, { nonce });
+        return {
+            c_nonce: nonce,
+        };
+    }
+
     async getCredential(
         req: Request,
         session: Session,
@@ -1000,6 +1151,7 @@ export class Oid4vciService implements OnModuleInit {
         ).protocol;
 
         const headers &#x3D; getHeadersFromRequest(req);
+
         const { tokenPayload } &#x3D;
             await this.resourceServer.verifyResourceRequest({
                 authorizationServers: issuerMetadata.authorizationServers,
@@ -1008,10 +1160,12 @@ export class Oid4vciService implements OnModuleInit {
                     method: req.method as HttpMethod,
                     headers,
                 },
+                //TODO: Keycloak is setting aud to &#x60;account&#x60;, but it should be the value of resource server
                 resourceServer:
                     issuerMetadata.credentialIssuer.credential_issuer,
                 allowedAuthenticationSchemes: [
                     SupportedAuthenticationScheme.DPoP,
+                    SupportedAuthenticationScheme.Bearer,
                 ],
             });
 
@@ -1035,11 +1189,16 @@ export class Oid4vciService implements OnModuleInit {
 
         try {
             const credentials: string[] &#x3D; [];
+            const expectedNonce &#x3D;
+                (tokenPayload.nonce as string) || session.nonce;
+            if (expectedNonce &#x3D;&#x3D;&#x3D; undefined) {
+                throw new BadRequestException(&#x27;Nonce not found&#x27;);
+            }
             for (const jwt of parsedCredentialRequest.proofs.jwt) {
                 const verifiedProof &#x3D;
                     await this.issuer.verifyCredentialRequestJwtProof({
                         //check if this is correct or if the passed nonce is validated.
-                        expectedNonce: tokenPayload.nonce as string,
+                        expectedNonce,
                         issuerMetadata: await this.issuerMetadata(session),
                         jwt,
                     });

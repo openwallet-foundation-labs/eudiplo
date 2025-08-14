@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>eudiplo documentation</title>
+        <title>@eudiplo/backend documentation</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -65,7 +65,7 @@
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
-                    <a href="../" class="navbar-brand">eudiplo documentation</a>
+                    <a href="../" class="navbar-brand">@eudiplo/backend documentation</a>
                     <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
                </div>
         </div>
@@ -272,13 +272,13 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &#x27;@nestjs/common&#x27;;
-import { SessionService } from &#x27;./session.service&#x27;;
 import { TypeOrmModule } from &#x27;@nestjs/typeorm&#x27;;
-import { Session } from &#x27;./entities/session.entity&#x27;;
-import { SessionController } from &#x27;./session.controller&#x27;;
+import { makeGaugeProvider } from &#x27;@willsoto/nestjs-prometheus&#x27;;
 import * as Joi from &#x27;joi&#x27;;
 import { StatusListModule } from &#x27;../issuer/status-list/status-list.module&#x27;;
-import { makeGaugeProvider } from &#x27;@willsoto/nestjs-prometheus&#x27;;
+import { Session } from &#x27;./entities/session.entity&#x27;;
+import { SessionController } from &#x27;./session.controller&#x27;;
+import { SessionService } from &#x27;./session.service&#x27;;
 
 /**
  * Module for managing user sessions.

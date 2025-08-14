@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>eudiplo documentation</title>
+        <title>@eudiplo/backend documentation</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -65,7 +65,7 @@
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
-                    <a href="../" class="navbar-brand">eudiplo documentation</a>
+                    <a href="../" class="navbar-brand">@eudiplo/backend documentation</a>
                     <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
                </div>
         </div>
@@ -120,7 +120,7 @@
                 <h3>Prefix</h3>
             </p>
             <p class="comment">
-                <code>oid4vp</code>
+                <code>:session/oid4vp</code>
             </p>
 
 
@@ -199,7 +199,7 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Get(&#x27;request/:session&#x27;)<br />@SessionLogger(&#x27;session&#x27;, &#x27;OID4VP&#x27;)<br /></code>
+                    <code>@Get()<br />@SessionLogger(&#x27;session&#x27;, &#x27;OID4VP&#x27;)<br /></code>
                 </td>
             </tr>
 
@@ -278,7 +278,7 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Post(&#x27;response/:session&#x27;)<br />@SessionLogger(&#x27;session&#x27;, &#x27;OID4VP&#x27;)<br /></code>
+                    <code>@Post()<br />@SessionLogger(&#x27;session&#x27;, &#x27;OID4VP&#x27;)<br /></code>
                 </td>
             </tr>
 
@@ -357,19 +357,19 @@
     UseGuards,
     UseInterceptors,
 } from &#x27;@nestjs/common&#x27;;
-import { Oid4vpService } from &#x27;./oid4vp.service&#x27;;
-import { AuthorizationResponse } from &#x27;./dto/authorization-response.dto&#x27;;
+import { ApiExcludeController, ApiParam } from &#x27;@nestjs/swagger&#x27;;
+import { Session } from &#x27;../../session/entities/session.entity&#x27;;
+import { SessionEntity } from &#x27;../../session/session.decorator&#x27;;
+import { SessionGuard } from &#x27;../../session/session.guard&#x27;;
 import { SessionLogger } from &#x27;../../utils/logger/session-logger.decorator&#x27;;
 import { SessionLoggerInterceptor } from &#x27;../../utils/logger/session-logger.interceptor&#x27;;
-import { SessionEntity } from &#x27;../../session/session.decorator&#x27;;
-import { Session } from &#x27;../../session/entities/session.entity&#x27;;
-import { SessionGuard } from &#x27;../../session/session.guard&#x27;;
-import { ApiExcludeController, ApiParam } from &#x27;@nestjs/swagger&#x27;;
+import { AuthorizationResponse } from &#x27;./dto/authorization-response.dto&#x27;;
+import { Oid4vpService } from &#x27;./oid4vp.service&#x27;;
 
 /**
  * Controller for handling OID4VP (OpenID for Verifiable Presentations) requests.
  */
-@Controller(&#x27;oid4vp&#x27;)
+@Controller(&#x27;:session/oid4vp&#x27;)
 @UseGuards(SessionGuard)
 @UseInterceptors(SessionLoggerInterceptor)
 @ApiParam({ name: &#x27;session&#x27;, required: true })
@@ -388,7 +388,7 @@ export class Oid4vpController {
      * @returns
      */
     //TODO: we just need the session that will include the requestId.
-    @Get(&#x27;request/:session&#x27;)
+    @Get()
     @SessionLogger(&#x27;session&#x27;, &#x27;OID4VP&#x27;)
     getRequestWithSession(@SessionEntity() session: Session) {
         return this.oid4vpService.createAuthorizationRequest(session);
@@ -399,7 +399,7 @@ export class Oid4vpController {
      * @param body
      * @returns
      */
-    @Post(&#x27;response/:session&#x27;)
+    @Post()
     @SessionLogger(&#x27;session&#x27;, &#x27;OID4VP&#x27;)
     getResponse(
         @Body() body: AuthorizationResponse,

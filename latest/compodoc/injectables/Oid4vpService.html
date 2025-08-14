@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>eudiplo documentation</title>
+        <title>@eudiplo/backend documentation</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -65,7 +65,7 @@
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
-                    <a href="../" class="navbar-brand">eudiplo documentation</a>
+                    <a href="../" class="navbar-brand">@eudiplo/backend documentation</a>
                     <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
                </div>
         </div>
@@ -393,8 +393,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="202"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:202</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="203"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:203</a></div>
                         </td>
                     </tr>
 
@@ -488,8 +488,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="252"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:252</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="253"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:253</a></div>
                         </td>
                     </tr>
 
@@ -555,23 +555,23 @@ It initializes the session logging context and logs the start of the flow.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ConflictException, Injectable } from &#x27;@nestjs/common&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { randomUUID } from &#x27;node:crypto&#x27;;
+import { ConflictException, Injectable } from &#x27;@nestjs/common&#x27;;
 import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { randomUUID } from &#x27;node:crypto&#x27;;
-import { CryptoService } from &#x27;../../crypto/crypto.service&#x27;;
-import { AuthorizationResponse } from &#x27;./dto/authorization-response.dto&#x27;;
-import { RegistrarService } from &#x27;../../registrar/registrar.service&#x27;;
-import { PresentationsService } from &#x27;../presentations/presentations.service&#x27;;
-import { AuthResponse } from &#x27;../presentations/dto/auth-response.dto&#x27;;
-import { EncryptionService } from &#x27;../../crypto/encryption/encryption.service&#x27;;
 import { v4 } from &#x27;uuid&#x27;;
-import { SessionService } from &#x27;../../session/session.service&#x27;;
+import { CryptoService } from &#x27;../../crypto/crypto.service&#x27;;
+import { EncryptionService } from &#x27;../../crypto/encryption/encryption.service&#x27;;
 import { OfferResponse } from &#x27;../../issuer/oid4vci/dto/offer-request.dto&#x27;;
-import { PresentationRequestOptions } from &#x27;./dto/presentation-request-options.dto&#x27;;
-import { WebhookService } from &#x27;../../utils/webhook/webhook.service&#x27;;
+import { RegistrarService } from &#x27;../../registrar/registrar.service&#x27;;
+import { Session } from &#x27;../../session/entities/session.entity&#x27;;
+import { SessionService } from &#x27;../../session/session.service&#x27;;
 import { SessionLoggerService } from &#x27;../../utils/logger/session-logger.service&#x27;;
 import { SessionLogContext } from &#x27;../../utils/logger/session-logger-context&#x27;;
-import { Session } from &#x27;../../session/entities/session.entity&#x27;;
+import { WebhookService } from &#x27;../../utils/webhook/webhook.service&#x27;;
+import { AuthResponse } from &#x27;../presentations/dto/auth-response.dto&#x27;;
+import { PresentationsService } from &#x27;../presentations/presentations.service&#x27;;
+import { AuthorizationResponse } from &#x27;./dto/authorization-response.dto&#x27;;
+import { PresentationRequestOptions } from &#x27;./dto/presentation-request-options.dto&#x27;;
 
 @Injectable()
 export class Oid4vpService {
@@ -611,6 +611,7 @@ export class Oid4vpService {
 
         try {
             const host &#x3D; this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;);
+            const tenantHost &#x3D; &#x60;${host}/${session.tenantId}&#x60;;
 
             const values &#x3D;
                 await this.presentationsService.getPresentationConfig(
@@ -622,7 +623,7 @@ export class Oid4vpService {
             const dcql_query &#x3D; JSON.parse(
                 JSON.stringify(values.dcql_query).replace(
                     /&lt;PUBLIC_URL&gt;/g,
-                    host,
+                    tenantHost,
                 ),
             );
 
@@ -630,7 +631,7 @@ export class Oid4vpService {
                 const registrationCert &#x3D; JSON.parse(
                     JSON.stringify(values.registrationCert).replace(
                         /&lt;PUBLIC_URL&gt;/g,
-                        host,
+                        tenantHost,
                     ),
                 );
                 regCert &#x3D;
@@ -663,7 +664,7 @@ export class Oid4vpService {
                 payload: {
                     response_type: &#x27;vp_token&#x27;,
                     client_id: &#x27;x509_san_dns:&#x27; + hostname,
-                    response_uri: &#x60;${host}/oid4vp/response/${session.id}&#x60;,
+                    response_uri: &#x60;${host}/${session.id}/oid4vp&#x60;,
                     response_mode: &#x27;direct_post.jwt&#x27;,
                     nonce,
                     dcql_query,
@@ -786,7 +787,7 @@ export class Oid4vpService {
         ).hostname;
         const params &#x3D; {
             client_id: &#x60;x509_san_dns:${hostname}&#x60;,
-            request_uri: &#x60;${this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;)}/oid4vp/request/${values.session}&#x60;,
+            request_uri: &#x60;${this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;)}/${values.session}/oid4vp&#x60;,
         };
         const queryString &#x3D; Object.entries(params)
             .map(

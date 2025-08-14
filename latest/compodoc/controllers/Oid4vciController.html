@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>eudiplo documentation</title>
+        <title>@eudiplo/backend documentation</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -65,7 +65,7 @@
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
-                    <a href="../" class="navbar-brand">eudiplo documentation</a>
+                    <a href="../" class="navbar-brand">@eudiplo/backend documentation</a>
                     <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
                </div>
         </div>
@@ -156,6 +156,11 @@
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                <a href="#nonce" >nonce</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#notifications" >notifications</a>
                             </li>
                         </ul>
@@ -205,8 +210,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="38"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.controller.ts:38</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="39"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.controller.ts:39</a></div>
                         </td>
                     </tr>
 
@@ -270,6 +275,83 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="nonce"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                        <span ><b>nonce</b></span>
+                        <a href="#nonce"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>nonce(session: <a href="../entitys/Session.html" target="_self">Session</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Post(&#x27;nonce&#x27;)<br />@SessionLogger(&#x27;nonce&#x27;, &#x27;OID4VCI&#x27;)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="63"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.controller.ts:63</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>session</td>
+                                            <td>
+                                                            <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="notifications"></a>
                     <span class="name">
                             <span class="modifier"></span>
@@ -296,8 +378,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="52"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.controller.ts:52</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="53"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.controller.ts:53</a></div>
                         </td>
                     </tr>
 
@@ -376,21 +458,22 @@
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
     Body,
     Controller,
+    Get,
     Post,
     Req,
     UseGuards,
     UseInterceptors,
 } from &#x27;@nestjs/common&#x27;;
+import { ApiExcludeController, ApiParam } from &#x27;@nestjs/swagger&#x27;;
 import type { CredentialResponse } from &#x27;@openid4vc/openid4vci&#x27;;
 import type { Request } from &#x27;express&#x27;;
 import { Oid4vciService } from &#x27;../../issuer/oid4vci/oid4vci.service&#x27;;
-import { NotificationRequestDto } from &#x27;./dto/notification-request.dto&#x27;;
+import { Session } from &#x27;../../session/entities/session.entity&#x27;;
+import { SessionEntity } from &#x27;../../session/session.decorator&#x27;;
+import { SessionGuard } from &#x27;../../session/session.guard&#x27;;
 import { SessionLogger } from &#x27;../../utils/logger//session-logger.decorator&#x27;;
 import { SessionLoggerInterceptor } from &#x27;../../utils/logger/session-logger.interceptor&#x27;;
-import { SessionGuard } from &#x27;../../session/session.guard&#x27;;
-import { SessionEntity } from &#x27;../../session/session.decorator&#x27;;
-import { Session } from &#x27;../../session/entities/session.entity&#x27;;
-import { ApiExcludeController, ApiParam } from &#x27;@nestjs/swagger&#x27;;
+import { NotificationRequestDto } from &#x27;./dto/notification-request.dto&#x27;;
 
 /**
  * Controller for handling OID4VCI (OpenID for Verifiable Credential Issuance) requests.
@@ -430,6 +513,12 @@ export class Oid4vciController {
         @SessionEntity() session: Session,
     ) {
         return this.oid4vciService.handleNotification(req, body, session);
+    }
+
+    @Post(&#x27;nonce&#x27;)
+    @SessionLogger(&#x27;nonce&#x27;, &#x27;OID4VCI&#x27;)
+    nonce(@SessionEntity() session: Session) {
+        return this.oid4vciService.nonceRequest(session);
     }
 
     //TODO: this endpoint may be relevant for the wallet attestation.

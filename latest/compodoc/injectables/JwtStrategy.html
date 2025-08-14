@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>eudiplo documentation</title>
+        <title>@eudiplo/backend documentation</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -65,7 +65,7 @@
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
-                    <a href="../" class="navbar-brand">eudiplo documentation</a>
+                    <a href="../" class="navbar-brand">@eudiplo/backend documentation</a>
                     <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
                </div>
         </div>
@@ -125,7 +125,7 @@
                 <h3>Extends</h3>
             </p>
             <p class="comment">
-                        <code>PassportStrategy(Strategy, &#x27;jwt&#x27;)</code>
+                        <code>PassportStrategy(Strategy, &quot;jwt&quot;)</code>
             </p>
 
 
@@ -142,6 +142,9 @@
                 <tr>
                     <td class="col-md-4">
                         <ul class="index-list">
+                            <li>
+                                <a href="#authenticate" >authenticate</a>
+                            </li>
                             <li>
                                     <span class="modifier">Private</span>
                                     <span class="modifier">Static</span>
@@ -238,6 +241,85 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="authenticate"></a>
+                    <span class="name">
+                        <span ><b>authenticate</b></span>
+                        <a href="#authenticate"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>authenticate(req: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, options?: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="24"
+                                    class="link-to-prism">src/auth/jwt.strategy.ts:24</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>req</td>
+                                            <td>
+                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>options</td>
+                                            <td>
+                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="getExternalOIDCConfig"></a>
                     <span class="name">
                             <span class="modifier">Private</span>
@@ -257,8 +339,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="24"
-                                    class="link-to-prism">src/auth/jwt.strategy.ts:24</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="31"
+                                    class="link-to-prism">src/auth/jwt.strategy.ts:31</a></div>
                         </td>
                     </tr>
 
@@ -294,7 +376,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../classes/Key.html" target="_self" >{ secretOrKeyProvider: any; jwtFromRequest: any; algorithms: {}; issuer: any; audience: any; }</a></code>
+                            <b>Returns : </b>        <code><a href="../classes/Key.html" target="_self" >{ secretOrKeyProvider: any; jwtFromRequest: any; algorithms: {}; issuer: any; }</a></code>
 
                         </div>
                             <div class="io-description">
@@ -327,8 +409,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="51"
-                                    class="link-to-prism">src/auth/jwt.strategy.ts:51</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="61"
+                                    class="link-to-prism">src/auth/jwt.strategy.ts:61</a></div>
                         </td>
                     </tr>
 
@@ -396,8 +478,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="75"
-                                    class="link-to-prism">src/auth/jwt.strategy.ts:75</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="85"
+                                    class="link-to-prism">src/auth/jwt.strategy.ts:85</a></div>
                         </td>
                     </tr>
 
@@ -457,53 +539,63 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &#x27;@nestjs/common&#x27;;
-import { PassportStrategy } from &#x27;@nestjs/passport&#x27;;
-import { ExtractJwt, Strategy } from &#x27;passport-jwt&#x27;;
-import { passportJwtSecret } from &#x27;jwks-rsa&#x27;;
-import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { TokenPayload } from &#x27;./token.decorator&#x27;;
-import { ClientService } from &#x27;./client.service&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
+import { PassportStrategy } from &quot;@nestjs/passport&quot;;
+import { passportJwtSecret } from &quot;jwks-rsa&quot;;
+import { ExtractJwt, Strategy } from &quot;passport-jwt&quot;;
+import { ClientService } from &quot;./client.service&quot;;
+import { TokenPayload } from &quot;./token.decorator&quot;;
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, &#x27;jwt&#x27;) {
+export class JwtStrategy extends PassportStrategy(Strategy, &quot;jwt&quot;) {
     constructor(
         private configService: ConfigService,
         private clientService: ClientService,
     ) {
-        const useExternalOIDC &#x3D; configService.get&lt;boolean&gt;(&#x27;OIDC&#x27;);
+        const useExternalOIDC &#x3D; configService.get&lt;boolean&gt;(&quot;OIDC&quot;);
 
-        super(
-            useExternalOIDC
-                ? JwtStrategy.getExternalOIDCConfig(configService)
-                : JwtStrategy.getIntegratedOAuth2Config(configService),
-        );
+        const config &#x3D; useExternalOIDC
+            ? JwtStrategy.getExternalOIDCConfig(configService)
+            : JwtStrategy.getIntegratedOAuth2Config(configService);
+        super(config);
+    }
+
+    // Override authenticate to add debugging
+    authenticate(req: any, options?: any) {
+        return super.authenticate(req, {
+            ...options,
+            failWithError: true, // This will throw errors instead of just returning 401
+        });
     }
 
     private static getExternalOIDCConfig(configService: ConfigService) {
-        //TODO: test it
+        const keycloakIssuerUrl &#x3D; configService.get(
+            &quot;KEYCLOAK_INTERNAL_ISSUER_URL&quot;,
+        );
+        const jwksUri &#x3D; &#x60;${keycloakIssuerUrl}/protocol/openid-connect/certs&#x60;;
+
         return {
             secretOrKeyProvider: passportJwtSecret({
                 cache: true,
                 rateLimit: true,
                 jwksRequestsPerMinute: 5,
-                jwksUri: &#x60;${configService.get(&#x27;KEYCLOAK_INTERNAL_ISSUER_URL&#x27;)}/protocol/openid-connect/certs&#x60;,
+                jwksUri: jwksUri,
                 handleSigningKeyError: (err, cb) &#x3D;&gt; {
-                    console.log(&#x27;Keycloak JWKS error:&#x27;, err);
+                    console.error(&quot;❌ Keycloak JWKS error:&quot;, err);
                     if (err instanceof Error) {
                         return cb(err);
                     }
                     return cb(
                         new Error(
-                            &#x27;Could not get the signing key from Keycloak&#x27;,
+                            &quot;Could not get the signing key from Keycloak&quot;,
                         ),
                     );
                 },
             }),
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            algorithms: [&#x27;RS256&#x27;],
-            issuer: configService.get(&#x27;KEYCLOAK_INTERNAL_ISSUER_URL&#x27;),
-            audience: configService.get(&#x27;KEYCLOAK_CLIENT_ID&#x27;), // You may want to add this to validation schema
+            algorithms: [configService.get(&quot;KEYCLOAK_ALGORITHM&quot;)],
+            issuer: keycloakIssuerUrl,
         };
     }
 
@@ -511,14 +603,14 @@ export class JwtStrategy extends PassportStrategy(Strategy, &#x27;jwt&#x27;) {
         configService: ConfigService,
     ): any {
         const config &#x3D; {
-            secretOrKey: configService.get(&#x27;JWT_SECRET&#x27;),
+            secretOrKey: configService.get(&quot;JWT_SECRET&quot;),
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            algorithms: [&#x27;HS256&#x27;], // Using symmetric key for integrated OAuth2
+            algorithms: [&quot;HS256&quot;], // Using symmetric key for integrated OAuth2
             ignoreExpiration: false, // Ensure tokens expire
         };
 
         // Add issuer validation only if JWT_ISSUER is configured
-        const issuer &#x3D; configService.get(&#x27;JWT_ISSUER&#x27;);
+        const issuer &#x3D; configService.get(&quot;JWT_ISSUER&quot;);
         if (issuer) {
             (config as any).issuer &#x3D; issuer;
         }
@@ -533,15 +625,20 @@ export class JwtStrategy extends PassportStrategy(Strategy, &#x27;jwt&#x27;) {
      */
     async validate(payload: TokenPayload): Promise&lt;unknown&gt; {
         const useExternalOIDC &#x3D;
-            this.configService.get&lt;boolean&gt;(&#x27;OIDC&#x27;) !&#x3D;&#x3D; undefined;
+            this.configService.get&lt;boolean&gt;(&quot;OIDC&quot;) !&#x3D;&#x3D; undefined;
+
         await this.clientService.isSetUp(payload.sub);
 
         if (useExternalOIDC) {
             // External OIDC: Extract user info from external provider token
-            return payload;
+            return {
+                sub: (payload as any).azp,
+            };
         } else {
             // Integrated OAuth2: Use integrated server token validation
-            return payload;
+            return {
+                sub: payload.sub,
+            };
         }
     }
 }
