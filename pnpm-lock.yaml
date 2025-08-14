@@ -87,6 +87,9 @@ importers:
       '@openid4vc/utils':
         specifier: 0.3.0-alpha-20250714110838
         version: 0.3.0-alpha-20250714110838
+      '@peculiar/x509':
+        specifier: ^1.13.0
+        version: 1.13.0
       '@sd-jwt/crypto-nodejs':
         specifier: ^0.14.0
         version: 0.14.0
