@@ -539,7 +539,7 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Inject, Injectable } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { PassportStrategy } from &quot;@nestjs/passport&quot;;
 import { passportJwtSecret } from &quot;jwks-rsa&quot;;
@@ -625,21 +625,13 @@ export class JwtStrategy extends PassportStrategy(Strategy, &quot;jwt&quot;) {
      */
     async validate(payload: TokenPayload): Promise&lt;unknown&gt; {
         const useExternalOIDC &#x3D;
-            this.configService.get&lt;boolean&gt;(&quot;OIDC&quot;) !&#x3D;&#x3D; undefined;
+            this.configService.get&lt;string&gt;(&quot;OIDC&quot;) !&#x3D;&#x3D; undefined;
 
-        await this.clientService.isSetUp(payload.sub);
+        const sub &#x3D; useExternalOIDC ? (payload as any).azp : payload.sub;
 
-        if (useExternalOIDC) {
-            // External OIDC: Extract user info from external provider token
-            return {
-                sub: (payload as any).azp,
-            };
-        } else {
-            // Integrated OAuth2: Use integrated server token validation
-            return {
-                sub: payload.sub,
-            };
-        }
+        await this.clientService.isSetUp(sub);
+
+        return { sub };
     }
 }
 </code></pre>

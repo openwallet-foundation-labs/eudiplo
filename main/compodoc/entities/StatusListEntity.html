@@ -90,7 +90,7 @@
 
 <ol class="breadcrumb">
   <li class="breadcrumb-item">Entities</li>
-  <li class="breadcrumb-item" >IssuanceConfig</li>
+  <li class="breadcrumb-item" >StatusListEntity</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -114,7 +114,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/issuer/issuance/entities/issuance-config.entity.ts</code>
+            <code>src/issuer/status-list/entities/status-list.entity.ts</code>
         </p>
 
 
@@ -122,7 +122,7 @@
                 <h3>Description</h3>
             </p>
             <p class="comment">
-                <p>Entity to manage issuance configs</p>
+                <p>Entity representing the status list for a tenant.</p>
 
             </p>
 
@@ -141,34 +141,22 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier"></span>
+                                <a href="#bits" >bits</a>
+                            </li>
+                            <li>
                                     <span class="modifier"></span>
-                                <a href="#authenticationConfig" >authenticationConfig</a>
+                                <a href="#elements" >elements</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier">Optional</span>
-                                <a href="#batch_size" >batch_size</a>
+                                <a href="#jwt" >jwt</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
-                                    <span class="modifier">Optional</span>
-                                <a href="#createdAt" >createdAt</a>
+                                <a href="#stack" >stack</a>
                             </li>
                             <li>
-                                    <span class="modifier"></span>
-                                <a href="#credentialIssuanceBindings" >credentialIssuanceBindings</a>
-                            </li>
-                            <li>
-                                    <span class="modifier"></span>
-                                <a href="#id" >id</a>
-                            </li>
-                            <li>
-                                    <span class="modifier"></span>
-                                    <span class="modifier">Optional</span>
-                                <a href="#notifyWebhook" >notifyWebhook</a>
-                            </li>
-                            <li>
-                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                 <a href="#tenantId" >tenantId</a>
                             </li>
@@ -194,18 +182,17 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="authenticationConfig"></a>
+                    <a name="bits"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                            <span class="modifier"></span>
-                        <span ><b>authenticationConfig</b></span>
-                        <a href="#authenticationConfig"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>bits</b></span>
+                        <a href="#bits"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../miscellaneous/typealiases.html#AuthenticationConfig" target="_self" >AuthenticationConfig</a></code>
+                        <i>Type : </i>    <code>BitsPerStatus</code>
 
                     </td>
                 </tr>
@@ -214,25 +201,19 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsObject()<br />@Column(&#x27;json&#x27;)<br />
+                            @Column(&#x27;int&#x27;)<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="44" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:44</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">src/issuer/status-list/entities/status-list.entity.ts:31</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><p>Authentication configuration for the issuance process.
-This determines which OpenID4VC flow to use:</p>
-<ul>
-<li>&#39;none&#39;: Pre-authorized code flow (no user authentication required)</li>
-<li>&#39;auth&#39;: OID4VCI authorized code flow (user will be redirected for authentication)</li>
-<li>&#39;presentationDuringIssuance&#39;: OID4VP request is sent (credential presentation required)</li>
-</ul>
+                    <div class="io-description"><p>The number of bits used for each status in the status list.</p>
 </div>
                 </td>
             </tr>
@@ -243,140 +224,54 @@ This determines which OpenID4VC flow to use:</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="batch_size"></a>
+                    <a name="elements"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                        <span ><b>elements</b></span>
+                        <a href="#elements"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>number[]</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @Column(&#x27;json&#x27;)<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/issuer/status-list/entities/status-list.entity.ts:19</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>The elements of the status list.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="jwt"></a>
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier">Optional</span>
-                        <span ><b>batch_size</b></span>
-                        <a href="#batch_size"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @Column(&#x27;int&#x27;, {default: 1})<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="63" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:63</a></div>
-                        </td>
-                    </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Value to determine the amount of credentials that are issued in a batch.
-Default is 1.</p>
-</div>
-                </td>
-            </tr>
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="createdAt"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier">Optional</span>
-                        <span ><b>createdAt</b></span>
-                        <a href="#createdAt"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date" target="_blank" >Date</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @Column({type: &#x27;date&#x27;, default: () &#x3D;&gt; CURRENT_TIMESTAMP})<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="50" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:50</a></div>
-                        </td>
-                    </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>The timestamp when the issuance configuration was created.</p>
-</div>
-                </td>
-            </tr>
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="credentialIssuanceBindings"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                        <span ><b>credentialIssuanceBindings</b></span>
-                        <a href="#credentialIssuanceBindings"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../entitys/CredentialIssuanceBinding.html" target="_self" >CredentialIssuanceBinding[]</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @OneToMany(undefined, binding &#x3D;&gt; binding.issuanceConfig)<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="33" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:33</a></div>
-                        </td>
-                    </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Links to all credential config bindings that are included in this issuance config.</p>
-</div>
-                </td>
-            </tr>
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="id"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                        <span ><b>id</b></span>
-                        <a href="#id"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>jwt</b></span>
+                        <a href="#jwt"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
@@ -391,19 +286,19 @@ Default is 1.</p>
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @PrimaryGeneratedColumn(&#x27;uuid&#x27;)<br />
+                            @Column(&#x27;varchar&#x27;, {nullable: true})<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="17" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:17</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="37" class="link-to-prism">src/issuer/status-list/entities/status-list.entity.ts:37</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><p>Unique identifier for the issuance configuration.</p>
+                    <div class="io-description"><p>The JSON Web Token (JWT) for the status list.</p>
 </div>
                 </td>
             </tr>
@@ -414,18 +309,17 @@ Default is 1.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="notifyWebhook"></a>
+                    <a name="stack"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                            <span class="modifier">Optional</span>
-                        <span ><b>notifyWebhook</b></span>
-                        <a href="#notifyWebhook"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>stack</b></span>
+                        <a href="#stack"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../classes/WebhookConfig.html" target="_self" >WebhookConfig</a></code>
+                        <i>Type : </i>    <code>number[]</code>
 
                     </td>
                 </tr>
@@ -434,19 +328,19 @@ Default is 1.</p>
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @Column(&#x27;json&#x27;, {nullable: true})<br />
+                            @Column(&#x27;json&#x27;)<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="56" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:56</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/issuer/status-list/entities/status-list.entity.ts:25</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><p>Webhook to send the result of the notification response</p>
+                    <div class="io-description"><p>The stack of available indexes for the status list.</p>
 </div>
                 </td>
             </tr>
@@ -459,7 +353,6 @@ Default is 1.</p>
                 <td class="col-md-4">
                     <a name="tenantId"></a>
                     <span class="name">
-                            <span class="modifier"></span>
                             <span class="modifier"></span>
                         <span ><b>tenantId</b></span>
                         <a href="#tenantId"><span class="icon ion-ios-link"></span></a>
@@ -477,19 +370,19 @@ Default is 1.</p>
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ApiHideProperty()<br />@Column(&#x27;varchar&#x27;)<br />
+                            @Column(&#x27;varchar&#x27;, {primary: true})<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="24" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:24</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="13" class="link-to-prism">src/issuer/status-list/entities/status-list.entity.ts:13</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><p>Tenant ID for the issuance configuration.</p>
+                    <div class="io-description"><p>The ID of the tenant to which the status list belongs.</p>
 </div>
                 </td>
             </tr>
@@ -501,69 +394,43 @@ Default is 1.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiHideProperty } from &quot;@nestjs/swagger&quot;;
-import { IsObject } from &quot;class-validator&quot;;
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from &quot;typeorm&quot;;
-import { WebhookConfig } from &quot;../../../utils/webhook/webhook.dto&quot;;
-import type { AuthenticationConfig } from &quot;../dto/authentication-config.dto&quot;;
-import { CredentialIssuanceBinding } from &quot;./credential-issuance-binding.entity&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { BitsPerStatus } from &quot;@sd-jwt/jwt-status-list&quot;;
+import { Column, Entity } from &quot;typeorm&quot;;
 
 /**
- * Entity to manage issuance configs
+ * Entity representing the status list for a tenant.
  */
 @Entity()
-export class IssuanceConfig {
+export class StatusListEntity {
     /**
-     * Unique identifier for the issuance configuration.
+     * The ID of the tenant to which the status list belongs.
      */
-    @PrimaryGeneratedColumn(&quot;uuid&quot;)
-    id: string;
-
-    /**
-     * Tenant ID for the issuance configuration.
-     */
-    @ApiHideProperty()
-    @Column(&quot;varchar&quot;)
+    @Column(&quot;varchar&quot;, { primary: true })
     tenantId: string;
 
     /**
-     * Links to all credential config bindings that are included in this issuance config.
+     * The elements of the status list.
      */
-    @OneToMany(
-        () &#x3D;&gt; CredentialIssuanceBinding,
-        (binding) &#x3D;&gt; binding.issuanceConfig,
-    )
-    credentialIssuanceBindings: CredentialIssuanceBinding[];
-
-    /**
-     * Authentication configuration for the issuance process.
-     * This determines which OpenID4VC flow to use:
-     * - &#x27;none&#x27;: Pre-authorized code flow (no user authentication required)
-     * - &#x27;auth&#x27;: OID4VCI authorized code flow (user will be redirected for authentication)
-     * - &#x27;presentationDuringIssuance&#x27;: OID4VP request is sent (credential presentation required)
-     */
-    @IsObject()
     @Column(&quot;json&quot;)
-    authenticationConfig: AuthenticationConfig;
+    elements: number[];
 
     /**
-     * The timestamp when the issuance configuration was created.
+     * The stack of available indexes for the status list.
      */
-    @Column({ type: &quot;date&quot;, default: () &#x3D;&gt; &quot;CURRENT_TIMESTAMP&quot; })
-    createdAt?: Date;
+    @Column(&quot;json&quot;)
+    stack: number[];
 
     /**
-     * Webhook to send the result of the notification response
+     * The number of bits used for each status in the status list.
      */
-    @Column(&quot;json&quot;, { nullable: true })
-    notifyWebhook?: WebhookConfig;
+    @Column(&quot;int&quot;)
+    bits: BitsPerStatus;
 
     /**
-     * Value to determine the amount of credentials that are issued in a batch.
-     * Default is 1.
+     * The JSON Web Token (JWT) for the status list.
      */
-    @Column(&quot;int&quot;, { default: 1 })
-    batch_size?: number;
+    @Column(&quot;varchar&quot;, { nullable: true })
+    jwt?: string;
 }
 </code></pre>
     </div>
@@ -609,7 +476,7 @@ export class IssuanceConfig {
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'entity';
-            var COMPODOC_CURRENT_PAGE_URL = 'IssuanceConfig.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'StatusListEntity.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

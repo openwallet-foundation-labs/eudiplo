@@ -128,16 +128,31 @@
                             <a href="#CryptoType" title="src/crypto/key/crypto-implementation/crypto-implementation.service.ts" ><b>CryptoType</b>&nbsp;&nbsp;&nbsp;(src/.../crypto-implementation.service.ts)</a>
                         </li>
                         <li>
+                            <a href="#DisplayInfo" title="src/issuer/oid4vci/entities/display.entity.ts" ><b>DisplayInfo</b>&nbsp;&nbsp;&nbsp;(src/.../display.entity.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#Driver" title="src/storage/storage.module.ts" ><b>Driver</b>&nbsp;&nbsp;&nbsp;(src/.../storage.module.ts)</a>
+                        </li>
+                        <li>
                             <a href="#KeyPair" title="src/crypto/key/crypto-implementation/crypto-implementation.ts" ><b>KeyPair</b>&nbsp;&nbsp;&nbsp;(src/.../crypto-implementation.ts)</a>
                         </li>
                         <li>
+                            <a href="#KeyUsage" title="src/crypto/key/entities/keys.entity.ts" ><b>KeyUsage</b>&nbsp;&nbsp;&nbsp;(src/.../keys.entity.ts)</a>
+                        </li>
+                        <li>
                             <a href="#Notification" title="src/session/entities/session.entity.ts" ><b>Notification</b>&nbsp;&nbsp;&nbsp;(src/.../session.entity.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#PutOptions" title="src/storage/storage.types.ts" ><b>PutOptions</b>&nbsp;&nbsp;&nbsp;(src/.../storage.types.ts)</a>
                         </li>
                         <li>
                             <a href="#SessionStatus" title="src/session/entities/session.entity.ts" ><b>SessionStatus</b>&nbsp;&nbsp;&nbsp;(src/.../session.entity.ts)</a>
                         </li>
                         <li>
                             <a href="#Signer" title="src/crypto/key/crypto-implementation/crypto-implementation.ts" ><b>Signer</b>&nbsp;&nbsp;&nbsp;(src/.../crypto-implementation.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#StoredObject" title="src/storage/storage.types.ts" ><b>StoredObject</b>&nbsp;&nbsp;&nbsp;(src/.../storage.types.ts)</a>
                         </li>
                         <li>
                             <a href="#Verifier" title="src/crypto/key/crypto-implementation/crypto-implementation.ts" ><b>Verifier</b>&nbsp;&nbsp;&nbsp;(src/.../crypto-implementation.ts)</a>
@@ -252,6 +267,42 @@ Each method corresponds to a specific OpenID4VC flow</p>
             </tr>
         </tbody>
     </table>
+</section>    <h3>src/issuer/oid4vci/entities/display.entity.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="DisplayInfo"></a>
+                    <span class="name "><b>DisplayInfo</b><a href="#DisplayInfo"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>literal type</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>src/storage/storage.module.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="Driver"></a>
+                    <span class="name "><b>Driver</b><a href="#Driver"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;local&quot; | &quot;s3&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </section>    <h3>src/crypto/key/crypto-implementation/crypto-implementation.ts</h3>
     <section data-compodoc="block-typealias">
     <table class="table table-sm table-bordered">
@@ -302,6 +353,30 @@ Each method corresponds to a specific OpenID4VC flow</p>
             </tr>
         </tbody>
     </table>
+</section>    <h3>src/crypto/key/entities/keys.entity.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="KeyUsage"></a>
+                    <span class="name "><b>KeyUsage</b><a href="#KeyUsage"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Key usage types.</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;sign&quot; | &quot;encrypt&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </section>    <h3>src/session/entities/session.entity.ts</h3>
     <section data-compodoc="block-typealias">
     <table class="table table-sm table-bordered">
@@ -337,6 +412,40 @@ Each method corresponds to a specific OpenID4VC flow</p>
             <tr>
                 <td class="col-md-4">
                     <code>    <code>&quot;active&quot; | &quot;completed&quot; | &quot;expired&quot; | &quot;failed&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>src/storage/storage.types.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="PutOptions"></a>
+                    <span class="name "><b>PutOptions</b><a href="#PutOptions"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>literal type</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="StoredObject"></a>
+                    <span class="name "><b>StoredObject</b><a href="#StoredObject"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>literal type</code>
 </code>
                 </td>
             </tr>

@@ -239,19 +239,18 @@
     BadRequestException,
     Injectable,
     OnApplicationBootstrap,
-} from &#x27;@nestjs/common&#x27;;
-import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
-import { InjectMetric } from &#x27;@willsoto/nestjs-prometheus&#x27;;
-import { existsSync, mkdirSync, writeFileSync } from &#x27;fs&#x27;;
-import { join } from &#x27;path&#x27;;
-import { Gauge } from &#x27;prom-client&#x27;;
-import { Repository } from &#x27;typeorm/repository/Repository&#x27;;
-import { CryptoService } from &#x27;../crypto/crypto.service&#x27;;
-import { EncryptionService } from &#x27;../crypto/encryption/encryption.service&#x27;;
-import { StatusListService } from &#x27;../issuer/status-list/status-list.service&#x27;;
-import { RegistrarService } from &#x27;../registrar/registrar.service&#x27;;
-import { ClientEntry } from &#x27;./entitites/client.entity&#x27;;
+} from &quot;@nestjs/common&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
+import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
+import { InjectMetric } from &quot;@willsoto/nestjs-prometheus&quot;;
+import { Gauge } from &quot;prom-client&quot;;
+import { Repository } from &quot;typeorm/repository/Repository&quot;;
+import { CryptoService } from &quot;../crypto/crypto.service&quot;;
+import { EncryptionService } from &quot;../crypto/encryption/encryption.service&quot;;
+import { Oid4vciService } from &quot;../issuer/oid4vci/oid4vci.service&quot;;
+import { StatusListService } from &quot;../issuer/status-list/status-list.service&quot;;
+import { RegistrarService } from &quot;../registrar/registrar.service&quot;;
+import { ClientEntry } from &quot;./entitites/client.entity&quot;;
 
 // Client interface for service integration
 export interface Client {
@@ -269,15 +268,16 @@ export class ClientService implements OnApplicationBootstrap {
         private encryptionService: EncryptionService,
         private statutsListService: StatusListService,
         private registrarService: RegistrarService,
+        private oid4vciService: Oid4vciService,
         @InjectRepository(ClientEntry)
         private clientRepository: Repository&lt;ClientEntry&gt;,
-        @InjectMetric(&#x27;tenant_client_total&#x27;)
+        @InjectMetric(&quot;tenant_client_total&quot;)
         private tenantClientTotal: Gauge&lt;string&gt;,
     ) {}
 
     async onApplicationBootstrap() {
         // Initialize the client metrics
-        const count &#x3D; await this.clientRepository.countBy({ status: &#x27;set up&#x27; });
+        const count &#x3D; await this.clientRepository.countBy({ status: &quot;set up&quot; });
         this.tenantClientTotal.set({}, count);
     }
 
@@ -299,9 +299,9 @@ export class ClientService implements OnApplicationBootstrap {
         // Default clients for development/testing
         return [
             {
-                id: this.configService.getOrThrow&lt;string&gt;(&#x27;AUTH_CLIENT_ID&#x27;),
+                id: this.configService.getOrThrow&lt;string&gt;(&quot;AUTH_CLIENT_ID&quot;),
                 secret: this.configService.getOrThrow&lt;string&gt;(
-                    &#x27;AUTH_CLIENT_SECRET&#x27;,
+                    &quot;AUTH_CLIENT_SECRET&quot;,
                 ),
             },
         ];
@@ -335,14 +335,14 @@ export class ClientService implements OnApplicationBootstrap {
      */
     async isSetUp(id: string) {
         void this.clientRepository
-            .countBy({ status: &#x27;set up&#x27; })
+            .countBy({ status: &quot;set up&quot; })
             .then((count) &#x3D;&gt; {
                 this.tenantClientTotal.set({}, count);
             });
 
         await this.clientRepository.findOneByOrFail({ id }).then(
             (res) &#x3D;&gt; {
-                if (res.status &#x3D;&#x3D;&#x3D; &#x27;set up&#x27;) {
+                if (res.status &#x3D;&#x3D;&#x3D; &quot;set up&quot;) {
                     return true;
                 }
                 throw new BadRequestException(
@@ -357,7 +357,7 @@ export class ClientService implements OnApplicationBootstrap {
                     // if there is an error, update the client status&quot;
                     await this.clientRepository.update(
                         { id },
-                        { status: &#x27;error&#x27;, error: err.message },
+                        { status: &quot;error&quot;, error: err.message },
                     );
                     throw new BadRequestException(
                         &#x60;Error setting up client ${id}. Please retry later.&#x60;,
@@ -366,7 +366,7 @@ export class ClientService implements OnApplicationBootstrap {
                 // if everything is fine, update the client status
                 return this.clientRepository.update(
                     { id },
-                    { status: &#x27;set up&#x27; },
+                    { status: &quot;set up&quot; },
                 );
             },
         );
@@ -377,32 +377,11 @@ export class ClientService implements OnApplicationBootstrap {
      * @param id
      */
     async setUpClient(id: string) {
-        const folder &#x3D; join(
-            this.configService.getOrThrow&lt;string&gt;(&#x27;FOLDER&#x27;),
-            id,
-        );
-        if (!existsSync(folder)) {
-            mkdirSync(folder, { recursive: true });
-        }
-
-        const displayInfo &#x3D; [
-            {
-                name: &#x27;EUDI Wallet dev&#x27;,
-                locale: &#x27;de-DE&#x27;,
-                logo: {
-                    uri: &#x27;&lt;PUBLIC_URL&gt;/issuer.png&#x27;,
-                    url: &#x27;&lt;PUBLIC_URL&gt;/issuer.png&#x27;,
-                },
-            },
-        ];
-        writeFileSync(
-            join(folder, &#x27;display.json&#x27;),
-            JSON.stringify(displayInfo, null, 2),
-        );
         await this.cryptoService.onTenantInit(id);
         await this.encryptionService.onTenantInit(id);
         await this.statutsListService.onTenantInit(id);
         await this.registrarService.onTenantInit(id);
+        await this.oid4vciService.onTenantInit(id);
     }
 }
 </code></pre>

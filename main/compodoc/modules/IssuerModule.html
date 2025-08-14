@@ -118,13 +118,13 @@
 <title>cluster_IssuerModule</title>
 <polygon fill="none" stroke="black" stroke-dasharray="1,5" points="8,-70 8,-268 2062,-268 2062,-70 8,-70"/>
 </g>
-<g id="clust4" class="cluster">
-<title>cluster_IssuerModule_exports</title>
-<polygon fill="none" stroke="black" points="778,-208 778,-260 1036,-260 1036,-208 778,-208"/>
-</g>
 <g id="clust6" class="cluster">
 <title>cluster_IssuerModule_providers</title>
 <polygon fill="none" stroke="black" points="512,-78 512,-130 2054,-130 2054,-78 512,-78"/>
+</g>
+<g id="clust4" class="cluster">
+<title>cluster_IssuerModule_exports</title>
+<polygon fill="none" stroke="black" points="778,-208 778,-260 1036,-260 1036,-208 778,-208"/>
 </g>
 <g id="clust3" class="cluster">
 <title>cluster_IssuerModule_imports</title>
@@ -444,36 +444,37 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { HttpModule } from &#x27;@nestjs/axios&#x27;;
-import { Module } from &#x27;@nestjs/common&#x27;;
-import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { TypeOrmModule } from &#x27;@nestjs/typeorm&#x27;;
-import { setGlobalConfig } from &#x27;@openid4vc/openid4vci&#x27;;
-import * as Joi from &#x27;joi&#x27;;
-import { CryptoModule } from &#x27;../crypto/crypto.module&#x27;;
-import { SessionModule } from &#x27;../session/session.module&#x27;;
-import { SessionLoggerInterceptor } from &#x27;../utils/logger/session-logger.interceptor&#x27;;
-import { SessionLoggerService } from &#x27;../utils/logger/session-logger.service&#x27;;
-import { WebhookService } from &#x27;../utils/webhook/webhook.service&#x27;;
-import { Oid4vpModule } from &#x27;../verifier/oid4vp/oid4vp.module&#x27;;
-import { AuthorizeController } from &#x27;./authorize/authorize.controller&#x27;;
-import { AuthorizeService } from &#x27;./authorize/authorize.service&#x27;;
-import { CredentialConfigService } from &#x27;./credentials/credential-config/credential-config.service&#x27;;
-import { CredentialsController } from &#x27;./credentials/credentials.controller&#x27;;
-import { CredentialsService } from &#x27;./credentials/credentials.service&#x27;;
-import { CredentialConfig } from &#x27;./credentials/entities/credential.entity&#x27;;
-import { CredentialsMetadataController } from &#x27;./credentials-metadata/credentials-metadata.controller&#x27;;
-import { CredentialIssuanceBinding } from &#x27;./issuance/entities/credential-issuance-binding.entity&#x27;;
-import { IssuanceConfig } from &#x27;./issuance/entities/issuance-config.entity&#x27;;
-import { IssuanceController } from &#x27;./issuance/issuance.controller&#x27;;
-import { IssuanceService } from &#x27;./issuance/issuance.service&#x27;;
-import { IssuerManagementController } from &#x27;./issuer-management/issuer-management.controller&#x27;;
-import { Oid4vciController } from &#x27;./oid4vci/oid4vci.controller&#x27;;
-import { Oid4vciService } from &#x27;./oid4vci/oid4vci.service&#x27;;
-import { StatusListModule } from &#x27;./status-list/status-list.module&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { HttpModule } from &quot;@nestjs/axios&quot;;
+import { Module } from &quot;@nestjs/common&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
+import { TypeOrmModule } from &quot;@nestjs/typeorm&quot;;
+import { setGlobalConfig } from &quot;@openid4vc/openid4vci&quot;;
+import * as Joi from &quot;joi&quot;;
+import { CryptoModule } from &quot;../crypto/crypto.module&quot;;
+import { SessionModule } from &quot;../session/session.module&quot;;
+import { SessionLoggerInterceptor } from &quot;../utils/logger/session-logger.interceptor&quot;;
+import { SessionLoggerService } from &quot;../utils/logger/session-logger.service&quot;;
+import { WebhookService } from &quot;../utils/webhook/webhook.service&quot;;
+import { Oid4vpModule } from &quot;../verifier/oid4vp/oid4vp.module&quot;;
+import { AuthorizeController } from &quot;./authorize/authorize.controller&quot;;
+import { AuthorizeService } from &quot;./authorize/authorize.service&quot;;
+import { CredentialConfigService } from &quot;./credentials/credential-config/credential-config.service&quot;;
+import { CredentialsController } from &quot;./credentials/credentials.controller&quot;;
+import { CredentialsService } from &quot;./credentials/credentials.service&quot;;
+import { CredentialConfig } from &quot;./credentials/entities/credential.entity&quot;;
+import { CredentialsMetadataController } from &quot;./credentials-metadata/credentials-metadata.controller&quot;;
+import { CredentialIssuanceBinding } from &quot;./issuance/entities/credential-issuance-binding.entity&quot;;
+import { IssuanceConfig } from &quot;./issuance/entities/issuance-config.entity&quot;;
+import { IssuanceController } from &quot;./issuance/issuance.controller&quot;;
+import { IssuanceService } from &quot;./issuance/issuance.service&quot;;
+import { IssuerManagementController } from &quot;./issuer-management/issuer-management.controller&quot;;
+import { DisplayEntity } from &quot;./oid4vci/entities/display.entity&quot;;
+import { Oid4vciController } from &quot;./oid4vci/oid4vci.controller&quot;;
+import { Oid4vciService } from &quot;./oid4vci/oid4vci.service&quot;;
+import { StatusListModule } from &quot;./status-list/status-list.module&quot;;
 
 export const ISSUER_VALIDATION_SCHEMA &#x3D; {
-    PUBLIC_URL: Joi.string().default(&#x27;http://localhost:3000&#x27;),
+    PUBLIC_URL: Joi.string().default(&quot;http://localhost:3000&quot;),
 };
 
 @Module({
@@ -487,6 +488,7 @@ export const ISSUER_VALIDATION_SCHEMA &#x3D; {
             IssuanceConfig,
             CredentialConfig,
             CredentialIssuanceBinding,
+            DisplayEntity,
         ]),
     ],
     controllers: [
@@ -512,8 +514,8 @@ export const ISSUER_VALIDATION_SCHEMA &#x3D; {
 export class IssuerModule {
     constructor(configService: ConfigService) {
         const unsecure &#x3D; configService
-            .getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;)
-            .startsWith(&#x27;http://&#x27;);
+            .getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)
+            .startsWith(&quot;http://&quot;);
         setGlobalConfig({ allowInsecureUrls: unsecure });
     }
 }

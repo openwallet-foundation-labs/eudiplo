@@ -264,15 +264,19 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &#x27;@nestjs/common&#x27;;
-import { TypeOrmModule } from &#x27;@nestjs/typeorm&#x27;;
-import { CryptoModule } from &#x27;../../crypto/crypto.module&#x27;;
-import { StatusMapping } from &#x27;./entities/status-mapping.entity&#x27;;
-import { StatusListController } from &#x27;./status-list.controller&#x27;;
-import { StatusListService } from &#x27;./status-list.service&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &quot;@nestjs/common&quot;;
+import { TypeOrmModule } from &quot;@nestjs/typeorm&quot;;
+import { CryptoModule } from &quot;../../crypto/crypto.module&quot;;
+import { StatusListEntity } from &quot;./entities/status-list.entity&quot;;
+import { StatusMapping } from &quot;./entities/status-mapping.entity&quot;;
+import { StatusListController } from &quot;./status-list.controller&quot;;
+import { StatusListService } from &quot;./status-list.service&quot;;
 
 @Module({
-    imports: [CryptoModule, TypeOrmModule.forFeature([StatusMapping])],
+    imports: [
+        CryptoModule,
+        TypeOrmModule.forFeature([StatusMapping, StatusListEntity]),
+    ],
     controllers: [StatusListController],
     providers: [StatusListService],
     exports: [StatusListService],

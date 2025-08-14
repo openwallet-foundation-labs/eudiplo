@@ -80,7 +80,7 @@
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
-               <div class="content injectable">
+               <div class="content class">
                    <div class="content-data">
 
 
@@ -90,9 +90,13 @@
 
 
 
+
+
+
+
 <ol class="breadcrumb">
-  <li class="breadcrumb-item">Injectables</li>
-  <li class="breadcrumb-item" >EncryptionService</li>
+  <li class="breadcrumb-item">Classes</li>
+  <li class="breadcrumb-item" >S3FileStorage</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -116,18 +120,18 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/crypto/encryption/encryption.service.ts</code>
+            <code>src/storage/adapters/s3.storage.ts</code>
         </p>
 
 
+
+
             <p class="comment">
-                <h3>Description</h3>
+                <h3>Implements</h3>
             </p>
             <p class="comment">
-                <p>Service for handling encryption and decryption operations.</p>
-
+                            <code><a href="../interfaces/FileStorage.html" target="_self" >FileStorage</a></code>
             </p>
-
 
 
             <section data-compodoc="block-index">
@@ -145,14 +149,22 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#decryptJwe" >decryptJwe</a>
-                            </li>
-                            <li>
-                                <a href="#getEncryptionPublicKey" >getEncryptionPublicKey</a>
+                                <a href="#delete" >delete</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#onTenantInit" >onTenantInit</a>
+                                <a href="#exists" >exists</a>
+                            </li>
+                            <li>
+                                <a href="#getSignedUrl" >getSignedUrl</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#getStream" >getStream</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#put" >put</a>
                             </li>
                         </ul>
                     </td>
@@ -172,19 +184,17 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(keyRepository: <a href="../classes/Key.html" target="_self">Repository&lt;KeyEntity&gt;</a>)</code>
+<code>constructor(s3: <a href="../interfaces/Client.html" target="_self">S3Client</a>, bucket: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, publicBaseUrl?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="13" class="link-to-prism">src/crypto/encryption/encryption.service.ts:13</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="13" class="link-to-prism">src/storage/adapters/s3.storage.ts:13</a></div>
                             </td>
                         </tr>
 
                 <tr>
                     <td class="col-md-4">
-                            <div class="io-description"><p>Constructor for the EncryptionService.</p>
-</div>
                             <div>
                                     <b>Parameters :</b>
                                     <table class="params">
@@ -197,14 +207,38 @@
                                         </thead>
                                         <tbody>
                                                 <tr>
-                                                        <td>keyRepository</td>
+                                                        <td>s3</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../classes/Key.html" target="_self" >Repository&lt;KeyEntity&gt;</a></code>
+                                                                        <code><a href="../interfaces/Client.html" target="_self" >S3Client</a></code>
                                                         </td>
                                                   
                                                     <td>
                                                             No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>bucket</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>publicBaseUrl</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            Yes
                                                     </td>
                                                     
                                                 </tr>
@@ -217,6 +251,7 @@
         </table>
 </section>
 
+
             <section data-compodoc="block-methods">
     
     <h3 id="methods">
@@ -226,42 +261,32 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="decryptJwe"></a>
+                    <a name="delete"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
-                        <span ><b>decryptJwe</b></span>
-                        <a href="#decryptJwe"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>delete</b></span>
+                        <a href="#delete"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>decryptJwe(response: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>delete(key: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="47"
-                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:47</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="68"
+                                    class="link-to-prism">src/storage/adapters/s3.storage.ts:68</a></div>
                         </td>
                     </tr>
 
-                    <tr>
-                        <td class="col-md-4">
-                            <b>Type parameters :</b>
-                            <ul class="type-parameters">
-                                    <li>T</li>
-                            </ul>
-                        </td>
-                    </tr>
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Encrypts a response using JWE (JSON Web Encryption).</p>
-</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -272,12 +297,11 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
-                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>response</td>
+                                                <td>key</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -287,186 +311,6 @@
                                             </td>
 
 
-                                            <td>
-                                                    <ul>
-<li>The response to encrypt.</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>The ID of the tenant for which to encrypt the response.</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;T&gt;</code>
-
-                        </div>
-                            <div class="io-description">
-                                <p>The encrypted response as a JWE string.</p>
-
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getEncryptionPublicKey"></a>
-                    <span class="name">
-                        <span ><b>getEncryptionPublicKey</b></span>
-                        <a href="#getEncryptionPublicKey"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getEncryptionPublicKey(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="67"
-                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:67</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Retrieves the public encryption key for a given tenant.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>The ID of the tenant for which to retrieve the public key.</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;JWK&gt;</code>
-
-                        </div>
-                            <div class="io-description">
-                                <p>The public encryption key as a JWK.</p>
-
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="onTenantInit"></a>
-                    <span class="name">
-                            <span class="modifier">Async</span>
-                        <span ><b>onTenantInit</b></span>
-                        <a href="#onTenantInit"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>onTenantInit(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="27"
-                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:27</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Initializes the encryption keys for a given tenant.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>The ID of the tenant for which to initialize the keys.</li>
-</ul>
-
-                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -482,98 +326,422 @@
             </tr>
         </tbody>
     </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="exists"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>exists</b></span>
+                        <a href="#exists"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>exists(key: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="74"
+                                    class="link-to-prism">src/storage/adapters/s3.storage.ts:74</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>key</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>unknown</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getSignedUrl"></a>
+                    <span class="name">
+                        <span ><b>getSignedUrl</b></span>
+                        <a href="#getSignedUrl"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getSignedUrl(key: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, expiresInSec: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="85"
+                                    class="link-to-prism">src/storage/adapters/s3.storage.ts:85</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>key</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>expiresInSec</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getStream"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>getStream</b></span>
+                        <a href="#getStream"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getStream(key: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="56"
+                                    class="link-to-prism">src/storage/adapters/s3.storage.ts:56</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>key</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>unknown</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="put"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>put</b></span>
+                        <a href="#put"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>put(key: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, body: Buffer | Readable, opts?: <a href="../undefineds/PutOptions.html" target="_self">PutOptions</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="20"
+                                    class="link-to-prism">src/storage/adapters/s3.storage.ts:20</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>key</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>body</td>
+                                            <td>
+                                                        <code>Buffer | Readable</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>opts</td>
+                                            <td>
+                                                            <code><a href="../miscellaneous/typealiases.html#PutOptions" target="_self" >PutOptions</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#StoredObject" target="_self" >Promise&lt;StoredObject&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </section>
+
+
+
+
 
     </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
-import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
-import e from &quot;express&quot;;
-import { exportJWK, generateKeyPair, importJWK, JWK, jwtDecrypt } from &quot;jose&quot;;
-import { Repository } from &quot;typeorm/repository/Repository&quot;;
-import { v4 } from &quot;uuid&quot;;
-import { KeyEntity } from &quot;../key/entities/keys.entity&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+    DeleteObjectCommand,
+    GetObjectCommand,
+    HeadObjectCommand,
+    PutObjectCommand,
+    S3Client,
+} from &quot;@aws-sdk/client-s3&quot;;
+import { getSignedUrl as sign } from &quot;@aws-sdk/s3-request-presigner&quot;;
+import { Readable } from &quot;stream&quot;;
+import { FileStorage, PutOptions, StoredObject } from &quot;../storage.types&quot;;
 
-/**
- * Service for handling encryption and decryption operations.
- */
-@Injectable()
-export class EncryptionService {
-    /**
-     * Constructor for the EncryptionService.
-     * @param configService
-     */
+export class S3FileStorage implements FileStorage {
     constructor(
-        @InjectRepository(KeyEntity)
-        private keyRepository: Repository&lt;KeyEntity&gt;,
+        private s3: S3Client,
+        private bucket: string,
+        private publicBaseUrl?: string, // e.g. CloudFront URL (optional)
     ) {}
 
-    /**
-     * Initializes the encryption keys for a given tenant.
-     * @param tenantId - The ID of the tenant for which to initialize the keys.
-     */
-    async onTenantInit(tenantId: string) {
-        const privateKey &#x3D; await generateKeyPair(&quot;ECDH-ES&quot;, {
-            crv: &quot;P-256&quot;,
-            extractable: true,
-        }).then(async (secret) &#x3D;&gt; exportJWK(secret.privateKey));
+    async put(
+        key: string,
+        body: Buffer | Readable,
+        opts?: PutOptions,
+    ): Promise&lt;StoredObject&gt; {
+        await this.s3.send(
+            new PutObjectCommand({
+                Bucket: this.bucket,
+                Key: key,
+                Body: body,
+                ContentType: opts?.contentType,
+                Metadata: opts?.metadata,
+                ACL: opts?.acl &#x3D;&#x3D;&#x3D; &quot;public&quot; ? &quot;public-read&quot; : undefined,
+                ChecksumSHA256: opts?.checksum, // optional if you computed it
+            }),
+        );
 
-        this.keyRepository.save({
-            id: v4(),
-            tenantId,
-            key: privateKey,
-            usage: &quot;encrypt&quot;,
-        });
+        const head &#x3D; await this.s3.send(
+            new HeadObjectCommand({ Bucket: this.bucket, Key: key }),
+        );
+        const url &#x3D;
+            opts?.acl &#x3D;&#x3D;&#x3D; &quot;public&quot;
+                ? this.publicBaseUrl
+                    ? &#x60;${this.publicBaseUrl.replace(/\/+$/, &quot;&quot;)}/${encodeURI(key)}&#x60;
+                    : &#x60;https://${this.bucket}.s3.amazonaws.com/${encodeURI(key)}&#x60;
+                : undefined;
+
+        return {
+            key,
+            etag: head.ETag,
+            size: head.ContentLength,
+            url,
+            contentType: head.ContentType || opts?.contentType,
+        };
     }
 
-    /**
-     * Encrypts a response using JWE (JSON Web Encryption).
-     * @param response - The response to encrypt.
-     * @param tenantId - The ID of the tenant for which to encrypt the response.
-     * @returns The encrypted response as a JWE string.
-     */
-    async decryptJwe&lt;T&gt;(response: string, tenantId: string): Promise&lt;T&gt; {
-        const privateEncryptionKey &#x3D; await this.keyRepository
-            .findOneByOrFail({
-                tenantId,
-                usage: &quot;encrypt&quot;,
-            })
-            .then(
-                (keyEntity) &#x3D;&gt;
-                    importJWK(keyEntity.key, &quot;ECDH-ES&quot;) as Promise&lt;CryptoKey&gt;,
+    async getStream(key: string) {
+        const obj &#x3D; await this.s3.send(
+            new GetObjectCommand({ Bucket: this.bucket, Key: key }),
+        );
+        const stream &#x3D; obj.Body as Readable;
+        return {
+            stream,
+            contentType: obj.ContentType,
+            size: obj.ContentLength,
+        };
+    }
+
+    async delete(key: string) {
+        await this.s3.send(
+            new DeleteObjectCommand({ Bucket: this.bucket, Key: key }),
+        );
+    }
+
+    async exists(key: string) {
+        try {
+            await this.s3.send(
+                new HeadObjectCommand({ Bucket: this.bucket, Key: key }),
             );
-
-        const res &#x3D; await jwtDecrypt&lt;T&gt;(response, privateEncryptionKey);
-        return res.payload;
+            return true;
+        } catch {
+            return false;
+        }
     }
 
-    /**
-     * Retrieves the public encryption key for a given tenant.
-     * @param tenantId - The ID of the tenant for which to retrieve the public key.
-     * @returns The public encryption key as a JWK.
-     */
-    getEncryptionPublicKey(tenantId: string): Promise&lt;JWK&gt; {
-        return this.keyRepository
-            .findOneByOrFail({
-                tenantId,
-                usage: &quot;encrypt&quot;,
-            })
-            .then((entry) &#x3D;&gt; {
-                delete entry.key.d;
-                return entry.key;
-            });
+    getSignedUrl(key: string, expiresInSec: number) {
+        return Promise.resolve(
+            sign(
+                this.s3,
+                new GetObjectCommand({ Bucket: this.bucket, Key: key }),
+                { expiresIn: expiresInSec },
+            ),
+        );
     }
 }
 </code></pre>
     </div>
-
 </div>
-
-
-
-
 
 
 
@@ -608,8 +776,8 @@ export class EncryptionService {
 
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'injectable';
-            var COMPODOC_CURRENT_PAGE_URL = 'EncryptionService.html';
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
+            var COMPODOC_CURRENT_PAGE_URL = 'S3FileStorage.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

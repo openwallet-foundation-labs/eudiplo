@@ -180,15 +180,11 @@ including adding relying parties, access certificates, and registration certific
                                 <a href="#addRp" >addRp</a>
                             </li>
                             <li>
-                                    <span class="modifier">Async</span>
-                                <a href="#getAccessCertificateId" >getAccessCertificateId</a>
+                                    <span class="modifier">Private</span>
+                                <a href="#getExistingRp" >getExistingRp</a>
                             </li>
                             <li>
                                 <a href="#isEnabled" >isEnabled</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Private</span>
-                                <a href="#loadConfig" >loadConfig</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
@@ -204,14 +200,6 @@ including adding relying parties, access certificates, and registration certific
                             <li>
                                     <span class="modifier">Async</span>
                                 <a href="#refreshAccessToken" >refreshAccessToken</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Private</span>
-                                <a href="#saveConfig" >saveConfig</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Private</span>
-                                <a href="#storeExistingRp" >storeExistingRp</a>
                             </li>
                         </ul>
                     </td>
@@ -231,12 +219,12 @@ including adding relying parties, access certificates, and registration certific
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(configService: ConfigService, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, presentationsService: <a href="../injectables/PresentationsService.html" target="_self">PresentationsService</a>)</code>
+<code>constructor(configService: ConfigService, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, presentationsService: <a href="../injectables/PresentationsService.html" target="_self">PresentationsService</a>, registrarRepository: <a href="../entitys/RegistrarEntity.html" target="_self">Repository&lt;RegistrarEntity&gt;</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="59" class="link-to-prism">src/registrar/registrar.service.ts:59</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="40" class="link-to-prism">src/registrar/registrar.service.ts:40</a></div>
                             </td>
                         </tr>
 
@@ -310,6 +298,20 @@ including adding relying parties, access certificates, and registration certific
 
                                                         </td>
                                                 </tr>
+                                                <tr>
+                                                        <td>registrarRepository</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../entitys/RegistrarEntity.html" target="_self" >Repository&lt;RegistrarEntity&gt;</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                        <td>
+                                                        </td>
+                                                </tr>
                                         </tbody>
                                     </table>
                             </div>
@@ -340,15 +342,15 @@ including adding relying parties, access certificates, and registration certific
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>addAccessCertificate(config: <a href="../classes/RegistrarConfig.html" target="_self">RegistrarConfig</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>addAccessCertificate(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, relyingPartyId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="232"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:232</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="190"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:190</a></div>
                         </td>
                     </tr>
 
@@ -373,9 +375,9 @@ If the access certificate already exists, it will be returned.</p>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>config</td>
+                                                <td>tenantId</td>
                                             <td>
-                                                            <code><a href="../classes/RegistrarConfig.html" target="_self" >RegistrarConfig</a></code>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
 
                                             <td>
@@ -385,7 +387,7 @@ If the access certificate already exists, it will be returned.</p>
 
                                         </tr>
                                         <tr>
-                                                <td>tenantId</td>
+                                                <td>relyingPartyId</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -432,8 +434,8 @@ If the access certificate already exists, it will be returned.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="276"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:276</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="232"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:232</a></div>
                         </td>
                     </tr>
 
@@ -532,15 +534,15 @@ If the registration certificate already exists, it will be returned.</p>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>addRp(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+<code>addRp(name: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="160"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:160</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="150"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:150</a></div>
                         </td>
                     </tr>
 
@@ -564,7 +566,7 @@ This is only needed once, when the relying party is created.</p>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>tenantId</td>
+                                                <td>name</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -593,36 +595,34 @@ This is only needed once, when the relying party is created.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getAccessCertificateId"></a>
+                    <a name="getExistingRp"></a>
                     <span class="name">
-                            <span class="modifier">Async</span>
-                        <span ><b>getAccessCertificateId</b></span>
-                        <a href="#getAccessCertificateId"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier">Private</span>
+                        <span ><b>getExistingRp</b></span>
+                        <a href="#getExistingRp"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getAccessCertificateId(config: <a href="../classes/RegistrarConfig.html" target="_self">RegistrarConfig</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>getExistingRp(name: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="205"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:205</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="173"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:173</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Get the access certificate ID from the registrar.
-If there is no access certificate ID in the config, it will add a new one.
-If there is one, it will check if it is still valid.
-If it is revoked, it will add a new one.</p>
+                        <div class="io-description"><p>Stores the existing relying party ID based on the name.
+This is used when the relying party already exists in the registrar.</p>
 </div>
 
                             <div class="io-description">
@@ -634,23 +634,12 @@ If it is revoked, it will add a new one.</p>
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
+                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>config</td>
-                                            <td>
-                                                            <code><a href="../classes/RegistrarConfig.html" target="_self" >RegistrarConfig</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>tenantId</td>
+                                                <td>name</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -660,6 +649,12 @@ If it is revoked, it will add a new one.</p>
                                             </td>
 
 
+                                            <td>
+                                                    <ul>
+<li>The name of the relying party.</li>
+</ul>
+
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -669,7 +664,8 @@ If it is revoked, it will add a new one.</p>
 
                         </div>
                             <div class="io-description">
-                                
+                                <p>The ID of the existing relying party.</p>
+
                             </div>
                 </td>
             </tr>
@@ -695,8 +691,8 @@ If it is revoked, it will add a new one.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="109"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:109</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="92"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:92</a></div>
                         </td>
                     </tr>
 
@@ -713,77 +709,6 @@ If it is revoked, it will add a new one.</p>
                             <div class="io-description">
                                 <p>True if the registrar service is enabled, false otherwise.</p>
 
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="loadConfig"></a>
-                    <span class="name">
-                            <span class="modifier">Private</span>
-                        <span ><b>loadConfig</b></span>
-                        <a href="#loadConfig"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>loadConfig(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="333"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:333</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Load the registrar configuration from the config file.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../classes/RegistrarConfig.html" target="_self" >RegistrarConfig</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
                             </div>
                 </td>
             </tr>
@@ -811,8 +736,8 @@ If it is revoked, it will add a new one.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="117"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:117</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="100"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:100</a></div>
                         </td>
                     </tr>
 
@@ -851,8 +776,8 @@ It will refresh the access token for the registrar.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="76"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:76</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="59"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:59</a></div>
                         </td>
                     </tr>
 
@@ -892,8 +817,8 @@ It will refresh the access token for the registrar.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="128"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:128</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="111"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:111</a></div>
                         </td>
                     </tr>
 
@@ -963,8 +888,8 @@ It will refresh the access token for the registrar.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="143"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:143</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="133"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:133</a></div>
                         </td>
                     </tr>
 
@@ -979,169 +904,6 @@ This method is called periodically to ensure the access token is valid.</p>
                             <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
 
                         </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="saveConfig"></a>
-                    <span class="name">
-                            <span class="modifier">Private</span>
-                        <span ><b>saveConfig</b></span>
-                        <a href="#saveConfig"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>saveConfig(config: <a href="../classes/RegistrarConfig.html" target="_self">RegistrarConfig</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="356"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:356</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Save the registrar configuration to the config file.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>config</td>
-                                            <td>
-                                                            <code><a href="../classes/RegistrarConfig.html" target="_self" >RegistrarConfig</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="storeExistingRp"></a>
-                    <span class="name">
-                            <span class="modifier">Private</span>
-                        <span ><b>storeExistingRp</b></span>
-                        <a href="#storeExistingRp"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>storeExistingRp(name: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="187"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:187</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Stores the existing relying party ID based on the name.
-This is used when the relying party already exists in the registrar.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>name</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>The name of the relying party.</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                <p>The ID of the existing relying party.</p>
-
-                            </div>
                 </td>
             </tr>
         </tbody>
@@ -1172,7 +934,7 @@ This is used when the relying party already exists in the registrar.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="59" class="link-to-prism">src/registrar/registrar.service.ts:59</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="40" class="link-to-prism">src/registrar/registrar.service.ts:40</a></div>
                         </td>
                     </tr>
 
@@ -1199,7 +961,7 @@ This is used when the relying party already exists in the registrar.</p>
             </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="55" class="link-to-prism">src/registrar/registrar.service.ts:55</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/registrar/registrar.service.ts:36</a></div>
                         </td>
                     </tr>
 
@@ -1232,7 +994,7 @@ This is used when the relying party already exists in the registrar.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="51" class="link-to-prism">src/registrar/registrar.service.ts:51</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="32" class="link-to-prism">src/registrar/registrar.service.ts:32</a></div>
                         </td>
                     </tr>
 
@@ -1251,46 +1013,27 @@ This is used when the relying party already exists in the registrar.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { existsSync, readFileSync, writeFileSync } from &#x27;node:fs&#x27;;
-import { join } from &#x27;node:path&#x27;;
-import { OAuth2Client } from &#x27;@badgateway/oauth2-client&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { OAuth2Client } from &quot;@badgateway/oauth2-client&quot;;
 import {
     Injectable,
     OnApplicationBootstrap,
     OnModuleInit,
-} from &#x27;@nestjs/common&#x27;;
-import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { CryptoService } from &#x27;../crypto/crypto.service&#x27;;
-import { RegistrationCertificateRequest } from &#x27;../verifier/presentations/dto/vp-request.dto&#x27;;
-import { PresentationsService } from &#x27;../verifier/presentations/presentations.service&#x27;;
+} from &quot;@nestjs/common&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
+import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
+import { Repository } from &quot;typeorm&quot;;
+import { CryptoService } from &quot;../crypto/crypto.service&quot;;
+import { RegistrationCertificateRequest } from &quot;../verifier/presentations/dto/vp-request.dto&quot;;
+import { PresentationsService } from &quot;../verifier/presentations/presentations.service&quot;;
+import { RegistrarEntity } from &quot;./entities/registrar.entity&quot;;
 import {
-    accessCertificateControllerFindOne,
     accessCertificateControllerRegister,
     registrationCertificateControllerAll,
     registrationCertificateControllerRegister,
     relyingPartyControllerFindAll,
     relyingPartyControllerRegister,
-} from &#x27;./generated&#x27;;
-import { client } from &#x27;./generated/client.gen&#x27;;
-import { RegistrarConfig } from &#x27;./registrar-config&#x27;;
-
-/**
- * Repsonse of access certificate request.
- */
-interface AccessCertificateResponse {
-    /**
-     * Unique identifier of the access certificate.
-     */
-    id: string;
-    /**
-     * The public key in PEM format.
-     */
-    crt: string;
-    /**
-     * Indicates if the access certificate is revoked.
-     */
-    revoked?: boolean;
-}
+} from &quot;./generated&quot;;
+import { client } from &quot;./generated/client.gen&quot;;
 
 /**
  * RegistrarService is responsible for managing the interaction with the registrar,
@@ -1321,6 +1064,8 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         private configService: ConfigService,
         private cryptoService: CryptoService,
         private presentationsService: PresentationsService,
+        @InjectRepository(RegistrarEntity)
+        private registrarRepository: Repository&lt;RegistrarEntity&gt;,
     ) {}
 
     /**
@@ -1333,12 +1078,12 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         }
 
         const oidcIssuerUrl &#x3D;
-            this.configService.getOrThrow&lt;string&gt;(&#x27;REGISTRAR_OIDC_URL&#x27;);
+            this.configService.getOrThrow&lt;string&gt;(&quot;REGISTRAR_OIDC_URL&quot;);
         const clientId &#x3D; this.configService.getOrThrow&lt;string&gt;(
-            &#x27;REGISTRAR_OIDC_CLIENT_ID&#x27;,
+            &quot;REGISTRAR_OIDC_CLIENT_ID&quot;,
         );
         const clientSecret &#x3D; this.configService.getOrThrow&lt;string&gt;(
-            &#x27;REGISTRAR_OIDC_CLIENT_SECRET&#x27;,
+            &quot;REGISTRAR_OIDC_CLIENT_SECRET&quot;,
         );
 
         this.oauth2Client &#x3D; new OAuth2Client({
@@ -1350,7 +1095,7 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
 
         this.client &#x3D; client;
         this.client.setConfig({
-            baseUrl: this.configService.getOrThrow&lt;string&gt;(&#x27;REGISTRAR_URL&#x27;),
+            baseUrl: this.configService.getOrThrow&lt;string&gt;(&quot;REGISTRAR_URL&quot;),
             auth: () &#x3D;&gt; this.accessToken,
         });
     }
@@ -1360,7 +1105,7 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
      * @returns True if the registrar service is enabled, false otherwise.
      */
     isEnabled() {
-        return !!this.configService.get&lt;string&gt;(&#x27;REGISTRAR_URL&#x27;);
+        return !!this.configService.get&lt;string&gt;(&quot;REGISTRAR_URL&quot;);
     }
 
     /**
@@ -1368,7 +1113,7 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
      * It will refresh the access token for the registrar.
      */
     async onApplicationBootstrap() {
-        if (!this.configService.get&lt;string&gt;(&#x27;REGISTRAR_URL&#x27;)) {
+        if (!this.configService.get&lt;string&gt;(&quot;REGISTRAR_URL&quot;)) {
             return;
         }
         await this.refreshAccessToken();
@@ -1382,11 +1127,18 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         if (!this.isEnabled()) {
             return;
         }
-        const config &#x3D; this.loadConfig(tenantId);
-        if (!config.id) {
-            config.id &#x3D; await this.addRp(tenantId);
-        }
-        await this.getAccessCertificateId(config, tenantId);
+        //TODO: pass name by call
+        const name &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;RP_NAME&quot;);
+        const relyingPartyId &#x3D; await this.addRp(name);
+        const accessCertificateId &#x3D; await this.addAccessCertificate(
+            tenantId,
+            relyingPartyId,
+        );
+        await this.registrarRepository.save({
+            tenantId,
+            relyingPartyId,
+            accessCertificateId,
+        });
     }
 
     /**
@@ -1410,24 +1162,20 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
      * Adds a new relying party to the registrar.
      * This is only needed once, when the relying party is created.
      */
-    addRp(tenantId: string): Promise&lt;string&gt; {
-        const name &#x3D; this.configService.getOrThrow&lt;string&gt;(&#x27;RP_NAME&#x27;);
+    addRp(name: string): Promise&lt;string&gt; {
         return relyingPartyControllerRegister({
             client: this.client,
             body: {
                 name,
             },
         }).then(async (response) &#x3D;&gt; {
-            const config &#x3D; this.loadConfig(tenantId);
+            let rpId: string;
             if (response.error) {
-                config.id &#x3D; await this.storeExistingRp(name);
-                this.saveConfig(config, tenantId);
-                return config.id!;
+                rpId &#x3D; await this.getExistingRp(name);
             } else {
-                config.id &#x3D; response.data![&#x27;id&#x27;];
-                this.saveConfig(config, tenantId);
-                return response.data![&#x27;id&#x27;];
+                rpId &#x3D; response.data![&quot;id&quot;];
             }
+            return rpId;
         });
     }
 
@@ -1437,42 +1185,14 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
      * @param name - The name of the relying party.
      * @returns The ID of the existing relying party.
      */
-    private storeExistingRp(name: string) {
+    private getExistingRp(name: string) {
         return relyingPartyControllerFindAll({
             client: this.client,
             query: {
                 name,
             },
         }).then((response) &#x3D;&gt; {
-            return response.data!.find((item) &#x3D;&gt; item.name &#x3D;&#x3D;&#x3D; name)?.id;
-        });
-    }
-
-    /**
-     * Get the access certificate ID from the registrar.
-     * If there is no access certificate ID in the config, it will add a new one.
-     * If there is one, it will check if it is still valid.
-     * If it is revoked, it will add a new one.
-     * @param config
-     */
-    async getAccessCertificateId(config: RegistrarConfig, tenantId: string) {
-        // if there is no access certificate ID in the config, we need to add it
-        if (!config.accessCertificateId) {
-            await this.addAccessCertificate(config, tenantId);
-        }
-        // if there is one, check if it is still valid
-        await accessCertificateControllerFindOne({
-            client: this.client,
-            path: { rp: config.id, id: config.accessCertificateId! },
-        }).then((res) &#x3D;&gt; {
-            if (res.error) {
-                console.error(&#x27;Error finding access certificate:&#x27;, res.error);
-            }
-            const data &#x3D; res.data as AccessCertificateResponse;
-            if (data.revoked) {
-                console.warn(&#x27;Access certificate is revoked, adding a new one&#x27;);
-                return this.addAccessCertificate(config, tenantId);
-            }
+            return response.data!.find((item) &#x3D;&gt; item.name &#x3D;&#x3D;&#x3D; name)?.id!;
         });
     }
 
@@ -1483,40 +1203,38 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
      * @returns
      */
     private async addAccessCertificate(
-        config: RegistrarConfig,
         tenantId: string,
+        relyingPartyId: string,
     ): Promise&lt;string&gt; {
         const keyId &#x3D; await this.cryptoService.keyService.getKid(tenantId);
         const host &#x3D; this.configService
-            .getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;)
-            .replace(&#x27;https://&#x27;, &#x27;&#x27;);
+            .getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)
+            .replace(&quot;https://&quot;, &quot;&quot;);
         return accessCertificateControllerRegister({
             client: this.client,
             body: {
                 publicKey: await this.cryptoService.keyService.getPublicKey(
-                    &#x27;pem&#x27;,
+                    &quot;pem&quot;,
                     tenantId,
                     keyId,
                 ),
                 dns: [host],
             },
             path: {
-                rp: config.id,
+                rp: relyingPartyId,
             },
         }).then(async (res) &#x3D;&gt; {
             if (res.error) {
-                console.error(&#x27;Error adding access certificate:&#x27;, res.error);
-                throw new Error(&#x27;Error adding access certificate&#x27;);
+                console.error(&quot;Error adding access certificate:&quot;, res.error);
+                throw new Error(&quot;Error adding access certificate&quot;);
             }
             //store the cert
             await this.cryptoService.storeAccessCertificate(
-                res.data![&#x27;crt&#x27;],
+                res.data![&quot;crt&quot;],
                 tenantId,
                 keyId,
             );
-            config.accessCertificateId &#x3D; res.data![&#x27;id&#x27;];
-            this.saveConfig(config, tenantId);
-            return res.data![&#x27;id&#x27;];
+            return res.data![&quot;id&quot;];
         });
     }
 
@@ -1533,7 +1251,9 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         requestId: string,
         tenantId: string,
     ) {
-        const rp &#x3D; this.loadConfig(tenantId).id;
+        const entry &#x3D; await this.registrarRepository.findOneByOrFail({
+            tenantId,
+        });
 
         //TODO: need to check if the access certificate is bound to the access certificate with the subject. Also that the requested fields are matching.
 
@@ -1541,7 +1261,7 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
             (await registrationCertificateControllerAll({
                 client: this.client,
                 path: {
-                    rp,
+                    rp: entry.relyingPartyId,
                 },
             }).then((res) &#x3D;&gt;
                 res.data?.filter(
@@ -1557,62 +1277,26 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         return registrationCertificateControllerRegister({
             client: this.client,
             path: {
-                rp,
+                rp: entry.relyingPartyId,
             },
             body: req.body,
         }).then(async (res) &#x3D;&gt; {
             if (res.error) {
                 console.error(
-                    &#x27;Error adding registration certificate:&#x27;,
+                    &quot;Error adding registration certificate:&quot;,
                     res.error,
                 );
-                throw new Error(&#x27;Error adding registration certificate&#x27;);
+                throw new Error(&quot;Error adding registration certificate&quot;);
             }
 
             //TODO: write the ID to the config so its easier to use it. Easier than writing the comparison algorithm (any maybe someone wants to use a different one)
             await this.presentationsService.storeRCID(
-                res.data![&#x27;id&#x27;],
+                res.data![&quot;id&quot;],
                 requestId,
                 tenantId,
             );
-            return res.data![&#x27;jwt&#x27;];
+            return res.data![&quot;jwt&quot;];
         });
-    }
-
-    /**
-     * Load the registrar configuration from the config file.
-     * @returns
-     */
-    private loadConfig(tenantId: string): RegistrarConfig {
-        const filePath &#x3D; join(
-            this.configService.getOrThrow&lt;string&gt;(&#x27;FOLDER&#x27;),
-            tenantId,
-            &#x27;registrar.json&#x27;,
-        );
-
-        if (!existsSync(filePath)) {
-            // If the config file does not exist, create an empty config
-            const initialConfig: RegistrarConfig &#x3D; {};
-            writeFileSync(filePath, JSON.stringify(initialConfig, null, 2));
-            return initialConfig;
-        }
-        const config &#x3D; JSON.parse(
-            readFileSync(filePath, &#x27;utf-8&#x27;),
-        ) as RegistrarConfig;
-        return config;
-    }
-
-    /**
-     * Save the registrar configuration to the config file.
-     * @param config
-     */
-    private saveConfig(config: RegistrarConfig, tenantId: string) {
-        const filePath &#x3D; join(
-            this.configService.getOrThrow&lt;string&gt;(&#x27;FOLDER&#x27;),
-            tenantId,
-            &#x27;registrar.json&#x27;,
-        );
-        writeFileSync(filePath, JSON.stringify(config, null, 2));
     }
 }
 </code></pre>

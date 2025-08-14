@@ -87,7 +87,7 @@
 
 <ol class="breadcrumb">
     <li class="breadcrumb-item">Modules</li>
-    <li class="breadcrumb-item" >KeyModule</li>
+    <li class="breadcrumb-item" >StorageModule</li>
 </ol>
 
 
@@ -113,7 +113,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/crypto/key/key.module.ts</code>
+            <code>src/storage/storage.module.ts</code>
         </p>
 
 
@@ -152,8 +152,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="34"
-                                    class="link-to-prism">src/crypto/key/key.module.ts:34</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="51"
+                                    class="link-to-prism">src/storage/storage.module.ts:51</a></div>
                         </td>
                     </tr>
 
@@ -174,87 +174,96 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { HttpModule, HttpService } from &quot;@nestjs/axios&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { S3Client } from &quot;@aws-sdk/client-s3&quot;;
 import { DynamicModule, Global, Module } from &quot;@nestjs/common&quot;;
 import { ConfigModule, ConfigService } from &quot;@nestjs/config&quot;;
-import { getRepositoryToken, TypeOrmModule } from &quot;@nestjs/typeorm&quot;;
 import * as Joi from &quot;joi&quot;;
-import { PinoLogger } from &quot;nestjs-pino&quot;;
-import { Repository } from &quot;typeorm/repository/Repository&quot;;
-import { FileSystemKeyService } from &quot;./adapters/filesystem-key.service&quot;;
-import { VaultKeyService } from &quot;./adapters/vault-key.service&quot;;
-import { CryptoImplementatationModule } from &quot;./crypto-implementation/crypto-implementation.module&quot;;
-import { CryptoImplementationService } from &quot;./crypto-implementation/crypto-implementation.service&quot;;
-import { CertEntity } from &quot;./entities/cert.entity&quot;;
-import { KeyEntity } from &quot;./entities/keys.entity&quot;;
+import { LocalFileStorage } from &quot;./adapters/local.storage&quot;;
+import { S3FileStorage } from &quot;./adapters/s3.storage&quot;;
+import { FilesService } from &quot;./files.service&quot;;
+import { FILE_STORAGE, FileStorage } from &quot;./storage.types&quot;;
 
-export const KEY_VALIDATION_SCHEMA &#x3D; {
-    KM_TYPE: Joi.string().valid(&quot;file&quot;, &quot;vault&quot;).default(&quot;file&quot;),
+type Driver &#x3D; &quot;local&quot; | &quot;s3&quot;;
 
-    // Vault-related config
-    VAULT_URL: Joi.string().uri().when(&quot;KM_TYPE&quot;, {
-        is: &quot;vault&quot;,
-        then: Joi.required(),
-        otherwise: Joi.optional(),
+export const CONFIG_STORAGE_SCHEMA &#x3D; {
+    STORAGE_DRIVER: Joi.string().valid(&quot;local&quot;, &quot;s3&quot;).default(&quot;local&quot;),
+    LOCAL_STORAGE_DIR: Joi.string().when(Joi.ref(&quot;STORAGE_DRIVER&quot;), {
+        is: &quot;local&quot;,
+        then: Joi.string().default(&quot;uploads&quot;),
     }),
-    VAULT_TOKEN: Joi.string().when(&quot;KM_TYPE&quot;, {
-        is: &quot;vault&quot;,
+    S3_REGION: Joi.string().when(Joi.ref(&quot;STORAGE_DRIVER&quot;), {
+        is: &quot;s3&quot;,
         then: Joi.required(),
-        otherwise: Joi.optional(),
+    }),
+    S3_BUCKET: Joi.string().when(Joi.ref(&quot;STORAGE_DRIVER&quot;), {
+        is: &quot;s3&quot;,
+        then: Joi.required(),
+    }),
+    S3_ACCESS_KEY_ID: Joi.string().when(Joi.ref(&quot;STORAGE_DRIVER&quot;), {
+        is: &quot;s3&quot;,
+        then: Joi.required(),
+    }),
+    S3_SECRET_ACCESS_KEY: Joi.string().when(Joi.ref(&quot;STORAGE_DRIVER&quot;), {
+        is: &quot;s3&quot;,
+        then: Joi.required(),
+    }),
+    S3_ENDPOINT: Joi.string().when(Joi.ref(&quot;STORAGE_DRIVER&quot;), {
+        is: &quot;s3&quot;,
+        then: Joi.optional(),
+    }),
+    S3_FORCE_PATH_STYLE: Joi.boolean().when(Joi.ref(&quot;STORAGE_DRIVER&quot;), {
+        is: &quot;s3&quot;,
+        then: Joi.boolean().default(false),
+    }),
+    S3_PUBLIC_BASE_URL: Joi.string().when(Joi.ref(&quot;STORAGE_DRIVER&quot;), {
+        is: &quot;s3&quot;,
+        then: Joi.required(),
     }),
 };
 
 @Global()
 @Module({})
-export class KeyModule {
+export class StorageModule {
     static forRoot(): DynamicModule {
         return {
-            module: KeyModule,
-            imports: [
-                HttpModule,
-                ConfigModule,
-                CryptoImplementatationModule,
-                TypeOrmModule.forFeature([CertEntity, KeyEntity]),
-            ],
+            module: StorageModule,
+            imports: [ConfigModule.forRoot({ isGlobal: true })],
             providers: [
                 {
-                    provide: &quot;KeyService&quot;,
-                    useFactory: (
-                        configService: ConfigService,
-                        httpService: HttpService,
-                        cryptoService: CryptoImplementationService,
-                        certRepository: Repository&lt;CertEntity&gt;,
-                        keyRepository: Repository&lt;KeyEntity&gt;,
-                    ) &#x3D;&gt; {
-                        const kmType &#x3D; configService.get&lt;&quot;vault&quot; | &quot;file&quot;&gt;(
-                            &quot;KM_TYPE&quot;,
-                        );
-                        if (kmType &#x3D;&#x3D;&#x3D; &quot;vault&quot;) {
-                            return new VaultKeyService(
-                                httpService,
-                                configService,
-                                cryptoService,
-                                certRepository,
+                    provide: FILE_STORAGE,
+                    inject: [ConfigService],
+                    useFactory: (cfg: ConfigService): FileStorage &#x3D;&gt; {
+                        const driver &#x3D; cfg.get&lt;Driver&gt;(&quot;STORAGE_DRIVER&quot;);
+                        if (driver &#x3D;&#x3D;&#x3D; &quot;s3&quot;) {
+                            return new S3FileStorage(
+                                new S3Client({
+                                    region: cfg.get&lt;string&gt;(&quot;S3_REGION&quot;),
+                                    endpoint: cfg.get&lt;string&gt;(&quot;S3_ENDPOINT&quot;),
+                                    forcePathStyle: cfg.get&lt;boolean&gt;(
+                                        &quot;S3_FORCE_PATH_STYLE&quot;,
+                                    ),
+                                    credentials: {
+                                        accessKeyId:
+                                            cfg.get&lt;string&gt;(
+                                                &quot;S3_ACCESS_KEY_ID&quot;,
+                                            )!,
+                                        secretAccessKey: cfg.get&lt;string&gt;(
+                                            &quot;S3_SECRET_ACCESS_KEY&quot;,
+                                        )!,
+                                    },
+                                }),
+                                cfg.get&lt;string&gt;(&quot;S3_BUCKET&quot;)!,
+                                cfg.get&lt;string&gt;(&quot;S3_PUBLIC_BASE_URL&quot;),
                             );
                         }
-
-                        return new FileSystemKeyService(
-                            configService,
-                            cryptoService,
-                            certRepository,
-                            keyRepository,
+                        // local
+                        return new LocalFileStorage(
+                            cfg.getOrThrow&lt;string&gt;(&quot;LOCAL_STORAGE_DIR&quot;),
                         );
                     },
-                    inject: [
-                        ConfigService,
-                        HttpService,
-                        CryptoImplementationService,
-                        getRepositoryToken(CertEntity),
-                        getRepositoryToken(KeyEntity),
-                    ],
                 },
             ],
-            exports: [&quot;KeyService&quot;],
+            exports: [FILE_STORAGE],
         };
     }
 }
@@ -304,7 +313,7 @@ export class KeyModule {
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'module';
-            var COMPODOC_CURRENT_PAGE_URL = 'KeyModule.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'StorageModule.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

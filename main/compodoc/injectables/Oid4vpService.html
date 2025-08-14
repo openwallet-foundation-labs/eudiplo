@@ -555,23 +555,23 @@ It initializes the session logging context and logs the start of the flow.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { randomUUID } from &#x27;node:crypto&#x27;;
-import { ConflictException, Injectable } from &#x27;@nestjs/common&#x27;;
-import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { v4 } from &#x27;uuid&#x27;;
-import { CryptoService } from &#x27;../../crypto/crypto.service&#x27;;
-import { EncryptionService } from &#x27;../../crypto/encryption/encryption.service&#x27;;
-import { OfferResponse } from &#x27;../../issuer/oid4vci/dto/offer-request.dto&#x27;;
-import { RegistrarService } from &#x27;../../registrar/registrar.service&#x27;;
-import { Session } from &#x27;../../session/entities/session.entity&#x27;;
-import { SessionService } from &#x27;../../session/session.service&#x27;;
-import { SessionLoggerService } from &#x27;../../utils/logger/session-logger.service&#x27;;
-import { SessionLogContext } from &#x27;../../utils/logger/session-logger-context&#x27;;
-import { WebhookService } from &#x27;../../utils/webhook/webhook.service&#x27;;
-import { AuthResponse } from &#x27;../presentations/dto/auth-response.dto&#x27;;
-import { PresentationsService } from &#x27;../presentations/presentations.service&#x27;;
-import { AuthorizationResponse } from &#x27;./dto/authorization-response.dto&#x27;;
-import { PresentationRequestOptions } from &#x27;./dto/presentation-request-options.dto&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { randomUUID } from &quot;node:crypto&quot;;
+import { ConflictException, Injectable } from &quot;@nestjs/common&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
+import { v4 } from &quot;uuid&quot;;
+import { CryptoService } from &quot;../../crypto/crypto.service&quot;;
+import { EncryptionService } from &quot;../../crypto/encryption/encryption.service&quot;;
+import { OfferResponse } from &quot;../../issuer/oid4vci/dto/offer-request.dto&quot;;
+import { RegistrarService } from &quot;../../registrar/registrar.service&quot;;
+import { Session } from &quot;../../session/entities/session.entity&quot;;
+import { SessionService } from &quot;../../session/session.service&quot;;
+import { SessionLoggerService } from &quot;../../utils/logger/session-logger.service&quot;;
+import { SessionLogContext } from &quot;../../utils/logger/session-logger-context&quot;;
+import { WebhookService } from &quot;../../utils/webhook/webhook.service&quot;;
+import { AuthResponse } from &quot;../presentations/dto/auth-response.dto&quot;;
+import { PresentationsService } from &quot;../presentations/presentations.service&quot;;
+import { AuthorizationResponse } from &quot;./dto/authorization-response.dto&quot;;
+import { PresentationRequestOptions } from &quot;./dto/presentation-request-options.dto&quot;;
 
 @Injectable()
 export class Oid4vpService {
@@ -600,17 +600,17 @@ export class Oid4vpService {
         const logContext: SessionLogContext &#x3D; {
             sessionId: session.id,
             tenantId: session.tenantId,
-            flowType: &#x27;OID4VP&#x27;,
-            stage: &#x27;authorization_request&#x27;,
+            flowType: &quot;OID4VP&quot;,
+            stage: &quot;authorization_request&quot;,
         };
 
         this.sessionLogger.logFlowStart(logContext, {
             requestId: session.requestId,
-            action: &#x27;create_authorization_request&#x27;,
+            action: &quot;create_authorization_request&quot;,
         });
 
         try {
-            const host &#x3D; this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;);
+            const host &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;);
             const tenantHost &#x3D; &#x60;${host}/${session.tenantId}&#x60;;
 
             const values &#x3D;
@@ -657,39 +657,39 @@ export class Oid4vpService {
             });
 
             const hostname &#x3D; new URL(
-                this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;),
+                this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;),
             ).hostname;
 
             const request &#x3D; {
                 payload: {
-                    response_type: &#x27;vp_token&#x27;,
-                    client_id: &#x27;x509_san_dns:&#x27; + hostname,
+                    response_type: &quot;vp_token&quot;,
+                    client_id: &quot;x509_san_dns:&quot; + hostname,
                     response_uri: &#x60;${host}/${session.id}/oid4vp&#x60;,
-                    response_mode: &#x27;direct_post.jwt&#x27;,
+                    response_mode: &quot;direct_post.jwt&quot;,
                     nonce,
                     dcql_query,
                     client_metadata: {
                         jwks: {
                             keys: [
-                                this.encryptionService.getEncryptionPublicKey(
+                                await this.encryptionService.getEncryptionPublicKey(
                                     session.tenantId,
                                 ),
                             ],
                         },
                         vp_formats: {
                             mso_mdoc: {
-                                alg: [&#x27;ES256&#x27;],
+                                alg: [&quot;ES256&quot;],
                             },
-                            &#x27;dc+sd-jwt&#x27;: {
-                                &#x27;kb-jwt_alg_values&#x27;: [&#x27;ES256&#x27;],
-                                &#x27;sd-jwt_alg_values&#x27;: [&#x27;ES256&#x27;],
+                            &quot;dc+sd-jwt&quot;: {
+                                &quot;kb-jwt_alg_values&quot;: [&quot;ES256&quot;],
+                                &quot;sd-jwt_alg_values&quot;: [&quot;ES256&quot;],
                             },
                         },
-                        authorization_encrypted_response_alg: &#x27;ECDH-ES&#x27;,
-                        authorization_encrypted_response_enc: &#x27;A128GCM&#x27;,
+                        authorization_encrypted_response_alg: &quot;ECDH-ES&quot;,
+                        authorization_encrypted_response_enc: &quot;A128GCM&quot;,
                         client_name:
-                            this.configService.getOrThrow&lt;string&gt;(&#x27;RP_NAME&#x27;),
-                        response_types_supported: [&#x27;vp_token&#x27;],
+                            this.configService.getOrThrow&lt;string&gt;(&quot;RP_NAME&quot;),
+                        response_types_supported: [&quot;vp_token&quot;],
                     },
                     state: session.id,
                     aud: host,
@@ -698,31 +698,31 @@ export class Oid4vpService {
                     verifier_attestations: regCert
                         ? [
                               {
-                                  format: &#x27;jwt&#x27;,
+                                  format: &quot;jwt&quot;,
                                   data: regCert,
                               },
                           ]
                         : undefined,
                 },
                 header: {
-                    typ: &#x27;oauth-authz-req+jwt&#x27;,
+                    typ: &quot;oauth-authz-req+jwt&quot;,
                 },
             };
 
             const accessCert &#x3D; await this.cryptoService.getCertChain(
-                &#x27;access&#x27;,
+                &quot;access&quot;,
                 session.tenantId,
             );
 
             const header &#x3D; {
                 ...request.header,
-                alg: &#x27;ES256&#x27;,
+                alg: &quot;ES256&quot;,
                 x5c: accessCert,
             };
 
             const keyId &#x3D; await this.cryptoService.keyService.getKid(
                 session.tenantId,
-                &#x27;access&#x27;,
+                &quot;access&quot;,
             );
             const signedJwt &#x3D; await this.cryptoService.signJwt(
                 header,
@@ -733,7 +733,7 @@ export class Oid4vpService {
 
             this.sessionLogger.logSession(
                 logContext,
-                &#x27;Authorization request created successfully&#x27;,
+                &quot;Authorization request created successfully&quot;,
                 {
                     signedJwtLength: signedJwt.length,
                     certificateChainLength: accessCert?.length || 0,
@@ -744,7 +744,7 @@ export class Oid4vpService {
         } catch (error) {
             this.sessionLogger.logFlowError(logContext, error as Error, {
                 requestId: session.requestId,
-                action: &#x27;create_authorization_request&#x27;,
+                action: &quot;create_authorization_request&quot;,
             });
             throw error;
         }
@@ -783,18 +783,18 @@ export class Oid4vpService {
         }
 
         const hostname &#x3D; new URL(
-            this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;),
+            this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;),
         ).hostname;
         const params &#x3D; {
             client_id: &#x60;x509_san_dns:${hostname}&#x60;,
-            request_uri: &#x60;${this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;)}/${values.session}/oid4vp&#x60;,
+            request_uri: &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/${values.session}/oid4vp&#x60;,
         };
         const queryString &#x3D; Object.entries(params)
             .map(
                 ([key, value]) &#x3D;&gt;
                     &#x60;${encodeURIComponent(key)}&#x3D;${encodeURIComponent(value)}&#x60;,
             )
-            .join(&#x27;&amp;&#x27;);
+            .join(&quot;&amp;&quot;);
 
         return {
             uri: queryString,
@@ -813,19 +813,19 @@ export class Oid4vpService {
             session.tenantId,
         );
         if (!res.state) {
-            throw new ConflictException(&#x27;No state found in the response&#x27;);
+            throw new ConflictException(&quot;No state found in the response&quot;);
         }
 
         // Create session logging context
         const logContext: SessionLogContext &#x3D; {
             sessionId: res.state,
             tenantId: session.tenantId,
-            flowType: &#x27;OID4VP&#x27;,
-            stage: &#x27;response_processing&#x27;,
+            flowType: &quot;OID4VP&quot;,
+            stage: &quot;response_processing&quot;,
         };
 
         this.sessionLogger.logFlowStart(logContext, {
-            action: &#x27;process_presentation_response&#x27;,
+            action: &quot;process_presentation_response&quot;,
             hasWebhook: !!session.webhook,
         });
 
@@ -867,7 +867,7 @@ export class Oid4vpService {
             });
         } catch (error) {
             this.sessionLogger.logFlowError(logContext, error as Error, {
-                action: &#x27;process_presentation_response&#x27;,
+                action: &quot;process_presentation_response&quot;,
             });
             throw error;
         }
