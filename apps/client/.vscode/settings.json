@@ -32,5 +32,9 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true
   },
-  "eslint.validate": ["javascript", "typescript", "html"]
+  "eslint.validate": [
+    "javascript",
+    "typescript",
+    "html"
+  ]
 }

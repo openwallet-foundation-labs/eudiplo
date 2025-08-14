@@ -1,81 +1,134 @@
-<form [formGroup]="form" (ngSubmit)="createOrUpdatePresentation()">
-  <button mat-icon-button type="button" [routerLink]="['../']">
-    <mat-icon>arrow_back</mat-icon>
-  </button>
+<div fxLayout="column" fxLayoutGap="24px">
+  <div fxLayout="row" fxLayoutAlign="space-between center">
+    <h2>{{ create ? 'Create Presentation' : 'Update Presentation' }}</h2>
 
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>
-        @if (create) {
-          Create Presentation Configuration
-        } @else {
-          Edit Presentation Configuration
-        }
-      </mat-card-title>
-    </mat-card-header>
-
-    <mat-card-content fxLayout="column" fxLayoutGap="16px">
-      <!-- ID Field -->
-      <mat-form-field>
-        <mat-label>ID</mat-label>
-        <input matInput formControlName="id" placeholder="Enter unique identifier" />
-        @if (form.controls['id'].hasError('required')) {
-          <mat-error> ID is required </mat-error>
-        }
-      </mat-form-field>
-
-      <!-- DCQL Query Field -->
-      <mat-form-field>
-        <mat-label>DCQL Query</mat-label>
-        <textarea
-          matInput
-          formControlName="dcql_query"
-          placeholder='{"query": "example"}'
-          rows="6"
-          class="json-textarea"
-          (blur)="formatJson()"
-        ></textarea>
-        <mat-hint
-          >Enter the DCQL query in valid JSON format. Click outside to auto-format.</mat-hint
-        >
-        @if (form.controls['dcql_query'].hasError('required')) {
-          <mat-error> DCQL Query is required </mat-error>
-        }
-        @if (form.controls['dcql_query'].hasError('invalidJson')) {
-          <mat-error> Invalid JSON format. Please check your syntax. </mat-error>
-        }
-      </mat-form-field>
-
-      <!-- Example JSON Button -->
-      <button
-        mat-stroked-button
-        type="button"
-        color="accent"
-        (click)="insertExampleJson()"
-        class="example-button"
-      >
+    <div fxLayout="row" fxLayoutGap="8px">
+      <!-- JSON View Button -->
+      <button mat-stroked-button (click)="viewAsJson()" matTooltip="View/Edit as JSON">
         <mat-icon>code</mat-icon>
-        Insert Example
+        JSON View
       </button>
 
-      <!-- Registration Certificate Field -->
-      <mat-form-field>
-        <mat-label>Registration Certificate</mat-label>
-        <textarea
-          matInput
-          formControlName="registrationCert"
-          placeholder="Enter Registration Certificate"
-          rows="3"
-        ></textarea>
-        @if (form.controls['registrationCert'].hasError('required')) {
-          <mat-error> Registration Certificate is required </mat-error>
-        }
-      </mat-form-field>
+      <!-- Predefined Configs Menu -->
+      @if (create) {
+        <button
+          mat-stroked-button
+          [matMenuTriggerFor]="templatesMenu"
+          matTooltip="Load predefined configuration"
+        >
+          <mat-icon>template_add</mat-icon>
+          Templates
+        </button>
+        <mat-menu #templatesMenu="matMenu">
+          @for (template of predefinedConfigs; track template.name) {
+            <div>
+              <button mat-menu-item (click)="loadPredefinedConfig(template)">
+                <mat-icon>{{ template.icon }}</mat-icon>
+                <div fxLayout="column" fxLayoutAlign="start start">
+                  <span>{{ template.name }}</span>
+                  <small class="menu-description">{{ template.description }}</small>
+                </div>
+              </button>
+              <button mat-menu-item (click)="previewPredefinedConfig(template)">
+                <mat-icon>visibility</mat-icon>
+                <span>Preview {{ template.name }}</span>
+              </button>
+              @if (!$last) {
+                <mat-divider></mat-divider>
+              }
+            </div>
+          }
+        </mat-menu>
+      }
 
-      <!-- Webhook Configuration Section -->
-      <div formGroupName="webhook">
-        <h3>Webhook Configuration</h3>
+      <!-- Back Button -->
+      <button mat-icon-button [routerLink]="['../']" matTooltip="Back to list">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+    </div>
+  </div>
+  <form
+    [formGroup]="form"
+    (ngSubmit)="createOrUpdatePresentation()"
+    fxLayout="column"
+    fxLayoutGap="24px"
+  >
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>settings</mat-icon>
+          Basic Information
+        </mat-card-title>
+      </mat-card-header>
 
+      <mat-card-content fxLayout="column" fxLayoutGap="16px">
+        <!-- ID Field -->
+        <mat-form-field>
+          <mat-label>ID</mat-label>
+          <input matInput formControlName="id" placeholder="Enter unique identifier" />
+          @if (form.controls['id'].hasError('required')) {
+            <mat-error> ID is required </mat-error>
+          }
+        </mat-form-field>
+
+        <!-- DCQL Query Field -->
+        <mat-form-field>
+          <mat-label>DCQL Query</mat-label>
+          <textarea
+            matInput
+            formControlName="dcql_query"
+            placeholder='{"query": "example"}'
+            rows="6"
+            class="json-textarea"
+            (blur)="formatJson()"
+          ></textarea>
+          <mat-hint
+            >Enter the DCQL query in valid JSON format. Click outside to auto-format.</mat-hint
+          >
+          @if (form.controls['dcql_query'].hasError('required')) {
+            <mat-error> DCQL Query is required </mat-error>
+          }
+          @if (form.controls['dcql_query'].hasError('invalidJson')) {
+            <mat-error> Invalid JSON format. Please check your syntax. </mat-error>
+          }
+        </mat-form-field>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>security</mat-icon>
+          Registrar
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content fxLayout="column" fxLayoutGap="16px">
+        <!-- Registration Certificate Field -->
+        <mat-form-field>
+          <mat-label>Registration Certificate</mat-label>
+          <textarea
+            matInput
+            formControlName="registrationCert"
+            placeholder="Enter Registration Certificate"
+            rows="3"
+          ></textarea>
+          @if (form.controls['registrationCert'].hasError('required')) {
+            <mat-error> Registration Certificate is required </mat-error>
+          }
+        </mat-form-field>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>webhook</mat-icon>
+          Webhook Configuration
+        </mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content fxLayout="column" fxLayoutGap="16px" formGroupName="webhook">
+        <!-- Webhook Configuration Section -->
         <!-- Webhook URL -->
         <mat-form-field>
           <mat-label>Webhook URL</mat-label>
@@ -86,13 +139,14 @@
         </mat-form-field>
 
         <!-- Webhook Authentication Section -->
-        <div formGroupName="auth">
+        <div formGroupName="auth" fxLayout="column" fxLayoutGap="16px">
           <h4>Authentication</h4>
 
           <!-- Auth Type -->
           <mat-form-field>
             <mat-label>Authentication Type</mat-label>
             <mat-select formControlName="type">
+              <mat-option value="none">None</mat-option>
               <mat-option value="apiKey">API Key</mat-option>
             </mat-select>
             @if (form.get('webhook.auth.type')?.hasError('required')) {
@@ -119,19 +173,17 @@
             </mat-form-field>
           </div>
         </div>
-      </div>
-    </mat-card-content>
+      </mat-card-content>
+    </mat-card>
 
-    <mat-card-actions fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="end center">
-      <button mat-raised-button type="submit" color="primary" [disabled]="form.invalid">
-        <ng-container>
-          @if (create) {
-            Create Presentation
-          } @else {
-            Update Presentation
-          }
-        </ng-container>
+    <!-- Action Buttons -->
+    <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="end center">
+      <button mat-button type="button" [routerLink]="['../']">Cancel</button>
+      <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
+        <mat-icon>{{ create ? 'add' : 'save' }}</mat-icon>
+
+        {{ create ? 'Create' : 'Save' }} Configuration
       </button>
-    </mat-card-actions>
-  </mat-card>
-</form>
+    </div>
+  </form>
+</div>

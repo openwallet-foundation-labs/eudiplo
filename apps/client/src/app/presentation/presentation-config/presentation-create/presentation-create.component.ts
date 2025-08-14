@@ -13,6 +13,11 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { PresentationConfig } from '../../../generated';
 import { PresentationManagementService } from '../presentation-management.service';
+import { MatDialog } from '@angular/material/dialog';
+import { JsonViewDialogComponent } from '../../../issuance/credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
+import { configs } from './pre-config';
 
 @Component({
   selector: 'app-presentation-create',
@@ -29,20 +34,25 @@ import { PresentationManagementService } from '../presentation-management.servic
     FlexLayoutModule,
     ReactiveFormsModule,
     RouterModule,
+    MatMenuModule,
+    MatDividerModule,
   ],
   templateUrl: './presentation-create.component.html',
   styleUrls: ['./presentation-create.component.scss'],
 })
 export class PresentationCreateComponent {
-  public form: FormGroup;
 
+  public form: FormGroup;
   public create = true;
+
+  public predefinedConfigs = configs;
 
   constructor(
     private presentationService: PresentationManagementService,
     private router: Router,
     private route: ActivatedRoute,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {
     this.form = new FormGroup({
       id: new FormControl(undefined, [Validators.required]),
@@ -78,6 +88,10 @@ export class PresentationCreateComponent {
             formData.dcql_query = JSON.stringify(formData.dcql_query, null, 2);
           }
 
+          if (formData.registrationCert && typeof formData.registrationCert === 'object') {
+            formData.registrationCert = JSON.stringify(formData.registrationCert, null, 2);
+          }
+
           this.form.patchValue(formData);
           this.form.get('id')?.disable(); // Disable ID field in edit mode
           this.create = false;
@@ -107,6 +121,7 @@ export class PresentationCreateComponent {
       if (formValue.dcql_query) {
         try {
           formValue.dcql_query = JSON.parse(formValue.dcql_query);
+          formValue.registrationCert = JSON.parse(formValue.registrationCert);
         } catch (error) {
           console.error('Error parsing DCQL Query JSON:', error);
           return;
@@ -158,21 +173,96 @@ export class PresentationCreateComponent {
     }
   }
 
-  // Helper method to insert example JSON
-  insertExampleJson(): void {
-    const exampleJson = {
-      query: {
-        credentials: [
-          {
-            type: 'VerifiableCredential',
-            credentialSubject: {
-              type: 'Person',
-            },
-          },
-        ],
-      },
-    };
+    /**
+     * Show/Edit the entire presentation config as JSON
+     */
+    viewAsJson(): void {
+      const currentConfig = this.getCompleteConfiguration();
+      const dialogRef = this.dialog.open(JsonViewDialogComponent, {
+        data: {
+          title: 'Presentation Configuration JSON',
+          jsonData: currentConfig,
+          readonly: false
+        },
+        disableClose: false,
+        maxWidth: '95vw',
+        maxHeight: '95vh'
+      });
 
-    this.form.get('dcql_query')?.setValue(JSON.stringify(exampleJson, null, 2));
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          this.loadConfigurationFromJson(result);
+        }
+      });
+    }
+
+    /**
+     * Get the complete config object from form values
+     */
+    private getCompleteConfiguration(): any {
+      const formValue = { ...this.form.getRawValue() };
+      // Parse dcql_query if it's a string
+      if (formValue.dcql_query && typeof formValue.dcql_query === 'string') {
+        try {
+          formValue.dcql_query = JSON.parse(formValue.dcql_query);
+          formValue.registrationCert = JSON.parse(formValue.registrationCert);
+        } catch {
+          // Ignore JSON parse errors
+        }
+      }
+      return formValue;
+    }
+
+  /**
+   * Load a predefined configuration
+   */
+  loadPredefinedConfig(configTemplate: any): void {
+    const config = JSON.parse(JSON.stringify(configTemplate.config)); // Deep clone
+
+    this.loadConfigurationFromJson(config);
+
+    this.snackBar.open(`${configTemplate.name} template loaded successfully`, 'OK', {
+      duration: 3000,
+    });
   }
-}
+
+  /**
+   * Show predefined configuration in JSON view (readonly)
+   */
+  previewPredefinedConfig(configTemplate: any): void {
+    this.dialog.open(JsonViewDialogComponent, {
+      data: {
+        title: `${configTemplate.name} - Preview`,
+        jsonData: configTemplate.config,
+        readonly: true
+      },
+      disableClose: false,
+      maxWidth: '95vw',
+      maxHeight: '95vh'
+    });
+  }
+
+    /**
+     * Import config from JSON and update the form
+     */
+    private loadConfigurationFromJson(config: any): void {
+      try {
+        const formData: any = { ...config };
+        if (formData.dcql_query && typeof formData.dcql_query === 'object') {
+          formData.dcql_query = JSON.stringify(formData.dcql_query, null, 2);
+        }
+        if(formData.registrationCert && typeof formData.registrationCert === 'object') {
+          formData.registrationCert = JSON.stringify(formData.registrationCert, null, 2);
+        }
+        this.form.patchValue(formData);
+        this.snackBar.open('Configuration loaded from JSON successfully', 'OK', {
+          duration: 3000,
+        });
+      } catch (error) {
+        console.error('Error loading configuration from JSON:', error);
+        this.snackBar.open('Error loading configuration from JSON', 'Close', {
+          duration: 3000,
+        });
+      }
+    }
+  }

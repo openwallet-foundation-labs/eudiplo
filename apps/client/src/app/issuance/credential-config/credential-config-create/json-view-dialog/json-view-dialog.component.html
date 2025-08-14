@@ -1,0 +1,55 @@
+<div mat-dialog-title fxLayout="row" fxLayoutAlign="space-between center">
+  <h2>{{ data.title }}</h2>
+  <button mat-icon-button (click)="copyToClipboard()">
+    <mat-icon>content_copy</mat-icon>
+  </button>
+</div>
+
+<mat-dialog-content>
+  <mat-tab-group>
+    <mat-tab label="View JSON">
+      <div class="tab-content">
+        <pre class="json-display">{{ formattedJson }}</pre>
+      </div>
+    </mat-tab>
+    @if (!data.readonly) {
+      <mat-tab label="Edit JSON">
+        <div class="tab-content">
+          <mat-form-field class="full-width">
+            <mat-label>JSON Configuration</mat-label>
+            <textarea
+              matInput
+              [formControl]="jsonControl"
+              rows="20"
+              placeholder="Enter valid JSON..."
+              class="json-textarea"
+            ></textarea>
+            @if (jsonControl.hasError('invalidJson')) {
+              <mat-error>Invalid JSON format</mat-error>
+            }
+          </mat-form-field>
+          <div fxLayout="row" fxLayoutGap="8px">
+            <button mat-button (click)="formatJson()">
+              <mat-icon>auto_fix_high</mat-icon>
+              Format JSON
+            </button>
+            <button mat-button (click)="validateJson()">
+              <mat-icon>verified</mat-icon>
+              Validate JSON
+            </button>
+          </div>
+        </div>
+      </mat-tab>
+    }
+  </mat-tab-group>
+</mat-dialog-content>
+
+<mat-dialog-actions fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="end center">
+  <button mat-button (click)="cancel()">Cancel</button>
+  @if (!data.readonly) {
+    <button mat-raised-button color="primary" (click)="save()" [disabled]="jsonControl.invalid">
+      <mat-icon>save</mat-icon>
+      Apply Changes
+    </button>
+  }
+</mat-dialog-actions>

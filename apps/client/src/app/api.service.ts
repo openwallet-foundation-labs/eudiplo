@@ -58,7 +58,7 @@ export class ApiService {
    * This method is called periodically to ensure the access token is valid.
    * NOTE: This will fail if client secret is not available (after page reload)
    */
-  async refreshAccessToken() {
+  async refreshAccessToken(): Promise<void> {
     try {
       // Check if we have a valid OAuth2 client with credentials
       if (!this.oauth2Client || !this.oauth2Client.settings.clientSecret) {
@@ -76,6 +76,7 @@ export class ApiService {
         }
       }
 
+      console.log('Refreshing access token...');
       const token = await this.oauth2Client.clientCredentials();
       this.accessToken = token.accessToken;
       this.isAuthenticated = true;
@@ -89,12 +90,17 @@ export class ApiService {
         this.saveTokenToStorage(token.accessToken, expirationTime, JSON.parse(storedOAuthConfig));
       }
 
+      console.log('Access token refreshed successfully. Next refresh scheduled.');
+
       // Schedule next refresh only if we have valid credentials
       this.scheduleTokenRefresh(expirationTime);
+
+      return Promise.resolve();
     } catch (error) {
+      console.error('Failed to refresh access token:', error);
       this.isAuthenticated = false;
       this.clearTokenFromStorage();
-      throw error;
+      return Promise.reject(error);
     }
   }
 
@@ -103,6 +109,39 @@ export class ApiService {
    */
   getAuthenticationStatus(): boolean {
     return this.isAuthenticated && !!this.accessToken && this.isTokenValid();
+  }
+
+  /**
+   * Checks if the user is authenticated or can auto-refresh the token
+   */
+  async ensureAuthenticated(): Promise<boolean> {
+    // If we're already authenticated with a valid token, return true
+    if (this.getAuthenticationStatus()) {
+      return true;
+    }
+
+    // If token is expired but we have credentials, try to refresh
+    if (this.canRefreshToken()) {
+      try {
+        await this.refreshAccessToken();
+        return this.getAuthenticationStatus();
+      } catch (error) {
+        console.warn('Failed to refresh token:', error);
+        return false;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Manually trigger a token refresh (useful for components)
+   */
+  async manualRefreshToken(): Promise<void> {
+    if (!this.canRefreshToken()) {
+      throw new Error('Cannot refresh token: client credentials not available');
+    }
+    return this.refreshAccessToken();
   }
 
   /**
@@ -206,14 +245,10 @@ export class ApiService {
           this.tokenExpirationTime = expirationTime;
           this.isAuthenticated = true;
 
-          // Restore OAuth client configuration (without client secret)
+          // Restore OAuth client configuration
           const oauthConfig = JSON.parse(storedOAuthConfig);
 
-          // NOTE: Client secret is not stored for security reasons
-          // This means automatic token refresh won't work on page reload
-          // User will need to log in again when token expires
           if (oauthConfig.server && oauthConfig.clientId) {
-            // If secret persisted (remember me), restore fully; else partial
             this.oauth2Client = new OAuth2Client({
               discoveryEndpoint: `${oauthConfig.server}/.well-known/oauth-authorization-server`,
               clientId: oauthConfig.clientId,
@@ -229,8 +264,39 @@ export class ApiService {
           // Schedule token refresh
           this.scheduleTokenRefresh(expirationTime);
         } else {
-          // Token expired, clear storage
+          // Token expired - try to refresh automatically if we have credentials
+          if (storedSecret && storedOAuthConfig) {
+            const oauthConfig = JSON.parse(storedOAuthConfig);
+            if (oauthConfig.server && oauthConfig.clientId) {
+              console.log('Token expired on app refresh, attempting automatic renewal...');
+
+              // Restore OAuth client configuration for refresh
+              this.oauth2Client = new OAuth2Client({
+                discoveryEndpoint: `${oauthConfig.server}/.well-known/oauth-authorization-server`,
+                clientId: oauthConfig.clientId,
+                clientSecret: storedSecret,
+              });
+
+              // Set up the client with the stored base URL
+              if (oauthConfig.baseUrl) {
+                this.setClient(oauthConfig.baseUrl);
+              }
+
+              // Attempt to refresh the token automatically
+              this.refreshAccessToken().catch((error) => {
+                console.warn('Failed to auto-refresh expired token:', error);
+                this.clearTokenFromStorage();
+                localStorage.removeItem('oauth_client_secret');
+              });
+
+              return; // Don't clear storage yet, let refresh attempt complete
+            }
+          }
+
+          // No credentials available for auto-refresh, clear everything
+          console.log('Token expired and no credentials available for auto-refresh');
           this.clearTokenFromStorage();
+          localStorage.removeItem('oauth_client_secret');
         }
       }
     } catch (error) {
