@@ -1,17 +1,10 @@
-import { execSync } from 'node:child_process';
-import { createHash, randomBytes } from 'node:crypto';
-import {
-    existsSync,
-    mkdirSync,
-    readdirSync,
-    readFileSync,
-    rmSync,
-    writeFileSync,
-} from 'node:fs';
-import { join } from 'node:path';
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
+import { createHash, randomBytes } from "node:crypto";
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { URL } from "node:url";
+import { Inject, Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { InjectRepository } from "@nestjs/typeorm";
 import {
     type CallbackContext,
     calculateJwkThumbprint,
@@ -19,22 +12,29 @@ import {
     HashAlgorithm,
     type Jwk,
     SignJwtCallback,
-} from '@openid4vc/oauth2';
-import { plainToClass } from 'class-transformer';
-import { validate } from 'class-validator';
-import { importJWK, type JWK, jwtVerify } from 'jose';
-import { PinoLogger } from 'nestjs-pino';
-import { Repository } from 'typeorm/repository/Repository';
-import { EC_Public } from '../well-known/dto/jwks-response.dto';
-import { KeyImportDto } from './key/dto/key-import.dto';
-import { CertEntity, CertificateType } from './key/entities/cert.entity';
-import { KeyService } from './key/key.service';
+} from "@openid4vc/oauth2";
+import * as x509 from "@peculiar/x509";
+import { plainToClass } from "class-transformer";
+import { validate } from "class-validator";
+import { importJWK, type JWK, jwtVerify } from "jose";
+import { PinoLogger } from "nestjs-pino";
+import { Repository } from "typeorm/repository/Repository";
+import { EC_Public } from "../well-known/dto/jwks-response.dto";
+import { KeyImportDto } from "./key/dto/key-import.dto";
+import { CertEntity, CertificateType } from "./key/entities/cert.entity";
+import { KeyService } from "./key/key.service";
+
+const ECDSA_P256 = {
+    name: "ECDSA",
+    namedCurve: "P-256",
+    hash: "SHA-256" as const,
+};
 
 /**
  * Service for cryptographic operations, including key management and certificate handling.
  */
 @Injectable()
-export class CryptoService implements OnModuleInit {
+export class CryptoService {
     /**
      * Folder where the keys are stored.
      */
@@ -48,31 +48,17 @@ export class CryptoService implements OnModuleInit {
      */
     constructor(
         private readonly configService: ConfigService,
-        @Inject('KeyService') public readonly keyService: KeyService,
+        @Inject("KeyService") public readonly keyService: KeyService,
         @InjectRepository(CertEntity)
         private certRepository: Repository<CertEntity>,
         private logger: PinoLogger,
     ) {}
 
     /**
-     * Initializes the crypto service by creating the folder if it does not exist.
-     */
-    onModuleInit() {
-        this.folder = join(this.configService.getOrThrow<string>('FOLDER'));
-        if (!existsSync(this.folder)) {
-            mkdirSync(this.folder, { recursive: true });
-        }
-    }
-
-    /**
      * Initializes the key service for a specific tenant.
      * @param tenantId
      */
     async onTenantInit(tenantId: string) {
-        const folder = join(this.folder, tenantId, 'keys');
-        if (!existsSync(folder)) {
-            mkdirSync(folder, { recursive: true });
-        }
         const keyId = await this.keyService.init(tenantId);
         await this.hasCerts(tenantId, keyId);
     }
@@ -85,7 +71,7 @@ export class CryptoService implements OnModuleInit {
     getCerts(tenantId: string): Promise<CertEntity[]> {
         return this.certRepository.findBy({
             tenantId,
-            type: 'signing',
+            type: "signing",
         });
     }
 
@@ -93,13 +79,13 @@ export class CryptoService implements OnModuleInit {
      * Imports keys from the file system into the key service.
      */
     async import() {
-        if (this.configService.get<boolean>('CONFIG_IMPORT')) {
-            const configPath = this.configService.getOrThrow('CONFIG_FOLDER');
-            const subfolder = 'keys';
+        if (this.configService.get<boolean>("CONFIG_IMPORT")) {
+            const configPath = this.configService.getOrThrow("CONFIG_FOLDER");
+            const subfolder = "keys";
             const force = this.configService.get<boolean>(
-                'CONFIG_IMPORT_FORCE',
+                "CONFIG_IMPORT_FORCE",
             );
-            if (this.configService.get<boolean>('CONFIG_IMPORT')) {
+            if (this.configService.get<boolean>("CONFIG_IMPORT")) {
                 const tenantFolders = readdirSync(configPath, {
                     withFileTypes: true,
                 }).filter((tenant) => tenant.isDirectory());
@@ -110,12 +96,12 @@ export class CryptoService implements OnModuleInit {
                     const files = readdirSync(path);
                     for (const file of files) {
                         const payload = JSON.parse(
-                            readFileSync(join(path, file), 'utf8'),
+                            readFileSync(join(path, file), "utf8"),
                         );
 
                         const id = payload.kid;
                         const exists = await this.keyService
-                            .getPublicKey('jwk', tenant.name, id)
+                            .getPublicKey("jwk", tenant.name, id)
                             .catch(() => false);
                         if (exists && !force) {
                             continue; // Skip if config already exists and force is not set
@@ -131,7 +117,7 @@ export class CryptoService implements OnModuleInit {
                         if (validationErrors.length > 0) {
                             this.logger.error(
                                 {
-                                    event: 'ValidationError',
+                                    event: "ValidationError",
                                     file,
                                     tenant: tenant.name,
                                     errors: validationErrors.map((error) => ({
@@ -149,7 +135,7 @@ export class CryptoService implements OnModuleInit {
                     }
                     this.logger.info(
                         {
-                            event: 'Import',
+                            event: "Import",
                         },
                         `${counter} keys imported for ${tenant.name}`,
                     );
@@ -188,122 +174,114 @@ export class CryptoService implements OnModuleInit {
     }
 
     /**
-     * Checks if there is a signing certificate and access certificate available.
-     * If not it will be created.
+     * Ensures a signing certificate (and default access cert) exist for the given tenant/key id.
      */
     async hasCerts(tenantId: string, id?: string) {
-        id = id || (await this.keyService.getKid(tenantId));
+        id = id ?? (await this.keyService.getKid(tenantId));
 
-        const certObj = await this.certRepository.findOneBy({
-            tenantId,
-            id: id,
-        });
+        const existing = await this.certRepository.findOneBy({ tenantId, id });
+        if (existing?.crt) return;
 
-        //when there is no cert, create one
-        if (certObj?.crt) {
-            return;
-        }
+        // === Inputs/parameters (subject + SAN hostname) ===
+        const subjectCN = this.configService.getOrThrow<string>("RP_NAME");
+        const hostname = new URL(
+            this.configService.getOrThrow<string>("PUBLIC_URL"),
+        ).hostname;
 
-        const publicKey = await this.keyService.getPublicKey(
-            'pem',
+        // === Parse the subject public key we want the leaf cert to contain ===
+        // Expecting PEM SPKI. If you have JWK, convert or import as CryptoKey first.
+        const subjectSpkiPem = await this.keyService.getPublicKey(
+            "pem",
             tenantId,
             id,
         );
+        const subjectPublicKey = await new x509.PublicKey(
+            subjectSpkiPem,
+        ).export({ name: "ECDSA", namedCurve: "P-256" }, ["verify"]);
 
-        const folder = join(this.folder, tenantId, id);
-        // create a temporary folder for the cert generation
-        if (!existsSync(folder)) {
-            mkdirSync(folder, { recursive: true });
-        }
-        const publicKeyPath = join(folder, `public-key.${id}.pem`);
-        writeFileSync(publicKeyPath, publicKey);
-        const dummyKey = join(folder, 'dummy_key.pem');
-        const dummyCsr = join(folder, 'dummy.csr');
-        const issuerKey = join(folder, 'issuer_key.pem');
-        const issuerCert = join(folder, 'issuer_cert.pem');
+        // === Create issuer key pair and self-signed issuer certificate ===
+        const issuerKeys = await crypto.subtle.generateKey(ECDSA_P256, true, [
+            "sign",
+            "verify",
+        ]);
+        const now = new Date();
+        const inOneYear = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
 
-        const certOut = join(folder, `${id}.pem`);
-        const sanExt = join(folder, 'san.ext');
-
-        // === Configurable parameters (you can parameterize these when calling the script) ===
-        const subject = this.configService.getOrThrow<string>('RP_NAME');
-        const hostname = new URL(
-            this.configService.getOrThrow<string>('PUBLIC_URL'),
-        ).hostname; // Use URL to parse and get hostname
-
-        // === Helper to run shell commands ===
-        const run = (cmd) => {
-            execSync(cmd, { stdio: 'pipe' });
-        };
-
-        // === Step-by-step ===
-        mkdirSync(this.folder, { recursive: true });
-
-        // Step 1: Create dummy key pair if public key is missing
-        if (!existsSync(dummyKey)) {
-            // Generate private key (PKCS#8)
-            run(
-                `openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:prime256v1 -out "${dummyKey}"`,
-            );
-        } else {
-            if (!existsSync(dummyKey)) {
-                throw new Error(
-                    `Public key exists but ${dummyKey} is missing.`,
-                );
-            }
-        }
-
-        // Step 2: Generate issuer key
-        run(
-            `openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:prime256v1 -out "${issuerKey}"`,
+        const issuerCert = await x509.X509CertificateGenerator.createSelfSigned(
+            {
+                serialNumber: "01",
+                name: `CN=${subjectCN}`,
+                notBefore: now,
+                notAfter: inOneYear,
+                signingAlgorithm: ECDSA_P256,
+                keys: issuerKeys,
+                extensions: [
+                    new x509.BasicConstraintsExtension(true, 0, true), // CA: true, pathLen:0
+                    new x509.KeyUsagesExtension(
+                        x509.KeyUsageFlags.keyCertSign |
+                            x509.KeyUsageFlags.cRLSign,
+                        true,
+                    ),
+                    await x509.SubjectKeyIdentifierExtension.create(
+                        issuerKeys.publicKey,
+                    ),
+                    new x509.SubjectAlternativeNameExtension([
+                        { type: "dns", value: hostname },
+                    ]),
+                ],
+            },
         );
 
-        // Step 3: Create self-signed issuer cert
-        run(
-            `openssl req -x509 -new -key "${issuerKey}" -subj "/CN=${subject}" -addext "subjectAltName=DNS:${hostname}" -days 365 -out "${issuerCert}"`,
-        );
+        // === Issue end-entity certificate for the provided public key ===
+        const leafCert = await x509.X509CertificateGenerator.create({
+            serialNumber: "02",
+            subject: `CN=${subjectCN}`,
+            issuer: issuerCert.subject, // DN string from issuer
+            notBefore: now,
+            notAfter: inOneYear,
+            signingAlgorithm: ECDSA_P256,
+            publicKey: subjectPublicKey, // <-- your key goes into the cert
+            signingKey: issuerKeys.privateKey, // signed by issuer
+            extensions: [
+                new x509.SubjectAlternativeNameExtension([
+                    { type: "dns", value: hostname },
+                ]),
+                new x509.KeyUsagesExtension(
+                    x509.KeyUsageFlags.digitalSignature,
+                    false,
+                ),
+                await x509.SubjectKeyIdentifierExtension.create(
+                    subjectPublicKey,
+                ),
+                await x509.AuthorityKeyIdentifierExtension.create(
+                    issuerCert.publicKey,
+                ),
+            ],
+        });
 
-        // Step 4: Create dummy CSR
-        run(
-            `openssl req -new -key "${dummyKey}" -subj "/CN=${subject}" -addext "subjectAltName=DNS:${hostname}" -out "${dummyCsr}"`,
-        );
+        const crtPem = leafCert.toString("pem"); // PEM-encoded certificate
 
-        // Step 5: Create SAN extension file
-        writeFileSync(sanExt, `subjectAltName=DNS:${hostname}`);
-
-        // Step 6: Sign certificate using issuer
-        run(
-            `openssl x509 -req -in "${dummyCsr}" -force_pubkey "${publicKeyPath}" -CA "${issuerCert}" -CAkey "${issuerKey}" -CAcreateserial -days 365 -extfile "${sanExt}" -out "${certOut}"`,
-        );
-
-        const crt = readFileSync(certOut, 'utf-8');
-        // Store the certificate in the database
+        // Persist the signing certificate
         await this.certRepository.save({
             tenantId,
             id,
-            crt,
-            type: 'signing',
+            crt: crtPem,
+            type: "signing",
         });
 
-        // Step 7: Clean up
-        rmSync(folder, { recursive: true });
-
-        //set access certificate
-        await this.certRepository
-            .countBy({
+        // Mirror your logic: if no "access" cert yet, reuse the same PEM
+        const accessCount = await this.certRepository.countBy({
+            tenantId,
+            type: "access",
+        });
+        if (accessCount === 0) {
+            await this.certRepository.save({
                 tenantId,
-                type: 'access',
-            })
-            .then((count) => {
-                if (count === 0) {
-                    return this.certRepository.save({
-                        tenantId,
-                        id,
-                        crt,
-                        type: 'access',
-                    });
-                }
+                id,
+                crt: crtPem,
+                type: "access",
             });
+        }
     }
 
     /**
@@ -348,27 +326,27 @@ export class CryptoService implements OnModuleInit {
      * @returns
      */
     async getCertChain(
-        type: CertificateType = 'signing',
+        type: CertificateType = "signing",
         tenantId: string,
         keyId?: string,
     ) {
         let cert: string;
-        if (type === 'signing') {
+        if (type === "signing") {
             keyId = keyId || (await this.keyService.getKid(tenantId));
             cert = await this.getCert(tenantId, keyId);
         } else {
             cert = await this.certRepository
                 .findOneByOrFail({
                     tenantId,
-                    type: 'access',
+                    type: "access",
                 })
                 .then((cert) => cert.crt);
         }
 
         const chain = cert
-            .replace('-----BEGIN CERTIFICATE-----', '')
-            .replace('-----END CERTIFICATE-----', '')
-            .replace(/\r?\n|\r/g, '');
+            .replace("-----BEGIN CERTIFICATE-----", "")
+            .replace("-----END CERTIFICATE-----", "")
+            .replace(/\r?\n|\r/g, "");
         return [chain];
     }
 
@@ -382,7 +360,7 @@ export class CryptoService implements OnModuleInit {
             tenantId,
             id,
             crt,
-            type: 'access',
+            type: "access",
         });
     }
 
@@ -414,8 +392,8 @@ export class CryptoService implements OnModuleInit {
         tenantId: string,
         payload?: Record<string, any>,
     ): Promise<{ verified: boolean }> {
-        const publicJwk = await this.keyService.getPublicKey('jwk', tenantId);
-        const publicCryptoKey = await importJWK(publicJwk, 'ES256');
+        const publicJwk = await this.keyService.getPublicKey("jwk", tenantId);
+        const publicCryptoKey = await importJWK(publicJwk, "ES256");
 
         try {
             await jwtVerify(compact, publicCryptoKey, {
@@ -435,21 +413,21 @@ export class CryptoService implements OnModuleInit {
      */
     getCallbackContext(
         tenantId: string,
-    ): Omit<CallbackContext, 'encryptJwe' | 'decryptJwe'> {
+    ): Omit<CallbackContext, "encryptJwe" | "decryptJwe"> {
         return {
             hash: (data, alg) =>
-                createHash(alg.replace('-', '').toLowerCase())
+                createHash(alg.replace("-", "").toLowerCase())
                     .update(data)
                     .digest(),
             generateRandom: (bytes) => randomBytes(bytes),
             clientAuthentication: clientAuthenticationNone({
-                clientId: 'some-random',
+                clientId: "some-random",
             }),
             //clientId: 'some-random-client-id', // TODO: Replace with your real clientId if necessary
             signJwt: this.getSignJwtCallback(tenantId),
             verifyJwt: async (signer, { compact, payload }) => {
-                if (signer.method !== 'jwk') {
-                    throw new Error('Signer method not supported');
+                if (signer.method !== "jwk") {
+                    throw new Error("Signer method not supported");
                 }
 
                 const josePublicKey = await importJWK(
@@ -473,8 +451,8 @@ export class CryptoService implements OnModuleInit {
     // Helper to generate signJwt callback
     getSignJwtCallback(tenantId: string): SignJwtCallback {
         return async (signer, { header, payload }) => {
-            if (signer.method !== 'jwk') {
-                throw new Error('Signer method not supported');
+            if (signer.method !== "jwk") {
+                throw new Error("Signer method not supported");
             }
             const hashCallback = this.getCallbackContext(tenantId).hash;
             const jwkThumbprint = await calculateJwkThumbprint({
@@ -485,7 +463,7 @@ export class CryptoService implements OnModuleInit {
 
             const privateThumbprint = await calculateJwkThumbprint({
                 jwk: (await this.keyService.getPublicKey(
-                    'jwk',
+                    "jwk",
                     tenantId,
                 )) as Jwk,
                 hashAlgorithm: HashAlgorithm.Sha256,
@@ -514,7 +492,7 @@ export class CryptoService implements OnModuleInit {
      */
     getJwks(tenantId: string) {
         return this.keyService.getPublicKey(
-            'jwk',
+            "jwk",
             tenantId,
         ) as Promise<EC_Public>;
     }
@@ -527,6 +505,6 @@ export class CryptoService implements OnModuleInit {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     deleteKey(tenantId: string, id: string) {
         //TODO: before deleting it, make sure it is not used in a configuration
-        throw new Error('Method not implemented.');
+        throw new Error("Method not implemented.");
     }
 }

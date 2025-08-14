@@ -1,21 +1,21 @@
-import { ConflictException, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
+import { ConflictException, Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { InjectRepository } from "@nestjs/typeorm";
 import {
     BitsPerStatus,
     createHeaderAndPayload,
     JWTwithStatusListPayload,
     StatusList,
     StatusListJWTHeaderParameters,
-} from '@sd-jwt/jwt-status-list';
-import { JwtPayload } from '@sd-jwt/types';
-import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { join } from 'path';
-import { Repository } from 'typeorm';
-import { CryptoService } from '../../crypto/crypto.service';
-import { Session } from '../../session/entities/session.entity';
-import { StatusUpdateDto } from './dto/status-update.dto';
-import { StatusMapping } from './entities/status-mapping.entity';
+} from "@sd-jwt/jwt-status-list";
+import { JwtPayload } from "@sd-jwt/types";
+import { join } from "path";
+import { Repository } from "typeorm";
+import { CryptoService } from "../../crypto/crypto.service";
+import { Session } from "../../session/entities/session.entity";
+import { StatusUpdateDto } from "./dto/status-update.dto";
+import { StatusListEntity } from "./entities/status-list.entity";
+import { StatusMapping } from "./entities/status-mapping.entity";
 
 interface StatusListFile {
     elements: number[];
@@ -26,18 +26,16 @@ interface StatusListFile {
 
 @Injectable()
 export class StatusListService {
-    private fileName: string = 'status-list.json';
+    private fileName: string = "status-list.json";
 
     constructor(
         private configService: ConfigService,
         private cryptoService: CryptoService,
         @InjectRepository(StatusMapping)
         private statusMappingRepository: Repository<StatusMapping>,
+        @InjectRepository(StatusListEntity)
+        private statusListRepository: Repository<StatusListEntity>,
     ) {}
-
-    onTenantInit(tenantId: string) {
-        return this.init(tenantId);
-    }
 
     /**
      * Initialize the status list service by checking if the status list file exists.
@@ -45,43 +43,38 @@ export class StatusListService {
      * of 10,000 indexes. The stack is shuffled to ensure randomness in the order of
      * entries. The status list is stored in the file system as a JSON file.
      */
-    private async init(tenantId: string) {
-        const file = join(
-            this.configService.getOrThrow<string>('FOLDER'),
-            tenantId,
-            this.fileName,
-        );
-        if (!existsSync(file)) {
-            const size = 10000;
-            // create an empty array with the size of 1000
-            const elements = new Array(size).fill(0).map(() => 0);
-            // create a list of 1000 indexes and shuffel them
-            const stack = new Array(size)
-                .fill(0)
-                .map((_, i) => i)
-                .sort(() => 0.5 - Math.random());
+    async onTenantInit(tenantId: string) {
+        const size = 10000;
+        // create an empty array with the size of 1000
+        const elements = new Array(size).fill(0).map(() => 0);
+        // create a list of 1000 indexes and shuffel them
+        const stack = new Array(size)
+            .fill(0)
+            .map((_, i) => i)
+            .sort(() => 0.5 - Math.random());
 
-            writeFileSync(
-                file,
-                JSON.stringify({ elements, stack, bits: 1 } as StatusListFile),
-            );
-            await this.createList(tenantId);
-        }
+        const entry = await this.statusListRepository.save({
+            tenantId,
+            elements,
+            stack,
+            bits: 1,
+        });
+
+        await this.createList(entry);
     }
 
     /**
      * Create a new status list and stored it in the file
      */
-    async createList(tenantId: string) {
-        const file = this.getConfig(tenantId);
-        const list = new StatusList(file.elements, file.bits);
-        const iss = `${this.configService.getOrThrow<string>('PUBLIC_URL')}`;
+    async createList(entry: StatusListEntity) {
+        const list = new StatusList(entry.elements, entry.bits);
+        const iss = `${this.configService.getOrThrow<string>("PUBLIC_URL")}`;
 
         const sub = join(
-            this.configService.getOrThrow<string>('PUBLIC_URL'),
-            tenantId,
-            'status-management',
-            'status-list',
+            this.configService.getOrThrow<string>("PUBLIC_URL"),
+            entry.tenantId,
+            "status-management",
+            "status-list",
         );
 
         const prePayload: JwtPayload = {
@@ -90,9 +83,12 @@ export class StatusListService {
             iat: Math.floor(Date.now() / 1000),
         };
         const preHeader: StatusListJWTHeaderParameters = {
-            alg: 'ES256',
-            typ: 'statuslist+jwt',
-            x5c: await this.cryptoService.getCertChain('signing', tenantId),
+            alg: "ES256",
+            typ: "statuslist+jwt",
+            x5c: await this.cryptoService.getCertChain(
+                "signing",
+                entry.tenantId,
+            ),
         };
         const { header, payload } = createHeaderAndPayload(
             list,
@@ -100,53 +96,50 @@ export class StatusListService {
             preHeader,
         );
 
-        const jwt = await this.cryptoService.signJwt(header, payload, tenantId);
-        file.jwt = jwt;
-        this.storeConfig(file, tenantId);
-    }
-
-    getList(tenantId: string) {
-        return this.getConfig(tenantId).jwt;
-    }
-
-    private getConfig(tenantId: string) {
-        const file = join(
-            this.configService.getOrThrow<string>('FOLDER'),
-            tenantId,
-            this.fileName,
+        const jwt = await this.cryptoService.signJwt(
+            header,
+            payload,
+            entry.tenantId,
         );
-        return JSON.parse(readFileSync(file, 'utf-8')) as StatusListFile;
-    }
-
-    private storeConfig(content: StatusListFile, tenantId: string) {
-        const file = join(
-            this.configService.getOrThrow<string>('FOLDER'),
-            tenantId,
-            this.fileName,
+        await this.statusListRepository.update(
+            { tenantId: entry.tenantId },
+            { jwt },
         );
-        writeFileSync(file, JSON.stringify(content));
     }
 
     /**
-     * Get the next free entry in the status list
+     * Get the JWT for the status list of a tenant.
+     * @param tenantId The ID of the tenant.
+     * @returns The JWT for the status list.
+     */
+    getList(tenantId: string) {
+        return this.statusListRepository
+            .findOneByOrFail({ tenantId })
+            .then((file) => file.jwt);
+    }
+
+    /**
+     * Get the next free entry in the status list.
      * @returns
      */
     async createEntry(
         session: Session,
         credentialConfigurationId: string,
     ): Promise<JWTwithStatusListPayload> {
-        const file = this.getConfig(session.tenantId);
+        const file = await this.statusListRepository.findOneByOrFail({
+            tenantId: session.tenantId,
+        });
         // get the last element from the stack
         const idx = file.stack.pop();
         //TODO: what to do if the stack is empty
         if (idx === undefined) {
-            throw new Error('Stack for status list is empty!!!');
+            throw new Error("Stack for status list is empty!!!");
         }
         const sub = join(
-            this.configService.getOrThrow<string>('PUBLIC_URL'),
+            this.configService.getOrThrow<string>("PUBLIC_URL"),
             session.tenantId,
-            'status-management',
-            'status-list',
+            "status-management",
+            "status-list",
         );
         // store the index in the status mapping
         await this.statusMappingRepository.save({
@@ -155,7 +148,7 @@ export class StatusListService {
             list: sub,
             credentialConfigurationId,
         });
-        this.storeConfig(file, session.tenantId);
+
         return {
             status: {
                 status_list: {
@@ -171,11 +164,16 @@ export class StatusListService {
      * @param id
      * @param value
      */
-    private setEntry(id: number, value: number, tenantId: string) {
-        const file = this.getConfig(tenantId);
-        file.elements[id] = value;
-        this.storeConfig(file, tenantId);
-        return this.createList(tenantId);
+    private async setEntry(id: number, value: number, tenantId: string) {
+        const entry = await this.statusListRepository.findOneByOrFail({
+            tenantId,
+        });
+        entry.elements[id] = value;
+        await this.statusListRepository.update(
+            { tenantId },
+            { elements: entry.elements },
+        );
+        return this.createList(entry);
     }
 
     /**

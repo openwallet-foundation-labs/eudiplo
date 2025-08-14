@@ -10,10 +10,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { type IssuanceConfig, type OfferRequestDto, type OfferResponse } from '../../generated';
-import { SessionManagementService } from '../../session-management/session-management.service';
 import { IssuanceConfigService } from '../issuance-config/issuance-config.service';
 
 @Component({
@@ -46,9 +45,9 @@ export class IssuanceOfferComponent implements OnInit {
 
   constructor(
     private issuanceConfigService: IssuanceConfigService,
-    private sessionManagementService: SessionManagementService,
     private snackBar: MatSnackBar,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute,
   ) {
     this.form = new FormGroup({
       issuanceId: new FormControl('', Validators.required),
@@ -56,8 +55,11 @@ export class IssuanceOfferComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-    this.loadConfigurations();
+  async ngOnInit(): Promise<void> {
+    await this.loadConfigurations();
+    if (this.route.snapshot.params['id']) {
+      this.form.patchValue({ issuanceId: this.route.snapshot.params['id'] });
+    }
   }
 
   async loadConfigurations(): Promise<void> {

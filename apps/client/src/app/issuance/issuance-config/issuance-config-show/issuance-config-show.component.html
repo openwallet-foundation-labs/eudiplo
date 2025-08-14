@@ -7,6 +7,13 @@
         <button mat-icon-button [routerLink]="['../']" matTooltip="Back to list">
           <mat-icon>arrow_back</mat-icon>
         </button>
+        <button
+          mat-icon-button
+          [routerLink]="['/offer/issuance', config.id]"
+          matTooltip="Create offer"
+        >
+          <mat-icon>add</mat-icon>
+        </button>
         <button mat-icon-button [routerLink]="['edit']" matTooltip="Edit configuration">
           <mat-icon>edit</mat-icon>
         </button>
@@ -138,10 +145,10 @@
       <mat-card-content fxLayout="column" fxLayoutGap="16px">
         <div>
           <div><strong>URL:</strong></div>
-          <div class="value-text">{{ config.notifyWebhook.url || 'Not configured' }}</div>
+          <div class="value-text">{{ config.notifyWebhook?.url || 'Not configured' }}</div>
         </div>
 
-        @if (config.notifyWebhook.auth) {
+        @if (config.notifyWebhook?.auth) {
           <div>
             <div><strong>Authentication:</strong></div>
             <div class="value-text">Configured</div>

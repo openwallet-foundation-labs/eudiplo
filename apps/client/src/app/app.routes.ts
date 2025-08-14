@@ -29,6 +29,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
   },
   {
+    path: 'offer',
+    redirectTo: 'dashboard',
+    pathMatch: 'full',
+  },
+  {
     path: 'clients',
     canActivate: [AuthGuard],
     children: [
@@ -48,6 +53,10 @@ export const routes: Routes = [
     children: [
       {
         path: 'issuance',
+        component: IssuanceOfferComponent,
+      },
+      {
+        path: 'issuance/:id',
         component: IssuanceOfferComponent,
       },
       {

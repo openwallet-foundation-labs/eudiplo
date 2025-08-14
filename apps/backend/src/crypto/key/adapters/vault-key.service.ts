@@ -1,27 +1,24 @@
-import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { JwtPayload, Signer } from '@sd-jwt/types';
-import { exportJWK, importSPKI, JWK, JWTHeaderParameters } from 'jose';
-import { join } from 'path';
-import { firstValueFrom } from 'rxjs';
-import { Repository } from 'typeorm/repository/Repository';
-import { v4 } from 'uuid';
+import { HttpService } from "@nestjs/axios";
+import { ConfigService } from "@nestjs/config";
+import { JwtPayload, Signer } from "@sd-jwt/types";
+import { exportJWK, importSPKI, JWK, JWTHeaderParameters } from "jose";
+import { firstValueFrom } from "rxjs";
+import { Repository } from "typeorm/repository/Repository";
+import { v4 } from "uuid";
 import {
     CryptoImplementationService,
     CryptoType,
-} from './crypto-implementation/crypto-implementation.service';
-import { KeyImportDto } from './dto/key-import.dto';
-import { KeyObj } from './dto/key-object.dto';
-import { CertEntity } from './entities/cert.entity';
-import { KeyService } from './key.service';
+} from "../crypto-implementation/crypto-implementation.service";
+import { KeyImportDto } from "../dto/key-import.dto";
+import { KeyObj } from "../dto/key-object.dto";
+import { CertEntity } from "../entities/cert.entity";
+import { KeyService } from "../key.service";
 
-@Injectable()
 export class VaultKeyService extends KeyService {
     // url to the vault instance
     private vaultUrl: string;
     // headers for the vault api
-    private headers: { headers: { 'X-Vault-Token': string } };
+    private headers: { headers: { "X-Vault-Token": string } };
 
     constructor(
         private httpService: HttpService,
@@ -31,11 +28,11 @@ export class VaultKeyService extends KeyService {
     ) {
         super(configService, certRepository);
 
-        this.vaultUrl = this.configService.get<string>('VAULT_URL') as string;
+        this.vaultUrl = this.configService.get<string>("VAULT_URL") as string;
         this.headers = {
             headers: {
-                'X-Vault-Token': this.configService.get<string>(
-                    'VAULT_TOKEN',
+                "X-Vault-Token": this.configService.get<string>(
+                    "VAULT_TOKEN",
                 ) as string,
             },
         };
@@ -43,7 +40,7 @@ export class VaultKeyService extends KeyService {
 
     importFromFileSystem() {
         throw new Error(
-            'VaultKeyService does not support importing from file system.',
+            "VaultKeyService does not support importing from file system.",
         );
         return Promise.resolve();
     }
@@ -58,7 +55,7 @@ export class VaultKeyService extends KeyService {
             this.httpService.post(
                 `${this.vaultUrl}/v1/sys/mounts/keys/${tenantId}`,
                 {
-                    type: 'transit',
+                    type: "transit",
                 },
                 this.headers,
             ),
@@ -70,7 +67,7 @@ export class VaultKeyService extends KeyService {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     import(tenantId: string, body: KeyImportDto): Promise<string> {
-        throw new Error('Method not implemented.');
+        throw new Error("Method not implemented.");
     }
 
     getKeys(tenantId: string): Promise<KeyObj[]> {
@@ -84,7 +81,7 @@ export class VaultKeyService extends KeyService {
             return Promise.all(
                 res.data.data.keys.map(async (id: string) => {
                     const publicKey = await this.getPublicKey(
-                        'jwk',
+                        "jwk",
                         tenantId,
                         id,
                     );
@@ -115,7 +112,7 @@ export class VaultKeyService extends KeyService {
      */
     async create(tenantId: string) {
         const types: Map<CryptoType, string> = new Map();
-        types.set('ES256', 'ecdsa-p256');
+        types.set("ES256", "ecdsa-p256");
         const id = v4();
         await firstValueFrom(
             this.httpService.post(
@@ -147,7 +144,7 @@ export class VaultKeyService extends KeyService {
                     !res.data.data.keys ||
                     (res.data.data.keys as string[]).length === 0
                 ) {
-                    throw new Error('No keys found');
+                    throw new Error("No keys found");
                 }
                 return (res.data.data.keys as string[])[0];
             },
@@ -165,17 +162,17 @@ export class VaultKeyService extends KeyService {
      * @returns
      */
     async getPublicKey(
-        type: 'pem',
+        type: "pem",
         tenantId: string,
         keyId?: string,
     ): Promise<string>;
     async getPublicKey(
-        type: 'jwk',
+        type: "jwk",
         tenantId: string,
         keyId: string,
     ): Promise<JWK>;
     async getPublicKey(
-        type: 'jwk' | 'pem',
+        type: "jwk" | "pem",
         tenantId: string,
         keyId?: string,
     ): Promise<JWK | string> {
@@ -189,10 +186,10 @@ export class VaultKeyService extends KeyService {
                 this.headers,
             ),
         ).then(async (res) => {
-            return type === 'pem'
-                ? (res.data.data.keys['1'].public_key as string)
+            return type === "pem"
+                ? (res.data.data.keys["1"].public_key as string)
                 : await this.getJWK(
-                      res.data.data.keys['1'].public_key,
+                      res.data.data.keys["1"].public_key,
                       tenantId,
                   );
         });
@@ -226,12 +223,12 @@ export class VaultKeyService extends KeyService {
             this.httpService.post(
                 `${this.vaultUrl}/v1/${tenantId}/sign/${keyId}`,
                 {
-                    input: Buffer.from(value).toString('base64'),
+                    input: Buffer.from(value).toString("base64"),
                 },
                 this.headers,
             ),
         ).then((res) =>
-            this.derToJwtSignature(res.data.data.signature.split(':')[2]),
+            this.derToJwtSignature(res.data.data.signature.split(":")[2]),
         );
     }
 
@@ -248,10 +245,10 @@ export class VaultKeyService extends KeyService {
     ): Promise<string> {
         // Convert header and payload to Base64 to prepare for Vault
         const encodedHeader = Buffer.from(JSON.stringify(header)).toString(
-            'base64url',
+            "base64url",
         );
         const encodedPayload = Buffer.from(JSON.stringify(payload)).toString(
-            'base64url',
+            "base64url",
         );
         const signingInput = `${encodedHeader}.${encodedPayload}`;
 
@@ -260,7 +257,7 @@ export class VaultKeyService extends KeyService {
             const signature = await this.sign(signingInput, tenantId, keyId);
             return `${encodedHeader}.${encodedPayload}.${signature}`;
         } catch (error) {
-            console.error('Error signing JWT with Vault:', error);
+            console.error("Error signing JWT with Vault:", error);
             throw error;
         }
     }
@@ -272,7 +269,7 @@ export class VaultKeyService extends KeyService {
      */
     derToJwtSignature(derSignature: string) {
         // Step 1: Extract r and s from DER signature
-        const der = Buffer.from(derSignature, 'base64');
+        const der = Buffer.from(derSignature, "base64");
         const sequence = der.slice(2); // Skip the sequence tag and length
         const rLength = sequence[1];
         const r = sequence.slice(2, 2 + rLength);
@@ -286,7 +283,7 @@ export class VaultKeyService extends KeyService {
             if (r.length === 33 && r[0] === 0x00) {
                 rPadded = r.slice(1);
             } else {
-                throw new Error('Invalid r length in DER signature');
+                throw new Error("Invalid r length in DER signature");
             }
         } else {
             rPadded = Buffer.concat([Buffer.alloc(32 - r.length), r]);
@@ -295,7 +292,7 @@ export class VaultKeyService extends KeyService {
             if (s.length === 33 && s[0] === 0x00) {
                 sPadded = s.slice(1);
             } else {
-                throw new Error('Invalid s length in DER signature');
+                throw new Error("Invalid s length in DER signature");
             }
         } else {
             sPadded = Buffer.concat([Buffer.alloc(32 - s.length), s]);
@@ -306,9 +303,9 @@ export class VaultKeyService extends KeyService {
 
         // Step 4: Base64url encode the raw signature
         return rawSignature
-            .toString('base64')
-            .replace(/\+/g, '-')
-            .replace(/\//g, '_')
-            .replace(/=/g, '');
+            .toString("base64")
+            .replace(/\+/g, "-")
+            .replace(/\//g, "_")
+            .replace(/=/g, "");
     }
 }

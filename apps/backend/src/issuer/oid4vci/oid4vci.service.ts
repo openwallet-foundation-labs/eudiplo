@@ -1,13 +1,14 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { HttpService } from '@nestjs/axios';
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { HttpService } from "@nestjs/axios";
 import {
     BadRequestException,
     ConflictException,
     Injectable,
     OnModuleInit,
-} from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+} from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { InjectRepository } from "@nestjs/typeorm";
 import {
     AuthorizationServerMetadata,
     authorizationCodeGrantIdentifier,
@@ -15,30 +16,32 @@ import {
     Oauth2ResourceServer,
     preAuthorizedCodeGrantIdentifier,
     SupportedAuthenticationScheme,
-} from '@openid4vc/oauth2';
+} from "@openid4vc/oauth2";
 import {
     type CredentialResponse,
     type IssuerMetadataResult,
     Openid4vciDraftVersion,
     Openid4vciIssuer,
-} from '@openid4vc/openid4vci';
-import type { Request } from 'express';
-import { firstValueFrom } from 'rxjs';
-import { v4 } from 'uuid';
-import { TokenPayload } from '../../auth/token.decorator';
-import { CryptoService } from '../../crypto/crypto.service';
-import { Session, SessionStatus } from '../../session/entities/session.entity';
-import { SessionService } from '../../session/session.service';
-import { SessionLoggerService } from '../../utils/logger/session-logger.service';
-import { SessionLogContext } from '../../utils/logger/session-logger-context';
-import { WebhookService } from '../../utils/webhook/webhook.service';
-import { AuthorizeService } from '../authorize/authorize.service';
-import { CredentialsService } from '../credentials/credentials.service';
-import { AuthenticationConfigHelper } from '../issuance/dto/authentication-config.helper';
-import { IssuanceService } from '../issuance/issuance.service';
-import { NotificationRequestDto } from './dto/notification-request.dto';
-import { OfferRequestDto, OfferResponse } from './dto/offer-request.dto';
-import { getHeadersFromRequest } from './util';
+} from "@openid4vc/openid4vci";
+import type { Request } from "express";
+import { firstValueFrom } from "rxjs";
+import { Repository } from "typeorm/repository/Repository";
+import { v4 } from "uuid";
+import { TokenPayload } from "../../auth/token.decorator";
+import { CryptoService } from "../../crypto/crypto.service";
+import { Session, SessionStatus } from "../../session/entities/session.entity";
+import { SessionService } from "../../session/session.service";
+import { SessionLoggerService } from "../../utils/logger/session-logger.service";
+import { SessionLogContext } from "../../utils/logger/session-logger-context";
+import { WebhookService } from "../../utils/webhook/webhook.service";
+import { AuthorizeService } from "../authorize/authorize.service";
+import { CredentialsService } from "../credentials/credentials.service";
+import { AuthenticationConfigHelper } from "../issuance/dto/authentication-config.helper";
+import { IssuanceService } from "../issuance/issuance.service";
+import { NotificationRequestDto } from "./dto/notification-request.dto";
+import { OfferRequestDto, OfferResponse } from "./dto/offer-request.dto";
+import { DisplayEntity } from "./entities/display.entity";
+import { getHeadersFromRequest } from "./util";
 
 @Injectable()
 export class Oid4vciService implements OnModuleInit {
@@ -56,10 +59,12 @@ export class Oid4vciService implements OnModuleInit {
         private readonly issuanceService: IssuanceService,
         private readonly webhookService: WebhookService,
         private readonly httpService: HttpService,
+        @InjectRepository(DisplayEntity)
+        private readonly displayRepository: Repository<DisplayEntity>,
     ) {}
     onModuleInit() {
         //TODO: align for tenant
-        const callbacks = this.cryptoService.getCallbackContext('');
+        const callbacks = this.cryptoService.getCallbackContext("");
         this.issuer = new Openid4vciIssuer({
             callbacks,
         });
@@ -68,21 +73,32 @@ export class Oid4vciService implements OnModuleInit {
         });
     }
 
+    onTenantInit(tenantId: string) {
+        return this.displayRepository.save({
+            tenantId,
+            value: [
+                {
+                    name: "EUDI Wallet dev",
+                    locale: "de-DE",
+                    logo: {
+                        uri: "<PUBLIC_URL>/issuer.png",
+                        url: "<PUBLIC_URL>/issuer.png",
+                    },
+                },
+            ],
+        });
+    }
+
     async issuerMetadata(session: Session): Promise<IssuerMetadataResult> {
         const credential_issuer = `${this.configService.getOrThrow<string>(
-            'PUBLIC_URL',
+            "PUBLIC_URL",
         )}/${session.id}`;
 
-        const display = JSON.parse(
-            readFileSync(
-                join(
-                    this.configService.getOrThrow<string>('FOLDER'),
-                    session.tenantId,
-                    'display.json',
-                ),
-                'utf-8',
-            ),
-        );
+        const display = await this.displayRepository
+            .findOneByOrFail({
+                tenantId: session.tenantId,
+            })
+            .then((res) => res.value);
 
         const issuanceConfig =
             await this.issuanceService.getIssuanceConfigurationById(
@@ -111,18 +127,18 @@ export class Oid4vciService implements OnModuleInit {
                     const logContext: SessionLogContext = {
                         sessionId: session.id,
                         tenantId: session.tenantId,
-                        flowType: 'OID4VCI',
-                        stage: 'credential_request',
+                        flowType: "OID4VCI",
+                        stage: "credential_request",
                     };
                     this.sessionLogger.logFlowError(logContext, err);
                     throw new BadRequestException(
-                        'Failed to fetch authorization server metadata',
+                        "Failed to fetch authorization server metadata",
                     );
                 },
             );
         } else {
             authServer =
-                this.configService.getOrThrow<string>('PUBLIC_URL') +
+                this.configService.getOrThrow<string>("PUBLIC_URL") +
                 `/${session.id}`;
             authorizationServerMetadata =
                 this.authzService.authzMetadata(session);
@@ -153,7 +169,7 @@ export class Oid4vciService implements OnModuleInit {
         credentialIssuer = JSON.parse(
             JSON.stringify(credentialIssuer).replace(
                 /<PUBLIC_URL>/g,
-                this.configService.getOrThrow<string>('PUBLIC_URL'),
+                this.configService.getOrThrow<string>("PUBLIC_URL"),
             ),
         );
 
@@ -185,11 +201,11 @@ export class Oid4vciService implements OnModuleInit {
         let authorization_code: string | undefined;
         let grants: any;
         const issuer_state = body.session ?? v4();
-        if (issuanceConfig.authenticationConfig.method === 'none') {
+        if (issuanceConfig.authenticationConfig.method === "none") {
             authorization_code = v4();
             grants = {
                 [preAuthorizedCodeGrantIdentifier]: {
-                    'pre-authorized_code': authorization_code,
+                    "pre-authorized_code": authorization_code,
                 },
             };
         } else {
@@ -258,11 +274,11 @@ export class Oid4vciService implements OnModuleInit {
         });
 
         if (parsedCredentialRequest?.proofs?.jwt === undefined) {
-            throw new Error('Invalid credential request');
+            throw new Error("Invalid credential request");
         }
 
         const protocol = new URL(
-            this.configService.getOrThrow<string>('PUBLIC_URL'),
+            this.configService.getOrThrow<string>("PUBLIC_URL"),
         ).protocol;
 
         const headers = getHeadersFromRequest(req);
@@ -285,15 +301,15 @@ export class Oid4vciService implements OnModuleInit {
             });
 
         if (tokenPayload.sub !== session.id) {
-            throw new BadRequestException('Session not found');
+            throw new BadRequestException("Session not found");
         }
 
         // Create session logging context
         const logContext: SessionLogContext = {
             sessionId: session.id,
             tenantId: session.tenantId,
-            flowType: 'OID4VCI',
-            stage: 'credential_request',
+            flowType: "OID4VCI",
+            stage: "credential_request",
         };
 
         this.sessionLogger.logFlowStart(logContext, {
@@ -307,7 +323,7 @@ export class Oid4vciService implements OnModuleInit {
             const expectedNonce =
                 (tokenPayload.nonce as string) || session.nonce;
             if (expectedNonce === undefined) {
-                throw new BadRequestException('Nonce not found');
+                throw new BadRequestException("Nonce not found");
             }
             for (const jwt of parsedCredentialRequest.proofs.jwt) {
                 const verifiedProof =
@@ -380,7 +396,7 @@ export class Oid4vciService implements OnModuleInit {
         const issuerMetadata = await this.issuerMetadata(session);
         const headers = getHeadersFromRequest(req);
         const protocol = new URL(
-            this.configService.getOrThrow<string>('PUBLIC_URL'),
+            this.configService.getOrThrow<string>("PUBLIC_URL"),
         ).protocol;
         const { tokenPayload } =
             await this.resourceServer.verifyResourceRequest({
@@ -398,15 +414,15 @@ export class Oid4vciService implements OnModuleInit {
             });
 
         if (session.id !== tokenPayload.sub) {
-            throw new BadRequestException('Session not found');
+            throw new BadRequestException("Session not found");
         }
 
         // Create session logging context
         const logContext: SessionLogContext = {
             sessionId: session.id,
             tenantId: session.tenantId,
-            flowType: 'OID4VCI',
-            stage: 'notification',
+            flowType: "OID4VCI",
+            stage: "notification",
         };
 
         try {
@@ -415,7 +431,7 @@ export class Oid4vciService implements OnModuleInit {
             );
             if (index === -1) {
                 throw new BadRequestException(
-                    'No notifications found in session',
+                    "No notifications found in session",
                 );
             }
 
@@ -424,7 +440,7 @@ export class Oid4vciService implements OnModuleInit {
                 notifications: session.notifications,
             });
 
-            this.sessionLogger.logNotification(logContext, body.event || '', {
+            this.sessionLogger.logNotification(logContext, body.event || "", {
                 notificationId: body.notification_id,
                 notificationIndex: index,
             });
@@ -439,13 +455,13 @@ export class Oid4vciService implements OnModuleInit {
                 );
             }
             const state: SessionStatus =
-                body.event === 'credential_accepted' ? 'completed' : 'failed';
+                body.event === "credential_accepted" ? "completed" : "failed";
             await this.sessionService.setState(session, state);
         } catch (error) {
             this.sessionLogger.logSessionError(
                 logContext,
                 error as Error,
-                'Failed to handle notification',
+                "Failed to handle notification",
                 {
                     notificationId: body.notification_id,
                 },
