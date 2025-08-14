@@ -1,6 +1,8 @@
-import { Routes } from '@angular/router';
+import type { Routes } from '@angular/router';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { AuthGuard } from './guards/auth.guard';
+import { ClientListComponent } from './clients/client-list/client-list.component';
+import { ClientCreateComponent } from './clients/client-create/client-create.component';
 import { CredentialConfigCreateComponent } from './issuance/credential-config/credential-config-create/credential-config-create.component';
 import { CredentialConfigListComponent } from './issuance/credential-config/credential-config-list/credential-config-list.component';
 import { CredentialConfigShowComponent } from './issuance/credential-config/credential-config-show/credential-config-show.component';
@@ -25,6 +27,20 @@ export const routes: Routes = [
     path: 'dashboard',
     component: DashboardComponent,
     canActivate: [AuthGuard],
+  },
+  {
+    path: 'clients',
+    canActivate: [AuthGuard],
+    children: [
+      {
+        path: '',
+        component: ClientListComponent,
+      },
+      {
+        path: 'create',
+        component: ClientCreateComponent,
+      },
+    ],
   },
   {
     path: 'offer',

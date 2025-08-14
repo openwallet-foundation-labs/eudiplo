@@ -24,19 +24,64 @@
       <mat-card-subtitle>Your active connection details</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content fxLayout="column" fxLayoutGap="12px">
-      <div fxLayout="row" fxLayoutAlign="space-between center" class="config-item">
-        <span class="config-label">API Base URL:</span>
-        <mat-chip class="config-value">{{ currentBaseUrl }}</mat-chip>
+      <div fxLayout="column" fxLayoutGap="8px" class="config-item">
+        <mat-form-field appearance="outline" fxFlex>
+          <mat-label>API Base URL</mat-label>
+          <input matInput [value]="currentBaseUrl" readonly />
+          <button
+            mat-icon-button
+            matSuffix
+            (click)="copyToClipboard(currentBaseUrl, 'API Base URL')"
+            matTooltip="Copy to clipboard"
+          >
+            <mat-icon>content_copy</mat-icon>
+          </button>
+        </mat-form-field>
       </div>
 
-      <div fxLayout="row" fxLayoutAlign="space-between center" class="config-item">
-        <span class="config-label">OAuth discovery URL:</span>
-        <mat-chip class="config-value">{{ currentOidcUrl }}</mat-chip>
+      <div fxLayout="column" fxLayoutGap="8px" class="config-item">
+        <mat-form-field appearance="outline" fxFlex>
+          <mat-label>OAuth Discovery URL</mat-label>
+          <input matInput [value]="currentOidcUrl" readonly />
+          <button
+            mat-icon-button
+            matSuffix
+            (click)="copyToClipboard(currentOidcUrl, 'OAuth Discovery URL')"
+            matTooltip="Copy to clipboard"
+          >
+            <mat-icon>content_copy</mat-icon>
+          </button>
+        </mat-form-field>
       </div>
 
-      <div fxLayout="row" fxLayoutAlign="space-between center" class="config-item">
-        <span class="config-label">Client ID:</span>
-        <mat-chip class="config-value">{{ currentClientId }}</mat-chip>
+      <div fxLayout="column" fxLayoutGap="8px" class="config-item">
+        <mat-form-field appearance="outline" fxFlex>
+          <mat-label>Client ID</mat-label>
+          <input matInput [value]="currentClientId" readonly />
+          <button
+            mat-icon-button
+            matSuffix
+            (click)="copyToClipboard(currentClientId, 'Client ID')"
+            matTooltip="Copy to clipboard"
+          >
+            <mat-icon>content_copy</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
+
+      <div fxLayout="column" fxLayoutGap="8px" class="config-item">
+        <mat-form-field appearance="outline" fxFlex>
+          <mat-label>Client Secret</mat-label>
+          <input matInput [value]="currentClientSecret" readonly type="password" />
+          <button
+            mat-icon-button
+            matSuffix
+            (click)="copyToClipboard(currentClientSecret, 'Client Secret')"
+            matTooltip="Copy to clipboard"
+          >
+            <mat-icon>content_copy</mat-icon>
+          </button>
+        </mat-form-field>
       </div>
 
       <div fxLayout="row" fxLayoutAlign="space-between center" class="config-item">

@@ -27,6 +27,7 @@
     "@angular/platform-browser-dynamic": "^20.1.6",
     "@angular/router": "^20.1.6",
     "@badgateway/oauth2-client": "^3.3.0",
+    "@keycloak/keycloak-admin-client": "^26.3.2",
     "@peculiar/x509": "^1.13.0",
     "@types/qrcode": "^1.5.5",
     "ngx-flexible-layout": "^20.0.0",

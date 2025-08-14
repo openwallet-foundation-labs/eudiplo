@@ -8,6 +8,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -25,6 +26,7 @@ import { EnvironmentService } from '../services/environment.service';
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
+    MatCheckboxModule,
     MatButtonModule,
     MatProgressSpinnerModule,
     MatIconModule,
@@ -72,15 +74,16 @@ export class LoginComponent implements OnInit {
         return queryParams[paramName];
       }
 
+      // Then check environment values if in development mode
+      if (this.environmentService.isDevelopment() && envValue) {
+        return envValue;
+      }
+
       //check if defined in window
       if ((window as any).env?.[paramName]) {
         return (window as any).env[paramName];
       }
 
-      // Then check environment values if in development mode
-      if (this.environmentService.isDevelopment() && envValue) {
-        return envValue;
-      }
       // Default to empty string
       return '';
     };

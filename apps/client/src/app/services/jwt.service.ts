@@ -1,0 +1,124 @@
+import { Injectable } from '@angular/core';
+
+export interface JWTPayload {
+  iss?: string;
+  sub?: string;
+  aud?: string | string[];
+  exp?: number;
+  iat?: number;
+  azp?: string;
+  scope?: string;
+  realm_access?: {
+    roles: string[];
+  };
+  resource_access?: Record<
+    string,
+    {
+      roles: string[];
+    }
+  >;
+  preferred_username?: string;
+  email?: string;
+  name?: string;
+}
+
+@Injectable({
+  providedIn: 'root',
+})
+export class JwtService {
+  /**
+   * Decode a JWT token without verification
+   * @param token JWT token string
+   * @returns Decoded payload or null if invalid
+   */
+  decodeToken(token: string): JWTPayload | null {
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        return null;
+      }
+
+      const payload = parts[1];
+      const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+      return JSON.parse(decoded) as JWTPayload;
+    } catch (error) {
+      console.error('Error decoding JWT token:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Check if user has a specific role in realm access
+   * @param token JWT token string
+   * @param role Role to check for
+   * @returns True if user has the role
+   */
+  hasRealmRole(token: string, role: string): boolean {
+    const payload = this.decodeToken(token);
+    return payload?.realm_access?.roles?.includes(role) || false;
+  }
+
+  /**
+   * Check if user has a specific role in a client's resource access
+   * @param token JWT token string
+   * @param clientId Client ID to check roles for
+   * @param role Role to check for
+   * @returns True if user has the role in the specified client
+   */
+  hasClientRole(token: string, clientId: string, role: string): boolean {
+    const payload = this.decodeToken(token);
+    return payload?.resource_access?.[clientId]?.roles?.includes(role) || false;
+  }
+
+  /**
+   * Get all realm roles for the user
+   * @param token JWT token string
+   * @returns Array of realm roles
+   */
+  getRealmRoles(token: string): string[] {
+    const payload = this.decodeToken(token);
+    return payload?.realm_access?.roles || [];
+  }
+
+  /**
+   * Get all client roles for a specific client
+   * @param token JWT token string
+   * @param clientId Client ID to get roles for
+   * @returns Array of client roles
+   */
+  getClientRoles(token: string, clientId: string): string[] {
+    const payload = this.decodeToken(token);
+    return payload?.resource_access?.[clientId]?.roles || [];
+  }
+
+  /**
+   * Check if token is expired
+   * @param token JWT token string
+   * @returns True if token is expired
+   */
+  isTokenExpired(token: string): boolean {
+    const payload = this.decodeToken(token);
+    if (!payload?.exp) {
+      return true;
+    }
+    return Date.now() >= payload.exp * 1000;
+  }
+
+  /**
+   * Get user information from token
+   * @param token JWT token string
+   * @returns User information object
+   */
+  getUserInfo(token: string): { username?: string; email?: string; name?: string } | null {
+    const payload = this.decodeToken(token);
+    if (!payload) {
+      return null;
+    }
+
+    return {
+      username: payload.preferred_username,
+      email: payload.email,
+      name: payload.name,
+    };
+  }
+}

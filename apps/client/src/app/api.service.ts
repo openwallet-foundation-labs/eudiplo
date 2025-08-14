@@ -26,14 +26,20 @@ export class ApiService {
       clientSecret,
     });
 
-    // Save only non-sensitive configuration for persistence
-    // NOTE: We do NOT store clientSecret for security reasons
     const safeConfig = {
       server: oidcUrl,
       clientId,
+      clientSecret,
       baseUrl: baseUrl,
     };
     localStorage.setItem('oauth_config', JSON.stringify(safeConfig));
+
+    // Always persist the clientSecret for auto-refresh across reloads
+    try {
+      localStorage.setItem('oauth_client_secret', clientSecret);
+    } catch (e) {
+      console.warn('Failed to persist client secret:', e);
+    }
 
     // Set up the client immediately
     this.setClient(baseUrl);
@@ -56,7 +62,18 @@ export class ApiService {
     try {
       // Check if we have a valid OAuth2 client with credentials
       if (!this.oauth2Client || !this.oauth2Client.settings.clientSecret) {
-        throw new Error('OAuth2 client not properly configured. Please log in again.');
+        // Try to recover client secret from storage if user opted in
+        const storedSecret = localStorage.getItem('oauth_client_secret');
+        const oauthConfig = this.getOAuthConfiguration();
+        if (storedSecret && oauthConfig?.server && oauthConfig?.clientId) {
+          this.oauth2Client = new OAuth2Client({
+            discoveryEndpoint: `${oauthConfig.server}/.well-known/oauth-authorization-server`,
+            clientId: oauthConfig.clientId,
+            clientSecret: storedSecret,
+          });
+        } else {
+          throw new Error('OAuth2 client not properly configured. Please log in again.');
+        }
       }
 
       const token = await this.oauth2Client.clientCredentials();
@@ -131,11 +148,15 @@ export class ApiService {
     return this.oauth2Client?.settings.clientId;
   }
 
+  getClientSecret(): string | undefined {
+    return this.oauth2Client?.settings.clientSecret;
+  }
+
   /**
    * Gets the current OAuth discovery URL
    */
   getoidcUrl(): string | undefined {
-    return this.oauth2Client?.settings.server;
+    return this.getOAuthConfiguration()?.server;
   }
 
   /**
@@ -162,6 +183,7 @@ export class ApiService {
     this.tokenExpirationTime = undefined;
     this.baseUrl = undefined;
     this.clearTokenFromStorage();
+    localStorage.removeItem('oauth_client_secret');
   }
 
   /**
@@ -172,6 +194,7 @@ export class ApiService {
       const storedToken = localStorage.getItem('access_token');
       const storedExpiration = localStorage.getItem('token_expiration');
       const storedOAuthConfig = localStorage.getItem('oauth_config');
+      const storedSecret = localStorage.getItem('oauth_client_secret');
 
       if (storedToken && storedExpiration && storedOAuthConfig) {
         const expirationTime = parseInt(storedExpiration, 10);
@@ -190,12 +213,11 @@ export class ApiService {
           // This means automatic token refresh won't work on page reload
           // User will need to log in again when token expires
           if (oauthConfig.server && oauthConfig.clientId) {
-            // We can't create a fully functional OAuth2Client without the secret
-            // but we can store the configuration for display purposes
+            // If secret persisted (remember me), restore fully; else partial
             this.oauth2Client = new OAuth2Client({
-              server: oauthConfig.server,
+              discoveryEndpoint: `${oauthConfig.server}/.well-known/oauth-authorization-server`,
               clientId: oauthConfig.clientId,
-              clientSecret: '', // Empty - will need re-authentication for refresh
+              clientSecret: storedSecret || '',
             });
           }
 

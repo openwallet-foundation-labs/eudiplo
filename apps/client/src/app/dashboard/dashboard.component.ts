@@ -1,8 +1,11 @@
 import { Component, type OnDestroy, type OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -15,11 +18,14 @@ import { EnvironmentService } from '../services/environment.service';
   selector: 'app-dashboard',
   standalone: true,
   imports: [
+    CommonModule,
     FlexLayoutModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
     MatChipsModule,
+    MatFormFieldModule,
+    MatInputModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatTooltipModule,
@@ -28,8 +34,8 @@ import { EnvironmentService } from '../services/environment.service';
   styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit, OnDestroy {
-  private refreshInterval?: any;
-  private tokenCheckInterval?: any;
+  private refreshInterval?: NodeJS.Timeout;
+  private tokenCheckInterval?: NodeJS.Timeout;
 
   constructor(
     public apiService: ApiService,
@@ -100,6 +106,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this.apiService.getClientId() || 'Not configured';
   }
 
+  get currentClientSecret(): string {
+    return this.apiService.getClientSecret() || 'Not configured';
+  }
+
   get currentOidcUrl(): string {
     return this.apiService.getoidcUrl() || 'Not configured';
   }
@@ -126,5 +136,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   navigateToSessionManagement(): void {
     this.router.navigate(['/session-management']);
+  }
+
+  /**
+   * Copy text to clipboard
+   */
+  async copyToClipboard(text: string, label: string): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(text);
+      this.snackBar.open(`${label} copied to clipboard!`, 'OK', {
+        duration: 2000,
+        panelClass: ['success-snackbar'],
+      });
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+      this.snackBar.open(`Failed to copy ${label}`, 'OK', {
+        duration: 3000,
+        panelClass: ['error-snackbar'],
+      });
+    }
   }
 }
