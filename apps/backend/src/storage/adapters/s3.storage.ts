@@ -1,10 +1,10 @@
 // src/storage/adapters/s3.storage.ts
 import {
-    S3Client,
-    PutObjectCommand,
-    GetObjectCommand,
     DeleteObjectCommand,
+    GetObjectCommand,
     HeadObjectCommand,
+    PutObjectCommand,
+    S3Client,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl as sign } from "@aws-sdk/s3-request-presigner";
 import { Readable } from "stream";
@@ -82,11 +82,13 @@ export class S3FileStorage implements FileStorage {
         }
     }
 
-    async getSignedUrl(key: string, expiresInSec: number) {
-        return sign(
-            this.s3,
-            new GetObjectCommand({ Bucket: this.bucket, Key: key }),
-            { expiresIn: expiresInSec },
+    getSignedUrl(key: string, expiresInSec: number) {
+        return Promise.resolve(
+            sign(
+                this.s3,
+                new GetObjectCommand({ Bucket: this.bucket, Key: key }),
+                { expiresIn: expiresInSec },
+            ),
         );
     }
 }

@@ -2,7 +2,6 @@ import { ConflictException, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import {
-    BitsPerStatus,
     createHeaderAndPayload,
     JWTwithStatusListPayload,
     StatusList,
@@ -17,17 +16,8 @@ import { StatusUpdateDto } from "./dto/status-update.dto";
 import { StatusListEntity } from "./entities/status-list.entity";
 import { StatusMapping } from "./entities/status-mapping.entity";
 
-interface StatusListFile {
-    elements: number[];
-    stack: number[];
-    bits: BitsPerStatus;
-    jwt?: string;
-}
-
 @Injectable()
 export class StatusListService {
-    private fileName: string = "status-list.json";
-
     constructor(
         private configService: ConfigService,
         private cryptoService: CryptoService,

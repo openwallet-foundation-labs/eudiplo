@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import e from "express";
 import { exportJWK, generateKeyPair, importJWK, JWK, jwtDecrypt } from "jose";
 import { Repository } from "typeorm/repository/Repository";
 import { v4 } from "uuid";
@@ -69,8 +70,8 @@ export class EncryptionService {
                 usage: "encrypt",
             })
             .then((entry) => {
-                const { d, ...publicKey } = entry.key;
-                return publicKey;
+                delete entry.key.d;
+                return entry.key;
             });
     }
 }

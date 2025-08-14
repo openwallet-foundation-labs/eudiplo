@@ -13,7 +13,7 @@ import {
 export class FilesService {
     constructor(@Inject(FILE_STORAGE) private storage: FileStorage) {}
 
-    async saveUserUpload(
+    saveUserUpload(
         tenantId: string,
         fileName: string,
         body: Buffer | Readable,
@@ -35,18 +35,18 @@ export class FilesService {
         });
     }
 
-    async getStream(key: string) {
-        return this.storage.getStream(key);
+    getStream(key: string) {
+        return Promise.resolve(this.storage.getStream(key));
     }
 
-    async delete(key: string) {
-        await this.storage.delete(key);
+    delete(key: string) {
+        return Promise.resolve(this.storage.delete(key));
     }
 
-    async getDownloadUrl(key: string, ttlSeconds = 300) {
+    getDownloadUrl(key: string, ttlSeconds = 300) {
         if (this.storage.getSignedUrl)
             return this.storage.getSignedUrl(key, ttlSeconds);
         // For local, expose via your HTTP controller at /files/:key
-        return undefined;
+        return Promise.resolve(undefined);
     }
 }

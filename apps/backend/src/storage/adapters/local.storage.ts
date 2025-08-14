@@ -36,16 +36,18 @@ export class LocalFileStorage implements FileStorage {
         return { key, size: st.size, contentType: opts?.contentType };
     }
 
-    async getStream(key: string) {
+    getStream(key: string) {
         const fullPath = join(this.baseDir, key);
-        return { stream: createReadStream(fullPath) };
+        return Promise.resolve({ stream: createReadStream(fullPath) });
     }
 
-    async delete(key: string) {
-        rmdirSync(join(this.baseDir, key), { recursive: true });
+    delete(key: string) {
+        return Promise.resolve(
+            rmdirSync(join(this.baseDir, key), { recursive: true }),
+        );
     }
 
-    async exists(key: string) {
-        return existsSync(join(this.baseDir, key));
+    exists(key: string) {
+        return Promise.resolve(existsSync(join(this.baseDir, key)));
     }
 }
