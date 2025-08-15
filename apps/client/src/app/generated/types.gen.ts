@@ -453,6 +453,10 @@ export type Session = {
      */
     requestId?: string;
     /**
+     * The URL of the presentation auth request.
+     */
+    requestUrl?: string;
+    /**
      * Verified credentials from the verification process.
      */
     credentials?: Array<{
@@ -488,6 +492,10 @@ export type Session = {
     offer?: {
         [key: string]: unknown;
     };
+    /**
+     * Offer URL for the credential offer.
+     */
+    offerUrl?: string;
     /**
      * Credential payload containing the offer request details.
      */

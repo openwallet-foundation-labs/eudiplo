@@ -53,19 +53,10 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
     private router: Router
   ) {}
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     const sessionId = this.route.snapshot.params['id'];
-    this.loadSession(sessionId);
-
-    // Check if we should auto-generate QR code (for issuance sessions)
-    this.route.queryParams.subscribe((params) => {
-      if (params['showQR'] === 'true' && params['uri']) {
-        this.generateQRCode(params['uri']);
-      }
-      if (params['startPolling'] === 'true') {
-        this.startPolling(sessionId);
-      }
-    });
+    await this.loadSession(sessionId);
+    await this.startPolling(sessionId);
   }
 
   ngOnDestroy(): void {
@@ -76,6 +67,7 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
     this.loading = true;
     try {
       this.session = await this.sessionManagementService.getSession(sessionId);
+      this.generateQRCode(this.session.offerUrl || this.session.requestUrl!);
     } catch (error) {
       console.error('Error loading session:', error);
       this.snackBar.open('Failed to load session', 'Close', {

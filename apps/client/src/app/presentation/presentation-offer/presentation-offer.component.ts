@@ -110,13 +110,7 @@ export class PresentationOfferComponent implements OnInit {
 
       // Redirect to session details page with QR code and polling enabled
       if (this.offerResult?.session) {
-        this.router.navigate(['/session-management', this.offerResult!.session], {
-          queryParams: {
-            showQR: 'true',
-            uri: this.offerResult!.uri,
-            startPolling: 'true',
-          },
-        });
+        this.router.navigate(['/session-management', this.offerResult!.session]);
       }
     } catch (error) {
       console.error('Error generating presentation request:', error);

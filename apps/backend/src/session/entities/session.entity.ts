@@ -52,6 +52,12 @@ export class Session {
     requestId?: string;
 
     /**
+     * The URL of the presentation auth request.
+     */
+    @Column('varchar', { nullable: true })
+    requestUrl?: string;
+
+    /**
      * Verified credentials from the verification process.
      */
     @Column('json', { nullable: true })
@@ -93,6 +99,13 @@ export class Session {
      */
     @Column('json', { nullable: true })
     offer?: CredentialOfferObject;
+
+    /**
+     * Offer URL for the credential offer.
+     */
+    @Column('varchar', { nullable: true })
+    offerUrl?: string;
+
     /**
      * Credential payload containing the offer request details.
      */
