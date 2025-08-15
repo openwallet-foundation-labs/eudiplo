@@ -56,7 +56,9 @@ export class PresentationCreateComponent {
   ) {
     this.form = new FormGroup({
       id: new FormControl(undefined, [Validators.required]),
+      description: new FormControl(undefined, [Validators.required]),
       dcql_query: new FormControl(undefined, [Validators.required, this.jsonValidator]),
+      lifeTime: new FormControl(300, [Validators.required, Validators.min(1)]),
       registrationCert: new FormControl(undefined), // Optional field
       webhook: new FormGroup({
         url: new FormControl(undefined), // Optional, but if filled, should be valid URL

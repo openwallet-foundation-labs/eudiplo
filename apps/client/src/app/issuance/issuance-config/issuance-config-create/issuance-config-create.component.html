@@ -21,15 +21,20 @@
         <!-- Configuration ID -->
         <mat-form-field class="full-width">
           <mat-label>Configuration ID</mat-label>
-          <input
-            matInput
-            formControlName="id"
-            placeholder="unique-issuance-config-id"
-            [readonly]="!create"
-          />
+          <input matInput formControlName="id" placeholder="unique-issuance-config-id" />
           <mat-icon matSuffix>fingerprint</mat-icon>
           @if (form.get('id')?.invalid && form.get('id')?.touched) {
             <mat-error>Configuration ID is required</mat-error>
+          }
+        </mat-form-field>
+
+        <!-- Description -->
+        <mat-form-field class="full-width">
+          <mat-label>Description</mat-label>
+          <input matInput formControlName="description" placeholder="Enter description" />
+          <mat-icon matSuffix>description</mat-icon>
+          @if (form.get('description')?.invalid && form.get('description')?.touched) {
+            <mat-error>Description is required</mat-error>
           }
         </mat-form-field>
 

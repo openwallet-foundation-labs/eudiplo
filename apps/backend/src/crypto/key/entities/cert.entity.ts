@@ -1,4 +1,5 @@
-import { Column, Entity } from 'typeorm';
+import { IsEmpty } from 'class-validator';
+import { Column, CreateDateColumn, Entity, UpdateDateColumn } from 'typeorm';
 
 export type CertificateType = 'access' | 'signing';
 
@@ -38,8 +39,14 @@ export class CertEntity {
     description?: string;
 
     /**
-     * Creation date of the key.
+     * The timestamp when the VP request was created.
      */
-    @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP' })
+    @CreateDateColumn()
     createdAt: Date;
+
+    /**
+     * The timestamp when the VP request was last updated.
+     */
+    @UpdateDateColumn()
+    updatedAt: Date;
 }

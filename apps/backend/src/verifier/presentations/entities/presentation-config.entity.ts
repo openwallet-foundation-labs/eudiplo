@@ -1,6 +1,12 @@
 import { ApiHideProperty } from '@nestjs/swagger';
-import { IsEmpty, IsObject, IsOptional, IsString } from 'class-validator';
-import { Column, Entity } from 'typeorm';
+import {
+    IsEmpty,
+    IsNumber,
+    IsObject,
+    IsOptional,
+    IsString,
+} from 'class-validator';
+import { Column, CreateDateColumn, Entity, UpdateDateColumn } from 'typeorm';
 import { WebhookConfig } from '../../../utils/webhook/webhook.dto';
 import { RegistrationCertificateRequest } from '../dto/vp-request.dto';
 
@@ -23,6 +29,22 @@ export class PresentationConfig {
     @Column('varchar', { primary: true })
     @IsEmpty()
     tenantId: string;
+
+    /**
+     * Description of the presentation configuration.
+     */
+    @Column('varchar', { nullable: true })
+    @IsOptional()
+    @IsString()
+    description?: string;
+
+    /**
+     * Lifetime how long the presentation request is valid after creation, in seconds.
+     */
+    @IsNumber()
+    @IsOptional()
+    @Column('int', { default: 300 })
+    lifeTime: number;
 
     /**
      * The DCQL query to be used for the VP request.
@@ -50,6 +72,13 @@ export class PresentationConfig {
      * The timestamp when the VP request was created.
      */
     @IsEmpty()
-    @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP' })
+    @CreateDateColumn()
     createdAt: Date;
+
+    /**
+     * The timestamp when the VP request was last updated.
+     */
+    @IsEmpty()
+    @UpdateDateColumn()
+    updatedAt: Date;
 }

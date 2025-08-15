@@ -58,6 +58,7 @@ export class IssuanceConfigCreateComponent implements OnInit {
   ) {
     this.form = new FormGroup({
       id: new FormControl('', [Validators.required]),
+      description: new FormControl(''),
       authMethod: new FormControl('none', [Validators.required]),
       authConfig: new FormControl(''),
       selectedCredentialConfigs: new FormControl([], [Validators.required]),
@@ -100,11 +101,9 @@ export class IssuanceConfigCreateComponent implements OnInit {
         return;
       }
 
-      // Extract authentication method and config
-      const authMethod = this.getAuthMethodFromConfig(config.authenticationConfig);
       const authConfigStr =
         config.authenticationConfig && Object.keys(config.authenticationConfig).length > 0
-          ? JSON.stringify(config.authenticationConfig, null, 2)
+          ? JSON.stringify((config.authenticationConfig as any).config, null, 2)
           : '';
 
       // Extract selected credential config IDs
@@ -113,7 +112,8 @@ export class IssuanceConfigCreateComponent implements OnInit {
 
       this.form.patchValue({
         id: config.id,
-        authMethod: authMethod,
+        description: config.description,
+        authMethod: (config.authenticationConfig as any).method,
         authConfig: authConfigStr,
         selectedCredentialConfigs: selectedCredentialConfigs,
         batchSize: config.batch_size || 1,
@@ -131,19 +131,6 @@ export class IssuanceConfigCreateComponent implements OnInit {
         duration: 3000,
       });
     }
-  }
-
-  private getAuthMethodFromConfig(authConfig: any): string {
-    if (!authConfig || Object.keys(authConfig).length === 0) {
-      return 'none';
-    }
-    if (authConfig.presentationDuringIssuance) {
-      return 'presentationDuringIssuance';
-    }
-    if (authConfig.auth) {
-      return 'auth';
-    }
-    return 'none';
   }
 
   onSubmit(): void {
@@ -199,6 +186,7 @@ export class IssuanceConfigCreateComponent implements OnInit {
 
       const issuanceDto: IssuanceDto = {
         id: this.create ? formValue.id : this.route.snapshot.params['id'],
+        description: formValue.description,
         authenticationConfig: authenticationConfig,
         credentialConfigs: credentialConfigs,
         batch_size: formValue.batchSize,
@@ -216,9 +204,8 @@ export class IssuanceConfigCreateComponent implements OnInit {
             );
             this.router.navigate(['../'], { relativeTo: this.route });
           },
-          (error) => {
-            console.error('Error saving configuration:', error);
-            this.snackBar.open('Failed to save configuration', 'Close', {
+          (error: string) => {
+            this.snackBar.open(`Failed to save configuration: ${error}`, 'Close', {
               duration: 3000,
             });
           }

@@ -32,6 +32,13 @@ export class IssuanceDto {
     id: string;
 
     /**
+     * Description of the issuance configuration.
+     */
+    @IsString()
+    @IsOptional()
+    description?: string;
+
+    /**
      * Ids of the credential configurations associated with this issuance configuration.
      */
     @IsArray()

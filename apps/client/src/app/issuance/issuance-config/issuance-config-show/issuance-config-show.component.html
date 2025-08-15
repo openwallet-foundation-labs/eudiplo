@@ -50,6 +50,12 @@
             <div><strong>Batch Size:</strong></div>
             <div class="value-text">{{ config.batch_size || 1 }}</div>
           </div>
+          @if (config.description) {
+            <div fxFlex>
+              <div><strong>Description:</strong></div>
+              <div class="value-text">{{ config.description }}</div>
+            </div>
+          }
         </div>
       </mat-card-content>
     </mat-card>

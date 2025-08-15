@@ -141,7 +141,9 @@ export class SessionService implements OnApplicationBootstrap {
      * @returns
      */
     getAll(): Promise<Session[]> {
-        return this.sessionRepository.find();
+        return this.sessionRepository.find({
+            order: { updatedAt: 'DESC' },
+        });
     }
 
     /**

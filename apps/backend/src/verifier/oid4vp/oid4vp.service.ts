@@ -56,7 +56,7 @@ export class Oid4vpService {
             const host = this.configService.getOrThrow<string>('PUBLIC_URL');
             const tenantHost = `${host}/${session.tenantId}`;
 
-            const values =
+            const presentationConfig =
                 await this.presentationsService.getPresentationConfig(
                     session.requestId!,
                     session.tenantId,
@@ -64,7 +64,7 @@ export class Oid4vpService {
             let regCert: string | undefined = undefined;
 
             const dcql_query = JSON.parse(
-                JSON.stringify(values.dcql_query).replace(
+                JSON.stringify(presentationConfig.dcql_query).replace(
                     /<PUBLIC_URL>/g,
                     tenantHost,
                 ),
@@ -72,7 +72,7 @@ export class Oid4vpService {
 
             if (this.registrarService.isEnabled()) {
                 const registrationCert = JSON.parse(
-                    JSON.stringify(values.registrationCert).replace(
+                    JSON.stringify(presentationConfig.registrationCert).replace(
                         /<PUBLIC_URL>/g,
                         tenantHost,
                     ),
@@ -102,6 +102,8 @@ export class Oid4vpService {
             const hostname = new URL(
                 this.configService.getOrThrow<string>('PUBLIC_URL'),
             ).hostname;
+
+            const lifeTime = 60 * 60;
 
             const request = {
                 payload: {
@@ -136,7 +138,7 @@ export class Oid4vpService {
                     },
                     state: session.id,
                     aud: host,
-                    exp: Math.floor(Date.now() / 1000) + 60 * 5,
+                    exp: Math.floor(Date.now() / 1000) + lifeTime,
                     iat: Math.floor(new Date().getTime() / 1000),
                     verifier_attestations: regCert
                         ? [
@@ -225,6 +227,10 @@ export class Oid4vpService {
             )
             .join('&');
 
+        const expiresAt = new Date(
+            Date.now() + presentationConfig.lifeTime * 1000,
+        );
+
         if (!values.session) {
             values.session = v4();
             await this.sessionService.create({
@@ -233,11 +239,13 @@ export class Oid4vpService {
                 tenantId,
                 requestId,
                 requestUrl: queryString,
+                expiresAt,
             });
         } else {
             await this.sessionService.add(values.session, {
                 webhook: values.webhook ?? presentationConfig.webhook,
                 requestUrl: queryString,
+                expiresAt,
             });
         }
 

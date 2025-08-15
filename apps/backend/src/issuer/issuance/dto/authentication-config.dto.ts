@@ -3,6 +3,7 @@ import {
     IsIn,
     IsObject,
     IsOptional,
+    IsString,
     IsUrl,
     Validate,
     ValidateNested,
@@ -37,7 +38,11 @@ export class AuthConfigValidator implements ValidatorConstraintInterface {
 
         if (obj.method === 'presentationDuringIssuance') {
             // For 'presentationDuringIssuance' method, config must be present and have 'presentation' property
-            return config && typeof config === 'object' && config.presentation;
+            return (
+                config &&
+                typeof config === 'object' &&
+                typeof config.presentation === 'object'
+            );
         }
 
         return false;
@@ -121,6 +126,13 @@ export class AuthenticationConfigDto {
     @IsOptional()
     @Validate(AuthConfigValidator)
     config?: AuthenticationUrlConfig | PresentationDuringIssuanceConfig;
+
+    /**
+     * Description of the authentication configuration.
+     */
+    @IsOptional()
+    @IsString()
+    description?: string;
 }
 
 /**

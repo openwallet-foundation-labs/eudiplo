@@ -27,7 +27,8 @@ export class SessionController {
 
     /**
      * Retrieves all sessions.
-     */ @Get()
+     */
+    @Get()
     getAllSessions(): Promise<Session[]> {
         return this.sessionService.getAll();
     }

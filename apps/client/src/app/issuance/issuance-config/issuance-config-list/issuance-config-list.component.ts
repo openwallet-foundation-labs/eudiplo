@@ -26,6 +26,7 @@ export class IssuanceConfigListComponent implements OnInit {
 
   displayedColumns: (keyof IssuanceConfig | 'actions')[] = [
     'id',
+    'description',
     'authenticationConfig',
     'credentialIssuanceBindings',
     'actions',

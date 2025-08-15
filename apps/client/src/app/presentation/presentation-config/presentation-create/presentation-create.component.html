@@ -71,6 +71,15 @@
           }
         </mat-form-field>
 
+        <!-- Description Field -->
+        <mat-form-field>
+          <mat-label>Description</mat-label>
+          <input matInput formControlName="description" placeholder="Enter description" />
+          @if (form.controls['description'].hasError('required')) {
+            <mat-error> Description is required </mat-error>
+          }
+        </mat-form-field>
+
         <!-- DCQL Query Field -->
         <mat-form-field>
           <mat-label>DCQL Query</mat-label>
@@ -91,6 +100,18 @@
           @if (form.controls['dcql_query'].hasError('invalidJson')) {
             <mat-error> Invalid JSON format. Please check your syntax. </mat-error>
           }
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Lifetime of the request</mat-label>
+          <input matInput formControlName="lifeTime" type="number" />
+          @if (form.controls['lifeTime'].hasError('required')) {
+            <mat-error> Lifetime is required </mat-error>
+          }
+          @if (form.controls['lifeTime'].hasError('min')) {
+            <mat-error> Lifetime must be at least 1 </mat-error>
+          }
+          <mat-hint> Lifetime is in seconds </mat-hint>
         </mat-form-field>
       </mat-card-content>
     </mat-card>

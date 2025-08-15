@@ -3,7 +3,13 @@ import {
     NotificationEvent,
 } from '@openid4vc/openid4vci';
 import { VerificationResult } from '@sd-jwt/sd-jwt-vc';
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    PrimaryColumn,
+    UpdateDateColumn,
+} from 'typeorm';
 import { AuthorizeQueries } from '../../issuer/authorize/dto/authorize-request.dto';
 import { OfferRequestDto } from '../../issuer/oid4vci/dto/offer-request.dto';
 import { WebhookConfig } from '../../utils/webhook/webhook.dto';
@@ -90,10 +96,20 @@ export class Session {
     nonce?: string;
 
     /**
-     * Credential offer object containing details about the credential offer or presentation request.
+     * The timestamp when the VP request was created.
      */
-    @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP' })
+    @CreateDateColumn()
     createdAt: Date;
+
+    /**
+     * The timestamp when the VP request was last updated.
+     */
+    @UpdateDateColumn()
+    updatedAt: Date;
+
+    @Column('date', { nullable: true })
+    expiresAt?: Date;
+
     /**
      * Credential offer object containing details about the credential offer or presentation request.
      */
@@ -132,6 +148,9 @@ export class Session {
     @Column('varchar')
     tenantId: string;
 
+    /**
+     * Status of the session.
+     */
     @Column('varchar', { nullable: true, default: 'active' })
     status: SessionStatus;
 }

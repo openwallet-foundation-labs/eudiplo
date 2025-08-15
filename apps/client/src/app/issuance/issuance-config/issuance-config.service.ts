@@ -8,7 +8,6 @@ import {
   issuerManagementControllerGetOffer,
   type OfferRequestDto,
 } from '../../generated';
-import { client } from '../../generated/client.gen';
 
 @Injectable({
   providedIn: 'root',
@@ -24,22 +23,20 @@ export class IssuanceConfigService {
    * Load all existing issuance configurations
    */
   async loadConfigurations(): Promise<IssuanceConfig[]> {
-    const response = await issuanceControllerGetIssuanceConfigurations({ client });
+    const response = await issuanceControllerGetIssuanceConfigurations();
     return response.data || [];
   }
 
   /**
    * Save or update an issuance configuration
    */
-  async saveConfiguration(config: IssuanceDto): Promise<void> {
-    try {
-      // Assuming there's a method to save the configuration
-      // This is a placeholder as the actual implementation may vary
-      await issuanceControllerStoreIssuanceConfiguration({ body: config, client });
-    } catch (error) {
-      console.error('Failed to save issuance configuration:', error);
-      throw new Error('Failed to save configuration');
-    }
+  saveConfiguration(config: IssuanceDto) {
+    return issuanceControllerStoreIssuanceConfiguration({ body: config }).then((response) => {
+      if (response.error) {
+        throw new Error((response.error as any).message);
+      }
+      return response.data;
+    });
   }
 
   /**
@@ -57,7 +54,7 @@ export class IssuanceConfigService {
   }
 
   getOffer(values: OfferRequestDto) {
-    return issuerManagementControllerGetOffer({ client, body: values }).then((response) => {
+    return issuerManagementControllerGetOffer({ body: values }).then((response) => {
       return response.data;
     });
   }

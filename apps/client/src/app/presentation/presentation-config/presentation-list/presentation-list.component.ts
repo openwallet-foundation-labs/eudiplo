@@ -26,7 +26,7 @@ export class PresentationListComponent implements OnInit {
   configurations: PresentationConfig[] = [];
   loading = false;
 
-  displayedColumns: (keyof PresentationConfig | 'actions')[] = ['id', 'createdAt', 'actions'];
+  displayedColumns: (keyof PresentationConfig | 'actions')[] = ['id', 'description', 'createdAt', 'actions'];
 
   constructor(
     private presentationService: PresentationManagementService,

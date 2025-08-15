@@ -1,4 +1,12 @@
-import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
+import { IsEmpty } from 'class-validator';
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    ManyToOne,
+    PrimaryColumn,
+    UpdateDateColumn,
+} from 'typeorm';
 import { CredentialConfig } from '../../credentials/entities/credential.entity';
 import { IssuanceConfig } from './issuance-config.entity';
 
@@ -34,8 +42,16 @@ export class CredentialIssuanceBinding {
     issuanceConfig: IssuanceConfig;
 
     /**
-     * The timestamp when the binding was created.
+     * The timestamp when the VP request was created.
      */
-    @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP' })
-    createdAt?: Date;
+    @IsEmpty()
+    @CreateDateColumn()
+    createdAt: Date;
+
+    /**
+     * The timestamp when the VP request was last updated.
+     */
+    @IsEmpty()
+    @UpdateDateColumn()
+    updatedAt: Date;
 }
