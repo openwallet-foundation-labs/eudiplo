@@ -1,7 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { IssuerManagementController } from './issuer-management.controller';
+import { Test, TestingModule } from "@nestjs/testing";
+import { IssuerManagementController } from "./issuer-management.controller";
 
-describe('IssuerManagmentController', () => {
+describe("IssuerManagmentController", () => {
     let controller: IssuerManagementController;
 
     beforeEach(async () => {
@@ -14,7 +14,7 @@ describe('IssuerManagmentController', () => {
         );
     });
 
-    it('should be defined', () => {
+    it("should be defined", () => {
         expect(controller).toBeDefined();
     });
 });

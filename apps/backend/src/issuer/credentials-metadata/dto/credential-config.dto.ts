@@ -1,5 +1,5 @@
-import { IsObject, IsString } from 'class-validator';
-import { WebhookConfig } from '../../../utils/webhook/webhook.dto';
+import { IsObject, IsString } from "class-validator";
+import { WebhookConfig } from "../../../utils/webhook/webhook.dto";
 
 export class VCT {
     @IsString()
@@ -11,11 +11,11 @@ export class VCT {
     @IsString()
     extends?: string;
     @IsString()
-    'extends#integrity'?: string;
+    "extends#integrity"?: string;
     @IsString()
     schema_uri?: string;
     @IsString()
-    'schema_uri#integrity'?: string;
+    "schema_uri#integrity"?: string;
 }
 
 export class PresentationDuringIssuance {

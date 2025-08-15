@@ -1,8 +1,8 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { beforeEach, describe, expect, it } from 'vitest';
-import { KeyController } from './key.controller';
+import { Test, TestingModule } from "@nestjs/testing";
+import { beforeEach, describe, expect, it } from "vitest";
+import { KeyController } from "./key.controller";
 
-describe('KeyController', () => {
+describe("KeyController", () => {
     let controller: KeyController;
 
     beforeEach(async () => {
@@ -13,7 +13,7 @@ describe('KeyController', () => {
         controller = module.get<KeyController>(KeyController);
     });
 
-    it('should be defined', () => {
+    it("should be defined", () => {
         expect(controller).toBeDefined();
     });
 });

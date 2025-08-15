@@ -6,19 +6,19 @@ import {
     Param,
     Post,
     UseGuards,
-} from '@nestjs/common';
-import { ApiSecurity, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/auth.guard';
-import { Token, TokenPayload } from '../auth/token.decorator';
-import { StatusUpdateDto } from '../issuer/status-list/dto/status-update.dto';
-import { StatusListService } from '../issuer/status-list/status-list.service';
-import { Session } from './entities/session.entity';
-import { SessionService } from './session.service';
+} from "@nestjs/common";
+import { ApiSecurity, ApiTags } from "@nestjs/swagger";
+import { JwtAuthGuard } from "../auth/auth.guard";
+import { Token, TokenPayload } from "../auth/token.decorator";
+import { StatusUpdateDto } from "../issuer/status-list/dto/status-update.dto";
+import { StatusListService } from "../issuer/status-list/status-list.service";
+import { Session } from "./entities/session.entity";
+import { SessionService } from "./session.service";
 
-@ApiTags('Session management')
+@ApiTags("Session management")
 @UseGuards(JwtAuthGuard)
-@ApiSecurity('oauth2')
-@Controller('session')
+@ApiSecurity("oauth2")
+@Controller("session")
 export class SessionController {
     constructor(
         private readonly sessionService: SessionService,
@@ -37,8 +37,8 @@ export class SessionController {
      * Retrieves the session information for a given session ID.
      * @param id - The identifier of the session.
      */
-    @Get(':id')
-    getSession(@Param('id') id: string): Promise<Session> {
+    @Get(":id")
+    getSession(@Param("id") id: string): Promise<Session> {
         return this.sessionService.get(id);
     }
 
@@ -48,9 +48,9 @@ export class SessionController {
      * @param user
      * @returns
      */
-    @Delete(':id')
+    @Delete(":id")
     deleteSession(
-        @Param('id') id: string,
+        @Param("id") id: string,
         @Token() user: TokenPayload,
     ): Promise<void> {
         return this.sessionService.delete(id, user.sub);
@@ -61,7 +61,7 @@ export class SessionController {
      * @param value
      * @returns
      */
-    @Post('revoke')
+    @Post("revoke")
     revokeAll(@Body() value: StatusUpdateDto, @Token() user: TokenPayload) {
         return this.statusListService.updateStatus(value, user.sub);
     }

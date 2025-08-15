@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Type } from "class-transformer";
 import {
     IsArray,
     IsNumber,
@@ -6,9 +6,9 @@ import {
     IsOptional,
     IsString,
     ValidateNested,
-} from 'class-validator';
-import { WebhookConfig } from '../../../utils/webhook/webhook.dto';
-import { AuthenticationConfigDto } from './authentication-config.dto';
+} from "class-validator";
+import { WebhookConfig } from "../../../utils/webhook/webhook.dto";
+import { AuthenticationConfigDto } from "./authentication-config.dto";
 
 /**
  * DTO for mapping credential configurations in issuance.

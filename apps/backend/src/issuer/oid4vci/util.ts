@@ -1,4 +1,4 @@
-import type { Request } from 'express';
+import type { Request } from "express";
 
 /**
  * Utility function to extract headers from an Express request

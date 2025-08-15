@@ -1,14 +1,14 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
-import { plainToClass } from 'class-transformer';
-import { validate } from 'class-validator';
-import { readdirSync, readFileSync } from 'fs';
-import { PinoLogger } from 'nestjs-pino';
-import { join } from 'path';
-import { Repository } from 'typeorm';
-import { CryptoService } from '../../../crypto/crypto.service';
-import { CredentialConfig } from '../entities/credential.entity';
+import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { InjectRepository } from "@nestjs/typeorm";
+import { plainToClass } from "class-transformer";
+import { validate } from "class-validator";
+import { readdirSync, readFileSync } from "fs";
+import { PinoLogger } from "nestjs-pino";
+import { join } from "path";
+import { Repository } from "typeorm";
+import { CryptoService } from "../../../crypto/crypto.service";
+import { CredentialConfig } from "../entities/credential.entity";
 
 /**
  * Service for managing credential configurations.
@@ -31,10 +31,10 @@ export class CredentialConfigService {
      * Imports the configs
      */
     public async import() {
-        const configPath = this.configService.getOrThrow('CONFIG_FOLDER');
-        const subfolder = 'issuance/credentials';
-        const force = this.configService.get<boolean>('CONFIG_IMPORT_FORCE');
-        if (this.configService.get<boolean>('CONFIG_IMPORT')) {
+        const configPath = this.configService.getOrThrow("CONFIG_FOLDER");
+        const subfolder = "issuance/credentials";
+        const force = this.configService.get<boolean>("CONFIG_IMPORT_FORCE");
+        if (this.configService.get<boolean>("CONFIG_IMPORT")) {
             const tenantFolders = readdirSync(configPath, {
                 withFileTypes: true,
             }).filter((tenant) => tenant.isDirectory());
@@ -45,10 +45,10 @@ export class CredentialConfigService {
                 const files = readdirSync(path);
                 for (const file of files) {
                     const payload = JSON.parse(
-                        readFileSync(join(path, file), 'utf8'),
+                        readFileSync(join(path, file), "utf8"),
                     );
 
-                    const id = file.replace('.json', '');
+                    const id = file.replace(".json", "");
                     payload.id = id;
                     const exists = await this.getById(tenant.name, id).catch(
                         () => false,
@@ -73,15 +73,15 @@ export class CredentialConfigService {
                         if (!cert) {
                             this.logger.error(
                                 {
-                                    event: 'ValidationError',
+                                    event: "ValidationError",
                                     file,
                                     tenant: tenant.name,
                                     errors: [
                                         {
-                                            property: 'keyId',
+                                            property: "keyId",
                                             constraints: {
                                                 isDefined:
-                                                    'Key ID must be defined in the crypto service.',
+                                                    "Key ID must be defined in the crypto service.",
                                             },
                                             value: config.keyId,
                                         },
@@ -97,7 +97,7 @@ export class CredentialConfigService {
                     if (validationErrors.length > 0) {
                         this.logger.error(
                             {
-                                event: 'ValidationError',
+                                event: "ValidationError",
                                 file,
                                 tenant: tenant.name,
                                 errors: validationErrors.map((error) => ({
@@ -116,7 +116,7 @@ export class CredentialConfigService {
                 }
                 this.logger.info(
                     {
-                        event: 'Import',
+                        event: "Import",
                     },
                     `${counter} credential configs imported for ${tenant.name}`,
                 );
@@ -132,7 +132,7 @@ export class CredentialConfigService {
     get(tenantId: string) {
         return this.credentialConfigRepository.find({
             where: { tenantId },
-            relations: ['key'],
+            relations: ["key"],
         });
     }
 

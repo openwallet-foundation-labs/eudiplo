@@ -1,14 +1,14 @@
-import { ApiHideProperty } from '@nestjs/swagger';
+import { ApiHideProperty } from "@nestjs/swagger";
 import {
     IsEmpty,
     IsNumber,
     IsObject,
     IsOptional,
     IsString,
-} from 'class-validator';
-import { Column, CreateDateColumn, Entity, UpdateDateColumn } from 'typeorm';
-import { WebhookConfig } from '../../../utils/webhook/webhook.dto';
-import { RegistrationCertificateRequest } from '../dto/vp-request.dto';
+} from "class-validator";
+import { Column, CreateDateColumn, Entity, UpdateDateColumn } from "typeorm";
+import { WebhookConfig } from "../../../utils/webhook/webhook.dto";
+import { RegistrationCertificateRequest } from "../dto/vp-request.dto";
 
 /**
  * Entity representing a configuration for a Verifiable Presentation (VP) request.
@@ -18,7 +18,7 @@ export class PresentationConfig {
     /**
      * Unique identifier for the VP request.
      */
-    @Column('varchar', { primary: true })
+    @Column("varchar", { primary: true })
     @IsString()
     id: string;
 
@@ -26,14 +26,14 @@ export class PresentationConfig {
      * The tenant ID for which the VP request is made.
      */
     @ApiHideProperty()
-    @Column('varchar', { primary: true })
+    @Column("varchar", { primary: true })
     @IsEmpty()
     tenantId: string;
 
     /**
      * Description of the presentation configuration.
      */
-    @Column('varchar', { nullable: true })
+    @Column("varchar", { nullable: true })
     @IsOptional()
     @IsString()
     description?: string;
@@ -43,13 +43,13 @@ export class PresentationConfig {
      */
     @IsNumber()
     @IsOptional()
-    @Column('int', { default: 300 })
+    @Column("int", { default: 300 })
     lifeTime: number;
 
     /**
      * The DCQL query to be used for the VP request.
      */
-    @Column('json')
+    @Column("json")
     @IsObject()
     //TODO: define the structure of the DCQL query
     dcql_query: any;
@@ -58,12 +58,12 @@ export class PresentationConfig {
      */
     @IsOptional()
     @IsObject()
-    @Column('json', { nullable: true })
+    @Column("json", { nullable: true })
     registrationCert?: RegistrationCertificateRequest;
     /**
      * Optional webhook URL to receive the response.
      */
-    @Column('json', { nullable: true })
+    @Column("json", { nullable: true })
     @IsOptional()
     @IsObject()
     webhook?: WebhookConfig;

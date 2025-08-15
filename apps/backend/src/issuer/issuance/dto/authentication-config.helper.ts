@@ -2,7 +2,7 @@ import {
     AuthenticationConfig,
     AuthenticationUrlConfig,
     PresentationDuringIssuanceConfig,
-} from './authentication-config.dto';
+} from "./authentication-config.dto";
 
 /**
  * Utility functions for working with OpenID4VC authentication configurations
@@ -13,8 +13,8 @@ export class AuthenticationConfigHelper {
      */
     static isNoneAuth(
         config: AuthenticationConfig,
-    ): config is { method: 'none' } {
-        return config.method === 'none';
+    ): config is { method: "none" } {
+        return config.method === "none";
     }
 
     /**
@@ -22,8 +22,8 @@ export class AuthenticationConfigHelper {
      */
     static isAuthUrlAuth(
         config: AuthenticationConfig,
-    ): config is { method: 'auth'; config: AuthenticationUrlConfig } {
-        return config.method === 'auth';
+    ): config is { method: "auth"; config: AuthenticationUrlConfig } {
+        return config.method === "auth";
     }
 
     /**
@@ -32,10 +32,10 @@ export class AuthenticationConfigHelper {
     static isPresentationDuringIssuanceAuth(
         config: AuthenticationConfig,
     ): config is {
-        method: 'presentationDuringIssuance';
+        method: "presentationDuringIssuance";
         config: PresentationDuringIssuanceConfig;
     } {
-        return config.method === 'presentationDuringIssuance';
+        return config.method === "presentationDuringIssuance";
     }
 
     /**

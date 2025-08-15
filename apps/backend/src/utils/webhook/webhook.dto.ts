@@ -1,5 +1,5 @@
-import { Type } from 'class-transformer';
-import { IsIn, IsObject, IsOptional, IsString } from 'class-validator';
+import { Type } from "class-transformer";
+import { IsIn, IsObject, IsOptional, IsString } from "class-validator";
 
 /**
  * Configuration for API key authentication in webhooks.
@@ -22,7 +22,7 @@ export class ApiKeyConfig {
 /**
  * Enum for the type of authentication used in webhooks.
  */
-export type AuthConfig = 'apiKey';
+export type AuthConfig = "apiKey";
 
 /**
  * Configuration for webhook authentication.
@@ -32,7 +32,7 @@ export class WebHookAuthConfig {
      * The type of authentication used for the webhook.
      * Currently, only 'apiKey' is supported.
      */
-    @IsIn(['apiKey'])
+    @IsIn(["apiKey"])
     type: AuthConfig;
     /**
      * Configuration for API key authentication.

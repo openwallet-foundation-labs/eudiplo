@@ -152,7 +152,10 @@ export class KeyManagementCreateComponent {
           duration: 3000,
         });
       } else {
-        await this.keyManagementService.updateKey(this.route.snapshot.params['id'], this.form.value);
+        await this.keyManagementService.updateKey(
+          this.route.snapshot.params['id'],
+          this.form.value
+        );
         this.loading = false;
       }
 

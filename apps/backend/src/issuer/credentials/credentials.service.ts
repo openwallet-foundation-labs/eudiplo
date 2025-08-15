@@ -1,21 +1,21 @@
-import { ConflictException, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
-import type { Jwk } from '@openid4vc/oauth2';
-import { CredentialConfigurationSupported } from '@openid4vc/openid4vci';
-import { digest, generateSalt } from '@sd-jwt/crypto-nodejs';
-import { JWTwithStatusListPayload } from '@sd-jwt/jwt-status-list';
-import { SDJwtVcInstance } from '@sd-jwt/sd-jwt-vc';
-import { Repository } from 'typeorm';
-import { CryptoService } from '../../crypto/crypto.service';
-import { CryptoImplementationService } from '../../crypto/key/crypto-implementation/crypto-implementation.service';
-import { Session } from '../../session/entities/session.entity';
-import { VCT } from '../credentials-metadata/dto/credential-config.dto';
-import { SchemaResponse } from '../credentials-metadata/dto/schema-response.dto';
-import { IssuanceConfig } from '../issuance/entities/issuance-config.entity';
-import { IssuanceService } from '../issuance/issuance.service';
-import { StatusListService } from '../status-list/status-list.service';
-import { CredentialConfig } from './entities/credential.entity';
+import { ConflictException, Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { InjectRepository } from "@nestjs/typeorm";
+import type { Jwk } from "@openid4vc/oauth2";
+import { CredentialConfigurationSupported } from "@openid4vc/openid4vci";
+import { digest, generateSalt } from "@sd-jwt/crypto-nodejs";
+import { JWTwithStatusListPayload } from "@sd-jwt/jwt-status-list";
+import { SDJwtVcInstance } from "@sd-jwt/sd-jwt-vc";
+import { Repository } from "typeorm";
+import { CryptoService } from "../../crypto/crypto.service";
+import { CryptoImplementationService } from "../../crypto/key/crypto-implementation/crypto-implementation.service";
+import { Session } from "../../session/entities/session.entity";
+import { VCT } from "../credentials-metadata/dto/credential-config.dto";
+import { SchemaResponse } from "../credentials-metadata/dto/schema-response.dto";
+import { IssuanceConfig } from "../issuance/entities/issuance-config.entity";
+import { IssuanceService } from "../issuance/issuance.service";
+import { StatusListService } from "../status-list/status-list.service";
+import { CredentialConfig } from "./entities/credential.entity";
 
 /**
  * Service for managing credentials and their configurations.
@@ -71,14 +71,14 @@ export class CredentialsService {
             credential_signing_alg_values_supported: [
                 this.cryptoImplementationService.getAlg(),
             ],
-            cryptographic_binding_methods_supported: ['jwk'],
+            cryptographic_binding_methods_supported: ["jwk"],
         };
 
         for (const value of configs) {
             const isUsed = issuanceConfig.credentialIssuanceBindings.find(
                 (binding) => binding.credentialConfigId === value.id,
             );
-            value.config.vct = `${this.configService.getOrThrow<string>('PUBLIC_URL')}/${session.tenantId}/credentials/vct/${value.id}`;
+            value.config.vct = `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${session.tenantId}/credentials/vct/${value.id}`;
 
             if (isUsed?.credentialConfig)
                 value.config = {
@@ -132,7 +132,7 @@ export class CredentialsService {
             binding?.credentialConfig?.keyId ??
             (await this.cryptoService.keyService.getKid(
                 session.tenantId,
-                'signing',
+                "signing",
             ));
 
         const sdjwt = new SDJwtVcInstance({
@@ -142,7 +142,7 @@ export class CredentialsService {
             ),
             signAlg: this.cryptoImplementationService.getAlg(),
             hasher: digest,
-            hashAlg: 'sha-256',
+            hashAlg: "sha-256",
             saltGenerator: generateSalt,
             loadTypeMetadataFormat: true,
         });
@@ -180,10 +180,10 @@ export class CredentialsService {
 
         return sdjwt.issue(
             {
-                iss: this.configService.getOrThrow<string>('PUBLIC_URL'),
+                iss: this.configService.getOrThrow<string>("PUBLIC_URL"),
                 iat,
                 exp,
-                vct: `${this.configService.getOrThrow<string>('PUBLIC_URL')}/${session.tenantId}/credentials/vct/${credentialConfigurationId}`,
+                vct: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${session.tenantId}/credentials/vct/${credentialConfigurationId}`,
                 cnf,
                 ...claims,
                 ...status,
@@ -192,7 +192,7 @@ export class CredentialsService {
             {
                 header: {
                     x5c: await this.cryptoService.getCertChain(
-                        'signing',
+                        "signing",
                         session.tenantId,
                     ),
                     alg: this.cryptoImplementationService.getAlg(),
@@ -222,7 +222,7 @@ export class CredentialsService {
                 `VCT for credential configuration with id ${credentialId} not found`,
             );
         }
-        const host = this.configService.getOrThrow<string>('PUBLIC_URL');
+        const host = this.configService.getOrThrow<string>("PUBLIC_URL");
         credentialConfig.vct.vct = `${host}/${tenantId}/credentials-metadata/vct/${credentialConfig.id}`;
         return credentialConfig.vct;
     }

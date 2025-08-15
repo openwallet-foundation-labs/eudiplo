@@ -1,9 +1,9 @@
-import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { SchedulerRegistry } from '@nestjs/schedule';
-import { InjectRepository } from '@nestjs/typeorm';
-import { InjectMetric } from '@willsoto/nestjs-prometheus/dist/injector';
-import { Gauge } from 'prom-client';
+import { Injectable, OnApplicationBootstrap } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { SchedulerRegistry } from "@nestjs/schedule";
+import { InjectRepository } from "@nestjs/typeorm";
+import { InjectMetric } from "@willsoto/nestjs-prometheus/dist/injector";
+import { Gauge } from "prom-client";
 import {
     DeepPartial,
     FindOptionsWhere,
@@ -11,9 +11,9 @@ import {
     LessThan,
     Not,
     Repository,
-} from 'typeorm';
-import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
-import { Session, SessionStatus } from './entities/session.entity';
+} from "typeorm";
+import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
+import { Session, SessionStatus } from "./entities/session.entity";
 
 @Injectable()
 export class SessionService implements OnApplicationBootstrap {
@@ -22,7 +22,7 @@ export class SessionService implements OnApplicationBootstrap {
         private sessionRepository: Repository<Session>,
         private readonly configService: ConfigService,
         private readonly schedulerRegistry: SchedulerRegistry,
-        @InjectMetric('sessions')
+        @InjectMetric("sessions")
         private sessionsCounter: Gauge<string>,
     ) {}
 
@@ -36,13 +36,13 @@ export class SessionService implements OnApplicationBootstrap {
             void this.tidyUpSessions();
         };
         const intervalTime =
-            this.configService.getOrThrow<number>('SESSION_TIDY_UP_INTERVAL') *
+            this.configService.getOrThrow<number>("SESSION_TIDY_UP_INTERVAL") *
             1000;
         const interval = setInterval(callback, intervalTime);
-        this.schedulerRegistry.addInterval('tidyUpSessions', interval);
+        this.schedulerRegistry.addInterval("tidyUpSessions", interval);
 
         //set default values for session metrics
-        const tenantId = 'root';
+        const tenantId = "root";
         const states: SessionStatus[] = [
             SessionStatus.Active,
             SessionStatus.Fetched,
@@ -59,7 +59,7 @@ export class SessionService implements OnApplicationBootstrap {
             this.sessionsCounter.set(
                 {
                     tenant_id: tenantId,
-                    session_type: 'issuance',
+                    session_type: "issuance",
                     status: state,
                 },
                 issuanceCounter,
@@ -72,7 +72,7 @@ export class SessionService implements OnApplicationBootstrap {
             this.sessionsCounter.set(
                 {
                     tenant_id: tenantId,
-                    session_type: 'verification',
+                    session_type: "verification",
                     status: state,
                 },
                 verificationCounter,
@@ -94,9 +94,9 @@ export class SessionService implements OnApplicationBootstrap {
         this.sessionsCounter.inc({
             tenant_id: createdSession.tenantId,
             session_type: createdSession.issuanceId
-                ? 'issuance'
-                : 'verification',
-            status: 'active',
+                ? "issuance"
+                : "verification",
+            status: "active",
         });
 
         return createdSession;
@@ -108,7 +108,7 @@ export class SessionService implements OnApplicationBootstrap {
      * @param status
      */
     async setState(session: Session, status: SessionStatus) {
-        const sessionType = session.issuanceId ? 'issuance' : 'verification';
+        const sessionType = session.issuanceId ? "issuance" : "verification";
 
         await this.sessionRepository.update({ id: session.id }, { status });
 
@@ -123,7 +123,7 @@ export class SessionService implements OnApplicationBootstrap {
         this.sessionsCounter.dec({
             tenant_id: session.tenantId,
             session_type: sessionType,
-            status: 'active',
+            status: "active",
         });
     }
 
@@ -143,7 +143,7 @@ export class SessionService implements OnApplicationBootstrap {
      */
     getAll(): Promise<Session[]> {
         return this.sessionRepository.find({
-            order: { updatedAt: 'DESC' },
+            order: { updatedAt: "DESC" },
         });
     }
 
@@ -169,7 +169,7 @@ export class SessionService implements OnApplicationBootstrap {
      * Tidy up sessions that are older than 1 day.
      */
     tidyUpSessions() {
-        const ttl = this.configService.getOrThrow<number>('SESSION_TTL') * 1000;
+        const ttl = this.configService.getOrThrow<number>("SESSION_TTL") * 1000;
         return this.sessionRepository.delete({
             createdAt: LessThan(new Date(Date.now() - ttl)),
         });

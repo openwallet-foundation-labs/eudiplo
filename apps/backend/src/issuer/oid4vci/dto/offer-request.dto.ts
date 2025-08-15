@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from "@nestjs/swagger";
 import {
     IsArray,
     IsEnum,
@@ -6,16 +6,16 @@ import {
     IsOptional,
     IsString,
     IsUUID,
-} from 'class-validator';
-import { ResponseType } from '../../../verifier/oid4vp/dto/presentation-request.dto';
+} from "class-validator";
+import { ResponseType } from "../../../verifier/oid4vp/dto/presentation-request.dto";
 
 export class OfferRequestDto {
     /**
      * @example "qrcode"
      */
     @ApiProperty({
-        example: 'qrcode',
-        description: 'The type of response expected for the offer request.',
+        example: "qrcode",
+        description: "The type of response expected for the offer request.",
     })
     @IsEnum(ResponseType)
     response_type: ResponseType;

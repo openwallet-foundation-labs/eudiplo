@@ -1,26 +1,26 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from "@nestjs/swagger";
 import {
     CredentialOfferObject,
     NotificationEvent,
-} from '@openid4vc/openid4vci';
-import { VerificationResult } from '@sd-jwt/sd-jwt-vc';
+} from "@openid4vc/openid4vci";
+import { VerificationResult } from "@sd-jwt/sd-jwt-vc";
 import {
     Column,
     CreateDateColumn,
     Entity,
     PrimaryColumn,
     UpdateDateColumn,
-} from 'typeorm';
-import { AuthorizeQueries } from '../../issuer/authorize/dto/authorize-request.dto';
-import { OfferRequestDto } from '../../issuer/oid4vci/dto/offer-request.dto';
-import { WebhookConfig } from '../../utils/webhook/webhook.dto';
+} from "typeorm";
+import { AuthorizeQueries } from "../../issuer/authorize/dto/authorize-request.dto";
+import { OfferRequestDto } from "../../issuer/oid4vci/dto/offer-request.dto";
+import { WebhookConfig } from "../../utils/webhook/webhook.dto";
 
 export enum SessionStatus {
-    Active = 'active',
-    Fetched = 'fetched',
-    Completed = 'completed',
-    Expired = 'expired',
-    Failed = 'failed',
+    Active = "active",
+    Fetched = "fetched",
+    Completed = "completed",
+    Expired = "expired",
+    Failed = "failed",
 }
 
 /**
@@ -52,54 +52,54 @@ export class Session {
     /**
      * Unique identifier for the session.
      */
-    @PrimaryColumn('uuid')
+    @PrimaryColumn("uuid")
     id: string;
 
-    @Column('varchar', { nullable: true })
+    @Column("varchar", { nullable: true })
     issuanceId?: string;
 
     /**
      * The ID of the presentation configuration associated with the session.
      */
-    @Column('varchar', { nullable: true })
+    @Column("varchar", { nullable: true })
     requestId?: string;
 
     /**
      * The URL of the presentation auth request.
      */
-    @Column('varchar', { nullable: true })
+    @Column("varchar", { nullable: true })
     requestUrl?: string;
 
     /**
      * Verified credentials from the verification process.
      */
-    @Column('json', { nullable: true })
+    @Column("json", { nullable: true })
     credentials?: VerificationResult[];
     /**
      * Authorization code for the session.
      */
-    @Column('varchar', { nullable: true })
+    @Column("varchar", { nullable: true })
     authorization_code?: string;
     /**
      * Request URI from the authorization request.
      */
-    @Column('varchar', { nullable: true })
+    @Column("varchar", { nullable: true })
     request_uri?: string;
     /**
      * Authorization queries associated with the session.
      */
-    @Column('json', { nullable: true })
+    @Column("json", { nullable: true })
     auth_queries?: AuthorizeQueries;
     /**
      * Noncce from the Verifiable Presentation request.
      */
-    @Column('varchar', { nullable: true })
+    @Column("varchar", { nullable: true })
     vp_nonce?: string;
 
     /**
      * Nonce used for the OID4VCI flow.
      */
-    @Column('varchar', { nullable: true })
+    @Column("varchar", { nullable: true })
     nonce?: string;
 
     /**
@@ -114,51 +114,51 @@ export class Session {
     @UpdateDateColumn()
     updatedAt: Date;
 
-    @Column('date', { nullable: true })
+    @Column("date", { nullable: true })
     expiresAt?: Date;
 
     /**
      * Credential offer object containing details about the credential offer or presentation request.
      */
-    @Column('json', { nullable: true })
+    @Column("json", { nullable: true })
     offer?: CredentialOfferObject;
 
     /**
      * Offer URL for the credential offer.
      */
-    @Column('varchar', { nullable: true })
+    @Column("varchar", { nullable: true })
     offerUrl?: string;
 
     /**
      * Credential payload containing the offer request details.
      */
-    @Column('json', { nullable: true })
+    @Column("json", { nullable: true })
     credentialPayload?: OfferRequestDto;
     /**
      * Webhook configuration to send result and may receive further information.
      */
-    @Column('json', { nullable: true })
+    @Column("json", { nullable: true })
     webhook?: WebhookConfig;
     /**
      * Webhook configuration to send the result of the notification response.
      */
-    @Column('json', { nullable: true })
+    @Column("json", { nullable: true })
     notifyWebhook?: WebhookConfig;
     /**
      * Notifications associated with the session.
      */
-    @Column('json', { default: JSON.stringify([]) })
+    @Column("json", { default: JSON.stringify([]) })
     notifications: Notification[];
     /**
      * Tenant ID for multi-tenancy support.
      */
-    @Column('varchar')
+    @Column("varchar")
     tenantId: string;
 
     /**
      * Status of the session.
      */
     @ApiProperty({ enum: SessionStatus })
-    @Column('varchar', { nullable: true, default: 'active' })
+    @Column("varchar", { nullable: true, default: "active" })
     status: SessionStatus;
 }

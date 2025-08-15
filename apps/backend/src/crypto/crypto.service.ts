@@ -1,10 +1,10 @@
-import { createHash, randomBytes } from 'node:crypto';
-import { readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { URL } from 'node:url';
-import { Inject, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
+import { createHash, randomBytes } from "node:crypto";
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { URL } from "node:url";
+import { Inject, Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { InjectRepository } from "@nestjs/typeorm";
 import {
     type CallbackContext,
     calculateJwkThumbprint,
@@ -12,23 +12,23 @@ import {
     HashAlgorithm,
     type Jwk,
     SignJwtCallback,
-} from '@openid4vc/oauth2';
-import * as x509 from '@peculiar/x509';
-import { plainToClass } from 'class-transformer';
-import { validate } from 'class-validator';
-import { importJWK, type JWK, jwtVerify } from 'jose';
-import { PinoLogger } from 'nestjs-pino';
-import { Repository } from 'typeorm/repository/Repository';
-import { EC_Public } from '../well-known/dto/jwks-response.dto';
-import { KeyImportDto } from './key/dto/key-import.dto';
-import { UpdateKeyDto } from './key/dto/key-update.dto';
-import { CertEntity, CertificateType } from './key/entities/cert.entity';
-import { KeyService } from './key/key.service';
+} from "@openid4vc/oauth2";
+import * as x509 from "@peculiar/x509";
+import { plainToClass } from "class-transformer";
+import { validate } from "class-validator";
+import { importJWK, type JWK, jwtVerify } from "jose";
+import { PinoLogger } from "nestjs-pino";
+import { Repository } from "typeorm/repository/Repository";
+import { EC_Public } from "../well-known/dto/jwks-response.dto";
+import { KeyImportDto } from "./key/dto/key-import.dto";
+import { UpdateKeyDto } from "./key/dto/key-update.dto";
+import { CertEntity, CertificateType } from "./key/entities/cert.entity";
+import { KeyService } from "./key/key.service";
 
 const ECDSA_P256 = {
-    name: 'ECDSA',
-    namedCurve: 'P-256',
-    hash: 'SHA-256' as const,
+    name: "ECDSA",
+    namedCurve: "P-256",
+    hash: "SHA-256" as const,
 };
 
 /**
@@ -49,7 +49,7 @@ export class CryptoService {
      */
     constructor(
         private readonly configService: ConfigService,
-        @Inject('KeyService') public readonly keyService: KeyService,
+        @Inject("KeyService") public readonly keyService: KeyService,
         @InjectRepository(CertEntity)
         private certRepository: Repository<CertEntity>,
         private logger: PinoLogger,
@@ -72,7 +72,7 @@ export class CryptoService {
     getCerts(tenantId: string): Promise<CertEntity[]> {
         return this.certRepository.findBy({
             tenantId,
-            type: 'signing',
+            type: "signing",
         });
     }
 
@@ -80,13 +80,13 @@ export class CryptoService {
      * Imports keys from the file system into the key service.
      */
     async import() {
-        if (this.configService.get<boolean>('CONFIG_IMPORT')) {
-            const configPath = this.configService.getOrThrow('CONFIG_FOLDER');
-            const subfolder = 'keys';
+        if (this.configService.get<boolean>("CONFIG_IMPORT")) {
+            const configPath = this.configService.getOrThrow("CONFIG_FOLDER");
+            const subfolder = "keys";
             const force = this.configService.get<boolean>(
-                'CONFIG_IMPORT_FORCE',
+                "CONFIG_IMPORT_FORCE",
             );
-            if (this.configService.get<boolean>('CONFIG_IMPORT')) {
+            if (this.configService.get<boolean>("CONFIG_IMPORT")) {
                 const tenantFolders = readdirSync(configPath, {
                     withFileTypes: true,
                 }).filter((tenant) => tenant.isDirectory());
@@ -97,12 +97,12 @@ export class CryptoService {
                     const files = readdirSync(path);
                     for (const file of files) {
                         const payload = JSON.parse(
-                            readFileSync(join(path, file), 'utf8'),
+                            readFileSync(join(path, file), "utf8"),
                         );
 
                         const id = payload.kid;
                         const exists = await this.keyService
-                            .getPublicKey('jwk', tenant.name, id)
+                            .getPublicKey("jwk", tenant.name, id)
                             .catch(() => false);
                         if (exists && !force) {
                             continue; // Skip if config already exists and force is not set
@@ -118,7 +118,7 @@ export class CryptoService {
                         if (validationErrors.length > 0) {
                             this.logger.error(
                                 {
-                                    event: 'ValidationError',
+                                    event: "ValidationError",
                                     file,
                                     tenant: tenant.name,
                                     errors: validationErrors.map((error) => ({
@@ -136,7 +136,7 @@ export class CryptoService {
                     }
                     this.logger.info(
                         {
-                            event: 'Import',
+                            event: "Import",
                         },
                         `${counter} keys imported for ${tenant.name}`,
                     );
@@ -184,33 +184,33 @@ export class CryptoService {
         if (existing?.crt) return;
         //TODO: load CN from other source, e.g. config. Also required for access certificate
         // === Inputs/parameters (subject + SAN hostname) ===
-        const subjectCN = this.configService.getOrThrow<string>('RP_NAME');
+        const subjectCN = this.configService.getOrThrow<string>("RP_NAME");
         const hostname = new URL(
-            this.configService.getOrThrow<string>('PUBLIC_URL'),
+            this.configService.getOrThrow<string>("PUBLIC_URL"),
         ).hostname;
 
         // === Parse the subject public key we want the leaf cert to contain ===
         // Expecting PEM SPKI. If you have JWK, convert or import as CryptoKey first.
         const subjectSpkiPem = await this.keyService.getPublicKey(
-            'pem',
+            "pem",
             tenantId,
             id,
         );
         const subjectPublicKey = await new x509.PublicKey(
             subjectSpkiPem,
-        ).export({ name: 'ECDSA', namedCurve: 'P-256' }, ['verify']);
+        ).export({ name: "ECDSA", namedCurve: "P-256" }, ["verify"]);
 
         // === Create issuer key pair and self-signed issuer certificate ===
         const issuerKeys = await crypto.subtle.generateKey(ECDSA_P256, true, [
-            'sign',
-            'verify',
+            "sign",
+            "verify",
         ]);
         const now = new Date();
         const inOneYear = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
 
         const issuerCert = await x509.X509CertificateGenerator.createSelfSigned(
             {
-                serialNumber: '01',
+                serialNumber: "01",
                 name: `CN=${subjectCN}`,
                 notBefore: now,
                 notAfter: inOneYear,
@@ -227,7 +227,7 @@ export class CryptoService {
                         issuerKeys.publicKey,
                     ),
                     new x509.SubjectAlternativeNameExtension([
-                        { type: 'dns', value: hostname },
+                        { type: "dns", value: hostname },
                     ]),
                 ],
             },
@@ -235,7 +235,7 @@ export class CryptoService {
 
         // === Issue end-entity certificate for the provided public key ===
         const leafCert = await x509.X509CertificateGenerator.create({
-            serialNumber: '02',
+            serialNumber: "02",
             subject: `CN=${subjectCN}`,
             issuer: issuerCert.subject, // DN string from issuer
             notBefore: now,
@@ -245,7 +245,7 @@ export class CryptoService {
             signingKey: issuerKeys.privateKey, // signed by issuer
             extensions: [
                 new x509.SubjectAlternativeNameExtension([
-                    { type: 'dns', value: hostname },
+                    { type: "dns", value: hostname },
                 ]),
                 new x509.KeyUsagesExtension(
                     x509.KeyUsageFlags.digitalSignature,
@@ -260,27 +260,27 @@ export class CryptoService {
             ],
         });
 
-        const crtPem = leafCert.toString('pem'); // PEM-encoded certificate
+        const crtPem = leafCert.toString("pem"); // PEM-encoded certificate
 
         // Persist the signing certificate
         await this.certRepository.save({
             tenantId,
             id,
             crt: crtPem,
-            type: 'signing',
+            type: "signing",
         });
 
         // Mirror your logic: if no "access" cert yet, reuse the same PEM
         const accessCount = await this.certRepository.countBy({
             tenantId,
-            type: 'access',
+            type: "access",
         });
         if (accessCount === 0) {
             await this.certRepository.save({
                 tenantId,
                 id,
                 crt: crtPem,
-                type: 'access',
+                type: "access",
             });
         }
     }
@@ -337,27 +337,27 @@ export class CryptoService {
      * @returns
      */
     async getCertChain(
-        type: CertificateType = 'signing',
+        type: CertificateType = "signing",
         tenantId: string,
         keyId?: string,
     ) {
         let cert: string;
-        if (type === 'signing') {
+        if (type === "signing") {
             keyId = keyId || (await this.keyService.getKid(tenantId));
             cert = await this.getCert(tenantId, keyId);
         } else {
             cert = await this.certRepository
                 .findOneByOrFail({
                     tenantId,
-                    type: 'access',
+                    type: "access",
                 })
                 .then((cert) => cert.crt);
         }
 
         const chain = cert
-            .replace('-----BEGIN CERTIFICATE-----', '')
-            .replace('-----END CERTIFICATE-----', '')
-            .replace(/\r?\n|\r/g, '');
+            .replace("-----BEGIN CERTIFICATE-----", "")
+            .replace("-----END CERTIFICATE-----", "")
+            .replace(/\r?\n|\r/g, "");
         return [chain];
     }
 
@@ -371,7 +371,7 @@ export class CryptoService {
             tenantId,
             id,
             crt,
-            type: 'access',
+            type: "access",
         });
     }
 
@@ -403,8 +403,8 @@ export class CryptoService {
         tenantId: string,
         payload?: Record<string, any>,
     ): Promise<{ verified: boolean }> {
-        const publicJwk = await this.keyService.getPublicKey('jwk', tenantId);
-        const publicCryptoKey = await importJWK(publicJwk, 'ES256');
+        const publicJwk = await this.keyService.getPublicKey("jwk", tenantId);
+        const publicCryptoKey = await importJWK(publicJwk, "ES256");
 
         try {
             await jwtVerify(compact, publicCryptoKey, {
@@ -424,21 +424,21 @@ export class CryptoService {
      */
     getCallbackContext(
         tenantId: string,
-    ): Omit<CallbackContext, 'encryptJwe' | 'decryptJwe'> {
+    ): Omit<CallbackContext, "encryptJwe" | "decryptJwe"> {
         return {
             hash: (data, alg) =>
-                createHash(alg.replace('-', '').toLowerCase())
+                createHash(alg.replace("-", "").toLowerCase())
                     .update(data)
                     .digest(),
             generateRandom: (bytes) => randomBytes(bytes),
             clientAuthentication: clientAuthenticationNone({
-                clientId: 'some-random',
+                clientId: "some-random",
             }),
             //clientId: 'some-random-client-id', // TODO: Replace with your real clientId if necessary
             signJwt: this.getSignJwtCallback(tenantId),
             verifyJwt: async (signer, { compact, payload }) => {
-                if (signer.method !== 'jwk') {
-                    throw new Error('Signer method not supported');
+                if (signer.method !== "jwk") {
+                    throw new Error("Signer method not supported");
                 }
 
                 const josePublicKey = await importJWK(
@@ -462,8 +462,8 @@ export class CryptoService {
     // Helper to generate signJwt callback
     getSignJwtCallback(tenantId: string): SignJwtCallback {
         return async (signer, { header, payload }) => {
-            if (signer.method !== 'jwk') {
-                throw new Error('Signer method not supported');
+            if (signer.method !== "jwk") {
+                throw new Error("Signer method not supported");
             }
             const hashCallback = this.getCallbackContext(tenantId).hash;
             const jwkThumbprint = await calculateJwkThumbprint({
@@ -474,7 +474,7 @@ export class CryptoService {
 
             const privateThumbprint = await calculateJwkThumbprint({
                 jwk: (await this.keyService.getPublicKey(
-                    'jwk',
+                    "jwk",
                     tenantId,
                 )) as Jwk,
                 hashAlgorithm: HashAlgorithm.Sha256,
@@ -503,7 +503,7 @@ export class CryptoService {
      */
     getJwks(tenantId: string) {
         return this.keyService.getPublicKey(
-            'jwk',
+            "jwk",
             tenantId,
         ) as Promise<EC_Public>;
     }
@@ -516,6 +516,6 @@ export class CryptoService {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     deleteKey(tenantId: string, id: string) {
         //TODO: before deleting it, make sure it is not used in a configuration
-        throw new Error('Method not implemented.');
+        throw new Error("Method not implemented.");
     }
 }

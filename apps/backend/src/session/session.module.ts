@@ -1,11 +1,11 @@
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { makeGaugeProvider } from '@willsoto/nestjs-prometheus';
-import * as Joi from 'joi';
-import { StatusListModule } from '../issuer/status-list/status-list.module';
-import { Session } from './entities/session.entity';
-import { SessionController } from './session.controller';
-import { SessionService } from './session.service';
+import { Module } from "@nestjs/common";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { makeGaugeProvider } from "@willsoto/nestjs-prometheus";
+import * as Joi from "joi";
+import { StatusListModule } from "../issuer/status-list/status-list.module";
+import { Session } from "./entities/session.entity";
+import { SessionController } from "./session.controller";
+import { SessionService } from "./session.service";
 
 /**
  * Module for managing user sessions.
@@ -23,9 +23,9 @@ export const SESSION_VALIDATION_SCHEMA = {
     providers: [
         SessionService,
         makeGaugeProvider({
-            name: 'sessions',
-            help: 'Total number of sessions by status',
-            labelNames: ['tenant_id', 'session_type', 'status'],
+            name: "sessions",
+            help: "Total number of sessions by status",
+            labelNames: ["tenant_id", "session_type", "status"],
         }),
     ],
     exports: [SessionService],

@@ -1,28 +1,28 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsUUID } from 'class-validator';
+import { ApiProperty } from "@nestjs/swagger";
+import { IsString, IsUUID } from "class-validator";
 
 /**
  * DTO for creating a new credential-issuance binding.
  */
 export class CreateCredentialIssuanceBindingDto {
     @ApiProperty({
-        description: 'The ID of the credential configuration',
-        example: 'university-degree',
+        description: "The ID of the credential configuration",
+        example: "university-degree",
     })
     @IsString()
     credentialConfigId: string;
 
     @ApiProperty({
-        description: 'The ID of the issuance configuration',
-        example: '123e4567-e89b-12d3-a456-426614174000',
+        description: "The ID of the issuance configuration",
+        example: "123e4567-e89b-12d3-a456-426614174000",
     })
     @IsUUID()
     issuanceConfigId: string;
 
     @ApiProperty({
         description:
-            'The key ID to use for signing this credential in this issuance config',
-        example: 'signing-key-2024-01',
+            "The key ID to use for signing this credential in this issuance config",
+        example: "signing-key-2024-01",
     })
     @IsString()
     keyID: string;
@@ -33,8 +33,8 @@ export class CreateCredentialIssuanceBindingDto {
  */
 export class UpdateCredentialIssuanceBindingDto {
     @ApiProperty({
-        description: 'The new key ID to use for signing this credential',
-        example: 'signing-key-2024-02',
+        description: "The new key ID to use for signing this credential",
+        example: "signing-key-2024-02",
     })
     @IsString()
     keyID: string;
@@ -45,32 +45,32 @@ export class UpdateCredentialIssuanceBindingDto {
  */
 export class CredentialIssuanceBindingResponseDto {
     @ApiProperty({
-        description: 'The unique identifier of the binding',
-        example: '123e4567-e89b-12d3-a456-426614174000',
+        description: "The unique identifier of the binding",
+        example: "123e4567-e89b-12d3-a456-426614174000",
     })
     id: string;
 
     @ApiProperty({
-        description: 'The ID of the credential configuration',
-        example: 'university-degree',
+        description: "The ID of the credential configuration",
+        example: "university-degree",
     })
     credentialConfigId: string;
 
     @ApiProperty({
-        description: 'The ID of the issuance configuration',
-        example: '123e4567-e89b-12d3-a456-426614174000',
+        description: "The ID of the issuance configuration",
+        example: "123e4567-e89b-12d3-a456-426614174000",
     })
     issuanceConfigId: string;
 
     @ApiProperty({
-        description: 'The key ID used for signing this credential',
-        example: 'signing-key-2024-01',
+        description: "The key ID used for signing this credential",
+        example: "signing-key-2024-01",
     })
     keyID: string;
 
     @ApiProperty({
-        description: 'The timestamp when the binding was created',
-        example: '2024-08-03T10:30:00Z',
+        description: "The timestamp when the binding was created",
+        example: "2024-08-03T10:30:00Z",
     })
     createdAt: Date;
 }

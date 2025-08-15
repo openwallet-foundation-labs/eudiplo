@@ -1,26 +1,26 @@
-import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Res, UseGuards } from "@nestjs/common";
 import {
     ApiBody,
     ApiProduces,
     ApiResponse,
     ApiSecurity,
     ApiTags,
-} from '@nestjs/swagger';
-import { Response } from 'express';
-import * as QRCode from 'qrcode';
-import { JwtAuthGuard } from '../../auth/auth.guard';
-import { Token, TokenPayload } from '../../auth/token.decorator';
-import { Oid4vciService } from '../../issuer/oid4vci/oid4vci.service';
-import { ResponseType } from '../../verifier/oid4vp/dto/presentation-request.dto';
+} from "@nestjs/swagger";
+import { Response } from "express";
+import * as QRCode from "qrcode";
+import { JwtAuthGuard } from "../../auth/auth.guard";
+import { Token, TokenPayload } from "../../auth/token.decorator";
+import { Oid4vciService } from "../../issuer/oid4vci/oid4vci.service";
+import { ResponseType } from "../../verifier/oid4vp/dto/presentation-request.dto";
 import {
     OfferRequestDto,
     OfferResponse,
-} from '../oid4vci/dto/offer-request.dto';
+} from "../oid4vci/dto/offer-request.dto";
 
-@ApiTags('Issuer management')
+@ApiTags("Issuer management")
 @UseGuards(JwtAuthGuard)
-@ApiSecurity('oauth2')
-@Controller('issuer-management')
+@ApiSecurity("oauth2")
+@Controller("issuer-management")
 export class IssuerManagementController {
     constructor(private readonly oid4vciService: Oid4vciService) {}
 
@@ -30,56 +30,56 @@ export class IssuerManagementController {
      * @param body
      */
     @ApiResponse({
-        description: 'JSON response',
+        description: "JSON response",
         status: 201,
         //TODO: do not use type, otherwhise the response can not deal with both JSON and PNG.
         type: OfferResponse,
         content: {
-            'application/json': { schema: { type: 'object' } },
-            'image/png': { schema: { type: 'string', format: 'binary' } },
+            "application/json": { schema: { type: "object" } },
+            "image/png": { schema: { type: "string", format: "binary" } },
         },
     })
-    @ApiProduces('application/json', 'image/png')
+    @ApiProduces("application/json", "image/png")
     @ApiBody({
         type: OfferRequestDto,
         examples: {
             qrcode: {
-                summary: 'QR-Code Example',
+                summary: "QR-Code Example",
                 value: {
                     response_type: ResponseType.QRCode,
-                    issuanceId: 'pid',
+                    issuanceId: "pid",
                 } as OfferRequestDto,
             },
             uri: {
-                summary: 'URI',
+                summary: "URI",
                 value: {
                     response_type: ResponseType.URI,
-                    issuanceId: 'pid',
+                    issuanceId: "pid",
                 } as OfferRequestDto,
             },
             authfixed: {
-                summary: 'Auth flow with fixed session',
+                summary: "Auth flow with fixed session",
                 value: {
                     response_type: ResponseType.QRCode,
-                    issuanceId: 'pid',
-                    session: 'fd3ebf28-8ad6-4909-8a7a-a739c2c412c0',
+                    issuanceId: "pid",
+                    session: "fd3ebf28-8ad6-4909-8a7a-a739c2c412c0",
                 } as OfferRequestDto,
             },
             override: {
-                summary: 'Override',
+                summary: "Override",
                 value: {
                     response_type: ResponseType.QRCode,
-                    issuanceId: 'pid-none',
+                    issuanceId: "pid-none",
                     claims: {
                         pid: {
-                            given_name: 'Max',
+                            given_name: "Max",
                         },
                     },
                 } as OfferRequestDto,
             },
         },
     })
-    @Post('offer')
+    @Post("offer")
     async getOffer(
         @Res() res: Response,
         @Body() body: OfferRequestDto,
@@ -98,7 +98,7 @@ export class IssuerManagementController {
             const qrCodeBuffer = await QRCode.toBuffer(values.uri);
 
             // Set the response content type to image/png
-            res.setHeader('Content-Type', 'image/png');
+            res.setHeader("Content-Type", "image/png");
 
             // Send the QR code image as the response
             res.send(qrCodeBuffer);

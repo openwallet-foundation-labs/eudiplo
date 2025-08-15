@@ -3,13 +3,13 @@ import {
     ExecutionContext,
     Injectable,
     NestInterceptor,
-} from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { Reflector } from '@nestjs/core';
-import { PinoLogger } from 'nestjs-pino';
-import { Observable } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
-import { SESSION_LOGGER_KEY } from './session-logger.decorator';
+} from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { Reflector } from "@nestjs/core";
+import { PinoLogger } from "nestjs-pino";
+import { Observable } from "rxjs";
+import { catchError, tap } from "rxjs/operators";
+import { SESSION_LOGGER_KEY } from "./session-logger.decorator";
 
 /**
  * Interceptor for logging session-related requests and responses.
@@ -30,7 +30,7 @@ export class SessionLoggerInterceptor implements NestInterceptor {
         private readonly configService: ConfigService,
     ) {
         this.isEnabled = this.configService.get<boolean>(
-            'LOG_ENABLE_SESSION_LOGGER',
+            "LOG_ENABLE_SESSION_LOGGER",
             false,
         );
     }
@@ -62,7 +62,7 @@ export class SessionLoggerInterceptor implements NestInterceptor {
         const url = request.url;
 
         // Set context for this logger instance
-        this.logger.setContext('SessionLogger');
+        this.logger.setContext("SessionLogger");
 
         // Create log context
         const logContext = {
@@ -76,12 +76,12 @@ export class SessionLoggerInterceptor implements NestInterceptor {
         this.logger.info(
             {
                 ...logContext,
-                event: 'request_start',
+                event: "request_start",
                 method,
                 url,
                 headers: {
-                    'user-agent': request.headers['user-agent'],
-                    'content-type': request.headers['content-type'],
+                    "user-agent": request.headers["user-agent"],
+                    "content-type": request.headers["content-type"],
                 },
                 body: this.sanitizeBody(request.body),
             },
@@ -96,7 +96,7 @@ export class SessionLoggerInterceptor implements NestInterceptor {
                 this.logger.info(
                     {
                         ...logContext,
-                        event: 'request_success',
+                        event: "request_success",
                         method,
                         url,
                         statusCode: response.statusCode,
@@ -111,7 +111,7 @@ export class SessionLoggerInterceptor implements NestInterceptor {
                 this.logger.error(
                     {
                         ...logContext,
-                        event: 'request_error',
+                        event: "request_error",
                         method,
                         url,
                         error: {
@@ -141,18 +141,18 @@ export class SessionLoggerInterceptor implements NestInterceptor {
 
         // Remove sensitive fields
         const sensitiveFields = [
-            'password',
-            'token',
-            'secret',
-            'key',
-            'private_key',
-            'access_token',
-            'refresh_token',
+            "password",
+            "token",
+            "secret",
+            "key",
+            "private_key",
+            "access_token",
+            "refresh_token",
         ];
 
         sensitiveFields.forEach((field) => {
             if (sanitized[field]) {
-                sanitized[field] = '[REDACTED]';
+                sanitized[field] = "[REDACTED]";
             }
         });
 

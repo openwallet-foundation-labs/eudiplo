@@ -1,7 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { Oid4vpController } from './oid4vp.controller';
+import { Test, TestingModule } from "@nestjs/testing";
+import { Oid4vpController } from "./oid4vp.controller";
 
-describe('Oid4vpController', () => {
+describe("Oid4vpController", () => {
     let controller: Oid4vpController;
 
     beforeEach(async () => {
@@ -12,7 +12,7 @@ describe('Oid4vpController', () => {
         controller = module.get<Oid4vpController>(Oid4vpController);
     });
 
-    it('should be defined', () => {
+    it("should be defined", () => {
         expect(controller).toBeDefined();
     });
 });

@@ -1,24 +1,24 @@
-import * as crypto from 'crypto';
-import { CryptoImplementation } from './crypto-implementation';
+import * as crypto from "crypto";
+import { CryptoImplementation } from "./crypto-implementation";
 
 const ED25519: CryptoImplementation = {
-    alg: 'EdDSA',
+    alg: "EdDSA",
     async generateKeyPair() {
         const keyPair = await crypto.webcrypto.subtle.generateKey(
             {
-                name: 'EdDSA',
-                namedCurve: 'Ed25519',
+                name: "EdDSA",
+                namedCurve: "Ed25519",
             },
             true,
-            ['sign', 'verify'],
+            ["sign", "verify"],
         );
 
         const publicKey = await crypto.webcrypto.subtle.exportKey(
-            'jwk',
+            "jwk",
             keyPair.publicKey,
         );
         const privateKey = await crypto.webcrypto.subtle.exportKey(
-            'jwk',
+            "jwk",
             keyPair.privateKey,
         );
 
@@ -26,42 +26,42 @@ const ED25519: CryptoImplementation = {
     },
     async getSigner(privateKeyJWK: object) {
         const privateKey = await crypto.webcrypto.subtle.importKey(
-            'jwk',
+            "jwk",
             privateKeyJWK,
             {
-                name: 'EdDSA',
-                namedCurve: 'Ed25519',
+                name: "EdDSA",
+                namedCurve: "Ed25519",
             },
             false,
-            ['sign'],
+            ["sign"],
         );
 
         return async (data: string) => {
             const signature = await crypto.webcrypto.subtle.sign(
-                'EdDSA',
+                "EdDSA",
                 privateKey,
                 new TextEncoder().encode(data),
             );
 
-            return Buffer.from(signature).toString('base64url');
+            return Buffer.from(signature).toString("base64url");
         };
     },
     async getVerifier(publicKeyJWK: object) {
         const publicKey = await crypto.webcrypto.subtle.importKey(
-            'jwk',
+            "jwk",
             publicKeyJWK,
             {
-                name: 'EdDSA',
-                namedCurve: 'Ed25519',
+                name: "EdDSA",
+                namedCurve: "Ed25519",
             },
             false,
-            ['verify'],
+            ["verify"],
         );
 
         return async (data: string, signatureBase64url: string) => {
-            const signature = Buffer.from(signatureBase64url, 'base64url');
+            const signature = Buffer.from(signatureBase64url, "base64url");
             const isVerified = await crypto.webcrypto.subtle.verify(
-                'EdDSA',
+                "EdDSA",
                 publicKey,
                 signature,
                 new TextEncoder().encode(data),

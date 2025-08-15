@@ -1,4 +1,4 @@
-import { IsEmpty } from 'class-validator';
+import { IsEmpty } from "class-validator";
 import {
     Column,
     CreateDateColumn,
@@ -6,9 +6,9 @@ import {
     ManyToOne,
     PrimaryColumn,
     UpdateDateColumn,
-} from 'typeorm';
-import { CredentialConfig } from '../../credentials/entities/credential.entity';
-import { IssuanceConfig } from './issuance-config.entity';
+} from "typeorm";
+import { CredentialConfig } from "../../credentials/entities/credential.entity";
+import { IssuanceConfig } from "./issuance-config.entity";
 
 //TODO: check if we really need this table and not just go with a many-to-many relationship
 /**
@@ -29,7 +29,7 @@ export class CredentialIssuanceBinding {
     @ManyToOne(
         () => CredentialConfig,
         (credentialConfig) => credentialConfig.credentialIssuanceBindings,
-        { onDelete: 'CASCADE' },
+        { onDelete: "CASCADE" },
     )
     credentialConfig: CredentialConfig;
 
@@ -39,7 +39,7 @@ export class CredentialIssuanceBinding {
     @ManyToOne(
         () => IssuanceConfig,
         (issuanceConfig) => issuanceConfig.credentialIssuanceBindings,
-        { onDelete: 'CASCADE' },
+        { onDelete: "CASCADE" },
     )
     issuanceConfig: IssuanceConfig;
 

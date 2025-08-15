@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { decodeJwt, jwtVerify, SignJWT } from 'jose';
-import { TokenPayload } from './token.decorator';
-import { DEFAULT_JWT_SECRET } from './auth.module';
+import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { decodeJwt, jwtVerify, SignJWT } from "jose";
+import { TokenPayload } from "./token.decorator";
+import { DEFAULT_JWT_SECRET } from "./auth.module";
 
 export interface GenerateTokenOptions {
     expiresIn?: string;
@@ -13,9 +13,11 @@ export interface GenerateTokenOptions {
 @Injectable()
 export class JwtService {
     constructor(private configService: ConfigService) {
-        if(this.configService.get<string>('JWT_SECRET') === DEFAULT_JWT_SECRET) {
+        if (
+            this.configService.get<string>("JWT_SECRET") === DEFAULT_JWT_SECRET
+        ) {
             console.warn(
-                'Using default JWT secret. This is not secure for production environments.',
+                "Using default JWT secret. This is not secure for production environments.",
             );
         }
     }
@@ -29,22 +31,22 @@ export class JwtService {
     ): Promise<string> {
         if (this.isUsingExternalOIDC()) {
             throw new Error(
-                'Token generation is not available when using external OIDC provider. Use your external OIDC provider for token generation.',
+                "Token generation is not available when using external OIDC provider. Use your external OIDC provider for token generation.",
             );
         }
 
-        const secret = this.configService.getOrThrow<string>('JWT_SECRET');
-        const issuer = this.configService.getOrThrow<string>('JWT_ISSUER');
+        const secret = this.configService.getOrThrow<string>("JWT_SECRET");
+        const issuer = this.configService.getOrThrow<string>("JWT_ISSUER");
         const expiresIn =
             options.expiresIn ||
-            this.configService.getOrThrow<string>('JWT_EXPIRES_IN');
+            this.configService.getOrThrow<string>("JWT_EXPIRES_IN");
 
         const secretKey = new TextEncoder().encode(secret);
 
         const jwt = new SignJWT({
             ...payload,
         })
-            .setProtectedHeader({ alg: 'HS256' })
+            .setProtectedHeader({ alg: "HS256" })
             .setIssuedAt()
             .setIssuer(issuer)
             .setSubject(options.subject || payload.sub)
@@ -63,19 +65,19 @@ export class JwtService {
     async verifyToken(token: string): Promise<TokenPayload> {
         if (this.isUsingExternalOIDC()) {
             throw new Error(
-                'Token verification is handled by external OIDC provider.',
+                "Token verification is handled by external OIDC provider.",
             );
         }
 
-        const secret = this.configService.getOrThrow<string>('JWT_SECRET');
-        const issuer = this.configService.getOrThrow<string>('JWT_ISSUER');
+        const secret = this.configService.getOrThrow<string>("JWT_SECRET");
+        const issuer = this.configService.getOrThrow<string>("JWT_ISSUER");
 
         const secretKey = new TextEncoder().encode(secret);
 
         try {
             const { payload } = (await jwtVerify(token, secretKey, {
                 issuer,
-                algorithms: ['HS256'],
+                algorithms: ["HS256"],
             })) as { payload: TokenPayload };
             return payload;
         } catch (error) {
@@ -98,6 +100,6 @@ export class JwtService {
      * Check if the service is using external OIDC provider
      */
     isUsingExternalOIDC(): boolean {
-        return this.configService.get<string>('OIDC') !== undefined;
+        return this.configService.get<string>("OIDC") !== undefined;
     }
 }

@@ -1,5 +1,5 @@
-import { IsObject, IsString } from 'class-validator';
-import { RegistrationCertificateCreation } from '../../../registrar/generated';
+import { IsObject, IsString } from "class-validator";
+import { RegistrationCertificateCreation } from "../../../registrar/generated";
 
 /**
  * RegistrationCertificateRequest DTO

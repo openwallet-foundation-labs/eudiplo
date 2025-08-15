@@ -1,7 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { CredentialConfigService } from './credential-config.service';
+import { Test, TestingModule } from "@nestjs/testing";
+import { CredentialConfigService } from "./credential-config.service";
 
-describe('CredentialConfigService', () => {
+describe("CredentialConfigService", () => {
     let service: CredentialConfigService;
 
     beforeEach(async () => {
@@ -12,7 +12,7 @@ describe('CredentialConfigService', () => {
         service = module.get<CredentialConfigService>(CredentialConfigService);
     });
 
-    it('should be defined', () => {
+    it("should be defined", () => {
         expect(service).toBeDefined();
     });
 });

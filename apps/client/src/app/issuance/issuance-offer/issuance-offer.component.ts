@@ -1,6 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, type OnInit } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -14,7 +21,6 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { type IssuanceConfig, type OfferRequestDto, type OfferResponse } from '../../generated';
 import { IssuanceConfigService } from '../issuance-config/issuance-config.service';
-
 
 export function jsonFormatValidator(control: AbstractControl): ValidationErrors | null {
   const value = control.value;
@@ -58,7 +64,7 @@ export class IssuanceOfferComponent implements OnInit {
     private issuanceConfigService: IssuanceConfigService,
     private snackBar: MatSnackBar,
     private router: Router,
-    private route: ActivatedRoute,
+    private route: ActivatedRoute
   ) {
     this.form = new FormGroup({
       issuanceId: new FormControl('', Validators.required),

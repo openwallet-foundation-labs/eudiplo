@@ -14,7 +14,7 @@ export interface SessionLogContext {
     /**
      * Type of flow being logged (e.g., OID4VCI, OID4VP).
      */
-    flowType: 'OID4VCI' | 'OID4VP';
+    flowType: "OID4VCI" | "OID4VP";
     /**
      * Optional stage of the flow, useful for tracking progress.
      */

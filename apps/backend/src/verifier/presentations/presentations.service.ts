@@ -1,21 +1,21 @@
-import { HttpService } from '@nestjs/axios';
-import { ConflictException, Injectable, OnModuleInit } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
-import { digest, ES256 } from '@sd-jwt/crypto-nodejs';
-import { SDJwtVcInstance } from '@sd-jwt/sd-jwt-vc';
-import { KbVerifier, Verifier } from '@sd-jwt/types';
-import { plainToClass } from 'class-transformer';
-import { validate } from 'class-validator';
-import { readdirSync, readFileSync } from 'fs';
-import { importJWK, JWK, JWTPayload, jwtVerify } from 'jose';
-import { PinoLogger } from 'nestjs-pino';
-import { join } from 'path';
-import { firstValueFrom } from 'rxjs';
-import { Repository } from 'typeorm/repository/Repository';
-import { ResolverService } from '../resolver/resolver.service';
-import { AuthResponse } from './dto/auth-response.dto';
-import { PresentationConfig } from './entities/presentation-config.entity';
+import { HttpService } from "@nestjs/axios";
+import { ConflictException, Injectable, OnModuleInit } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { InjectRepository } from "@nestjs/typeorm";
+import { digest, ES256 } from "@sd-jwt/crypto-nodejs";
+import { SDJwtVcInstance } from "@sd-jwt/sd-jwt-vc";
+import { KbVerifier, Verifier } from "@sd-jwt/types";
+import { plainToClass } from "class-transformer";
+import { validate } from "class-validator";
+import { readdirSync, readFileSync } from "fs";
+import { importJWK, JWK, JWTPayload, jwtVerify } from "jose";
+import { PinoLogger } from "nestjs-pino";
+import { join } from "path";
+import { firstValueFrom } from "rxjs";
+import { Repository } from "typeorm/repository/Repository";
+import { ResolverService } from "../resolver/resolver.service";
+import { AuthResponse } from "./dto/auth-response.dto";
+import { PresentationConfig } from "./entities/presentation-config.entity";
 
 /**
  * Service for managing Verifiable Presentations (VPs) and handling SD-JWT-VCs.
@@ -65,10 +65,10 @@ export class PresentationsService implements OnModuleInit {
      * Imports presentation configurations from a predefined directory structure.
      */
     private async import() {
-        const configPath = this.configService.getOrThrow('CONFIG_FOLDER');
-        const subfolder = 'presentation';
-        const force = this.configService.get<boolean>('CONFIG_IMPORT_FORCE');
-        if (this.configService.get<boolean>('CONFIG_IMPORT')) {
+        const configPath = this.configService.getOrThrow("CONFIG_FOLDER");
+        const subfolder = "presentation";
+        const force = this.configService.get<boolean>("CONFIG_IMPORT_FORCE");
+        if (this.configService.get<boolean>("CONFIG_IMPORT")) {
             const tenantFolders = readdirSync(configPath, {
                 withFileTypes: true,
             }).filter((tenant) => tenant.isDirectory());
@@ -79,10 +79,10 @@ export class PresentationsService implements OnModuleInit {
                 const files = readdirSync(path);
                 for (const file of files) {
                     const payload = JSON.parse(
-                        readFileSync(join(path, file), 'utf8'),
+                        readFileSync(join(path, file), "utf8"),
                     );
 
-                    const id = file.replace('.json', '');
+                    const id = file.replace(".json", "");
                     payload.id = id;
                     const presentationExists = await this.getPresentationConfig(
                         id,
@@ -102,7 +102,7 @@ export class PresentationsService implements OnModuleInit {
                     if (validationErrors.length > 0) {
                         this.logger.error(
                             {
-                                event: 'ValidationError',
+                                event: "ValidationError",
                                 file,
                                 tenant: tenant.name,
                                 errors: validationErrors.map((error) => ({
@@ -121,7 +121,7 @@ export class PresentationsService implements OnModuleInit {
                 }
                 this.logger.info(
                     {
-                        event: 'Import',
+                        event: "Import",
                     },
                     `${counter} presentation configs imported for ${tenant.name}`,
                 );
@@ -137,7 +137,7 @@ export class PresentationsService implements OnModuleInit {
     getPresentationConfigs(tenantId: string): Promise<PresentationConfig[]> {
         return this.vpRequestRepository.find({
             where: { tenantId },
-            order: { createdAt: 'DESC' },
+            order: { createdAt: "DESC" },
         });
     }
 
@@ -242,9 +242,9 @@ export class PresentationsService implements OnModuleInit {
      */
     private kbVerifier: KbVerifier = async (data, signature, payload) => {
         if (!payload.cnf) {
-            throw new Error('No cnf found in the payload');
+            throw new Error("No cnf found in the payload");
         }
-        const key = await importJWK(payload.cnf.jwk as JWK, 'ES256');
+        const key = await importJWK(payload.cnf.jwk as JWK, "ES256");
         return jwtVerify(`${data}.${signature}`, key).then(
             () => true,
             () => false,

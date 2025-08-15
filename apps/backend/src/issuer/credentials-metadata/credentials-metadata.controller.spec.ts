@@ -1,8 +1,8 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { beforeEach, describe, expect, it } from 'vitest';
-import { CredentialsMetadataController } from './credentials-metadata.controller';
+import { Test, TestingModule } from "@nestjs/testing";
+import { beforeEach, describe, expect, it } from "vitest";
+import { CredentialsMetadataController } from "./credentials-metadata.controller";
 
-describe('CredentialsMetadataController', () => {
+describe("CredentialsMetadataController", () => {
     let controller: CredentialsMetadataController;
 
     beforeEach(async () => {
@@ -15,7 +15,7 @@ describe('CredentialsMetadataController', () => {
         );
     });
 
-    it('should be defined', () => {
+    it("should be defined", () => {
         expect(controller).toBeDefined();
     });
 });

@@ -1,5 +1,5 @@
-import { ApiHideProperty } from '@nestjs/swagger';
-import { IsEmpty, IsObject } from 'class-validator';
+import { ApiHideProperty } from "@nestjs/swagger";
+import { IsEmpty, IsObject } from "class-validator";
 import {
     Column,
     CreateDateColumn,
@@ -7,10 +7,10 @@ import {
     OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
-} from 'typeorm';
-import { WebhookConfig } from '../../../utils/webhook/webhook.dto';
-import type { AuthenticationConfig } from '../dto/authentication-config.dto';
-import { CredentialIssuanceBinding } from './credential-issuance-binding.entity';
+} from "typeorm";
+import { WebhookConfig } from "../../../utils/webhook/webhook.dto";
+import type { AuthenticationConfig } from "../dto/authentication-config.dto";
+import { CredentialIssuanceBinding } from "./credential-issuance-binding.entity";
 
 /**
  * Entity to manage issuance configs
@@ -20,20 +20,20 @@ export class IssuanceConfig {
     /**
      * Unique identifier for the issuance configuration.
      */
-    @PrimaryGeneratedColumn('uuid')
+    @PrimaryGeneratedColumn("uuid")
     id: string;
 
     /**
      * Tenant ID for the issuance configuration.
      */
     @ApiHideProperty()
-    @Column('varchar')
+    @Column("varchar")
     tenantId: string;
 
     /**
      * Description of the issuance configuration.
      */
-    @Column('varchar', { nullable: true })
+    @Column("varchar", { nullable: true })
     description?: string;
 
     /**
@@ -42,7 +42,7 @@ export class IssuanceConfig {
     @OneToMany(
         () => CredentialIssuanceBinding,
         (binding) => binding.issuanceConfig,
-        { cascade: ['remove'], onDelete: 'CASCADE' },
+        { cascade: ["remove"], onDelete: "CASCADE" },
     )
     credentialIssuanceBindings: CredentialIssuanceBinding[];
 
@@ -54,7 +54,7 @@ export class IssuanceConfig {
      * - 'presentationDuringIssuance': OID4VP request is sent (credential presentation required)
      */
     @IsObject()
-    @Column('json')
+    @Column("json")
     authenticationConfig: AuthenticationConfig;
 
     /**
@@ -74,13 +74,13 @@ export class IssuanceConfig {
     /**
      * Webhook to send the result of the notification response
      */
-    @Column('json', { nullable: true })
+    @Column("json", { nullable: true })
     notifyWebhook?: WebhookConfig;
 
     /**
      * Value to determine the amount of credentials that are issued in a batch.
      * Default is 1.
      */
-    @Column('int', { default: 1 })
+    @Column("int", { default: 1 })
     batch_size?: number;
 }
