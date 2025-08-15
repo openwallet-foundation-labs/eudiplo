@@ -32,7 +32,7 @@ export interface JsonViewDialogData {
     FlexLayoutModule,
   ],
   templateUrl: './json-view-dialog.component.html',
-  styleUrl: './json-view-dialog.component.scss'
+  styleUrl: './json-view-dialog.component.scss',
 })
 export class JsonViewDialogComponent {
   jsonControl = new FormControl('', [this.jsonValidator]);

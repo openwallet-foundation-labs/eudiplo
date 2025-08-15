@@ -1,12 +1,12 @@
-import { Injectable, LogLevel } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, LogLevel } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 
 export interface LoggerConfiguration {
     level: LogLevel;
     enableSessionLogger: boolean;
     enableHttpLogger: boolean;
     enableDebugMode: boolean;
-    logFormat: 'json' | 'pretty';
+    logFormat: "json" | "pretty";
 }
 
 /**
@@ -23,37 +23,37 @@ export class LoggerConfigService {
     private loadConfiguration(): void {
         this.config = {
             level: this.parseLogLevel(
-                this.configService.get<string>('LOG_LEVEL', 'info'),
+                this.configService.get<string>("LOG_LEVEL", "info"),
             ),
             enableSessionLogger: this.configService.get<boolean>(
-                'LOG_ENABLE_SESSION_LOGGER',
+                "LOG_ENABLE_SESSION_LOGGER",
                 false,
             ),
             enableHttpLogger: this.configService.get<boolean>(
-                'LOG_ENABLE_HTTP_LOGGER',
+                "LOG_ENABLE_HTTP_LOGGER",
                 false,
             ),
             enableDebugMode: this.configService.get<boolean>(
-                'LOG_DEBUG_MODE',
+                "LOG_DEBUG_MODE",
                 false,
             ),
-            logFormat: this.configService.get<'json' | 'pretty'>(
-                'LOG_FORMAT',
-                'pretty',
+            logFormat: this.configService.get<"json" | "pretty">(
+                "LOG_FORMAT",
+                "pretty",
             ),
         };
     }
 
     private parseLogLevel(level: string): LogLevel {
         const levels: Record<string, LogLevel> = {
-            verbose: 'verbose',
-            debug: 'debug',
-            log: 'log',
-            warn: 'warn',
-            error: 'error',
-            fatal: 'fatal',
+            verbose: "verbose",
+            debug: "debug",
+            log: "log",
+            warn: "warn",
+            error: "error",
+            fatal: "fatal",
         };
-        return levels[level.toLowerCase()] || 'log';
+        return levels[level.toLowerCase()] || "log";
     }
 
     getConfiguration(): LoggerConfiguration {
@@ -76,7 +76,7 @@ export class LoggerConfigService {
         return this.config.level;
     }
 
-    getLogFormat(): 'json' | 'pretty' {
+    getLogFormat(): "json" | "pretty" {
         return this.config.logFormat;
     }
 

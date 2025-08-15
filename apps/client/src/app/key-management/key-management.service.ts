@@ -2,9 +2,11 @@ import { Injectable } from '@angular/core';
 import {
   type CertEntity,
   type KeyImportDto,
+  UpdateKeyDto,
   keyControllerAddKey,
   keyControllerDeleteKey,
   keyControllerGetKeys,
+  keyControllerUpdateKey,
 } from '../generated';
 import { client } from '../generated/client.gen';
 
@@ -26,6 +28,15 @@ export class KeyManagementService {
       .catch((error) => {
         console.error('Failed to import key:', error);
         throw new Error('Failed to import key');
+      });
+  }
+
+  updateKey(keyId: string, keyData: UpdateKeyDto): Promise<void> {
+    return keyControllerUpdateKey({ client, body: keyData, path: { id: keyId } })
+      .then(() => undefined)
+      .catch((error) => {
+        console.error('Failed to update key:', error);
+        throw new Error('Failed to update key');
       });
   }
 

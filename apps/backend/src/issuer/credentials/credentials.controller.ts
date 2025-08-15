@@ -6,20 +6,20 @@ import {
     Param,
     Post,
     UseGuards,
-} from '@nestjs/common';
-import { ApiSecurity, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../auth/auth.guard';
-import { Token, TokenPayload } from '../../auth/token.decorator';
-import { CredentialConfigService } from './credential-config/credential-config.service';
-import { CredentialConfig } from './entities/credential.entity';
+} from "@nestjs/common";
+import { ApiSecurity, ApiTags } from "@nestjs/swagger";
+import { JwtAuthGuard } from "../../auth/auth.guard";
+import { Token, TokenPayload } from "../../auth/token.decorator";
+import { CredentialConfigService } from "./credential-config/credential-config.service";
+import { CredentialConfig } from "./entities/credential.entity";
 
 /**
  * Controller for managing credential configurations.
  */
-@ApiTags('Issuer management')
+@ApiTags("Issuer management")
 @UseGuards(JwtAuthGuard)
-@ApiSecurity('oauth2')
-@Controller('issuer-management/credentials')
+@ApiSecurity("oauth2")
+@Controller("issuer-management/credentials")
 export class CredentialsController {
     /**
      * Initializes the CredentialsController with the CredentialConfigService.
@@ -54,9 +54,9 @@ export class CredentialsController {
      * @param id
      * @returns
      */
-    @Delete(':id')
+    @Delete(":id")
     deleteIssuanceConfiguration(
-        @Param('id') id: string,
+        @Param("id") id: string,
         @Token() user: TokenPayload,
     ) {
         return this.credentialsService.delete(user.sub, id);

@@ -1,6 +1,14 @@
-import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
-import { CredentialConfig } from '../../credentials/entities/credential.entity';
-import { IssuanceConfig } from './issuance-config.entity';
+import { IsEmpty } from "class-validator";
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    ManyToOne,
+    PrimaryColumn,
+    UpdateDateColumn,
+} from "typeorm";
+import { CredentialConfig } from "../../credentials/entities/credential.entity";
+import { IssuanceConfig } from "./issuance-config.entity";
 
 //TODO: check if we really need this table and not just go with a many-to-many relationship
 /**
@@ -21,6 +29,7 @@ export class CredentialIssuanceBinding {
     @ManyToOne(
         () => CredentialConfig,
         (credentialConfig) => credentialConfig.credentialIssuanceBindings,
+        { onDelete: "CASCADE" },
     )
     credentialConfig: CredentialConfig;
 
@@ -30,12 +39,21 @@ export class CredentialIssuanceBinding {
     @ManyToOne(
         () => IssuanceConfig,
         (issuanceConfig) => issuanceConfig.credentialIssuanceBindings,
+        { onDelete: "CASCADE" },
     )
     issuanceConfig: IssuanceConfig;
 
     /**
-     * The timestamp when the binding was created.
+     * The timestamp when the VP request was created.
      */
-    @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP' })
-    createdAt?: Date;
+    @IsEmpty()
+    @CreateDateColumn()
+    createdAt: Date;
+
+    /**
+     * The timestamp when the VP request was last updated.
+     */
+    @IsEmpty()
+    @UpdateDateColumn()
+    updatedAt: Date;
 }

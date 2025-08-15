@@ -86,9 +86,13 @@ export type CertEntity = {
      */
     description?: string;
     /**
-     * Creation date of the key.
+     * The timestamp when the VP request was created.
      */
     createdAt: string;
+    /**
+     * The timestamp when the VP request was last updated.
+     */
+    updatedAt: string;
 };
 
 export type Key = {
@@ -106,6 +110,17 @@ export type KeyImportDto = {
      * The private key in JWK format.
      */
     privateKey: Key;
+    /**
+     * Optional certificate in PEM format.
+     */
+    crt?: string;
+    /**
+     * Description of the key.
+     */
+    description?: string;
+};
+
+export type UpdateKeyDto = {
     /**
      * Optional certificate in PEM format.
      */
@@ -264,6 +279,10 @@ export type IssuanceConfig = {
      */
     id: string;
     /**
+     * Description of the issuance configuration.
+     */
+    description?: string;
+    /**
      * Links to all credential config bindings that are included in this issuance config.
      */
     credentialIssuanceBindings: Array<CredentialIssuanceBinding>;
@@ -278,9 +297,13 @@ export type IssuanceConfig = {
         [key: string]: unknown;
     };
     /**
-     * The timestamp when the issuance configuration was created.
+     * The timestamp when the VP request was created.
      */
-    createdAt?: string;
+    createdAt: string;
+    /**
+     * The timestamp when the VP request was last updated.
+     */
+    updatedAt: string;
     /**
      * Webhook to send the result of the notification response
      */
@@ -304,9 +327,13 @@ export type CredentialIssuanceBinding = {
      */
     issuanceConfig: IssuanceConfig;
     /**
-     * The timestamp when the binding was created.
+     * The timestamp when the VP request was created.
      */
-    createdAt?: string;
+    createdAt: string;
+    /**
+     * The timestamp when the VP request was last updated.
+     */
+    updatedAt: string;
 };
 
 export type OfferRequestDto = {
@@ -357,6 +384,10 @@ export type AuthenticationConfigDto = {
     config?: {
         [key: string]: unknown;
     };
+    /**
+     * Description of the authentication configuration.
+     */
+    description?: string;
 };
 
 export type IssuanceDto = {
@@ -364,6 +395,10 @@ export type IssuanceDto = {
      * Unique identifier for the issuance configuration.
      */
     id: string;
+    /**
+     * Description of the issuance configuration.
+     */
+    description?: string;
     /**
      * Ids of the credential configurations associated with this issuance configuration.
      */
@@ -423,6 +458,14 @@ export type PresentationConfig = {
      */
     id: string;
     /**
+     * Description of the presentation configuration.
+     */
+    description?: string;
+    /**
+     * Lifetime how long the presentation request is valid after creation, in seconds.
+     */
+    lifeTime: number;
+    /**
      * The DCQL query to be used for the VP request.
      */
     dcql_query: {
@@ -440,9 +483,17 @@ export type PresentationConfig = {
      * The timestamp when the VP request was created.
      */
     createdAt: string;
+    /**
+     * The timestamp when the VP request was last updated.
+     */
+    updatedAt: string;
 };
 
 export type Session = {
+    /**
+     * Status of the session.
+     */
+    status: 'active' | 'fetched' | 'completed' | 'expired' | 'failed';
     /**
      * Unique identifier for the session.
      */
@@ -483,9 +534,14 @@ export type Session = {
      */
     nonce?: string;
     /**
-     * Credential offer object containing details about the credential offer or presentation request.
+     * The timestamp when the VP request was created.
      */
     createdAt: string;
+    /**
+     * The timestamp when the VP request was last updated.
+     */
+    updatedAt: string;
+    expiresAt?: string;
     /**
      * Credential offer object containing details about the credential offer or presentation request.
      */
@@ -518,9 +574,6 @@ export type Session = {
      * Tenant ID for multi-tenancy support.
      */
     tenantId: string;
-    status: {
-        [key: string]: unknown;
-    };
 };
 
 export type StatusUpdateDto = {
@@ -632,6 +685,19 @@ export type KeyControllerDeleteKeyData = {
 };
 
 export type KeyControllerDeleteKeyResponses = {
+    200: unknown;
+};
+
+export type KeyControllerUpdateKeyData = {
+    body: UpdateKeyDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/key/{id}';
+};
+
+export type KeyControllerUpdateKeyResponses = {
     200: unknown;
 };
 

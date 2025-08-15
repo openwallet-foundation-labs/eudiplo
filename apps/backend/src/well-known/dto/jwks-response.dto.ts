@@ -1,4 +1,4 @@
-import { JWK_EC_Public } from 'jose';
+import { JWK_EC_Public } from "jose";
 
 /**
  * Represents a JSON Web Key (JWK) for an Elliptic Curve (EC) public key.
@@ -8,7 +8,7 @@ export class EC_Public implements JWK_EC_Public {
     /**
      * The key type, which is always 'EC' for Elliptic Curve keys.
      */
-    kty: 'EC';
+    kty: "EC";
     /**
      * The algorithm intended for use with the key, such as 'ES256'.
      */

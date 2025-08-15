@@ -5,24 +5,24 @@ import {
     Post,
     UseGuards,
     UseInterceptors,
-} from '@nestjs/common';
-import { ApiExcludeController, ApiParam } from '@nestjs/swagger';
-import { Session } from '../../session/entities/session.entity';
-import { SessionEntity } from '../../session/session.decorator';
-import { SessionGuard } from '../../session/session.guard';
-import { SessionLogger } from '../../utils/logger/session-logger.decorator';
-import { SessionLoggerInterceptor } from '../../utils/logger/session-logger.interceptor';
-import { AuthorizationResponse } from './dto/authorization-response.dto';
-import { Oid4vpService } from './oid4vp.service';
+} from "@nestjs/common";
+import { ApiExcludeController, ApiParam } from "@nestjs/swagger";
+import { Session } from "../../session/entities/session.entity";
+import { SessionEntity } from "../../session/session.decorator";
+import { SessionGuard } from "../../session/session.guard";
+import { SessionLogger } from "../../utils/logger/session-logger.decorator";
+import { SessionLoggerInterceptor } from "../../utils/logger/session-logger.interceptor";
+import { AuthorizationResponse } from "./dto/authorization-response.dto";
+import { Oid4vpService } from "./oid4vp.service";
 
 /**
  * Controller for handling OID4VP (OpenID for Verifiable Presentations) requests.
  */
-@Controller(':session/oid4vp')
+@Controller(":session/oid4vp")
 @UseGuards(SessionGuard)
 @UseInterceptors(SessionLoggerInterceptor)
-@ApiParam({ name: 'session', required: true })
-@ApiExcludeController(process.env.SWAGGER_ALL !== 'true')
+@ApiParam({ name: "session", required: true })
+@ApiExcludeController(process.env.SWAGGER_ALL !== "true")
 export class Oid4vpController {
     /**
      * Constructor for the Oid4vpController.
@@ -38,7 +38,7 @@ export class Oid4vpController {
      */
     //TODO: we just need the session that will include the requestId.
     @Get()
-    @SessionLogger('session', 'OID4VP')
+    @SessionLogger("session", "OID4VP")
     getRequestWithSession(@SessionEntity() session: Session) {
         return this.oid4vpService.createAuthorizationRequest(session);
     }
@@ -49,7 +49,7 @@ export class Oid4vpController {
      * @returns
      */
     @Post()
-    @SessionLogger('session', 'OID4VP')
+    @SessionLogger("session", "OID4VP")
     getResponse(
         @Body() body: AuthorizationResponse,
         @SessionEntity() session: Session,

@@ -7,31 +7,31 @@ import {
     Post,
     Res,
     UseGuards,
-} from '@nestjs/common';
+} from "@nestjs/common";
 import {
     ApiBody,
     ApiProduces,
     ApiResponse,
     ApiSecurity,
     ApiTags,
-} from '@nestjs/swagger';
-import { Response } from 'express';
-import * as QRCode from 'qrcode';
-import { JwtAuthGuard } from '../../auth/auth.guard';
-import { Token, TokenPayload } from '../../auth/token.decorator';
-import { OfferResponse } from '../../issuer/oid4vci/dto/offer-request.dto';
+} from "@nestjs/swagger";
+import { Response } from "express";
+import * as QRCode from "qrcode";
+import { JwtAuthGuard } from "../../auth/auth.guard";
+import { Token, TokenPayload } from "../../auth/token.decorator";
+import { OfferResponse } from "../../issuer/oid4vci/dto/offer-request.dto";
 import {
     PresentationRequest,
     ResponseType,
-} from '../oid4vp/dto/presentation-request.dto';
-import { Oid4vpService } from '../oid4vp/oid4vp.service';
-import { PresentationConfig } from './entities/presentation-config.entity';
-import { PresentationsService } from './presentations.service';
+} from "../oid4vp/dto/presentation-request.dto";
+import { Oid4vpService } from "../oid4vp/oid4vp.service";
+import { PresentationConfig } from "./entities/presentation-config.entity";
+import { PresentationsService } from "./presentations.service";
 
-@ApiTags('Presentation management')
+@ApiTags("Presentation management")
 @UseGuards(JwtAuthGuard)
-@ApiSecurity('oauth2', ['api:read', 'api:write'])
-@Controller('presentation-management')
+@ApiSecurity("oauth2", ["api:read", "api:write"])
+@Controller("presentation-management")
 export class PresentationManagementController {
     constructor(
         private readonly presentationsService: PresentationsService,
@@ -44,38 +44,38 @@ export class PresentationManagementController {
      * @param body
      */
     @ApiResponse({
-        description: 'JSON response',
+        description: "JSON response",
         status: 201,
         //TODO: do not use type, otherwhise the response can not deal with both JSON and PNG.
         type: OfferResponse,
         content: {
-            'application/json': { schema: { type: 'object' } },
-            'image/png': { schema: { type: 'string', format: 'binary' } },
+            "application/json": { schema: { type: "object" } },
+            "image/png": { schema: { type: "string", format: "binary" } },
         },
     })
-    @ApiProduces('application/json', 'image/png')
+    @ApiProduces("application/json", "image/png")
     @UseGuards(JwtAuthGuard)
-    @ApiSecurity('oauth2')
+    @ApiSecurity("oauth2")
     @ApiBody({
         type: PresentationRequest,
         examples: {
             qrcode: {
-                summary: 'QR-Code Example',
+                summary: "QR-Code Example",
                 value: {
                     response_type: ResponseType.QRCode,
-                    requestId: 'pid',
+                    requestId: "pid",
                 },
             },
             uri: {
-                summary: 'URI',
+                summary: "URI",
                 value: {
                     response_type: ResponseType.URI,
-                    requestId: 'pid',
+                    requestId: "pid",
                 },
             },
         },
     })
-    @Post('request')
+    @Post("request")
     async getOffer(
         @Res() res: Response,
         @Body() body: PresentationRequest,
@@ -94,7 +94,7 @@ export class PresentationManagementController {
             const qrCodeBuffer = await QRCode.toBuffer(values.uri);
 
             // Set the response content type to image/png
-            res.setHeader('Content-Type', 'image/png');
+            res.setHeader("Content-Type", "image/png");
 
             // Send the QR code image as the response
             res.send(qrCodeBuffer);
@@ -133,8 +133,8 @@ export class PresentationManagementController {
      * @param id
      * @returns
      */
-    @Delete(':id')
-    deleteConfiguration(@Param('id') id: string, @Token() user: TokenPayload) {
+    @Delete(":id")
+    deleteConfiguration(@Param("id") id: string, @Token() user: TokenPayload) {
         return this.presentationsService.deletePresentationConfig(id, user.sub);
     }
 }

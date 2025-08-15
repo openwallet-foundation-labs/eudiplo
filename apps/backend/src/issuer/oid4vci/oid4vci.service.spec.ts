@@ -1,7 +1,7 @@
-import { Test, type TestingModule } from '@nestjs/testing';
-import { Oid4vciService } from './oid4vci.service';
+import { Test, type TestingModule } from "@nestjs/testing";
+import { Oid4vciService } from "./oid4vci.service";
 
-describe('Oid4vciService', () => {
+describe("Oid4vciService", () => {
     let service: Oid4vciService;
 
     beforeEach(async () => {
@@ -12,7 +12,7 @@ describe('Oid4vciService', () => {
         service = module.get<Oid4vciService>(Oid4vciService);
     });
 
-    it('should be defined', () => {
+    it("should be defined", () => {
         expect(service).toBeDefined();
     });
 });

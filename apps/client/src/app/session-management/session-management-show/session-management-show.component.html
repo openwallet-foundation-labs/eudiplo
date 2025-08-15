@@ -21,7 +21,7 @@
           <span class="polling-text">Live updates</span>
         </div>
       }
-      <span class="creation-date">Created: {{ formatDate(session.createdAt) }}</span>
+      <span class="creation-date">Last Update: {{ formatDate(session.updatedAt) }}</span>
     </div>
 
     <!-- Main session information -->
@@ -135,17 +135,6 @@
             Presentation Offer QR Code
           }
         </mat-card-title>
-        <div class="spacer"></div>
-        @if (getOfferUri()) {
-          <button
-            mat-icon-button
-            (click)="generateQRCode(getOfferUri()!)"
-            [disabled]="generatingQR"
-            matTooltip="Generate QR Code"
-          >
-            <mat-icon>refresh</mat-icon>
-          </button>
-        }
       </mat-card-header>
       <mat-card-content>
         @if (getOfferUri()) {
@@ -185,11 +174,18 @@
         } @else {
           <div class="no-uri-message">
             <mat-icon>info</mat-icon>
-            <p>No offer URI available for this session</p>
+            <p>
+              No offer URI available for this session available anymore,
+              @if (session.status === 'fetched' || session.status === 'completed') {
+                credential already fetched
+              } @else {
+                session {{ session.status }}
+              }
+            </p>
           </div>
         }
       </mat-card-content>
-      @if (qrCodeDataUrl) {
+      @if (getOfferUri() && qrCodeDataUrl) {
         <mat-card-actions>
           <button mat-raised-button color="accent" (click)="copyToClipboard(getOfferUri()!)">
             <mat-icon>content_copy</mat-icon>

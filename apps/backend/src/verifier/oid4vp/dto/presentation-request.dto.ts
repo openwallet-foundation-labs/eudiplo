@@ -1,5 +1,5 @@
-import { IsEnum, IsObject, IsOptional, IsString } from 'class-validator';
-import { WebhookConfig } from '../../../utils/webhook/webhook.dto';
+import { IsEnum, IsObject, IsOptional, IsString } from "class-validator";
+import { WebhookConfig } from "../../../utils/webhook/webhook.dto";
 
 /**
  * Enum for the type of response expected from the presentation request.
@@ -8,11 +8,11 @@ export enum ResponseType {
     /**
      * Response type indicating a QR code will be returned.
      */
-    QRCode = 'qrcode',
+    QRCode = "qrcode",
     /**
      * Response type indicating a URI will be returned.
      */
-    URI = 'uri',
+    URI = "uri",
 }
 
 /**

@@ -41,7 +41,6 @@ import { configs } from './pre-config';
   styleUrls: ['./presentation-create.component.scss'],
 })
 export class PresentationCreateComponent {
-
   public form: FormGroup;
   public create = true;
 
@@ -56,7 +55,9 @@ export class PresentationCreateComponent {
   ) {
     this.form = new FormGroup({
       id: new FormControl(undefined, [Validators.required]),
+      description: new FormControl(undefined, [Validators.required]),
       dcql_query: new FormControl(undefined, [Validators.required, this.jsonValidator]),
+      lifeTime: new FormControl(300, [Validators.required, Validators.min(1)]),
       registrationCert: new FormControl(undefined), // Optional field
       webhook: new FormGroup({
         url: new FormControl(undefined), // Optional, but if filled, should be valid URL
@@ -173,45 +174,45 @@ export class PresentationCreateComponent {
     }
   }
 
-    /**
-     * Show/Edit the entire presentation config as JSON
-     */
-    viewAsJson(): void {
-      const currentConfig = this.getCompleteConfiguration();
-      const dialogRef = this.dialog.open(JsonViewDialogComponent, {
-        data: {
-          title: 'Presentation Configuration JSON',
-          jsonData: currentConfig,
-          readonly: false
-        },
-        disableClose: false,
-        maxWidth: '95vw',
-        maxHeight: '95vh'
-      });
+  /**
+   * Show/Edit the entire presentation config as JSON
+   */
+  viewAsJson(): void {
+    const currentConfig = this.getCompleteConfiguration();
+    const dialogRef = this.dialog.open(JsonViewDialogComponent, {
+      data: {
+        title: 'Presentation Configuration JSON',
+        jsonData: currentConfig,
+        readonly: false,
+      },
+      disableClose: false,
+      maxWidth: '95vw',
+      maxHeight: '95vh',
+    });
 
-      dialogRef.afterClosed().subscribe(result => {
-        if (result) {
-          this.loadConfigurationFromJson(result);
-        }
-      });
-    }
-
-    /**
-     * Get the complete config object from form values
-     */
-    private getCompleteConfiguration(): any {
-      const formValue = { ...this.form.getRawValue() };
-      // Parse dcql_query if it's a string
-      if (formValue.dcql_query && typeof formValue.dcql_query === 'string') {
-        try {
-          formValue.dcql_query = JSON.parse(formValue.dcql_query);
-          formValue.registrationCert = JSON.parse(formValue.registrationCert);
-        } catch {
-          // Ignore JSON parse errors
-        }
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.loadConfigurationFromJson(result);
       }
-      return formValue;
+    });
+  }
+
+  /**
+   * Get the complete config object from form values
+   */
+  private getCompleteConfiguration(): any {
+    const formValue = { ...this.form.getRawValue() };
+    // Parse dcql_query if it's a string
+    if (formValue.dcql_query && typeof formValue.dcql_query === 'string') {
+      try {
+        formValue.dcql_query = JSON.parse(formValue.dcql_query);
+        formValue.registrationCert = JSON.parse(formValue.registrationCert);
+      } catch {
+        // Ignore JSON parse errors
+      }
     }
+    return formValue;
+  }
 
   /**
    * Load a predefined configuration
@@ -234,35 +235,35 @@ export class PresentationCreateComponent {
       data: {
         title: `${configTemplate.name} - Preview`,
         jsonData: configTemplate.config,
-        readonly: true
+        readonly: true,
       },
       disableClose: false,
       maxWidth: '95vw',
-      maxHeight: '95vh'
+      maxHeight: '95vh',
     });
   }
 
-    /**
-     * Import config from JSON and update the form
-     */
-    private loadConfigurationFromJson(config: any): void {
-      try {
-        const formData: any = { ...config };
-        if (formData.dcql_query && typeof formData.dcql_query === 'object') {
-          formData.dcql_query = JSON.stringify(formData.dcql_query, null, 2);
-        }
-        if(formData.registrationCert && typeof formData.registrationCert === 'object') {
-          formData.registrationCert = JSON.stringify(formData.registrationCert, null, 2);
-        }
-        this.form.patchValue(formData);
-        this.snackBar.open('Configuration loaded from JSON successfully', 'OK', {
-          duration: 3000,
-        });
-      } catch (error) {
-        console.error('Error loading configuration from JSON:', error);
-        this.snackBar.open('Error loading configuration from JSON', 'Close', {
-          duration: 3000,
-        });
+  /**
+   * Import config from JSON and update the form
+   */
+  private loadConfigurationFromJson(config: any): void {
+    try {
+      const formData: any = { ...config };
+      if (formData.dcql_query && typeof formData.dcql_query === 'object') {
+        formData.dcql_query = JSON.stringify(formData.dcql_query, null, 2);
       }
+      if (formData.registrationCert && typeof formData.registrationCert === 'object') {
+        formData.registrationCert = JSON.stringify(formData.registrationCert, null, 2);
+      }
+      this.form.patchValue(formData);
+      this.snackBar.open('Configuration loaded from JSON successfully', 'OK', {
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error('Error loading configuration from JSON:', error);
+      this.snackBar.open('Error loading configuration from JSON', 'Close', {
+        duration: 3000,
+      });
     }
   }
+}

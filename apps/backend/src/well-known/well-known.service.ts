@@ -1,13 +1,13 @@
-import { Injectable } from '@nestjs/common';
-import { CryptoService } from '../crypto/crypto.service';
-import { CryptoImplementationService } from '../crypto/key/crypto-implementation/crypto-implementation.service';
-import { AuthorizeService } from '../issuer/authorize/authorize.service';
-import { Oid4vciService } from '../issuer/oid4vci/oid4vci.service';
-import { Session } from '../session/entities/session.entity';
-import { MediaType } from '../utils/mediaType/media-type.enum';
-import { CredentialIssuerMetadataDto } from './dto/credential-issuer-metadata.dto';
-import { JwksResponseDto } from './dto/jwks-response.dto';
-import { Oauth2AuthorizationServerResponse } from './dto/oauth-authorization-server-response.dto';
+import { Injectable } from "@nestjs/common";
+import { CryptoService } from "../crypto/crypto.service";
+import { CryptoImplementationService } from "../crypto/key/crypto-implementation/crypto-implementation.service";
+import { AuthorizeService } from "../issuer/authorize/authorize.service";
+import { Oid4vciService } from "../issuer/oid4vci/oid4vci.service";
+import { Session } from "../session/entities/session.entity";
+import { MediaType } from "../utils/mediaType/media-type.enum";
+import { CredentialIssuerMetadataDto } from "./dto/credential-issuer-metadata.dto";
+import { JwksResponseDto } from "./dto/jwks-response.dto";
+import { Oauth2AuthorizationServerResponse } from "./dto/oauth-authorization-server-response.dto";
 
 /**
  * Service to handle well-known endpoints and metadata retrieval.
@@ -43,14 +43,14 @@ export class WellKnownService {
         if (contentType === MediaType.APPLICATION_JWT) {
             const keyId = await this.cryptoService.keyService.getKid(
                 session.tenantId,
-                'access',
+                "access",
             );
             return this.cryptoService.signJwt(
                 {
-                    typ: 'openidvci-issuer-metadata+jwt',
+                    typ: "openidvci-issuer-metadata+jwt",
                     alg: this.cryptoImplementationService.getAlg(),
                     x5c: await this.cryptoService.getCertChain(
-                        'access',
+                        "access",
                         session.tenantId,
                     ),
                 },

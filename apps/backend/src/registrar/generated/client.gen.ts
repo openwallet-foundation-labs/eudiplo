@@ -5,8 +5,8 @@ import {
     createClient,
     createConfig,
     type ClientOptions as DefaultClientOptions,
-} from './client';
-import type { ClientOptions } from './types.gen';
+} from "./client";
+import type { ClientOptions } from "./types.gen";
 
 /**
  * The `createClientConfig()` function will be called on client initialization

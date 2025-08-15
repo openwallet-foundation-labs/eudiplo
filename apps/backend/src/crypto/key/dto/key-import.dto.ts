@@ -1,11 +1,11 @@
-import { Type } from 'class-transformer';
-import { IsEnum, IsObject, IsOptional, IsString } from 'class-validator';
-import { JWK } from 'jose';
+import { Type } from "class-transformer";
+import { IsEnum, IsObject, IsOptional, IsString } from "class-validator";
+import { JWK } from "jose";
 
 class Key implements JWK {
     @IsString()
     kid: string; // Key ID
-    @IsEnum(['EC'])
+    @IsEnum(["EC"])
     kty: string; // Key Type
     @IsString()
     x: string; // X coordinate for EC keys

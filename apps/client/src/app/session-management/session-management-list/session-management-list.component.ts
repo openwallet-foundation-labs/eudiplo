@@ -17,7 +17,7 @@ import { Session } from '../../generated';
 import { SessionManagementService } from '../session-management.service';
 
 // Define the SessionStatus type
-export type SessionStatus = 'active' | 'completed' | 'expired' | 'failed';
+export type SessionStatus = 'active' | 'fetched' | 'completed' | 'expired' | 'failed';
 
 @Component({
   selector: 'app-session-management-list',
@@ -65,6 +65,7 @@ export class SessionManagementListComponent implements OnInit, AfterViewInit {
   statusOptions = [
     { value: 'all', label: 'All Statuses' },
     { value: 'active', label: 'Active' },
+    { value: 'fetched', label: 'Fetched' },
     { value: 'completed', label: 'Completed' },
     { value: 'expired', label: 'Expired' },
     { value: 'failed', label: 'Failed' },
@@ -145,32 +146,7 @@ export class SessionManagementListComponent implements OnInit, AfterViewInit {
   }
 
   getSessionStatus(session: Session): SessionStatus {
-    // Extract status from the session.status object or return a default
-    if (typeof session.status === 'object' && session.status !== null) {
-      // If status is an object, try to find a status field or return 'active' as default
-      const statusObj = session.status as any;
-      if (
-        statusObj.status &&
-        ['active', 'completed', 'expired', 'failed'].includes(statusObj.status)
-      ) {
-        return statusObj.status as SessionStatus;
-      }
-      // Check for other common status field names
-      if (
-        statusObj.state &&
-        ['active', 'completed', 'expired', 'failed'].includes(statusObj.state)
-      ) {
-        return statusObj.state as SessionStatus;
-      }
-    } else if (
-      typeof session.status === 'string' &&
-      ['active', 'completed', 'expired', 'failed'].includes(session.status)
-    ) {
-      return session.status as SessionStatus;
-    }
-
-    // Default to 'active' if no valid status is found
-    return 'active';
+    return session.status as SessionStatus;
   }
 
   getStatusDisplay(status: any): string {

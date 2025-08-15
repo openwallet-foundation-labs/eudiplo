@@ -1,6 +1,6 @@
-import { randomUUID } from 'node:crypto';
-import { ConflictException, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { randomUUID } from "node:crypto";
+import { ConflictException, Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import {
     type AuthorizationCodeGrantIdentifier,
     type AuthorizationServerMetadata,
@@ -11,17 +11,17 @@ import {
     PkceCodeChallengeMethod,
     PreAuthorizedCodeGrantIdentifier,
     preAuthorizedCodeGrantIdentifier,
-} from '@openid4vc/oauth2';
-import type { Request, Response } from 'express';
-import { CryptoService } from '../../crypto/crypto.service';
-import { Session } from '../../session/entities/session.entity';
-import { SessionService } from '../../session/session.service';
-import { WebhookConfig } from '../../utils/webhook/webhook.dto';
-import { Oid4vpService } from '../../verifier/oid4vp/oid4vp.service';
-import { AuthenticationConfigHelper } from '../issuance/dto/authentication-config.helper';
-import { IssuanceService } from '../issuance/issuance.service';
-import { getHeadersFromRequest } from '../oid4vci/util';
-import { AuthorizeQueries } from './dto/authorize-request.dto';
+} from "@openid4vc/oauth2";
+import type { Request, Response } from "express";
+import { CryptoService } from "../../crypto/crypto.service";
+import { Session } from "../../session/entities/session.entity";
+import { SessionService } from "../../session/session.service";
+import { WebhookConfig } from "../../utils/webhook/webhook.dto";
+import { Oid4vpService } from "../../verifier/oid4vp/oid4vp.service";
+import { AuthenticationConfigHelper } from "../issuance/dto/authentication-config.helper";
+import { IssuanceService } from "../issuance/issuance.service";
+import { getHeadersFromRequest } from "../oid4vci/util";
+import { AuthorizeQueries } from "./dto/authorize-request.dto";
 
 export interface ParsedAccessTokenAuthorizationCodeRequestGrant {
     grantType: AuthorizationCodeGrantIdentifier;
@@ -55,7 +55,7 @@ export class AuthorizeService {
 
     authzMetadata(session: Session): AuthorizationServerMetadata {
         const authServer =
-            this.configService.getOrThrow<string>('PUBLIC_URL') +
+            this.configService.getOrThrow<string>("PUBLIC_URL") +
             `/${session.id}`;
         return this.getAuthorizationServer(
             session.tenantId,
@@ -64,7 +64,7 @@ export class AuthorizeService {
             token_endpoint: `${authServer}/authorize/token`,
             authorization_endpoint: `${authServer}/authorize`,
             jwks_uri: `${authServer}/.well-known/jwks.json`,
-            dpop_signing_alg_values_supported: ['ES256'],
+            dpop_signing_alg_values_supported: ["ES256"],
             // TODO: verify this on the server
             require_pushed_authorization_requests: true,
             pushed_authorization_request_endpoint: `${authServer}/authorize/par`,
@@ -89,12 +89,12 @@ export class AuthorizeService {
                 })
                 .catch(() => {
                     throw new ConflictException(
-                        'request_uri not found or not provided in the request',
+                        "request_uri not found or not provided in the request",
                     );
                 });
         } else {
             throw new ConflictException(
-                'request_uri not found or not provided in the request',
+                "request_uri not found or not provided in the request",
             );
         }
         const code = await this.setAuthCode(values.issuer_state!);
@@ -106,7 +106,7 @@ export class AuthorizeService {
         req: Request,
         session: Session,
     ): Promise<any> {
-        const url = `${this.configService.getOrThrow<string>('PUBLIC_URL')}${req.url}`;
+        const url = `${this.configService.getOrThrow<string>("PUBLIC_URL")}${req.url}`;
         const tenantId = session.tenantId;
         const parsedAccessTokenRequest = this.getAuthorizationServer(
             tenantId,
@@ -187,12 +187,12 @@ export class AuthorizeService {
         }
         //const cNonce = randomUUID();
         return this.getAuthorizationServer(tenantId).createAccessTokenResponse({
-            audience: `${this.configService.getOrThrow<string>('PUBLIC_URL')}/${session.id}`,
+            audience: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${session.id}`,
             signer: {
-                method: 'jwk',
-                alg: 'ES256',
+                method: "jwk",
+                alg: "ES256",
                 publicJwk: (await this.cryptoService.keyService.getPublicKey(
-                    'jwk',
+                    "jwk",
                     tenantId,
                 )) as Jwk,
             },
@@ -201,7 +201,7 @@ export class AuthorizeService {
             authorizationServer: authorizationServerMetadata.issuer,
             /* cNonce,
             cNonceExpiresIn: 100, */
-            clientId: 'wallet', // must be same as the client attestation
+            clientId: "wallet", // must be same as the client attestation
             dpop: dpopValue,
         });
     }
@@ -213,13 +213,13 @@ export class AuthorizeService {
     ) {
         // re using the issuer state as auth session
         const auth_session = body.issuer_state;
-        const presentation = `openid4vp://?${(await this.oid4vpService.createRequest('pid', { session: auth_session, webhook }, tenantId)).uri}`;
+        const presentation = `openid4vp://?${(await this.oid4vpService.createRequest("pid", { session: auth_session, webhook }, tenantId)).uri}`;
         const res = {
-            error: 'insufficient_authorization',
+            error: "insufficient_authorization",
             auth_session,
             presentation,
             error_description:
-                'Presentation of credential required before issuance',
+                "Presentation of credential required before issuance",
         };
         return res;
     }
@@ -246,7 +246,7 @@ export class AuthorizeService {
             } else {
                 //TODO: needs to be checked if this is the correct response
                 throw new ConflictException(
-                    'Session does not have valid credentials for issuance',
+                    "Session does not have valid credentials for issuance",
                 );
             }
         }
@@ -266,7 +266,7 @@ export class AuthorizeService {
 
         if (!authConfig) {
             throw new Error(
-                'No authentication configuration found for issuance config',
+                "No authentication configuration found for issuance config",
             );
         }
 

@@ -1,4 +1,4 @@
-import { IsString } from 'class-validator';
+import { IsString } from "class-validator";
 
 /**
  * DTO for the authorization response containing the VP token.

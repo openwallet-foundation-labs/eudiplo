@@ -1,4 +1,4 @@
-import { JWK } from 'jose';
+import { JWK } from "jose";
 
 /**
  * Interface representing the issuer metadata.

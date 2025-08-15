@@ -1,7 +1,7 @@
-import { describe, it } from 'vitest';
+import { describe, it } from "vitest";
 
-describe('SessionGuard', () => {
-    it('should be defined', () => {
+describe("SessionGuard", () => {
+    it("should be defined", () => {
         //expect(new SessionGuard()).toBeDefined();
     });
 });

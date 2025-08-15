@@ -1,8 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { CryptoService } from '../crypto/crypto.service';
-import { TokenRequestDto } from './dto/token-request.dto';
-import { TokenResponseDto } from './dto/token-response.dto';
+import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { CryptoService } from "../crypto/crypto.service";
+import { TokenRequestDto } from "./dto/token-request.dto";
+import { TokenResponseDto } from "./dto/token-response.dto";
 
 @Injectable()
 export class OAuthService {
@@ -20,9 +20,9 @@ export class OAuthService {
     private initializeClients() {
         // Add default client from environment variables if available
         const defaultClientId =
-            this.configService.get<string>('OAUTH_CLIENT_ID');
+            this.configService.get<string>("OAUTH_CLIENT_ID");
         const defaultClientSecret = this.configService.get<string>(
-            'OAUTH_CLIENT_SECRET',
+            "OAUTH_CLIENT_SECRET",
         );
 
         if (defaultClientId && defaultClientSecret) {
@@ -40,7 +40,7 @@ export class OAuthService {
                 request.client_secret,
             )
         ) {
-            throw new UnauthorizedException('Invalid client credentials');
+            throw new UnauthorizedException("Invalid client credentials");
         }
 
         // Generate access token
@@ -51,9 +51,9 @@ export class OAuthService {
 
         return {
             access_token: accessToken,
-            token_type: 'Bearer',
+            token_type: "Bearer",
             expires_in: 3600, // 1 hour
-            scope: request.scope || 'openid',
+            scope: request.scope || "openid",
         };
     }
 
@@ -71,19 +71,19 @@ export class OAuthService {
     ): Promise<string> {
         const payload = {
             sub: clientId,
-            aud: this.configService.getOrThrow<string>('PUBLIC_URL'),
-            iss: this.configService.getOrThrow<string>('PUBLIC_URL'),
-            scope: scope || 'openid',
+            aud: this.configService.getOrThrow<string>("PUBLIC_URL"),
+            iss: this.configService.getOrThrow<string>("PUBLIC_URL"),
+            scope: scope || "openid",
             exp: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
             iat: Math.floor(Date.now() / 1000),
         };
 
         // For now, we'll use the root tenant for signing
         // In a real implementation, you might want to use a dedicated OAuth signing key
-        const tenantId = 'root';
+        const tenantId = "root";
         return await this.cryptoService.signJwt(
             payload,
-            { alg: 'RS256' },
+            { alg: "RS256" },
             tenantId,
         );
     }

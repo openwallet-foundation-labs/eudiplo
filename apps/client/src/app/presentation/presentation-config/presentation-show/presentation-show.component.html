@@ -15,9 +15,12 @@
       </div>
     </div>
     <p><strong>Created At:</strong> {{ presentation.createdAt | date }}</p>
+    <p><strong>Lifetime of the request:</strong> {{ presentation.lifeTime }} seconds</p>
+    <p><strong>Description:</strong> {{ presentation.description }}</p>
     <mat-card>
       <mat-card-header>
         <mat-card-title>DCQL</mat-card-title>
+        <mat-card-subtitle>Which credentials to query</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
         <pre>{{ presentation.dcql_query | json }}</pre>
@@ -27,6 +30,7 @@
     <mat-card>
       <mat-card-header>
         <mat-card-title>Registration Certificate</mat-card-title>
+        <mat-card-subtitle>Certificate used for the presentation</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
         <pre>{{ presentation.registrationCert | json }}</pre>
@@ -36,6 +40,7 @@
     <mat-card>
       <mat-card-header>
         <mat-card-title>Webhook</mat-card-title>
+        <mat-card-subtitle>Where to send the the verification result</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
         <pre>{{ presentation.webhook | json }}</pre>

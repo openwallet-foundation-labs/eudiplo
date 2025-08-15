@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { PinoLogger } from 'nestjs-pino';
-import { SessionLogContext } from './session-logger-context';
+import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { PinoLogger } from "nestjs-pino";
+import { SessionLogContext } from "./session-logger-context";
 
 /**
  * Service for logging session-related events and errors.
@@ -20,9 +20,9 @@ export class SessionLoggerService {
         private readonly logger: PinoLogger,
         private readonly configService: ConfigService,
     ) {
-        this.logger.setContext('SessionLoggerService');
+        this.logger.setContext("SessionLoggerService");
         this.isEnabled = this.configService.get<boolean>(
-            'LOG_ENABLE_SESSION_LOGGER',
+            "LOG_ENABLE_SESSION_LOGGER",
             false,
         );
     }
@@ -42,8 +42,8 @@ export class SessionLoggerService {
         this.logger.info(
             {
                 ...context,
-                event: 'flow_start',
-                stage: 'initialization',
+                event: "flow_start",
+                stage: "initialization",
                 ...additionalData,
             },
             message,
@@ -61,8 +61,8 @@ export class SessionLoggerService {
         this.logger.info(
             {
                 ...context,
-                event: 'flow_complete',
-                stage: 'completion',
+                event: "flow_complete",
+                stage: "completion",
                 ...additionalData,
             },
             message,
@@ -84,7 +84,7 @@ export class SessionLoggerService {
         this.logger.error(
             {
                 ...context,
-                event: 'flow_error',
+                event: "flow_error",
                 error: {
                     name: error.name,
                     message: error.message,
@@ -109,8 +109,8 @@ export class SessionLoggerService {
         this.logger.info(
             {
                 ...context,
-                event: 'credential_issuance',
-                stage: 'credential_creation',
+                event: "credential_issuance",
+                stage: "credential_creation",
                 credentialType,
                 ...additionalData,
             },
@@ -131,12 +131,12 @@ export class SessionLoggerService {
         this.logger.info(
             {
                 ...context,
-                event: 'credential_verification',
-                stage: 'verification',
+                event: "credential_verification",
+                stage: "verification",
                 verificationResult,
                 ...additionalData,
             },
-            `[${context.flowType}] Credential verification ${verificationResult ? 'succeeded' : 'failed'} for session ${context.sessionId}`,
+            `[${context.flowType}] Credential verification ${verificationResult ? "succeeded" : "failed"} for session ${context.sessionId}`,
         );
     }
 
@@ -149,8 +149,8 @@ export class SessionLoggerService {
         this.logger.info(
             {
                 ...context,
-                event: 'authorization_request',
-                stage: 'authorization',
+                event: "authorization_request",
+                stage: "authorization",
                 ...additionalData,
             },
             `[${context.flowType}] Authorization request created for session ${context.sessionId}`,
@@ -166,8 +166,8 @@ export class SessionLoggerService {
         this.logger.info(
             {
                 ...context,
-                event: 'token_exchange',
-                stage: 'token_exchange',
+                event: "token_exchange",
+                stage: "token_exchange",
                 ...additionalData,
             },
             `[${context.flowType}] Token exchange for session ${context.sessionId}`,
@@ -187,8 +187,8 @@ export class SessionLoggerService {
         this.logger.info(
             {
                 ...context,
-                event: 'notification',
-                stage: 'notification',
+                event: "notification",
+                stage: "notification",
                 notificationEvent,
                 ...additionalData,
             },

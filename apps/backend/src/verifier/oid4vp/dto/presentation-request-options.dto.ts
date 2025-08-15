@@ -1,4 +1,4 @@
-import { WebhookConfig } from '../../../utils/webhook/webhook.dto';
+import { WebhookConfig } from "../../../utils/webhook/webhook.dto";
 
 /**
  * PresentationRequestOptions DTO

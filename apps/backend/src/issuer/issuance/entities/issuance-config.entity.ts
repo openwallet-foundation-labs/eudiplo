@@ -1,6 +1,13 @@
 import { ApiHideProperty } from "@nestjs/swagger";
-import { IsObject } from "class-validator";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { IsEmpty, IsObject } from "class-validator";
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    OneToMany,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
+} from "typeorm";
 import { WebhookConfig } from "../../../utils/webhook/webhook.dto";
 import type { AuthenticationConfig } from "../dto/authentication-config.dto";
 import { CredentialIssuanceBinding } from "./credential-issuance-binding.entity";
@@ -24,11 +31,18 @@ export class IssuanceConfig {
     tenantId: string;
 
     /**
+     * Description of the issuance configuration.
+     */
+    @Column("varchar", { nullable: true })
+    description?: string;
+
+    /**
      * Links to all credential config bindings that are included in this issuance config.
      */
     @OneToMany(
         () => CredentialIssuanceBinding,
         (binding) => binding.issuanceConfig,
+        { cascade: ["remove"], onDelete: "CASCADE" },
     )
     credentialIssuanceBindings: CredentialIssuanceBinding[];
 
@@ -44,10 +58,18 @@ export class IssuanceConfig {
     authenticationConfig: AuthenticationConfig;
 
     /**
-     * The timestamp when the issuance configuration was created.
+     * The timestamp when the VP request was created.
      */
-    @Column({ type: "date", default: () => "CURRENT_TIMESTAMP" })
-    createdAt?: Date;
+    @IsEmpty()
+    @CreateDateColumn()
+    createdAt: Date;
+
+    /**
+     * The timestamp when the VP request was last updated.
+     */
+    @IsEmpty()
+    @UpdateDateColumn()
+    updatedAt: Date;
 
     /**
      * Webhook to send the result of the notification response

@@ -1,15 +1,15 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get } from "@nestjs/common";
 import {
     HealthCheck,
     HealthCheckService,
     TypeOrmHealthIndicator,
-} from '@nestjs/terminus';
+} from "@nestjs/terminus";
 
 /**
  * HealthController is responsible for providing health check endpoints.
  * It uses the HealthCheckService to perform checks on the database connection.
  */
-@Controller('health')
+@Controller("health")
 export class HealthController {
     constructor(
         private health: HealthCheckService,
@@ -23,6 +23,6 @@ export class HealthController {
     @Get()
     @HealthCheck()
     check() {
-        return this.health.check([() => this.db.pingCheck('database')]);
+        return this.health.check([() => this.db.pingCheck("database")]);
     }
 }

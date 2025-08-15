@@ -1,11 +1,11 @@
-import { ConflictException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { Signer } from '@sd-jwt/types';
-import { JoseHeaderParameters, JWK, JWTPayload } from 'jose';
-import { Repository } from 'typeorm';
-import { KeyImportDto } from './dto/key-import.dto';
-import { KeyObj } from './dto/key-object.dto';
-import { CertEntity, CertificateType } from './entities/cert.entity';
+import { ConflictException } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { Signer } from "@sd-jwt/types";
+import { JoseHeaderParameters, JWK, JWTPayload } from "jose";
+import { Repository } from "typeorm";
+import { KeyImportDto } from "./dto/key-import.dto";
+import { KeyObj } from "./dto/key-object.dto";
+import { CertEntity, CertificateType } from "./entities/cert.entity";
 
 /**
  * Generic interface for a key service
@@ -54,17 +54,17 @@ export abstract class KeyService {
      * @returns
      */
     abstract getPublicKey(
-        type: 'jwk',
+        type: "jwk",
         tenantId: string,
         keyId?: string,
     ): Promise<JWK>;
     abstract getPublicKey(
-        type: 'pem',
+        type: "pem",
         tenantId: string,
         keyId?: string,
     ): Promise<string>;
     abstract getPublicKey(
-        type: 'pem' | 'jwk',
+        type: "pem" | "jwk",
         tenantId: string,
         keyId?: string,
     ): Promise<JWK | string>;
@@ -92,7 +92,7 @@ export abstract class KeyService {
             .then(
                 (cert) => cert.crt,
                 () => {
-                    throw new ConflictException('Certificate not found');
+                    throw new ConflictException("Certificate not found");
                 },
             );
     }

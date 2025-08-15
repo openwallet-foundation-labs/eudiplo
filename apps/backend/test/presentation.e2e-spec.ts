@@ -1,19 +1,19 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { Test, TestingModule } from '@nestjs/testing';
+import { INestApplication, ValidationPipe } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { Test, TestingModule } from "@nestjs/testing";
 import {
     Openid4vpAuthorizationRequest,
     Openid4vpClient,
-} from '@openid4vc/openid4vp';
-import { readFileSync } from 'fs';
-import { CryptoKey, EncryptJWT, importJWK, JWK } from 'jose';
-import request from 'supertest';
-import { App } from 'supertest/types';
-import { beforeAll, describe, expect, test } from 'vitest';
-import { AppModule } from '../src/app.module';
-import { callbacks, preparePresentation } from './utils';
+} from "@openid4vc/openid4vp";
+import { readFileSync } from "fs";
+import { CryptoKey, EncryptJWT, importJWK, JWK } from "jose";
+import request from "supertest";
+import { App } from "supertest/types";
+import { beforeAll, describe, expect, test } from "vitest";
+import { AppModule } from "../src/app.module";
+import { callbacks, preparePresentation } from "./utils";
 
-describe('Presentation', () => {
+describe("Presentation", () => {
     let app: INestApplication<App>;
     let authToken: string;
     let host: string;
@@ -27,9 +27,9 @@ describe('Presentation', () => {
         app = moduleFixture.createNestApplication();
 
         const configService = app.get(ConfigService);
-        host = configService.getOrThrow('PUBLIC_URL');
-        clientId = configService.getOrThrow<string>('AUTH_CLIENT_ID');
-        clientSecret = configService.getOrThrow<string>('AUTH_CLIENT_SECRET');
+        host = configService.getOrThrow("PUBLIC_URL");
+        clientId = configService.getOrThrow<string>("AUTH_CLIENT_ID");
+        clientSecret = configService.getOrThrow<string>("AUTH_CLIENT_SECRET");
         app.useGlobalPipes(new ValidationPipe());
 
         await app.init();
@@ -37,12 +37,12 @@ describe('Presentation', () => {
 
         // Get JWT token using client credentials
         const tokenResponse = await request(app.getHttpServer())
-            .post('/oauth2/token')
+            .post("/oauth2/token")
             .trustLocalhost()
             .send({
                 client_id: clientId,
                 client_secret: clientSecret,
-                grant_type: 'client_credentials',
+                grant_type: "client_credentials",
             });
 
         authToken = tokenResponse.body.access_token;
@@ -50,25 +50,28 @@ describe('Presentation', () => {
 
         //import the pid credential configuration
         const pidCredentialConfiguration = JSON.parse(
-            readFileSync('../../assets/config/root/presentation/pid.json', 'utf-8'),
+            readFileSync(
+                "../../assets/config/root/presentation/pid.json",
+                "utf-8",
+            ),
         );
-        pidCredentialConfiguration.id = 'pid';
+        pidCredentialConfiguration.id = "pid";
         await request(app.getHttpServer())
-            .post('/presentation-management')
+            .post("/presentation-management")
             .trustLocalhost()
-            .set('Authorization', `Bearer ${authToken}`)
+            .set("Authorization", `Bearer ${authToken}`)
             .send(pidCredentialConfiguration)
             .expect(201);
     });
 
-    test('create oid4vp offer', async () => {
+    test("create oid4vp offer", async () => {
         const res = await request(app.getHttpServer())
-            .post('/presentation-management/request')
+            .post("/presentation-management/request")
             .trustLocalhost()
-            .set('Authorization', `Bearer ${authToken}`)
+            .set("Authorization", `Bearer ${authToken}`)
             .send({
-                response_type: 'uri',
-                requestId: 'pid',
+                response_type: "uri",
+                requestId: "pid",
             });
 
         expect(res.body).toBeDefined();
@@ -78,38 +81,38 @@ describe('Presentation', () => {
         await request(app.getHttpServer())
             .get(`/session/${session}`)
             .trustLocalhost()
-            .set('Authorization', `Bearer ${authToken}`)
+            .set("Authorization", `Bearer ${authToken}`)
             .expect(200)
             .expect((res) => {
                 expect(res.body.id).toBe(session);
             });
     });
 
-    test('ask for an invalid oid4vp offer', async () => {
+    test("ask for an invalid oid4vp offer", async () => {
         await request(app.getHttpServer())
-            .post('/presentation-management/request')
+            .post("/presentation-management/request")
             .trustLocalhost()
-            .set('Authorization', `Bearer ${authToken}`)
+            .set("Authorization", `Bearer ${authToken}`)
             .send({
-                response_type: 'uri',
-                requestId: 'invalid',
+                response_type: "uri",
+                requestId: "invalid",
             })
             .expect(409)
             .expect((res) => {
                 expect(res.body.message).toContain(
-                    'Request ID invalid not found',
+                    "Request ID invalid not found",
                 );
             });
     });
 
-    test('present credential', async () => {
+    test("present credential", async () => {
         const res = await request(app.getHttpServer())
-            .post('/presentation-management/request')
+            .post("/presentation-management/request")
             .trustLocalhost()
-            .set('Authorization', `Bearer ${authToken}`)
+            .set("Authorization", `Bearer ${authToken}`)
             .send({
-                response_type: 'uri',
-                requestId: 'pid',
+                response_type: "uri",
+                requestId: "pid",
             });
 
         const client = new Openid4vpClient({
@@ -118,7 +121,7 @@ describe('Presentation', () => {
                 fetch: async (uri: string, init: RequestInit) => {
                     const path = uri.split(host)[1];
                     let response: any;
-                    if (init.method === 'POST') {
+                    if (init.method === "POST") {
                         response = await request(app.getHttpServer())
                             .post(path)
                             .trustLocalhost()
@@ -159,7 +162,7 @@ describe('Presentation', () => {
         const key = (await importJWK(
             resolved.authorizationRequestPayload.client_metadata?.jwks
                 ?.keys[0] as JWK,
-            'ECDH-ES',
+            "ECDH-ES",
         )) as CryptoKey;
 
         const jwt = await new EncryptJWT({
@@ -167,11 +170,11 @@ describe('Presentation', () => {
             state: resolved.authorizationRequestPayload.state!,
         })
             .setProtectedHeader({
-                alg: 'ECDH-ES',
-                enc: 'A128GCM',
+                alg: "ECDH-ES",
+                enc: "A128GCM",
             })
             .setIssuedAt()
-            .setExpirationTime('2h') // Optional: set expiration
+            .setExpirationTime("2h") // Optional: set expiration
             .encrypt(key); // Use the public key for encryption
 
         const authorizationResponse =

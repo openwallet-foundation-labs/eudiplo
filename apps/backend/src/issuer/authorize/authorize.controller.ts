@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { randomUUID } from "node:crypto";
 import {
     Body,
     Controller,
@@ -8,24 +8,24 @@ import {
     Req,
     Res,
     UseGuards,
-} from '@nestjs/common';
-import { ApiBody, ApiExcludeController } from '@nestjs/swagger';
-import type { Request, Response } from 'express';
-import { Session } from '../../session/entities/session.entity';
-import { SessionEntity } from '../../session/session.decorator';
-import { SessionGuard } from '../../session/session.guard';
-import { SessionService } from '../../session/session.service';
-import { AuthorizeService } from './authorize.service';
-import { AuthorizeQueries } from './dto/authorize-request.dto';
-import { ParResponseDto } from './dto/par-response.dto';
+} from "@nestjs/common";
+import { ApiBody, ApiExcludeController } from "@nestjs/swagger";
+import type { Request, Response } from "express";
+import { Session } from "../../session/entities/session.entity";
+import { SessionEntity } from "../../session/session.decorator";
+import { SessionGuard } from "../../session/session.guard";
+import { SessionService } from "../../session/session.service";
+import { AuthorizeService } from "./authorize.service";
+import { AuthorizeQueries } from "./dto/authorize-request.dto";
+import { ParResponseDto } from "./dto/par-response.dto";
 
 /**
  * Controller for the OpenID4VCI authorization endpoints.
  * This controller handles the authorization requests, token requests.
  */
-@ApiExcludeController(process.env.SWAGGER_ALL !== 'true')
+@ApiExcludeController(process.env.SWAGGER_ALL !== "true")
 @UseGuards(SessionGuard)
-@Controller(':session/authorize')
+@Controller(":session/authorize")
 export class AuthorizeController {
     constructor(
         private readonly authorizeService: AuthorizeService,
@@ -48,10 +48,10 @@ export class AuthorizeController {
      * @returns
      */
     @ApiBody({
-        description: 'Pushed Authorization Request',
+        description: "Pushed Authorization Request",
         type: AuthorizeQueries,
     })
-    @Post('par')
+    @Post("par")
     async par(@Body() body: AuthorizeQueries): Promise<ParResponseDto> {
         const request_uri = `urn:${randomUUID()}`;
         // save both so we can retrieve the session also via the request_uri in the authorize step.
@@ -73,7 +73,7 @@ export class AuthorizeController {
      * @returns
      */
     @UseGuards(SessionGuard)
-    @Post('token')
+    @Post("token")
     token(
         @Body() body: any,
         @Req() req: Request,
@@ -90,7 +90,7 @@ export class AuthorizeController {
      * @returns
      */
     @UseGuards(SessionGuard)
-    @Post('challenge')
+    @Post("challenge")
     authorizationChallengeEndpoint(
         @Res() res: Response,
         @Body() body: AuthorizeQueries,

@@ -236,14 +236,14 @@ export class CredentialConfigCreateComponent implements OnInit {
       data: {
         title: 'Complete Configuration JSON',
         jsonData: currentConfig,
-        readonly: false
+        readonly: false,
       },
       disableClose: false,
       maxWidth: '95vw',
-      maxHeight: '95vh'
+      maxHeight: '95vh',
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.loadConfigurationFromJson(result);
       }
@@ -334,11 +334,11 @@ export class CredentialConfigCreateComponent implements OnInit {
       data: {
         title: `${configTemplate.name} - Preview`,
         jsonData: configTemplate.config,
-        readonly: true
+        readonly: true,
       },
       disableClose: false,
       maxWidth: '95vw',
-      maxHeight: '95vh'
+      maxHeight: '95vh',
     });
   }
 }

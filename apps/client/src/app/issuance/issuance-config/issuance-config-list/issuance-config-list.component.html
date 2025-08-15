@@ -22,6 +22,11 @@
     <td mat-cell *matCellDef="let config">{{ config.id }}</td>
   </ng-container>
 
+  <ng-container matColumnDef="description">
+    <th mat-header-cell *matHeaderCellDef>Description</th>
+    <td mat-cell *matCellDef="let config">{{ config.description }}</td>
+  </ng-container>
+
   <ng-container matColumnDef="authenticationConfig">
     <th mat-header-cell *matHeaderCellDef>Authentication Config</th>
     <td mat-cell *matCellDef="let config">

@@ -1,33 +1,33 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import * as Joi from 'joi';
-import { join } from 'path';
+import { Module } from "@nestjs/common";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { TypeOrmModule, TypeOrmModuleOptions } from "@nestjs/typeorm";
+import * as Joi from "joi";
+import { join } from "path";
 
 export const DB_VALIDATION_SCHEMA = {
-    DB_TYPE: Joi.string().valid('sqlite', 'postgres').default('sqlite'),
-    DB_HOST: Joi.string().when('DB_TYPE', {
-        is: 'sqlite',
+    DB_TYPE: Joi.string().valid("sqlite", "postgres").default("sqlite"),
+    DB_HOST: Joi.string().when("DB_TYPE", {
+        is: "sqlite",
         then: Joi.optional(),
         otherwise: Joi.required(),
     }),
-    DB_PORT: Joi.number().when('DB_TYPE', {
-        is: 'sqlite',
+    DB_PORT: Joi.number().when("DB_TYPE", {
+        is: "sqlite",
         then: Joi.optional(),
         otherwise: Joi.required(),
     }),
-    DB_USERNAME: Joi.string().when('DB_TYPE', {
-        is: 'sqlite',
+    DB_USERNAME: Joi.string().when("DB_TYPE", {
+        is: "sqlite",
         then: Joi.optional(),
         otherwise: Joi.required(),
     }),
-    DB_PASSWORD: Joi.string().when('DB_TYPE', {
-        is: 'sqlite',
+    DB_PASSWORD: Joi.string().when("DB_TYPE", {
+        is: "sqlite",
         then: Joi.optional(),
         otherwise: Joi.required(),
     }),
-    DB_DATABASE: Joi.string().when('DB_TYPE', {
-        is: 'sqlite',
+    DB_DATABASE: Joi.string().when("DB_TYPE", {
+        is: "sqlite",
         then: Joi.optional(),
         otherwise: Joi.required(),
     }),
@@ -41,8 +41,8 @@ export const DB_VALIDATION_SCHEMA = {
             useFactory: (
                 configService: ConfigService,
             ): TypeOrmModuleOptions => {
-                const dbType = configService.get<'sqlite' | 'postgres'>(
-                    'DB_TYPE',
+                const dbType = configService.get<"sqlite" | "postgres">(
+                    "DB_TYPE",
                 );
 
                 const commonOptions = {
@@ -50,26 +50,26 @@ export const DB_VALIDATION_SCHEMA = {
                     autoLoadEntities: true,
                 };
 
-                if (dbType === 'postgres') {
+                if (dbType === "postgres") {
                     return {
-                        type: 'postgres',
-                        host: configService.getOrThrow<string>('DB_HOST'),
-                        port: configService.getOrThrow<number>('DB_PORT'),
+                        type: "postgres",
+                        host: configService.getOrThrow<string>("DB_HOST"),
+                        port: configService.getOrThrow<number>("DB_PORT"),
                         username:
-                            configService.getOrThrow<string>('DB_USERNAME'),
+                            configService.getOrThrow<string>("DB_USERNAME"),
                         password:
-                            configService.getOrThrow<string>('DB_PASSWORD'),
+                            configService.getOrThrow<string>("DB_PASSWORD"),
                         database:
-                            configService.getOrThrow<string>('DB_DATABASE'),
+                            configService.getOrThrow<string>("DB_DATABASE"),
                         ...commonOptions,
                     };
                 }
 
                 return {
-                    type: 'sqlite',
+                    type: "sqlite",
                     database: join(
-                        configService.getOrThrow<string>('FOLDER'),
-                        'service.db',
+                        configService.getOrThrow<string>("FOLDER"),
+                        "service.db",
                     ),
                     ...commonOptions,
                 };

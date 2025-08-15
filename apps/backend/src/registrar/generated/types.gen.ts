@@ -60,12 +60,12 @@ export type MultiLang = {
 
 export type Contact = {
     website: string;
-    'e-mail': string;
+    "e-mail": string;
     phone: string;
 };
 
 export type Credential = {
-    format: 'dc+sd-jwt' | 'mso_mdoc';
+    format: "dc+sd-jwt" | "mso_mdoc";
     meta: {
         [key: string]: unknown;
     };
@@ -111,7 +111,7 @@ export type HealthControllerCheckData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/health';
+    url: "/health";
 };
 
 export type HealthControllerCheckErrors = {
@@ -184,7 +184,7 @@ export type RelyingPartyControllerFindAllData = {
         LEI?: unknown;
         name?: unknown;
     };
-    url: '/relying-parties';
+    url: "/relying-parties";
 };
 
 export type RelyingPartyControllerFindAllResponses = {
@@ -198,7 +198,7 @@ export type RelyingPartyControllerRegisterData = {
     body: RelyingPartyRegistration;
     path?: never;
     query?: never;
-    url: '/relying-parties';
+    url: "/relying-parties";
 };
 
 export type RelyingPartyControllerRegisterResponses = {
@@ -214,7 +214,7 @@ export type RelyingPartyControllerRemoveData = {
         id: string;
     };
     query?: never;
-    url: '/relying-parties/{id}';
+    url: "/relying-parties/{id}";
 };
 
 export type RelyingPartyControllerRemoveResponses = {
@@ -225,7 +225,7 @@ export type CryptoControllerOwnCertData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/ca';
+    url: "/ca";
 };
 
 export type CryptoControllerOwnCertResponses = {
@@ -239,7 +239,7 @@ export type CryptoControllerOwnCertParsedData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/ca/parsed';
+    url: "/ca/parsed";
 };
 
 export type CryptoControllerOwnCertParsedResponses = {
@@ -258,7 +258,7 @@ export type AccessCertificateControllerAccessCertificatesData = {
         rp: unknown;
     };
     query?: never;
-    url: '/relying-parties/{rp}/access-certificates';
+    url: "/relying-parties/{rp}/access-certificates";
 };
 
 export type AccessCertificateControllerAccessCertificatesResponses = {
@@ -277,7 +277,7 @@ export type AccessCertificateControllerRegisterData = {
         rp: unknown;
     };
     query?: never;
-    url: '/relying-parties/{rp}/access-certificates';
+    url: "/relying-parties/{rp}/access-certificates";
 };
 
 export type AccessCertificateControllerRegisterResponses = {
@@ -297,7 +297,7 @@ export type AccessCertificateControllerDeleteData = {
         rp: unknown;
     };
     query?: never;
-    url: '/relying-parties/{rp}/access-certificates/{id}';
+    url: "/relying-parties/{rp}/access-certificates/{id}";
 };
 
 export type AccessCertificateControllerDeleteResponses = {
@@ -314,7 +314,7 @@ export type AccessCertificateControllerFindOneData = {
         rp: unknown;
     };
     query?: never;
-    url: '/relying-parties/{rp}/access-certificates/{id}';
+    url: "/relying-parties/{rp}/access-certificates/{id}";
 };
 
 export type AccessCertificateControllerFindOneResponses = {
@@ -331,7 +331,7 @@ export type AccessCertificateControllerFindOneParsedData = {
         rp: unknown;
     };
     query?: never;
-    url: '/relying-parties/{rp}/access-certificates/{id}/parsed';
+    url: "/relying-parties/{rp}/access-certificates/{id}/parsed";
 };
 
 export type AccessCertificateControllerFindOneParsedResponses = {
@@ -350,7 +350,7 @@ export type RegistrationCertificateControllerAllData = {
         rp: unknown;
     };
     query?: never;
-    url: '/relying-parties/{rp}/registration-certificates';
+    url: "/relying-parties/{rp}/registration-certificates";
 };
 
 export type RegistrationCertificateControllerAllResponses = {
@@ -369,7 +369,7 @@ export type RegistrationCertificateControllerRegisterData = {
         rp: unknown;
     };
     query?: never;
-    url: '/relying-parties/{rp}/registration-certificates';
+    url: "/relying-parties/{rp}/registration-certificates";
 };
 
 export type RegistrationCertificateControllerRegisterResponses = {
@@ -389,7 +389,7 @@ export type RegistrationCertificateControllerDeleteData = {
         rp: unknown;
     };
     query?: never;
-    url: '/relying-parties/{rp}/registration-certificates/{id}';
+    url: "/relying-parties/{rp}/registration-certificates/{id}";
 };
 
 export type RegistrationCertificateControllerDeleteResponses = {
@@ -406,7 +406,7 @@ export type RegistrationCertificateControllerFindOneData = {
         rp: unknown;
     };
     query?: never;
-    url: '/relying-parties/{rp}/registration-certificates/{id}';
+    url: "/relying-parties/{rp}/registration-certificates/{id}";
 };
 
 export type RegistrationCertificateControllerFindOneErrors = {
@@ -433,7 +433,7 @@ export type RegistrationCertificateControllerFindOneDecodedData = {
         rp: unknown;
     };
     query?: never;
-    url: '/relying-parties/{rp}/registration-certificates/{id}/jws-decoded';
+    url: "/relying-parties/{rp}/registration-certificates/{id}/jws-decoded";
 };
 
 export type RegistrationCertificateControllerFindOneDecodedResponses = {
@@ -447,7 +447,7 @@ export type StatusListControllerGetListData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/status-management/status-list';
+    url: "/status-management/status-list";
 };
 
 export type StatusListControllerGetListResponses = {
@@ -461,7 +461,7 @@ export type StatusListControllerCrlFileData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/status-management/crl';
+    url: "/status-management/crl";
 };
 
 export type StatusListControllerCrlFileResponses = {
@@ -478,12 +478,12 @@ export type Oid4VpControllerGetValidPidData = {
     body?: never;
     path?: never;
     query: {
-        'oid4vp-version': 'draft-24' | 'draft-21';
-        request: 'valid-request' | 'overask';
-        response: 'qr-code' | 'uri';
-        'query-language': 'dcql' | 'pex';
+        "oid4vp-version": "draft-24" | "draft-21";
+        request: "valid-request" | "overask";
+        response: "qr-code" | "uri";
+        "query-language": "dcql" | "pex";
     };
-    url: '/oid4vp';
+    url: "/oid4vp";
 };
 
 export type Oid4VpControllerGetValidPidResponses = {
@@ -497,7 +497,7 @@ export type Oid4VpControllerGetValidRequestWithQueryData = {
         request: string;
     };
     query?: never;
-    url: '/oid4vp/{version}/{request}';
+    url: "/oid4vp/{version}/{request}";
 };
 
 export type Oid4VpControllerGetValidRequestWithQueryResponses = {
@@ -510,12 +510,12 @@ export type Oid4VpControllerGetValidRequestWithQueryResponse =
 export type Oid4VpControllerGetValidRequestData = {
     body?: never;
     path: {
-        version: 'draft-21' | 'draft-24';
-        request: 'valid-request' | 'overask';
-        querylanguage: 'dcql' | 'pex';
+        version: "draft-21" | "draft-24";
+        request: "valid-request" | "overask";
+        querylanguage: "dcql" | "pex";
     };
     query?: never;
-    url: '/oid4vp/{version}/{request}/{querylanguage}';
+    url: "/oid4vp/{version}/{request}/{querylanguage}";
 };
 
 export type Oid4VpControllerGetValidRequestResponses = {
@@ -529,7 +529,7 @@ export type Oid4VpControllerResponseData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/oid4vp/response';
+    url: "/oid4vp/response";
 };
 
 export type Oid4VpControllerResponseResponses = {
@@ -540,7 +540,7 @@ export type Oid4VpControllerSuccessData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/oid4vp/success';
+    url: "/oid4vp/success";
 };
 
 export type Oid4VpControllerSuccessResponses = {

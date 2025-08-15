@@ -25,7 +25,6 @@
             <input
               matInput
               formControlName="id"
-              [readonly]="!create"
               placeholder="Enter a unique identifier for this key"
             />
             <mat-icon matSuffix>tag</mat-icon>
@@ -39,7 +38,6 @@
             <input
               matInput
               formControlName="description"
-              [readonly]="!create"
               placeholder="Describe the purpose of this key"
             />
             <mat-icon matSuffix>description</mat-icon>
@@ -117,7 +115,7 @@
     <mat-card>
       <mat-card-header>
         <mat-card-title>
-          <mat-icon class="title-icon">certificate</mat-icon>
+          <mat-icon>badge</mat-icon>
           Certificate (Optional)
         </mat-card-title>
         <mat-card-subtitle> X.509 certificate for public key verification </mat-card-subtitle>
@@ -135,7 +133,10 @@
 -----END CERTIFICATE-----"
           ></textarea>
           <mat-icon matSuffix>certificate</mat-icon>
-          <mat-hint>Optional X.509 certificate in PEM format</mat-hint>
+          <mat-hint
+            >Optional X.509 certificate in PEM format. If not provided, we will create a self signed
+            one.</mat-hint
+          >
         </mat-form-field>
       </mat-card-content>
     </mat-card>
@@ -143,7 +144,7 @@
     <!-- Action Buttons -->
     <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="end center">
       <button mat-button type="button" [routerLink]="['../']">Cancel</button>
-      <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || loading">
+      <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || loading">
         @if (loading) {
           <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
         }

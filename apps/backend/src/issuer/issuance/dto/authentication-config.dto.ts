@@ -1,43 +1,48 @@
-import { Type } from 'class-transformer';
+import { Type } from "class-transformer";
 import {
     IsIn,
     IsObject,
     IsOptional,
+    IsString,
     IsUrl,
     Validate,
     ValidateNested,
     ValidationArguments,
     ValidatorConstraint,
     ValidatorConstraintInterface,
-} from 'class-validator';
-import { WebhookConfig } from '../../../utils/webhook/webhook.dto';
-import { PresentationDuringIssuance } from '../../credentials-metadata/dto/credential-config.dto';
+} from "class-validator";
+import { WebhookConfig } from "../../../utils/webhook/webhook.dto";
+import { PresentationDuringIssuance } from "../../credentials-metadata/dto/credential-config.dto";
 
 /**
  * Custom validator to ensure config type matches the authentication method
  */
-@ValidatorConstraint({ name: 'authConfigValidator', async: false })
+@ValidatorConstraint({ name: "authConfigValidator", async: false })
 export class AuthConfigValidator implements ValidatorConstraintInterface {
     validate(config: any, args: ValidationArguments) {
         const obj = args.object as AuthenticationConfigDto;
 
-        if (obj.method === 'none') {
+        if (obj.method === "none") {
             // For 'none' method, config should be undefined
             return config === undefined;
         }
 
-        if (obj.method === 'auth') {
+        if (obj.method === "auth") {
             // For 'auth' method, config must be present and have 'url' property
             return (
                 config &&
-                typeof config === 'object' &&
-                typeof config.url === 'string'
+                typeof config === "object" &&
+                typeof config.url === "string"
             );
         }
 
-        if (obj.method === 'presentationDuringIssuance') {
+        if (obj.method === "presentationDuringIssuance") {
             // For 'presentationDuringIssuance' method, config must be present and have 'presentation' property
-            return config && typeof config === 'object' && config.presentation;
+            return (
+                config &&
+                typeof config === "object" &&
+                typeof config.presentation === "object"
+            );
         }
 
         return false;
@@ -46,19 +51,19 @@ export class AuthConfigValidator implements ValidatorConstraintInterface {
     defaultMessage(args: ValidationArguments) {
         const obj = args.object as AuthenticationConfigDto;
 
-        if (obj.method === 'none') {
+        if (obj.method === "none") {
             return 'config must be undefined when method is "none"';
         }
 
-        if (obj.method === 'auth') {
+        if (obj.method === "auth") {
             return 'config must be of type AuthenticationUrlConfig when method is "auth"';
         }
 
-        if (obj.method === 'presentationDuringIssuance') {
+        if (obj.method === "presentationDuringIssuance") {
             return 'config must be of type PresentationDuringIssuanceConfig when method is "presentationDuringIssuance"';
         }
 
-        return 'config type does not match the specified method';
+        return "config type does not match the specified method";
     }
 }
 
@@ -109,8 +114,8 @@ export class AuthenticationConfigDto {
      * - 'auth': OID4VCI authorized code flow (user redirect for authentication)
      * - 'presentationDuringIssuance': OID4VP flow (credential presentation required)
      */
-    @IsIn(['none', 'auth', 'presentationDuringIssuance'])
-    method: 'none' | 'auth' | 'presentationDuringIssuance';
+    @IsIn(["none", "auth", "presentationDuringIssuance"])
+    method: "none" | "auth" | "presentationDuringIssuance";
 
     /**
      * Configuration specific to the selected authentication method
@@ -121,6 +126,13 @@ export class AuthenticationConfigDto {
     @IsOptional()
     @Validate(AuthConfigValidator)
     config?: AuthenticationUrlConfig | PresentationDuringIssuanceConfig;
+
+    /**
+     * Description of the authentication configuration.
+     */
+    @IsOptional()
+    @IsString()
+    description?: string;
 }
 
 /**
@@ -128,9 +140,9 @@ export class AuthenticationConfigDto {
  * Each method corresponds to a specific OpenID4VC flow
  */
 export type AuthenticationConfig =
-    | { method: 'none' } // Pre-authorized code flow
-    | { method: 'auth'; config: AuthenticationUrlConfig } // OID4VCI authorized code flow
+    | { method: "none" } // Pre-authorized code flow
+    | { method: "auth"; config: AuthenticationUrlConfig } // OID4VCI authorized code flow
     | {
-          method: 'presentationDuringIssuance'; // OID4VP flow
+          method: "presentationDuringIssuance"; // OID4VP flow
           config: PresentationDuringIssuanceConfig;
       };

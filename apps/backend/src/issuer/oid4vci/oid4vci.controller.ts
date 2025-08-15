@@ -6,25 +6,25 @@ import {
     Req,
     UseGuards,
     UseInterceptors,
-} from '@nestjs/common';
-import { ApiExcludeController, ApiParam } from '@nestjs/swagger';
-import type { CredentialResponse } from '@openid4vc/openid4vci';
-import type { Request } from 'express';
-import { Oid4vciService } from '../../issuer/oid4vci/oid4vci.service';
-import { Session } from '../../session/entities/session.entity';
-import { SessionEntity } from '../../session/session.decorator';
-import { SessionGuard } from '../../session/session.guard';
-import { SessionLogger } from '../../utils/logger//session-logger.decorator';
-import { SessionLoggerInterceptor } from '../../utils/logger/session-logger.interceptor';
-import { NotificationRequestDto } from './dto/notification-request.dto';
+} from "@nestjs/common";
+import { ApiExcludeController, ApiParam } from "@nestjs/swagger";
+import type { CredentialResponse } from "@openid4vc/openid4vci";
+import type { Request } from "express";
+import { Oid4vciService } from "../../issuer/oid4vci/oid4vci.service";
+import { Session } from "../../session/entities/session.entity";
+import { SessionEntity } from "../../session/session.decorator";
+import { SessionGuard } from "../../session/session.guard";
+import { SessionLogger } from "../../utils/logger//session-logger.decorator";
+import { SessionLoggerInterceptor } from "../../utils/logger/session-logger.interceptor";
+import { NotificationRequestDto } from "./dto/notification-request.dto";
 
 /**
  * Controller for handling OID4VCI (OpenID for Verifiable Credential Issuance) requests.
  */
-@ApiParam({ name: 'session', required: true })
-@ApiExcludeController(process.env.SWAGGER_ALL !== 'true')
+@ApiParam({ name: "session", required: true })
+@ApiExcludeController(process.env.SWAGGER_ALL !== "true")
 @UseGuards(SessionGuard)
-@Controller(':session/vci')
+@Controller(":session/vci")
 @UseInterceptors(SessionLoggerInterceptor)
 export class Oid4vciController {
     constructor(private readonly oid4vciService: Oid4vciService) {}
@@ -34,8 +34,8 @@ export class Oid4vciController {
      * @param req
      * @returns
      */
-    @Post('credential')
-    @SessionLogger('session', 'OID4VCI')
+    @Post("credential")
+    @SessionLogger("session", "OID4VCI")
     credential(
         @Req() req: Request,
         @SessionEntity() session: Session,
@@ -48,8 +48,8 @@ export class Oid4vciController {
      * @param body
      * @returns
      */
-    @Post('notification')
-    @SessionLogger('notification_id', 'OID4VCI')
+    @Post("notification")
+    @SessionLogger("notification_id", "OID4VCI")
     notifications(
         @Body() body: NotificationRequestDto,
         @Req() req: Request,
@@ -58,8 +58,8 @@ export class Oid4vciController {
         return this.oid4vciService.handleNotification(req, body, session);
     }
 
-    @Post('nonce')
-    @SessionLogger('nonce', 'OID4VCI')
+    @Post("nonce")
+    @SessionLogger("nonce", "OID4VCI")
     nonce(@SessionEntity() session: Session) {
         return this.oid4vciService.nonceRequest(session);
     }
