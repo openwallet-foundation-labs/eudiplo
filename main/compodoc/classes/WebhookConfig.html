@@ -277,8 +277,8 @@ If not provided, no authentication will be used.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Type } from &#x27;class-transformer&#x27;;
-import { IsIn, IsObject, IsOptional, IsString } from &#x27;class-validator&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Type } from &quot;class-transformer&quot;;
+import { IsIn, IsObject, IsOptional, IsString } from &quot;class-validator&quot;;
 
 /**
  * Configuration for API key authentication in webhooks.
@@ -301,7 +301,7 @@ export class ApiKeyConfig {
 /**
  * Enum for the type of authentication used in webhooks.
  */
-export type AuthConfig &#x3D; &#x27;apiKey&#x27;;
+export type AuthConfig &#x3D; &quot;apiKey&quot;;
 
 /**
  * Configuration for webhook authentication.
@@ -311,7 +311,7 @@ export class WebHookAuthConfig {
      * The type of authentication used for the webhook.
      * Currently, only &#x27;apiKey&#x27; is supported.
      */
-    @IsIn([&#x27;apiKey&#x27;])
+    @IsIn([&quot;apiKey&quot;])
     type: AuthConfig;
     /**
      * Configuration for API key authentication.

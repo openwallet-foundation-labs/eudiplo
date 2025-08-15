@@ -433,32 +433,32 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Controller, Get, Header, UseGuards } from &#x27;@nestjs/common&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Controller, Get, Header, UseGuards } from &quot;@nestjs/common&quot;;
 import {
     ApiExcludeController,
     ApiOperation,
     ApiParam,
     ApiProduces,
-} from &#x27;@nestjs/swagger&#x27;;
-import { Session } from &#x27;../session/entities/session.entity&#x27;;
-import { SessionEntity } from &#x27;../session/session.decorator&#x27;;
-import { SessionGuard } from &#x27;../session/session.guard&#x27;;
-import { ContentType } from &#x27;../utils/mediaType/media-type.decorator&#x27;;
-import { MediaType } from &#x27;../utils/mediaType/media-type.enum&#x27;;
-import { JwksResponseDto } from &#x27;./dto/jwks-response.dto&#x27;;
-import { Oauth2AuthorizationServerResponse } from &#x27;./dto/oauth-authorization-server-response.dto&#x27;;
-import { WellKnownService } from &#x27;./well-known.service&#x27;;
+} from &quot;@nestjs/swagger&quot;;
+import { Session } from &quot;../session/entities/session.entity&quot;;
+import { SessionEntity } from &quot;../session/session.decorator&quot;;
+import { SessionGuard } from &quot;../session/session.guard&quot;;
+import { ContentType } from &quot;../utils/mediaType/media-type.decorator&quot;;
+import { MediaType } from &quot;../utils/mediaType/media-type.enum&quot;;
+import { JwksResponseDto } from &quot;./dto/jwks-response.dto&quot;;
+import { Oauth2AuthorizationServerResponse } from &quot;./dto/oauth-authorization-server-response.dto&quot;;
+import { WellKnownService } from &quot;./well-known.service&quot;;
 
 /**
  * Controller for the OpenID4VCI well-known endpoints.
  */
-@ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &#x27;true&#x27;)
+@ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &quot;true&quot;)
 @UseGuards(SessionGuard)
 @ApiParam({
-    name: &#x27;session&#x27;,
+    name: &quot;session&quot;,
     required: true,
 })
-@Controller(&#x27;:session/.well-known&#x27;)
+@Controller(&quot;:session/.well-known&quot;)
 export class WellKnownController {
     /**
      * Constructor for WellKnownController.
@@ -473,12 +473,12 @@ export class WellKnownController {
      * @returns
      */
     @ApiOperation({
-        summary: &#x27;Get OpenID4VCI issuer metadata&#x27;,
-        description: &#x27;Returns the OpenID4VCI issuer metadata.&#x27;,
+        summary: &quot;Get OpenID4VCI issuer metadata&quot;,
+        description: &quot;Returns the OpenID4VCI issuer metadata.&quot;,
     })
     //we can not set the accept in the apiheader via swagger.
     @ApiProduces(MediaType.APPLICATION_JSON, MediaType.APPLICATION_JWT)
-    @Get(&#x27;openid-credential-issuer&#x27;)
+    @Get(&quot;openid-credential-issuer&quot;)
     issuerMetadata(
         @SessionEntity() session: Session,
         @ContentType() contentType: MediaType,
@@ -490,7 +490,7 @@ export class WellKnownController {
      * Authorization Server Metadata
      * @returns
      */
-    @Get(&#x27;oauth-authorization-server&#x27;)
+    @Get(&quot;oauth-authorization-server&quot;)
     authzMetadata(
         @SessionEntity() session: Session,
     ): Oauth2AuthorizationServerResponse {
@@ -501,8 +501,8 @@ export class WellKnownController {
      * Returns the JSON Web Key Set (JWKS) for the authorization server.
      * @returns
      */
-    @Header(&#x27;Content-Type&#x27;, &#x27;application/jwk-set+json&#x27;)
-    @Get(&#x27;jwks.json&#x27;)
+    @Header(&quot;Content-Type&quot;, &quot;application/jwk-set+json&quot;)
+    @Get(&quot;jwks.json&quot;)
     getJwks(@SessionEntity() session: Session): Promise&lt;JwksResponseDto&gt; {
         return this.wellKnownService.getJwks(session.tenantId);
     }

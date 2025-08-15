@@ -167,6 +167,12 @@
                             </li>
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
+                                <a href="#description" >description</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
                                 <a href="#id" >id</a>
                             </li>
                             <li>
@@ -227,7 +233,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="49" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:49</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="56" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:56</a></div>
                         </td>
                     </tr>
 
@@ -272,7 +278,7 @@ This includes details like the authentication method and any required parameters
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="66" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:66</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="73" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:73</a></div>
                         </td>
                     </tr>
 
@@ -317,13 +323,57 @@ Default is 1.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="40" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:40</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:47</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
                     <div class="io-description"><p>Ids of the credential configurations associated with this issuance configuration.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="description"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
+                        <span ><b>description</b></span>
+                        <a href="#description"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @IsString()<br />@IsOptional()<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="39" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:39</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Description of the issuance configuration.</p>
 </div>
                 </td>
             </tr>
@@ -405,7 +455,7 @@ Default is 1.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="58" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:58</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="65" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:65</a></div>
                         </td>
                     </tr>
 
@@ -430,7 +480,7 @@ Default is 1.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Type } from &#x27;class-transformer&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Type } from &quot;class-transformer&quot;;
 import {
     IsArray,
     IsNumber,
@@ -438,9 +488,9 @@ import {
     IsOptional,
     IsString,
     ValidateNested,
-} from &#x27;class-validator&#x27;;
-import { WebhookConfig } from &#x27;../../../utils/webhook/webhook.dto&#x27;;
-import { AuthenticationConfigDto } from &#x27;./authentication-config.dto&#x27;;
+} from &quot;class-validator&quot;;
+import { WebhookConfig } from &quot;../../../utils/webhook/webhook.dto&quot;;
+import { AuthenticationConfigDto } from &quot;./authentication-config.dto&quot;;
 
 /**
  * DTO for mapping credential configurations in issuance.
@@ -462,6 +512,13 @@ export class IssuanceDto {
      */
     @IsString()
     id: string;
+
+    /**
+     * Description of the issuance configuration.
+     */
+    @IsString()
+    @IsOptional()
+    description?: string;
 
     /**
      * Ids of the credential configurations associated with this issuance configuration.

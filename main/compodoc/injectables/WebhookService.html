@@ -439,13 +439,13 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { HttpService } from &#x27;@nestjs/axios&#x27;;
-import { Injectable } from &#x27;@nestjs/common&#x27;;
-import { firstValueFrom } from &#x27;rxjs&#x27;;
-import { Notification, Session } from &#x27;../../session/entities/session.entity&#x27;;
-import { SessionService } from &#x27;../../session/session.service&#x27;;
-import { SessionLoggerService } from &#x27;../logger/session-logger.service&#x27;;
-import { SessionLogContext } from &#x27;../logger/session-logger-context&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { HttpService } from &quot;@nestjs/axios&quot;;
+import { Injectable } from &quot;@nestjs/common&quot;;
+import { firstValueFrom } from &quot;rxjs&quot;;
+import { Notification, Session } from &quot;../../session/entities/session.entity&quot;;
+import { SessionService } from &quot;../../session/session.service&quot;;
+import { SessionLoggerService } from &quot;../logger/session-logger.service&quot;;
+import { SessionLogContext } from &quot;../logger/session-logger-context&quot;;
 
 /**
  * Service for handling webhooks in the application.
@@ -476,13 +476,13 @@ export class WebhookService {
         credentials: any[],
     ) {
         const headers: Record&lt;string, string&gt; &#x3D; {};
-        if (session.webhook!.auth &amp;&amp; session.webhook!.auth.type &#x3D;&#x3D;&#x3D; &#x27;apiKey&#x27;) {
+        if (session.webhook!.auth &amp;&amp; session.webhook!.auth.type &#x3D;&#x3D;&#x3D; &quot;apiKey&quot;) {
             headers[session.webhook!.auth.config.headerName] &#x3D;
                 session.webhook!.auth.config.value;
         }
-        this.sessionLogger.logSession(logContext, &#x27;Sending webhook&#x27;, {
+        this.sessionLogger.logSession(logContext, &quot;Sending webhook&quot;, {
             webhookUrl: session.webhook!.url,
-            authType: session.webhook!.auth?.type || &#x27;none&#x27;,
+            authType: session.webhook!.auth?.type || &quot;none&quot;,
         });
 
         await firstValueFrom(
@@ -509,7 +509,7 @@ export class WebhookService {
 
                 this.sessionLogger.logSession(
                     logContext,
-                    &#x27;Webhook sent successfully&#x27;,
+                    &quot;Webhook sent successfully&quot;,
                     {
                         responseStatus: webhookResponse.status,
                         hasResponseData: !!webhookResponse.data,
@@ -520,7 +520,7 @@ export class WebhookService {
                 this.sessionLogger.logSessionError(
                     logContext,
                     err,
-                    &#x27;Error sending webhook&#x27;,
+                    &quot;Error sending webhook&quot;,
                     {
                         webhookUrl: session.webhook!.url,
                     },
@@ -544,15 +544,15 @@ export class WebhookService {
         const headers: Record&lt;string, string&gt; &#x3D; {};
         const webhook &#x3D; session.notifyWebhook!;
 
-        if (webhook.auth &amp;&amp; webhook.auth.type &#x3D;&#x3D;&#x3D; &#x27;apiKey&#x27;) {
+        if (webhook.auth &amp;&amp; webhook.auth.type &#x3D;&#x3D;&#x3D; &quot;apiKey&quot;) {
             headers[webhook.auth.config.headerName] &#x3D; webhook.auth.config.value;
         }
         this.sessionLogger.logSession(
             logContext,
-            &#x27;Sending webhook notification&#x27;,
+            &quot;Sending webhook notification&quot;,
             {
                 webhookUrl: webhook.url,
-                authType: webhook.auth?.type || &#x27;none&#x27;,
+                authType: webhook.auth?.type || &quot;none&quot;,
             },
         );
 
@@ -580,7 +580,7 @@ export class WebhookService {
 
                 this.sessionLogger.logSession(
                     logContext,
-                    &#x27;Webhook notification sent successfully&#x27;,
+                    &quot;Webhook notification sent successfully&quot;,
                     {
                         responseStatus: webhookResponse.status,
                         hasResponseData: !!webhookResponse.data,
@@ -591,7 +591,7 @@ export class WebhookService {
                 this.sessionLogger.logSessionError(
                     logContext,
                     err,
-                    &#x27;Error sending webhook&#x27;,
+                    &quot;Error sending webhook&quot;,
                     {
                         webhookUrl: session.webhook!.url,
                     },

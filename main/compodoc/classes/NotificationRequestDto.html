@@ -251,14 +251,14 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { NotificationEvent } from &#x27;@openid4vc/openid4vci&#x27;;
-import { IsEnum, IsString } from &#x27;class-validator&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { NotificationEvent } from &quot;@openid4vc/openid4vci&quot;;
+import { IsEnum, IsString } from &quot;class-validator&quot;;
 
 export class NotificationRequestDto {
     @IsString()
     notification_id: string;
 
-    @IsEnum([&#x27;credential_accepted&#x27;, &#x27;credential_revoked&#x27;])
+    @IsEnum([&quot;credential_accepted&quot;, &quot;credential_revoked&quot;])
     event: NotificationEvent;
 }
 </code></pre>

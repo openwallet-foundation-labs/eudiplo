@@ -288,8 +288,8 @@
     ExecutionContext,
     Injectable,
     NotFoundException,
-} from &#x27;@nestjs/common&#x27;;
-import { SessionService } from &#x27;./session.service&#x27;;
+} from &quot;@nestjs/common&quot;;
+import { SessionService } from &quot;./session.service&quot;;
 
 @Injectable()
 export class SessionGuard implements CanActivate {
@@ -300,7 +300,7 @@ export class SessionGuard implements CanActivate {
         const sessionId &#x3D; request.params.session;
         if (!sessionId) {
             throw new NotFoundException(
-                &#x27;Session ID not found in request parameters&#x27;,
+                &quot;Session ID not found in request parameters&quot;,
             );
         }
         const session &#x3D; await this.sessionService.get(sessionId);

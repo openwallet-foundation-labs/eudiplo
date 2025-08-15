@@ -246,13 +246,13 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Controller, Get, Header, Param } from &#x27;@nestjs/common&#x27;;
-import { ApiExcludeController, ApiTags } from &#x27;@nestjs/swagger&#x27;;
-import { StatusListService } from &#x27;./status-list.service&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Controller, Get, Header, Param } from &quot;@nestjs/common&quot;;
+import { ApiExcludeController, ApiTags } from &quot;@nestjs/swagger&quot;;
+import { StatusListService } from &quot;./status-list.service&quot;;
 
-@ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &#x27;true&#x27;)
-@ApiTags(&#x27;Status management&#x27;)
-@Controller(&#x27;:tenantId/status-management&#x27;)
+@ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &quot;true&quot;)
+@ApiTags(&quot;Status management&quot;)
+@Controller(&quot;:tenantId/status-management&quot;)
 export class StatusListController {
     constructor(private statusListService: StatusListService) {}
 
@@ -260,9 +260,9 @@ export class StatusListController {
      * Get the status list
      * @returns
      */
-    @Get(&#x27;status-list&#x27;)
-    @Header(&#x27;Content-Type&#x27;, &#x27;application/statuslist+jwt&#x27;)
-    getList(@Param(&#x27;tenantId&#x27;) tenantId: string) {
+    @Get(&quot;status-list&quot;)
+    @Header(&quot;Content-Type&quot;, &quot;application/statuslist+jwt&quot;)
+    getList(@Param(&quot;tenantId&quot;) tenantId: string) {
         return this.statusListService.getList(tenantId);
     }
 }

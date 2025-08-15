@@ -236,8 +236,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="89"
-                                    class="link-to-prism">src/auth/jwt.service.ts:89</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="91"
+                                    class="link-to-prism">src/auth/jwt.service.ts:91</a></div>
                         </td>
                     </tr>
 
@@ -307,8 +307,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="26"
-                                    class="link-to-prism">src/auth/jwt.service.ts:26</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="28"
+                                    class="link-to-prism">src/auth/jwt.service.ts:28</a></div>
                         </td>
                     </tr>
 
@@ -394,8 +394,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="100"
-                                    class="link-to-prism">src/auth/jwt.service.ts:100</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="102"
+                                    class="link-to-prism">src/auth/jwt.service.ts:102</a></div>
                         </td>
                     </tr>
 
@@ -435,8 +435,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="63"
-                                    class="link-to-prism">src/auth/jwt.service.ts:63</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="65"
+                                    class="link-to-prism">src/auth/jwt.service.ts:65</a></div>
                         </td>
                     </tr>
 
@@ -490,11 +490,11 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &#x27;@nestjs/common&#x27;;
-import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { decodeJwt, jwtVerify, SignJWT } from &#x27;jose&#x27;;
-import { TokenPayload } from &#x27;./token.decorator&#x27;;
-import { DEFAULT_JWT_SECRET } from &#x27;./auth.module&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
+import { decodeJwt, jwtVerify, SignJWT } from &quot;jose&quot;;
+import { TokenPayload } from &quot;./token.decorator&quot;;
+import { DEFAULT_JWT_SECRET } from &quot;./auth.module&quot;;
 
 export interface GenerateTokenOptions {
     expiresIn?: string;
@@ -505,9 +505,11 @@ export interface GenerateTokenOptions {
 @Injectable()
 export class JwtService {
     constructor(private configService: ConfigService) {
-        if(this.configService.get&lt;string&gt;(&#x27;JWT_SECRET&#x27;) &#x3D;&#x3D;&#x3D; DEFAULT_JWT_SECRET) {
+        if (
+            this.configService.get&lt;string&gt;(&quot;JWT_SECRET&quot;) &#x3D;&#x3D;&#x3D; DEFAULT_JWT_SECRET
+        ) {
             console.warn(
-                &#x27;Using default JWT secret. This is not secure for production environments.&#x27;,
+                &quot;Using default JWT secret. This is not secure for production environments.&quot;,
             );
         }
     }
@@ -521,22 +523,22 @@ export class JwtService {
     ): Promise&lt;string&gt; {
         if (this.isUsingExternalOIDC()) {
             throw new Error(
-                &#x27;Token generation is not available when using external OIDC provider. Use your external OIDC provider for token generation.&#x27;,
+                &quot;Token generation is not available when using external OIDC provider. Use your external OIDC provider for token generation.&quot;,
             );
         }
 
-        const secret &#x3D; this.configService.getOrThrow&lt;string&gt;(&#x27;JWT_SECRET&#x27;);
-        const issuer &#x3D; this.configService.getOrThrow&lt;string&gt;(&#x27;JWT_ISSUER&#x27;);
+        const secret &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;JWT_SECRET&quot;);
+        const issuer &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;JWT_ISSUER&quot;);
         const expiresIn &#x3D;
             options.expiresIn ||
-            this.configService.getOrThrow&lt;string&gt;(&#x27;JWT_EXPIRES_IN&#x27;);
+            this.configService.getOrThrow&lt;string&gt;(&quot;JWT_EXPIRES_IN&quot;);
 
         const secretKey &#x3D; new TextEncoder().encode(secret);
 
         const jwt &#x3D; new SignJWT({
             ...payload,
         })
-            .setProtectedHeader({ alg: &#x27;HS256&#x27; })
+            .setProtectedHeader({ alg: &quot;HS256&quot; })
             .setIssuedAt()
             .setIssuer(issuer)
             .setSubject(options.subject || payload.sub)
@@ -555,19 +557,19 @@ export class JwtService {
     async verifyToken(token: string): Promise&lt;TokenPayload&gt; {
         if (this.isUsingExternalOIDC()) {
             throw new Error(
-                &#x27;Token verification is handled by external OIDC provider.&#x27;,
+                &quot;Token verification is handled by external OIDC provider.&quot;,
             );
         }
 
-        const secret &#x3D; this.configService.getOrThrow&lt;string&gt;(&#x27;JWT_SECRET&#x27;);
-        const issuer &#x3D; this.configService.getOrThrow&lt;string&gt;(&#x27;JWT_ISSUER&#x27;);
+        const secret &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;JWT_SECRET&quot;);
+        const issuer &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;JWT_ISSUER&quot;);
 
         const secretKey &#x3D; new TextEncoder().encode(secret);
 
         try {
             const { payload } &#x3D; (await jwtVerify(token, secretKey, {
                 issuer,
-                algorithms: [&#x27;HS256&#x27;],
+                algorithms: [&quot;HS256&quot;],
             })) as { payload: TokenPayload };
             return payload;
         } catch (error) {
@@ -590,7 +592,7 @@ export class JwtService {
      * Check if the service is using external OIDC provider
      */
     isUsingExternalOIDC(): boolean {
-        return this.configService.get&lt;string&gt;(&#x27;OIDC&#x27;) !&#x3D;&#x3D; undefined;
+        return this.configService.get&lt;string&gt;(&quot;OIDC&quot;) !&#x3D;&#x3D; undefined;
     }
 }
 </code></pre>

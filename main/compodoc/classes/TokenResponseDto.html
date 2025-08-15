@@ -327,30 +327,30 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiProperty } from &#x27;@nestjs/swagger&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiProperty } from &quot;@nestjs/swagger&quot;;
 
 export class TokenResponseDto {
     @ApiProperty({
-        description: &#x27;The access token&#x27;,
-        example: &#x27;eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...&#x27;,
+        description: &quot;The access token&quot;,
+        example: &quot;eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...&quot;,
     })
     access_token: string;
 
     @ApiProperty({
-        description: &#x27;The type of the token&#x27;,
-        example: &#x27;Bearer&#x27;,
+        description: &quot;The type of the token&quot;,
+        example: &quot;Bearer&quot;,
     })
-    token_type: &#x27;Bearer&#x27;;
+    token_type: &quot;Bearer&quot;;
 
     @ApiProperty({
-        description: &#x27;The lifetime in seconds of the access token&#x27;,
+        description: &quot;The lifetime in seconds of the access token&quot;,
         example: 3600,
     })
     expires_in: number;
 
     @ApiProperty({
-        description: &#x27;The scope of the access token&#x27;,
-        example: &#x27;openid&#x27;,
+        description: &quot;The scope of the access token&quot;,
+        example: &quot;openid&quot;,
         required: false,
     })
     scope?: string;

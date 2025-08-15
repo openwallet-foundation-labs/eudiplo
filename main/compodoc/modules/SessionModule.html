@@ -271,14 +271,14 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &#x27;@nestjs/common&#x27;;
-import { TypeOrmModule } from &#x27;@nestjs/typeorm&#x27;;
-import { makeGaugeProvider } from &#x27;@willsoto/nestjs-prometheus&#x27;;
-import * as Joi from &#x27;joi&#x27;;
-import { StatusListModule } from &#x27;../issuer/status-list/status-list.module&#x27;;
-import { Session } from &#x27;./entities/session.entity&#x27;;
-import { SessionController } from &#x27;./session.controller&#x27;;
-import { SessionService } from &#x27;./session.service&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &quot;@nestjs/common&quot;;
+import { TypeOrmModule } from &quot;@nestjs/typeorm&quot;;
+import { makeGaugeProvider } from &quot;@willsoto/nestjs-prometheus&quot;;
+import * as Joi from &quot;joi&quot;;
+import { StatusListModule } from &quot;../issuer/status-list/status-list.module&quot;;
+import { Session } from &quot;./entities/session.entity&quot;;
+import { SessionController } from &quot;./session.controller&quot;;
+import { SessionService } from &quot;./session.service&quot;;
 
 /**
  * Module for managing user sessions.
@@ -296,9 +296,9 @@ export const SESSION_VALIDATION_SCHEMA &#x3D; {
     providers: [
         SessionService,
         makeGaugeProvider({
-            name: &#x27;sessions&#x27;,
-            help: &#x27;Total number of sessions by status&#x27;,
-            labelNames: [&#x27;tenant_id&#x27;, &#x27;session_type&#x27;, &#x27;status&#x27;],
+            name: &quot;sessions&quot;,
+            help: &quot;Total number of sessions by status&quot;,
+            labelNames: [&quot;tenant_id&quot;, &quot;session_type&quot;, &quot;status&quot;],
         }),
     ],
     exports: [SessionService],

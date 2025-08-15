@@ -489,16 +489,16 @@ The metadata can be returned in two formats:</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &#x27;@nestjs/common&#x27;;
-import { CryptoService } from &#x27;../crypto/crypto.service&#x27;;
-import { CryptoImplementationService } from &#x27;../crypto/key/crypto-implementation/crypto-implementation.service&#x27;;
-import { AuthorizeService } from &#x27;../issuer/authorize/authorize.service&#x27;;
-import { Oid4vciService } from &#x27;../issuer/oid4vci/oid4vci.service&#x27;;
-import { Session } from &#x27;../session/entities/session.entity&#x27;;
-import { MediaType } from &#x27;../utils/mediaType/media-type.enum&#x27;;
-import { CredentialIssuerMetadataDto } from &#x27;./dto/credential-issuer-metadata.dto&#x27;;
-import { JwksResponseDto } from &#x27;./dto/jwks-response.dto&#x27;;
-import { Oauth2AuthorizationServerResponse } from &#x27;./dto/oauth-authorization-server-response.dto&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
+import { CryptoService } from &quot;../crypto/crypto.service&quot;;
+import { CryptoImplementationService } from &quot;../crypto/key/crypto-implementation/crypto-implementation.service&quot;;
+import { AuthorizeService } from &quot;../issuer/authorize/authorize.service&quot;;
+import { Oid4vciService } from &quot;../issuer/oid4vci/oid4vci.service&quot;;
+import { Session } from &quot;../session/entities/session.entity&quot;;
+import { MediaType } from &quot;../utils/mediaType/media-type.enum&quot;;
+import { CredentialIssuerMetadataDto } from &quot;./dto/credential-issuer-metadata.dto&quot;;
+import { JwksResponseDto } from &quot;./dto/jwks-response.dto&quot;;
+import { Oauth2AuthorizationServerResponse } from &quot;./dto/oauth-authorization-server-response.dto&quot;;
 
 /**
  * Service to handle well-known endpoints and metadata retrieval.
@@ -534,14 +534,14 @@ export class WellKnownService {
         if (contentType &#x3D;&#x3D;&#x3D; MediaType.APPLICATION_JWT) {
             const keyId &#x3D; await this.cryptoService.keyService.getKid(
                 session.tenantId,
-                &#x27;access&#x27;,
+                &quot;access&quot;,
             );
             return this.cryptoService.signJwt(
                 {
-                    typ: &#x27;openidvci-issuer-metadata+jwt&#x27;,
+                    typ: &quot;openidvci-issuer-metadata+jwt&quot;,
                     alg: this.cryptoImplementationService.getAlg(),
                     x5c: await this.cryptoService.getCertChain(
-                        &#x27;access&#x27;,
+                        &quot;access&quot;,
                         session.tenantId,
                     ),
                 },

@@ -481,7 +481,7 @@
     AuthenticationConfig,
     AuthenticationUrlConfig,
     PresentationDuringIssuanceConfig,
-} from &#x27;./authentication-config.dto&#x27;;
+} from &quot;./authentication-config.dto&quot;;
 
 /**
  * Utility functions for working with OpenID4VC authentication configurations
@@ -492,8 +492,8 @@ export class AuthenticationConfigHelper {
      */
     static isNoneAuth(
         config: AuthenticationConfig,
-    ): config is { method: &#x27;none&#x27; } {
-        return config.method &#x3D;&#x3D;&#x3D; &#x27;none&#x27;;
+    ): config is { method: &quot;none&quot; } {
+        return config.method &#x3D;&#x3D;&#x3D; &quot;none&quot;;
     }
 
     /**
@@ -501,8 +501,8 @@ export class AuthenticationConfigHelper {
      */
     static isAuthUrlAuth(
         config: AuthenticationConfig,
-    ): config is { method: &#x27;auth&#x27;; config: AuthenticationUrlConfig } {
-        return config.method &#x3D;&#x3D;&#x3D; &#x27;auth&#x27;;
+    ): config is { method: &quot;auth&quot;; config: AuthenticationUrlConfig } {
+        return config.method &#x3D;&#x3D;&#x3D; &quot;auth&quot;;
     }
 
     /**
@@ -511,10 +511,10 @@ export class AuthenticationConfigHelper {
     static isPresentationDuringIssuanceAuth(
         config: AuthenticationConfig,
     ): config is {
-        method: &#x27;presentationDuringIssuance&#x27;;
+        method: &quot;presentationDuringIssuance&quot;;
         config: PresentationDuringIssuanceConfig;
     } {
-        return config.method &#x3D;&#x3D;&#x3D; &#x27;presentationDuringIssuance&#x27;;
+        return config.method &#x3D;&#x3D;&#x3D; &quot;presentationDuringIssuance&quot;;
     }
 
     /**

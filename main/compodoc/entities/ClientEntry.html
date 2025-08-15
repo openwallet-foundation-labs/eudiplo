@@ -277,19 +277,19 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Column, Entity, PrimaryColumn } from &#x27;typeorm&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Column, Entity, PrimaryColumn } from &quot;typeorm&quot;;
 
-export type ClientStatus &#x3D; &#x27;init&#x27; | &#x27;set up&#x27; | &#x27;error&#x27;;
+export type ClientStatus &#x3D; &quot;init&quot; | &quot;set up&quot; | &quot;error&quot;;
 
 @Entity()
 export class ClientEntry {
     @PrimaryColumn()
     id: string;
 
-    @Column(&#x27;varchar&#x27;, { default: &#x27;init&#x27; })
+    @Column(&quot;varchar&quot;, { default: &quot;init&quot; })
     status: ClientStatus;
 
-    @Column(&#x27;varchar&#x27;, { nullable: true })
+    @Column(&quot;varchar&quot;, { nullable: true })
     error?: string;
 }
 </code></pre>

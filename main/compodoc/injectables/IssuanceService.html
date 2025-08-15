@@ -700,22 +700,22 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Inject, Injectable, OnModuleInit } from &#x27;@nestjs/common&#x27;;
-import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
-import { plainToClass } from &#x27;class-transformer&#x27;;
-import { validate } from &#x27;class-validator&#x27;;
-import { readdirSync, readFileSync } from &#x27;fs&#x27;;
-import { PinoLogger } from &#x27;nestjs-pino&#x27;;
-import { join } from &#x27;path&#x27;;
-import { Repository } from &#x27;typeorm&#x27;;
-import { CryptoService } from &#x27;../../crypto/crypto.service&#x27;;
-import { CredentialConfigService } from &#x27;../credentials/credential-config/credential-config.service&#x27;;
-import { CredentialConfig } from &#x27;../credentials/entities/credential.entity&#x27;;
-import { AuthenticationConfig } from &#x27;./dto/authentication-config.dto&#x27;;
-import { IssuanceDto } from &#x27;./dto/issuance.dto&#x27;;
-import { CredentialIssuanceBinding } from &#x27;./entities/credential-issuance-binding.entity&#x27;;
-import { IssuanceConfig } from &#x27;./entities/issuance-config.entity&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Inject, Injectable, OnModuleInit } from &quot;@nestjs/common&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
+import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
+import { plainToClass } from &quot;class-transformer&quot;;
+import { validate } from &quot;class-validator&quot;;
+import { readdirSync, readFileSync } from &quot;fs&quot;;
+import { PinoLogger } from &quot;nestjs-pino&quot;;
+import { join } from &quot;path&quot;;
+import { Repository } from &quot;typeorm&quot;;
+import { CryptoService } from &quot;../../crypto/crypto.service&quot;;
+import { CredentialConfigService } from &quot;../credentials/credential-config/credential-config.service&quot;;
+import { CredentialConfig } from &quot;../credentials/entities/credential.entity&quot;;
+import { AuthenticationConfig } from &quot;./dto/authentication-config.dto&quot;;
+import { IssuanceDto } from &quot;./dto/issuance.dto&quot;;
+import { CredentialIssuanceBinding } from &quot;./entities/credential-issuance-binding.entity&quot;;
+import { IssuanceConfig } from &quot;./entities/issuance-config.entity&quot;;
 
 /**
  * Service for managing issuance configurations.
@@ -752,10 +752,10 @@ export class IssuanceService implements OnModuleInit {
      * Import issuance configurations from the configured folder.
      */
     private async import() {
-        const configPath &#x3D; this.configService.getOrThrow(&#x27;CONFIG_FOLDER&#x27;);
-        const subfolder &#x3D; &#x27;issuance/issuance&#x27;;
-        const force &#x3D; this.configService.get&lt;boolean&gt;(&#x27;CONFIG_IMPORT_FORCE&#x27;);
-        if (this.configService.get&lt;boolean&gt;(&#x27;CONFIG_IMPORT&#x27;)) {
+        const configPath &#x3D; this.configService.getOrThrow(&quot;CONFIG_FOLDER&quot;);
+        const subfolder &#x3D; &quot;issuance/issuance&quot;;
+        const force &#x3D; this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT_FORCE&quot;);
+        if (this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT&quot;)) {
             const tenantFolders &#x3D; readdirSync(configPath, {
                 withFileTypes: true,
             }).filter((tenant) &#x3D;&gt; tenant.isDirectory());
@@ -766,10 +766,10 @@ export class IssuanceService implements OnModuleInit {
                 const files &#x3D; readdirSync(path);
                 for (const file of files) {
                     const payload &#x3D; JSON.parse(
-                        readFileSync(join(path, file), &#x27;utf8&#x27;),
+                        readFileSync(join(path, file), &quot;utf8&quot;),
                     );
 
-                    payload.id &#x3D; file.replace(&#x27;.json&#x27;, &#x27;&#x27;);
+                    payload.id &#x3D; file.replace(&quot;.json&quot;, &quot;&quot;);
                     const exists &#x3D; await this.getIssuanceConfigurationById(
                         payload.id,
                         tenant.name,
@@ -818,14 +818,14 @@ export class IssuanceService implements OnModuleInit {
                             .map((error) &#x3D;&gt; {
                                 const messages &#x3D; extractErrorMessages(error);
                                 return messages.length &gt; 0
-                                    ? &#x60;${error.property}: ${messages.join(&#x27;, &#x27;)}&#x60;
+                                    ? &#x60;${error.property}: ${messages.join(&quot;, &quot;)}&#x60;
                                     : error.property;
                             })
-                            .join(&#x27;; &#x27;);
+                            .join(&quot;; &quot;);
 
                         this.logger.error(
                             {
-                                event: &#x27;ValidationError&#x27;,
+                                event: &quot;ValidationError&quot;,
                                 file,
                                 tenant: tenant.name,
                                 errors: validationErrors.map((error) &#x3D;&gt; ({
@@ -846,7 +846,7 @@ export class IssuanceService implements OnModuleInit {
                 }
                 this.logger.info(
                     {
-                        event: &#x27;Import&#x27;,
+                        event: &quot;Import&quot;,
                     },
                     &#x60;${counter} issuance configs imported for ${tenant.name}&#x60;,
                 );
@@ -862,7 +862,7 @@ export class IssuanceService implements OnModuleInit {
     public getIssuanceConfiguration(tenantId: string) {
         return this.issuanceConfigRepo.find({
             where: { tenantId },
-            relations: [&#x27;credentialIssuanceBindings&#x27;],
+            relations: [&quot;credentialIssuanceBindings&quot;],
         });
     }
 
@@ -878,7 +878,7 @@ export class IssuanceService implements OnModuleInit {
     ): Promise&lt;IssuanceConfig&gt; {
         return this.issuanceConfigRepo.findOneOrFail({
             where: { id: issuanceConfigId, tenantId },
-            relations: [&#x27;credentialIssuanceBindings.credentialConfig&#x27;],
+            relations: [&quot;credentialIssuanceBindings.credentialConfig&quot;],
         });
     }
 
@@ -903,28 +903,28 @@ export class IssuanceService implements OnModuleInit {
 
         // Convert AuthenticationConfigDto to AuthenticationConfig union type
         let authenticationConfig: AuthenticationConfig;
-        if (value.authenticationConfig.method &#x3D;&#x3D;&#x3D; &#x27;none&#x27;) {
-            authenticationConfig &#x3D; { method: &#x27;none&#x27; };
-        } else if (value.authenticationConfig.method &#x3D;&#x3D;&#x3D; &#x27;auth&#x27;) {
+        if (value.authenticationConfig.method &#x3D;&#x3D;&#x3D; &quot;none&quot;) {
+            authenticationConfig &#x3D; { method: &quot;none&quot; };
+        } else if (value.authenticationConfig.method &#x3D;&#x3D;&#x3D; &quot;auth&quot;) {
             if (!value.authenticationConfig.config) {
                 throw new Error(
-                    &#x27;AuthenticationConfig is required for auth method&#x27;,
+                    &quot;AuthenticationConfig is required for auth method&quot;,
                 );
             }
             authenticationConfig &#x3D; {
-                method: &#x27;auth&#x27;,
+                method: &quot;auth&quot;,
                 config: value.authenticationConfig.config as any,
             };
         } else if (
-            value.authenticationConfig.method &#x3D;&#x3D;&#x3D; &#x27;presentationDuringIssuance&#x27;
+            value.authenticationConfig.method &#x3D;&#x3D;&#x3D; &quot;presentationDuringIssuance&quot;
         ) {
             if (!value.authenticationConfig.config) {
                 throw new Error(
-                    &#x27;AuthenticationConfig is required for presentationDuringIssuance method&#x27;,
+                    &quot;AuthenticationConfig is required for presentationDuringIssuance method&quot;,
                 );
             }
             authenticationConfig &#x3D; {
-                method: &#x27;presentationDuringIssuance&#x27;,
+                method: &quot;presentationDuringIssuance&quot;,
                 config: value.authenticationConfig.config as any,
             };
         } else {

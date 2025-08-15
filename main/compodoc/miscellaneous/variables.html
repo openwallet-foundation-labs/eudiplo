@@ -403,7 +403,7 @@
                         <i>Default value : </i><code>createParamDecorator(
     (data: unknown, ctx: ExecutionContext) &#x3D;&gt; {
         const request &#x3D; ctx.switchToHttp().getRequest();
-        return request.headers[&#x27;accept&#x27;] as string | undefined;
+        return request.headers[&quot;accept&quot;] as string | undefined;
     },
 )</code>
                     </td>
@@ -442,7 +442,7 @@ This decorator can be used to determine the media type of the request.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-    CRYPTO_ALG: Joi.string().valid(&#x27;ES256&#x27;).default(&#x27;ES256&#x27;),
+    CRYPTO_ALG: Joi.string().valid(&quot;ES256&quot;).default(&quot;ES256&quot;),
 }</code>
                     </td>
                 </tr>
@@ -473,29 +473,29 @@ This decorator can be used to determine the media type of the request.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-    DB_TYPE: Joi.string().valid(&#x27;sqlite&#x27;, &#x27;postgres&#x27;).default(&#x27;sqlite&#x27;),
-    DB_HOST: Joi.string().when(&#x27;DB_TYPE&#x27;, {
-        is: &#x27;sqlite&#x27;,
+    DB_TYPE: Joi.string().valid(&quot;sqlite&quot;, &quot;postgres&quot;).default(&quot;sqlite&quot;),
+    DB_HOST: Joi.string().when(&quot;DB_TYPE&quot;, {
+        is: &quot;sqlite&quot;,
         then: Joi.optional(),
         otherwise: Joi.required(),
     }),
-    DB_PORT: Joi.number().when(&#x27;DB_TYPE&#x27;, {
-        is: &#x27;sqlite&#x27;,
+    DB_PORT: Joi.number().when(&quot;DB_TYPE&quot;, {
+        is: &quot;sqlite&quot;,
         then: Joi.optional(),
         otherwise: Joi.required(),
     }),
-    DB_USERNAME: Joi.string().when(&#x27;DB_TYPE&#x27;, {
-        is: &#x27;sqlite&#x27;,
+    DB_USERNAME: Joi.string().when(&quot;DB_TYPE&quot;, {
+        is: &quot;sqlite&quot;,
         then: Joi.optional(),
         otherwise: Joi.required(),
     }),
-    DB_PASSWORD: Joi.string().when(&#x27;DB_TYPE&#x27;, {
-        is: &#x27;sqlite&#x27;,
+    DB_PASSWORD: Joi.string().when(&quot;DB_TYPE&quot;, {
+        is: &quot;sqlite&quot;,
         then: Joi.optional(),
         otherwise: Joi.required(),
     }),
-    DB_DATABASE: Joi.string().when(&#x27;DB_TYPE&#x27;, {
-        is: &#x27;sqlite&#x27;,
+    DB_DATABASE: Joi.string().when(&quot;DB_TYPE&quot;, {
+        is: &quot;sqlite&quot;,
         then: Joi.optional(),
         otherwise: Joi.required(),
     }),
@@ -562,23 +562,23 @@ This decorator can be used to determine the media type of the request.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-    alg: &#x27;EdDSA&#x27;,
+    alg: &quot;EdDSA&quot;,
     async generateKeyPair() {
         const keyPair &#x3D; await crypto.webcrypto.subtle.generateKey(
             {
-                name: &#x27;EdDSA&#x27;,
-                namedCurve: &#x27;Ed25519&#x27;,
+                name: &quot;EdDSA&quot;,
+                namedCurve: &quot;Ed25519&quot;,
             },
             true,
-            [&#x27;sign&#x27;, &#x27;verify&#x27;],
+            [&quot;sign&quot;, &quot;verify&quot;],
         );
 
         const publicKey &#x3D; await crypto.webcrypto.subtle.exportKey(
-            &#x27;jwk&#x27;,
+            &quot;jwk&quot;,
             keyPair.publicKey,
         );
         const privateKey &#x3D; await crypto.webcrypto.subtle.exportKey(
-            &#x27;jwk&#x27;,
+            &quot;jwk&quot;,
             keyPair.privateKey,
         );
 
@@ -586,42 +586,42 @@ This decorator can be used to determine the media type of the request.</p>
     },
     async getSigner(privateKeyJWK: object) {
         const privateKey &#x3D; await crypto.webcrypto.subtle.importKey(
-            &#x27;jwk&#x27;,
+            &quot;jwk&quot;,
             privateKeyJWK,
             {
-                name: &#x27;EdDSA&#x27;,
-                namedCurve: &#x27;Ed25519&#x27;,
+                name: &quot;EdDSA&quot;,
+                namedCurve: &quot;Ed25519&quot;,
             },
             false,
-            [&#x27;sign&#x27;],
+            [&quot;sign&quot;],
         );
 
         return async (data: string) &#x3D;&gt; {
             const signature &#x3D; await crypto.webcrypto.subtle.sign(
-                &#x27;EdDSA&#x27;,
+                &quot;EdDSA&quot;,
                 privateKey,
                 new TextEncoder().encode(data),
             );
 
-            return Buffer.from(signature).toString(&#x27;base64url&#x27;);
+            return Buffer.from(signature).toString(&quot;base64url&quot;);
         };
     },
     async getVerifier(publicKeyJWK: object) {
         const publicKey &#x3D; await crypto.webcrypto.subtle.importKey(
-            &#x27;jwk&#x27;,
+            &quot;jwk&quot;,
             publicKeyJWK,
             {
-                name: &#x27;EdDSA&#x27;,
-                namedCurve: &#x27;Ed25519&#x27;,
+                name: &quot;EdDSA&quot;,
+                namedCurve: &quot;Ed25519&quot;,
             },
             false,
-            [&#x27;verify&#x27;],
+            [&quot;verify&quot;],
         );
 
         return async (data: string, signatureBase64url: string) &#x3D;&gt; {
-            const signature &#x3D; Buffer.from(signatureBase64url, &#x27;base64url&#x27;);
+            const signature &#x3D; Buffer.from(signatureBase64url, &quot;base64url&quot;);
             const isVerified &#x3D; await crypto.webcrypto.subtle.verify(
-                &#x27;EdDSA&#x27;,
+                &quot;EdDSA&quot;,
                 publicKey,
                 signature,
                 new TextEncoder().encode(data),
@@ -682,7 +682,7 @@ This decorator can be used to determine the media type of the request.</p>
                 </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Default value : </i><code>&#x27;isPublic&#x27;</code>
+                        <i>Default value : </i><code>&quot;isPublic&quot;</code>
                     </td>
                 </tr>
 
@@ -887,7 +887,7 @@ Defines the required environment variables and their types.</p>
                 </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Default value : </i><code>&#x27;session-logger&#x27;</code>
+                        <i>Default value : </i><code>&quot;session-logger&quot;</code>
                     </td>
                 </tr>
 
@@ -915,7 +915,7 @@ Defines the required environment variables and their types.</p>
                     <td class="col-md-4">
                         <i>Default value : </i><code>(
     sessionIdParam: string,
-    flowType: &#x27;OID4VCI&#x27; | &#x27;OID4VP&#x27;,
+    flowType: &quot;OID4VCI&quot; | &quot;OID4VP&quot;,
 ) &#x3D;&gt; SetMetadata(SESSION_LOGGER_KEY, { sessionIdParam, flowType })</code>
                     </td>
                 </tr>

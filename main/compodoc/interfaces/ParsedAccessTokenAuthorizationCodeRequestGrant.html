@@ -235,9 +235,9 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { randomUUID } from &#x27;node:crypto&#x27;;
-import { ConflictException, Injectable } from &#x27;@nestjs/common&#x27;;
-import { ConfigService } from &#x27;@nestjs/config&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { randomUUID } from &quot;node:crypto&quot;;
+import { ConflictException, Injectable } from &quot;@nestjs/common&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
 import {
     type AuthorizationCodeGrantIdentifier,
     type AuthorizationServerMetadata,
@@ -248,17 +248,17 @@ import {
     PkceCodeChallengeMethod,
     PreAuthorizedCodeGrantIdentifier,
     preAuthorizedCodeGrantIdentifier,
-} from &#x27;@openid4vc/oauth2&#x27;;
-import type { Request, Response } from &#x27;express&#x27;;
-import { CryptoService } from &#x27;../../crypto/crypto.service&#x27;;
-import { Session } from &#x27;../../session/entities/session.entity&#x27;;
-import { SessionService } from &#x27;../../session/session.service&#x27;;
-import { WebhookConfig } from &#x27;../../utils/webhook/webhook.dto&#x27;;
-import { Oid4vpService } from &#x27;../../verifier/oid4vp/oid4vp.service&#x27;;
-import { AuthenticationConfigHelper } from &#x27;../issuance/dto/authentication-config.helper&#x27;;
-import { IssuanceService } from &#x27;../issuance/issuance.service&#x27;;
-import { getHeadersFromRequest } from &#x27;../oid4vci/util&#x27;;
-import { AuthorizeQueries } from &#x27;./dto/authorize-request.dto&#x27;;
+} from &quot;@openid4vc/oauth2&quot;;
+import type { Request, Response } from &quot;express&quot;;
+import { CryptoService } from &quot;../../crypto/crypto.service&quot;;
+import { Session } from &quot;../../session/entities/session.entity&quot;;
+import { SessionService } from &quot;../../session/session.service&quot;;
+import { WebhookConfig } from &quot;../../utils/webhook/webhook.dto&quot;;
+import { Oid4vpService } from &quot;../../verifier/oid4vp/oid4vp.service&quot;;
+import { AuthenticationConfigHelper } from &quot;../issuance/dto/authentication-config.helper&quot;;
+import { IssuanceService } from &quot;../issuance/issuance.service&quot;;
+import { getHeadersFromRequest } from &quot;../oid4vci/util&quot;;
+import { AuthorizeQueries } from &quot;./dto/authorize-request.dto&quot;;
 
 export interface ParsedAccessTokenAuthorizationCodeRequestGrant {
     grantType: AuthorizationCodeGrantIdentifier;
@@ -292,7 +292,7 @@ export class AuthorizeService {
 
     authzMetadata(session: Session): AuthorizationServerMetadata {
         const authServer &#x3D;
-            this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;) +
+            this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;) +
             &#x60;/${session.id}&#x60;;
         return this.getAuthorizationServer(
             session.tenantId,
@@ -301,7 +301,7 @@ export class AuthorizeService {
             token_endpoint: &#x60;${authServer}/authorize/token&#x60;,
             authorization_endpoint: &#x60;${authServer}/authorize&#x60;,
             jwks_uri: &#x60;${authServer}/.well-known/jwks.json&#x60;,
-            dpop_signing_alg_values_supported: [&#x27;ES256&#x27;],
+            dpop_signing_alg_values_supported: [&quot;ES256&quot;],
             // TODO: verify this on the server
             require_pushed_authorization_requests: true,
             pushed_authorization_request_endpoint: &#x60;${authServer}/authorize/par&#x60;,
@@ -326,12 +326,12 @@ export class AuthorizeService {
                 })
                 .catch(() &#x3D;&gt; {
                     throw new ConflictException(
-                        &#x27;request_uri not found or not provided in the request&#x27;,
+                        &quot;request_uri not found or not provided in the request&quot;,
                     );
                 });
         } else {
             throw new ConflictException(
-                &#x27;request_uri not found or not provided in the request&#x27;,
+                &quot;request_uri not found or not provided in the request&quot;,
             );
         }
         const code &#x3D; await this.setAuthCode(values.issuer_state!);
@@ -343,7 +343,7 @@ export class AuthorizeService {
         req: Request,
         session: Session,
     ): Promise&lt;any&gt; {
-        const url &#x3D; &#x60;${this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;)}${req.url}&#x60;;
+        const url &#x3D; &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}${req.url}&#x60;;
         const tenantId &#x3D; session.tenantId;
         const parsedAccessTokenRequest &#x3D; this.getAuthorizationServer(
             tenantId,
@@ -424,12 +424,12 @@ export class AuthorizeService {
         }
         //const cNonce &#x3D; randomUUID();
         return this.getAuthorizationServer(tenantId).createAccessTokenResponse({
-            audience: &#x60;${this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;)}/${session.id}&#x60;,
+            audience: &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/${session.id}&#x60;,
             signer: {
-                method: &#x27;jwk&#x27;,
-                alg: &#x27;ES256&#x27;,
+                method: &quot;jwk&quot;,
+                alg: &quot;ES256&quot;,
                 publicJwk: (await this.cryptoService.keyService.getPublicKey(
-                    &#x27;jwk&#x27;,
+                    &quot;jwk&quot;,
                     tenantId,
                 )) as Jwk,
             },
@@ -438,7 +438,7 @@ export class AuthorizeService {
             authorizationServer: authorizationServerMetadata.issuer,
             /* cNonce,
             cNonceExpiresIn: 100, */
-            clientId: &#x27;wallet&#x27;, // must be same as the client attestation
+            clientId: &quot;wallet&quot;, // must be same as the client attestation
             dpop: dpopValue,
         });
     }
@@ -450,13 +450,13 @@ export class AuthorizeService {
     ) {
         // re using the issuer state as auth session
         const auth_session &#x3D; body.issuer_state;
-        const presentation &#x3D; &#x60;openid4vp://?${(await this.oid4vpService.createRequest(&#x27;pid&#x27;, { session: auth_session, webhook }, tenantId)).uri}&#x60;;
+        const presentation &#x3D; &#x60;openid4vp://?${(await this.oid4vpService.createRequest(&quot;pid&quot;, { session: auth_session, webhook }, tenantId)).uri}&#x60;;
         const res &#x3D; {
-            error: &#x27;insufficient_authorization&#x27;,
+            error: &quot;insufficient_authorization&quot;,
             auth_session,
             presentation,
             error_description:
-                &#x27;Presentation of credential required before issuance&#x27;,
+                &quot;Presentation of credential required before issuance&quot;,
         };
         return res;
     }
@@ -483,7 +483,7 @@ export class AuthorizeService {
             } else {
                 //TODO: needs to be checked if this is the correct response
                 throw new ConflictException(
-                    &#x27;Session does not have valid credentials for issuance&#x27;,
+                    &quot;Session does not have valid credentials for issuance&quot;,
                 );
             }
         }
@@ -503,7 +503,7 @@ export class AuthorizeService {
 
         if (!authConfig) {
             throw new Error(
-                &#x27;No authentication configuration found for issuance config&#x27;,
+                &quot;No authentication configuration found for issuance config&quot;,
             );
         }
 

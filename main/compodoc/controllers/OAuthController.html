@@ -249,14 +249,14 @@ This endpoint allows clients to obtain access tokens using their client credenti
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Body, Controller, Post } from &#x27;@nestjs/common&#x27;;
-import { ApiOperation, ApiTags } from &#x27;@nestjs/swagger&#x27;;
-import { TokenRequestDto } from &#x27;./dto/token-request.dto&#x27;;
-import { TokenResponseDto } from &#x27;./dto/token-response.dto&#x27;;
-import { OAuthService } from &#x27;./oauth.service&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Body, Controller, Post } from &quot;@nestjs/common&quot;;
+import { ApiOperation, ApiTags } from &quot;@nestjs/swagger&quot;;
+import { TokenRequestDto } from &quot;./dto/token-request.dto&quot;;
+import { TokenResponseDto } from &quot;./dto/token-response.dto&quot;;
+import { OAuthService } from &quot;./oauth.service&quot;;
 
-@ApiTags(&#x27;OAuth 2.0&#x27;)
-@Controller(&#x27;oauth&#x27;)
+@ApiTags(&quot;OAuth 2.0&quot;)
+@Controller(&quot;oauth&quot;)
 export class OAuthController {
     constructor(private readonly oauthService: OAuthService) {}
 
@@ -265,11 +265,11 @@ export class OAuthController {
      * This endpoint allows clients to obtain access tokens using their client credentials.
      */
     @ApiOperation({
-        summary: &#x27;OAuth 2.0 Token Endpoint&#x27;,
+        summary: &quot;OAuth 2.0 Token Endpoint&quot;,
         description:
-            &#x27;Obtain an access token using client credentials grant type.&#x27;,
+            &quot;Obtain an access token using client credentials grant type.&quot;,
     })
-    @Post(&#x27;token&#x27;)
+    @Post(&quot;token&quot;)
     async getToken(
         @Body() tokenRequest: TokenRequestDto,
     ): Promise&lt;TokenResponseDto&gt; {

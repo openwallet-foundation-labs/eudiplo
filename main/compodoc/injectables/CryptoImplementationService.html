@@ -301,7 +301,7 @@
                                             </td>
 
                                             <td>
-                                                    <code>this.configServie.get&lt;string&gt;(&#x27;CRYPTO_ALG&#x27;)</code>
+                                                    <code>this.configServie.get&lt;string&gt;(&quot;CRYPTO_ALG&quot;)</code>
                                             </td>
 
                                         </tr>
@@ -325,13 +325,13 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &#x27;@nestjs/common&#x27;;
-import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { ES256 } from &#x27;@sd-jwt/crypto-nodejs&#x27;;
-import { CryptoImplementation } from &#x27;./crypto-implementation&#x27;;
-import { ED25519 } from &#x27;./ed25519&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
+import { ES256 } from &quot;@sd-jwt/crypto-nodejs&quot;;
+import { CryptoImplementation } from &quot;./crypto-implementation&quot;;
+import { ED25519 } from &quot;./ed25519&quot;;
 
-export type CryptoType &#x3D; &#x27;ES256&#x27; | &#x27;Ed25519&#x27;;
+export type CryptoType &#x3D; &quot;ES256&quot; | &quot;Ed25519&quot;;
 
 @Injectable()
 export class CryptoImplementationService {
@@ -342,7 +342,7 @@ export class CryptoImplementationService {
      * @returns
      */
     getAlg(): CryptoType {
-        return this.configServie.get(&#x27;CRYPTO_ALG&#x27;) as CryptoType;
+        return this.configServie.get(&quot;CRYPTO_ALG&quot;) as CryptoType;
     }
 
     /**
@@ -351,12 +351,12 @@ export class CryptoImplementationService {
      * @returns
      */
     getCrypto(
-        alg &#x3D; this.configServie.get&lt;string&gt;(&#x27;CRYPTO_ALG&#x27;),
+        alg &#x3D; this.configServie.get&lt;string&gt;(&quot;CRYPTO_ALG&quot;),
     ): CryptoImplementation {
         switch (alg) {
-            case &#x27;Ed25519&#x27;:
+            case &quot;Ed25519&quot;:
                 return ED25519;
-            case &#x27;ES256&#x27;:
+            case &quot;ES256&quot;:
                 return ES256;
             default:
                 throw new Error(&#x60;Unsupported algorithm ${alg}&#x60;);

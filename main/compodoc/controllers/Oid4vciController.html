@@ -463,25 +463,25 @@
     Req,
     UseGuards,
     UseInterceptors,
-} from &#x27;@nestjs/common&#x27;;
-import { ApiExcludeController, ApiParam } from &#x27;@nestjs/swagger&#x27;;
-import type { CredentialResponse } from &#x27;@openid4vc/openid4vci&#x27;;
-import type { Request } from &#x27;express&#x27;;
-import { Oid4vciService } from &#x27;../../issuer/oid4vci/oid4vci.service&#x27;;
-import { Session } from &#x27;../../session/entities/session.entity&#x27;;
-import { SessionEntity } from &#x27;../../session/session.decorator&#x27;;
-import { SessionGuard } from &#x27;../../session/session.guard&#x27;;
-import { SessionLogger } from &#x27;../../utils/logger//session-logger.decorator&#x27;;
-import { SessionLoggerInterceptor } from &#x27;../../utils/logger/session-logger.interceptor&#x27;;
-import { NotificationRequestDto } from &#x27;./dto/notification-request.dto&#x27;;
+} from &quot;@nestjs/common&quot;;
+import { ApiExcludeController, ApiParam } from &quot;@nestjs/swagger&quot;;
+import type { CredentialResponse } from &quot;@openid4vc/openid4vci&quot;;
+import type { Request } from &quot;express&quot;;
+import { Oid4vciService } from &quot;../../issuer/oid4vci/oid4vci.service&quot;;
+import { Session } from &quot;../../session/entities/session.entity&quot;;
+import { SessionEntity } from &quot;../../session/session.decorator&quot;;
+import { SessionGuard } from &quot;../../session/session.guard&quot;;
+import { SessionLogger } from &quot;../../utils/logger//session-logger.decorator&quot;;
+import { SessionLoggerInterceptor } from &quot;../../utils/logger/session-logger.interceptor&quot;;
+import { NotificationRequestDto } from &quot;./dto/notification-request.dto&quot;;
 
 /**
  * Controller for handling OID4VCI (OpenID for Verifiable Credential Issuance) requests.
  */
-@ApiParam({ name: &#x27;session&#x27;, required: true })
-@ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &#x27;true&#x27;)
+@ApiParam({ name: &quot;session&quot;, required: true })
+@ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &quot;true&quot;)
 @UseGuards(SessionGuard)
-@Controller(&#x27;:session/vci&#x27;)
+@Controller(&quot;:session/vci&quot;)
 @UseInterceptors(SessionLoggerInterceptor)
 export class Oid4vciController {
     constructor(private readonly oid4vciService: Oid4vciService) {}
@@ -491,8 +491,8 @@ export class Oid4vciController {
      * @param req
      * @returns
      */
-    @Post(&#x27;credential&#x27;)
-    @SessionLogger(&#x27;session&#x27;, &#x27;OID4VCI&#x27;)
+    @Post(&quot;credential&quot;)
+    @SessionLogger(&quot;session&quot;, &quot;OID4VCI&quot;)
     credential(
         @Req() req: Request,
         @SessionEntity() session: Session,
@@ -505,8 +505,8 @@ export class Oid4vciController {
      * @param body
      * @returns
      */
-    @Post(&#x27;notification&#x27;)
-    @SessionLogger(&#x27;notification_id&#x27;, &#x27;OID4VCI&#x27;)
+    @Post(&quot;notification&quot;)
+    @SessionLogger(&quot;notification_id&quot;, &quot;OID4VCI&quot;)
     notifications(
         @Body() body: NotificationRequestDto,
         @Req() req: Request,
@@ -515,8 +515,8 @@ export class Oid4vciController {
         return this.oid4vciService.handleNotification(req, body, session);
     }
 
-    @Post(&#x27;nonce&#x27;)
-    @SessionLogger(&#x27;nonce&#x27;, &#x27;OID4VCI&#x27;)
+    @Post(&quot;nonce&quot;)
+    @SessionLogger(&quot;nonce&quot;, &quot;OID4VCI&quot;)
     nonce(@SessionEntity() session: Session) {
         return this.oid4vciService.nonceRequest(session);
     }

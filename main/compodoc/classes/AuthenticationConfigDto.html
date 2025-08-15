@@ -156,6 +156,12 @@ Determines which OpenID4VC flow to use for the issuance process</p>
                             </li>
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
+                                <a href="#description" >description</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
                                 <a href="#method" >method</a>
                             </li>
                         </ul>
@@ -208,7 +214,7 @@ Determines which OpenID4VC flow to use for the issuance process</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="123" class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:123</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="128" class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:128</a></div>
                         </td>
                     </tr>
 
@@ -220,6 +226,50 @@ Determines which OpenID4VC flow to use for the issuance process</p>
 <li>For &#39;auth&#39;: AuthenticationUrlConfig - for OID4VCI authorized code flow</li>
 <li>For &#39;presentationDuringIssuance&#39;: PresentationDuringIssuanceConfig - for OID4VP flow</li>
 </ul>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="description"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
+                        <span ><b>description</b></span>
+                        <a href="#description"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @IsOptional()<br />@IsString()<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="135" class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:135</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Description of the authentication configuration.</p>
 </div>
                 </td>
             </tr>
@@ -255,7 +305,7 @@ Determines which OpenID4VC flow to use for the issuance process</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="113" class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:113</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="118" class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:118</a></div>
                         </td>
                     </tr>
 
@@ -285,46 +335,51 @@ Determines which OpenID4VC flow to use for the issuance process</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Type } from &#x27;class-transformer&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Type } from &quot;class-transformer&quot;;
 import {
     IsIn,
     IsObject,
     IsOptional,
+    IsString,
     IsUrl,
     Validate,
     ValidateNested,
     ValidationArguments,
     ValidatorConstraint,
     ValidatorConstraintInterface,
-} from &#x27;class-validator&#x27;;
-import { WebhookConfig } from &#x27;../../../utils/webhook/webhook.dto&#x27;;
-import { PresentationDuringIssuance } from &#x27;../../credentials-metadata/dto/credential-config.dto&#x27;;
+} from &quot;class-validator&quot;;
+import { WebhookConfig } from &quot;../../../utils/webhook/webhook.dto&quot;;
+import { PresentationDuringIssuance } from &quot;../../credentials-metadata/dto/credential-config.dto&quot;;
 
 /**
  * Custom validator to ensure config type matches the authentication method
  */
-@ValidatorConstraint({ name: &#x27;authConfigValidator&#x27;, async: false })
+@ValidatorConstraint({ name: &quot;authConfigValidator&quot;, async: false })
 export class AuthConfigValidator implements ValidatorConstraintInterface {
     validate(config: any, args: ValidationArguments) {
         const obj &#x3D; args.object as AuthenticationConfigDto;
 
-        if (obj.method &#x3D;&#x3D;&#x3D; &#x27;none&#x27;) {
+        if (obj.method &#x3D;&#x3D;&#x3D; &quot;none&quot;) {
             // For &#x27;none&#x27; method, config should be undefined
             return config &#x3D;&#x3D;&#x3D; undefined;
         }
 
-        if (obj.method &#x3D;&#x3D;&#x3D; &#x27;auth&#x27;) {
+        if (obj.method &#x3D;&#x3D;&#x3D; &quot;auth&quot;) {
             // For &#x27;auth&#x27; method, config must be present and have &#x27;url&#x27; property
             return (
                 config &amp;&amp;
-                typeof config &#x3D;&#x3D;&#x3D; &#x27;object&#x27; &amp;&amp;
-                typeof config.url &#x3D;&#x3D;&#x3D; &#x27;string&#x27;
+                typeof config &#x3D;&#x3D;&#x3D; &quot;object&quot; &amp;&amp;
+                typeof config.url &#x3D;&#x3D;&#x3D; &quot;string&quot;
             );
         }
 
-        if (obj.method &#x3D;&#x3D;&#x3D; &#x27;presentationDuringIssuance&#x27;) {
+        if (obj.method &#x3D;&#x3D;&#x3D; &quot;presentationDuringIssuance&quot;) {
             // For &#x27;presentationDuringIssuance&#x27; method, config must be present and have &#x27;presentation&#x27; property
-            return config &amp;&amp; typeof config &#x3D;&#x3D;&#x3D; &#x27;object&#x27; &amp;&amp; config.presentation;
+            return (
+                config &amp;&amp;
+                typeof config &#x3D;&#x3D;&#x3D; &quot;object&quot; &amp;&amp;
+                typeof config.presentation &#x3D;&#x3D;&#x3D; &quot;object&quot;
+            );
         }
 
         return false;
@@ -333,19 +388,19 @@ export class AuthConfigValidator implements ValidatorConstraintInterface {
     defaultMessage(args: ValidationArguments) {
         const obj &#x3D; args.object as AuthenticationConfigDto;
 
-        if (obj.method &#x3D;&#x3D;&#x3D; &#x27;none&#x27;) {
+        if (obj.method &#x3D;&#x3D;&#x3D; &quot;none&quot;) {
             return &#x27;config must be undefined when method is &quot;none&quot;&#x27;;
         }
 
-        if (obj.method &#x3D;&#x3D;&#x3D; &#x27;auth&#x27;) {
+        if (obj.method &#x3D;&#x3D;&#x3D; &quot;auth&quot;) {
             return &#x27;config must be of type AuthenticationUrlConfig when method is &quot;auth&quot;&#x27;;
         }
 
-        if (obj.method &#x3D;&#x3D;&#x3D; &#x27;presentationDuringIssuance&#x27;) {
+        if (obj.method &#x3D;&#x3D;&#x3D; &quot;presentationDuringIssuance&quot;) {
             return &#x27;config must be of type PresentationDuringIssuanceConfig when method is &quot;presentationDuringIssuance&quot;&#x27;;
         }
 
-        return &#x27;config type does not match the specified method&#x27;;
+        return &quot;config type does not match the specified method&quot;;
     }
 }
 
@@ -396,8 +451,8 @@ export class AuthenticationConfigDto {
      * - &#x27;auth&#x27;: OID4VCI authorized code flow (user redirect for authentication)
      * - &#x27;presentationDuringIssuance&#x27;: OID4VP flow (credential presentation required)
      */
-    @IsIn([&#x27;none&#x27;, &#x27;auth&#x27;, &#x27;presentationDuringIssuance&#x27;])
-    method: &#x27;none&#x27; | &#x27;auth&#x27; | &#x27;presentationDuringIssuance&#x27;;
+    @IsIn([&quot;none&quot;, &quot;auth&quot;, &quot;presentationDuringIssuance&quot;])
+    method: &quot;none&quot; | &quot;auth&quot; | &quot;presentationDuringIssuance&quot;;
 
     /**
      * Configuration specific to the selected authentication method
@@ -408,6 +463,13 @@ export class AuthenticationConfigDto {
     @IsOptional()
     @Validate(AuthConfigValidator)
     config?: AuthenticationUrlConfig | PresentationDuringIssuanceConfig;
+
+    /**
+     * Description of the authentication configuration.
+     */
+    @IsOptional()
+    @IsString()
+    description?: string;
 }
 
 /**
@@ -415,10 +477,10 @@ export class AuthenticationConfigDto {
  * Each method corresponds to a specific OpenID4VC flow
  */
 export type AuthenticationConfig &#x3D;
-    | { method: &#x27;none&#x27; } // Pre-authorized code flow
-    | { method: &#x27;auth&#x27;; config: AuthenticationUrlConfig } // OID4VCI authorized code flow
+    | { method: &quot;none&quot; } // Pre-authorized code flow
+    | { method: &quot;auth&quot;; config: AuthenticationUrlConfig } // OID4VCI authorized code flow
     | {
-          method: &#x27;presentationDuringIssuance&#x27;; // OID4VP flow
+          method: &quot;presentationDuringIssuance&quot;; // OID4VP flow
           config: PresentationDuringIssuanceConfig;
       };
 </code></pre>

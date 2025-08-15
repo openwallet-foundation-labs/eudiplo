@@ -161,6 +161,11 @@
                                     <span class="modifier"></span>
                                 <a href="#getKeys" >getKeys</a>
                             </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#updateKey" >updateKey</a>
+                            </li>
                         </ul>
                     </td>
                 </tr>
@@ -208,8 +213,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="49"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:49</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="51"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:51</a></div>
                         </td>
                     </tr>
 
@@ -298,8 +303,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="64"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:64</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="82"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:82</a></div>
                         </td>
                     </tr>
 
@@ -388,8 +393,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="37"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:37</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="39"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:39</a></div>
                         </td>
                     </tr>
 
@@ -437,6 +442,109 @@
             </tr>
         </tbody>
     </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="updateKey"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier">Async</span>
+                        <span ><b>updateKey</b></span>
+                        <a href="#updateKey"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>updateKey(token: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, body: <a href="../classes/UpdateKeyDto.html" target="_self">UpdateKeyDto</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Put(&#x27;:id&#x27;)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="67"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:67</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Updates an existing key in the key service.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>token</td>
+                                            <td>
+                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>body</td>
+                                            <td>
+                                                            <code><a href="../classes/UpdateKeyDto.html" target="_self" >UpdateKeyDto</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </section>    </div>
 
 
@@ -449,25 +557,27 @@
     Inject,
     Param,
     Post,
+    Put,
     UseGuards,
-} from &#x27;@nestjs/common&#x27;;
-import { ApiSecurity } from &#x27;@nestjs/swagger&#x27;;
-import { JwtAuthGuard } from &#x27;../../auth/auth.guard&#x27;;
-import { Token, TokenPayload } from &#x27;../../auth/token.decorator&#x27;;
-import { CryptoService } from &#x27;../crypto.service&#x27;;
-import { KeyImportDto } from &#x27;./dto/key-import.dto&#x27;;
-import { CertEntity } from &#x27;./entities/cert.entity&#x27;;
-import { KeyService } from &#x27;./key.service&#x27;;
+} from &quot;@nestjs/common&quot;;
+import { ApiSecurity } from &quot;@nestjs/swagger&quot;;
+import { JwtAuthGuard } from &quot;../../auth/auth.guard&quot;;
+import { Token, TokenPayload } from &quot;../../auth/token.decorator&quot;;
+import { CryptoService } from &quot;../crypto.service&quot;;
+import { KeyImportDto } from &quot;./dto/key-import.dto&quot;;
+import { UpdateKeyDto } from &quot;./dto/key-update.dto&quot;;
+import { CertEntity } from &quot;./entities/cert.entity&quot;;
+import { KeyService } from &quot;./key.service&quot;;
 
 /**
  * KeyController is responsible for managing keys in the system.
  */
 @UseGuards(JwtAuthGuard)
-@ApiSecurity(&#x27;oauth2&#x27;)
-@Controller(&#x27;key&#x27;)
+@ApiSecurity(&quot;oauth2&quot;)
+@Controller(&quot;key&quot;)
 export class KeyController {
     constructor(
-        @Inject(&#x27;KeyService&#x27;) public readonly keyService: KeyService,
+        @Inject(&quot;KeyService&quot;) public readonly keyService: KeyService,
         private cryptoService: CryptoService,
     ) {}
 
@@ -499,12 +609,28 @@ export class KeyController {
     }
 
     /**
+     * Updates an existing key in the key service.
+     * @param token
+     * @param id
+     * @param body
+     */
+    @Put(&quot;:id&quot;)
+    async updateKey(
+        @Token() token: TokenPayload,
+        @Param(&quot;id&quot;) id: string,
+        @Body() body: UpdateKeyDto,
+    ): Promise&lt;void&gt; {
+        const tenantId &#x3D; token.sub;
+        await this.cryptoService.updateCert(tenantId, id, body);
+    }
+
+    /**
      * Delete a key from the key service.
      * @param token
      * @param id
      */
-    @Delete(&#x27;:id&#x27;)
-    deleteKey(@Token() token: TokenPayload, @Param(&#x27;id&#x27;) id: string) {
+    @Delete(&quot;:id&quot;)
+    deleteKey(@Token() token: TokenPayload, @Param(&quot;id&quot;) id: string) {
         return this.cryptoService.deleteKey(token.sub, id);
     }
 }

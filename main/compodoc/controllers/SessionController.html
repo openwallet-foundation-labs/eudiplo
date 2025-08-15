@@ -203,8 +203,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="51"
-                                    class="link-to-prism">src/session/session.controller.ts:51</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="52"
+                                    class="link-to-prism">src/session/session.controller.ts:52</a></div>
                         </td>
                     </tr>
 
@@ -293,8 +293,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="31"
-                                    class="link-to-prism">src/session/session.controller.ts:31</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="32"
+                                    class="link-to-prism">src/session/session.controller.ts:32</a></div>
                         </td>
                     </tr>
 
@@ -341,8 +341,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="40"
-                                    class="link-to-prism">src/session/session.controller.ts:40</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="41"
+                                    class="link-to-prism">src/session/session.controller.ts:41</a></div>
                         </td>
                     </tr>
 
@@ -426,8 +426,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="64"
-                                    class="link-to-prism">src/session/session.controller.ts:64</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="65"
+                                    class="link-to-prism">src/session/session.controller.ts:65</a></div>
                         </td>
                     </tr>
 
@@ -499,19 +499,19 @@
     Param,
     Post,
     UseGuards,
-} from &#x27;@nestjs/common&#x27;;
-import { ApiSecurity, ApiTags } from &#x27;@nestjs/swagger&#x27;;
-import { JwtAuthGuard } from &#x27;../auth/auth.guard&#x27;;
-import { Token, TokenPayload } from &#x27;../auth/token.decorator&#x27;;
-import { StatusUpdateDto } from &#x27;../issuer/status-list/dto/status-update.dto&#x27;;
-import { StatusListService } from &#x27;../issuer/status-list/status-list.service&#x27;;
-import { Session } from &#x27;./entities/session.entity&#x27;;
-import { SessionService } from &#x27;./session.service&#x27;;
+} from &quot;@nestjs/common&quot;;
+import { ApiSecurity, ApiTags } from &quot;@nestjs/swagger&quot;;
+import { JwtAuthGuard } from &quot;../auth/auth.guard&quot;;
+import { Token, TokenPayload } from &quot;../auth/token.decorator&quot;;
+import { StatusUpdateDto } from &quot;../issuer/status-list/dto/status-update.dto&quot;;
+import { StatusListService } from &quot;../issuer/status-list/status-list.service&quot;;
+import { Session } from &quot;./entities/session.entity&quot;;
+import { SessionService } from &quot;./session.service&quot;;
 
-@ApiTags(&#x27;Session management&#x27;)
+@ApiTags(&quot;Session management&quot;)
 @UseGuards(JwtAuthGuard)
-@ApiSecurity(&#x27;oauth2&#x27;)
-@Controller(&#x27;session&#x27;)
+@ApiSecurity(&quot;oauth2&quot;)
+@Controller(&quot;session&quot;)
 export class SessionController {
     constructor(
         private readonly sessionService: SessionService,
@@ -520,7 +520,8 @@ export class SessionController {
 
     /**
      * Retrieves all sessions.
-     */ @Get()
+     */
+    @Get()
     getAllSessions(): Promise&lt;Session[]&gt; {
         return this.sessionService.getAll();
     }
@@ -529,8 +530,8 @@ export class SessionController {
      * Retrieves the session information for a given session ID.
      * @param id - The identifier of the session.
      */
-    @Get(&#x27;:id&#x27;)
-    getSession(@Param(&#x27;id&#x27;) id: string): Promise&lt;Session&gt; {
+    @Get(&quot;:id&quot;)
+    getSession(@Param(&quot;id&quot;) id: string): Promise&lt;Session&gt; {
         return this.sessionService.get(id);
     }
 
@@ -540,9 +541,9 @@ export class SessionController {
      * @param user
      * @returns
      */
-    @Delete(&#x27;:id&#x27;)
+    @Delete(&quot;:id&quot;)
     deleteSession(
-        @Param(&#x27;id&#x27;) id: string,
+        @Param(&quot;id&quot;) id: string,
         @Token() user: TokenPayload,
     ): Promise&lt;void&gt; {
         return this.sessionService.delete(id, user.sub);
@@ -553,7 +554,7 @@ export class SessionController {
      * @param value
      * @returns
      */
-    @Post(&#x27;revoke&#x27;)
+    @Post(&quot;revoke&quot;)
     revokeAll(@Body() value: StatusUpdateDto, @Token() user: TokenPayload) {
         return this.statusListService.updateStatus(value, user.sub);
     }

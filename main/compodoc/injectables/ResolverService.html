@@ -302,12 +302,12 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { X509Certificate } from &#x27;node:crypto&#x27;;
-import { HttpService } from &#x27;@nestjs/axios&#x27;;
-import { ConflictException, Injectable } from &#x27;@nestjs/common&#x27;;
-import { JWK, JWTPayload } from &#x27;jose&#x27;;
-import { firstValueFrom } from &#x27;rxjs&#x27;;
-import { IssuerMetadata } from &#x27;./dto/issuer-metadata.dto&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { X509Certificate } from &quot;node:crypto&quot;;
+import { HttpService } from &quot;@nestjs/axios&quot;;
+import { ConflictException, Injectable } from &quot;@nestjs/common&quot;;
+import { JWK, JWTPayload } from &quot;jose&quot;;
+import { firstValueFrom } from &quot;rxjs&quot;;
+import { IssuerMetadata } from &quot;./dto/issuer-metadata.dto&quot;;
 
 /**
  * Service for resolving public keys from JWT payloads and headers.
@@ -324,23 +324,23 @@ export class ResolverService {
      */
     async resolvePublicKey(payload: JWTPayload, header: JWK): Promise&lt;JWK&gt; {
         if (!payload.iss) {
-            throw new Error(&#x27;Issuer not found&#x27;);
+            throw new Error(&quot;Issuer not found&quot;);
         }
 
         if (header.x5c) {
             //TODO: validate the certificate and the chain of trust!
             const certs &#x3D; header.x5c.map(
-                (cert) &#x3D;&gt; new X509Certificate(Buffer.from(cert, &#x27;base64&#x27;)),
+                (cert) &#x3D;&gt; new X509Certificate(Buffer.from(cert, &quot;base64&quot;)),
             );
             const cert &#x3D; certs[0];
             if (!cert.subjectAltName?.includes(new URL(payload.iss).hostname)) {
-                throw new Error(&#x27;Subject and issuer do not match&#x27;);
+                throw new Error(&quot;Subject and issuer do not match&quot;);
             }
-            return cert.publicKey.export({ format: &#x27;jwk&#x27; }) as JWK;
+            return cert.publicKey.export({ format: &quot;jwk&quot; }) as JWK;
         }
         //checl if the key is in the header as jwk
-        if (header[&#x27;jwk&#x27;]) {
-            return header[&#x27;jwk&#x27;] as JWK;
+        if (header[&quot;jwk&quot;]) {
+            return header[&quot;jwk&quot;] as JWK;
         }
 
         const response &#x3D; await firstValueFrom(
@@ -350,12 +350,12 @@ export class ResolverService {
         ).then(
             (r) &#x3D;&gt; r.data,
             () &#x3D;&gt; {
-                throw new ConflictException(&#x27;Issuer not reachable&#x27;);
+                throw new ConflictException(&quot;Issuer not reachable&quot;);
             },
         );
         const key &#x3D; response.jwks.keys.find((key) &#x3D;&gt; key.kid &#x3D;&#x3D;&#x3D; header.kid);
         if (!key) {
-            throw new Error(&#x27;Key not found&#x27;);
+            throw new Error(&quot;Key not found&quot;);
         }
         return key;
     }

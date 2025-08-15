@@ -496,13 +496,13 @@
     ExecutionContext,
     Injectable,
     NestInterceptor,
-} from &#x27;@nestjs/common&#x27;;
-import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { Reflector } from &#x27;@nestjs/core&#x27;;
-import { PinoLogger } from &#x27;nestjs-pino&#x27;;
-import { Observable } from &#x27;rxjs&#x27;;
-import { catchError, tap } from &#x27;rxjs/operators&#x27;;
-import { SESSION_LOGGER_KEY } from &#x27;./session-logger.decorator&#x27;;
+} from &quot;@nestjs/common&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
+import { Reflector } from &quot;@nestjs/core&quot;;
+import { PinoLogger } from &quot;nestjs-pino&quot;;
+import { Observable } from &quot;rxjs&quot;;
+import { catchError, tap } from &quot;rxjs/operators&quot;;
+import { SESSION_LOGGER_KEY } from &quot;./session-logger.decorator&quot;;
 
 /**
  * Interceptor for logging session-related requests and responses.
@@ -523,7 +523,7 @@ export class SessionLoggerInterceptor implements NestInterceptor {
         private readonly configService: ConfigService,
     ) {
         this.isEnabled &#x3D; this.configService.get&lt;boolean&gt;(
-            &#x27;LOG_ENABLE_SESSION_LOGGER&#x27;,
+            &quot;LOG_ENABLE_SESSION_LOGGER&quot;,
             false,
         );
     }
@@ -555,7 +555,7 @@ export class SessionLoggerInterceptor implements NestInterceptor {
         const url &#x3D; request.url;
 
         // Set context for this logger instance
-        this.logger.setContext(&#x27;SessionLogger&#x27;);
+        this.logger.setContext(&quot;SessionLogger&quot;);
 
         // Create log context
         const logContext &#x3D; {
@@ -569,12 +569,12 @@ export class SessionLoggerInterceptor implements NestInterceptor {
         this.logger.info(
             {
                 ...logContext,
-                event: &#x27;request_start&#x27;,
+                event: &quot;request_start&quot;,
                 method,
                 url,
                 headers: {
-                    &#x27;user-agent&#x27;: request.headers[&#x27;user-agent&#x27;],
-                    &#x27;content-type&#x27;: request.headers[&#x27;content-type&#x27;],
+                    &quot;user-agent&quot;: request.headers[&quot;user-agent&quot;],
+                    &quot;content-type&quot;: request.headers[&quot;content-type&quot;],
                 },
                 body: this.sanitizeBody(request.body),
             },
@@ -589,7 +589,7 @@ export class SessionLoggerInterceptor implements NestInterceptor {
                 this.logger.info(
                     {
                         ...logContext,
-                        event: &#x27;request_success&#x27;,
+                        event: &quot;request_success&quot;,
                         method,
                         url,
                         statusCode: response.statusCode,
@@ -604,7 +604,7 @@ export class SessionLoggerInterceptor implements NestInterceptor {
                 this.logger.error(
                     {
                         ...logContext,
-                        event: &#x27;request_error&#x27;,
+                        event: &quot;request_error&quot;,
                         method,
                         url,
                         error: {
@@ -634,18 +634,18 @@ export class SessionLoggerInterceptor implements NestInterceptor {
 
         // Remove sensitive fields
         const sensitiveFields &#x3D; [
-            &#x27;password&#x27;,
-            &#x27;token&#x27;,
-            &#x27;secret&#x27;,
-            &#x27;key&#x27;,
-            &#x27;private_key&#x27;,
-            &#x27;access_token&#x27;,
-            &#x27;refresh_token&#x27;,
+            &quot;password&quot;,
+            &quot;token&quot;,
+            &quot;secret&quot;,
+            &quot;key&quot;,
+            &quot;private_key&quot;,
+            &quot;access_token&quot;,
+            &quot;refresh_token&quot;,
         ];
 
         sensitiveFields.forEach((field) &#x3D;&gt; {
             if (sanitized[field]) {
-                sanitized[field] &#x3D; &#x27;[REDACTED]&#x27;;
+                sanitized[field] &#x3D; &quot;[REDACTED]&quot;;
             }
         });
 

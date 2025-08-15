@@ -1265,24 +1265,24 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { HttpService } from &#x27;@nestjs/axios&#x27;;
-import { ConflictException, Injectable, OnModuleInit } from &#x27;@nestjs/common&#x27;;
-import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
-import { digest, ES256 } from &#x27;@sd-jwt/crypto-nodejs&#x27;;
-import { SDJwtVcInstance } from &#x27;@sd-jwt/sd-jwt-vc&#x27;;
-import { KbVerifier, Verifier } from &#x27;@sd-jwt/types&#x27;;
-import { plainToClass } from &#x27;class-transformer&#x27;;
-import { validate } from &#x27;class-validator&#x27;;
-import { readdirSync, readFileSync } from &#x27;fs&#x27;;
-import { importJWK, JWK, JWTPayload, jwtVerify } from &#x27;jose&#x27;;
-import { PinoLogger } from &#x27;nestjs-pino&#x27;;
-import { join } from &#x27;path&#x27;;
-import { firstValueFrom } from &#x27;rxjs&#x27;;
-import { Repository } from &#x27;typeorm/repository/Repository&#x27;;
-import { ResolverService } from &#x27;../resolver/resolver.service&#x27;;
-import { AuthResponse } from &#x27;./dto/auth-response.dto&#x27;;
-import { PresentationConfig } from &#x27;./entities/presentation-config.entity&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { HttpService } from &quot;@nestjs/axios&quot;;
+import { ConflictException, Injectable, OnModuleInit } from &quot;@nestjs/common&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
+import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
+import { digest, ES256 } from &quot;@sd-jwt/crypto-nodejs&quot;;
+import { SDJwtVcInstance } from &quot;@sd-jwt/sd-jwt-vc&quot;;
+import { KbVerifier, Verifier } from &quot;@sd-jwt/types&quot;;
+import { plainToClass } from &quot;class-transformer&quot;;
+import { validate } from &quot;class-validator&quot;;
+import { readdirSync, readFileSync } from &quot;fs&quot;;
+import { importJWK, JWK, JWTPayload, jwtVerify } from &quot;jose&quot;;
+import { PinoLogger } from &quot;nestjs-pino&quot;;
+import { join } from &quot;path&quot;;
+import { firstValueFrom } from &quot;rxjs&quot;;
+import { Repository } from &quot;typeorm/repository/Repository&quot;;
+import { ResolverService } from &quot;../resolver/resolver.service&quot;;
+import { AuthResponse } from &quot;./dto/auth-response.dto&quot;;
+import { PresentationConfig } from &quot;./entities/presentation-config.entity&quot;;
 
 /**
  * Service for managing Verifiable Presentations (VPs) and handling SD-JWT-VCs.
@@ -1332,10 +1332,10 @@ export class PresentationsService implements OnModuleInit {
      * Imports presentation configurations from a predefined directory structure.
      */
     private async import() {
-        const configPath &#x3D; this.configService.getOrThrow(&#x27;CONFIG_FOLDER&#x27;);
-        const subfolder &#x3D; &#x27;presentation&#x27;;
-        const force &#x3D; this.configService.get&lt;boolean&gt;(&#x27;CONFIG_IMPORT_FORCE&#x27;);
-        if (this.configService.get&lt;boolean&gt;(&#x27;CONFIG_IMPORT&#x27;)) {
+        const configPath &#x3D; this.configService.getOrThrow(&quot;CONFIG_FOLDER&quot;);
+        const subfolder &#x3D; &quot;presentation&quot;;
+        const force &#x3D; this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT_FORCE&quot;);
+        if (this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT&quot;)) {
             const tenantFolders &#x3D; readdirSync(configPath, {
                 withFileTypes: true,
             }).filter((tenant) &#x3D;&gt; tenant.isDirectory());
@@ -1346,10 +1346,10 @@ export class PresentationsService implements OnModuleInit {
                 const files &#x3D; readdirSync(path);
                 for (const file of files) {
                     const payload &#x3D; JSON.parse(
-                        readFileSync(join(path, file), &#x27;utf8&#x27;),
+                        readFileSync(join(path, file), &quot;utf8&quot;),
                     );
 
-                    const id &#x3D; file.replace(&#x27;.json&#x27;, &#x27;&#x27;);
+                    const id &#x3D; file.replace(&quot;.json&quot;, &quot;&quot;);
                     payload.id &#x3D; id;
                     const presentationExists &#x3D; await this.getPresentationConfig(
                         id,
@@ -1369,7 +1369,7 @@ export class PresentationsService implements OnModuleInit {
                     if (validationErrors.length &gt; 0) {
                         this.logger.error(
                             {
-                                event: &#x27;ValidationError&#x27;,
+                                event: &quot;ValidationError&quot;,
                                 file,
                                 tenant: tenant.name,
                                 errors: validationErrors.map((error) &#x3D;&gt; ({
@@ -1388,7 +1388,7 @@ export class PresentationsService implements OnModuleInit {
                 }
                 this.logger.info(
                     {
-                        event: &#x27;Import&#x27;,
+                        event: &quot;Import&quot;,
                     },
                     &#x60;${counter} presentation configs imported for ${tenant.name}&#x60;,
                 );
@@ -1404,7 +1404,7 @@ export class PresentationsService implements OnModuleInit {
     getPresentationConfigs(tenantId: string): Promise&lt;PresentationConfig[]&gt; {
         return this.vpRequestRepository.find({
             where: { tenantId },
-            order: { createdAt: &#x27;DESC&#x27; },
+            order: { createdAt: &quot;DESC&quot; },
         });
     }
 
@@ -1509,9 +1509,9 @@ export class PresentationsService implements OnModuleInit {
      */
     private kbVerifier: KbVerifier &#x3D; async (data, signature, payload) &#x3D;&gt; {
         if (!payload.cnf) {
-            throw new Error(&#x27;No cnf found in the payload&#x27;);
+            throw new Error(&quot;No cnf found in the payload&quot;);
         }
-        const key &#x3D; await importJWK(payload.cnf.jwk as JWK, &#x27;ES256&#x27;);
+        const key &#x3D; await importJWK(payload.cnf.jwk as JWK, &quot;ES256&quot;);
         return jwtVerify(&#x60;${data}.${signature}&#x60;, key).then(
             () &#x3D;&gt; true,
             () &#x3D;&gt; false,

@@ -229,7 +229,7 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiProperty } from &#x27;@nestjs/swagger&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiProperty } from &quot;@nestjs/swagger&quot;;
 import {
     IsArray,
     IsEnum,
@@ -237,16 +237,16 @@ import {
     IsOptional,
     IsString,
     IsUUID,
-} from &#x27;class-validator&#x27;;
-import { ResponseType } from &#x27;../../../verifier/oid4vp/dto/presentation-request.dto&#x27;;
+} from &quot;class-validator&quot;;
+import { ResponseType } from &quot;../../../verifier/oid4vp/dto/presentation-request.dto&quot;;
 
 export class OfferRequestDto {
     /**
      * @example &quot;qrcode&quot;
      */
     @ApiProperty({
-        example: &#x27;qrcode&#x27;,
-        description: &#x27;The type of response expected for the offer request.&#x27;,
+        example: &quot;qrcode&quot;,
+        description: &quot;The type of response expected for the offer request.&quot;,
     })
     @IsEnum(ResponseType)
     response_type: ResponseType;

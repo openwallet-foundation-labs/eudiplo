@@ -320,8 +320,8 @@ If not provided, the configured webhook from the configuration will be used.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { IsEnum, IsObject, IsOptional, IsString } from &#x27;class-validator&#x27;;
-import { WebhookConfig } from &#x27;../../../utils/webhook/webhook.dto&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { IsEnum, IsObject, IsOptional, IsString } from &quot;class-validator&quot;;
+import { WebhookConfig } from &quot;../../../utils/webhook/webhook.dto&quot;;
 
 /**
  * Enum for the type of response expected from the presentation request.
@@ -330,11 +330,11 @@ export enum ResponseType {
     /**
      * Response type indicating a QR code will be returned.
      */
-    QRCode &#x3D; &#x27;qrcode&#x27;,
+    QRCode &#x3D; &quot;qrcode&quot;,
     /**
      * Response type indicating a URI will be returned.
      */
-    URI &#x3D; &#x27;uri&#x27;,
+    URI &#x3D; &quot;uri&quot;,
 }
 
 /**

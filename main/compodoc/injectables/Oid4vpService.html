@@ -393,8 +393,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="203"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:203</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="205"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:205</a></div>
                         </td>
                     </tr>
 
@@ -488,8 +488,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="255"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:255</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="264"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:264</a></div>
                         </td>
                     </tr>
 
@@ -613,7 +613,7 @@ export class Oid4vpService {
             const host &#x3D; this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;);
             const tenantHost &#x3D; &#x60;${host}/${session.tenantId}&#x60;;
 
-            const values &#x3D;
+            const presentationConfig &#x3D;
                 await this.presentationsService.getPresentationConfig(
                     session.requestId!,
                     session.tenantId,
@@ -621,7 +621,7 @@ export class Oid4vpService {
             let regCert: string | undefined &#x3D; undefined;
 
             const dcql_query &#x3D; JSON.parse(
-                JSON.stringify(values.dcql_query).replace(
+                JSON.stringify(presentationConfig.dcql_query).replace(
                     /&lt;PUBLIC_URL&gt;/g,
                     tenantHost,
                 ),
@@ -629,7 +629,7 @@ export class Oid4vpService {
 
             if (this.registrarService.isEnabled()) {
                 const registrationCert &#x3D; JSON.parse(
-                    JSON.stringify(values.registrationCert).replace(
+                    JSON.stringify(presentationConfig.registrationCert).replace(
                         /&lt;PUBLIC_URL&gt;/g,
                         tenantHost,
                     ),
@@ -659,6 +659,8 @@ export class Oid4vpService {
             const hostname &#x3D; new URL(
                 this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;),
             ).hostname;
+
+            const lifeTime &#x3D; 60 * 60;
 
             const request &#x3D; {
                 payload: {
@@ -693,7 +695,7 @@ export class Oid4vpService {
                     },
                     state: session.id,
                     aud: host,
-                    exp: Math.floor(Date.now() / 1000) + 60 * 5,
+                    exp: Math.floor(Date.now() / 1000) + lifeTime,
                     iat: Math.floor(new Date().getTime() / 1000),
                     verifier_attestations: regCert
                         ? [
@@ -767,6 +769,8 @@ export class Oid4vpService {
                 requestId,
                 tenantId,
             );
+        const fresh &#x3D; values.session &#x3D;&#x3D;&#x3D; undefined;
+        values.session &#x3D; values.session || v4();
 
         const hostname &#x3D; new URL(
             this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;),
@@ -782,19 +786,24 @@ export class Oid4vpService {
             )
             .join(&#x27;&amp;&#x27;);
 
-        if (!values.session) {
-            values.session &#x3D; v4();
+        const expiresAt &#x3D; new Date(
+            Date.now() + presentationConfig.lifeTime * 1000,
+        );
+
+        if (fresh) {
             await this.sessionService.create({
                 id: values.session,
                 webhook: values.webhook ?? presentationConfig.webhook,
                 tenantId,
                 requestId,
                 requestUrl: queryString,
+                expiresAt,
             });
         } else {
             await this.sessionService.add(values.session, {
                 webhook: values.webhook ?? presentationConfig.webhook,
                 requestUrl: queryString,
+                expiresAt,
             });
         }
 
