@@ -152,13 +152,8 @@ export class KeyManagementCreateComponent {
           duration: 3000,
         });
       } else {
-        // For "updating" an existing key, we need to create a new one with the same ID
-        // since the API doesn't have a dedicated update endpoint
-        this.snackBar.open('Key editing not supported by API', 'Close', {
-          duration: 3000,
-        });
+        await this.keyManagementService.updateKey(this.route.snapshot.params['id'], this.form.value);
         this.loading = false;
-        return;
       }
 
       this.router.navigate(['../'], { relativeTo: this.route });

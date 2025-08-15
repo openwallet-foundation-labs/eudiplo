@@ -148,7 +148,7 @@ export class IssuanceConfigCreateComponent implements OnInit {
         method: formValue.authMethod,
       };
 
-      if (formValue.authConfig && formValue.authConfig.trim()) {
+      if (formValue.authConfig && formValue.authConfig.trim() && formValue.authMethod !== 'none') {
         try {
           authenticationConfig.config = JSON.parse(formValue.authConfig);
           // eslint-disable-next-line @typescript-eslint/no-unused-vars

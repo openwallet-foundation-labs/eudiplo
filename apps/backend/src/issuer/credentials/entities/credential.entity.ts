@@ -1,4 +1,4 @@
-import { CredentialConfigurationSupported } from '@openid4vc/openid4vci';
+import { CredentialConfigurationSupported } from "@openid4vc/openid4vci";
 import {
     IsBoolean,
     IsEmpty,
@@ -6,12 +6,12 @@ import {
     IsObject,
     IsOptional,
     IsString,
-} from 'class-validator';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
-import { CertEntity } from '../../../crypto/key/entities/cert.entity';
-import { VCT } from '../../credentials-metadata/dto/credential-config.dto';
-import { SchemaResponse } from '../../credentials-metadata/dto/schema-response.dto';
-import { CredentialIssuanceBinding } from '../../issuance/entities/credential-issuance-binding.entity';
+} from "class-validator";
+import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
+import { CertEntity } from "../../../crypto/key/entities/cert.entity";
+import { VCT } from "../../credentials-metadata/dto/credential-config.dto";
+import { SchemaResponse } from "../../credentials-metadata/dto/schema-response.dto";
+import { CredentialIssuanceBinding } from "../../issuance/entities/credential-issuance-binding.entity";
 
 /**
  * Entity to manage a credential configuration
@@ -22,49 +22,49 @@ export class CredentialConfig {
      * Unique identifier for the configuration to reference it.
      */
     @IsString()
-    @Column('varchar', { primary: true })
+    @Column("varchar", { primary: true })
     id: string;
     /**
      * Tenant ID for the issuance configuration.
      */
     @IsEmpty()
-    @Column('varchar', { primary: true })
+    @Column("varchar", { primary: true })
     tenantId: string;
 
     //TODO: only allow display config for now
     /**
      * OID4VCI issuer metadata credential configuration element.
      */
-    @Column('json')
+    @Column("json")
     @IsObject()
     config: CredentialConfigurationSupported;
     /**
      * Claims that should be set by default when this credential is being issued. Will be overwritten when passed during a credential offer request.
      */
-    @Column('json', { nullable: true })
+    @Column("json", { nullable: true })
     @IsObject()
     claims: Record<string, any>;
     /**
      * Disclosure frame for the sd jwt vc.
      */
-    @Column('json', { nullable: true })
+    @Column("json", { nullable: true })
     @IsObject()
     disclosureFrame: Record<string, any>;
-    @Column('json', { nullable: true })
+    @Column("json", { nullable: true })
     /**
      * VCT values that are hosted by this service.
      */
     @IsObject()
     @IsOptional()
     vct?: VCT;
-    @Column('json', { nullable: true })
+    @Column("json", { nullable: true })
 
     /**
      * If true, the credential will be key bound.
      */
     @IsBoolean()
     @IsOptional()
-    @Column('boolean', { default: false })
+    @Column("boolean", { default: false })
     keyBinding?: boolean;
 
     /**
@@ -85,14 +85,14 @@ export class CredentialConfig {
      */
     @IsBoolean()
     @IsOptional()
-    @Column('boolean', { default: false })
+    @Column("boolean", { default: false })
     statusManagement?: boolean;
     /**
      * Optional livetime for the credential configuration in seconds.
      */
     @IsNumber()
     @IsOptional()
-    @Column('int', { nullable: true })
+    @Column("int", { nullable: true })
     lifeTime?: number;
 
     /**
@@ -108,6 +108,8 @@ export class CredentialConfig {
     @OneToMany(
         () => CredentialIssuanceBinding,
         (binding) => binding.credentialConfig,
+        { cascade: ["remove"], onDelete: "CASCADE" },
     )
     credentialIssuanceBindings: CredentialIssuanceBinding[];
 }
+//dd

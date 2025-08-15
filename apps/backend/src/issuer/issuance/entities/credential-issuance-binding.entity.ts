@@ -29,6 +29,7 @@ export class CredentialIssuanceBinding {
     @ManyToOne(
         () => CredentialConfig,
         (credentialConfig) => credentialConfig.credentialIssuanceBindings,
+        { onDelete: 'CASCADE' },
     )
     credentialConfig: CredentialConfig;
 
@@ -38,6 +39,7 @@ export class CredentialIssuanceBinding {
     @ManyToOne(
         () => IssuanceConfig,
         (issuanceConfig) => issuanceConfig.credentialIssuanceBindings,
+        { onDelete: 'CASCADE' },
     )
     issuanceConfig: IssuanceConfig;
 

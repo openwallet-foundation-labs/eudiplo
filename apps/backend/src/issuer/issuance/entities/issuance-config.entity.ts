@@ -42,6 +42,7 @@ export class IssuanceConfig {
     @OneToMany(
         () => CredentialIssuanceBinding,
         (binding) => binding.issuanceConfig,
+        { cascade: ['remove'], onDelete: 'CASCADE' },
     )
     credentialIssuanceBindings: CredentialIssuanceBinding[];
 

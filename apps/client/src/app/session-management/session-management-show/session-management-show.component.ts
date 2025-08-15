@@ -270,7 +270,7 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
 
   // Get the offer URI if available in session data
   getOfferUri(): string | null {
-    if (!this.session) return null;
+    if (!this.session || this.session.status !== 'active') return null;
 
     return this.offerUri;
   }

@@ -44,10 +44,11 @@ export class SessionService implements OnApplicationBootstrap {
         //set default values for session metrics
         const tenantId = 'root';
         const states: SessionStatus[] = [
-            'active',
-            'completed',
-            'expired',
-            'failed',
+            SessionStatus.Active,
+            SessionStatus.Fetched,
+            SessionStatus.Completed,
+            SessionStatus.Expired,
+            SessionStatus.Failed,
         ];
         for (const state of states) {
             const issuanceCounter = await this.sessionRepository.countBy({

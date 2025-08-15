@@ -120,6 +120,17 @@ export type KeyImportDto = {
     description?: string;
 };
 
+export type UpdateKeyDto = {
+    /**
+     * Optional certificate in PEM format.
+     */
+    crt?: string;
+    /**
+     * Description of the key.
+     */
+    description?: string;
+};
+
 export type NotificationRequestDto = {
     notification_id: string;
     event: {
@@ -480,6 +491,10 @@ export type PresentationConfig = {
 
 export type Session = {
     /**
+     * Status of the session.
+     */
+    status: 'active' | 'fetched' | 'completed' | 'expired' | 'failed';
+    /**
      * Unique identifier for the session.
      */
     id: string;
@@ -559,12 +574,6 @@ export type Session = {
      * Tenant ID for multi-tenancy support.
      */
     tenantId: string;
-    /**
-     * Status of the session.
-     */
-    status: {
-        [key: string]: unknown;
-    };
 };
 
 export type StatusUpdateDto = {
@@ -676,6 +685,19 @@ export type KeyControllerDeleteKeyData = {
 };
 
 export type KeyControllerDeleteKeyResponses = {
+    200: unknown;
+};
+
+export type KeyControllerUpdateKeyData = {
+    body: UpdateKeyDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/key/{id}';
+};
+
+export type KeyControllerUpdateKeyResponses = {
     200: unknown;
 };
 

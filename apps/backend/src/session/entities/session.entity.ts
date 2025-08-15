@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
     CredentialOfferObject,
     NotificationEvent,
@@ -14,7 +15,13 @@ import { AuthorizeQueries } from '../../issuer/authorize/dto/authorize-request.d
 import { OfferRequestDto } from '../../issuer/oid4vci/dto/offer-request.dto';
 import { WebhookConfig } from '../../utils/webhook/webhook.dto';
 
-export type SessionStatus = 'active' | 'completed' | 'expired' | 'failed';
+export enum SessionStatus {
+    Active = 'active',
+    Fetched = 'fetched',
+    Completed = 'completed',
+    Expired = 'expired',
+    Failed = 'failed',
+}
 
 /**
  * Represents a session entity for managing user sessions in the application.
@@ -151,6 +158,7 @@ export class Session {
     /**
      * Status of the session.
      */
+    @ApiProperty({ enum: SessionStatus })
     @Column('varchar', { nullable: true, default: 'active' })
     status: SessionStatus;
 }

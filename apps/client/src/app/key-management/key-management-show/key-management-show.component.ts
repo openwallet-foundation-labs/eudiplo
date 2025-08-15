@@ -110,8 +110,6 @@ export class KeyManagementShowComponent implements OnInit {
         fingerprint = 'Unable to compute';
       }
 
-      console.log(cert);
-
       this.certificateInfo = {
         subject: cert.subject,
         issuer: cert.issuer,

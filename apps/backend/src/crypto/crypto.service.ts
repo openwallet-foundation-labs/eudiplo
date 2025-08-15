@@ -21,6 +21,7 @@ import { PinoLogger } from 'nestjs-pino';
 import { Repository } from 'typeorm/repository/Repository';
 import { EC_Public } from '../well-known/dto/jwks-response.dto';
 import { KeyImportDto } from './key/dto/key-import.dto';
+import { UpdateKeyDto } from './key/dto/key-update.dto';
 import { CertEntity, CertificateType } from './key/entities/cert.entity';
 import { KeyService } from './key/key.service';
 
@@ -181,7 +182,7 @@ export class CryptoService {
 
         const existing = await this.certRepository.findOneBy({ tenantId, id });
         if (existing?.crt) return;
-
+        //TODO: load CN from other source, e.g. config. Also required for access certificate
         // === Inputs/parameters (subject + SAN hostname) ===
         const subjectCN = this.configService.getOrThrow<string>('RP_NAME');
         const hostname = new URL(
@@ -316,6 +317,16 @@ export class CryptoService {
         return this.certRepository
             .findOneBy({ tenantId, id: keyId })
             .then((cert) => cert!.crt);
+    }
+
+    /**
+     * Update an existing certificate in the key service.
+     * @param tenantId
+     * @param id
+     * @param body
+     */
+    updateCert(tenantId: string, id: string, body: UpdateKeyDto) {
+        this.certRepository.update({ tenantId, id }, body);
     }
 
     /**

@@ -72,6 +72,21 @@
                   >Leave empty to use all configurations from the selected issuance config</mat-hint
                 >
               </mat-form-field>
+              <mat-form-field>
+                <mat-label>Values for the credentials</mat-label>
+                <textarea
+                  matInput
+                  formControlName="claims"
+                  rows="6"
+                  placeholder='{"pid": {"pre_name": "Max Mustermann"}}'
+                  class="json-textarea"
+                ></textarea>
+                <mat-icon matSuffix>code</mat-icon>
+                <mat-hint>Define the credential values in JSON format</mat-hint>
+                @if (form.get('claims')?.hasError('invalidJson')) {
+                  <mat-error>Invalid JSON format. Please check your syntax.</mat-error>
+                }
+              </mat-form-field>
             }
           </mat-card-content>
           <mat-card-actions fxLayout="row" fxLayoutAlign="end center">

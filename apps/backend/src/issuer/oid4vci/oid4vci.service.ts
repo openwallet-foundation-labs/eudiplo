@@ -360,6 +360,7 @@ export class Oid4vciService implements OnModuleInit {
             });
             await this.sessionService.add(session.id, {
                 notifications: session.notifications,
+                status: SessionStatus.Fetched,
             });
 
             this.sessionLogger.logFlowComplete(logContext, {
@@ -456,7 +457,9 @@ export class Oid4vciService implements OnModuleInit {
                 );
             }
             const state: SessionStatus =
-                body.event === 'credential_accepted' ? 'completed' : 'failed';
+                body.event === 'credential_accepted'
+                    ? SessionStatus.Completed
+                    : SessionStatus.Failed;
             await this.sessionService.setState(session, state);
         } catch (error) {
             this.sessionLogger.logSessionError(

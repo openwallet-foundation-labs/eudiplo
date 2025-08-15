@@ -173,6 +173,20 @@ export const KeyImportDtoSchema = {
     required: ['privateKey']
 } as const;
 
+export const UpdateKeyDtoSchema = {
+    type: 'object',
+    properties: {
+        crt: {
+            type: 'string',
+            description: 'Optional certificate in PEM format.'
+        },
+        description: {
+            type: 'string',
+            description: 'Description of the key.'
+        }
+    }
+} as const;
+
 export const NotificationRequestDtoSchema = {
     type: 'object',
     properties: {
@@ -734,6 +748,11 @@ export const PresentationConfigSchema = {
 export const SessionSchema = {
     type: 'object',
     properties: {
+        status: {
+            description: 'Status of the session.',
+            enum: ['active', 'fetched', 'completed', 'expired', 'failed'],
+            type: 'string'
+        },
         id: {
             type: 'string',
             description: 'Unique identifier for the session.'
@@ -836,13 +855,9 @@ export const SessionSchema = {
         tenantId: {
             type: 'string',
             description: 'Tenant ID for multi-tenancy support.'
-        },
-        status: {
-            type: 'object',
-            description: 'Status of the session.'
         }
     },
-    required: ['id', 'createdAt', 'updatedAt', 'notifications', 'tenantId', 'status']
+    required: ['status', 'id', 'createdAt', 'updatedAt', 'notifications', 'tenantId']
 } as const;
 
 export const StatusUpdateDtoSchema = {

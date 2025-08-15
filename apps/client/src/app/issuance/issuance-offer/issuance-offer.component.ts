@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, type OnInit } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -15,6 +15,17 @@ import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { type IssuanceConfig, type OfferRequestDto, type OfferResponse } from '../../generated';
 import { IssuanceConfigService } from '../issuance-config/issuance-config.service';
 
+
+export function jsonFormatValidator(control: AbstractControl): ValidationErrors | null {
+  const value = control.value;
+  if (!value) return null; // Allow empty values, use Validators.required if needed
+  try {
+    JSON.parse(value);
+    return null;
+  } catch {
+    return { invalidJson: true };
+  }
+}
 @Component({
   selector: 'app-issuance-offer',
   imports: [
@@ -52,6 +63,7 @@ export class IssuanceOfferComponent implements OnInit {
     this.form = new FormGroup({
       issuanceId: new FormControl('', Validators.required),
       credentialConfigurationIds: new FormControl([]),
+      claims: new FormControl('', jsonFormatValidator),
     });
   }
 
