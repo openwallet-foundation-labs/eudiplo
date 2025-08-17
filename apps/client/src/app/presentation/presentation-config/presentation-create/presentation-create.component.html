@@ -188,6 +188,16 @@
             <mat-form-field>
               <mat-label>API Key Value</mat-label>
               <input matInput formControlName="value" placeholder="Your API key" type="password" />
+              <button
+                mat-icon-button
+                matSuffix
+                (click)="
+                  copyToClipboard(form.get('webhook.auth.config.value')?.value, 'Client Secret')
+                "
+                matTooltip="Copy to clipboard"
+              >
+                <mat-icon>content_copy</mat-icon>
+              </button>
               @if (form.get('webhook.auth.config.value')?.hasError('required')) {
                 <mat-error> API key value is required </mat-error>
               }

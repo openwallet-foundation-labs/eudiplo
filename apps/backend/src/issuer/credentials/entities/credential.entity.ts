@@ -100,6 +100,7 @@ export class CredentialConfig {
      */
     @IsObject()
     @IsOptional()
+    @Column("json", { nullable: true })
     schema?: SchemaResponse;
     /**
      * Link to all the issuance config bindings that are using this credential.

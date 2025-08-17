@@ -529,6 +529,17 @@ export const OfferRequestDtoSchema = {
             type: 'string',
             description: 'The type of response expected for the offer request.'
         },
+        claims: {
+            type: 'object',
+            description: 'Override the default values for the credential claims.',
+            properties: {},
+            examples: {
+                pid: {
+                    given_name: 'ERIKA',
+                    family_name: 'MUSTERMANN'
+                }
+            }
+        },
         issuanceId: {
             type: 'string',
             description: 'Issuance config id to reference the issuance configuration.',

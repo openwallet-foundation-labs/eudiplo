@@ -37,9 +37,20 @@ export class OfferRequestDto {
     /**
      * Override the default values for the credential claims.
      */
+    @ApiProperty({
+        type: "object",
+        description: "Override the default values for the credential claims.",
+        properties: {},
+        examples: {
+            pid: {
+                given_name: "ERIKA",
+                family_name: "MUSTERMANN",
+            },
+        },
+    })
     @IsObject()
     @IsOptional()
-    claims?: { [key: string]: Record<string, any> };
+    claims?: Record<string, Record<string, any>>;
 
     /**
      * Pre defined session id
