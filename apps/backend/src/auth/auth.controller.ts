@@ -124,17 +124,25 @@ export class AuthController {
             throw new UnauthorizedException("Invalid client credentials");
         }
 
+        //TODO: check if the access token should only include the session id or also e.g. the credentials that should be issued. I would think this is not required since we still need the claims for it.
         const payload: TokenPayload = {
             sub: client.id,
         };
 
-        const token = await this.jwtService.generateToken(payload, {
+        //TODO: make expiresIn configurable?
+        const access_token = await this.jwtService.generateToken(payload, {
             expiresIn: "24h",
             audience: "eudiplo-service",
         });
 
+        const refresh_token = await this.jwtService.generateToken(payload, {
+            expiresIn: "30d",
+            audience: "eudiplo-service",
+        });
+
         return {
-            access_token: token,
+            access_token,
+            refresh_token,
             token_type: "Bearer",
             expires_in: 86400, // 24 hours in seconds
         };

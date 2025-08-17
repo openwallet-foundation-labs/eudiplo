@@ -2,12 +2,7 @@
     "authenticationConfig": {
         "method": "presentationDuringIssuance",
         "config": {
-            "presentation": {
-                "type": "pid",
-                "webhook": {
-                    "url": "http://localhost:8787/process"
-                }
-            }
+            "type": "pid"
         }
     },
     "credentialConfigs": [
@@ -15,6 +10,9 @@
             "id": "citizen"
         }
     ],
+    "claimWebhook": {
+        "url": "http://localhost:8787/process"
+    },
     "notifyWebhook": {
         "url": "http://localhost:8787/notify",
         "auth": {

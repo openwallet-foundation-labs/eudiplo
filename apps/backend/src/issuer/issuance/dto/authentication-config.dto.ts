@@ -12,7 +12,6 @@ import {
     ValidatorConstraintInterface,
 } from "class-validator";
 import { WebhookConfig } from "../../../utils/webhook/webhook.dto";
-import { PresentationDuringIssuance } from "../../credentials-metadata/dto/credential-config.dto";
 
 /**
  * Custom validator to ensure config type matches the authentication method
@@ -41,7 +40,7 @@ export class AuthConfigValidator implements ValidatorConstraintInterface {
             return (
                 config &&
                 typeof config === "object" &&
-                typeof config.presentation === "object"
+                typeof config.type === "string"
             );
         }
 
@@ -95,12 +94,10 @@ export class AuthenticationUrlConfig {
  */
 export class PresentationDuringIssuanceConfig {
     /**
-     * Presentation configuration that specifies what credentials need to be presented via OID4VP
+     * Link to the presentation configuration that is relevant for the issuance process
      */
-    @IsObject()
-    @ValidateNested()
-    @Type(() => PresentationDuringIssuance)
-    presentation: PresentationDuringIssuance;
+    @IsString()
+    type: string;
 }
 
 /**
