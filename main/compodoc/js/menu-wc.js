@@ -565,10 +565,10 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/CredentialIssuerMetadataDto.html" data-type="entity-link" >CredentialIssuerMetadataDto</a>
                             </li>
                             <li class="link">
-                                <a href="classes/EC_Public.html" data-type="entity-link" >EC_Public</a>
+                                <a href="classes/DBKeyService.html" data-type="entity-link" >DBKeyService</a>
                             </li>
                             <li class="link">
-                                <a href="classes/FileSystemKeyService.html" data-type="entity-link" >FileSystemKeyService</a>
+                                <a href="classes/EC_Public.html" data-type="entity-link" >EC_Public</a>
                             </li>
                             <li class="link">
                                 <a href="classes/IssuanceDto.html" data-type="entity-link" >IssuanceDto</a>

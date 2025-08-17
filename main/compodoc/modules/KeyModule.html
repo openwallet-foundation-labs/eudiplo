@@ -152,8 +152,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="34"
-                                    class="link-to-prism">src/crypto/key/key.module.ts:34</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="33"
+                                    class="link-to-prism">src/crypto/key/key.module.ts:33</a></div>
                         </td>
                     </tr>
 
@@ -179,9 +179,8 @@ import { DynamicModule, Global, Module } from &quot;@nestjs/common&quot;;
 import { ConfigModule, ConfigService } from &quot;@nestjs/config&quot;;
 import { getRepositoryToken, TypeOrmModule } from &quot;@nestjs/typeorm&quot;;
 import * as Joi from &quot;joi&quot;;
-import { PinoLogger } from &quot;nestjs-pino&quot;;
 import { Repository } from &quot;typeorm/repository/Repository&quot;;
-import { FileSystemKeyService } from &quot;./adapters/filesystem-key.service&quot;;
+import { DBKeyService } from &quot;./adapters/db-key.service&quot;;
 import { VaultKeyService } from &quot;./adapters/vault-key.service&quot;;
 import { CryptoImplementatationModule } from &quot;./crypto-implementation/crypto-implementation.module&quot;;
 import { CryptoImplementationService } from &quot;./crypto-implementation/crypto-implementation.service&quot;;
@@ -189,7 +188,7 @@ import { CertEntity } from &quot;./entities/cert.entity&quot;;
 import { KeyEntity } from &quot;./entities/keys.entity&quot;;
 
 export const KEY_VALIDATION_SCHEMA &#x3D; {
-    KM_TYPE: Joi.string().valid(&quot;file&quot;, &quot;vault&quot;).default(&quot;file&quot;),
+    KM_TYPE: Joi.string().valid(&quot;db&quot;, &quot;vault&quot;).default(&quot;db&quot;),
 
     // Vault-related config
     VAULT_URL: Joi.string().uri().when(&quot;KM_TYPE&quot;, {
@@ -238,7 +237,7 @@ export class KeyModule {
                             );
                         }
 
-                        return new FileSystemKeyService(
+                        return new DBKeyService(
                             configService,
                             cryptoService,
                             certRepository,

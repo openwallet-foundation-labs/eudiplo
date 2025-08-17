@@ -763,7 +763,7 @@ This decorator can be used to determine the media type of the request.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-    KM_TYPE: Joi.string().valid(&quot;file&quot;, &quot;vault&quot;).default(&quot;file&quot;),
+    KM_TYPE: Joi.string().valid(&quot;db&quot;, &quot;vault&quot;).default(&quot;db&quot;),
 
     // Vault-related config
     VAULT_URL: Joi.string().uri().when(&quot;KM_TYPE&quot;, {
