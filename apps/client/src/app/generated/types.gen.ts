@@ -342,6 +342,12 @@ export type OfferRequestDto = {
      */
     response_type: 'qrcode' | 'uri';
     /**
+     * Override the default values for the credential claims.
+     */
+    claims?: {
+        [key: string]: unknown;
+    };
+    /**
      * Issuance config id to reference the issuance configuration.
      */
     issuanceId: string;

@@ -5,6 +5,7 @@ import {
   FormControl,
   FormGroup,
   ReactiveFormsModule,
+  UntypedFormGroup,
   ValidationErrors,
   Validators,
 } from '@angular/forms';
@@ -21,6 +22,13 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { type IssuanceConfig, type OfferRequestDto, type OfferResponse } from '../../generated';
 import { IssuanceConfigService } from '../issuance-config/issuance-config.service';
+import { FormlyJsonschema } from '@ngx-formly/core/json-schema';
+import { CredentialConfigService } from '../credential-config/credential-config.service';
+import { FormlyFieldConfig, FormlyFieldProps, FormlyForm } from '@ngx-formly/core';
+import { MatDividerModule } from "@angular/material/divider";
+import { JsonViewDialogComponent } from '../credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+
 
 export function jsonFormatValidator(control: AbstractControl): ValidationErrors | null {
   const value = control.value;
@@ -48,7 +56,10 @@ export function jsonFormatValidator(control: AbstractControl): ValidationErrors 
     MatTooltipModule,
     FlexLayoutModule,
     RouterModule,
-  ],
+    FormlyForm,
+    MatDividerModule,
+    MatDialogModule,
+],
   templateUrl: './issuance-offer.component.html',
   styleUrls: ['./issuance-offer.component.scss'],
 })
@@ -60,17 +71,29 @@ export class IssuanceOfferComponent implements OnInit {
   offerResult: OfferResponse | null = null;
   qrCodeDataUrl: string | null = null;
 
+  formValues = new FormGroup({});
+  fields: FormlyFieldConfig<FormlyFieldProps & Record<string, any>>[] = [];
+  model: any = {};
+  group: UntypedFormGroup;
+  claimForms: string[] = [];
+
+
   constructor(
     private issuanceConfigService: IssuanceConfigService,
     private snackBar: MatSnackBar,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private formlyJsonschema: FormlyJsonschema,
+    private credentialConfigService: CredentialConfigService,
+    private dialog: MatDialog,
   ) {
     this.form = new FormGroup({
       issuanceId: new FormControl('', Validators.required),
       credentialConfigurationIds: new FormControl([]),
-      claims: new FormControl('', jsonFormatValidator),
+      claimsForm: new FormGroup({
+      })
     });
+    this.group = this.form.get('claimsForm') as UntypedFormGroup;
   }
 
   async ngOnInit(): Promise<void> {
@@ -78,6 +101,32 @@ export class IssuanceOfferComponent implements OnInit {
     if (this.route.snapshot.params['id']) {
       this.form.patchValue({ issuanceId: this.route.snapshot.params['id'] });
     }
+
+    this.form.get('issuanceId')?.valueChanges.subscribe(async (issuanceId) => {
+      const selected = this.configs.find((config) => config.id === issuanceId);
+      const ids = selected?.credentialIssuanceBindings.map((binding) => binding.credentialConfigId) || [];
+      this.form.get('credentialConfigurationIds')?.setValue(ids);
+    });
+
+    this.form.get('credentialConfigurationIds')?.valueChanges.subscribe((ids) =>
+      this.setClaimFormFields(ids)
+    );
+  }
+
+  async setClaimFormFields(credentialConfigIds: string[]) {
+    this.claimForms = [];
+    this.fields = [];
+    for (const id of credentialConfigIds) {
+      await this.credentialConfigService.getConfig(id).then((config) => {
+        this.fields.push(this.formlyJsonschema.toFieldConfig(config!.schema as any));
+          this.claimForms.push(id);
+          (this.form.get('claimsForm') as FormGroup).addControl(id, new UntypedFormGroup({}));
+        });
+      }
+  }
+
+  getForm(id: string) {
+    return this.form.get(`claimsForm.${id}`) as UntypedFormGroup;
   }
 
   async loadConfigurations(): Promise<void> {
@@ -119,6 +168,7 @@ export class IssuanceOfferComponent implements OnInit {
           formValue.credentialConfigurationIds?.length > 0
             ? formValue.credentialConfigurationIds
             : undefined,
+        claims: formValue.claimsForm
       };
 
       const result = await this.issuanceConfigService.getOffer(offerRequest);
@@ -148,6 +198,27 @@ export class IssuanceOfferComponent implements OnInit {
     }
   }
 
+  importClaims() {
+        const currentConfig = this.form.get('claimsForm')?.value;
+
+        const dialogRef = this.dialog.open(JsonViewDialogComponent, {
+          data: {
+            title: 'Complete Configuration JSON',
+            jsonData: currentConfig,
+            readonly: false,
+          },
+          disableClose: false,
+          maxWidth: '95vw',
+          maxHeight: '95vh',
+        });
+
+        dialogRef.afterClosed().subscribe((result) => {
+          if (result) {
+            this.form.get('claimsForm')?.patchValue(result);
+          }
+        });
+  }
+
   resetForm(): void {
     this.form.reset({
       issuanceId: '',
@@ -160,14 +231,5 @@ export class IssuanceOfferComponent implements OnInit {
   generateNewOffer(): void {
     this.offerResult = null;
     this.qrCodeDataUrl = null;
-  }
-
-  downloadQRCode(): void {
-    if (!this.qrCodeDataUrl) return;
-
-    const link = document.createElement('a');
-    link.download = `qr-code-${this.offerResult?.session || 'offer'}.png`;
-    link.href = this.qrCodeDataUrl;
-    link.click();
   }
 }
