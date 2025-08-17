@@ -24,7 +24,7 @@ import { KeyService } from "../key.service";
 /**
  * The key service is responsible for managing the keys of the issuer.
  */
-export class FileSystemKeyService extends KeyService {
+export class DBKeyService extends KeyService {
     private crypto: CryptoImplementation;
 
     constructor(

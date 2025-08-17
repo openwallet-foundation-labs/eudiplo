@@ -3,8 +3,7 @@
 The keys used for **signing operations** in EUDIPLO can be managed in multiple
 ways, depending on the selected key management type (`KM_TYPE`).
 
-> 💡 **Encryption operations** are always handled locally using the configured
-> crypto module, regardless of the selected key management backend.
+> 💡 **Encryption operations** are always proceed with database stored keys for not and independent from the used KeyManagement Module.
 
 ---
 
@@ -12,62 +11,41 @@ ways, depending on the selected key management type (`KM_TYPE`).
 
 | Variable              | Description                                              | Required for | Default |
 | --------------------- | -------------------------------------------------------- | ------------ | ------- |
-| `KM_TYPE`             | Key management engine type (`file` or `vault`)           | All          | `file`  |
+| `KM_TYPE`             | Key management engine type (`db` or `vault`)             | All          | `db`    |
 | `CRYPTO_ALG`          | Cryptographic algorithm (`ES256`)                        | All          | `ES256` |
 | `VAULT_URL`           | Vault API URL to vault instance like `http://vault:8200` | `vault`      | –       |
 | `VAULT_TOKEN`         | Authentication token for Vault                           | `vault`      | –       |
 | `CONFIG_IMPORT`       | Enable automatic key import from config files            | Optional     | `false` |
 | `CONFIG_IMPORT_FORCE` | Overwrite existing keys during import                    | Optional     | `false` |
 
-> ✅ When using the default `file` mode, the keys will be stored in the `keys`
-> folder in the config folder. Vault mode requires all `VAULT_*` variables.
-
 ---
 
-## Local (File-Based) Key Management
+## Database based Key Management
 
-When `KM_TYPE=file` (default), keys are stored unencrypted in the `keys`
-directory in the config folder. This mode is ideal for development or testing.
+When `KM_TYPE=db` (default), keys are stored unencrypted in the database. This mode is ideal for development or testing.
 
 ### Multiple Key Support
 
-Each tenant can manage multiple cryptographic keys simultaneously. Keys are
-stored in the tenant's `keys/keys/` subdirectory as individual JSON files:
-
-```
-config/
-├── tenant-1/
-│   ├── keys/
-│   │   └── keys/
-│   │       ├── 039af178-3ca0-48f4-a2e4-7b1209f30376.json
-│   │       ├── 7e2c1a4b-9d8e-4f3a-b5c2-8f1e3d7a9c6b.json
-│   │       └── a1b2c3d4-e5f6-7890-1234-567890abcdef.json
-│   └── display.json
-```
+Each tenant can manage multiple cryptographic keys simultaneously. Each key has a unique key id and is also isolated via the `tenant_id` field.
 
 Each key file contains the private key in JWK format:
 
 ```json
 {
-    "kty": "EC",
-    "x": "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
-    "y": "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
-    "crv": "P-256",
-    "d": "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
-    "kid": "039af178-3ca0-48f4-a2e4-7b1209f30376",
-    "alg": "ES256"
+  "kty": "EC",
+  "x": "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
+  "y": "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
+  "crv": "P-256",
+  "d": "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
+  "kid": "039af178-3ca0-48f4-a2e4-7b1209f30376",
+  "alg": "ES256"
 }
 ```
 
 ### Automatic Key Generation
 
 On startup, if no keys are found for a tenant, the service will automatically
-generate a new key pair with a self signed certificate. Each generated key
-includes:
-
-- **Private key** (stored as JWK format)
-- **Public key** (derived from private key)
-- **Self-signed certificate** (automatically generated)
+generate a new key pair. Even when using the database mode, the private key will never be exposed by the api.
 
 ---
 
@@ -125,50 +103,41 @@ contact the maintainers.
 
 ---
 
+## Certificates
+
+EUDIPLO supports the use of X.509 certificates for key management. Certificates can be used to verify the authenticity of public keys and establish trust between parties.
+
+### Certificate Generation
+
+When a new key pair is generated, a self-signed certificate is also created. This certificate includes the public key and is stored alongside the key files. The certificate can be overwritten any time via the api.
+
+When using the [Registrar](../getting-started/registrar.md), it will generate a certificate for the public key that can be used to secure the OID4VCI and OID4VP requests. Each tenant will only have one access certificate.
+
+> Note: In the future the access certificate generation will follow the official standard that is under development right now.
+
+### Certificate Format
+
+Certificates are stored in PEM format and can be included in key import requests.
+
+---
+
 ## Multi-Tenant Key Management
-
-In multi-tenant mode, EUDIPLO provides **complete key isolation** between
-tenants, ensuring cryptographic separation and security.
-
-### Tenant-Specific Key Storage
-
-#### File-Based Key Management
-
-When `KM_TYPE=file` in multi-tenant mode:
-
-```
-config/
-├── tenant-1/
-│   ├── keys/
-│   │   └── keys/
-│   │       ├── key-1.json
-│   │       ├── key-2.json
-│   │       └── key-3.json
-│   └── display.json
-├── tenant-2/
-│   ├── keys/
-│   │   └── keys/
-│   │       ├── signing-key.json
-│   │       └── backup-key.json
-│   └── display.json
-```
-
-Each key file contains a complete JWK private key with metadata.
 
 ### Automatic Key Generation
 
 **Tenant Initialization Process:**
 
 1. Client registers with credentials (`client_id`, `client_secret`)
-2. System creates tenant directory: `/config/{tenantId}/`
-3. Cryptographic key pair automatically generated
-4. Keys stored in tenant-specific location
-5. Generation of certificate for public key
+2. Cryptographic key pair automatically generated
+3. Keys stored in tenant-specific location
+4. Generation of certificate for public key
 
 ## Key Import and Management
 
 EUDIPLO supports importing existing keys through multiple methods to accommodate
 different deployment scenarios and security requirements.
+
+The `kid` provided in the key files is used to identify and manage keys within the system. An optional `description` field can be included for additional context.
 
 ### API-Based Key Import
 
@@ -180,16 +149,17 @@ Import keys through the REST API using authenticated requests:
 
 ```json
 {
-    "privateKey": {
-        "kty": "EC",
-        "x": "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
-        "y": "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
-        "crv": "P-256",
-        "d": "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
-        "kid": "039af178-3ca0-48f4-a2e4-7b1209f30376",
-        "alg": "ES256"
-    },
-    "crt": "-----BEGIN CERTIFICATE-----\n...optional certificate...\n-----END CERTIFICATE-----"
+  "privateKey": {
+    "kty": "EC",
+    "x": "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
+    "y": "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
+    "crv": "P-256",
+    "d": "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
+    "kid": "039af178-3ca0-48f4-a2e4-7b1209f30376",
+    "alg": "ES256"
+  },
+  "description": "Optional key description",
+  "crt": "-----BEGIN CERTIFICATE-----\n...optional certificate...\n-----END CERTIFICATE-----"
 }
 ```
 
@@ -197,7 +167,7 @@ Import keys through the REST API using authenticated requests:
 
 ```json
 {
-    "id": "039af178-3ca0-48f4-a2e4-7b1209f30376"
+  "id": "039af178-3ca0-48f4-a2e4-7b1209f30376"
 }
 ```
 
@@ -231,16 +201,16 @@ assets/config/
 
 ```json
 {
-    "privateKey": {
-        "kty": "EC",
-        "x": "...",
-        "y": "...",
-        "crv": "P-256",
-        "d": "...",
-        "kid": "unique-key-identifier",
-        "alg": "ES256"
-    },
-    "crt": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
+  "privateKey": {
+    "kty": "EC",
+    "x": "...",
+    "y": "...",
+    "crv": "P-256",
+    "d": "...",
+    "kid": "unique-key-identifier",
+    "alg": "ES256"
+  },
+  "crt": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
 }
 ```
 

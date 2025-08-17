@@ -3,9 +3,8 @@ import { DynamicModule, Global, Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { getRepositoryToken, TypeOrmModule } from "@nestjs/typeorm";
 import * as Joi from "joi";
-import { PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm/repository/Repository";
-import { FileSystemKeyService } from "./adapters/filesystem-key.service";
+import { DBKeyService } from "./adapters/db-key.service";
 import { VaultKeyService } from "./adapters/vault-key.service";
 import { CryptoImplementatationModule } from "./crypto-implementation/crypto-implementation.module";
 import { CryptoImplementationService } from "./crypto-implementation/crypto-implementation.service";
@@ -13,7 +12,7 @@ import { CertEntity } from "./entities/cert.entity";
 import { KeyEntity } from "./entities/keys.entity";
 
 export const KEY_VALIDATION_SCHEMA = {
-    KM_TYPE: Joi.string().valid("file", "vault").default("file"),
+    KM_TYPE: Joi.string().valid("db", "vault").default("db"),
 
     // Vault-related config
     VAULT_URL: Joi.string().uri().when("KM_TYPE", {
@@ -62,7 +61,7 @@ export class KeyModule {
                             );
                         }
 
-                        return new FileSystemKeyService(
+                        return new DBKeyService(
                             configService,
                             cryptoService,
                             certRepository,
