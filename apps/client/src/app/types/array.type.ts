@@ -5,7 +5,7 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
-selector: 'formly-array-type',
+selector: 'app-array-type',
 template: `
 <div class="mb-3">
   @if (props.label) {

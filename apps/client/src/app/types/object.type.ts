@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
 import { FieldType } from '@ngx-formly/core';
-import { NgIf, NgFor } from '@angular/common';
 import { FormlyField, FormlyValidationMessage } from '@ngx-formly/core';
 
 @Component({
-selector: 'formly-object-type',
+selector: 'app-object-type',
 template: `
 <div class="mb-3">
 @if(props.label) {
