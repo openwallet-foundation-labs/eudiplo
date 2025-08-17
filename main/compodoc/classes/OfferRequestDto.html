@@ -143,6 +143,7 @@
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                     <span class="modifier">Optional</span>
                                 <a href="#claims" >claims</a>
                             </li>
@@ -194,6 +195,7 @@
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                             <span class="modifier">Optional</span>
                         <span ><b>claims</b></span>
                         <a href="#claims"><span class="icon ion-ios-link"></span></a>
@@ -202,7 +204,7 @@
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>    <code>literal type</code>
+                        <i>Type : </i>    <code>Record&lt;string | Record&lt;string, any&gt;&gt;</code>
 
                     </td>
                 </tr>
@@ -211,13 +213,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsObject()<br />@IsOptional()<br />
+                            @ApiProperty({type: &#x27;object&#x27;, description: &#x27;Override the default values for the credential claims.&#x27;, properties: undefined, examples: undefined})<br />@IsObject()<br />@IsOptional()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:42</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="53" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:53</a></div>
                         </td>
                     </tr>
 
@@ -389,7 +391,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="49" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:49</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="60" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:60</a></div>
                         </td>
                     </tr>
 
@@ -453,9 +455,20 @@ export class OfferRequestDto {
     /**
      * Override the default values for the credential claims.
      */
+    @ApiProperty({
+        type: &quot;object&quot;,
+        description: &quot;Override the default values for the credential claims.&quot;,
+        properties: {},
+        examples: {
+            pid: {
+                given_name: &quot;ERIKA&quot;,
+                family_name: &quot;MUSTERMANN&quot;,
+            },
+        },
+    })
     @IsObject()
     @IsOptional()
-    claims?: { [key: string]: Record&lt;string, any&gt; };
+    claims?: Record&lt;string, Record&lt;string, any&gt;&gt;;
 
     /**
      * Pre defined session id
