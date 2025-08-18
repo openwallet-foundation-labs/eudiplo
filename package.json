@@ -18,7 +18,8 @@
     "doc:deploy-dev": "source venv/bin/activate && pnpm run swagger && pnpm run compodoc && mike deploy dev",
     "doc:deploy-major": "source venv/bin/activate && pnpm run swagger && pnpm run compodoc && mike deploy --update-aliases",
     "doc:list-versions": "source venv/bin/activate && mike list",
-    "doc:delete-version": "source venv/bin/activate && mike delete"
+    "doc:delete-version": "source venv/bin/activate && mike delete",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@codedependant/semantic-release-docker": "^5.1.1",
@@ -26,6 +27,7 @@
     "@semantic-release/exec": "^7.1.0",
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^11.0.3",
+    "husky": "^9.1.7",
     "semantic-release": "^24.2.7"
   },
   "packageManager": "pnpm@10.13.1+sha512.37ebf1a5c7a30d5fabe0c5df44ee8da4c965ca0c5af3dbab28c3a1681b70a256218d05c81c9c0dcf767ef6b8551eb5b960042b9ed4300c59242336377e01cfad"
