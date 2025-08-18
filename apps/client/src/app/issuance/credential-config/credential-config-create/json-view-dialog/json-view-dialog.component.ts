@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
+import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 
 export interface JsonViewDialogData {
   title: string;
@@ -30,6 +31,7 @@ export interface JsonViewDialogData {
     MatSnackBarModule,
     ReactiveFormsModule,
     FlexLayoutModule,
+    MonacoEditorModule,
   ],
   templateUrl: './json-view-dialog.component.html',
   styleUrl: './json-view-dialog.component.scss',
@@ -38,6 +40,10 @@ export class JsonViewDialogComponent {
   jsonControl = new FormControl('', [this.jsonValidator]);
   formattedJson: string;
 
+  editorOptions = {
+    language: 'json',
+  };
+
   constructor(
     public dialogRef: MatDialogRef<JsonViewDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: JsonViewDialogData,
@@ -45,6 +51,9 @@ export class JsonViewDialogComponent {
   ) {
     this.formattedJson = JSON.stringify(data.jsonData, null, 2);
     this.jsonControl.setValue(this.formattedJson);
+    if (data.readonly) {
+      this.jsonControl.disable();
+    }
   }
 
   jsonValidator(control: any) {

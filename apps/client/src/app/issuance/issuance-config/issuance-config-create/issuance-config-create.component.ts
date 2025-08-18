@@ -18,6 +18,7 @@ import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { AuthenticationConfigDto, CredentialConfig, IssuanceDto } from '../../../generated';
 import { CredentialConfigService } from '../../credential-config/credential-config.service';
 import { IssuanceConfigService } from '../issuance-config.service';
+import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 
 @Component({
   selector: 'app-issuance-config-create',
@@ -38,6 +39,7 @@ import { IssuanceConfigService } from '../issuance-config.service';
     FlexLayoutModule,
     ReactiveFormsModule,
     RouterModule,
+    MonacoEditorModule,
   ],
   templateUrl: './issuance-config-create.component.html',
   styleUrl: './issuance-config-create.component.scss',
@@ -48,6 +50,12 @@ export class IssuanceConfigCreateComponent implements OnInit {
   public loading = false;
   public credentialConfigs: CredentialConfig[] = [];
   public availableCredentialConfigs: CredentialConfig[] = [];
+
+  public editorOptions = {
+    language: 'json',
+    theme: 'vs-light',
+    automaticLayout: true,
+  };
 
   constructor(
     private issuanceConfigService: IssuanceConfigService,

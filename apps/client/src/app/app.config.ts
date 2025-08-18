@@ -13,6 +13,7 @@ import { provideFormlyCore } from '@ngx-formly/core'
 import { withFormlyMaterial } from '@ngx-formly/material';
 import { ObjectTypeComponent } from './types/object.type';
 import { ArrayTypeComponent } from './types/array.type';
+import {provideMonacoEditor} from 'ngx-monaco-editor-v2'
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -21,6 +22,9 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     provideHttpClient(),
     importProvidersFrom(FlexLayoutModule),
+    provideMonacoEditor({
+        baseUrl: window.location.origin + "/assets/monaco/min/vs",
+    }),
     provideFormlyCore([...withFormlyMaterial(), {
       types: [
           //{ name: 'null', component: NullTypeComponent, wrappers: ['form-field'] },

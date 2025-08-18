@@ -14,23 +14,21 @@
             placeholder="Enter unique client identifier"
             required
           />
-          <mat-error *ngIf="clientForm.get('clientId')?.hasError('required')">
-            Client ID is required
-          </mat-error>
-          <mat-error *ngIf="clientForm.get('clientId')?.hasError('minlength')">
-            Client ID must be at least 1 character long
-          </mat-error>
+          @if (clientForm.get('clientId')?.hasError('required')) {
+            <mat-error> Client ID is required </mat-error>
+          }
+          @if (clientForm.get('clientId')?.hasError('minlength')) {
+            <mat-error> Client ID must be at least 1 character long </mat-error>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Description</mat-label>
-          <textarea
+          <input
             matInput
             formControlName="description"
             placeholder="Optional description for this client"
-            rows="3"
-          >
-          </textarea>
+          />
         </mat-form-field>
       </form>
     </mat-card-content>

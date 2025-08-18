@@ -81,26 +81,11 @@
         </mat-form-field>
 
         <!-- DCQL Query Field -->
-        <mat-form-field>
-          <mat-label>DCQL Query</mat-label>
-          <textarea
-            matInput
-            formControlName="dcql_query"
-            placeholder='{"query": "example"}'
-            rows="6"
-            class="json-textarea"
-            (blur)="formatJson()"
-          ></textarea>
-          <mat-hint
-            >Enter the DCQL query in valid JSON format. Click outside to auto-format.</mat-hint
-          >
-          @if (form.controls['dcql_query'].hasError('required')) {
-            <mat-error> DCQL Query is required </mat-error>
-          }
-          @if (form.controls['dcql_query'].hasError('invalidJson')) {
-            <mat-error> Invalid JSON format. Please check your syntax. </mat-error>
-          }
-        </mat-form-field>
+        <h4>DCQL Query</h4>
+        <ngx-monaco-editor
+          formControlName="dcql_query"
+          [options]="editorOptions"
+        ></ngx-monaco-editor>
 
         <mat-form-field>
           <mat-label>Lifetime of the request</mat-label>
@@ -125,18 +110,11 @@
       </mat-card-header>
       <mat-card-content fxLayout="column" fxLayoutGap="16px">
         <!-- Registration Certificate Field -->
-        <mat-form-field>
-          <mat-label>Registration Certificate</mat-label>
-          <textarea
-            matInput
-            formControlName="registrationCert"
-            placeholder="Enter Registration Certificate"
-            rows="3"
-          ></textarea>
-          @if (form.controls['registrationCert'].hasError('required')) {
-            <mat-error> Registration Certificate is required </mat-error>
-          }
-        </mat-form-field>
+        <h4>Registrar Certificate (optional)</h4>
+        <ngx-monaco-editor
+          formControlName="registrarCert"
+          [options]="editorOptions"
+        ></ngx-monaco-editor>
       </mat-card-content>
     </mat-card>
 
@@ -210,7 +188,7 @@
     <!-- Action Buttons -->
     <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="end center">
       <button mat-button type="button" [routerLink]="['../']">Cancel</button>
-      <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
+      <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">
         <mat-icon>{{ create ? 'add' : 'save' }}</mat-icon>
 
         {{ create ? 'Create' : 'Save' }} Configuration

@@ -88,19 +88,11 @@
 
         <!-- Authentication Configuration JSON -->
         @if (form.get('authMethod')?.value !== 'none') {
-          <mat-form-field class="full-width">
-            <mat-label>Authentication Configuration (JSON)</mat-label>
-            <textarea
-              matInput
-              formControlName="authConfig"
-              placeholder='{"redirectUri": "https://your-app.com/callback"}'
-              rows="8"
-              class="json-textarea"
-            >
-            </textarea>
-            <mat-icon matSuffix>code</mat-icon>
-            <mat-hint> JSON configuration specific to the selected authentication method </mat-hint>
-          </mat-form-field>
+          <h4>Authentication Configuration (JSON)</h4>
+          <ngx-monaco-editor
+            formControlName="authConfig"
+            [options]="editorOptions"
+          ></ngx-monaco-editor>
         }
       </mat-card-content>
     </mat-card>
@@ -180,19 +172,11 @@
         <!-- Webhook Authentication -->
         <!-- TODO: use a form based approach as in presentation -->
         @if (form.get('webhookUrl')?.value) {
-          <mat-form-field class="full-width">
-            <mat-label>Webhook Authentication (JSON)</mat-label>
-            <textarea
-              matInput
-              formControlName="webhookAuth"
-              placeholder='{"type": "bearer", "token": "your-secret-token"}'
-              rows="6"
-              class="json-textarea"
-            >
-            </textarea>
-            <mat-icon matSuffix>security</mat-icon>
-            <mat-hint>Optional authentication configuration for webhook calls</mat-hint>
-          </mat-form-field>
+          <h4>Webhook Authentication (Optional)</h4>
+          <ngx-monaco-editor
+            formControlName="webhookAuth"
+            [options]="editorOptions"
+          ></ngx-monaco-editor>
         }
       </mat-card-content>
     </mat-card>
