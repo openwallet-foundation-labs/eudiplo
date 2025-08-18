@@ -203,11 +203,13 @@ export class WebhookService {
      * @param session
      * @param logContext
      * @param credentials
+     * @param expectResponse Whether to expect a response from the webhook
      */
     sendWebhook(
         session: Session,
         logContext: SessionLogContext,
         credentials?: any[],
+        expectResponse &#x3D; true,
     ) {
         const headers: Record&lt;string, string&gt; &#x3D; {};
         if (
@@ -236,7 +238,7 @@ export class WebhookService {
         ).then(
             async (webhookResponse) &#x3D;&gt; {
                 //TODO: better: just store it when it&#x27;s a presentation during issuance
-                if (webhookResponse.data) {
+                if (webhookResponse.data &amp;&amp; expectResponse) {
                     session.credentialPayload!.claims &#x3D; webhookResponse.data;
                     //store received webhook response
                     await this.sessionService.add(session.id, {

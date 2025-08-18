@@ -255,15 +255,15 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>sendWebhook(session: <a href="../entitys/Session.html" target="_self">Session</a>, logContext: <a href="../interfaces/SessionLogContext.html" target="_self">SessionLogContext</a>, credentials?: any[])</code>
+<code>sendWebhook(session: <a href="../entitys/Session.html" target="_self">Session</a>, logContext: <a href="../interfaces/SessionLogContext.html" target="_self">SessionLogContext</a>, credentials?: any[], expectResponse)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="39"
-                                    class="link-to-prism">src/utils/webhook/webhook.service.ts:39</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="40"
+                                    class="link-to-prism">src/utils/webhook/webhook.service.ts:40</a></div>
                         </td>
                     </tr>
 
@@ -282,6 +282,8 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
+                                                <td>Default value</td>
+                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -295,7 +297,11 @@
                                                     No
                                             </td>
 
+                                            <td>
+                                            </td>
 
+                                            <td>
+                                            </td>
                                         </tr>
                                         <tr>
                                                 <td>logContext</td>
@@ -307,7 +313,11 @@
                                                     No
                                             </td>
 
+                                            <td>
+                                            </td>
 
+                                            <td>
+                                            </td>
                                         </tr>
                                         <tr>
                                                 <td>credentials</td>
@@ -319,7 +329,29 @@
                                                     Yes
                                             </td>
 
+                                            <td>
+                                            </td>
 
+                                            <td>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>expectResponse</td>
+                                            <td>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+                                            <td>
+                                                    <code>true</code>
+                                            </td>
+
+                                            <td>
+                                                    <p>Whether to expect a response from the webhook</p>
+
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -357,8 +389,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="109"
-                                    class="link-to-prism">src/utils/webhook/webhook.service.ts:109</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="111"
+                                    class="link-to-prism">src/utils/webhook/webhook.service.ts:111</a></div>
                         </td>
                     </tr>
 
@@ -473,11 +505,13 @@ export class WebhookService {
      * @param session
      * @param logContext
      * @param credentials
+     * @param expectResponse Whether to expect a response from the webhook
      */
     sendWebhook(
         session: Session,
         logContext: SessionLogContext,
         credentials?: any[],
+        expectResponse &#x3D; true,
     ) {
         const headers: Record&lt;string, string&gt; &#x3D; {};
         if (
@@ -506,7 +540,7 @@ export class WebhookService {
         ).then(
             async (webhookResponse) &#x3D;&gt; {
                 //TODO: better: just store it when it&#x27;s a presentation during issuance
-                if (webhookResponse.data) {
+                if (webhookResponse.data &amp;&amp; expectResponse) {
                     session.credentialPayload!.claims &#x3D; webhookResponse.data;
                     //store received webhook response
                     await this.sessionService.add(session.id, {
