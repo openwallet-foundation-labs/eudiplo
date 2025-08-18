@@ -7,6 +7,13 @@ import { SessionLoggerService } from "../logger/session-logger.service";
 import { SessionLogContext } from "../logger/session-logger-context";
 
 /**
+ * Response from a webhook to receive credentials.
+ */
+export class WebhookResponse {
+    [key: string]: Record<string, any>;
+}
+
+/**
  * Service for handling webhooks in the application.
  */
 @Injectable()
@@ -24,29 +31,32 @@ export class WebhookService {
     ) {}
 
     /**
-     * Sends a webhook with the provided credentials, also return the response data.
+     * Sends a webhook with the optional provided credentials, return the response data.
      * @param session
      * @param logContext
      * @param credentials
      */
-    async sendWebhook(
+    sendWebhook(
         session: Session,
         logContext: SessionLogContext,
-        credentials: any[],
+        credentials?: any[],
     ) {
         const headers: Record<string, string> = {};
-        if (session.webhook!.auth && session.webhook!.auth.type === "apiKey") {
-            headers[session.webhook!.auth.config.headerName] =
-                session.webhook!.auth.config.value;
+        if (
+            session.claimsWebhook!.auth &&
+            session.claimsWebhook!.auth.type === "apiKey"
+        ) {
+            headers[session.claimsWebhook!.auth.config.headerName] =
+                session.claimsWebhook!.auth.config.value;
         }
         this.sessionLogger.logSession(logContext, "Sending webhook", {
-            webhookUrl: session.webhook!.url,
-            authType: session.webhook!.auth?.type || "none",
+            webhookUrl: session.claimsWebhook!.url,
+            authType: session.claimsWebhook!.auth?.type || "none",
         });
 
-        await firstValueFrom(
+        return firstValueFrom(
             this.httpService.post(
-                session.webhook!.url,
+                session.claimsWebhook!.url,
                 {
                     credentials,
                     session: session.id,
@@ -74,6 +84,7 @@ export class WebhookService {
                         hasResponseData: !!webhookResponse.data,
                     },
                 );
+                return webhookResponse.data;
             },
             (err) => {
                 this.sessionLogger.logSessionError(
@@ -81,7 +92,7 @@ export class WebhookService {
                     err,
                     "Error sending webhook",
                     {
-                        webhookUrl: session.webhook!.url,
+                        webhookUrl: session.claimsWebhook!.url,
                     },
                 );
                 throw new Error(`Error sending webhook: ${err.message || err}`);
@@ -152,7 +163,7 @@ export class WebhookService {
                     err,
                     "Error sending webhook",
                     {
-                        webhookUrl: session.webhook!.url,
+                        webhookUrl: session.claimsWebhook!.url,
                     },
                 );
                 throw new Error(`Error sending webhook: ${err.message || err}`);

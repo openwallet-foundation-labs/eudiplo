@@ -256,13 +256,14 @@ export class AuthorizeService {
             throw new Error('Credential offer not found');
         } */
         const issuanceId = session.issuanceId!;
-        const config = await this.issuanceService.getIssuanceConfigurationById(
-            issuanceId,
-            session.tenantId,
-        );
+        const issuanceConfig =
+            await this.issuanceService.getIssuanceConfigurationById(
+                issuanceId,
+                session.tenantId,
+            );
 
         // Use the new authentication configuration structure
-        const authConfig = config.authenticationConfig;
+        const authConfig = issuanceConfig.authenticationConfig;
 
         if (!authConfig) {
             throw new Error(
@@ -276,9 +277,7 @@ export class AuthorizeService {
             )
         ) {
             // OID4VP flow - credential presentation required
-            const presentationConfig =
-                AuthenticationConfigHelper.getPresentationConfig(authConfig);
-            const webhook = presentationConfig?.presentation.webhook;
+            const webhook = issuanceConfig.claimsWebhook;
             const response = await this.parseChallengeRequest(
                 body,
                 session.tenantId,

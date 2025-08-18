@@ -43,12 +43,11 @@ import { OfferRequestDto, OfferResponse } from "./dto/offer-request.dto";
 import { DisplayEntity } from "./entities/display.entity";
 import { getHeadersFromRequest } from "./util";
 
+/**
+ * Service for handling OID4VCI (OpenID 4 Verifiable Credential Issuance) operations.
+ */
 @Injectable()
-export class Oid4vciService implements OnModuleInit {
-    private issuer: Openid4vciIssuer;
-
-    resourceServer: Oauth2ResourceServer;
-
+export class Oid4vciService {
     constructor(
         private readonly authzService: AuthorizeService,
         private readonly cryptoService: CryptoService,
@@ -62,17 +61,12 @@ export class Oid4vciService implements OnModuleInit {
         @InjectRepository(DisplayEntity)
         private readonly displayRepository: Repository<DisplayEntity>,
     ) {}
-    onModuleInit() {
-        //TODO: align for tenant
-        const callbacks = this.cryptoService.getCallbackContext("");
-        this.issuer = new Openid4vciIssuer({
-            callbacks,
-        });
-        this.resourceServer = new Oauth2ResourceServer({
-            callbacks,
-        });
-    }
 
+    /**
+     * Initialize the OID4VCI issuer and resource server.
+     * @param tenantId The ID of the tenant.
+     * @returns The initialized OID4VCI issuer and resource server.
+     */
     onTenantInit(tenantId: string) {
         return this.displayRepository.save({
             tenantId,
@@ -89,7 +83,43 @@ export class Oid4vciService implements OnModuleInit {
         });
     }
 
-    async issuerMetadata(session: Session): Promise<IssuerMetadataResult> {
+    /**
+     * Get the OID4VCI issuer instance for a specific tenant.
+     * @param tenantId The ID of the tenant.
+     * @returns The OID4VCI issuer instance.
+     */
+    getIssuer(tenantId: string) {
+        const callbacks = this.cryptoService.getCallbackContext(tenantId);
+        return new Openid4vciIssuer({
+            callbacks,
+        });
+    }
+
+    /**
+     * Get the OID4VCI resource server instance for a specific tenant.
+     * @param tenantId The ID of the tenant.
+     * @returns The OID4VCI resource server instance.
+     */
+    getResourceServer(tenantId: string) {
+        const callbacks = this.cryptoService.getCallbackContext(tenantId);
+        return new Oauth2ResourceServer({
+            callbacks,
+        });
+    }
+
+    /**
+     * Get the OID4VCI issuer metadata for a specific session.
+     * @param session The session for which to retrieve the issuer metadata.
+     * @returns The OID4VCI issuer metadata.
+     */
+    async issuerMetadata(
+        session: Session,
+        issuer?: Openid4vciIssuer,
+    ): Promise<IssuerMetadataResult> {
+        if (!issuer) {
+            issuer = this.getIssuer(session.tenantId);
+        }
+
         const credential_issuer = `${this.configService.getOrThrow<string>(
             "PUBLIC_URL",
         )}/${session.id}`;
@@ -144,7 +174,7 @@ export class Oid4vciService implements OnModuleInit {
                 this.authzService.authzMetadata(session);
         }
 
-        let credentialIssuer = this.issuer.createCredentialIssuerMetadata({
+        let credentialIssuer = issuer.createCredentialIssuerMetadata({
             credential_issuer,
             credential_configurations_supported:
                 await this.credentialsService.getCredentialConfigurationSupported(
@@ -180,6 +210,13 @@ export class Oid4vciService implements OnModuleInit {
         } as const satisfies IssuerMetadataResult;
     }
 
+    /**
+     * Create a credential offer for a specific user and tenant.
+     * @param body The request body containing the offer details.
+     * @param user The user for whom the offer is being created.
+     * @param tenantId The ID of the tenant.
+     * @returns The created credential offer.
+     */
     async createOffer(
         body: OfferRequestDto,
         user: TokenPayload,
@@ -222,11 +259,13 @@ export class Oid4vciService implements OnModuleInit {
             tenantId: user.sub,
             issuanceId: body.issuanceId,
             authorization_code,
+            claimsWebhook: body.claimsWebhook ?? issuanceConfig.claimsWebhook,
         });
 
-        const issuerMetadata = await this.issuerMetadata(session);
+        const issuer = this.getIssuer(session.tenantId);
+        const issuerMetadata = await this.issuerMetadata(session, issuer);
 
-        return this.issuer
+        return issuer
             .createCredentialOffer({
                 credentialConfigurationIds,
                 grants,
@@ -264,12 +303,21 @@ export class Oid4vciService implements OnModuleInit {
         };
     }
 
+    /**
+     * Get a credential for a specific session.
+     * @param req
+     * @param session
+     * @returns
+     */
     async getCredential(
         req: Request,
         session: Session,
     ): Promise<CredentialResponse> {
-        const issuerMetadata = await this.issuerMetadata(session);
-        const parsedCredentialRequest = this.issuer.parseCredentialRequest({
+        const issuer = this.getIssuer(session.tenantId);
+        const issuerMetadata = await this.issuerMetadata(session, issuer);
+        const resourceServer = this.getResourceServer(session.tenantId);
+
+        const parsedCredentialRequest = issuer.parseCredentialRequest({
             issuerMetadata,
             credentialRequest: req.body as Record<string, unknown>,
         });
@@ -284,22 +332,20 @@ export class Oid4vciService implements OnModuleInit {
 
         const headers = getHeadersFromRequest(req);
 
-        const { tokenPayload } =
-            await this.resourceServer.verifyResourceRequest({
-                authorizationServers: issuerMetadata.authorizationServers,
-                request: {
-                    url: `${protocol}//${req.host}${req.url}`,
-                    method: req.method as HttpMethod,
-                    headers,
-                },
-                //TODO: Keycloak is setting aud to `account`, but it should be the value of resource server
-                resourceServer:
-                    issuerMetadata.credentialIssuer.credential_issuer,
-                allowedAuthenticationSchemes: [
-                    SupportedAuthenticationScheme.DPoP,
-                    SupportedAuthenticationScheme.Bearer,
-                ],
-            });
+        const { tokenPayload } = await resourceServer.verifyResourceRequest({
+            authorizationServers: issuerMetadata.authorizationServers,
+            request: {
+                url: `${protocol}//${req.host}${req.url}`,
+                method: req.method as HttpMethod,
+                headers,
+            },
+            //TODO: Keycloak is setting aud to `account`, but it should be the value of resource server
+            resourceServer: issuerMetadata.credentialIssuer.credential_issuer,
+            allowedAuthenticationSchemes: [
+                SupportedAuthenticationScheme.DPoP,
+                SupportedAuthenticationScheme.Bearer,
+            ],
+        });
 
         if (tokenPayload.sub !== session.id) {
             throw new BadRequestException("Session not found");
@@ -326,19 +372,44 @@ export class Oid4vciService implements OnModuleInit {
             if (expectedNonce === undefined) {
                 throw new BadRequestException("Nonce not found");
             }
+
+            const issuanceConfig =
+                await this.issuanceService.getIssuanceConfigurationById(
+                    session.issuanceId!,
+                    session.tenantId,
+                );
+
+            // if a webhook is provided, fetch the data from it.
+
+            let claims: Record<string, Record<string, unknown>> | undefined =
+                undefined;
+            if (
+                issuanceConfig.claimsWebhook &&
+                issuanceConfig.authenticationConfig.method !==
+                    "presentationDuringIssuance"
+            ) {
+                claims = await this.webhookService.sendWebhook(
+                    session,
+                    logContext,
+                );
+            }
+
             for (const jwt of parsedCredentialRequest.proofs.jwt) {
                 const verifiedProof =
-                    await this.issuer.verifyCredentialRequestJwtProof({
+                    await issuer.verifyCredentialRequestJwtProof({
                         //check if this is correct or if the passed nonce is validated.
                         expectedNonce,
                         issuerMetadata: await this.issuerMetadata(session),
                         jwt,
                     });
                 const cnf = verifiedProof.signer.publicJwk;
+
                 const cred = await this.credentialsService.getCredential(
                     parsedCredentialRequest.credentialConfigurationId as string,
                     cnf as any,
                     session,
+                    issuanceConfig,
+                    claims,
                 );
                 credentials.push(cred);
 
@@ -368,7 +439,7 @@ export class Oid4vciService implements OnModuleInit {
                 notificationId,
             });
 
-            return this.issuer.createCredentialResponse({
+            return issuer.createCredentialResponse({
                 credentials,
                 credentialRequest: parsedCredentialRequest,
                 cNonce: tokenPayload.nonce as string,
@@ -395,25 +466,23 @@ export class Oid4vciService implements OnModuleInit {
         body: NotificationRequestDto,
         session: Session,
     ) {
-        const issuerMetadata = await this.issuerMetadata(session);
+        const issuer = this.getIssuer(session.tenantId);
+        const resourceServer = this.getResourceServer(session.tenantId);
+        const issuerMetadata = await this.issuerMetadata(session, issuer);
         const headers = getHeadersFromRequest(req);
         const protocol = new URL(
             this.configService.getOrThrow<string>("PUBLIC_URL"),
         ).protocol;
-        const { tokenPayload } =
-            await this.resourceServer.verifyResourceRequest({
-                authorizationServers: issuerMetadata.authorizationServers,
-                request: {
-                    url: `${protocol}//${req.host}${req.url}`,
-                    method: req.method as HttpMethod,
-                    headers,
-                },
-                resourceServer:
-                    issuerMetadata.credentialIssuer.credential_issuer,
-                allowedAuthenticationSchemes: [
-                    SupportedAuthenticationScheme.DPoP,
-                ],
-            });
+        const { tokenPayload } = await resourceServer.verifyResourceRequest({
+            authorizationServers: issuerMetadata.authorizationServers,
+            request: {
+                url: `${protocol}//${req.host}${req.url}`,
+                method: req.method as HttpMethod,
+                headers,
+            },
+            resourceServer: issuerMetadata.credentialIssuer.credential_issuer,
+            allowedAuthenticationSchemes: [SupportedAuthenticationScheme.DPoP],
+        });
 
         if (session.id !== tokenPayload.sub) {
             throw new BadRequestException("Session not found");

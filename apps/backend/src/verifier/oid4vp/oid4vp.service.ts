@@ -236,7 +236,7 @@ export class Oid4vpService {
         if (fresh) {
             await this.sessionService.create({
                 id: values.session,
-                webhook: values.webhook ?? presentationConfig.webhook,
+                claimsWebhook: values.webhook ?? presentationConfig.webhook,
                 tenantId,
                 requestId,
                 requestUrl: queryString,
@@ -244,7 +244,7 @@ export class Oid4vpService {
             });
         } else {
             await this.sessionService.add(values.session, {
-                webhook: values.webhook ?? presentationConfig.webhook,
+                claimsWebhook: values.webhook ?? presentationConfig.webhook,
                 requestUrl: queryString,
                 expiresAt,
             });
@@ -280,7 +280,7 @@ export class Oid4vpService {
 
         this.sessionLogger.logFlowStart(logContext, {
             action: "process_presentation_response",
-            hasWebhook: !!session.webhook,
+            hasWebhook: !!session.claimsWebhook,
         });
 
         try {
@@ -307,7 +307,7 @@ export class Oid4vpService {
             });
             // if there a a webook URL, send the response there
             //TODO: move to dedicated service to reuse it also in the oid4vci flow.
-            if (session.webhook) {
+            if (session.claimsWebhook) {
                 await this.webhookService.sendWebhook(
                     session,
                     logContext,
@@ -317,7 +317,7 @@ export class Oid4vpService {
 
             this.sessionLogger.logFlowComplete(logContext, {
                 credentialCount: credentials?.length || 0,
-                webhookSent: !!session.webhook,
+                webhookSent: !!session.claimsWebhook,
             });
         } catch (error) {
             this.sessionLogger.logFlowError(logContext, error as Error, {

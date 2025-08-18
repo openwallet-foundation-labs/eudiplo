@@ -138,7 +138,7 @@ export class Session {
      * Webhook configuration to send result and may receive further information.
      */
     @Column("json", { nullable: true })
-    webhook?: WebhookConfig;
+    claimsWebhook?: WebhookConfig;
     /**
      * Webhook configuration to send the result of the notification response.
      */

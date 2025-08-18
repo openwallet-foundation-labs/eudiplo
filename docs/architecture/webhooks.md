@@ -1,175 +1,183 @@
 # Webhooks
 
-EUDIPLO allows the configuration of webhook endpoints to integrate external
-services during credential presentation and **presentation during issuance**
-flows.
+EUDIPLO supports webhook endpoints that let external services actively participate in **issuance** and **presentation** flows.
+
+While webhooks are optional, they make the overall process more dynamic—for example:
+
+- requesting credential data from your backend service only when needed, or
+- notifying your system when a wallet has completed a flow.
 
 ---
 
 ## Supported Webhook Scenarios
 
-| Flow                             | Purpose                                                          |
-| -------------------------------- | ---------------------------------------------------------------- |
-| **Presentation Webhook**         | Receives verified claims from the wallet                         |
-| **Presentation During Issuance** | Receives claims required to issue a credential                   |
-| **Notification Webhook**         | Receives notifications about the status of the issuance process. |
+| Flow                             | Purpose                                                                  |
+| -------------------------------- | ------------------------------------------------------------------------ |
+| **Credential Issuance Webhook**  | Dynamically provides claims during the credential request process.       |
+| **Presentation Webhook**         | Receives verified claims from the wallet.                                |
+| **Presentation During Issuance** | Supplies verified claims required to issue a credential (mandatory).     |
+| **Notification Webhook**         | Receives status updates (e.g., accepted or denied) about issuance flows. |
 
 ---
 
 ## Example Webhook Service
 
-In the
-[test/webhook](https://github.com/openwallet-foundation-labs/eudiplo/tree/main/test/webhook)
-directory, you can find a simple webhook simulator that can be used to test the
-webhook functionality of the EUDIPLO service. It can be run locally or deployed
-to a cloudflare worker.
+A simple webhook simulator is available in the  
+[test/webhook](https://github.com/openwallet-foundation-labs/eudiplo/tree/main/test/webhook)  
+directory. It can be run locally or deployed to a Cloudflare Worker, and is a good starting point for testing webhook functionality.
 
 ---
 
 ## Webhook Configuration
 
-A webhook object can be configured to pass the required information to the
-EUDIPLO service. The object must contain the following fields:
+A webhook configuration object defines how EUDIPLO interacts with your service.
 
-- `url`: The URL of the webhook endpoint to which the data will be sent. The
-  request will be sent as an HTTP `POST` request.
-- `auth`: Optional authentication information for the webhook endpoint.
-    - `type`: The type of authentication to use. Supported types are:
-        - `apiKey`: API key authentication, where the key is sent in a header.
+It must include:
 
-Here is an example of a webhook configuration:
+- `url`: The endpoint URL. EUDIPLO sends an HTTP `POST` request with JSON data.
+- `auth`: (Optional) Authentication configuration.
+  - `type`: Authentication type. Currently supported:
+    - `apiKey` – sends a key in a request header.
 
-```json
-{
-    "webhook": {
-        "url": "http://localhost:8787/consume",
-        "auth": {
-            "type": "apiKey",
-            "config": {
-                "headerName": "x-api-key",
-                "value": "your-api-key"
-            }
-        }
-    }
-}
-```
-
-### 1. Presentation Webhook
-
-You can configure the webhook statically inside your presentation or issuance
-configuration or passing the webhook dynamically via offer creation:
-
-### 2. Presentation During Issuance
+### Example
 
 ```json
 {
-    "authenticationConfig": {
-        "method": "presentationDuringIssuance",
-        "config": {
-            "presentation": {
-                "type": "pid",
-                "webhook": {
-                    "url": "http://localhost:8787/process",
-                    "auth": {
-                        "type": "apiKey",
-                        "config": {
-                            "headerName": "x-api-key",
-                            "value": "your-api-key"
-                        }
-                    }
-                }
-            }
-        }
+  "url": "http://localhost:8787/consume",
+  "auth": {
+    "type": "apiKey",
+    "config": {
+      "headerName": "x-api-key",
+      "value": "your-api-key"
     }
+  }
 }
 ```
 
-### 3. Notification Webhook
+---
 
-When configured, it will send the notification response like accepted or denied
-to the configured webhook endpoint. Then you can be sure that the Wallet has
-received and accepted the credential.
+## Webhook Types
+
+### Claims Webhook
+
+The **claims webhook** allows EUDIPLO to fetch attributes dynamically instead of embedding them in the credential offer. This is useful if:
+
+- claims are not known in advance, or
+- you want to avoid including sensitive data in the offer for privacy reasons.
+
+- **Pre-authenticated / Authenticated flows:**  
+  Called during the **credential request**.  
+  If no webhook is configured, EUDIPLO falls back to claims provided in the credential offer or defined in the credential configuration.
+
+- **Presentation during issuance (mandatory):**  
+  Called during the **auth request**.  
+  EUDIPLO sends verified claims to your service, which must respond with the claims to persist in the credential.  
+  This avoids your service needing to manage state between the authentication and issuance phases.
 
 ```json
 {
-    "notifyWebhook": {
-        "url": "http://localhost:8787/notify",
-        "auth": {
-            "type": "apiKey",
-            "config": {
-                "headerName": "x-api-key",
-                "value": "your-api-key"
-            }
-        }
+  "claimsWebhook": {
+    "url": "http://localhost:8787/process",
+    "auth": {
+      "type": "apiKey",
+      "config": {
+        "headerName": "x-api-key",
+        "value": "your-api-key"
+      }
     }
+  }
 }
 ```
+
+---
+
+### Notification Webhook
+
+The **notification webhook** receives the outcome of the issuance process (e.g., accepted or denied).  
+This confirms that the wallet has received and accepted the credential.
+
+```json
+{
+  "notifyWebhook": {
+    "url": "http://localhost:8787/notify",
+    "auth": {
+      "type": "apiKey",
+      "config": {
+        "headerName": "x-api-key",
+        "value": "your-api-key"
+      }
+    }
+  }
+}
+```
+
+If no notification webhook is configured, you can fetch the session result by querying the `/session` endpoint with the `sessionId`.
 
 ---
 
 ## Webhook Request Format
 
-Webhooks receive an HTTP `POST` request with a simplified payload containing
-only the **presented claims**.
+EUDIPLO sends an HTTP `POST` request with the following structure:
 
-It is structured as follows:
-
-- `credentials`: An array of credential objects, each containing:
-    - `id`: The ID of the DCQL query to identify which was passed for the
-      request.
-    - `values`: The claims presented by the wallet. SD-JWT VC specific fields
-      like cnf and status got removed for simplicity.
-- `session`: The session ID used to identify the request.
-
-In case the verification of a credential fails, an `error` field with a message
-is included instead of the values.
+- `credentials`: Array of credential objects. Each includes:
+  - `id`: The ID of the DCQL query.
+  - `values`: The claims presented by the wallet.
+    - SD-JWT VC–specific fields (e.g., `cnf`, `status`) are removed for simplicity.
+  - `error`: Present instead of `values` if verification failed.
+- `session`: The session ID identifying the request.
 
 ### Example Payload
 
 ```json
 {
-    "credentials": [
-        {
-            "id": "pid",
-            "values": {
-                "iss": "https://service.eudi-wallet.dev",
-                "iat": 1751884150,
-                "vct": "https://service.eudi-wallet.dev/credentials/vct/pid",
-                "address": {
-                    "locality": "KÖLN",
-                    "postal_code": "51147",
-                    "street_address": "HEIDESTRAẞE 17"
-                }
-            }
-        },
-        {
-            "id": "citizen",
-            "error": "Credential verification failed: invalid signature"
+  "credentials": [
+    {
+      "id": "pid",
+      "values": {
+        "iss": "https://service.eudi-wallet.dev",
+        "iat": 1751884150,
+        "vct": "https://service.eudi-wallet.dev/credentials/vct/pid",
+        "address": {
+          "locality": "KÖLN",
+          "postal_code": "51147",
+          "street_address": "HEIDESTRAẞE 17"
         }
-    ],
-    "session": "a6318799-dff4-4b60-9d1d-58703611bd23"
+      }
+    },
+    {
+      "id": "citizen",
+      "error": "Credential verification failed: invalid signature"
+    }
+  ],
+  "session": "a6318799-dff4-4b60-9d1d-58703611bd23"
 }
 ```
+
+!!! info
+Requests always use `Content-Type: application/json`.  
+ A retry mechanism is not yet implemented—if a webhook fails, the process halts. Retry support may be added in the future.
 
 ---
 
 ## Webhook Response Format
 
-Only required for **presentation during issuance** webhooks.
+A response is required for:
 
-The response must be a JSON object keyed by the ID of the credential
-configuration. Each entry must contain the **claims** to issue.
+- **presentation during issuance** webhooks, and
+- **issuance** webhooks.
+
+The response must be a JSON object keyed by the credential configuration ID. Each entry contains the **claims** to issue.
 
 ### Example Response
 
-Issuing a credential with the ID `citizen`:
+Issuing a credential with ID `citizen`:
 
 ```json
 {
-    "citizen": {
-        "town": "Berlin"
-    }
+  "citizen": {
+    "town": "Berlin"
+  }
 }
 ```
 
-This response is passed into the issuance flow to create the final credential.
+This response is injected into the issuance flow to create the final credential.

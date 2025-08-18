@@ -7,6 +7,7 @@ import {
     IsString,
     IsUUID,
 } from "class-validator";
+import { WebhookConfig } from "../../../utils/webhook/webhook.dto";
 import { ResponseType } from "../../../verifier/oid4vp/dto/presentation-request.dto";
 
 export class OfferRequestDto {
@@ -51,6 +52,13 @@ export class OfferRequestDto {
     @IsObject()
     @IsOptional()
     claims?: Record<string, Record<string, any>>;
+
+    /**
+     * Webhook configuration for claims
+     */
+    @IsObject()
+    @IsOptional()
+    claimsWebhook?: WebhookConfig;
 
     /**
      * Pre defined session id

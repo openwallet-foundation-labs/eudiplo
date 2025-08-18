@@ -56,6 +56,15 @@ export class IssuanceDto {
     authenticationConfig: AuthenticationConfigDto;
 
     /**
+     * Optional webhook configuration to receive claims during the issuance process.
+     */
+    @IsObject()
+    @IsOptional()
+    @ValidateNested()
+    @Type(() => WebhookConfig)
+    claimWebhook?: WebhookConfig;
+
+    /**
      * Optional webhook configuration to send the results of the notification response.
      */
     @IsObject()

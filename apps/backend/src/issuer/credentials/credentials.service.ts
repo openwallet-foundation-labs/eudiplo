@@ -13,7 +13,6 @@ import { Session } from "../../session/entities/session.entity";
 import { VCT } from "../credentials-metadata/dto/credential-config.dto";
 import { SchemaResponse } from "../credentials-metadata/dto/schema-response.dto";
 import { IssuanceConfig } from "../issuance/entities/issuance-config.entity";
-import { IssuanceService } from "../issuance/issuance.service";
 import { StatusListService } from "../status-list/status-list.service";
 import { CredentialConfig } from "./entities/credential.entity";
 
@@ -28,7 +27,6 @@ export class CredentialsService {
      * @param configService
      * @param statusListService
      * @param credentialConfigRepo
-     * @param issuanceConfigService
      * @param cryptoImplementationService
      */
     constructor(
@@ -37,7 +35,6 @@ export class CredentialsService {
         private statusListService: StatusListService,
         @InjectRepository(CredentialConfig)
         private credentialConfigRepo: Repository<CredentialConfig>,
-        private issuanceConfigService: IssuanceService,
         private cryptoImplementationService: CryptoImplementationService,
     ) {}
 
@@ -101,6 +98,8 @@ export class CredentialsService {
         credentialConfigurationId: string,
         holderCnf: Jwk,
         session: Session,
+        issuanceConfig: IssuanceConfig,
+        claims?: Record<string, Record<string, unknown>>,
     ) {
         const credentialConfiguration = await this.credentialConfigRepo
             .findOneByOrFail({
@@ -112,17 +111,13 @@ export class CredentialsService {
                     `Credential configuration with id ${credentialConfigurationId} not found`,
                 );
             });
-
-        const claims =
+        //use passed claims, if not provided try the ones stored in the session and the use default ones from the config is provided
+        claims =
+            claims ??
             session.credentialPayload?.claims?.[credentialConfigurationId] ??
             credentialConfiguration.claims;
         const disclosureFrame = credentialConfiguration.disclosureFrame;
 
-        const issuanceConfig =
-            await this.issuanceConfigService.getIssuanceConfigurationById(
-                session.issuanceId!,
-                session.tenantId,
-            );
         const binding = issuanceConfig.credentialIssuanceBindings.find(
             (binding) =>
                 binding.credentialConfigId === credentialConfigurationId,
