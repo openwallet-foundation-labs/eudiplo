@@ -13,7 +13,6 @@ import { Session } from "../../session/entities/session.entity";
 import { VCT } from "../credentials-metadata/dto/credential-config.dto";
 import { SchemaResponse } from "../credentials-metadata/dto/schema-response.dto";
 import { IssuanceConfig } from "../issuance/entities/issuance-config.entity";
-import { IssuanceService } from "../issuance/issuance.service";
 import { StatusListService } from "../status-list/status-list.service";
 import { CredentialConfig } from "./entities/credential.entity";
 
@@ -28,7 +27,6 @@ export class CredentialsService {
      * @param configService
      * @param statusListService
      * @param credentialConfigRepo
-     * @param issuanceConfigService
      * @param cryptoImplementationService
      */
     constructor(
@@ -37,7 +35,6 @@ export class CredentialsService {
         private statusListService: StatusListService,
         @InjectRepository(CredentialConfig)
         private credentialConfigRepo: Repository<CredentialConfig>,
-        private issuanceConfigService: IssuanceService,
         private cryptoImplementationService: CryptoImplementationService,
     ) {}
 

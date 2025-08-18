@@ -36,7 +36,7 @@ export class WebhookService {
      * @param logContext
      * @param credentials
      */
-    async sendWebhook(
+    sendWebhook(
         session: Session,
         logContext: SessionLogContext,
         credentials?: any[],
