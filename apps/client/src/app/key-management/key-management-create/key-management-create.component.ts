@@ -20,6 +20,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { KeyImportDto } from '../../generated';
 import { KeyManagementService } from '../key-management.service';
+import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 
 @Component({
   selector: 'app-key-management-create',
@@ -37,6 +38,7 @@ import { KeyManagementService } from '../key-management.service';
     ReactiveFormsModule,
     RouterModule,
     MatDivider,
+    MonacoEditorModule,
   ],
   templateUrl: './key-management-create.component.html',
   styleUrl: './key-management-create.component.scss',
@@ -45,6 +47,15 @@ export class KeyManagementCreateComponent {
   public form: FormGroup;
   public create = true;
   public loading = false;
+
+  editorOptions = {
+    language: 'json',
+    automaticLayout: true,
+  };
+
+  editorOptionsPem = {
+    automaticLayout: true,
+  };
 
   constructor(
     private keyManagementService: KeyManagementService,

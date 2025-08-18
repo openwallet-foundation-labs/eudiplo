@@ -18,6 +18,7 @@ import { JsonViewDialogComponent } from '../../../issuance/credential-config/cre
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { configs } from './pre-config';
+import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 
 @Component({
   selector: 'app-presentation-create',
@@ -36,6 +37,7 @@ import { configs } from './pre-config';
     RouterModule,
     MatMenuModule,
     MatDividerModule,
+    MonacoEditorModule,
   ],
   templateUrl: './presentation-create.component.html',
   styleUrls: ['./presentation-create.component.scss'],
@@ -43,6 +45,11 @@ import { configs } from './pre-config';
 export class PresentationCreateComponent {
   public form: FormGroup;
   public create = true;
+
+  editorOptions = {
+    language: 'json',
+    automaticLayout: true,
+  };
 
   public predefinedConfigs = configs;
 

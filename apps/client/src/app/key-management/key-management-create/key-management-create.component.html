@@ -63,35 +63,11 @@
 
       <mat-card-content fxLayout="column" fxLayoutGap="16px">
         @if (create) {
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Private Key (JSON Web Key)</mat-label>
-            <textarea
-              matInput
-              formControlName="privateKey"
-              rows="10"
-              placeholder='{"kid":"key-id","kty":"EC","x":"...","y":"...","crv":"P-256","d":"...","alg":"ES256"}'
-            ></textarea>
-            <mat-icon matSuffix>vpn_key</mat-icon>
-            <mat-hint>Enter the private key as a JSON Web Key (JWK) format</mat-hint>
-            @if (form.get('privateKey')?.hasError('required') && form.get('privateKey')?.touched) {
-              <mat-error>Private Key is required</mat-error>
-            }
-            @if (form.get('privateKey')?.hasError('invalidJson')) {
-              <mat-error>Invalid JSON format</mat-error>
-            }
-            @if (form.get('privateKey')?.hasError('invalidJwkType')) {
-              <mat-error>Key type must be "EC" (Elliptic Curve)</mat-error>
-            }
-            @if (form.get('privateKey')?.hasError('missingJwkFields')) {
-              <mat-error>Missing required JWK fields: kid, kty, x, y, crv, d, alg</mat-error>
-            }
-            @if (form.get('privateKey')?.hasError('notPrivateKey')) {
-              <mat-error>Missing private key parameter 'd' - this must be a private key</mat-error>
-            }
-            @if (form.get('privateKey')?.hasError('unsupportedCurve')) {
-              <mat-error>Unsupported curve. Supported: P-256</mat-error>
-            }
-          </mat-form-field>
+          <h4>Private Key (JSON Web Key)</h4>
+          <ngx-monaco-editor
+            formControlName="privateKey"
+            [options]="editorOptions"
+          ></ngx-monaco-editor>
         } @else {
           <mat-card class="info-card">
             <mat-card-content>
@@ -122,22 +98,8 @@
       </mat-card-header>
 
       <mat-card-content fxLayout="column" fxLayoutGap="16px">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Certificate (PEM Format)</mat-label>
-          <textarea
-            matInput
-            formControlName="crt"
-            rows="6"
-            placeholder="-----BEGIN CERTIFICATE-----
-...
------END CERTIFICATE-----"
-          ></textarea>
-          <mat-icon matSuffix>certificate</mat-icon>
-          <mat-hint
-            >Optional X.509 certificate in PEM format. If not provided, we will create a self signed
-            one.</mat-hint
-          >
-        </mat-form-field>
+        <h4>Certificate (PEM Format)</h4>
+        <ngx-monaco-editor formControlName="crt" [options]="editorOptionsPem"></ngx-monaco-editor>
       </mat-card-content>
     </mat-card>
     <mat-divider></mat-divider>

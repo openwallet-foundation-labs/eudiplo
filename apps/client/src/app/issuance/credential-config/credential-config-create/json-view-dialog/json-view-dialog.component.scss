@@ -1,32 +1,10 @@
-.json-display {
-  background-color: #f5f5f5;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 16px;
-  white-space: pre-wrap;
-  font-family: 'Courier New', monospace;
-  font-size: 12px;
-  line-height: 1.5;
-  max-height: 500px;
-  overflow-y: auto;
-}
 
-.json-textarea {
-  font-family: 'Courier New', monospace;
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.tab-content {
-  padding: 16px 0;
-}
-
-.full-width {
-  width: 100%;
+ngx-monaco-editor {
+  min-height: 400px;
 }
 
 mat-dialog-content {
-  min-width: 600px;
+  min-width: 800px;
   min-height: 400px;
   max-width: 90vw;
   max-height: 80vh;

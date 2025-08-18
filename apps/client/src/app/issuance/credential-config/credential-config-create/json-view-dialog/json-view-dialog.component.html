@@ -6,42 +6,19 @@
 </div>
 
 <mat-dialog-content>
-  <mat-tab-group>
-    <mat-tab label="View JSON">
-      <div class="tab-content">
-        <pre class="json-display">{{ formattedJson }}</pre>
-      </div>
-    </mat-tab>
-    @if (!data.readonly) {
-      <mat-tab label="Edit JSON">
-        <div class="tab-content">
-          <mat-form-field class="full-width">
-            <mat-label>JSON Configuration</mat-label>
-            <textarea
-              matInput
-              [formControl]="jsonControl"
-              rows="20"
-              placeholder="Enter valid JSON..."
-              class="json-textarea"
-            ></textarea>
-            @if (jsonControl.hasError('invalidJson')) {
-              <mat-error>Invalid JSON format</mat-error>
-            }
-          </mat-form-field>
-          <div fxLayout="row" fxLayoutGap="8px">
-            <button mat-button (click)="formatJson()">
-              <mat-icon>auto_fix_high</mat-icon>
-              Format JSON
-            </button>
-            <button mat-button (click)="validateJson()">
-              <mat-icon>verified</mat-icon>
-              Validate JSON
-            </button>
-          </div>
-        </div>
-      </mat-tab>
-    }
-  </mat-tab-group>
+  <div class="tab-content">
+    <ngx-monaco-editor [formControl]="jsonControl" [options]="editorOptions"></ngx-monaco-editor>
+    <div fxLayout="row" fxLayoutGap="8px">
+      <button mat-button (click)="formatJson()">
+        <mat-icon>auto_fix_high</mat-icon>
+        Format JSON
+      </button>
+      <button mat-button (click)="validateJson()">
+        <mat-icon>verified</mat-icon>
+        Validate JSON
+      </button>
+    </div>
+  </div>
 </mat-dialog-content>
 
 <mat-dialog-actions fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="end center">

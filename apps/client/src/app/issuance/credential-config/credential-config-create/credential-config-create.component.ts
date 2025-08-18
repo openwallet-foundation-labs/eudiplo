@@ -28,6 +28,7 @@ import { KeyManagementService } from '../../../key-management/key-management.ser
 import { CredentialConfigService } from '../credential-config.service';
 import { JsonViewDialogComponent } from './json-view-dialog/json-view-dialog.component';
 import { configs } from './pre-config';
+import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 
 @Component({
   selector: 'app-credential-config-create',
@@ -50,6 +51,7 @@ import { configs } from './pre-config';
     MatExpansionModule,
     ReactiveFormsModule,
     RouterModule,
+    MonacoEditorModule,
   ],
   templateUrl: './credential-config-create.component.html',
   styleUrl: './credential-config-create.component.scss',
@@ -61,6 +63,11 @@ export class CredentialConfigCreateComponent implements OnInit {
   keys: CertEntity[] = [];
 
   predefinedConfigs = configs;
+
+  editorOptions = {
+    language: 'json',
+    automaticLayout: true
+  };
 
   constructor(
     private credentialConfigService: CredentialConfigService,

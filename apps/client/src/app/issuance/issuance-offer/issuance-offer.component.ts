@@ -214,6 +214,7 @@ export class IssuanceOfferComponent implements OnInit {
 
         dialogRef.afterClosed().subscribe((result) => {
           if (result) {
+            console.log(result);
             this.form.get('claimsForm')?.patchValue(result);
           }
         });
