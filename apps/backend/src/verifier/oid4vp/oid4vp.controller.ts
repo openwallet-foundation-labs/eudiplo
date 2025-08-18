@@ -36,7 +36,6 @@ export class Oid4vpController {
      * @param session
      * @returns
      */
-    //TODO: we just need the session that will include the requestId.
     @Get()
     @SessionLogger("session", "OID4VP")
     getRequestWithSession(@SessionEntity() session: Session) {
