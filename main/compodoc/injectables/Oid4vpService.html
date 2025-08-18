@@ -796,13 +796,13 @@ export class Oid4vpService {
                 claimsWebhook: values.webhook ?? presentationConfig.webhook,
                 tenantId,
                 requestId,
-                requestUrl: queryString,
+                requestUrl: &#x60;openid4vp://?${queryString}&#x60;,
                 expiresAt,
             });
         } else {
             await this.sessionService.add(values.session, {
                 claimsWebhook: values.webhook ?? presentationConfig.webhook,
-                requestUrl: queryString,
+                requestUrl: &#x60;openid4vp://?${queryString}&#x60;,
                 expiresAt,
             });
         }
