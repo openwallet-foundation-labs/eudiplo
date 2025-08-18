@@ -112,12 +112,28 @@
         <!-- Registration Certificate Field -->
         <h4>Registrar Certificate (optional)</h4>
         <ngx-monaco-editor
-          formControlName="registrarCert"
+          formControlName="registrationCert"
           [options]="editorOptions"
         ></ngx-monaco-editor>
       </mat-card-content>
     </mat-card>
 
+    <!-- Attachment Configuration Card -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>attach_file</mat-icon>
+          Attachments
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content fxLayout="column" fxLayoutGap="16px">
+        <!-- Attached Files Field -->
+        <h4>Attached Files (optional)</h4>
+        <ngx-monaco-editor formControlName="attached" [options]="editorOptions"></ngx-monaco-editor>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Webhook Configuration Card -->
     <mat-card>
       <mat-card-header>
         <mat-card-title>

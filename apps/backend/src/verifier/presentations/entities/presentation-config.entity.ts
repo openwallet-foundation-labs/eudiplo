@@ -1,14 +1,33 @@
 import { ApiHideProperty } from "@nestjs/swagger";
 import {
+    IsArray,
     IsEmpty,
+    IsNotEmpty,
     IsNumber,
     IsObject,
     IsOptional,
     IsString,
+    Validate,
+    ValidateNested,
 } from "class-validator";
 import { Column, CreateDateColumn, Entity, UpdateDateColumn } from "typeorm";
 import { WebhookConfig } from "../../../utils/webhook/webhook.dto";
 import { RegistrationCertificateRequest } from "../dto/vp-request.dto";
+
+/**
+ * Attached attestations
+ */
+export class PresentationAttachment {
+    @IsString()
+    format: string;
+
+    @IsNotEmpty()
+    data: any;
+
+    @IsNotEmpty()
+    @IsString({ each: true })
+    credential_ids?: string[];
+}
 
 /**
  * Entity representing a configuration for a Verifiable Presentation (VP) request.
@@ -81,4 +100,13 @@ export class PresentationConfig {
     @IsEmpty()
     @UpdateDateColumn()
     updatedAt: Date;
+
+    /**
+     * Attestation that should be attached
+     */
+    @IsOptional()
+    @IsArray()
+    @ValidateNested()
+    @Column("json", { nullable: true })
+    attached: PresentationAttachment[];
 }

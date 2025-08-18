@@ -249,6 +249,27 @@
             </mat-card>
           </div>
         </mat-tab>
+
+        <mat-tab label="Issuer Metadata">
+          <div class="tab-content">
+            <mat-card>
+              <mat-card-header>
+                <mat-card-title>Issuer Metadata</mat-card-title>
+                <div class="spacer"></div>
+                <button
+                  mat-icon-button
+                  (click)="copyToClipboard(formatJson(metadata))"
+                  matTooltip="Copy issuer metadata"
+                >
+                  <mat-icon>content_copy</mat-icon>
+                </button>
+              </mat-card-header>
+              <mat-card-content>
+                <pre class="json-display">{{ formatJson(metadata) }}</pre>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </mat-tab>
       }
 
       <!-- Credential Payload Tab -->
@@ -300,24 +321,24 @@
       }
 
       <!-- Webhooks Tab -->
-      @if (session.webhook || session.notifyWebhook) {
+      @if (session.claimsWebhook || session.notifyWebhook) {
         <mat-tab label="Webhooks">
           <div class="tab-content">
-            @if (session.webhook) {
+            @if (session.claimsWebhook) {
               <mat-card class="webhook-card">
                 <mat-card-header>
                   <mat-card-title>Main Webhook</mat-card-title>
                   <div class="spacer"></div>
                   <button
                     mat-icon-button
-                    (click)="copyToClipboard(formatJson(session.webhook))"
+                    (click)="copyToClipboard(formatJson(session.claimsWebhook))"
                     matTooltip="Copy webhook config"
                   >
                     <mat-icon>content_copy</mat-icon>
                   </button>
                 </mat-card-header>
                 <mat-card-content>
-                  <pre class="json-display">{{ formatJson(session.webhook) }}</pre>
+                  <pre class="json-display">{{ formatJson(session.claimsWebhook) }}</pre>
                 </mat-card-content>
               </mat-card>
             }

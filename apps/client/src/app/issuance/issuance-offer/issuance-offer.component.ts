@@ -201,10 +201,12 @@ export class IssuanceOfferComponent implements OnInit {
   importClaims() {
         const currentConfig = this.form.get('claimsForm')?.value;
 
+        const key = Object.keys(currentConfig)[0];
+
         const dialogRef = this.dialog.open(JsonViewDialogComponent, {
           data: {
             title: 'Complete Configuration JSON',
-            jsonData: currentConfig,
+            jsonData: Object.values(currentConfig)[0],
             readonly: false,
           },
           disableClose: false,
@@ -214,8 +216,7 @@ export class IssuanceOfferComponent implements OnInit {
 
         dialogRef.afterClosed().subscribe((result) => {
           if (result) {
-            console.log(result);
-            this.form.get('claimsForm')?.patchValue(result);
+            this.form.get('claimsForm')?.patchValue({ [key]: result });
           }
         });
   }

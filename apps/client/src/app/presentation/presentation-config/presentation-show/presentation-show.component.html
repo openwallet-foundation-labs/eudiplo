@@ -46,6 +46,16 @@
         <pre>{{ presentation.webhook | json }}</pre>
       </mat-card-content>
     </mat-card>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Attached</mat-card-title>
+        <mat-card-subtitle>Additional data attached to the presentation</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <pre>{{ presentation.attached | json }}</pre>
+      </mat-card-content>
+    </mat-card>
   </div>
 } @else {
   <div class="no-presentation-message" fxLayout="column" fxFlex>

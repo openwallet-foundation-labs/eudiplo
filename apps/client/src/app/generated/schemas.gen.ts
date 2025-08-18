@@ -306,6 +306,17 @@ export const SchemaResponseSchema = {
     required: ['$schema', 'type', 'properties', 'required']
 } as const;
 
+export const EmbeddedDisclosurePolicySchema = {
+    type: 'object',
+    properties: {
+        policy: {
+            type: 'string',
+            enum: ['none', 'allowList', 'rootOfTrust', 'attestationBased']
+        }
+    },
+    required: ['policy']
+} as const;
+
 export const CredentialConfigSchema = {
     type: 'object',
     properties: {
@@ -365,6 +376,14 @@ If true, a status management will be applied to the credential.`
             items: {
                 '$ref': '#/components/schemas/CredentialIssuanceBinding'
             }
+        },
+        embeddedDisclosurePolicy: {
+            description: 'Embedded disclosure policy for the credential.',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/EmbeddedDisclosurePolicy'
+                }
+            ]
         }
     },
     required: ['id', 'tenantId', 'config', 'claims', 'disclosureFrame', 'key', 'credentialIssuanceBindings']
@@ -464,6 +483,14 @@ This determines which OpenID4VC flow to use:
             type: 'string',
             description: 'The timestamp when the VP request was last updated.'
         },
+        claimsWebhook: {
+            description: 'Webhook to receive claims for the issuance process.',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/WebhookConfig'
+                }
+            ]
+        },
         notifyWebhook: {
             description: 'Webhook to send the result of the notification response',
             allOf: [
@@ -552,6 +579,14 @@ export const OfferRequestDtoSchema = {
                 type: 'string'
             }
         },
+        claimsWebhook: {
+            description: 'Webhook configuration for claims',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/WebhookConfig'
+                }
+            ]
+        },
         session: {
             type: 'string',
             description: 'Pre defined session id',
@@ -638,6 +673,14 @@ This includes details like the authentication method and any required parameters
                 }
             ]
         },
+        claimWebhook: {
+            description: 'Optional webhook configuration to receive claims during the issuance process.',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/WebhookConfig'
+                }
+            ]
+        },
         notifyWebhook: {
             description: 'Optional webhook configuration to send the results of the notification response.',
             allOf: [
@@ -707,6 +750,25 @@ export const RegistrationCertificateRequestSchema = {
     required: ['body']
 } as const;
 
+export const PresentationAttachmentSchema = {
+    type: 'object',
+    properties: {
+        format: {
+            type: 'string'
+        },
+        data: {
+            type: 'object'
+        },
+        credential_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        }
+    },
+    required: ['format', 'data']
+} as const;
+
 export const PresentationConfigSchema = {
     type: 'object',
     properties: {
@@ -751,9 +813,16 @@ export const PresentationConfigSchema = {
             format: 'date-time',
             type: 'string',
             description: 'The timestamp when the VP request was last updated.'
+        },
+        attached: {
+            description: 'Attestation that should be attached',
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/PresentationAttachment'
+            }
         }
     },
-    required: ['id', 'lifeTime', 'dcql_query', 'createdAt', 'updatedAt']
+    required: ['id', 'lifeTime', 'dcql_query', 'createdAt', 'updatedAt', 'attached']
 } as const;
 
 export const SessionSchema = {
@@ -840,7 +909,7 @@ export const SessionSchema = {
                 }
             ]
         },
-        webhook: {
+        claimsWebhook: {
             description: 'Webhook configuration to send result and may receive further information.',
             allOf: [
                 {
@@ -910,6 +979,9 @@ export const TokenResponseSchema = {
     type: 'object',
     properties: {
         access_token: {
+            type: 'string'
+        },
+        refresh_token: {
             type: 'string'
         },
         token_type: {

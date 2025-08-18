@@ -15,6 +15,15 @@ import { ObjectTypeComponent } from './types/object.type';
 import { ArrayTypeComponent } from './types/array.type';
 import {provideMonacoEditor} from 'ngx-monaco-editor-v2'
 
+declare let monaco: any;
+
+
+export function onMonacoLoad() {
+
+  monaco.languages.json.jsonDefaults.diagnosticsOptions.enableSchemaRequest = true;
+}
+
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
@@ -24,6 +33,7 @@ export const appConfig: ApplicationConfig = {
     importProvidersFrom(FlexLayoutModule),
     provideMonacoEditor({
         baseUrl: window.location.origin + "/assets/monaco/min/vs",
+        onMonacoLoad,
     }),
     provideFormlyCore([...withFormlyMaterial(), {
       types: [

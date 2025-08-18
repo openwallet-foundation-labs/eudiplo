@@ -66,6 +66,7 @@ export class PresentationCreateComponent {
       dcql_query: new FormControl(undefined, [Validators.required, this.jsonValidator]),
       lifeTime: new FormControl(300, [Validators.required, Validators.min(1)]),
       registrationCert: new FormControl(undefined), // Optional field
+      attached: new FormControl(undefined), // Optional field
       webhook: new FormGroup({
         url: new FormControl(undefined), // Optional, but if filled, should be valid URL
         auth: new FormGroup({
@@ -100,6 +101,10 @@ export class PresentationCreateComponent {
             formData.registrationCert = JSON.stringify(formData.registrationCert, null, 2);
           }
 
+          if (formData.attached && typeof formData.attached === 'object') {
+            formData.attached = JSON.stringify(formData.attached, null, 2);
+          }
+
           this.form.patchValue(formData);
           this.form.get('id')?.disable(); // Disable ID field in edit mode
           this.create = false;
@@ -130,6 +135,9 @@ export class PresentationCreateComponent {
         try {
           formValue.dcql_query = JSON.parse(formValue.dcql_query);
           formValue.registrationCert = JSON.parse(formValue.registrationCert);
+          if (formValue.attached) {
+            formValue.attached = JSON.parse(formValue.attached);
+          }
         } catch (error) {
           console.error('Error parsing DCQL Query JSON:', error);
           return;
@@ -262,6 +270,11 @@ export class PresentationCreateComponent {
       if (formData.registrationCert && typeof formData.registrationCert === 'object') {
         formData.registrationCert = JSON.stringify(formData.registrationCert, null, 2);
       }
+
+      if (formData.attached && typeof formData.attached === 'object') {
+        formData.attached = JSON.stringify(formData.attached, null, 2);
+      }
+
       this.form.patchValue(formData);
       this.snackBar.open('Configuration loaded from JSON successfully', 'OK', {
         duration: 3000,

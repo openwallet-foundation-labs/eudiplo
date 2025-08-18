@@ -89,6 +89,7 @@ export class CredentialConfigCreateComponent implements OnInit {
       vct: [''],
       schema: [''],
       displayConfigs: this.fb.array([this.createDisplayConfigGroup()]),
+      embeddedDisclosurePolicy: [''],
     });
 
     if (this.route.snapshot.params['id']) {
@@ -117,6 +118,9 @@ export class CredentialConfigCreateComponent implements OnInit {
             vct: config.vct ? JSON.stringify(config.vct, null, 2) : '',
             schema: config.schema ? JSON.stringify(config.schema, null, 2) : '',
             displayConfigs: config.config?.['display'] || [],
+            embeddedDisclosurePolicy: config.embeddedDisclosurePolicy
+              ? JSON.stringify(config.embeddedDisclosurePolicy, null, 2)
+              : '',
           });
 
           //set field as readonly
@@ -161,6 +165,9 @@ export class CredentialConfigCreateComponent implements OnInit {
         : undefined;
       formValue.vct = formValue.vct ? JSON.parse(formValue.vct) : undefined;
       formValue.schema = formValue.schema ? JSON.parse(formValue.schema) : undefined;
+      formValue.embeddedDisclosurePolicy = formValue.embeddedDisclosurePolicy
+        ? JSON.parse(formValue.embeddedDisclosurePolicy)
+        : undefined;
 
       // Remove the displayConfigs form array from the final data
       delete formValue.displayConfigs;
@@ -307,6 +314,9 @@ export class CredentialConfigCreateComponent implements OnInit {
         vct: config.vct ? JSON.stringify(config.vct, null, 2) : '',
         schema: config.schema ? JSON.stringify(config.schema, null, 2) : '',
         displayConfigs: config.config?.display || [],
+        embeddedDisclosurePolicy: config.embeddedDisclosurePolicy
+          ? JSON.stringify(config.embeddedDisclosurePolicy, null, 2)
+          : '',
       });
 
       this.snackBar.open('Configuration loaded from JSON successfully', 'OK', {
