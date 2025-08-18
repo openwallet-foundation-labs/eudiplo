@@ -120,6 +120,13 @@
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Service for handling OID4VCI (OpenID 4 Verifiable Credential Issuance) operations.</p>
+
+            </p>
 
 
 
@@ -139,13 +146,6 @@
                                     <span class="modifier">Public</span>
                                     <span class="modifier">Readonly</span>
                                 <a href="#credentialsService" >credentialsService</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Private</span>
-                                <a href="#issuer" >issuer</a>
-                            </li>
-                            <li>
-                                <a href="#resourceServer" >resourceServer</a>
                             </li>
                         </ul>
                     </td>
@@ -168,6 +168,12 @@
                                 <a href="#getCredential" >getCredential</a>
                             </li>
                             <li>
+                                <a href="#getIssuer" >getIssuer</a>
+                            </li>
+                            <li>
+                                <a href="#getResourceServer" >getResourceServer</a>
+                            </li>
+                            <li>
                                     <span class="modifier">Async</span>
                                 <a href="#handleNotification" >handleNotification</a>
                             </li>
@@ -178,9 +184,6 @@
                             <li>
                                     <span class="modifier">Async</span>
                                 <a href="#nonceRequest" >nonceRequest</a>
-                            </li>
-                            <li>
-                                <a href="#onModuleInit" >onModuleInit</a>
                             </li>
                             <li>
                                 <a href="#onTenantInit" >onTenantInit</a>
@@ -381,14 +384,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="183"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:183</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="220"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:220</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Create a credential offer for a specific user and tenant.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -399,6 +404,7 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
+                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -413,6 +419,10 @@
                                             </td>
 
 
+                                            <td>
+                                                    <p>The request body containing the offer details.</p>
+
+                                            </td>
                                         </tr>
                                         <tr>
                                                 <td>user</td>
@@ -425,6 +435,10 @@
                                             </td>
 
 
+                                            <td>
+                                                    <p>The user for whom the offer is being created.</p>
+
+                                            </td>
                                         </tr>
                                         <tr>
                                                 <td>tenantId</td>
@@ -437,6 +451,10 @@
                                             </td>
 
 
+                                            <td>
+                                                    <p>The ID of the tenant.</p>
+
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -446,7 +464,8 @@
 
                         </div>
                             <div class="io-description">
-                                
+                                <p>The created credential offer.</p>
+
                             </div>
                 </td>
             </tr>
@@ -474,14 +493,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="267"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:267</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="312"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:312</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Get a credential for a specific session.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -537,6 +558,156 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="getIssuer"></a>
+                    <span class="name">
+                        <span ><b>getIssuer</b></span>
+                        <a href="#getIssuer"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getIssuer(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="91"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:91</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get the OID4VCI issuer instance for a specific tenant.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The ID of the tenant.</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>The OID4VCI issuer instance.</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getResourceServer"></a>
+                    <span class="name">
+                        <span ><b>getResourceServer</b></span>
+                        <a href="#getResourceServer"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getResourceServer(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="103"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:103</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get the OID4VCI resource server instance for a specific tenant.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The ID of the tenant.</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>The OID4VCI resource server instance.</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="handleNotification"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
@@ -555,8 +726,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="393"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:393</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="464"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:464</a></div>
                         </td>
                     </tr>
 
@@ -643,21 +814,23 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>issuerMetadata(session: <a href="../entitys/Session.html" target="_self">Session</a>)</code>
+                    <code>issuerMetadata(session: <a href="../entitys/Session.html" target="_self">Session</a>, issuer?: Openid4vciIssuer)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="92"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:92</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="115"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:115</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Get the OID4VCI issuer metadata for a specific session.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -668,6 +841,7 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
+                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -682,6 +856,24 @@
                                             </td>
 
 
+                                            <td>
+                                                    <p>The session for which to retrieve the issuer metadata.</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>issuer</td>
+                                            <td>
+                                                        <code>Openid4vciIssuer</code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                            <td>
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -691,7 +883,8 @@
 
                         </div>
                             <div class="io-description">
-                                
+                                <p>The OID4VCI issuer metadata.</p>
+
                             </div>
                 </td>
             </tr>
@@ -719,8 +912,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="259"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:259</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="298"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:298</a></div>
                         </td>
                     </tr>
 
@@ -772,43 +965,6 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="onModuleInit"></a>
-                    <span class="name">
-                        <span ><b>onModuleInit</b></span>
-                        <a href="#onModuleInit"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>onModuleInit()</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="65"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:65</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                        </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
                     <a name="onTenantInit"></a>
                     <span class="name">
                         <span ><b>onTenantInit</b></span>
@@ -825,14 +981,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="76"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:76</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="70"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:70</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Initialize the OID4VCI issuer and resource server.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -843,6 +1001,7 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
+                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -857,6 +1016,10 @@
                                             </td>
 
 
+                                            <td>
+                                                    <p>The ID of the tenant.</p>
+
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -866,7 +1029,8 @@
 
                         </div>
                             <div class="io-description">
-                                
+                                <p>The initialized OID4VCI issuer and resource server.</p>
+
                             </div>
                 </td>
             </tr>
@@ -899,60 +1063,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="55" class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:55</a></div>
-                        </td>
-                    </tr>
-
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="issuer"></a>
-                    <span class="name">
-                            <span class="modifier">Private</span>
-                        <span ><b>issuer</b></span>
-                        <a href="#issuer"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>    <code>Openid4vciIssuer</code>
-
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="48" class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:48</a></div>
-                        </td>
-                    </tr>
-
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="resourceServer"></a>
-                    <span class="name">
-                        <span ><b>resourceServer</b></span>
-                        <a href="#resourceServer"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>    <code>Oauth2ResourceServer</code>
-
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="50" class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:50</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="54" class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:54</a></div>
                         </td>
                     </tr>
 
@@ -1010,12 +1121,11 @@ import { OfferRequestDto, OfferResponse } from &quot;./dto/offer-request.dto&quo
 import { DisplayEntity } from &quot;./entities/display.entity&quot;;
 import { getHeadersFromRequest } from &quot;./util&quot;;
 
+/**
+ * Service for handling OID4VCI (OpenID 4 Verifiable Credential Issuance) operations.
+ */
 @Injectable()
-export class Oid4vciService implements OnModuleInit {
-    private issuer: Openid4vciIssuer;
-
-    resourceServer: Oauth2ResourceServer;
-
+export class Oid4vciService {
     constructor(
         private readonly authzService: AuthorizeService,
         private readonly cryptoService: CryptoService,
@@ -1029,17 +1139,12 @@ export class Oid4vciService implements OnModuleInit {
         @InjectRepository(DisplayEntity)
         private readonly displayRepository: Repository&lt;DisplayEntity&gt;,
     ) {}
-    onModuleInit() {
-        //TODO: align for tenant
-        const callbacks &#x3D; this.cryptoService.getCallbackContext(&quot;&quot;);
-        this.issuer &#x3D; new Openid4vciIssuer({
-            callbacks,
-        });
-        this.resourceServer &#x3D; new Oauth2ResourceServer({
-            callbacks,
-        });
-    }
 
+    /**
+     * Initialize the OID4VCI issuer and resource server.
+     * @param tenantId The ID of the tenant.
+     * @returns The initialized OID4VCI issuer and resource server.
+     */
     onTenantInit(tenantId: string) {
         return this.displayRepository.save({
             tenantId,
@@ -1056,7 +1161,43 @@ export class Oid4vciService implements OnModuleInit {
         });
     }
 
-    async issuerMetadata(session: Session): Promise&lt;IssuerMetadataResult&gt; {
+    /**
+     * Get the OID4VCI issuer instance for a specific tenant.
+     * @param tenantId The ID of the tenant.
+     * @returns The OID4VCI issuer instance.
+     */
+    getIssuer(tenantId: string) {
+        const callbacks &#x3D; this.cryptoService.getCallbackContext(tenantId);
+        return new Openid4vciIssuer({
+            callbacks,
+        });
+    }
+
+    /**
+     * Get the OID4VCI resource server instance for a specific tenant.
+     * @param tenantId The ID of the tenant.
+     * @returns The OID4VCI resource server instance.
+     */
+    getResourceServer(tenantId: string) {
+        const callbacks &#x3D; this.cryptoService.getCallbackContext(tenantId);
+        return new Oauth2ResourceServer({
+            callbacks,
+        });
+    }
+
+    /**
+     * Get the OID4VCI issuer metadata for a specific session.
+     * @param session The session for which to retrieve the issuer metadata.
+     * @returns The OID4VCI issuer metadata.
+     */
+    async issuerMetadata(
+        session: Session,
+        issuer?: Openid4vciIssuer,
+    ): Promise&lt;IssuerMetadataResult&gt; {
+        if (!issuer) {
+            issuer &#x3D; this.getIssuer(session.tenantId);
+        }
+
         const credential_issuer &#x3D; &#x60;${this.configService.getOrThrow&lt;string&gt;(
             &quot;PUBLIC_URL&quot;,
         )}/${session.id}&#x60;;
@@ -1111,7 +1252,7 @@ export class Oid4vciService implements OnModuleInit {
                 this.authzService.authzMetadata(session);
         }
 
-        let credentialIssuer &#x3D; this.issuer.createCredentialIssuerMetadata({
+        let credentialIssuer &#x3D; issuer.createCredentialIssuerMetadata({
             credential_issuer,
             credential_configurations_supported:
                 await this.credentialsService.getCredentialConfigurationSupported(
@@ -1147,6 +1288,13 @@ export class Oid4vciService implements OnModuleInit {
         } as const satisfies IssuerMetadataResult;
     }
 
+    /**
+     * Create a credential offer for a specific user and tenant.
+     * @param body The request body containing the offer details.
+     * @param user The user for whom the offer is being created.
+     * @param tenantId The ID of the tenant.
+     * @returns The created credential offer.
+     */
     async createOffer(
         body: OfferRequestDto,
         user: TokenPayload,
@@ -1189,11 +1337,13 @@ export class Oid4vciService implements OnModuleInit {
             tenantId: user.sub,
             issuanceId: body.issuanceId,
             authorization_code,
+            claimsWebhook: body.claimsWebhook ?? issuanceConfig.claimsWebhook,
         });
 
-        const issuerMetadata &#x3D; await this.issuerMetadata(session);
+        const issuer &#x3D; this.getIssuer(session.tenantId);
+        const issuerMetadata &#x3D; await this.issuerMetadata(session, issuer);
 
-        return this.issuer
+        return issuer
             .createCredentialOffer({
                 credentialConfigurationIds,
                 grants,
@@ -1231,12 +1381,21 @@ export class Oid4vciService implements OnModuleInit {
         };
     }
 
+    /**
+     * Get a credential for a specific session.
+     * @param req
+     * @param session
+     * @returns
+     */
     async getCredential(
         req: Request,
         session: Session,
     ): Promise&lt;CredentialResponse&gt; {
-        const issuerMetadata &#x3D; await this.issuerMetadata(session);
-        const parsedCredentialRequest &#x3D; this.issuer.parseCredentialRequest({
+        const issuer &#x3D; this.getIssuer(session.tenantId);
+        const issuerMetadata &#x3D; await this.issuerMetadata(session, issuer);
+        const resourceServer &#x3D; this.getResourceServer(session.tenantId);
+
+        const parsedCredentialRequest &#x3D; issuer.parseCredentialRequest({
             issuerMetadata,
             credentialRequest: req.body as Record&lt;string, unknown&gt;,
         });
@@ -1251,22 +1410,20 @@ export class Oid4vciService implements OnModuleInit {
 
         const headers &#x3D; getHeadersFromRequest(req);
 
-        const { tokenPayload } &#x3D;
-            await this.resourceServer.verifyResourceRequest({
-                authorizationServers: issuerMetadata.authorizationServers,
-                request: {
-                    url: &#x60;${protocol}//${req.host}${req.url}&#x60;,
-                    method: req.method as HttpMethod,
-                    headers,
-                },
-                //TODO: Keycloak is setting aud to &#x60;account&#x60;, but it should be the value of resource server
-                resourceServer:
-                    issuerMetadata.credentialIssuer.credential_issuer,
-                allowedAuthenticationSchemes: [
-                    SupportedAuthenticationScheme.DPoP,
-                    SupportedAuthenticationScheme.Bearer,
-                ],
-            });
+        const { tokenPayload } &#x3D; await resourceServer.verifyResourceRequest({
+            authorizationServers: issuerMetadata.authorizationServers,
+            request: {
+                url: &#x60;${protocol}//${req.host}${req.url}&#x60;,
+                method: req.method as HttpMethod,
+                headers,
+            },
+            //TODO: Keycloak is setting aud to &#x60;account&#x60;, but it should be the value of resource server
+            resourceServer: issuerMetadata.credentialIssuer.credential_issuer,
+            allowedAuthenticationSchemes: [
+                SupportedAuthenticationScheme.DPoP,
+                SupportedAuthenticationScheme.Bearer,
+            ],
+        });
 
         if (tokenPayload.sub !&#x3D;&#x3D; session.id) {
             throw new BadRequestException(&quot;Session not found&quot;);
@@ -1293,19 +1450,44 @@ export class Oid4vciService implements OnModuleInit {
             if (expectedNonce &#x3D;&#x3D;&#x3D; undefined) {
                 throw new BadRequestException(&quot;Nonce not found&quot;);
             }
+
+            const issuanceConfig &#x3D;
+                await this.issuanceService.getIssuanceConfigurationById(
+                    session.issuanceId!,
+                    session.tenantId,
+                );
+
+            // if a webhook is provided, fetch the data from it.
+
+            let claims: Record&lt;string, Record&lt;string, unknown&gt;&gt; | undefined &#x3D;
+                undefined;
+            if (
+                issuanceConfig.claimsWebhook &amp;&amp;
+                issuanceConfig.authenticationConfig.method !&#x3D;&#x3D;
+                    &quot;presentationDuringIssuance&quot;
+            ) {
+                claims &#x3D; await this.webhookService.sendWebhook(
+                    session,
+                    logContext,
+                );
+            }
+
             for (const jwt of parsedCredentialRequest.proofs.jwt) {
                 const verifiedProof &#x3D;
-                    await this.issuer.verifyCredentialRequestJwtProof({
+                    await issuer.verifyCredentialRequestJwtProof({
                         //check if this is correct or if the passed nonce is validated.
                         expectedNonce,
                         issuerMetadata: await this.issuerMetadata(session),
                         jwt,
                     });
                 const cnf &#x3D; verifiedProof.signer.publicJwk;
+
                 const cred &#x3D; await this.credentialsService.getCredential(
                     parsedCredentialRequest.credentialConfigurationId as string,
                     cnf as any,
                     session,
+                    issuanceConfig,
+                    claims,
                 );
                 credentials.push(cred);
 
@@ -1335,7 +1517,7 @@ export class Oid4vciService implements OnModuleInit {
                 notificationId,
             });
 
-            return this.issuer.createCredentialResponse({
+            return issuer.createCredentialResponse({
                 credentials,
                 credentialRequest: parsedCredentialRequest,
                 cNonce: tokenPayload.nonce as string,
@@ -1362,25 +1544,23 @@ export class Oid4vciService implements OnModuleInit {
         body: NotificationRequestDto,
         session: Session,
     ) {
-        const issuerMetadata &#x3D; await this.issuerMetadata(session);
+        const issuer &#x3D; this.getIssuer(session.tenantId);
+        const resourceServer &#x3D; this.getResourceServer(session.tenantId);
+        const issuerMetadata &#x3D; await this.issuerMetadata(session, issuer);
         const headers &#x3D; getHeadersFromRequest(req);
         const protocol &#x3D; new URL(
             this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;),
         ).protocol;
-        const { tokenPayload } &#x3D;
-            await this.resourceServer.verifyResourceRequest({
-                authorizationServers: issuerMetadata.authorizationServers,
-                request: {
-                    url: &#x60;${protocol}//${req.host}${req.url}&#x60;,
-                    method: req.method as HttpMethod,
-                    headers,
-                },
-                resourceServer:
-                    issuerMetadata.credentialIssuer.credential_issuer,
-                allowedAuthenticationSchemes: [
-                    SupportedAuthenticationScheme.DPoP,
-                ],
-            });
+        const { tokenPayload } &#x3D; await resourceServer.verifyResourceRequest({
+            authorizationServers: issuerMetadata.authorizationServers,
+            request: {
+                url: &#x60;${protocol}//${req.host}${req.url}&#x60;,
+                method: req.method as HttpMethod,
+                headers,
+            },
+            resourceServer: issuerMetadata.credentialIssuer.credential_issuer,
+            allowedAuthenticationSchemes: [SupportedAuthenticationScheme.DPoP],
+        });
 
         if (session.id !&#x3D;&#x3D; tokenPayload.sub) {
             throw new BadRequestException(&quot;Session not found&quot;);

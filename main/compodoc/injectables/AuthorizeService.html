@@ -624,8 +624,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="302"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:302</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="301"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:301</a></div>
                         </td>
                     </tr>
 
@@ -786,8 +786,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="309"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:309</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="308"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:308</a></div>
                         </td>
                     </tr>
 
@@ -1190,13 +1190,14 @@ export class AuthorizeService {
             throw new Error(&#x27;Credential offer not found&#x27;);
         } */
         const issuanceId &#x3D; session.issuanceId!;
-        const config &#x3D; await this.issuanceService.getIssuanceConfigurationById(
-            issuanceId,
-            session.tenantId,
-        );
+        const issuanceConfig &#x3D;
+            await this.issuanceService.getIssuanceConfigurationById(
+                issuanceId,
+                session.tenantId,
+            );
 
         // Use the new authentication configuration structure
-        const authConfig &#x3D; config.authenticationConfig;
+        const authConfig &#x3D; issuanceConfig.authenticationConfig;
 
         if (!authConfig) {
             throw new Error(
@@ -1210,9 +1211,7 @@ export class AuthorizeService {
             )
         ) {
             // OID4VP flow - credential presentation required
-            const presentationConfig &#x3D;
-                AuthenticationConfigHelper.getPresentationConfig(authConfig);
-            const webhook &#x3D; presentationConfig?.presentation.webhook;
+            const webhook &#x3D; issuanceConfig.claimsWebhook;
             const response &#x3D; await this.parseChallengeRequest(
                 body,
                 session.tenantId,

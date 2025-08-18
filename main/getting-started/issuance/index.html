@@ -1930,17 +1930,36 @@ authentication requirements, but these can be customized per offer.</p>
 <h2 id="credential-issuance-flow">Credential Issuance Flow<a class="headerlink" href="#credential-issuance-flow" title="Permanent link">&para;</a></h2>
 <p>This flow describes how a backend service starts an issuance flow of an
 attestation. EUDIPLO creates the OID4VCI request and handles the protocol flow
-with the wallet.</p>
+with the wallet. It also shows the interactions with <a href="../../architecture/webhooks/">webhooks</a> when they are configured.</p>
 <pre class="mermaid"><code>sequenceDiagram
-actor EUDI_Wallet
-participant Middleware
-participant End_Service
+    autonumber
+    actor Wallet as EUDI Wallet
+    participant EUDIPLO as Middleware
+    participant Service as End Service (with Webhooks)
 
-End_Service -&gt;&gt; Middleware : Request OID4VCI issuance offer
-Middleware --&gt;&gt; End_Service : Return credential offer link
-End_Service -&gt;&gt; EUDI_Wallet : Present link to user
-Middleware -&gt; EUDI_Wallet : OID4VCI
-Middleware -&gt;&gt; End_Service : Notify successful issuance</code></pre>
+    Service-&gt;&gt;EUDIPLO: Request OID4VCI issuance offer
+    EUDIPLO--&gt;&gt;Service: Return credential offer link
+    Service-&gt;&gt;Wallet: Present offer link to user
+
+    Wallet-&gt;&gt;EUDIPLO: Authorization Request (auth / pre-auth)
+    note over EUDIPLO: Validate request, locate credential config
+
+    alt Claims webhook configured
+        EUDIPLO-&gt;&gt;Service: Fetch claims dynamically (claims webhook)
+        Service--&gt;&gt;EUDIPLO: Claims response (JSON)
+    else No webhook
+        note over EUDIPLO: Use claims from Offer or static configuration
+    end
+
+    EUDIPLO-&gt;&gt;EUDIPLO: Create credential with claims
+    EUDIPLO--&gt;&gt;Wallet: Return issued credential
+
+    Wallet-&gt;&gt;EUDIPLO: Sending notification
+
+    opt Notification webhook configured
+        EUDIPLO-&gt;&gt;Service: Notify status (accepted / denied)
+        Service--&gt;&gt;EUDIPLO: 2xx ACK
+    end</code></pre>
 <hr />
 <h2 id="documentation-structure">Documentation Structure<a class="headerlink" href="#documentation-structure" title="Permanent link">&para;</a></h2>
 <p>This issuance documentation is organized into the following sections:</p>

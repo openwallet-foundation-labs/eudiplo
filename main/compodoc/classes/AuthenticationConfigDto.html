@@ -214,7 +214,7 @@ Determines which OpenID4VC flow to use for the issuance process</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="128" class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:128</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="125" class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:125</a></div>
                         </td>
                     </tr>
 
@@ -263,7 +263,7 @@ Determines which OpenID4VC flow to use for the issuance process</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="135" class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:135</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="132" class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:132</a></div>
                         </td>
                     </tr>
 
@@ -305,7 +305,7 @@ Determines which OpenID4VC flow to use for the issuance process</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="118" class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:118</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="115" class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:115</a></div>
                         </td>
                     </tr>
 
@@ -349,7 +349,6 @@ import {
     ValidatorConstraintInterface,
 } from &quot;class-validator&quot;;
 import { WebhookConfig } from &quot;../../../utils/webhook/webhook.dto&quot;;
-import { PresentationDuringIssuance } from &quot;../../credentials-metadata/dto/credential-config.dto&quot;;
 
 /**
  * Custom validator to ensure config type matches the authentication method
@@ -378,7 +377,7 @@ export class AuthConfigValidator implements ValidatorConstraintInterface {
             return (
                 config &amp;&amp;
                 typeof config &#x3D;&#x3D;&#x3D; &quot;object&quot; &amp;&amp;
-                typeof config.presentation &#x3D;&#x3D;&#x3D; &quot;object&quot;
+                typeof config.type &#x3D;&#x3D;&#x3D; &quot;string&quot;
             );
         }
 
@@ -432,12 +431,10 @@ export class AuthenticationUrlConfig {
  */
 export class PresentationDuringIssuanceConfig {
     /**
-     * Presentation configuration that specifies what credentials need to be presented via OID4VP
+     * Link to the presentation configuration that is relevant for the issuance process
      */
-    @IsObject()
-    @ValidateNested()
-    @Type(() &#x3D;&gt; PresentationDuringIssuance)
-    presentation: PresentationDuringIssuance;
+    @IsString()
+    type: string;
 }
 
 /**

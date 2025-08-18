@@ -96,7 +96,7 @@
 
 <ol class="breadcrumb">
   <li class="breadcrumb-item">Classes</li>
-  <li class="breadcrumb-item" >PresentationDuringIssuance</li>
+  <li class="breadcrumb-item" >WebhookResponse</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -120,130 +120,43 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/issuer/credentials-metadata/dto/credential-config.dto.ts</code>
+            <code>src/utils/webhook/webhook.service.ts</code>
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Response from a webhook to receive credentials.</p>
+
+            </p>
 
 
 
 
-            <section data-compodoc="block-index">
-    <h3 id="index">Index</h3>
-    <table class="table table-sm table-bordered index-table">
-        <tbody>
+
+
+
+
+            <section data-compodoc="block-indexables">
+    <h3 id="inputs">Indexable</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
                 <tr>
                     <td class="col-md-4">
-                        <h6><b>Properties</b></h6>
+                        <code>[key: string]:    <code>Record&lt;string, any&gt;</code>
+</code>
                     </td>
                 </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <ul class="index-list">
-                            <li>
-                                    <span class="modifier"></span>
-                                <a href="#type" >type</a>
-                            </li>
-                            <li>
-                                    <span class="modifier"></span>
-                                    <span class="modifier">Optional</span>
-                                <a href="#webhook" >webhook</a>
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
-
-
-
-
-
-
-        </tbody>
-    </table>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="12" class="link-to-prism">src/utils/webhook/webhook.service.ts:12</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
 </section>
-
-
-            <section data-compodoc="block-properties">
-    
-    <h3 id="inputs">
-        Properties
-    </h3>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="type"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                        <span ><b>type</b></span>
-                        <a href="#type"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @IsString()<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="23" class="link-to-prism">src/issuer/credentials-metadata/dto/credential-config.dto.ts:23</a></div>
-                        </td>
-                    </tr>
-
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="webhook"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier">Optional</span>
-                        <span ><b>webhook</b></span>
-                        <a href="#webhook"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../classes/WebhookConfig.html" target="_self" >WebhookConfig</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @IsObject()<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/issuer/credentials-metadata/dto/credential-config.dto.ts:25</a></div>
-                        </td>
-                    </tr>
-
-
-        </tbody>
-    </table>
-</section>
-
-
 
 
 
@@ -253,31 +166,178 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { IsObject, IsString } from &quot;class-validator&quot;;
-import { WebhookConfig } from &quot;../../../utils/webhook/webhook.dto&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { HttpService } from &quot;@nestjs/axios&quot;;
+import { Injectable } from &quot;@nestjs/common&quot;;
+import { firstValueFrom } from &quot;rxjs&quot;;
+import { Notification, Session } from &quot;../../session/entities/session.entity&quot;;
+import { SessionService } from &quot;../../session/session.service&quot;;
+import { SessionLoggerService } from &quot;../logger/session-logger.service&quot;;
+import { SessionLogContext } from &quot;../logger/session-logger-context&quot;;
 
-export class VCT {
-    @IsString()
-    vct: string;
-    @IsString()
-    name?: string;
-    @IsString()
-    description?: string;
-    @IsString()
-    extends?: string;
-    @IsString()
-    &quot;extends#integrity&quot;?: string;
-    @IsString()
-    schema_uri?: string;
-    @IsString()
-    &quot;schema_uri#integrity&quot;?: string;
+/**
+ * Response from a webhook to receive credentials.
+ */
+export class WebhookResponse {
+    [key: string]: Record&lt;string, any&gt;;
 }
 
-export class PresentationDuringIssuance {
-    @IsString()
-    type: string;
-    @IsObject()
-    webhook?: WebhookConfig;
+/**
+ * Service for handling webhooks in the application.
+ */
+@Injectable()
+export class WebhookService {
+    /**
+     * Constructor for WebhookService.
+     * @param httpService
+     * @param sessionService
+     * @param sessionLogger
+     */
+    constructor(
+        private httpService: HttpService,
+        private sessionService: SessionService,
+        private sessionLogger: SessionLoggerService,
+    ) {}
+
+    /**
+     * Sends a webhook with the optional provided credentials, return the response data.
+     * @param session
+     * @param logContext
+     * @param credentials
+     */
+    sendWebhook(
+        session: Session,
+        logContext: SessionLogContext,
+        credentials?: any[],
+    ) {
+        const headers: Record&lt;string, string&gt; &#x3D; {};
+        if (
+            session.claimsWebhook!.auth &amp;&amp;
+            session.claimsWebhook!.auth.type &#x3D;&#x3D;&#x3D; &quot;apiKey&quot;
+        ) {
+            headers[session.claimsWebhook!.auth.config.headerName] &#x3D;
+                session.claimsWebhook!.auth.config.value;
+        }
+        this.sessionLogger.logSession(logContext, &quot;Sending webhook&quot;, {
+            webhookUrl: session.claimsWebhook!.url,
+            authType: session.claimsWebhook!.auth?.type || &quot;none&quot;,
+        });
+
+        return firstValueFrom(
+            this.httpService.post(
+                session.claimsWebhook!.url,
+                {
+                    credentials,
+                    session: session.id,
+                },
+                {
+                    headers,
+                },
+            ),
+        ).then(
+            async (webhookResponse) &#x3D;&gt; {
+                //TODO: better: just store it when it&#x27;s a presentation during issuance
+                if (webhookResponse.data) {
+                    session.credentialPayload!.claims &#x3D; webhookResponse.data;
+                    //store received webhook response
+                    await this.sessionService.add(session.id, {
+                        credentialPayload: session.credentialPayload,
+                    });
+                }
+
+                this.sessionLogger.logSession(
+                    logContext,
+                    &quot;Webhook sent successfully&quot;,
+                    {
+                        responseStatus: webhookResponse.status,
+                        hasResponseData: !!webhookResponse.data,
+                    },
+                );
+                return webhookResponse.data;
+            },
+            (err) &#x3D;&gt; {
+                this.sessionLogger.logSessionError(
+                    logContext,
+                    err,
+                    &quot;Error sending webhook&quot;,
+                    {
+                        webhookUrl: session.claimsWebhook!.url,
+                    },
+                );
+                throw new Error(&#x60;Error sending webhook: ${err.message || err}&#x60;);
+            },
+        );
+    }
+
+    /**
+     * Sends a webhook notification for a session.
+     * @param session
+     * @param logContext
+     * @param notification
+     */
+    async sendWebhookNotification(
+        session: Session,
+        logContext: SessionLogContext,
+        notification: Notification,
+    ) {
+        const headers: Record&lt;string, string&gt; &#x3D; {};
+        const webhook &#x3D; session.notifyWebhook!;
+
+        if (webhook.auth &amp;&amp; webhook.auth.type &#x3D;&#x3D;&#x3D; &quot;apiKey&quot;) {
+            headers[webhook.auth.config.headerName] &#x3D; webhook.auth.config.value;
+        }
+        this.sessionLogger.logSession(
+            logContext,
+            &quot;Sending webhook notification&quot;,
+            {
+                webhookUrl: webhook.url,
+                authType: webhook.auth?.type || &quot;none&quot;,
+            },
+        );
+
+        await firstValueFrom(
+            this.httpService.post(
+                webhook.url,
+                {
+                    notification,
+                    session: session.id,
+                },
+                {
+                    headers,
+                },
+            ),
+        ).then(
+            async (webhookResponse) &#x3D;&gt; {
+                //TODO: better: just store it when it&#x27;s a presentation during issuance
+                if (webhookResponse.data) {
+                    session.credentialPayload!.claims &#x3D; webhookResponse.data;
+                    //store received webhook response
+                    await this.sessionService.add(session.id, {
+                        credentialPayload: session.credentialPayload,
+                    });
+                }
+
+                this.sessionLogger.logSession(
+                    logContext,
+                    &quot;Webhook notification sent successfully&quot;,
+                    {
+                        responseStatus: webhookResponse.status,
+                        hasResponseData: !!webhookResponse.data,
+                    },
+                );
+            },
+            (err) &#x3D;&gt; {
+                this.sessionLogger.logSessionError(
+                    logContext,
+                    err,
+                    &quot;Error sending webhook&quot;,
+                    {
+                        webhookUrl: session.claimsWebhook!.url,
+                    },
+                );
+                throw new Error(&#x60;Error sending webhook: ${err.message || err}&#x60;);
+            },
+        );
+    }
 }
 </code></pre>
     </div>
@@ -317,7 +377,7 @@ export class PresentationDuringIssuance {
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
-            var COMPODOC_CURRENT_PAGE_URL = 'PresentationDuringIssuance.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'WebhookResponse.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

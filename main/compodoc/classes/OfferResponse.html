@@ -184,7 +184,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="65" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:65</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="73" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:73</a></div>
                         </td>
                     </tr>
 
@@ -210,7 +210,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="64" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:64</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="72" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:72</a></div>
                         </td>
                     </tr>
 
@@ -238,6 +238,7 @@ import {
     IsString,
     IsUUID,
 } from &quot;class-validator&quot;;
+import { WebhookConfig } from &quot;../../../utils/webhook/webhook.dto&quot;;
 import { ResponseType } from &quot;../../../verifier/oid4vp/dto/presentation-request.dto&quot;;
 
 export class OfferRequestDto {
@@ -282,6 +283,13 @@ export class OfferRequestDto {
     @IsObject()
     @IsOptional()
     claims?: Record&lt;string, Record&lt;string, any&gt;&gt;;
+
+    /**
+     * Webhook configuration for claims
+     */
+    @IsObject()
+    @IsOptional()
+    claimsWebhook?: WebhookConfig;
 
     /**
      * Pre defined session id

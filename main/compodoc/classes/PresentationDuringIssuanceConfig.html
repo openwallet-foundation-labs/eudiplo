@@ -150,9 +150,7 @@ Used for OID4VP flow where a credential presentation request is sent</p>
                         <ul class="index-list">
                             <li>
                                     <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                <a href="#presentation" >presentation</a>
+                                <a href="#type" >type</a>
                             </li>
                         </ul>
                     </td>
@@ -177,19 +175,17 @@ Used for OID4VP flow where a credential presentation request is sent</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="presentation"></a>
+                    <a name="type"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                        <span ><b>presentation</b></span>
-                        <a href="#presentation"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>type</b></span>
+                        <a href="#type"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../classes/PresentationDuringIssuance.html" target="_self" >PresentationDuringIssuance</a></code>
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
 
                     </td>
                 </tr>
@@ -198,19 +194,19 @@ Used for OID4VP flow where a credential presentation request is sent</p>
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsObject()<br />@ValidateNested()<br />@Type(undefined)<br />
+                            @IsString()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="103" class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:103</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="100" class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:100</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><p>Presentation configuration that specifies what credentials need to be presented via OID4VP</p>
+                    <div class="io-description"><p>Link to the presentation configuration that is relevant for the issuance process</p>
 </div>
                 </td>
             </tr>
@@ -243,7 +239,6 @@ import {
     ValidatorConstraintInterface,
 } from &quot;class-validator&quot;;
 import { WebhookConfig } from &quot;../../../utils/webhook/webhook.dto&quot;;
-import { PresentationDuringIssuance } from &quot;../../credentials-metadata/dto/credential-config.dto&quot;;
 
 /**
  * Custom validator to ensure config type matches the authentication method
@@ -272,7 +267,7 @@ export class AuthConfigValidator implements ValidatorConstraintInterface {
             return (
                 config &amp;&amp;
                 typeof config &#x3D;&#x3D;&#x3D; &quot;object&quot; &amp;&amp;
-                typeof config.presentation &#x3D;&#x3D;&#x3D; &quot;object&quot;
+                typeof config.type &#x3D;&#x3D;&#x3D; &quot;string&quot;
             );
         }
 
@@ -326,12 +321,10 @@ export class AuthenticationUrlConfig {
  */
 export class PresentationDuringIssuanceConfig {
     /**
-     * Presentation configuration that specifies what credentials need to be presented via OID4VP
+     * Link to the presentation configuration that is relevant for the issuance process
      */
-    @IsObject()
-    @ValidateNested()
-    @Type(() &#x3D;&gt; PresentationDuringIssuance)
-    presentation: PresentationDuringIssuance;
+    @IsString()
+    type: string;
 }
 
 /**

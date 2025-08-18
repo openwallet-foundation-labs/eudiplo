@@ -610,9 +610,6 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/ParResponseDto.html" data-type="entity-link" >ParResponseDto</a>
                             </li>
                             <li class="link">
-                                <a href="classes/PresentationDuringIssuance.html" data-type="entity-link" >PresentationDuringIssuance</a>
-                            </li>
-                            <li class="link">
                                 <a href="classes/PresentationDuringIssuanceConfig.html" data-type="entity-link" >PresentationDuringIssuanceConfig</a>
                             </li>
                             <li class="link">
@@ -656,6 +653,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             </li>
                             <li class="link">
                                 <a href="classes/WebhookConfig.html" data-type="entity-link" >WebhookConfig</a>
+                            </li>
+                            <li class="link">
+                                <a href="classes/WebhookResponse.html" data-type="entity-link" >WebhookResponse</a>
                             </li>
                         </ul>
                     </li>

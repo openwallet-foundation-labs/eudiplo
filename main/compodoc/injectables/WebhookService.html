@@ -144,7 +144,6 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
-                                    <span class="modifier">Async</span>
                                 <a href="#sendWebhook" >sendWebhook</a>
                             </li>
                             <li>
@@ -174,7 +173,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="13" class="link-to-prism">src/utils/webhook/webhook.service.ts:13</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="20" class="link-to-prism">src/utils/webhook/webhook.service.ts:20</a></div>
                             </td>
                         </tr>
 
@@ -249,7 +248,6 @@
                 <td class="col-md-4">
                     <a name="sendWebhook"></a>
                     <span class="name">
-                            <span class="modifier">Async</span>
                         <span ><b>sendWebhook</b></span>
                         <a href="#sendWebhook"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -257,23 +255,22 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>sendWebhook(session: <a href="../entitys/Session.html" target="_self">Session</a>, logContext: <a href="../interfaces/SessionLogContext.html" target="_self">SessionLogContext</a>, credentials: any[])</code>
+<code>sendWebhook(session: <a href="../entitys/Session.html" target="_self">Session</a>, logContext: <a href="../interfaces/SessionLogContext.html" target="_self">SessionLogContext</a>, credentials?: any[])</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="32"
-                                    class="link-to-prism">src/utils/webhook/webhook.service.ts:32</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="39"
+                                    class="link-to-prism">src/utils/webhook/webhook.service.ts:39</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Sends a webhook with the provided credentials, also return the response data.</p>
+                        <div class="io-description"><p>Sends a webhook with the optional provided credentials, return the response data.</p>
 </div>
 
                             <div class="io-description">
@@ -319,7 +316,7 @@
                                             </td>
 
                                             <td>
-                                                    No
+                                                    Yes
                                             </td>
 
 
@@ -360,8 +357,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="98"
-                                    class="link-to-prism">src/utils/webhook/webhook.service.ts:98</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="109"
+                                    class="link-to-prism">src/utils/webhook/webhook.service.ts:109</a></div>
                         </td>
                     </tr>
 
@@ -448,6 +445,13 @@ import { SessionLoggerService } from &quot;../logger/session-logger.service&quot
 import { SessionLogContext } from &quot;../logger/session-logger-context&quot;;
 
 /**
+ * Response from a webhook to receive credentials.
+ */
+export class WebhookResponse {
+    [key: string]: Record&lt;string, any&gt;;
+}
+
+/**
  * Service for handling webhooks in the application.
  */
 @Injectable()
@@ -465,29 +469,32 @@ export class WebhookService {
     ) {}
 
     /**
-     * Sends a webhook with the provided credentials, also return the response data.
+     * Sends a webhook with the optional provided credentials, return the response data.
      * @param session
      * @param logContext
      * @param credentials
      */
-    async sendWebhook(
+    sendWebhook(
         session: Session,
         logContext: SessionLogContext,
-        credentials: any[],
+        credentials?: any[],
     ) {
         const headers: Record&lt;string, string&gt; &#x3D; {};
-        if (session.webhook!.auth &amp;&amp; session.webhook!.auth.type &#x3D;&#x3D;&#x3D; &quot;apiKey&quot;) {
-            headers[session.webhook!.auth.config.headerName] &#x3D;
-                session.webhook!.auth.config.value;
+        if (
+            session.claimsWebhook!.auth &amp;&amp;
+            session.claimsWebhook!.auth.type &#x3D;&#x3D;&#x3D; &quot;apiKey&quot;
+        ) {
+            headers[session.claimsWebhook!.auth.config.headerName] &#x3D;
+                session.claimsWebhook!.auth.config.value;
         }
         this.sessionLogger.logSession(logContext, &quot;Sending webhook&quot;, {
-            webhookUrl: session.webhook!.url,
-            authType: session.webhook!.auth?.type || &quot;none&quot;,
+            webhookUrl: session.claimsWebhook!.url,
+            authType: session.claimsWebhook!.auth?.type || &quot;none&quot;,
         });
 
-        await firstValueFrom(
+        return firstValueFrom(
             this.httpService.post(
-                session.webhook!.url,
+                session.claimsWebhook!.url,
                 {
                     credentials,
                     session: session.id,
@@ -515,6 +522,7 @@ export class WebhookService {
                         hasResponseData: !!webhookResponse.data,
                     },
                 );
+                return webhookResponse.data;
             },
             (err) &#x3D;&gt; {
                 this.sessionLogger.logSessionError(
@@ -522,7 +530,7 @@ export class WebhookService {
                     err,
                     &quot;Error sending webhook&quot;,
                     {
-                        webhookUrl: session.webhook!.url,
+                        webhookUrl: session.claimsWebhook!.url,
                     },
                 );
                 throw new Error(&#x60;Error sending webhook: ${err.message || err}&#x60;);
@@ -593,7 +601,7 @@ export class WebhookService {
                     err,
                     &quot;Error sending webhook&quot;,
                     {
-                        webhookUrl: session.webhook!.url,
+                        webhookUrl: session.claimsWebhook!.url,
                     },
                 );
                 throw new Error(&#x60;Error sending webhook: ${err.message || err}&#x60;);

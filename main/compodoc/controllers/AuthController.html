@@ -203,8 +203,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="193"
-                                    class="link-to-prism">src/auth/auth.controller.ts:193</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="201"
+                                    class="link-to-prism">src/auth/auth.controller.ts:201</a></div>
                         </td>
                     </tr>
 
@@ -349,8 +349,8 @@ Accepts client credentials either in Authorization header (Basic auth) or reques
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="158"
-                                    class="link-to-prism">src/auth/auth.controller.ts:158</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="166"
+                                    class="link-to-prism">src/auth/auth.controller.ts:166</a></div>
                         </td>
                     </tr>
 
@@ -500,17 +500,25 @@ export class AuthController {
             throw new UnauthorizedException(&quot;Invalid client credentials&quot;);
         }
 
+        //TODO: check if the access token should only include the session id or also e.g. the credentials that should be issued. I would think this is not required since we still need the claims for it.
         const payload: TokenPayload &#x3D; {
             sub: client.id,
         };
 
-        const token &#x3D; await this.jwtService.generateToken(payload, {
+        //TODO: make expiresIn configurable?
+        const access_token &#x3D; await this.jwtService.generateToken(payload, {
             expiresIn: &quot;24h&quot;,
             audience: &quot;eudiplo-service&quot;,
         });
 
+        const refresh_token &#x3D; await this.jwtService.generateToken(payload, {
+            expiresIn: &quot;30d&quot;,
+            audience: &quot;eudiplo-service&quot;,
+        });
+
         return {
-            access_token: token,
+            access_token,
+            refresh_token,
             token_type: &quot;Bearer&quot;,
             expires_in: 86400, // 24 hours in seconds
         };
