@@ -25,15 +25,15 @@ credential configuration:
 
 ```json
 {
-    "id": "employee-badge",
-    "statusManagement": true,
-    "config": {
-        "format": "dc+sd-jwt"
-    },
-    "claims": {
-        "employee_id": "EMP12345",
-        "department": "Engineering"
-    }
+  "id": "employee-badge",
+  "statusManagement": true,
+  "config": {
+    "format": "dc+sd-jwt"
+  },
+  "claims": {
+    "employee_id": "EMP12345",
+    "department": "Engineering"
+  }
 }
 ```
 
@@ -55,8 +55,8 @@ EUDIPLO maintains status lists that track the revocation state of credentials:
 - **Status List URL**: Public endpoint where verifiers can check status
 - **Status List Index**: Unique position for each credential in the list
 - **Status Values**:
-    - `0` = Valid/Active
-    - `1` = Revoked/Suspended
+  - `0` = Valid/Active
+  - `1` = Revoked/Suspended
 
 ### Credential Status Claim
 
@@ -65,12 +65,12 @@ claim:
 
 ```json
 {
-    "status": {
-        "status_list": {
-            "idx": 42,
-            "uri": "https://issuer.example.com/status/list/1"
-        }
+  "status": {
+    "status_list": {
+      "idx": 42,
+      "uri": "https://issuer.example.com/status/list/1"
     }
+  }
 }
 ```
 
@@ -200,13 +200,13 @@ curl -X 'GET' \
 
 ```json
 {
-    "iss": "https://issuer.example.com",
-    "sub": "https://issuer.example.com/status/list/1",
-    "iat": 1609459200,
-    "status_list": {
-        "bits": 1,
-        "lst": "eNrbuRgAAhcBNQ"
-    }
+  "iss": "https://issuer.example.com",
+  "sub": "https://issuer.example.com/status/list/1",
+  "iat": 1609459200,
+  "status_list": {
+    "bits": 1,
+    "lst": "eNrbuRgAAhcBNQ"
+  }
 }
 ```
 
@@ -280,7 +280,3 @@ curl -X 'GET' \
 - Learn about [Advanced Features](advanced-features.md) for enhanced credential
   management
 - Use the [API Guide](api-guide.md) to implement revocation workflows
-
-```
-
-```
