@@ -312,6 +312,7 @@ export class Oid4vpService {
                     session,
                     logContext,
                     credentials,
+                    false,
                 );
             }
 
