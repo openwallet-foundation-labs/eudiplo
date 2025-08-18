@@ -57,19 +57,38 @@ authentication requirements, but these can be customized per offer.
 
 This flow describes how a backend service starts an issuance flow of an
 attestation. EUDIPLO creates the OID4VCI request and handles the protocol flow
-with the wallet.
+with the wallet. It also shows the interactions with [webhooks](../../architecture/webhooks.md) when they are configured.
 
 ```mermaid
 sequenceDiagram
-actor EUDI_Wallet
-participant Middleware
-participant End_Service
+    autonumber
+    actor Wallet as EUDI Wallet
+    participant EUDIPLO as Middleware
+    participant Service as End Service (with Webhooks)
 
-End_Service ->> Middleware : Request OID4VCI issuance offer
-Middleware -->> End_Service : Return credential offer link
-End_Service ->> EUDI_Wallet : Present link to user
-Middleware -> EUDI_Wallet : OID4VCI
-Middleware ->> End_Service : Notify successful issuance
+    Service->>EUDIPLO: Request OID4VCI issuance offer
+    EUDIPLO-->>Service: Return credential offer link
+    Service->>Wallet: Present offer link to user
+
+    Wallet->>EUDIPLO: Authorization Request (auth / pre-auth)
+    note over EUDIPLO: Validate request, locate credential config
+
+    alt Claims webhook configured
+        EUDIPLO->>Service: Fetch claims dynamically (claims webhook)
+        Service-->>EUDIPLO: Claims response (JSON)
+    else No webhook
+        note over EUDIPLO: Use claims from Offer or static configuration
+    end
+
+    EUDIPLO->>EUDIPLO: Create credential with claims
+    EUDIPLO-->>Wallet: Return issued credential
+
+    Wallet->>EUDIPLO: Sending notification
+
+    opt Notification webhook configured
+        EUDIPLO->>Service: Notify status (accepted / denied)
+        Service-->>EUDIPLO: 2xx ACK
+    end
 ```
 
 ---

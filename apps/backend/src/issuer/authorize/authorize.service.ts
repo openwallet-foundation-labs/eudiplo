@@ -277,7 +277,7 @@ export class AuthorizeService {
             )
         ) {
             // OID4VP flow - credential presentation required
-            const webhook = issuanceConfig.claimWebhook;
+            const webhook = issuanceConfig.claimsWebhook;
             const response = await this.parseChallengeRequest(
                 body,
                 session.tenantId,

@@ -75,7 +75,7 @@ export class IssuanceConfig {
      * Webhook to receive claims for the issuance process.
      */
     @Column("json", { nullable: true })
-    claimWebhook?: WebhookConfig;
+    claimsWebhook?: WebhookConfig;
 
     /**
      * Webhook to send the result of the notification response

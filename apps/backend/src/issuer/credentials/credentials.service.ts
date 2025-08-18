@@ -101,6 +101,8 @@ export class CredentialsService {
         credentialConfigurationId: string,
         holderCnf: Jwk,
         session: Session,
+        issuanceConfig: IssuanceConfig,
+        claims?: Record<string, Record<string, unknown>>,
     ) {
         const credentialConfiguration = await this.credentialConfigRepo
             .findOneByOrFail({
@@ -112,17 +114,13 @@ export class CredentialsService {
                     `Credential configuration with id ${credentialConfigurationId} not found`,
                 );
             });
-
-        const claims =
+        //use passed claims, if not provided try the ones stored in the session and the use default ones from the config is provided
+        claims =
+            claims ??
             session.credentialPayload?.claims?.[credentialConfigurationId] ??
             credentialConfiguration.claims;
         const disclosureFrame = credentialConfiguration.disclosureFrame;
 
-        const issuanceConfig =
-            await this.issuanceConfigService.getIssuanceConfigurationById(
-                session.issuanceId!,
-                session.tenantId,
-            );
         const binding = issuanceConfig.credentialIssuanceBindings.find(
             (binding) =>
                 binding.credentialConfigId === credentialConfigurationId,
