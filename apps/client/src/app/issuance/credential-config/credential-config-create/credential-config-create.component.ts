@@ -103,7 +103,10 @@ export class CredentialConfigCreateComponent implements OnInit {
       vct: ['', [jsonSchemaValidatorFactory(vctSchema.getSchema())]],
       schema: [''],
       displayConfigs: this.fb.array([this.createDisplayConfigGroup()]),
-      embeddedDisclosurePolicy: ['', [jsonSchemaValidatorFactory(embeddedDisclosurePolicySchema.getSchema())]],
+      embeddedDisclosurePolicy: [
+        '',
+        [jsonSchemaValidatorFactory(embeddedDisclosurePolicySchema.getSchema())],
+      ],
     });
 
     if (this.route.snapshot.params['id']) {
