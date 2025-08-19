@@ -184,6 +184,7 @@ export class CredentialConfig {
      */
     @Column("json", { nullable: true })
     @IsObject()
+    @IsOptional()
     @ValidateNested()
     embeddedDisclosurePolicy?: EmbeddedDisclosurePolicy;
 }
