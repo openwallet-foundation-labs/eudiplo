@@ -1,1 +1,1 @@
-pnpm -r run lint
+pnpm -r run format && pnpm -r run lint

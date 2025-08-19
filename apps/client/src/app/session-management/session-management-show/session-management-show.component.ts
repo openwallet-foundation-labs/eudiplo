@@ -54,7 +54,7 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private snackBar: MatSnackBar,
     private router: Router,
-    private httpClient: HttpClient,
+    private httpClient: HttpClient
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -73,11 +73,10 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
       this.session = await this.sessionManagementService.getSession(sessionId);
       this.generateQRCode(this.session.offerUrl || this.session.requestUrl!);
 
-      if(this.session.issuanceId) {
+      if (this.session.issuanceId) {
         console.log(this.session);
         this.getIssuerMetadata();
       }
-
     } catch (error) {
       console.error('Error loading session:', error);
       this.snackBar.open('Failed to load session', 'Close', {
@@ -92,7 +91,11 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
   getIssuerMetadata(): void {
     if (!this.session) return;
 
-    firstValueFrom(this.httpClient.get(`${(this.session.offer as any).credential_issuer}/.well-known/openid-credential-issuer`)).then(res => this.metadata = res);
+    firstValueFrom(
+      this.httpClient.get(
+        `${(this.session.offer as any).credential_issuer}/.well-known/openid-credential-issuer`
+      )
+    ).then((res) => (this.metadata = res));
   }
 
   getStatusDisplayText(status: any): string {

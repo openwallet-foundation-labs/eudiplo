@@ -28,7 +28,9 @@ import { KeyManagementService } from '../../../key-management/key-management.ser
 import { CredentialConfigService } from '../credential-config.service';
 import { JsonViewDialogComponent } from './json-view-dialog/json-view-dialog.component';
 import { configs } from './pre-config';
-import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
+import { MonacoEditorModule, NgxEditorModel } from 'ngx-monaco-editor-v2';
+import { embeddedDisclosurePolicySchema, vctSchema } from '../../../schemas';
+import { jsonSchemaValidatorFactory } from '../../../utils/utils';
 
 @Component({
   selector: 'app-credential-config-create',
@@ -66,7 +68,19 @@ export class CredentialConfigCreateComponent implements OnInit {
 
   editorOptions = {
     language: 'json',
-    automaticLayout: true
+    automaticLayout: true,
+  };
+
+  vctModel: NgxEditorModel = {
+    value: '',
+    language: 'json',
+    uri: vctSchema.getUri(),
+  };
+
+  policyModel: NgxEditorModel = {
+    value: '',
+    language: 'json',
+    uri: embeddedDisclosurePolicySchema.getUri(),
   };
 
   constructor(
@@ -86,10 +100,10 @@ export class CredentialConfigCreateComponent implements OnInit {
       statusManagement: [true, [Validators.required]],
       claims: [''],
       disclosureFrame: [''],
-      vct: [''],
+      vct: ['', [jsonSchemaValidatorFactory(vctSchema.getSchema())]],
       schema: [''],
       displayConfigs: this.fb.array([this.createDisplayConfigGroup()]),
-      embeddedDisclosurePolicy: [''],
+      embeddedDisclosurePolicy: ['', [jsonSchemaValidatorFactory(embeddedDisclosurePolicySchema.getSchema())]],
     });
 
     if (this.route.snapshot.params['id']) {
@@ -122,6 +136,8 @@ export class CredentialConfigCreateComponent implements OnInit {
               ? JSON.stringify(config.embeddedDisclosurePolicy, null, 2)
               : '',
           });
+          this.vctModel.value = JSON.stringify(config.vct, null, 2);
+          this.policyModel.value = JSON.stringify(config.embeddedDisclosurePolicy, null, 2);
 
           //set field as readonly
           this.form.get('id')?.disable();
