@@ -30,6 +30,9 @@
             "polyfills": [
               "zone.js"
             ],
+            "loader": {
+              ".ttf": "binary"
+            },
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "sass",
             "assets": [
@@ -51,7 +54,8 @@
             "allowedCommonJsDependencies": [
               "qrcode",
               "reflect-metadata",
-              "pvtsutils"
+              "pvtsutils",
+              "ajv"
             ]
           },
           "configurations": {
@@ -59,7 +63,7 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2MB",
+                  "maximumWarning": "7MB",
                   "maximumError": "10MB"
                 },
                 {
