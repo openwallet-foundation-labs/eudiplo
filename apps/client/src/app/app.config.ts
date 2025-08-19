@@ -14,7 +14,7 @@ import { withFormlyMaterial } from '@ngx-formly/material';
 import { ObjectTypeComponent } from './types/object.type';
 import { ArrayTypeComponent } from './types/array.type';
 import { provideMonacoEditor } from 'ngx-monaco-editor-v2';
-import { schemas } from './schemas';
+import { schemas } from './utils/schemas';
 
 declare let monaco: any;
 

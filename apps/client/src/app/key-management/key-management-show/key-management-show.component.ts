@@ -27,6 +27,7 @@ import { KeyManagementService } from '../key-management.service';
 })
 export class KeyManagementShowComponent implements OnInit {
   key?: CertEntity;
+
   certificateInfo?: {
     subject?: string;
     issuer?: string;

@@ -1,6 +1,6 @@
 import { Uri } from 'monaco-editor';
 
-class Schema {
+export class SchemaValidation {
   constructor(
     private uri: string,
     private schema: any
@@ -23,7 +23,7 @@ class Schema {
   }
 }
 
-export const vctSchema = new Schema('vct', {
+export const vctSchema = new SchemaValidation('vct', {
   type: 'object',
   properties: {
     name: { type: 'string', description: 'The name of the VCT' },
@@ -33,7 +33,7 @@ export const vctSchema = new Schema('vct', {
   additionalProperties: false,
 });
 
-export const embeddedDisclosurePolicySchema = new Schema('embedded-disclosure-policy', {
+export const embeddedDisclosurePolicySchema = new SchemaValidation('embedded-disclosure-policy', {
   type: 'object',
   oneOf: [
     {
@@ -92,6 +92,29 @@ export const embeddedDisclosurePolicySchema = new Schema('embedded-disclosure-po
   },
 });
 
-export const schemas = [vctSchema, embeddedDisclosurePolicySchema].map((schema) =>
+export const jwkSchema = new SchemaValidation('jwk', {
+  type: 'object',
+  properties: {
+    kty: {
+      type: 'string',
+      title: 'Key Type',
+      description: 'The type of the key (must be EC for ES256).',
+      default: 'EC',
+      enum: ['EC'],
+      examples: ['EC'],
+    },
+    use: { type: 'string', const: 'sig', description: 'Key usage (must be sig)' },
+    kid: { type: 'string', description: 'Key ID' },
+    alg: { type: 'string', const: 'ES256', description: 'Algorithm (must be ES256)' },
+    crv: { type: 'string', const: 'P-256', description: 'Curve (must be P-256)' },
+    x: { type: 'string', description: 'X coordinate (base64url)' },
+    y: { type: 'string', description: 'Y coordinate (base64url)' },
+    d: { type: 'string', description: 'Private key (base64url, optional, only for private keys)' },
+  },
+  required: ['kty', 'use', 'kid', 'alg', 'crv', 'x', 'y'],
+  additionalProperties: false,
+});
+
+export const schemas = [vctSchema, embeddedDisclosurePolicySchema, jwkSchema].map((schema) =>
   schema.getEditorSchema()
 );

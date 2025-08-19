@@ -19,6 +19,7 @@ import { AuthenticationConfigDto, CredentialConfig, IssuanceDto } from '../../..
 import { CredentialConfigService } from '../../credential-config/credential-config.service';
 import { IssuanceConfigService } from '../issuance-config.service';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
+import { EditorComponent } from '../../../utils/editor/editor.component';
 
 @Component({
   selector: 'app-issuance-config-create',
@@ -40,6 +41,7 @@ import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
     ReactiveFormsModule,
     RouterModule,
     MonacoEditorModule,
+    EditorComponent,
   ],
   templateUrl: './issuance-config-create.component.html',
   styleUrl: './issuance-config-create.component.scss',

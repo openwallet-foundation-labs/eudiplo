@@ -21,6 +21,8 @@ import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { KeyImportDto } from '../../generated';
 import { KeyManagementService } from '../key-management.service';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
+import { EditorComponent } from '../../utils/editor/editor.component';
+import { jwkSchema } from '../../utils/schemas';
 
 @Component({
   selector: 'app-key-management-create',
@@ -39,6 +41,7 @@ import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
     RouterModule,
     MatDivider,
     MonacoEditorModule,
+    EditorComponent,
   ],
   templateUrl: './key-management-create.component.html',
   styleUrl: './key-management-create.component.scss',
@@ -47,6 +50,8 @@ export class KeyManagementCreateComponent {
   public form: FormGroup;
   public create = true;
   public loading = false;
+
+  jwkSchema = jwkSchema;
 
   editorOptions = {
     language: 'json',
@@ -67,7 +72,7 @@ export class KeyManagementCreateComponent {
     this.form = this.fb.group({
       id: ['', [Validators.required]],
       description: ['', [Validators.required]],
-      privateKey: ['', [Validators.required, this.keyValidator]],
+      privateKey: ['', [Validators.required]],
       crt: [''],
     });
 

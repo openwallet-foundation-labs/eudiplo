@@ -19,6 +19,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { configs } from './pre-config';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
+import { EditorComponent } from '../../../utils/editor/editor.component';
 
 @Component({
   selector: 'app-presentation-create',
@@ -38,6 +39,7 @@ import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
     MatMenuModule,
     MatDividerModule,
     MonacoEditorModule,
+    EditorComponent,
   ],
   templateUrl: './presentation-create.component.html',
   styleUrls: ['./presentation-create.component.scss'],

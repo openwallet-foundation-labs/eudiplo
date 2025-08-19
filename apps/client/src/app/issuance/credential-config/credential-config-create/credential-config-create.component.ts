@@ -28,9 +28,9 @@ import { KeyManagementService } from '../../../key-management/key-management.ser
 import { CredentialConfigService } from '../credential-config.service';
 import { JsonViewDialogComponent } from './json-view-dialog/json-view-dialog.component';
 import { configs } from './pre-config';
-import { MonacoEditorModule, NgxEditorModel } from 'ngx-monaco-editor-v2';
-import { embeddedDisclosurePolicySchema, vctSchema } from '../../../schemas';
-import { jsonSchemaValidatorFactory } from '../../../utils/utils';
+import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
+import { embeddedDisclosurePolicySchema, vctSchema } from '../../../utils/schemas';
+import { EditorComponent } from '../../../utils/editor/editor.component';
 
 @Component({
   selector: 'app-credential-config-create',
@@ -54,6 +54,7 @@ import { jsonSchemaValidatorFactory } from '../../../utils/utils';
     ReactiveFormsModule,
     RouterModule,
     MonacoEditorModule,
+    EditorComponent,
   ],
   templateUrl: './credential-config-create.component.html',
   styleUrl: './credential-config-create.component.scss',
@@ -66,22 +67,8 @@ export class CredentialConfigCreateComponent implements OnInit {
 
   predefinedConfigs = configs;
 
-  editorOptions = {
-    language: 'json',
-    automaticLayout: true,
-  };
-
-  vctModel: NgxEditorModel = {
-    value: '',
-    language: 'json',
-    uri: vctSchema.getUri(),
-  };
-
-  policyModel: NgxEditorModel = {
-    value: '',
-    language: 'json',
-    uri: embeddedDisclosurePolicySchema.getUri(),
-  };
+  vctSchema = vctSchema;
+  embeddedDisclosurePolicySchema = embeddedDisclosurePolicySchema;
 
   constructor(
     private credentialConfigService: CredentialConfigService,
@@ -100,13 +87,10 @@ export class CredentialConfigCreateComponent implements OnInit {
       statusManagement: [true, [Validators.required]],
       claims: [''],
       disclosureFrame: [''],
-      vct: ['', [jsonSchemaValidatorFactory(vctSchema.getSchema())]],
+      vct: [''],
       schema: [''],
       displayConfigs: this.fb.array([this.createDisplayConfigGroup()]),
-      embeddedDisclosurePolicy: [
-        '',
-        [jsonSchemaValidatorFactory(embeddedDisclosurePolicySchema.getSchema())],
-      ],
+      embeddedDisclosurePolicy: [''],
     });
 
     if (this.route.snapshot.params['id']) {
@@ -139,8 +123,6 @@ export class CredentialConfigCreateComponent implements OnInit {
               ? JSON.stringify(config.embeddedDisclosurePolicy, null, 2)
               : '',
           });
-          this.vctModel.value = JSON.stringify(config.vct, null, 2);
-          this.policyModel.value = JSON.stringify(config.embeddedDisclosurePolicy, null, 2);
 
           //set field as readonly
           this.form.get('id')?.disable();
@@ -178,15 +160,19 @@ export class CredentialConfigCreateComponent implements OnInit {
       };
 
       // Parse JSON fields
-      formValue.claims = formValue.claims ? JSON.parse(formValue.claims) : undefined;
-      formValue.disclosureFrame = formValue.disclosureFrame
-        ? JSON.parse(formValue.disclosureFrame)
-        : undefined;
-      formValue.vct = formValue.vct ? JSON.parse(formValue.vct) : undefined;
-      formValue.schema = formValue.schema ? JSON.parse(formValue.schema) : undefined;
-      formValue.embeddedDisclosurePolicy = formValue.embeddedDisclosurePolicy
-        ? JSON.parse(formValue.embeddedDisclosurePolicy)
-        : undefined;
+      formValue.claims =
+        typeof formValue.claims === 'string' ? JSON.parse(formValue.claims) : formValue.claims;
+      formValue.disclosureFrame =
+        typeof formValue.disclosureFrame === 'string'
+          ? JSON.parse(formValue.disclosureFrame)
+          : formValue.disclosureFrame;
+      formValue.vct = typeof formValue.vct === 'string' ? JSON.parse(formValue.vct) : formValue.vct;
+      formValue.schema =
+        typeof formValue.schema === 'string' ? JSON.parse(formValue.schema) : formValue.schema;
+      formValue.embeddedDisclosurePolicy =
+        typeof formValue.embeddedDisclosurePolicy === 'string'
+          ? JSON.parse(formValue.embeddedDisclosurePolicy)
+          : formValue.embeddedDisclosurePolicy;
 
       // Remove the displayConfigs form array from the final data
       delete formValue.displayConfigs;
