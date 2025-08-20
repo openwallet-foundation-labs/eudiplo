@@ -33,6 +33,7 @@
     "@peculiar/x509": "^1.13.0",
     "@types/qrcode": "^1.5.5",
     "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
     "json-schema": "link:@ngx-formly/core/json-schema",
     "monaco-editor": "^0.52.2",
     "ngx-flexible-layout": "^20.0.0",

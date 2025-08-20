@@ -76,14 +76,21 @@
             <mat-card-title>Dynamic Form</mat-card-title>
           </mat-card-header>
           <mat-card-content>
-            @for (form of claimForms; track claimForms) {
-              <formly-form [form]="getForm(form)" [fields]="fields" [model]="model"></formly-form>
+            @for (form of elements; track elements) {
+              <formly-form
+                [form]="getForm(form.id)"
+                [fields]="fields"
+                [model]="model"
+              ></formly-form>
+              @if (form.claims) {
+                <button mat-button type="button" (click)="addPreConfigured(form)">
+                  Add pre configured
+                </button>
+              }
             }
           </mat-card-content>
           <mat-card-actions fxLayout="row" fxLayoutAlign="end center">
-            <button mat-button color="primary" type="button" (click)="importClaims()">
-              Import config
-            </button>
+            <button mat-button type="button" (click)="importClaims()">Import config</button>
           </mat-card-actions>
         </mat-card>
       }

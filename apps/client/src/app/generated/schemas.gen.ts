@@ -673,7 +673,7 @@ This includes details like the authentication method and any required parameters
                 }
             ]
         },
-        claimWebhook: {
+        claimsWebhook: {
             description: 'Optional webhook configuration to receive claims during the issuance process.',
             allOf: [
                 {

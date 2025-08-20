@@ -11,6 +11,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { MonacoEditorModule, NgxEditorModel } from 'ngx-monaco-editor-v2';
 import Ajv, { ValidateFunction } from 'ajv';
+import addFormats from 'ajv-formats';
 import { Component, forwardRef, OnChanges, Input, SimpleChanges } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 import { SchemaValidation } from '../schemas';
@@ -18,8 +19,8 @@ import { SchemaValidation } from '../schemas';
 /**
  * extact the schema that got added by the editor
  */
-export function extractSchema(obj: string) {
-  const element = JSON.parse(obj);
+export function extractSchema(obj: any) {
+  const element = typeof obj === 'string' ? JSON.parse(obj) : obj;
   delete element.$schema;
   return element;
 }
@@ -49,6 +50,7 @@ export class EditorComponent implements ControlValueAccessor, Validator, OnChang
   private validateFn?: ValidateFunction;
 
   constructor() {
+    addFormats(this.ajv);
     this.model = {
       value: this.value,
       language: 'json',
@@ -58,10 +60,16 @@ export class EditorComponent implements ControlValueAccessor, Validator, OnChang
 
   // CVA
   writeValue(obj: any): void {
-    if (typeof obj === 'string' && obj !== '' && this.schema) {
-      const parsed = JSON.parse(obj);
+    if (this.schema) {
+      let parsed = obj;
+      if (typeof obj !== 'object') {
+        parsed = JSON.parse(obj === '' ? '{}' : obj);
+      }
       if (!parsed['$schema']) {
-        parsed['$schema'] = this.schema?.getSchemaUrl();
+        parsed = {
+          $schema: this.schema?.getSchemaUrl(),
+          ...parsed,
+        };
       }
       obj = JSON.stringify(parsed, null, 2);
     }
@@ -118,7 +126,8 @@ export class EditorComponent implements ControlValueAccessor, Validator, OnChang
       const candidate = this.schema?.getSchema() ?? this.schema;
       try {
         this.validateFn = candidate ? this.ajv.compile(candidate) : undefined;
-      } catch {
+      } catch (error) {
+        console.log(error);
         this.validateFn = undefined;
       }
       this._validatorChange?.();

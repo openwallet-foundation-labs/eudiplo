@@ -15,11 +15,14 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { AuthenticationConfigDto, CredentialConfig, IssuanceDto } from '../../../generated';
+import { CredentialConfig, IssuanceDto } from '../../../generated';
 import { CredentialConfigService } from '../../credential-config/credential-config.service';
 import { IssuanceConfigService } from '../issuance-config.service';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
-import { EditorComponent } from '../../../utils/editor/editor.component';
+import { EditorComponent, extractSchema } from '../../../utils/editor/editor.component';
+import { authenticationSchema, webhookSchema } from '../../../utils/schemas';
+import { JsonViewDialogComponent } from '../../credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-issuance-config-create',
@@ -53,28 +56,25 @@ export class IssuanceConfigCreateComponent implements OnInit {
   public credentialConfigs: CredentialConfig[] = [];
   public availableCredentialConfigs: CredentialConfig[] = [];
 
-  public editorOptions = {
-    language: 'json',
-    theme: 'vs-light',
-    automaticLayout: true,
-  };
+  public webhookSchema = webhookSchema;
+  public authenticationSchema = authenticationSchema;
 
   constructor(
     private issuanceConfigService: IssuanceConfigService,
     private credentialConfigService: CredentialConfigService,
     private router: Router,
     private route: ActivatedRoute,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {
     this.form = new FormGroup({
       id: new FormControl('', [Validators.required]),
       description: new FormControl(''),
-      authMethod: new FormControl('none', [Validators.required]),
-      authConfig: new FormControl(''),
+      authenticationConfig: new FormControl(''),
       selectedCredentialConfigs: new FormControl([], [Validators.required]),
       batchSize: new FormControl(1, [Validators.min(1)]),
-      webhookUrl: new FormControl(''),
-      webhookAuth: new FormControl(''),
+      notifyWebhook: new FormControl(''),
+      claimsWebhook: new FormControl(''),
     });
 
     // Check if this is edit mode
@@ -111,11 +111,6 @@ export class IssuanceConfigCreateComponent implements OnInit {
         return;
       }
 
-      const authConfigStr =
-        config.authenticationConfig && Object.keys(config.authenticationConfig).length > 0
-          ? JSON.stringify((config.authenticationConfig as any).config, null, 2)
-          : '';
-
       // Extract selected credential config IDs
       const selectedCredentialConfigs =
         config.credentialIssuanceBindings?.map((binding: any) => binding.credentialConfigId) || [];
@@ -123,14 +118,11 @@ export class IssuanceConfigCreateComponent implements OnInit {
       this.form.patchValue({
         id: config.id,
         description: config.description,
-        authMethod: (config.authenticationConfig as any).method,
-        authConfig: authConfigStr,
+        authenticationConfig: config.authenticationConfig,
         selectedCredentialConfigs: selectedCredentialConfigs,
-        batchSize: config.batch_size || 1,
-        webhookUrl: config.notifyWebhook?.url || '',
-        webhookAuth: config.notifyWebhook?.auth
-          ? JSON.stringify(config.notifyWebhook.auth, null, 2)
-          : '',
+        batchSize: config.batch_size,
+        notifyWebhook: config.notifyWebhook,
+        claimsWebhook: config.claimsWebhook,
       });
 
       // Disable ID field in edit mode
@@ -153,54 +145,19 @@ export class IssuanceConfigCreateComponent implements OnInit {
     const formValue = this.form.value;
 
     try {
-      // Prepare authentication config
-      const authenticationConfig: AuthenticationConfigDto = {
-        method: formValue.authMethod,
-      };
-
-      if (formValue.authConfig && formValue.authConfig.trim() && formValue.authMethod !== 'none') {
-        try {
-          authenticationConfig.config = JSON.parse(formValue.authConfig);
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (error) {
-          this.snackBar.open('Invalid authentication configuration JSON', 'Close', {
-            duration: 3000,
-          });
-          this.loading = false;
-          return;
-        }
-      }
-
       // Prepare credential config mappings
       const credentialConfigs = formValue.selectedCredentialConfigs.map((id: string) => ({
         id: id,
       }));
 
-      // Prepare webhook config
-      const notifyWebhook: any = {};
-      if (formValue.webhookUrl) {
-        notifyWebhook.url = formValue.webhookUrl;
-        if (formValue.webhookAuth && formValue.webhookAuth.trim()) {
-          try {
-            notifyWebhook.auth = JSON.parse(formValue.webhookAuth);
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          } catch (error) {
-            this.snackBar.open('Invalid webhook authentication JSON', 'Close', {
-              duration: 3000,
-            });
-            this.loading = false;
-            return;
-          }
-        }
-      }
-
       const issuanceDto: IssuanceDto = {
         id: this.create ? formValue.id : this.route.snapshot.params['id'],
         description: formValue.description,
-        authenticationConfig: authenticationConfig,
+        authenticationConfig: extractSchema(formValue.authenticationConfig),
         credentialConfigs: credentialConfigs,
         batch_size: formValue.batchSize,
-        notifyWebhook: Object.keys(notifyWebhook).length > 0 ? notifyWebhook : undefined,
+        notifyWebhook: extractSchema(formValue.notifyWebhook),
+        claimsWebhook: extractSchema(formValue.claimsWebhook),
       };
 
       this.issuanceConfigService
@@ -239,24 +196,36 @@ export class IssuanceConfigCreateComponent implements OnInit {
     });
   }
 
-  getAuthMethodLabel(method: string): string {
-    switch (method) {
-      case 'none':
-        return 'Pre-authorized Code Flow (No Authentication)';
-      case 'auth':
-        return 'Authorized Code Flow (User Authentication)';
-      case 'presentationDuringIssuance':
-        return 'Presentation During Issuance (OID4VP)';
-      default:
-        return method;
-    }
-  }
-
   getSelectedCredentialConfigsDisplay(): string[] {
     const selectedIds = this.form.get('selectedCredentialConfigs')?.value || [];
     return selectedIds.map((id: string) => {
       const config = this.availableCredentialConfigs.find((c) => c.id === id);
       return config ? `${config.id} (${config.vct?.name || 'Unknown'})` : id;
+    });
+  }
+
+  /**
+   * Open JSON view dialog to show/edit the complete configuration
+   */
+  viewAsJson(): void {
+    const currentConfig = this.form.value;
+
+    const dialogRef = this.dialog.open(JsonViewDialogComponent, {
+      data: {
+        title: 'Complete Configuration JSON',
+        jsonData: currentConfig,
+        readonly: false,
+      },
+      disableClose: false,
+      maxWidth: '95vw',
+      maxHeight: '95vh',
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.form.patchValue(result);
+        //this.loadConfigurationFromJson(result);
+      }
     });
   }
 }

@@ -2,9 +2,16 @@
   <!-- Header -->
   <div fxLayout="row" fxLayoutAlign="space-between center">
     <h2>{{ create ? 'Create' : 'Edit' }} Issuance Configuration</h2>
-    <button mat-icon-button [routerLink]="['../']" matTooltip="Back to list">
-      <mat-icon>arrow_back</mat-icon>
-    </button>
+    <div>
+      <!-- JSON View Button -->
+      <button mat-stroked-button (click)="viewAsJson()" matTooltip="View/Edit as JSON">
+        <mat-icon>code</mat-icon>
+        JSON View
+      </button>
+      <button mat-icon-button [routerLink]="['../']" matTooltip="Back to list">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+    </div>
   </div>
 
   <!-- Main Form -->
@@ -48,49 +55,6 @@
             <mat-error>Batch size must be at least 1</mat-error>
           }
         </mat-form-field>
-      </mat-card-content>
-    </mat-card>
-
-    <!-- Authentication Configuration Card -->
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>security</mat-icon>
-          Authentication Configuration
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content fxLayout="column" fxLayoutGap="16px">
-        <!-- Authentication Method -->
-        <mat-form-field class="full-width">
-          <mat-label>Authentication Method</mat-label>
-          <mat-select formControlName="authMethod">
-            <mat-option value="none">
-              <div fxLayout="column">
-                <span><strong>Pre-authorized Code Flow</strong></span>
-                <span class="option-description">No user authentication required</span>
-              </div>
-            </mat-option>
-            <mat-option value="auth">
-              <div fxLayout="column">
-                <span><strong>Authorized Code Flow</strong></span>
-                <span class="option-description">User authentication with redirect</span>
-              </div>
-            </mat-option>
-            <mat-option value="presentationDuringIssuance">
-              <div fxLayout="column">
-                <span><strong>Presentation During Issuance</strong></span>
-                <span class="option-description">OID4VP credential presentation required</span>
-              </div>
-            </mat-option>
-          </mat-select>
-          <mat-icon matSuffix>lock</mat-icon>
-        </mat-form-field>
-
-        <!-- Authentication Configuration JSON -->
-        @if (form.get('authMethod')?.value !== 'none') {
-          <h4>Authentication Configuration (JSON)</h4>
-          <app-editor formControlName="authConfig"></app-editor>
-        }
       </mat-card-content>
     </mat-card>
 
@@ -144,6 +108,42 @@
       </mat-card-content>
     </mat-card>
 
+    <!-- Authentication Configuration Card -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>security</mat-icon>
+          Authentication Configuration
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content fxLayout="column" fxLayoutGap="16px">
+        <!-- Authentication Method -->
+        <app-editor
+          formControlName="authenticationConfig"
+          [schema]="authenticationSchema"
+          [errors]="form.get('authenticationConfig')?.errors"
+        ></app-editor>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Claims Configuration Card -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>webhook</mat-icon>
+          Claims Webhook (Optional)
+        </mat-card-title>
+        <mat-card-subtitle>URL to receive claims data</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content fxLayout="column" fxLayoutGap="16px">
+        <app-editor
+          formControlName="claimsWebhook"
+          [schema]="webhookSchema"
+          [errors]="form.get('claimsWebhook')?.errors"
+        ></app-editor>
+      </mat-card-content>
+    </mat-card>
+
     <!-- Webhook Configuration Card -->
     <mat-card>
       <mat-card-header>
@@ -151,27 +151,14 @@
           <mat-icon>webhook</mat-icon>
           Notification Webhook (Optional)
         </mat-card-title>
+        <mat-card-subtitle>URL to receive notification data</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content fxLayout="column" fxLayoutGap="16px">
-        <!-- Webhook URL -->
-        <mat-form-field class="full-width">
-          <mat-label>Webhook URL</mat-label>
-          <input
-            matInput
-            formControlName="webhookUrl"
-            placeholder="https://your-app.com/webhook"
-            type="url"
-          />
-          <mat-icon matSuffix>link</mat-icon>
-          <mat-hint>URL to receive notification callbacks</mat-hint>
-        </mat-form-field>
-
-        <!-- Webhook Authentication -->
-        <!-- TODO: use a form based approach as in presentation -->
-        @if (form.get('webhookUrl')?.value) {
-          <h4>Webhook Authentication (Optional)</h4>
-          <app-editor formControlName="webhookAuth"></app-editor>
-        }
+        <app-editor
+          formControlName="notifyWebhook"
+          [schema]="webhookSchema"
+          [errors]="form.get('notifyWebhook')?.errors"
+        ></app-editor>
       </mat-card-content>
     </mat-card>
 

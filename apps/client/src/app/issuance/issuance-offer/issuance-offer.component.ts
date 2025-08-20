@@ -74,7 +74,8 @@ export class IssuanceOfferComponent implements OnInit {
   fields: FormlyFieldConfig<FormlyFieldProps & Record<string, any>>[] = [];
   model: any = {};
   group: UntypedFormGroup;
-  claimForms: string[] = [];
+
+  elements: any[] = [];
 
   constructor(
     private issuanceConfigService: IssuanceConfigService,
@@ -112,12 +113,15 @@ export class IssuanceOfferComponent implements OnInit {
   }
 
   async setClaimFormFields(credentialConfigIds: string[]) {
-    this.claimForms = [];
+    this.elements = [];
     this.fields = [];
     for (const id of credentialConfigIds) {
       await this.credentialConfigService.getConfig(id).then((config) => {
         this.fields.push(this.formlyJsonschema.toFieldConfig(config!.schema as any));
-        this.claimForms.push(id);
+        this.elements.push({
+          id,
+          claims: config!.claims,
+        });
         (this.form.get('claimsForm') as FormGroup).addControl(id, new UntypedFormGroup({}));
       });
     }
@@ -185,15 +189,18 @@ export class IssuanceOfferComponent implements OnInit {
       if (this.offerResult?.session) {
         this.router.navigate(['/session-management', this.offerResult!.session]);
       }
-    } catch (error) {
-      console.error('Error generating offer:', error);
-      this.snackBar.open('Failed to generate offer', 'Close', {
+    } catch (error: any) {
+      this.snackBar.open(`Failed to generate offer: ${error.message}`, 'Close', {
         duration: 3000,
         panelClass: ['error-snackbar'],
       });
     } finally {
       this.generatingOffer = false;
     }
+  }
+
+  addPreConfigured(form: any) {
+    this.form.get('claimsForm')?.patchValue({ [form.id]: form.claims });
   }
 
   importClaims() {
@@ -224,11 +231,6 @@ export class IssuanceOfferComponent implements OnInit {
       issuanceId: '',
       credentialConfigurationIds: [],
     });
-    this.offerResult = null;
-    this.qrCodeDataUrl = null;
-  }
-
-  generateNewOffer(): void {
     this.offerResult = null;
     this.qrCodeDataUrl = null;
   }

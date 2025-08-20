@@ -55,6 +55,9 @@ export class IssuanceConfigService {
 
   getOffer(values: OfferRequestDto) {
     return issuerManagementControllerGetOffer({ body: values }).then((response) => {
+      if (response.error) {
+        throw new Error((response.error as any).message);
+      }
       return response.data;
     });
   }

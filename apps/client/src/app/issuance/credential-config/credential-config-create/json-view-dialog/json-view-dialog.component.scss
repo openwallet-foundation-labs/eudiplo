@@ -1,10 +1,10 @@
-ngx-monaco-editor {
-  min-height: 400px;
-}
-
 mat-dialog-content {
   min-width: 800px;
   min-height: 400px;
   max-width: 90vw;
   max-height: 80vh;
+}
+::ng-deep ngx-monaco-editor {
+  height: 700px !important;
+  width: 1000px;
 }
