@@ -187,7 +187,6 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
     this.stopPolling();
     this.pollingStartTime = Date.now();
 
-
     // Set up interval
     this.pollingInterval = setInterval(() => {
       const elapsed = Date.now() - (this.pollingStartTime || 0);
@@ -219,7 +218,6 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
 
       // Notify user of status changes
       if (previousStatus && previousStatus !== currentStatus) {
-
         this.snackBar.open(`Session status: ${currentStatus}`, 'Close', {
           duration: 4000,
           panelClass: this.getStatusSnackbarClass(currentStatus),
