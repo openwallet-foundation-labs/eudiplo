@@ -187,7 +187,7 @@ export class CredentialConfigCreateComponent implements OnInit {
 
       // Remove the displayConfigs form array from the final data
       delete formValue.displayConfigs;
-    } catch () {
+    } catch {
       this.snackBar.open('Invalid JSON format in one of the fields', 'Close', {
         duration: 3000,
       });
