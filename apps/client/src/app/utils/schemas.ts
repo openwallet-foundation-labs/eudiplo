@@ -30,7 +30,7 @@ export class SchemaValidation {
 export const vctSchema = new SchemaValidation('vct', {
   type: 'object',
   properties: {
-    $schema: { type: 'string'},
+    $schema: { type: 'string' },
     name: { type: 'string', description: 'The name of the VCT' },
     description: { type: 'string', description: 'The description of the VCT' },
   },
@@ -44,7 +44,7 @@ export const embeddedDisclosurePolicySchema = new SchemaValidation('embedded-dis
     {
       title: 'AllowListPolicy',
       properties: {
-        $schema: { type: 'string'},
+        $schema: { type: 'string' },
         policy: { const: 'allowList' },
         values: {
           type: 'array',
@@ -57,7 +57,7 @@ export const embeddedDisclosurePolicySchema = new SchemaValidation('embedded-dis
     {
       title: 'RootOfTrustPolicy',
       properties: {
-        $schema: { type: 'string'},
+        $schema: { type: 'string' },
         policy: { const: 'rootOfTrust' },
         values: { type: 'string' },
       },
@@ -67,7 +67,7 @@ export const embeddedDisclosurePolicySchema = new SchemaValidation('embedded-dis
     {
       title: 'AttestationBasedPolicy',
       properties: {
-        $schema: { type: 'string'},
+        $schema: { type: 'string' },
         policy: { const: 'attestationBased' },
         values: {
           type: 'array',

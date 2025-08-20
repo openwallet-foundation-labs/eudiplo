@@ -58,10 +58,10 @@ export class EditorComponent implements ControlValueAccessor, Validator, OnChang
 
   // CVA
   writeValue(obj: any): void {
-    if(typeof obj === 'string' && obj !== '' && this.schema) {
+    if (typeof obj === 'string' && obj !== '' && this.schema) {
       const parsed = JSON.parse(obj);
-      if(!parsed["$schema"]) {
-        parsed["$schema"] = this.schema?.getSchemaUrl();
+      if (!parsed['$schema']) {
+        parsed['$schema'] = this.schema?.getSchemaUrl();
       }
       obj = JSON.stringify(parsed, null, 2);
     }

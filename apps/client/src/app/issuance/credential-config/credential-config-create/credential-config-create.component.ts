@@ -160,24 +160,25 @@ export class CredentialConfigCreateComponent implements OnInit {
       };
 
       // Parse JSON fields when there is a value
-      if(formValue.claims) {
+      if (formValue.claims) {
         formValue.claims =
           typeof formValue.claims === 'string' ? JSON.parse(formValue.claims) : formValue.claims;
       }
-      if(formValue.disclosureFrame) {
+      if (formValue.disclosureFrame) {
         formValue.disclosureFrame =
           typeof formValue.disclosureFrame === 'string'
             ? JSON.parse(formValue.disclosureFrame)
             : formValue.disclosureFrame;
       }
-      if(formValue.vct) {
-        formValue.vct = typeof formValue.vct === 'string' ? extractSchema(formValue.vct) : formValue.vct;
+      if (formValue.vct) {
+        formValue.vct =
+          typeof formValue.vct === 'string' ? extractSchema(formValue.vct) : formValue.vct;
       }
-      if(formValue.schema) {
+      if (formValue.schema) {
         formValue.schema =
           typeof formValue.schema === 'string' ? JSON.parse(formValue.schema) : formValue.schema;
       }
-      if(formValue.embeddedDisclosurePolicy) {
+      if (formValue.embeddedDisclosurePolicy) {
         formValue.embeddedDisclosurePolicy =
           typeof formValue.embeddedDisclosurePolicy === 'string'
             ? extractSchema(formValue.embeddedDisclosurePolicy)
