@@ -298,6 +298,9 @@ importers:
       '@types/qrcode':
         specifier: ^1.5.5
         version: 1.5.5
+      ajv:
+        specifier: ^8.17.1
+        version: 8.17.1
       json-schema:
         specifier: link:@ngx-formly/core/json-schema
         version: link:@ngx-formly/core/json-schema
