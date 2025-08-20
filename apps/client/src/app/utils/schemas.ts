@@ -182,13 +182,13 @@ export const authenticationSchema = new SchemaValidation('authentication', {
       properties: { method: { const: 'auth' } },
     },
     then: {
-      required: ["config"],
+      required: ['config'],
       properties: {
         config: {
-          required: ["url"]
-        }
-    }
-  },
+          required: ['url'],
+        },
+      },
+    },
     else: {
       if: {
         properties: { method: { const: 'presentationDuringIssuance' } },
@@ -215,10 +215,10 @@ export const webhookSchema = new SchemaValidation('webhook', {
           type: 'object',
           properties: {
             headerName: { type: 'string' },
-            value: { type: 'string' }
+            value: { type: 'string' },
           },
           required: ['headerName', 'value'],
-        }
+        },
       },
       required: ['type', 'config'],
     },
