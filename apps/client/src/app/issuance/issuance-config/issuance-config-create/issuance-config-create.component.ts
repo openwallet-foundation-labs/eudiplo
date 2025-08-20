@@ -158,17 +158,8 @@ export class IssuanceConfigCreateComponent implements OnInit {
         method: formValue.authMethod,
       };
 
-      if (formValue.authConfig && formValue.authConfig.trim() && formValue.authMethod !== 'none') {
-        try {
-          authenticationConfig.config = JSON.parse(formValue.authConfig);
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (error) {
-          this.snackBar.open('Invalid authentication configuration JSON', 'Close', {
-            duration: 3000,
-          });
-          this.loading = false;
-          return;
-        }
+      if (formValue.authMethod !== 'none') {
+        authenticationConfig.config = formValue.authConfig;
       }
 
       // Prepare credential config mappings
@@ -180,7 +171,7 @@ export class IssuanceConfigCreateComponent implements OnInit {
       const notifyWebhook: any = {};
       if (formValue.webhookUrl) {
         notifyWebhook.url = formValue.webhookUrl;
-        if (formValue.webhookAuth && formValue.webhookAuth.trim()) {
+        if (formValue.webhookAuth) {
           try {
             notifyWebhook.auth = JSON.parse(formValue.webhookAuth);
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
