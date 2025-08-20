@@ -30,7 +30,7 @@ import { JsonViewDialogComponent } from './json-view-dialog/json-view-dialog.com
 import { configs } from './pre-config';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { embeddedDisclosurePolicySchema, vctSchema } from '../../../utils/schemas';
-import { EditorComponent } from '../../../utils/editor/editor.component';
+import { EditorComponent, extractSchema } from '../../../utils/editor/editor.component';
 
 @Component({
   selector: 'app-credential-config-create',
@@ -159,25 +159,35 @@ export class CredentialConfigCreateComponent implements OnInit {
         display: formValue.displayConfigs,
       };
 
-      // Parse JSON fields
-      formValue.claims =
-        typeof formValue.claims === 'string' ? JSON.parse(formValue.claims) : formValue.claims;
-      formValue.disclosureFrame =
-        typeof formValue.disclosureFrame === 'string'
-          ? JSON.parse(formValue.disclosureFrame)
-          : formValue.disclosureFrame;
-      formValue.vct = typeof formValue.vct === 'string' ? JSON.parse(formValue.vct) : formValue.vct;
-      formValue.schema =
-        typeof formValue.schema === 'string' ? JSON.parse(formValue.schema) : formValue.schema;
-      formValue.embeddedDisclosurePolicy =
-        typeof formValue.embeddedDisclosurePolicy === 'string'
-          ? JSON.parse(formValue.embeddedDisclosurePolicy)
-          : formValue.embeddedDisclosurePolicy;
+      // Parse JSON fields when there is a value
+      if (formValue.claims) {
+        formValue.claims =
+          typeof formValue.claims === 'string' ? JSON.parse(formValue.claims) : formValue.claims;
+      }
+      if (formValue.disclosureFrame) {
+        formValue.disclosureFrame =
+          typeof formValue.disclosureFrame === 'string'
+            ? JSON.parse(formValue.disclosureFrame)
+            : formValue.disclosureFrame;
+      }
+      if (formValue.vct) {
+        formValue.vct =
+          typeof formValue.vct === 'string' ? extractSchema(formValue.vct) : formValue.vct;
+      }
+      if (formValue.schema) {
+        formValue.schema =
+          typeof formValue.schema === 'string' ? JSON.parse(formValue.schema) : formValue.schema;
+      }
+      if (formValue.embeddedDisclosurePolicy) {
+        formValue.embeddedDisclosurePolicy =
+          typeof formValue.embeddedDisclosurePolicy === 'string'
+            ? extractSchema(formValue.embeddedDisclosurePolicy)
+            : formValue.embeddedDisclosurePolicy;
+      }
 
       // Remove the displayConfigs form array from the final data
       delete formValue.displayConfigs;
     } catch (error) {
-      console.error('Error parsing JSON:', error);
       this.snackBar.open('Invalid JSON format in one of the fields', 'Close', {
         duration: 3000,
       });
