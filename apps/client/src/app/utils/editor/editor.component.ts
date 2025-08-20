@@ -15,6 +15,15 @@ import { Component, forwardRef, OnChanges, Input, SimpleChanges } from '@angular
 import { MatInputModule } from '@angular/material/input';
 import { SchemaValidation } from '../schemas';
 
+/**
+ * extact the schema that got added by the editor
+ */
+export function extractSchema(obj: string) {
+  const element = JSON.parse(obj);
+  delete element.$schema;
+  return element;
+}
+
 @Component({
   selector: 'app-editor',
   standalone: true,
@@ -43,17 +52,26 @@ export class EditorComponent implements ControlValueAccessor, Validator, OnChang
     this.model = {
       value: this.value,
       language: 'json',
-      uri: this.schema?.getUri(),
+      //uri: this.schema?.getUri(),
     };
   }
 
   // CVA
   writeValue(obj: any): void {
+    if(typeof obj === 'string' && obj !== '' && this.schema) {
+      const parsed = JSON.parse(obj);
+      if(!parsed["$schema"]) {
+        parsed["$schema"] = this.schema?.getSchemaUrl();
+      }
+      obj = JSON.stringify(parsed, null, 2);
+    }
+
     this.value = obj == null ? '' : typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2);
+
     this.model = {
       value: this.value,
       language: this.editorOptions.language,
-      uri: this.schema?.getUri(),
+      //uri: this.schema?.getUri(),
     };
   }
   registerOnChange = (fn: any) => (this._onChange = fn);

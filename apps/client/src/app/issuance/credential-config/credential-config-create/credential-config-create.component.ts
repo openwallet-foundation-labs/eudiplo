@@ -30,7 +30,7 @@ import { JsonViewDialogComponent } from './json-view-dialog/json-view-dialog.com
 import { configs } from './pre-config';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { embeddedDisclosurePolicySchema, vctSchema } from '../../../utils/schemas';
-import { EditorComponent } from '../../../utils/editor/editor.component';
+import { EditorComponent, extractSchema } from '../../../utils/editor/editor.component';
 
 @Component({
   selector: 'app-credential-config-create',
@@ -171,7 +171,7 @@ export class CredentialConfigCreateComponent implements OnInit {
             : formValue.disclosureFrame;
       }
       if(formValue.vct) {
-        formValue.vct = typeof formValue.vct === 'string' ? JSON.parse(formValue.vct) : formValue.vct;
+        formValue.vct = typeof formValue.vct === 'string' ? extractSchema(formValue.vct) : formValue.vct;
       }
       if(formValue.schema) {
         formValue.schema =
@@ -180,7 +180,7 @@ export class CredentialConfigCreateComponent implements OnInit {
       if(formValue.embeddedDisclosurePolicy) {
         formValue.embeddedDisclosurePolicy =
           typeof formValue.embeddedDisclosurePolicy === 'string'
-            ? JSON.parse(formValue.embeddedDisclosurePolicy)
+            ? extractSchema(formValue.embeddedDisclosurePolicy)
             : formValue.embeddedDisclosurePolicy;
       }
 
