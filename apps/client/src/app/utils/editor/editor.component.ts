@@ -22,6 +22,9 @@ import { SchemaValidation } from '../schemas';
 export function extractSchema(obj: any) {
   const element = typeof obj === 'string' ? JSON.parse(obj) : obj;
   delete element.$schema;
+  if (Object.keys(element).length === 0) {
+    return null;
+  }
   return element;
 }
 
@@ -98,6 +101,12 @@ export class EditorComponent implements ControlValueAccessor, Validator, OnChang
     } catch {
       return { invalidJson: true };
     }
+
+    //if only the schema is included, return null
+    if (Object.keys(parsed).length === 1 && parsed.$schema) {
+      return null;
+    }
+
     if (this.validateFn && !this.validateFn(parsed)) {
       const msg = this.ajv.errorsText(this.validateFn.errors || undefined, { separator: ' | ' });
       return { invalidSchema: msg || 'Schema validation failed' };

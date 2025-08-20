@@ -7,7 +7,7 @@
             "id": "pid"
         }
     ],
-    "claimWebhook": {
+    "claimsWebhook": {
         "url": "http://localhost:8787/request"
     },
     "batch_size": 10

@@ -10,7 +10,7 @@
             "id": "citizen"
         }
     ],
-    "claimWebhook": {
+    "claimsWebhook": {
         "url": "http://localhost:8787/process"
     },
     "notifyWebhook": {

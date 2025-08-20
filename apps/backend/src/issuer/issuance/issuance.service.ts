@@ -73,7 +73,7 @@ export class IssuanceService implements OnModuleInit {
                         tenant.name,
                     ).catch(() => false);
                     if (exists && !force) {
-                        continue; // Skip if config already exists and force is not set
+                        continue; // Skip if config already exists and force is not set.
                     }
 
                     // Validate the payload against IssuanceDto

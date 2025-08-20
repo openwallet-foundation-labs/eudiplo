@@ -74,7 +74,6 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
       this.generateQRCode(this.session.offerUrl || this.session.requestUrl!);
 
       if (this.session.issuanceId) {
-        console.log(this.session);
         this.getIssuerMetadata();
       }
     } catch (error) {
@@ -188,14 +187,12 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
     this.stopPolling();
     this.pollingStartTime = Date.now();
 
-    console.log(`Starting status polling for session: ${sessionId}`);
 
     // Set up interval
     this.pollingInterval = setInterval(() => {
       const elapsed = Date.now() - (this.pollingStartTime || 0);
 
       if (elapsed >= this.MAX_POLLING_DURATION_MS) {
-        console.log('Polling timeout reached, stopping polling');
         this.stopPolling();
         return;
       }
@@ -209,7 +206,6 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
       clearInterval(this.pollingInterval);
       this.pollingInterval = null;
       this.pollingStartTime = null;
-      console.log('Status polling stopped');
     }
   }
 
@@ -223,7 +219,6 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
 
       // Notify user of status changes
       if (previousStatus && previousStatus !== currentStatus) {
-        console.log(`Session status changed from ${previousStatus} to ${currentStatus}`);
 
         this.snackBar.open(`Session status: ${currentStatus}`, 'Close', {
           duration: 4000,
