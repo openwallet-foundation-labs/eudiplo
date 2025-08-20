@@ -84,6 +84,7 @@ export const embeddedDisclosurePolicySchema = new SchemaValidation('embedded-dis
     {
       title: 'NoneTrustPolicy',
       properties: {
+        $schema: { type: 'string' },
         policy: { const: 'none' },
       },
       required: ['policy'],
