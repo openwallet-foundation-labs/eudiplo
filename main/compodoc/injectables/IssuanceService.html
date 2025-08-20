@@ -908,7 +908,7 @@ export class IssuanceService implements OnModuleInit {
         } else if (value.authenticationConfig.method &#x3D;&#x3D;&#x3D; &quot;auth&quot;) {
             if (!value.authenticationConfig.config) {
                 throw new Error(
-                    &quot;AuthenticationConfig is required for auth method&quot;,
+                    &quot;AuthenticationConfig is required for auth method.&quot;,
                 );
             }
             authenticationConfig &#x3D; {

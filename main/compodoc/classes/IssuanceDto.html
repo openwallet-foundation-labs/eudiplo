@@ -165,7 +165,7 @@
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier">Optional</span>
-                                <a href="#claimWebhook" >claimWebhook</a>
+                                <a href="#claimsWebhook" >claimsWebhook</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
@@ -241,7 +241,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="56" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:56</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="57" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:57</a></div>
                         </td>
                     </tr>
 
@@ -286,7 +286,7 @@ This includes details like the authentication method and any required parameters
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="82" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:82</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="83" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:83</a></div>
                         </td>
                     </tr>
 
@@ -304,15 +304,15 @@ Default is 1.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="claimWebhook"></a>
+                    <a name="claimsWebhook"></a>
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier">Optional</span>
-                        <span ><b>claimWebhook</b></span>
-                        <a href="#claimWebhook"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>claimsWebhook</b></span>
+                        <a href="#claimsWebhook"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
@@ -333,7 +333,7 @@ Default is 1.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="65" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:65</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="66" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:66</a></div>
                         </td>
                     </tr>
 
@@ -377,7 +377,7 @@ Default is 1.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:47</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="48" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:48</a></div>
                         </td>
                     </tr>
 
@@ -421,7 +421,7 @@ Default is 1.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="39" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:39</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="40" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:40</a></div>
                         </td>
                     </tr>
 
@@ -463,7 +463,7 @@ Default is 1.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="32" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:32</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="33" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:33</a></div>
                         </td>
                     </tr>
 
@@ -509,7 +509,7 @@ Default is 1.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="74" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:74</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="75" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:75</a></div>
                         </td>
                     </tr>
 
@@ -557,6 +557,7 @@ export class CredentialConfigMapping {
     id: string;
 }
 
+//TODO: check if this can be integrated into the entity
 /**
  * DTO for Issuance Configuration.
  */
@@ -598,7 +599,7 @@ export class IssuanceDto {
     @IsOptional()
     @ValidateNested()
     @Type(() &#x3D;&gt; WebhookConfig)
-    claimWebhook?: WebhookConfig;
+    claimsWebhook?: WebhookConfig;
 
     /**
      * Optional webhook configuration to send the results of the notification response.
