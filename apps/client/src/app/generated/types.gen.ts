@@ -433,7 +433,7 @@ export type IssuanceDto = {
     /**
      * Optional webhook configuration to receive claims during the issuance process.
      */
-    claimWebhook?: WebhookConfig;
+    claimsWebhook?: WebhookConfig;
     /**
      * Optional webhook configuration to send the results of the notification response.
      */

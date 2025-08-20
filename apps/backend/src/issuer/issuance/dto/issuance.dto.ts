@@ -21,6 +21,7 @@ export class CredentialConfigMapping {
     id: string;
 }
 
+//TODO: check if this can be integrated into the entity
 /**
  * DTO for Issuance Configuration.
  */
@@ -62,7 +63,7 @@ export class IssuanceDto {
     @IsOptional()
     @ValidateNested()
     @Type(() => WebhookConfig)
-    claimWebhook?: WebhookConfig;
+    claimsWebhook?: WebhookConfig;
 
     /**
      * Optional webhook configuration to send the results of the notification response.

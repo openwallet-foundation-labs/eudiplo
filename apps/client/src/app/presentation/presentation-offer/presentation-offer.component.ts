@@ -131,11 +131,6 @@ export class PresentationOfferComponent implements OnInit {
     this.qrCodeDataUrl = null;
   }
 
-  generateNewOffer(): void {
-    this.offerResult = null;
-    this.qrCodeDataUrl = null;
-  }
-
   downloadQRCode(): void {
     if (!this.qrCodeDataUrl) return;
 

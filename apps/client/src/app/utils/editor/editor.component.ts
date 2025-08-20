@@ -18,8 +18,8 @@ import { SchemaValidation } from '../schemas';
 /**
  * extact the schema that got added by the editor
  */
-export function extractSchema(obj: string) {
-  const element = JSON.parse(obj);
+export function extractSchema(obj: any) {
+  const element = typeof obj === 'string' ? JSON.parse(obj) : obj;
   delete element.$schema;
   return element;
 }
@@ -58,10 +58,16 @@ export class EditorComponent implements ControlValueAccessor, Validator, OnChang
 
   // CVA
   writeValue(obj: any): void {
-    if (typeof obj === 'string' && obj !== '' && this.schema) {
-      const parsed = JSON.parse(obj);
+    if (this.schema) {
+      let parsed = obj;
+      if (typeof obj !== 'object') {
+        parsed = JSON.parse(obj === '' ? '{}' : obj);
+      }
       if (!parsed['$schema']) {
-        parsed['$schema'] = this.schema?.getSchemaUrl();
+        parsed = {
+          "$schema": this.schema?.getSchemaUrl(),
+          ...parsed
+        };
       }
       obj = JSON.stringify(parsed, null, 2);
     }

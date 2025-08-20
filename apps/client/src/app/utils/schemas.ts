@@ -123,6 +123,86 @@ export const jwkSchema = new SchemaValidation('jwk', {
   additionalProperties: false,
 });
 
-export const schemas = [vctSchema, embeddedDisclosurePolicySchema, jwkSchema].map((schema) =>
+export const authenticationSchema = new SchemaValidation('authentication', {
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AuthenticationConfig",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string" },
+    "method": {
+      "type": "string",
+      "enum": ["none", "auth", "presentationDuringIssuance"],
+      "description": "The authentication method to use."
+    },
+    "config": {
+      "oneOf": [
+        {
+          "type": "object",
+          "title": "AuthenticationUrlConfig",
+          "properties": {
+            // Add properties for AuthenticationUrlConfig here
+          },
+          "required": []
+        },
+        {
+          "type": "object",
+          "title": "PresentationDuringIssuanceConfig",
+          "properties": {
+            "type": {
+              "type": "string",
+              "description": "Link to the presentation configuration relevant for the issuance process."
+            }
+          },
+          "required": ["type"]
+        }
+      ]
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the authentication configuration."
+    }
+  },
+  "required": ["method"],
+  "additionalProperties": false,
+  "if": {
+    "properties": { "method": { "const": "none" } }
+  },
+  "then": {
+    "not": { "required": ["config"] }
+  },
+  "else": {
+    "if": {
+      "properties": { "method": { "const": "auth" } }
+    },
+    "then": {
+      "required": ["config"]
+    },
+    "else": {
+      "if": {
+        "properties": { "method": { "const": "presentationDuringIssuance" } }
+      },
+      "then": {
+        "required": ["config"]
+      }
+    }
+  }
+});
+
+export const webhookSchema = new SchemaValidation('webhook', {
+  type: 'object',
+  properties: {
+    $schema: { type: 'string' },
+    url: { type: 'string', format: 'uri' },
+    method: { type: 'string', enum: ['POST', 'GET'] },
+    headers: {
+      type: 'object',
+      additionalProperties: { type: 'string' },
+    },
+  },
+  required: ['url', 'method'],
+  additionalProperties: false,
+});
+
+export const schemas = [vctSchema, embeddedDisclosurePolicySchema, jwkSchema, authenticationSchema, webhookSchema].map((schema) =>
   schema.getEditorSchema()
 );
