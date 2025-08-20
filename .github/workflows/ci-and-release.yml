@@ -170,7 +170,6 @@ jobs:
 
   docker-backend:
     name: Build & Push Backend Docker Image
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     needs: [test-e2e]
     runs-on: ubuntu-latest
     permissions:
@@ -179,21 +178,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Log in to GitHub Container Registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u
-          ${{ github.actor }} --password-stdin
-
       - name: Build Backend Docker image
-        run: docker build -t
-          ghcr.io/openwallet-foundation-labs/eudiplo:main --build-arg
-          VERSION=main . --target eudiplo
+        run: docker build -t ghcr.io/openwallet-foundation-labs/eudiplo:main --build-arg VERSION=main . --target eudiplo
+
+      - name: Log in to GitHub Container Registry
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Push Backend Docker image
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: docker push ghcr.io/openwallet-foundation-labs/eudiplo:main
 
   docker-client:
     name: Build & Push Client Docker Image
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     needs: [build-client]
     runs-on: ubuntu-latest
     permissions:
@@ -202,13 +199,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Log in to GitHub Container Registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u
-          ${{ github.actor }} --password-stdin
-
       - name: Build Client Docker image
-        run: docker build -t
-          ghcr.io/openwallet-foundation-labs/eudiplo-client:main . --target client
+        run: docker build -t ghcr.io/openwallet-foundation-labs/eudiplo-client:main . --target client
+
+      - name: Log in to GitHub Container Registry
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Push Client Docker image
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: docker push ghcr.io/openwallet-foundation-labs/eudiplo-client:main
