@@ -529,7 +529,13 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                         </div>
                         <ul class="links collapse " ${ isNormalMode ? 'id="classes-links"' : 'id="xs-classes-links"' }>
                             <li class="link">
+                                <a href="classes/AllowListPolicy.html" data-type="entity-link" >AllowListPolicy</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/ApiKeyConfig.html" data-type="entity-link" >ApiKeyConfig</a>
+                            </li>
+                            <li class="link">
+                                <a href="classes/AttestationBasedPolicy.html" data-type="entity-link" >AttestationBasedPolicy</a>
                             </li>
                             <li class="link">
                                 <a href="classes/AuthConfigValidator.html" data-type="entity-link" >AuthConfigValidator</a>
@@ -571,6 +577,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/EC_Public.html" data-type="entity-link" >EC_Public</a>
                             </li>
                             <li class="link">
+                                <a href="classes/EmbeddedDisclosurePolicy.html" data-type="entity-link" >EmbeddedDisclosurePolicy</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/IssuanceDto.html" data-type="entity-link" >IssuanceDto</a>
                             </li>
                             <li class="link">
@@ -595,6 +604,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/LocalFileStorage.html" data-type="entity-link" >LocalFileStorage</a>
                             </li>
                             <li class="link">
+                                <a href="classes/NoneTrustPolicy.html" data-type="entity-link" >NoneTrustPolicy</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/NotificationRequestDto.html" data-type="entity-link" >NotificationRequestDto</a>
                             </li>
                             <li class="link">
@@ -610,6 +622,12 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/ParResponseDto.html" data-type="entity-link" >ParResponseDto</a>
                             </li>
                             <li class="link">
+                                <a href="classes/PolicyCredential.html" data-type="entity-link" >PolicyCredential</a>
+                            </li>
+                            <li class="link">
+                                <a href="classes/PresentationAttachment.html" data-type="entity-link" >PresentationAttachment</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/PresentationDuringIssuanceConfig.html" data-type="entity-link" >PresentationDuringIssuanceConfig</a>
                             </li>
                             <li class="link">
@@ -617,6 +635,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             </li>
                             <li class="link">
                                 <a href="classes/RegistrationCertificateRequest.html" data-type="entity-link" >RegistrationCertificateRequest</a>
+                            </li>
+                            <li class="link">
+                                <a href="classes/RootOfTrustPolicy.html" data-type="entity-link" >RootOfTrustPolicy</a>
                             </li>
                             <li class="link">
                                 <a href="classes/S3FileStorage.html" data-type="entity-link" >S3FileStorage</a>
