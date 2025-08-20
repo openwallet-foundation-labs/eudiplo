@@ -124,68 +124,69 @@ export const jwkSchema = new SchemaValidation('jwk', {
 });
 
 export const authenticationSchema = new SchemaValidation('authentication', {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "AuthenticationConfig",
-  "type": "object",
-  "properties": {
-    "$schema": { "type": "string" },
-    "method": {
-      "type": "string",
-      "enum": ["none", "auth", "presentationDuringIssuance"],
-      "description": "The authentication method to use."
+  $schema: 'http://json-schema.org/draft-07/schema#',
+  title: 'AuthenticationConfig',
+  type: 'object',
+  properties: {
+    $schema: { type: 'string' },
+    method: {
+      type: 'string',
+      enum: ['none', 'auth', 'presentationDuringIssuance'],
+      description: 'The authentication method to use.',
     },
-    "config": {
-      "oneOf": [
+    config: {
+      oneOf: [
         {
-          "type": "object",
-          "title": "AuthenticationUrlConfig",
-          "properties": {
+          type: 'object',
+          title: 'AuthenticationUrlConfig',
+          properties: {
             // Add properties for AuthenticationUrlConfig here
           },
-          "required": []
+          required: [],
         },
         {
-          "type": "object",
-          "title": "PresentationDuringIssuanceConfig",
-          "properties": {
-            "type": {
-              "type": "string",
-              "description": "Link to the presentation configuration relevant for the issuance process."
-            }
+          type: 'object',
+          title: 'PresentationDuringIssuanceConfig',
+          properties: {
+            type: {
+              type: 'string',
+              description:
+                'Link to the presentation configuration relevant for the issuance process.',
+            },
           },
-          "required": ["type"]
-        }
-      ]
+          required: ['type'],
+        },
+      ],
     },
-    "description": {
-      "type": "string",
-      "description": "Description of the authentication configuration."
-    }
-  },
-  "required": ["method"],
-  "additionalProperties": false,
-  "if": {
-    "properties": { "method": { "const": "none" } }
-  },
-  "then": {
-    "not": { "required": ["config"] }
-  },
-  "else": {
-    "if": {
-      "properties": { "method": { "const": "auth" } }
+    description: {
+      type: 'string',
+      description: 'Description of the authentication configuration.',
     },
-    "then": {
-      "required": ["config"]
+  },
+  required: ['method'],
+  additionalProperties: false,
+  if: {
+    properties: { method: { const: 'none' } },
+  },
+  then: {
+    not: { required: ['config'] },
+  },
+  else: {
+    if: {
+      properties: { method: { const: 'auth' } },
     },
-    "else": {
-      "if": {
-        "properties": { "method": { "const": "presentationDuringIssuance" } }
+    then: {
+      required: ['config'],
+    },
+    else: {
+      if: {
+        properties: { method: { const: 'presentationDuringIssuance' } },
       },
-      "then": {
-        "required": ["config"]
-      }
-    }
-  }
+      then: {
+        required: ['config'],
+      },
+    },
+  },
 });
 
 export const webhookSchema = new SchemaValidation('webhook', {
@@ -203,6 +204,10 @@ export const webhookSchema = new SchemaValidation('webhook', {
   additionalProperties: false,
 });
 
-export const schemas = [vctSchema, embeddedDisclosurePolicySchema, jwkSchema, authenticationSchema, webhookSchema].map((schema) =>
-  schema.getEditorSchema()
-);
+export const schemas = [
+  vctSchema,
+  embeddedDisclosurePolicySchema,
+  jwkSchema,
+  authenticationSchema,
+  webhookSchema,
+].map((schema) => schema.getEditorSchema());

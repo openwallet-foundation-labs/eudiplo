@@ -65,7 +65,7 @@ export class IssuanceConfigCreateComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private snackBar: MatSnackBar,
-    private dialog: MatDialog,
+    private dialog: MatDialog
   ) {
     this.form = new FormGroup({
       id: new FormControl('', [Validators.required]),
@@ -110,7 +110,6 @@ export class IssuanceConfigCreateComponent implements OnInit {
         this.router.navigate(['../'], { relativeTo: this.route });
         return;
       }
-
 
       // Extract selected credential config IDs
       const selectedCredentialConfigs =
@@ -158,7 +157,7 @@ export class IssuanceConfigCreateComponent implements OnInit {
         credentialConfigs: credentialConfigs,
         batch_size: formValue.batchSize,
         notifyWebhook: extractSchema(formValue.notifyWebhook),
-        claimsWebhook: extractSchema(formValue.claimsWebhook)
+        claimsWebhook: extractSchema(formValue.claimsWebhook),
       };
 
       this.issuanceConfigService
@@ -205,28 +204,28 @@ export class IssuanceConfigCreateComponent implements OnInit {
     });
   }
 
-    /**
-     * Open JSON view dialog to show/edit the complete configuration
-     */
-    viewAsJson(): void {
-      const currentConfig = this.form.value;
+  /**
+   * Open JSON view dialog to show/edit the complete configuration
+   */
+  viewAsJson(): void {
+    const currentConfig = this.form.value;
 
-      const dialogRef = this.dialog.open(JsonViewDialogComponent, {
-        data: {
-          title: 'Complete Configuration JSON',
-          jsonData: currentConfig,
-          readonly: false,
-        },
-        disableClose: false,
-        maxWidth: '95vw',
-        maxHeight: '95vh',
-      });
+    const dialogRef = this.dialog.open(JsonViewDialogComponent, {
+      data: {
+        title: 'Complete Configuration JSON',
+        jsonData: currentConfig,
+        readonly: false,
+      },
+      disableClose: false,
+      maxWidth: '95vw',
+      maxHeight: '95vh',
+    });
 
-      dialogRef.afterClosed().subscribe((result) => {
-        if (result) {
-          this.form.patchValue(result);
-          //this.loadConfigurationFromJson(result);
-        }
-      });
-    }
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.form.patchValue(result);
+        //this.loadConfigurationFromJson(result);
+      }
+    });
+  }
 }

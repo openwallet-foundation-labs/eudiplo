@@ -65,8 +65,8 @@ export class EditorComponent implements ControlValueAccessor, Validator, OnChang
       }
       if (!parsed['$schema']) {
         parsed = {
-          "$schema": this.schema?.getSchemaUrl(),
-          ...parsed
+          $schema: this.schema?.getSchemaUrl(),
+          ...parsed,
         };
       }
       obj = JSON.stringify(parsed, null, 2);

@@ -120,7 +120,7 @@ export class IssuanceOfferComponent implements OnInit {
         this.fields.push(this.formlyJsonschema.toFieldConfig(config!.schema as any));
         this.elements.push({
           id,
-          claims: config!.claims
+          claims: config!.claims,
         });
         (this.form.get('claimsForm') as FormGroup).addControl(id, new UntypedFormGroup({}));
       });
