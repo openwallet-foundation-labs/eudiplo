@@ -13,6 +13,8 @@ import { FlexLayoutModule } from 'ngx-flexible-layout';
 import * as QRCode from 'qrcode';
 import { Session } from '../../generated';
 import { SessionManagementService } from '../session-management.service';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-session-management-show',
@@ -45,12 +47,14 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
   readonly MAX_POLLING_DURATION_MS = 300000; // Stop polling after 5 minutes
   pollingStartTime: number | null = null;
   offerUri: string | null = null;
+  metadata?: any;
 
   constructor(
     private sessionManagementService: SessionManagementService,
     private route: ActivatedRoute,
     private snackBar: MatSnackBar,
-    private router: Router
+    private router: Router,
+    private httpClient: HttpClient
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -68,6 +72,11 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
     try {
       this.session = await this.sessionManagementService.getSession(sessionId);
       this.generateQRCode(this.session.offerUrl || this.session.requestUrl!);
+
+      if (this.session.issuanceId) {
+        console.log(this.session);
+        this.getIssuerMetadata();
+      }
     } catch (error) {
       console.error('Error loading session:', error);
       this.snackBar.open('Failed to load session', 'Close', {
@@ -77,6 +86,16 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
     } finally {
       this.loading = false;
     }
+  }
+
+  getIssuerMetadata(): void {
+    if (!this.session) return;
+
+    firstValueFrom(
+      this.httpClient.get(
+        `${(this.session.offer as any).credential_issuer}/.well-known/openid-credential-issuer`
+      )
+    ).then((res) => (this.metadata = res));
   }
 
   getStatusDisplayText(status: any): string {

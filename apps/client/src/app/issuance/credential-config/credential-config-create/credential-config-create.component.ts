@@ -29,6 +29,8 @@ import { CredentialConfigService } from '../credential-config.service';
 import { JsonViewDialogComponent } from './json-view-dialog/json-view-dialog.component';
 import { configs } from './pre-config';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
+import { embeddedDisclosurePolicySchema, vctSchema } from '../../../utils/schemas';
+import { EditorComponent } from '../../../utils/editor/editor.component';
 
 @Component({
   selector: 'app-credential-config-create',
@@ -52,6 +54,7 @@ import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
     ReactiveFormsModule,
     RouterModule,
     MonacoEditorModule,
+    EditorComponent,
   ],
   templateUrl: './credential-config-create.component.html',
   styleUrl: './credential-config-create.component.scss',
@@ -64,10 +67,8 @@ export class CredentialConfigCreateComponent implements OnInit {
 
   predefinedConfigs = configs;
 
-  editorOptions = {
-    language: 'json',
-    automaticLayout: true
-  };
+  vctSchema = vctSchema;
+  embeddedDisclosurePolicySchema = embeddedDisclosurePolicySchema;
 
   constructor(
     private credentialConfigService: CredentialConfigService,
@@ -89,6 +90,7 @@ export class CredentialConfigCreateComponent implements OnInit {
       vct: [''],
       schema: [''],
       displayConfigs: this.fb.array([this.createDisplayConfigGroup()]),
+      embeddedDisclosurePolicy: [''],
     });
 
     if (this.route.snapshot.params['id']) {
@@ -117,6 +119,9 @@ export class CredentialConfigCreateComponent implements OnInit {
             vct: config.vct ? JSON.stringify(config.vct, null, 2) : '',
             schema: config.schema ? JSON.stringify(config.schema, null, 2) : '',
             displayConfigs: config.config?.['display'] || [],
+            embeddedDisclosurePolicy: config.embeddedDisclosurePolicy
+              ? JSON.stringify(config.embeddedDisclosurePolicy, null, 2)
+              : '',
           });
 
           //set field as readonly
@@ -155,12 +160,19 @@ export class CredentialConfigCreateComponent implements OnInit {
       };
 
       // Parse JSON fields
-      formValue.claims = formValue.claims ? JSON.parse(formValue.claims) : undefined;
-      formValue.disclosureFrame = formValue.disclosureFrame
-        ? JSON.parse(formValue.disclosureFrame)
-        : undefined;
-      formValue.vct = formValue.vct ? JSON.parse(formValue.vct) : undefined;
-      formValue.schema = formValue.schema ? JSON.parse(formValue.schema) : undefined;
+      formValue.claims =
+        typeof formValue.claims === 'string' ? JSON.parse(formValue.claims) : formValue.claims;
+      formValue.disclosureFrame =
+        typeof formValue.disclosureFrame === 'string'
+          ? JSON.parse(formValue.disclosureFrame)
+          : formValue.disclosureFrame;
+      formValue.vct = typeof formValue.vct === 'string' ? JSON.parse(formValue.vct) : formValue.vct;
+      formValue.schema =
+        typeof formValue.schema === 'string' ? JSON.parse(formValue.schema) : formValue.schema;
+      formValue.embeddedDisclosurePolicy =
+        typeof formValue.embeddedDisclosurePolicy === 'string'
+          ? JSON.parse(formValue.embeddedDisclosurePolicy)
+          : formValue.embeddedDisclosurePolicy;
 
       // Remove the displayConfigs form array from the final data
       delete formValue.displayConfigs;
@@ -307,6 +319,9 @@ export class CredentialConfigCreateComponent implements OnInit {
         vct: config.vct ? JSON.stringify(config.vct, null, 2) : '',
         schema: config.schema ? JSON.stringify(config.schema, null, 2) : '',
         displayConfigs: config.config?.display || [],
+        embeddedDisclosurePolicy: config.embeddedDisclosurePolicy
+          ? JSON.stringify(config.embeddedDisclosurePolicy, null, 2)
+          : '',
       });
 
       this.snackBar.open('Configuration loaded from JSON successfully', 'OK', {

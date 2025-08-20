@@ -186,6 +186,10 @@ export type SchemaResponse = {
     required: Array<string>;
 };
 
+export type EmbeddedDisclosurePolicy = {
+    policy: 'none' | 'allowList' | 'rootOfTrust' | 'attestationBased';
+};
+
 export type CredentialConfig = {
     /**
      * Unique identifier for the configuration to reference it.
@@ -235,6 +239,10 @@ export type CredentialConfig = {
      * Link to all the issuance config bindings that are using this credential.
      */
     credentialIssuanceBindings: Array<CredentialIssuanceBinding>;
+    /**
+     * Embedded disclosure policy for the credential.
+     */
+    embeddedDisclosurePolicy?: EmbeddedDisclosurePolicy;
 };
 
 export type ApiKeyConfig = {
@@ -305,6 +313,10 @@ export type IssuanceConfig = {
      */
     updatedAt: string;
     /**
+     * Webhook to receive claims for the issuance process.
+     */
+    claimsWebhook?: WebhookConfig;
+    /**
      * Webhook to send the result of the notification response
      */
     notifyWebhook?: WebhookConfig;
@@ -355,6 +367,10 @@ export type OfferRequestDto = {
      * Overrides the default values for the credential ids.
      */
     credentialConfigurationIds?: Array<string>;
+    /**
+     * Webhook configuration for claims
+     */
+    claimsWebhook?: WebhookConfig;
     /**
      * Pre defined session id
      */
@@ -415,6 +431,10 @@ export type IssuanceDto = {
      */
     authenticationConfig: AuthenticationConfigDto;
     /**
+     * Optional webhook configuration to receive claims during the issuance process.
+     */
+    claimWebhook?: WebhookConfig;
+    /**
      * Optional webhook configuration to send the results of the notification response.
      */
     notifyWebhook?: WebhookConfig;
@@ -458,6 +478,14 @@ export type RegistrationCertificateRequest = {
     };
 };
 
+export type PresentationAttachment = {
+    format: string;
+    data: {
+        [key: string]: unknown;
+    };
+    credential_ids?: Array<string>;
+};
+
 export type PresentationConfig = {
     /**
      * Unique identifier for the VP request.
@@ -493,6 +521,10 @@ export type PresentationConfig = {
      * The timestamp when the VP request was last updated.
      */
     updatedAt: string;
+    /**
+     * Attestation that should be attached
+     */
+    attached: Array<PresentationAttachment>;
 };
 
 export type Session = {
@@ -565,7 +597,7 @@ export type Session = {
     /**
      * Webhook configuration to send result and may receive further information.
      */
-    webhook?: WebhookConfig;
+    claimsWebhook?: WebhookConfig;
     /**
      * Webhook configuration to send the result of the notification response.
      */
@@ -606,6 +638,7 @@ export type ClientCredentialsDto = {
 
 export type TokenResponse = {
     access_token: string;
+    refresh_token?: string;
     token_type: string;
     expires_in: number;
 };

@@ -30,7 +30,8 @@ async function handleRequest(request: Request): Promise<Response> {
     ) {
         try {
             presented = await request.json();
-        } catch {
+        } catch (err) {
+			console.log(err);
             return Response.json({ error: "Invalid JSON" }, { status: 400 });
         }
     }

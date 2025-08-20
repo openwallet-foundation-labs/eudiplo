@@ -1,11 +1,8 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { HttpService } from "@nestjs/axios";
 import {
     BadRequestException,
     ConflictException,
     Injectable,
-    OnModuleInit,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";

@@ -89,10 +89,7 @@
         <!-- Authentication Configuration JSON -->
         @if (form.get('authMethod')?.value !== 'none') {
           <h4>Authentication Configuration (JSON)</h4>
-          <ngx-monaco-editor
-            formControlName="authConfig"
-            [options]="editorOptions"
-          ></ngx-monaco-editor>
+          <app-editor formControlName="authConfig"></app-editor>
         }
       </mat-card-content>
     </mat-card>
@@ -173,10 +170,7 @@
         <!-- TODO: use a form based approach as in presentation -->
         @if (form.get('webhookUrl')?.value) {
           <h4>Webhook Authentication (Optional)</h4>
-          <ngx-monaco-editor
-            formControlName="webhookAuth"
-            [options]="editorOptions"
-          ></ngx-monaco-editor>
+          <app-editor formControlName="webhookAuth"></app-editor>
         }
       </mat-card-content>
     </mat-card>

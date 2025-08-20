@@ -25,10 +25,9 @@ import { IssuanceConfigService } from '../issuance-config/issuance-config.servic
 import { FormlyJsonschema } from '@ngx-formly/core/json-schema';
 import { CredentialConfigService } from '../credential-config/credential-config.service';
 import { FormlyFieldConfig, FormlyFieldProps, FormlyForm } from '@ngx-formly/core';
-import { MatDividerModule } from "@angular/material/divider";
+import { MatDividerModule } from '@angular/material/divider';
 import { JsonViewDialogComponent } from '../credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-
 
 export function jsonFormatValidator(control: AbstractControl): ValidationErrors | null {
   const value = control.value;
@@ -59,7 +58,7 @@ export function jsonFormatValidator(control: AbstractControl): ValidationErrors 
     FormlyForm,
     MatDividerModule,
     MatDialogModule,
-],
+  ],
   templateUrl: './issuance-offer.component.html',
   styleUrls: ['./issuance-offer.component.scss'],
 })
@@ -77,7 +76,6 @@ export class IssuanceOfferComponent implements OnInit {
   group: UntypedFormGroup;
   claimForms: string[] = [];
 
-
   constructor(
     private issuanceConfigService: IssuanceConfigService,
     private snackBar: MatSnackBar,
@@ -85,13 +83,12 @@ export class IssuanceOfferComponent implements OnInit {
     private route: ActivatedRoute,
     private formlyJsonschema: FormlyJsonschema,
     private credentialConfigService: CredentialConfigService,
-    private dialog: MatDialog,
+    private dialog: MatDialog
   ) {
     this.form = new FormGroup({
       issuanceId: new FormControl('', Validators.required),
       credentialConfigurationIds: new FormControl([]),
-      claimsForm: new FormGroup({
-      })
+      claimsForm: new FormGroup({}),
     });
     this.group = this.form.get('claimsForm') as UntypedFormGroup;
   }
@@ -104,13 +101,14 @@ export class IssuanceOfferComponent implements OnInit {
 
     this.form.get('issuanceId')?.valueChanges.subscribe(async (issuanceId) => {
       const selected = this.configs.find((config) => config.id === issuanceId);
-      const ids = selected?.credentialIssuanceBindings.map((binding) => binding.credentialConfigId) || [];
+      const ids =
+        selected?.credentialIssuanceBindings.map((binding) => binding.credentialConfigId) || [];
       this.form.get('credentialConfigurationIds')?.setValue(ids);
     });
 
-    this.form.get('credentialConfigurationIds')?.valueChanges.subscribe((ids) =>
-      this.setClaimFormFields(ids)
-    );
+    this.form
+      .get('credentialConfigurationIds')
+      ?.valueChanges.subscribe((ids) => this.setClaimFormFields(ids));
   }
 
   async setClaimFormFields(credentialConfigIds: string[]) {
@@ -119,10 +117,10 @@ export class IssuanceOfferComponent implements OnInit {
     for (const id of credentialConfigIds) {
       await this.credentialConfigService.getConfig(id).then((config) => {
         this.fields.push(this.formlyJsonschema.toFieldConfig(config!.schema as any));
-          this.claimForms.push(id);
-          (this.form.get('claimsForm') as FormGroup).addControl(id, new UntypedFormGroup({}));
-        });
-      }
+        this.claimForms.push(id);
+        (this.form.get('claimsForm') as FormGroup).addControl(id, new UntypedFormGroup({}));
+      });
+    }
   }
 
   getForm(id: string) {
@@ -168,7 +166,7 @@ export class IssuanceOfferComponent implements OnInit {
           formValue.credentialConfigurationIds?.length > 0
             ? formValue.credentialConfigurationIds
             : undefined,
-        claims: formValue.claimsForm
+        claims: formValue.claimsForm,
       };
 
       const result = await this.issuanceConfigService.getOffer(offerRequest);
@@ -199,25 +197,26 @@ export class IssuanceOfferComponent implements OnInit {
   }
 
   importClaims() {
-        const currentConfig = this.form.get('claimsForm')?.value;
+    const currentConfig = this.form.get('claimsForm')?.value;
 
-        const dialogRef = this.dialog.open(JsonViewDialogComponent, {
-          data: {
-            title: 'Complete Configuration JSON',
-            jsonData: currentConfig,
-            readonly: false,
-          },
-          disableClose: false,
-          maxWidth: '95vw',
-          maxHeight: '95vh',
-        });
+    const key = Object.keys(currentConfig)[0];
 
-        dialogRef.afterClosed().subscribe((result) => {
-          if (result) {
-            console.log(result);
-            this.form.get('claimsForm')?.patchValue(result);
-          }
-        });
+    const dialogRef = this.dialog.open(JsonViewDialogComponent, {
+      data: {
+        title: 'Complete Configuration JSON',
+        jsonData: Object.values(currentConfig)[0],
+        readonly: false,
+      },
+      disableClose: false,
+      maxWidth: '95vw',
+      maxHeight: '95vh',
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.form.get('claimsForm')?.patchValue({ [key]: result });
+      }
+    });
   }
 
   resetForm(): void {

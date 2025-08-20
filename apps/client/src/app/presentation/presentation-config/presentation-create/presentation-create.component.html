@@ -82,10 +82,7 @@
 
         <!-- DCQL Query Field -->
         <h4>DCQL Query</h4>
-        <ngx-monaco-editor
-          formControlName="dcql_query"
-          [options]="editorOptions"
-        ></ngx-monaco-editor>
+        <app-editor formControlName="dcql_query"></app-editor>
 
         <mat-form-field>
           <mat-label>Lifetime of the request</mat-label>
@@ -111,13 +108,26 @@
       <mat-card-content fxLayout="column" fxLayoutGap="16px">
         <!-- Registration Certificate Field -->
         <h4>Registrar Certificate (optional)</h4>
-        <ngx-monaco-editor
-          formControlName="registrarCert"
-          [options]="editorOptions"
-        ></ngx-monaco-editor>
+        <app-editor formControlName="registrationCert"></app-editor>
       </mat-card-content>
     </mat-card>
 
+    <!-- Attachment Configuration Card -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>attach_file</mat-icon>
+          Attachments
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content fxLayout="column" fxLayoutGap="16px">
+        <!-- Attached Files Field -->
+        <h4>Attached Files (optional)</h4>
+        <app-editor formControlName="attached"></app-editor>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Webhook Configuration Card -->
     <mat-card>
       <mat-card-header>
         <mat-card-title>

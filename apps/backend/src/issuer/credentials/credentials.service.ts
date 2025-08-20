@@ -77,6 +77,11 @@ export class CredentialsService {
             );
             value.config.vct = `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${session.tenantId}/credentials/vct/${value.id}`;
 
+            if (value.embeddedDisclosurePolicy) {
+                delete (value.embeddedDisclosurePolicy as any).$schema;
+                value.config.disclosure_policy = value.embeddedDisclosurePolicy;
+            }
+
             if (isUsed?.credentialConfig)
                 value.config = {
                     ...value.config,

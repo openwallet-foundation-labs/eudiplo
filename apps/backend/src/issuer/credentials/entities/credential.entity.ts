@@ -1,17 +1,83 @@
 import { CredentialConfigurationSupported } from "@openid4vc/openid4vci";
 import {
+    IsArray,
     IsBoolean,
     IsEmpty,
+    IsEnum,
     IsNumber,
     IsObject,
     IsOptional,
     IsString,
+    ValidateNested,
 } from "class-validator";
 import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
 import { CertEntity } from "../../../crypto/key/entities/cert.entity";
 import { VCT } from "../../credentials-metadata/dto/credential-config.dto";
 import { SchemaResponse } from "../../credentials-metadata/dto/schema-response.dto";
 import { CredentialIssuanceBinding } from "../../issuance/entities/credential-issuance-binding.entity";
+
+/**
+ * Enum for the policy types.
+ */
+export enum PolicyType {
+    NONE = "none",
+    ALLOW_LIST = "allowList",
+    ROOT_OF_TRUST = "rootOfTrust",
+    ATTESTATION_BASED = "attestationBased",
+}
+/**
+ * Embedded disclosure policy for the credential.
+ */
+export class EmbeddedDisclosurePolicy {
+    @IsEnum(PolicyType)
+    policy: PolicyType;
+}
+
+/**
+ * Allow list disclosure policy for the credential.
+ */
+export class AllowListPolicy extends EmbeddedDisclosurePolicy {
+    declare policy: PolicyType.ALLOW_LIST;
+
+    @IsString({ each: true })
+    values: string[];
+}
+
+/**
+ * Root of trust disclosure policy for the credential.
+ */
+export class RootOfTrustPolicy extends EmbeddedDisclosurePolicy {
+    declare policy: PolicyType.ROOT_OF_TRUST;
+
+    @IsString()
+    values: string;
+}
+
+/**
+ * None trust disclosure policy for the credential.
+ */
+export class NoneTrustPolicy extends EmbeddedDisclosurePolicy {
+    declare policy: PolicyType.NONE;
+}
+
+export class PolicyCredential {
+    @IsString()
+    format: string;
+    @IsObject()
+    meta: any;
+    @IsString()
+    iss: string;
+}
+
+/**
+ * Attestation based disclosure policy for the credential.
+ */
+export class AttestationBasedPolicy extends EmbeddedDisclosurePolicy {
+    declare policy: PolicyType.ATTESTATION_BASED;
+
+    @IsArray()
+    values: PolicyCredential[];
+}
 
 /**
  * Entity to manage a credential configuration
@@ -112,5 +178,13 @@ export class CredentialConfig {
         { cascade: ["remove"], onDelete: "CASCADE" },
     )
     credentialIssuanceBindings: CredentialIssuanceBinding[];
+
+    /**
+     * Embedded disclosure policy for the credential.
+     */
+    @Column("json", { nullable: true })
+    @IsObject()
+    @IsOptional()
+    @ValidateNested()
+    embeddedDisclosurePolicy?: EmbeddedDisclosurePolicy;
 }
-//dd

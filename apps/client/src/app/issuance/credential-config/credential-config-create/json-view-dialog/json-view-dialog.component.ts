@@ -10,6 +10,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
+import { EditorComponent } from '../../../../utils/editor/editor.component';
 
 export interface JsonViewDialogData {
   title: string;
@@ -32,6 +33,7 @@ export interface JsonViewDialogData {
     ReactiveFormsModule,
     FlexLayoutModule,
     MonacoEditorModule,
+    EditorComponent,
   ],
   templateUrl: './json-view-dialog.component.html',
   styleUrl: './json-view-dialog.component.scss',
