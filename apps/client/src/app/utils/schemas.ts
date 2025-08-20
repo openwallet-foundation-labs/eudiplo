@@ -28,6 +28,8 @@ export class SchemaValidation {
 }
 
 export const vctSchema = new SchemaValidation('vct', {
+  $schema: 'http://json-schema.org/draft-07/schema#',
+  title: 'VCT',
   type: 'object',
   properties: {
     $schema: { type: 'string' },
@@ -39,6 +41,8 @@ export const vctSchema = new SchemaValidation('vct', {
 });
 
 export const embeddedDisclosurePolicySchema = new SchemaValidation('embedded-disclosure-policy', {
+  $schema: 'http://json-schema.org/draft-07/schema#',
+  title: 'EmbeddedDisclosurePolicy',
   type: 'object',
   oneOf: [
     {
@@ -101,6 +105,8 @@ export const embeddedDisclosurePolicySchema = new SchemaValidation('embedded-dis
 });
 
 export const jwkSchema = new SchemaValidation('jwk', {
+  $schema: 'http://json-schema.org/draft-07/schema#',
+  title: 'JWK',
   type: 'object',
   properties: {
     kty: {
@@ -176,8 +182,13 @@ export const authenticationSchema = new SchemaValidation('authentication', {
       properties: { method: { const: 'auth' } },
     },
     then: {
-      required: ['config'],
-    },
+      required: ["config"],
+      properties: {
+        config: {
+          required: ["url"]
+        }
+    }
+  },
     else: {
       if: {
         properties: { method: { const: 'presentationDuringIssuance' } },
@@ -190,17 +201,29 @@ export const authenticationSchema = new SchemaValidation('authentication', {
 });
 
 export const webhookSchema = new SchemaValidation('webhook', {
+  $schema: 'http://json-schema.org/draft-07/schema#',
+  title: 'WebhookConfig',
   type: 'object',
   properties: {
     $schema: { type: 'string' },
     url: { type: 'string', format: 'uri' },
-    method: { type: 'string', enum: ['POST', 'GET'] },
-    headers: {
+    auth: {
       type: 'object',
-      additionalProperties: { type: 'string' },
+      properties: {
+        type: { type: 'string', enum: ['apiKey'] },
+        config: {
+          type: 'object',
+          properties: {
+            headerName: { type: 'string' },
+            value: { type: 'string' }
+          },
+          required: ['headerName', 'value'],
+        }
+      },
+      required: ['type', 'config'],
     },
   },
-  required: ['url', 'method'],
+  required: ['url'],
   additionalProperties: false,
 });
 

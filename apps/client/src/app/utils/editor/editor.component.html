@@ -5,9 +5,6 @@
   (ngModelChange)="handleChange($event)"
   (blur)="onBlur()"
 ></ngx-monaco-editor>
-
-{{ errors }}
-
 @if (errors?.['invalidSchema']) {
   <mat-error>
     {{ errors?.['invalidSchema'] }}

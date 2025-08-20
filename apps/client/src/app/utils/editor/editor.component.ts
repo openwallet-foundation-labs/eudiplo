@@ -11,6 +11,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { MonacoEditorModule, NgxEditorModel } from 'ngx-monaco-editor-v2';
 import Ajv, { ValidateFunction } from 'ajv';
+import addFormats from 'ajv-formats';
 import { Component, forwardRef, OnChanges, Input, SimpleChanges } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 import { SchemaValidation } from '../schemas';
@@ -49,6 +50,7 @@ export class EditorComponent implements ControlValueAccessor, Validator, OnChang
   private validateFn?: ValidateFunction;
 
   constructor() {
+    addFormats(this.ajv);
     this.model = {
       value: this.value,
       language: 'json',
@@ -124,7 +126,8 @@ export class EditorComponent implements ControlValueAccessor, Validator, OnChang
       const candidate = this.schema?.getSchema() ?? this.schema;
       try {
         this.validateFn = candidate ? this.ajv.compile(candidate) : undefined;
-      } catch {
+      } catch (error) {
+        console.log(error);
         this.validateFn = undefined;
       }
       this._validatorChange?.();
