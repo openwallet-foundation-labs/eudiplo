@@ -1,0 +1,52 @@
+{
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/IssuanceDto.schema.json",
+  "title": "IssuanceDto",
+  "type": "object",
+  "properties": {
+    "credentialConfigs": {
+      "description": "Ids of the credential configurations associated with this issuance configuration.",
+      "type": "array",
+      "items": {
+        "$ref": "./CredentialConfigMapping.schema.json"
+      }
+    },
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for the issuance configuration."
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the issuance configuration."
+    },
+    "authenticationConfig": {
+      "type": "object",
+      "description": "Authentication configuration for the issuance process.\nThis determines which OpenID4VC flow to use:\n- 'none': Pre-authorized code flow (no user authentication required)\n- 'auth': OID4VCI authorized code flow (user will be redirected for authentication)\n- 'presentationDuringIssuance': OID4VP request is sent (credential presentation required)"
+    },
+    "claimsWebhook": {
+      "description": "Webhook to receive claims for the issuance process.",
+      "allOf": [
+        {
+          "$ref": "./WebhookConfig.schema.json"
+        }
+      ]
+    },
+    "notifyWebhook": {
+      "description": "Webhook to send the result of the notification response",
+      "allOf": [
+        {
+          "$ref": "./WebhookConfig.schema.json"
+        }
+      ]
+    },
+    "batch_size": {
+      "type": "number",
+      "description": "Value to determine the amount of credentials that are issued in a batch.\nDefault is 1."
+    }
+  },
+  "required": [
+    "credentialConfigs",
+    "id",
+    "authenticationConfig"
+  ],
+  "$schema": "http://json-schema.org/draft-04/schema#"
+}

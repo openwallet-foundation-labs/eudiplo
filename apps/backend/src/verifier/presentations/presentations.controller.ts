@@ -25,6 +25,7 @@ import {
     ResponseType,
 } from "../oid4vp/dto/presentation-request.dto";
 import { Oid4vpService } from "../oid4vp/oid4vp.service";
+import { PresentationConfigCreateDto } from "./dto/presentation-config-create.dto";
 import { PresentationConfig } from "./entities/presentation-config.entity";
 import { PresentationsService } from "./presentations.service";
 
@@ -119,7 +120,7 @@ export class PresentationManagementController {
      */
     @Post()
     storePresentationConfig(
-        @Body() config: PresentationConfig,
+        @Body() config: PresentationConfigCreateDto,
         @Token() user: TokenPayload,
     ) {
         return this.presentationsService.storePresentationConfig(

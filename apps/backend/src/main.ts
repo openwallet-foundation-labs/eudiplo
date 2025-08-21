@@ -11,7 +11,16 @@ import { AppModule } from "./app.module";
 async function bootstrap() {
     const app = await NestFactory.create(AppModule, { bufferLogs: true });
     app.enableCors();
-    app.useGlobalPipes(new ValidationPipe());
+    app.useGlobalPipes(
+        new ValidationPipe({
+            transform: true, // required for discriminator instantiation
+            whitelist: true,
+            forbidUnknownValues: false, // avoid false positives on plain objects
+            forbidNonWhitelisted: false,
+            stopAtFirstError: false,
+            validateCustomDecorators: true,
+        }),
+    );
 
     const configService = app.get(ConfigService);
 

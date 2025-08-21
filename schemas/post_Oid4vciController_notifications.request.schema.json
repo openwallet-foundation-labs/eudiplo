@@ -1,0 +1,6 @@
+{
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/Oid4vciController_notifications.request.schema.json",
+  "title": "Oid4vciController_notifications.request",
+  "$ref": "./NotificationRequestDto.schema.json",
+  "$schema": "http://json-schema.org/draft-04/schema#"
+}

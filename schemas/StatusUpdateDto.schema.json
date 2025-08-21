@@ -1,0 +1,28 @@
+{
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/StatusUpdateDto.schema.json",
+  "title": "StatusUpdateDto",
+  "type": "object",
+  "properties": {
+    "sessionId": {
+      "type": "string",
+      "description": "The session ID of the user"
+    },
+    "credentialConfigurationId": {
+      "type": "string",
+      "description": "The ID of the credential configuration\nThis is optional, if not provided, all credentials will be revoked of the session."
+    },
+    "status": {
+      "type": "number",
+      "description": "The status of the credential\n0 = valid, 1 = revoked",
+      "enum": [
+        0,
+        1
+      ]
+    }
+  },
+  "required": [
+    "sessionId",
+    "status"
+  ],
+  "$schema": "http://json-schema.org/draft-04/schema#"
+}

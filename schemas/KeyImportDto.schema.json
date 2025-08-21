@@ -1,0 +1,27 @@
+{
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/KeyImportDto.schema.json",
+  "title": "KeyImportDto",
+  "type": "object",
+  "properties": {
+    "privateKey": {
+      "description": "The private key in JWK format.",
+      "allOf": [
+        {
+          "$ref": "./Key.schema.json"
+        }
+      ]
+    },
+    "crt": {
+      "type": "string",
+      "description": "Optional certificate in PEM format."
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the key."
+    }
+  },
+  "required": [
+    "privateKey"
+  ],
+  "$schema": "http://json-schema.org/draft-04/schema#"
+}

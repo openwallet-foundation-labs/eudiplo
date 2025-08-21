@@ -299,6 +299,9 @@ export class CredentialConfigCreateComponent implements OnInit {
         : undefined;
       formValue.vct = formValue.vct ? JSON.parse(formValue.vct) : undefined;
       formValue.schema = formValue.schema ? JSON.parse(formValue.schema) : undefined;
+      formValue.embeddedDisclosurePolicy = formValue.embeddedDisclosurePolicy
+        ? JSON.parse(formValue.embeddedDisclosurePolicy)
+        : undefined;
 
       // Remove the displayConfigs form array from the final data
       delete formValue.displayConfigs;

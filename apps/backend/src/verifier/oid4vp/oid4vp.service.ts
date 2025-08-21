@@ -230,7 +230,7 @@ export class Oid4vpService {
             .join("&");
 
         const expiresAt = new Date(
-            Date.now() + presentationConfig.lifeTime * 1000,
+            Date.now() + (presentationConfig.lifeTime ?? 300) * 1000,
         );
 
         if (fresh) {

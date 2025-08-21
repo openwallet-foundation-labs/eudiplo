@@ -1,0 +1,19 @@
+{
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/RegistrationCertificateRequest.schema.json",
+  "title": "RegistrationCertificateRequest",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Identifier of the registration certificate that got issued."
+    },
+    "body": {
+      "type": "object",
+      "description": "The body of the registration certificate request containing the necessary details."
+    }
+  },
+  "required": [
+    "body"
+  ],
+  "$schema": "http://json-schema.org/draft-04/schema#"
+}

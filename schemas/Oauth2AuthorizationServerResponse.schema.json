@@ -1,0 +1,60 @@
+{
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/Oauth2AuthorizationServerResponse.schema.json",
+  "title": "Oauth2AuthorizationServerResponse",
+  "type": "object",
+  "properties": {
+    "issuer": {
+      "type": "string"
+    },
+    "token_endpoint": {
+      "type": "string",
+      "description": "The URL of the OAuth2 authorization server's token endpoint."
+    },
+    "authorization_endpoint": {
+      "type": "string",
+      "description": "The URL of the OAuth2 authorization server's authorization endpoint."
+    },
+    "jwks_uri": {
+      "type": "string",
+      "description": "The URL of the OAuth2 authorization server's jwks (JSON Web Key Set) endpoint."
+    },
+    "code_challenge_methods_supported": {
+      "description": "List of supported algorithms to sign the challenge",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dpop_signing_alg_values_supported": {
+      "description": "List of supported algorithms for DPoP signing.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "require_pushed_authorization_requests": {
+      "type": "boolean",
+      "description": "Indicates whether the server requires pushed authorization requests."
+    },
+    "pushed_authorization_request_endpoint": {
+      "type": "string",
+      "description": "The URL of the pushed authorization request endpoint."
+    },
+    "authorization_challenge_endpoint": {
+      "type": "string",
+      "description": "The URL of the authorization challenge endpoint."
+    }
+  },
+  "required": [
+    "issuer",
+    "token_endpoint",
+    "authorization_endpoint",
+    "jwks_uri",
+    "code_challenge_methods_supported",
+    "dpop_signing_alg_values_supported",
+    "require_pushed_authorization_requests",
+    "pushed_authorization_request_endpoint",
+    "authorization_challenge_endpoint"
+  ],
+  "$schema": "http://json-schema.org/draft-04/schema#"
+}

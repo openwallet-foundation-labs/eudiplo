@@ -3,7 +3,6 @@ import {
   NG_VALUE_ACCESSOR,
   NG_VALIDATORS,
   Validator,
-  AbstractControl,
   ValidationErrors,
   FormsModule,
   ReactiveFormsModule,
@@ -65,6 +64,9 @@ export class EditorComponent implements ControlValueAccessor, Validator, OnChang
   writeValue(obj: any): void {
     if (this.schema) {
       let parsed = obj;
+      if (!obj) {
+        parsed = {};
+      }
       if (typeof obj !== 'object') {
         parsed = JSON.parse(obj === '' ? '{}' : obj);
       }
@@ -92,7 +94,7 @@ export class EditorComponent implements ControlValueAccessor, Validator, OnChang
   }
 
   // Validator
-  validate(_: AbstractControl): ValidationErrors | null {
+  validate(): ValidationErrors | null {
     const raw = this.value;
     if (!raw) return null;
     let parsed: any;

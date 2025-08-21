@@ -1,0 +1,20 @@
+{
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ApiKeyConfig.schema.json",
+  "title": "ApiKeyConfig",
+  "type": "object",
+  "properties": {
+    "headerName": {
+      "type": "string",
+      "description": "The name of the header where the API key will be sent."
+    },
+    "value": {
+      "type": "string",
+      "description": "The value of the API key to be sent in the header."
+    }
+  },
+  "required": [
+    "headerName",
+    "value"
+  ],
+  "$schema": "http://json-schema.org/draft-04/schema#"
+}

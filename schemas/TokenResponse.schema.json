@@ -1,0 +1,25 @@
+{
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TokenResponse.schema.json",
+  "title": "TokenResponse",
+  "type": "object",
+  "properties": {
+    "access_token": {
+      "type": "string"
+    },
+    "refresh_token": {
+      "type": "string"
+    },
+    "token_type": {
+      "type": "string"
+    },
+    "expires_in": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "access_token",
+    "token_type",
+    "expires_in"
+  ],
+  "$schema": "http://json-schema.org/draft-04/schema#"
+}

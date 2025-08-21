@@ -1,0 +1,6 @@
+{
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/PresentationManagementController_storePresentationConfig.request.schema.json",
+  "title": "PresentationManagementController_storePresentationConfig.request",
+  "$ref": "./PresentationConfigCreateDto.schema.json",
+  "$schema": "http://json-schema.org/draft-04/schema#"
+}

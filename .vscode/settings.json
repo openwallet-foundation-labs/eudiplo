@@ -26,5 +26,31 @@
       "name": "eudiplo",
       "database": "./tmp/service.db"
     }
+  ],
+  "json.schemas": [
+    {
+      "fileMatch": [
+        "/assets/config/*/issuance/issuance/*.json"
+      ],
+      "url": "./schemas/IssuanceDto.schema.json"
+    },
+    {
+      "fileMatch": [
+        "/assets/config/*/issuance/credentials/*.json"
+      ],
+      "url": "./schemas/CredentialConfigCreate.schema.json"
+    },
+    {
+      "fileMatch": [
+        "/assets/config/*/keys/*.json"
+      ],
+      "url": "./schemas/KeyImportDto.schema.json"
+    },
+    {
+      "fileMatch": [
+        "/assets/config/*/presentation/*.json"
+      ],
+      "url": "./schemas/PresentationConfigCreateDto.schema.json"
+    }
   ]
 }

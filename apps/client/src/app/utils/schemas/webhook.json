@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "WebhookConfig",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "auth": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["apiKey"]
+        },
+        "config": {
+          "type": "object",
+          "properties": {
+            "headerName": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "required": ["headerName", "value"]
+        }
+      },
+      "required": ["type", "config"]
+    }
+  },
+  "required": ["url"],
+  "additionalProperties": false
+}

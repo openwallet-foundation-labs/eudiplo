@@ -1,0 +1,18 @@
+{
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/JwksResponseDto.schema.json",
+  "title": "JwksResponseDto",
+  "type": "object",
+  "properties": {
+    "keys": {
+      "description": "An array of EC public keys in JWK format.",
+      "type": "array",
+      "items": {
+        "$ref": "./EC_Public.schema.json"
+      }
+    }
+  },
+  "required": [
+    "keys"
+  ],
+  "$schema": "http://json-schema.org/draft-04/schema#"
+}

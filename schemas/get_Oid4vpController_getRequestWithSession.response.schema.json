@@ -1,0 +1,6 @@
+{
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/Oid4vpController_getRequestWithSession.response.schema.json",
+  "title": "Oid4vpController_getRequestWithSession.response",
+  "type": "string",
+  "$schema": "http://json-schema.org/draft-04/schema#"
+}

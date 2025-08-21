@@ -1,4 +1,6 @@
 {
+    "id": "citizen",
+    "description": "Citizen issuance with presentation during issuance flow",
     "authenticationConfig": {
         "method": "presentationDuringIssuance",
         "config": {

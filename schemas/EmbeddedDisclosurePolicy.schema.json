@@ -1,0 +1,20 @@
+{
+  "$id": "https://schemas.local/EmbeddedDisclosurePolicy.schema.json",
+  "title": "EmbeddedDisclosurePolicy",
+  "type": "object",
+  "properties": {
+    "policy": {
+      "type": "string",
+      "enum": [
+        "none",
+        "allowList",
+        "rootOfTrust",
+        "attestationBased"
+      ]
+    }
+  },
+  "required": [
+    "policy"
+  ],
+  "$schema": "http://json-schema.org/draft-04/schema#"
+}

@@ -1,7 +1,7 @@
 import { ApiHideProperty } from "@nestjs/swagger";
+import { Type } from "class-transformer";
 import {
     IsArray,
-    IsEmpty,
     IsNotEmpty,
     IsNumber,
     IsObject,
@@ -46,7 +46,6 @@ export class PresentationConfig {
      */
     @ApiHideProperty()
     @Column("varchar", { primary: true })
-    @IsEmpty()
     tenantId: string;
 
     /**
@@ -63,7 +62,7 @@ export class PresentationConfig {
     @IsNumber()
     @IsOptional()
     @Column("int", { default: 300 })
-    lifeTime: number;
+    lifeTime?: number;
 
     /**
      * The DCQL query to be used for the VP request.
@@ -85,19 +84,19 @@ export class PresentationConfig {
     @Column("json", { nullable: true })
     @IsOptional()
     @IsObject()
+    @Validate(WebhookConfig)
+    @Type(() => WebhookConfig)
     webhook?: WebhookConfig;
 
     /**
      * The timestamp when the VP request was created.
      */
-    @IsEmpty()
     @CreateDateColumn()
     createdAt: Date;
 
     /**
      * The timestamp when the VP request was last updated.
      */
-    @IsEmpty()
     @UpdateDateColumn()
     updatedAt: Date;
 
@@ -108,5 +107,5 @@ export class PresentationConfig {
     @IsArray()
     @ValidateNested()
     @Column("json", { nullable: true })
-    attached: PresentationAttachment[];
+    attached?: PresentationAttachment[];
 }

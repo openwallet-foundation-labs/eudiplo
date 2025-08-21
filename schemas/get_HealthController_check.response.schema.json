@@ -1,0 +1,62 @@
+{
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/HealthController_check.response.schema.json",
+  "title": "HealthController_check.response",
+  "type": "object",
+  "properties": {
+    "status": {
+      "type": "string"
+    },
+    "info": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "error": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "details": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "$schema": "http://json-schema.org/draft-04/schema#"
+}

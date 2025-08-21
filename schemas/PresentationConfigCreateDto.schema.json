@@ -1,0 +1,51 @@
+{
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/PresentationConfigCreateDto.schema.json",
+  "title": "PresentationConfigCreateDto",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for the VP request."
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the presentation configuration."
+    },
+    "lifeTime": {
+      "type": "number",
+      "description": "Lifetime how long the presentation request is valid after creation, in seconds."
+    },
+    "dcql_query": {
+      "type": "object",
+      "description": "The DCQL query to be used for the VP request."
+    },
+    "registrationCert": {
+      "description": "The registration certificate request containing the necessary details.",
+      "allOf": [
+        {
+          "$ref": "./RegistrationCertificateRequest.schema.json"
+        }
+      ]
+    },
+    "webhook": {
+      "description": "Optional webhook URL to receive the response.",
+      "allOf": [
+        {
+          "$ref": "./WebhookConfig.schema.json"
+        }
+      ]
+    },
+    "attached": {
+      "description": "Attestation that should be attached",
+      "type": "array",
+      "items": {
+        "$ref": "./PresentationAttachment.schema.json"
+      }
+    }
+  },
+  "required": [
+    "id",
+    "dcql_query"
+  ],
+  "$schema": "http://json-schema.org/draft-04/schema#"
+}

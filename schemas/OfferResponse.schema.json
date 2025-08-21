@@ -1,0 +1,18 @@
+{
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/OfferResponse.schema.json",
+  "title": "OfferResponse",
+  "type": "object",
+  "properties": {
+    "uri": {
+      "type": "string"
+    },
+    "session": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "uri",
+    "session"
+  ],
+  "$schema": "http://json-schema.org/draft-04/schema#"
+}

@@ -112,7 +112,9 @@ export class CryptoService {
                         const config = plainToClass(KeyImportDto, payload);
                         const validationErrors = await validate(config, {
                             whitelist: true,
-                            forbidNonWhitelisted: true,
+                            forbidUnknownValues: false, // avoid false positives on plain objects
+                            forbidNonWhitelisted: false,
+                            stopAtFirstError: false,
                         });
 
                         if (validationErrors.length > 0) {

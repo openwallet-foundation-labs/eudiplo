@@ -1,0 +1,15 @@
+{
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AuthorizationResponse.schema.json",
+  "title": "AuthorizationResponse",
+  "type": "object",
+  "properties": {
+    "response": {
+      "type": "string",
+      "description": "The response string containing the authorization details."
+    }
+  },
+  "required": [
+    "response"
+  ],
+  "$schema": "http://json-schema.org/draft-04/schema#"
+}

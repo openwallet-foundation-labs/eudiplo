@@ -81,7 +81,9 @@ export class IssuanceService implements OnModuleInit {
                     //TOODO: it does not validate the different config options
                     const validationErrors = await validate(issuanceDto, {
                         whitelist: true,
-                        forbidNonWhitelisted: true,
+                        forbidUnknownValues: false, // avoid false positives on plain objects
+                        forbidNonWhitelisted: false,
+                        stopAtFirstError: false,
                     });
 
                     if (validationErrors.length > 0) {

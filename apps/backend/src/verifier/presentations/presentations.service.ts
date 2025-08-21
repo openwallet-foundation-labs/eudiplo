@@ -15,6 +15,7 @@ import { firstValueFrom } from "rxjs";
 import { Repository } from "typeorm/repository/Repository";
 import { ResolverService } from "../resolver/resolver.service";
 import { AuthResponse } from "./dto/auth-response.dto";
+import { PresentationConfigCreateDto } from "./dto/presentation-config-create.dto";
 import { PresentationConfig } from "./entities/presentation-config.entity";
 
 /**
@@ -93,10 +94,15 @@ export class PresentationsService implements OnModuleInit {
                     }
 
                     // Validate the payload against PresentationConfig
-                    const config = plainToClass(PresentationConfig, payload);
+                    const config = plainToClass(
+                        PresentationConfigCreateDto,
+                        payload,
+                    );
                     const validationErrors = await validate(config, {
                         whitelist: true,
-                        forbidNonWhitelisted: true,
+                        forbidUnknownValues: false, // avoid false positives on plain objects
+                        forbidNonWhitelisted: false,
+                        stopAtFirstError: false,
                     });
 
                     if (validationErrors.length > 0) {
@@ -147,9 +153,14 @@ export class PresentationsService implements OnModuleInit {
      * @param vprequest - The PresentationConfig entity to store.
      * @returns A promise that resolves to the stored PresentationConfig entity.
      */
-    storePresentationConfig(tenantId: string, vprequest: PresentationConfig) {
-        vprequest.tenantId = tenantId;
-        return this.vpRequestRepository.save(vprequest);
+    storePresentationConfig(
+        tenantId: string,
+        vprequest: PresentationConfigCreateDto,
+    ) {
+        return this.vpRequestRepository.save({
+            ...vprequest,
+            tenantId,
+        });
     }
 
     /**
