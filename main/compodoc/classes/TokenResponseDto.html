@@ -199,7 +199,7 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ApiProperty({description: &#x27;The access token&#x27;, example: &#x27;eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...&#x27;})<br />
+                            @ApiProperty({description: &#x27;The access token&#x27;, examples: undefined})<br />
                         </code>
                     </td>
                 </tr>
@@ -235,7 +235,7 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ApiProperty({description: &#x27;The lifetime in seconds of the access token&#x27;, example: 3600})<br />
+                            @ApiProperty({description: &#x27;The lifetime in seconds of the access token&#x27;, examples: undefined})<br />
                         </code>
                     </td>
                 </tr>
@@ -272,7 +272,7 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ApiProperty({description: &#x27;The scope of the access token&#x27;, example: &#x27;openid&#x27;, required: false})<br />
+                            @ApiProperty({description: &#x27;The scope of the access token&#x27;, examples: undefined, required: false})<br />
                         </code>
                     </td>
                 </tr>
@@ -302,7 +302,7 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ApiProperty({description: &#x27;The type of the token&#x27;, example: &#x27;Bearer&#x27;})<br />
+                            @ApiProperty({description: &#x27;The type of the token&#x27;, examples: undefined})<br />
                         </code>
                     </td>
                 </tr>
@@ -332,25 +332,25 @@
 export class TokenResponseDto {
     @ApiProperty({
         description: &quot;The access token&quot;,
-        example: &quot;eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...&quot;,
+        examples: [&quot;eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...&quot;],
     })
     access_token: string;
 
     @ApiProperty({
         description: &quot;The type of the token&quot;,
-        example: &quot;Bearer&quot;,
+        examples: [&quot;Bearer&quot;],
     })
     token_type: &quot;Bearer&quot;;
 
     @ApiProperty({
         description: &quot;The lifetime in seconds of the access token&quot;,
-        example: 3600,
+        examples: [3600],
     })
     expires_in: number;
 
     @ApiProperty({
         description: &quot;The scope of the access token&quot;,
-        example: &quot;openid&quot;,
+        examples: [&quot;openid&quot;],
         required: false,
     })
     scope?: string;

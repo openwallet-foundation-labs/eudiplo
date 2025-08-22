@@ -156,12 +156,6 @@ Determines which OpenID4VC flow to use for the issuance process</p>
                             </li>
                             <li>
                                     <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier">Optional</span>
-                                <a href="#description" >description</a>
-                            </li>
-                            <li>
-                                    <span class="modifier"></span>
                                 <a href="#method" >method</a>
                             </li>
                         </ul>
@@ -226,50 +220,6 @@ Determines which OpenID4VC flow to use for the issuance process</p>
 <li>For &#39;auth&#39;: AuthenticationUrlConfig - for OID4VCI authorized code flow</li>
 <li>For &#39;presentationDuringIssuance&#39;: PresentationDuringIssuanceConfig - for OID4VP flow</li>
 </ul>
-</div>
-                </td>
-            </tr>
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="description"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier">Optional</span>
-                        <span ><b>description</b></span>
-                        <a href="#description"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @IsOptional()<br />@IsString()<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="132" class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:132</a></div>
-                        </td>
-                    </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Description of the authentication configuration.</p>
 </div>
                 </td>
             </tr>
@@ -460,13 +410,6 @@ export class AuthenticationConfigDto {
     @IsOptional()
     @Validate(AuthConfigValidator)
     config?: AuthenticationUrlConfig | PresentationDuringIssuanceConfig;
-
-    /**
-     * Description of the authentication configuration.
-     */
-    @IsOptional()
-    @IsString()
-    description?: string;
 }
 
 /**

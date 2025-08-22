@@ -209,14 +209,14 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="33" class="link-to-prism">src/verifier/oid4vp/dto/presentation-request.dto.ts:33</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="32" class="link-to-prism">src/verifier/oid4vp/dto/presentation-request.dto.ts:32</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
                     <div class="io-description"><p>Identifier of the presentation configuration</p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-html"></code></pre></div></div>
+</div>
                 </td>
             </tr>
 
@@ -257,7 +257,8 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><b>Example :</b><div><pre class="line-numbers"><code class="language-html"></code></pre></div></div>
+                    <div class="io-description"><p>The type of response expected from the presentation request.</p>
+</div>
                 </td>
             </tr>
 
@@ -294,7 +295,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">src/verifier/oid4vp/dto/presentation-request.dto.ts:41</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="40" class="link-to-prism">src/verifier/oid4vp/dto/presentation-request.dto.ts:40</a></div>
                         </td>
                     </tr>
 
@@ -342,14 +343,13 @@ export enum ResponseType {
  */
 export class PresentationRequest {
     /**
-     * @example qrcode
+     * The type of response expected from the presentation request.
      */
     @IsEnum(ResponseType)
     response_type: ResponseType;
 
     /**
      * Identifier of the presentation configuration
-     * @example pid
      */
     @IsString()
     requestId: string;

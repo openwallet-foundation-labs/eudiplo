@@ -295,8 +295,8 @@
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { decodeJwt, jwtVerify, SignJWT } from &quot;jose&quot;;
-import { TokenPayload } from &quot;./token.decorator&quot;;
 import { DEFAULT_JWT_SECRET } from &quot;./auth.module&quot;;
+import { TokenPayload } from &quot;./token.decorator&quot;;
 
 export interface GenerateTokenOptions {
     expiresIn?: string;

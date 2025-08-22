@@ -209,8 +209,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="111"
-                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:111</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="112"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:112</a></div>
                         </td>
                     </tr>
 
@@ -287,8 +287,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="137"
-                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:137</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="138"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:138</a></div>
                         </td>
                     </tr>
 
@@ -383,8 +383,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="79"
-                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:79</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="80"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:80</a></div>
                         </td>
                     </tr>
 
@@ -471,7 +471,7 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>storePresentationConfig(config: <a href="../entitys/PresentationConfig.html" target="_self">PresentationConfig</a>, user: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
+                    <code>storePresentationConfig(config: <a href="../classes/PresentationConfigCreateDto.html" target="_self">PresentationConfigCreateDto</a>, user: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
                 </td>
             </tr>
 
@@ -485,8 +485,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="121"
-                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:121</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="122"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:122</a></div>
                         </td>
                     </tr>
 
@@ -511,7 +511,7 @@
                                         <tr>
                                                 <td>config</td>
                                             <td>
-                                                            <code><a href="../entitys/PresentationConfig.html" target="_self" >PresentationConfig</a></code>
+                                                            <code><a href="../classes/PresentationConfigCreateDto.html" target="_self" >PresentationConfigCreateDto</a></code>
                                             </td>
 
                                             <td>
@@ -577,6 +577,7 @@ import {
     ResponseType,
 } from &quot;../oid4vp/dto/presentation-request.dto&quot;;
 import { Oid4vpService } from &quot;../oid4vp/oid4vp.service&quot;;
+import { PresentationConfigCreateDto } from &quot;./dto/presentation-config-create.dto&quot;;
 import { PresentationConfig } from &quot;./entities/presentation-config.entity&quot;;
 import { PresentationsService } from &quot;./presentations.service&quot;;
 
@@ -671,7 +672,7 @@ export class PresentationManagementController {
      */
     @Post()
     storePresentationConfig(
-        @Body() config: PresentationConfig,
+        @Body() config: PresentationConfigCreateDto,
         @Token() user: TokenPayload,
     ) {
         return this.presentationsService.storePresentationConfig(

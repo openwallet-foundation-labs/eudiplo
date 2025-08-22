@@ -384,8 +384,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="217"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:217</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="216"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:216</a></div>
                         </td>
                     </tr>
 
@@ -493,8 +493,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="309"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:309</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="308"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:308</a></div>
                         </td>
                     </tr>
 
@@ -726,8 +726,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="461"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:461</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="460"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:460</a></div>
                         </td>
                     </tr>
 
@@ -912,8 +912,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="295"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:295</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="294"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:294</a></div>
                         </td>
                     </tr>
 
@@ -1111,7 +1111,7 @@ import { SessionLogContext } from &quot;../../utils/logger/session-logger-contex
 import { WebhookService } from &quot;../../utils/webhook/webhook.service&quot;;
 import { AuthorizeService } from &quot;../authorize/authorize.service&quot;;
 import { CredentialsService } from &quot;../credentials/credentials.service&quot;;
-import { AuthenticationConfigHelper } from &quot;../issuance/dto/authentication-config.helper&quot;;
+import { AuthenticationUrlConfig } from &quot;../issuance/dto/authentication-config.dto&quot;;
 import { IssuanceService } from &quot;../issuance/issuance.service&quot;;
 import { NotificationRequestDto } from &quot;./dto/notification-request.dto&quot;;
 import { OfferRequestDto, OfferResponse } from &quot;./dto/offer-request.dto&quot;;
@@ -1215,12 +1215,11 @@ export class Oid4vciService {
 
         let authServer: string;
 
-        if (
-            AuthenticationConfigHelper.isAuthUrlAuth(
-                issuanceConfig.authenticationConfig,
-            )
-        ) {
-            authServer &#x3D; issuanceConfig.authenticationConfig.config.url;
+        if (issuanceConfig.authenticationConfig.method &#x3D;&#x3D;&#x3D; &quot;auth&quot;) {
+            authServer &#x3D; (
+                issuanceConfig.authenticationConfig
+                    .config as AuthenticationUrlConfig
+            ).url;
             // fetch the authorization server metadata
             authorizationServerMetadata &#x3D; await firstValueFrom(
                 this.httpService.get(

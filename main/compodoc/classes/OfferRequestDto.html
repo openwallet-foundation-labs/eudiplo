@@ -225,7 +225,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="54" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:54</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="56" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:56</a></div>
                         </td>
                     </tr>
 
@@ -269,7 +269,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="61" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:61</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="63" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:63</a></div>
                         </td>
                     </tr>
 
@@ -362,7 +362,7 @@
             <tr>
                 <td class="col-md-4">
                     <div class="io-description"><p>Issuance config id to reference the issuance configuration.</p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-html"></code></pre></div></div>
+</div>
                 </td>
             </tr>
 
@@ -392,21 +392,16 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ApiProperty({example: &#x27;qrcode&#x27;, description: &#x27;The type of response expected for the offer request.&#x27;})<br />@IsEnum(ResponseType)<br />
+                            @ApiProperty({examples: undefined, description: &#x27;The type of response expected for the offer request.&#x27;})<br />@IsEnum(ResponseType)<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="22" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:22</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="23" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:23</a></div>
                         </td>
                     </tr>
 
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><b>Example :</b><div><pre class="line-numbers"><code class="language-html"></code></pre></div></div>
-                </td>
-            </tr>
 
         </tbody>
     </table>
@@ -441,7 +436,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="68" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:68</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="70" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:70</a></div>
                         </td>
                     </tr>
 
@@ -479,11 +474,12 @@ import { WebhookConfig } from &quot;../../../utils/webhook/webhook.dto&quot;;
 import { ResponseType } from &quot;../../../verifier/oid4vp/dto/presentation-request.dto&quot;;
 
 export class OfferRequestDto {
-    /**
-     * @example &quot;qrcode&quot;
-     */
     @ApiProperty({
-        example: &quot;qrcode&quot;,
+        examples: [
+            {
+                value: &quot;qrcode&quot;,
+            },
+        ],
         description: &quot;The type of response expected for the offer request.&quot;,
     })
     @IsEnum(ResponseType)
@@ -491,7 +487,6 @@ export class OfferRequestDto {
 
     /**
      * Issuance config id to reference the issuance configuration.
-     * @example &quot;pid&quot;
      */
     @IsString()
     issuanceId: string;
@@ -510,12 +505,14 @@ export class OfferRequestDto {
         type: &quot;object&quot;,
         description: &quot;Override the default values for the credential claims.&quot;,
         properties: {},
-        examples: {
-            pid: {
-                given_name: &quot;ERIKA&quot;,
-                family_name: &quot;MUSTERMANN&quot;,
+        examples: [
+            {
+                pid: {
+                    given_name: &quot;ERIKA&quot;,
+                    family_name: &quot;MUSTERMANN&quot;,
+                },
             },
-        },
+        ],
     })
     @IsObject()
     @IsOptional()

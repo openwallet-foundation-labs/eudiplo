@@ -203,8 +203,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="201"
-                                    class="link-to-prism">src/auth/auth.controller.ts:201</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="206"
+                                    class="link-to-prism">src/auth/auth.controller.ts:206</a></div>
                         </td>
                     </tr>
 
@@ -250,14 +250,14 @@ This provides the JSON Web Key Set for verifying tokens issued by this server.</
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Post(&#x27;oauth2/token&#x27;)<br />@ApiBody({type: ClientCredentialsDto, examples: undefined})<br />@ApiResponse({status: 200, description: &#x27;OAuth2 token response&#x27;, type: TokenResponse, example: undefined})<br />@ApiResponse({status: 401, description: &#x27;Invalid client credentials&#x27;})<br /></code>
+                    <code>@Post(&#x27;oauth2/token&#x27;)<br />@ApiBody({type: ClientCredentialsDto, examples: undefined})<br />@ApiResponse({status: 200, description: &#x27;OAuth2 token response&#x27;, type: TokenResponse, examples: undefined})<br />@ApiResponse({status: 401, description: &#x27;Invalid client credentials&#x27;})<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="70"
-                                    class="link-to-prism">src/auth/auth.controller.ts:70</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="75"
+                                    class="link-to-prism">src/auth/auth.controller.ts:75</a></div>
                         </td>
                     </tr>
 
@@ -349,8 +349,8 @@ Accepts client credentials either in Authorization header (Basic auth) or reques
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="166"
-                                    class="link-to-prism">src/auth/auth.controller.ts:166</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="171"
+                                    class="link-to-prism">src/auth/auth.controller.ts:171</a></div>
                         </td>
                     </tr>
 
@@ -433,10 +433,15 @@ export class AuthController {
         status: 200,
         description: &quot;OAuth2 token response&quot;,
         type: TokenResponse,
-        example: {
-            access_token: &quot;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...&quot;,
-            token_type: &quot;Bearer&quot;,
-            expires_in: 86400,
+        examples: {
+            success: {
+                summary: &quot;Successful response&quot;,
+                value: {
+                    access_token: &quot;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...&quot;,
+                    token_type: &quot;Bearer&quot;,
+                    expires_in: 86400,
+                },
+            },
         },
     })
     @ApiResponse({

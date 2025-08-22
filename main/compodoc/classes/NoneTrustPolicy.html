@@ -120,7 +120,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/issuer/credentials/entities/credential.entity.ts</code>
+            <code>src/issuer/credentials/entities/policies.ts</code>
         </p>
 
 
@@ -128,7 +128,7 @@
                 <h3>Description</h3>
             </p>
             <p class="comment">
-                <p>None trust disclosure policy for the credential.</p>
+                <p>none</p>
 
             </p>
 
@@ -202,7 +202,7 @@
                         </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/EmbeddedDisclosurePolicy.html#source" target="_self" >EmbeddedDisclosurePolicy:60</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/EmbeddedDisclosurePolicy.html#source" target="_self" >EmbeddedDisclosurePolicy:45</a></code>
 </div>
                         </td>
                     </tr>
@@ -222,196 +222,84 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { CredentialConfigurationSupported } from &quot;@openid4vc/openid4vci&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Type } from &quot;class-transformer&quot;;
 import {
     IsArray,
-    IsBoolean,
-    IsEmpty,
+    IsDefined,
     IsEnum,
-    IsNumber,
-    IsObject,
     IsOptional,
     IsString,
     ValidateNested,
 } from &quot;class-validator&quot;;
-import { Column, Entity, ManyToOne, OneToMany } from &quot;typeorm&quot;;
-import { CertEntity } from &quot;../../../crypto/key/entities/cert.entity&quot;;
-import { VCT } from &quot;../../credentials-metadata/dto/credential-config.dto&quot;;
-import { SchemaResponse } from &quot;../../credentials-metadata/dto/schema-response.dto&quot;;
-import { CredentialIssuanceBinding } from &quot;../../issuance/entities/credential-issuance-binding.entity&quot;;
 
-/**
- * Enum for the policy types.
- */
 export enum PolicyType {
     NONE &#x3D; &quot;none&quot;,
     ALLOW_LIST &#x3D; &quot;allowList&quot;,
     ROOT_OF_TRUST &#x3D; &quot;rootOfTrust&quot;,
     ATTESTATION_BASED &#x3D; &quot;attestationBased&quot;,
 }
-/**
- * Embedded disclosure policy for the credential.
- */
+
 export class EmbeddedDisclosurePolicy {
+    @IsDefined()
     @IsEnum(PolicyType)
-    policy: PolicyType;
+    policy!: PolicyType;
 }
 
-/**
- * Allow list disclosure policy for the credential.
- */
+/** allowList */
 export class AllowListPolicy extends EmbeddedDisclosurePolicy {
     declare policy: PolicyType.ALLOW_LIST;
 
+    @IsDefined()
     @IsString({ each: true })
-    values: string[];
+    values!: string[];
 }
 
-/**
- * Root of trust disclosure policy for the credential.
- */
+/** rootOfTrust */
 export class RootOfTrustPolicy extends EmbeddedDisclosurePolicy {
     declare policy: PolicyType.ROOT_OF_TRUST;
 
+    // adapt as needed if you want an array instead
+    @IsDefined()
     @IsString()
-    values: string;
+    values!: string;
 }
 
-/**
- * None trust disclosure policy for the credential.
- */
+/** none */
 export class NoneTrustPolicy extends EmbeddedDisclosurePolicy {
     declare policy: PolicyType.NONE;
 }
 
+/** attestationBased */
 export class PolicyCredential {
-    @IsString()
-    format: string;
-    @IsObject()
-    meta: any;
-    @IsString()
-    iss: string;
+    @IsOptional()
+    @IsArray()
+    claims?: any[];
+
+    @IsDefined()
+    @IsArray()
+    credentials!: any[];
+
+    @IsOptional()
+    @IsArray()
+    credential_sets?: any[];
 }
 
-/**
- * Attestation based disclosure policy for the credential.
- */
 export class AttestationBasedPolicy extends EmbeddedDisclosurePolicy {
     declare policy: PolicyType.ATTESTATION_BASED;
 
+    @IsDefined()
     @IsArray()
-    values: PolicyCredential[];
+    @ValidateNested({ each: true })
+    @Type(() &#x3D;&gt; PolicyCredential)
+    values!: PolicyCredential[];
 }
 
-/**
- * Entity to manage a credential configuration
- */
-@Entity()
-export class CredentialConfig {
-    /**
-     * Unique identifier for the configuration to reference it.
-     */
-    @IsString()
-    @Column(&quot;varchar&quot;, { primary: true })
-    id: string;
-    /**
-     * Tenant ID for the issuance configuration.
-     */
-    @IsEmpty()
-    @Column(&quot;varchar&quot;, { primary: true })
-    tenantId: string;
-
-    //TODO: only allow display config for now
-    /**
-     * OID4VCI issuer metadata credential configuration element.
-     */
-    @Column(&quot;json&quot;)
-    @IsObject()
-    config: CredentialConfigurationSupported;
-    /**
-     * Claims that should be set by default when this credential is being issued. Will be overwritten when passed during a credential offer request.
-     */
-    @Column(&quot;json&quot;, { nullable: true })
-    @IsObject()
-    claims: Record&lt;string, any&gt;;
-    /**
-     * Disclosure frame for the sd jwt vc.
-     */
-    @Column(&quot;json&quot;, { nullable: true })
-    @IsObject()
-    disclosureFrame: Record&lt;string, any&gt;;
-    @Column(&quot;json&quot;, { nullable: true })
-    /**
-     * VCT values that are hosted by this service.
-     */
-    @IsObject()
-    @IsOptional()
-    vct?: VCT;
-    @Column(&quot;json&quot;, { nullable: true })
-
-    /**
-     * If true, the credential will be key bound.
-     */
-    @IsBoolean()
-    @IsOptional()
-    @Column(&quot;boolean&quot;, { default: false })
-    keyBinding?: boolean;
-
-    /**
-     * Optional key ID for the credential configuration.
-     * This is used to identify the key used for signing the credential.
-     */
-    @IsString()
-    @IsOptional()
-    keyId?: string;
-
-    @IsEmpty()
-    @ManyToOne(() &#x3D;&gt; CertEntity)
-    key: CertEntity;
-
-    /**
-     * Optional status management flag for the credential configuration.
-     * If true, a status management will be applied to the credential.
-     */
-    @IsBoolean()
-    @IsOptional()
-    @Column(&quot;boolean&quot;, { default: false })
-    statusManagement?: boolean;
-    /**
-     * Optional livetime for the credential configuration in seconds.
-     */
-    @IsNumber()
-    @IsOptional()
-    @Column(&quot;int&quot;, { nullable: true })
-    lifeTime?: number;
-
-    /**
-     * json schema that is used during issuance for the validation of the claims.
-     */
-    @IsObject()
-    @IsOptional()
-    @Column(&quot;json&quot;, { nullable: true })
-    schema?: SchemaResponse;
-    /**
-     * Link to all the issuance config bindings that are using this credential.
-     */
-    @IsEmpty()
-    @OneToMany(
-        () &#x3D;&gt; CredentialIssuanceBinding,
-        (binding) &#x3D;&gt; binding.credentialConfig,
-        { cascade: [&quot;remove&quot;], onDelete: &quot;CASCADE&quot; },
-    )
-    credentialIssuanceBindings: CredentialIssuanceBinding[];
-
-    /**
-     * Embedded disclosure policy for the credential.
-     */
-    @Column(&quot;json&quot;, { nullable: true })
-    @IsObject()
-    @IsOptional()
-    @ValidateNested()
-    embeddedDisclosurePolicy?: EmbeddedDisclosurePolicy;
-}
+// Convenience union type if you use it elsewhere
+export type AnyPolicy &#x3D;
+    | NoneTrustPolicy
+    | AllowListPolicy
+    | RootOfTrustPolicy
+    | AttestationBasedPolicy;
 </code></pre>
     </div>
 </div>

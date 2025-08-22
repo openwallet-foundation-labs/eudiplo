@@ -303,9 +303,9 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiHideProperty } from &quot;@nestjs/swagger&quot;;
+import { Type } from &quot;class-transformer&quot;;
 import {
     IsArray,
-    IsEmpty,
     IsNotEmpty,
     IsNumber,
     IsObject,
@@ -350,7 +350,6 @@ export class PresentationConfig {
      */
     @ApiHideProperty()
     @Column(&quot;varchar&quot;, { primary: true })
-    @IsEmpty()
     tenantId: string;
 
     /**
@@ -367,7 +366,7 @@ export class PresentationConfig {
     @IsNumber()
     @IsOptional()
     @Column(&quot;int&quot;, { default: 300 })
-    lifeTime: number;
+    lifeTime?: number;
 
     /**
      * The DCQL query to be used for the VP request.
@@ -389,19 +388,19 @@ export class PresentationConfig {
     @Column(&quot;json&quot;, { nullable: true })
     @IsOptional()
     @IsObject()
+    @Validate(WebhookConfig)
+    @Type(() &#x3D;&gt; WebhookConfig)
     webhook?: WebhookConfig;
 
     /**
      * The timestamp when the VP request was created.
      */
-    @IsEmpty()
     @CreateDateColumn()
     createdAt: Date;
 
     /**
      * The timestamp when the VP request was last updated.
      */
-    @IsEmpty()
     @UpdateDateColumn()
     updatedAt: Date;
 
@@ -412,7 +411,7 @@ export class PresentationConfig {
     @IsArray()
     @ValidateNested()
     @Column(&quot;json&quot;, { nullable: true })
-    attached: PresentationAttachment[];
+    attached?: PresentationAttachment[];
 }
 </code></pre>
     </div>

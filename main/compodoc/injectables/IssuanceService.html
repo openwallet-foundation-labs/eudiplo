@@ -315,8 +315,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="259"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:259</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="261"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:261</a></div>
                         </td>
                     </tr>
 
@@ -398,8 +398,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="160"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:160</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="162"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:162</a></div>
                         </td>
                     </tr>
 
@@ -467,8 +467,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="173"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:173</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="175"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:175</a></div>
                         </td>
                     </tr>
 
@@ -633,8 +633,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="189"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:189</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="191"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:191</a></div>
                         </td>
                     </tr>
 
@@ -783,7 +783,9 @@ export class IssuanceService implements OnModuleInit {
                     //TOODO: it does not validate the different config options
                     const validationErrors &#x3D; await validate(issuanceDto, {
                         whitelist: true,
-                        forbidNonWhitelisted: true,
+                        forbidUnknownValues: false, // avoid false positives on plain objects
+                        forbidNonWhitelisted: false,
+                        stopAtFirstError: false,
                     });
 
                     if (validationErrors.length &gt; 0) {

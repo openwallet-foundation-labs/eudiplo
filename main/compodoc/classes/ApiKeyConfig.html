@@ -203,14 +203,14 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="13" class="link-to-prism">src/utils/webhook/webhook.dto.ts:13</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="12" class="link-to-prism">src/utils/webhook/webhook.dto.ts:12</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
                     <div class="io-description"><p>The name of the header where the API key will be sent.</p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-html"></code></pre></div></div>
+</div>
                 </td>
             </tr>
 
@@ -245,14 +245,14 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/utils/webhook/webhook.dto.ts:19</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="17" class="link-to-prism">src/utils/webhook/webhook.dto.ts:17</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
                     <div class="io-description"><p>The value of the API key to be sent in the header.</p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-html"></code></pre></div></div>
+</div>
                 </td>
             </tr>
 
@@ -279,13 +279,11 @@ import { IsIn, IsObject, IsOptional, IsString } from &quot;class-validator&quot;
 export class ApiKeyConfig {
     /**
      * The name of the header where the API key will be sent.
-     * @example Authorization
      */
     @IsString()
     headerName: string;
     /**
      * The value of the API key to be sent in the header.
-     * @example Bearer your_api_key_here
      */
     @IsString()
     value: string;

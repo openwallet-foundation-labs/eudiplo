@@ -204,7 +204,7 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ApiProperty({description: &#x27;The client identifier&#x27;, example: &#x27;my-client-id&#x27;})<br />@IsString()<br />
+                            @ApiProperty({description: &#x27;The client identifier&#x27;, examples: undefined})<br />@IsString()<br />
                         </code>
                     </td>
                 </tr>
@@ -241,7 +241,7 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ApiProperty({description: &#x27;The client secret&#x27;, example: &#x27;my-client-secret&#x27;})<br />@IsString()<br />
+                            @ApiProperty({description: &#x27;The client secret&#x27;, examples: undefined})<br />@IsString()<br />
                         </code>
                     </td>
                 </tr>
@@ -273,7 +273,7 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ApiProperty({description: &#x27;The grant type&#x27;, enum: undefined, example: &#x27;client_credentials&#x27;})<br />@IsString()<br />@IsIn([&#x27;client_credentials&#x27;])<br />
+                            @ApiProperty({description: &#x27;The grant type&#x27;, enum: undefined, examples: undefined})<br />@IsString()<br />@IsIn([&#x27;client_credentials&#x27;])<br />
                         </code>
                     </td>
                 </tr>
@@ -310,7 +310,7 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ApiProperty({description: &#x27;The scope of the access request&#x27;, example: &#x27;openid&#x27;, required: false})<br />
+                            @ApiProperty({description: &#x27;The scope of the access request&#x27;, examples: undefined, required: false})<br />
                         </code>
                     </td>
                 </tr>
@@ -342,7 +342,7 @@ export class TokenRequestDto {
     @ApiProperty({
         description: &quot;The grant type&quot;,
         enum: [&quot;client_credentials&quot;],
-        example: &quot;client_credentials&quot;,
+        examples: [&quot;client_credentials&quot;],
     })
     @IsString()
     @IsIn([&quot;client_credentials&quot;])
@@ -350,21 +350,21 @@ export class TokenRequestDto {
 
     @ApiProperty({
         description: &quot;The client identifier&quot;,
-        example: &quot;my-client-id&quot;,
+        examples: [&quot;my-client-id&quot;],
     })
     @IsString()
     client_id: string;
 
     @ApiProperty({
         description: &quot;The client secret&quot;,
-        example: &quot;my-client-secret&quot;,
+        examples: [&quot;my-client-secret&quot;],
     })
     @IsString()
     client_secret: string;
 
     @ApiProperty({
         description: &quot;The scope of the access request&quot;,
-        example: &quot;openid&quot;,
+        examples: [&quot;openid&quot;],
         required: false,
     })
     scope?: string;

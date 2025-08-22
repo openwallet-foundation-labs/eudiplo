@@ -255,7 +255,6 @@ import { Session } from &quot;../../session/entities/session.entity&quot;;
 import { SessionService } from &quot;../../session/session.service&quot;;
 import { WebhookConfig } from &quot;../../utils/webhook/webhook.dto&quot;;
 import { Oid4vpService } from &quot;../../verifier/oid4vp/oid4vp.service&quot;;
-import { AuthenticationConfigHelper } from &quot;../issuance/dto/authentication-config.helper&quot;;
 import { IssuanceService } from &quot;../issuance/issuance.service&quot;;
 import { getHeadersFromRequest } from &quot;../oid4vci/util&quot;;
 import { AuthorizeQueries } from &quot;./dto/authorize-request.dto&quot;;
@@ -508,30 +507,28 @@ export class AuthorizeService {
             );
         }
 
-        if (
-            AuthenticationConfigHelper.isPresentationDuringIssuanceAuth(
-                authConfig,
-            )
-        ) {
-            // OID4VP flow - credential presentation required
-            const webhook &#x3D; issuanceConfig.claimsWebhook;
-            const response &#x3D; await this.parseChallengeRequest(
-                body,
-                session.tenantId,
-                webhook,
-            );
-            res.status(400).send(response);
-        } else if (AuthenticationConfigHelper.isAuthUrlAuth(authConfig)) {
-            // OID4VCI authorized code flow - should not reach here typically in challenge endpoint
-            // But we&#x27;ll handle it by sending authorization code
-            await this.sendAuthorizationCode(res, body.issuer_state!);
-        } else if (AuthenticationConfigHelper.isNoneAuth(authConfig)) {
-            // Pre-authorized code flow (method: &#x27;none&#x27;) - send authorization code directly
-            await this.sendAuthorizationCode(res, body.issuer_state!);
-        } else {
-            throw new Error(
-                &#x60;Unsupported authentication method: ${(authConfig as any).method}&#x60;,
-            );
+        switch (authConfig.method) {
+            case &quot;presentationDuringIssuance&quot;: {
+                // OID4VP flow - credential presentation required
+                const webhook &#x3D; issuanceConfig.claimsWebhook;
+                const response &#x3D; await this.parseChallengeRequest(
+                    body,
+                    session.tenantId,
+                    webhook,
+                );
+                res.status(400).send(response);
+                break;
+            }
+            case &quot;auth&quot;:
+                await this.sendAuthorizationCode(res, body.issuer_state!);
+                break;
+            case &quot;none&quot;:
+                await this.sendAuthorizationCode(res, body.issuer_state!);
+                break;
+            default:
+                throw new Error(
+                    &#x60;Unsupported authentication method: ${(authConfig as any).method}&#x60;,
+                );
         }
     }
 

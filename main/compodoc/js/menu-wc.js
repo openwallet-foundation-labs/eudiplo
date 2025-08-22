@@ -544,9 +544,6 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/AuthenticationConfigDto.html" data-type="entity-link" >AuthenticationConfigDto</a>
                             </li>
                             <li class="link">
-                                <a href="classes/AuthenticationConfigHelper.html" data-type="entity-link" >AuthenticationConfigHelper</a>
-                            </li>
-                            <li class="link">
                                 <a href="classes/AuthenticationUrlConfig.html" data-type="entity-link" >AuthenticationUrlConfig</a>
                             </li>
                             <li class="link">
@@ -559,13 +556,10 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/ClientCredentialsDto.html" data-type="entity-link" >ClientCredentialsDto</a>
                             </li>
                             <li class="link">
-                                <a href="classes/CreateCredentialIssuanceBindingDto.html" data-type="entity-link" >CreateCredentialIssuanceBindingDto</a>
+                                <a href="classes/CredentialConfigCreate.html" data-type="entity-link" >CredentialConfigCreate</a>
                             </li>
                             <li class="link">
                                 <a href="classes/CredentialConfigMapping.html" data-type="entity-link" >CredentialConfigMapping</a>
-                            </li>
-                            <li class="link">
-                                <a href="classes/CredentialIssuanceBindingResponseDto.html" data-type="entity-link" >CredentialIssuanceBindingResponseDto</a>
                             </li>
                             <li class="link">
                                 <a href="classes/CredentialIssuerMetadataDto.html" data-type="entity-link" >CredentialIssuerMetadataDto</a>
@@ -628,6 +622,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/PresentationAttachment.html" data-type="entity-link" >PresentationAttachment</a>
                             </li>
                             <li class="link">
+                                <a href="classes/PresentationConfigCreateDto.html" data-type="entity-link" >PresentationConfigCreateDto</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/PresentationDuringIssuanceConfig.html" data-type="entity-link" >PresentationDuringIssuanceConfig</a>
                             </li>
                             <li class="link">
@@ -656,9 +653,6 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             </li>
                             <li class="link">
                                 <a href="classes/TokenResponseDto.html" data-type="entity-link" >TokenResponseDto</a>
-                            </li>
-                            <li class="link">
-                                <a href="classes/UpdateCredentialIssuanceBindingDto.html" data-type="entity-link" >UpdateCredentialIssuanceBindingDto</a>
                             </li>
                             <li class="link">
                                 <a href="classes/UpdateKeyDto.html" data-type="entity-link" >UpdateKeyDto</a>
