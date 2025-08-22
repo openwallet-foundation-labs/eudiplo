@@ -20,6 +20,7 @@ import schemas from '../schemas.json';
  * extact the schema that got added by the editor
  */
 export function extractSchema(obj: any) {
+  if (!obj) return null;
   const element = typeof obj === 'string' ? JSON.parse(obj) : obj;
   delete element.$schema;
   if (Object.keys(element).length === 0) {

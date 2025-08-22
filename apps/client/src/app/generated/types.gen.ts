@@ -163,6 +163,26 @@ export type ParResponseDto = {
     expires_in: number;
 };
 
+export type AttestationBasedPolicy = {
+    [key: string]: unknown;
+};
+
+export type NoneTrustPolicy = {
+    [key: string]: unknown;
+};
+
+export type AllowListPolicy = {
+    [key: string]: unknown;
+};
+
+export type RootOfTrustPolicy = {
+    [key: string]: unknown;
+};
+
+export type EmbeddedDisclosurePolicy = {
+    [key: string]: unknown;
+};
+
 export type Vct = {
     vct?: string;
     name?: string;
@@ -184,53 +204,8 @@ export type SchemaResponse = {
     description?: string;
 };
 
-export type CredentialConfig = {
-    id: string;
-    description?: string;
-    config: {
-        [key: string]: unknown;
-    };
-    claims?: {
-        [key: string]: unknown;
-    };
-    disclosureFrame?: {
-        [key: string]: unknown;
-    };
-    vct?: Vct;
-    keyBinding?: boolean;
-    keyId?: string;
-    key: CertEntity;
-    statusManagement?: boolean;
-    lifeTime?: number;
-    schema?: SchemaResponse;
-    /**
-     * Embedded disclosure policy (discriminated union by `policy`).
-     * The discriminator makes class-transformer instantiate the right subclass,
-     * and then class-validator runs that subclass’s rules.
-     */
-    embeddedDisclosurePolicy?: {
-        [key: string]: unknown;
-    };
-    credentialIssuanceBindings: Array<CredentialIssuanceBinding>;
-};
-
-export type AuthenticationConfigDto = {
-    /**
-     * The authentication method to use:
-     * - 'none': Pre-authorized code flow (no user authentication)
-     * - 'auth': OID4VCI authorized code flow (user redirect for authentication)
-     * - 'presentationDuringIssuance': OID4VP flow (credential presentation required)
-     */
-    method: 'none' | 'auth' | 'presentationDuringIssuance';
-    /**
-     * Configuration specific to the selected authentication method
-     * - For 'none': no config needed (undefined) - uses pre-authorized code flow
-     * - For 'auth': AuthenticationUrlConfig - for OID4VCI authorized code flow
-     * - For 'presentationDuringIssuance': PresentationDuringIssuanceConfig - for OID4VP flow
-     */
-    config?: {
-        [key: string]: unknown;
-    };
+export type AuthenticationMethodNone = {
+    method: 'none';
 };
 
 export type ApiKeyConfig = {
@@ -269,7 +244,68 @@ export type WebhookConfig = {
     auth?: WebHookAuthConfig;
 };
 
+export type AuthenticationUrlConfig = {
+    /**
+     * The URL used in the OID4VCI authorized code flow.
+     * This URL is where users will be redirected for authentication.
+     */
+    url: string;
+    /**
+     * Optional webhook configuration for authentication callbacks
+     */
+    webhook?: WebhookConfig;
+};
+
+export type AuthenticationMethodAuth = {
+    method: 'auth';
+    config: AuthenticationUrlConfig;
+};
+
+export type PresentationDuringIssuanceConfig = {
+    /**
+     * Link to the presentation configuration that is relevant for the issuance process
+     */
+    type: string;
+};
+
+export type AuthenticationMethodPresentation = {
+    method: 'presentationDuringIssuance';
+    config: PresentationDuringIssuanceConfig;
+};
+
+export type CredentialConfig = {
+    /**
+     * Embedded disclosure policy (discriminated union by `policy`).
+     * The discriminator makes class-transformer instantiate the right subclass,
+     * and then class-validator runs that subclass’s rules.
+     */
+    embeddedDisclosurePolicy?: EmbeddedDisclosurePolicy;
+    id: string;
+    description?: string;
+    config: {
+        [key: string]: unknown;
+    };
+    claims?: {
+        [key: string]: unknown;
+    };
+    disclosureFrame?: {
+        [key: string]: unknown;
+    };
+    vct?: Vct;
+    keyBinding?: boolean;
+    keyId?: string;
+    key: CertEntity;
+    statusManagement?: boolean;
+    lifeTime?: number;
+    schema?: SchemaResponse;
+    issuanceConfigs: Array<IssuanceConfig>;
+};
+
 export type IssuanceConfig = {
+    /**
+     * Authentication configuration for the issuance process.
+     */
+    authenticationConfig: AuthenticationMethodNone | AuthenticationMethodAuth | AuthenticationMethodPresentation;
     /**
      * Unique identifier for the issuance configuration.
      */
@@ -281,15 +317,7 @@ export type IssuanceConfig = {
     /**
      * Links to all credential config bindings that are included in this issuance config.
      */
-    credentialIssuanceBindings: Array<CredentialIssuanceBinding>;
-    /**
-     * Authentication configuration for the issuance process.
-     * This determines which OpenID4VC flow to use:
-     * - 'none': Pre-authorized code flow (no user authentication required)
-     * - 'auth': OID4VCI authorized code flow (user will be redirected for authentication)
-     * - 'presentationDuringIssuance': OID4VP request is sent (credential presentation required)
-     */
-    authenticationConfig: AuthenticationConfigDto;
+    credentialConfigs: Array<CredentialConfig>;
     /**
      * The timestamp when the VP request was created.
      */
@@ -313,34 +341,13 @@ export type IssuanceConfig = {
     batch_size?: number;
 };
 
-export type CredentialIssuanceBinding = {
-    /**
-     * Binding key for the credential configuration.
-     */
-    credentialConfigId: string;
-    /**
-     * Binding key for the issuance configuration.
-     */
-    issuanceConfigId: string;
-    /**
-     * Reference to the credential configuration.
-     */
-    credentialConfig: CredentialConfig;
-    /**
-     * Reference to the issuance configuration.
-     */
-    issuanceConfig: IssuanceConfig;
-    /**
-     * The timestamp when the VP request was created.
-     */
-    createdAt: string;
-    /**
-     * The timestamp when the VP request was last updated.
-     */
-    updatedAt: string;
-};
-
 export type CredentialConfigCreate = {
+    /**
+     * Embedded disclosure policy (discriminated union by `policy`).
+     * The discriminator makes class-transformer instantiate the right subclass,
+     * and then class-validator runs that subclass’s rules.
+     */
+    embeddedDisclosurePolicy?: EmbeddedDisclosurePolicy;
     id: string;
     description?: string;
     config: {
@@ -358,14 +365,7 @@ export type CredentialConfigCreate = {
     statusManagement?: boolean;
     lifeTime?: number;
     schema?: SchemaResponse;
-    /**
-     * Embedded disclosure policy (discriminated union by `policy`).
-     * The discriminator makes class-transformer instantiate the right subclass,
-     * and then class-validator runs that subclass’s rules.
-     */
-    embeddedDisclosurePolicy?: {
-        [key: string]: unknown;
-    };
+    issuanceConfigs: Array<IssuanceConfig>;
 };
 
 export type OfferRequestDto = {
@@ -402,18 +402,15 @@ export type OfferResponse = {
     session: string;
 };
 
-export type CredentialConfigMapping = {
-    /**
-     * Unique identifier for the credential configuration.
-     */
-    id: string;
-};
-
 export type IssuanceDto = {
+    /**
+     * Authentication configuration for the issuance process.
+     */
+    authenticationConfig: AuthenticationMethodNone | AuthenticationMethodAuth | AuthenticationMethodPresentation;
     /**
      * Ids of the credential configurations associated with this issuance configuration.
      */
-    credentialConfigs: Array<CredentialConfigMapping>;
+    credentialConfigIds: Array<string>;
     /**
      * Unique identifier for the issuance configuration.
      */
@@ -422,14 +419,6 @@ export type IssuanceDto = {
      * Description of the issuance configuration.
      */
     description?: string;
-    /**
-     * Authentication configuration for the issuance process.
-     * This determines which OpenID4VC flow to use:
-     * - 'none': Pre-authorized code flow (no user authentication required)
-     * - 'auth': OID4VCI authorized code flow (user will be redirected for authentication)
-     * - 'presentationDuringIssuance': OID4VP request is sent (credential presentation required)
-     */
-    authenticationConfig: AuthenticationConfigDto;
     /**
      * Webhook to receive claims for the issuance process.
      */

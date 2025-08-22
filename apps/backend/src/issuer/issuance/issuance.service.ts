@@ -10,9 +10,7 @@ import { Repository } from "typeorm";
 import { CryptoService } from "../../crypto/crypto.service";
 import { CredentialConfigService } from "../credentials/credential-config/credential-config.service";
 import { CredentialConfig } from "../credentials/entities/credential.entity";
-import { AuthenticationConfig } from "./dto/authentication-config.dto";
 import { IssuanceDto } from "./dto/issuance.dto";
-import { CredentialIssuanceBinding } from "./entities/credential-issuance-binding.entity";
 import { IssuanceConfig } from "./entities/issuance-config.entity";
 
 /**
@@ -29,8 +27,6 @@ export class IssuanceService implements OnModuleInit {
     constructor(
         @InjectRepository(IssuanceConfig)
         private issuanceConfigRepo: Repository<IssuanceConfig>,
-        @InjectRepository(CredentialIssuanceBinding)
-        private credentialIssuanceBindingRepo: Repository<CredentialIssuanceBinding>,
         private credentialsConfigService: CredentialConfigService,
         private configService: ConfigService,
         private logger: PinoLogger,
@@ -162,7 +158,7 @@ export class IssuanceService implements OnModuleInit {
     public getIssuanceConfiguration(tenantId: string) {
         return this.issuanceConfigRepo.find({
             where: { tenantId },
-            relations: ["credentialIssuanceBindings"],
+            relations: ["credentialConfigs"],
         });
     }
 
@@ -178,7 +174,7 @@ export class IssuanceService implements OnModuleInit {
     ): Promise<IssuanceConfig> {
         return this.issuanceConfigRepo.findOneOrFail({
             where: { id: issuanceConfigId, tenantId },
-            relations: ["credentialIssuanceBindings.credentialConfig"],
+            relations: ["credentialConfigs"],
         });
     }
 
@@ -189,66 +185,20 @@ export class IssuanceService implements OnModuleInit {
      * @returns
      */
     async storeIssuanceConfiguration(tenantId: string, value: IssuanceDto) {
-        const credentials: { config: CredentialConfig; keyId?: string }[] = [];
+        const credentials: CredentialConfig[] = [];
         //check if all credential configs exist
-        for (const credentialConfigId of value.credentialConfigs) {
+        for (const credentialConfigId of value.credentialConfigIds) {
             const credential = await this.credentialsConfigService.getById(
                 tenantId,
-                credentialConfigId.id,
+                credentialConfigId,
             );
-            credentials.push({
-                config: credential,
-            });
+            credentials.push(credential);
         }
-
-        // Convert AuthenticationConfigDto to AuthenticationConfig union type
-        let authenticationConfig: AuthenticationConfig;
-        if (value.authenticationConfig.method === "none") {
-            authenticationConfig = { method: "none" };
-        } else if (value.authenticationConfig.method === "auth") {
-            if (!value.authenticationConfig.config) {
-                throw new Error(
-                    "AuthenticationConfig is required for auth method.",
-                );
-            }
-            authenticationConfig = {
-                method: "auth",
-                config: value.authenticationConfig.config as any,
-            };
-        } else if (
-            value.authenticationConfig.method === "presentationDuringIssuance"
-        ) {
-            if (!value.authenticationConfig.config) {
-                throw new Error(
-                    "AuthenticationConfig is required for presentationDuringIssuance method",
-                );
-            }
-            authenticationConfig = {
-                method: "presentationDuringIssuance",
-                config: value.authenticationConfig.config as any,
-            };
-        } else {
-            throw new Error(
-                `Invalid authentication method: ${
-                    (value.authenticationConfig as any).method
-                }`,
-            );
-        }
-
         const issuanceConfig = await this.issuanceConfigRepo.save({
             ...value,
             tenantId,
-            authenticationConfig,
+            credentialConfigs: credentials,
         });
-
-        //store the binding between credential and isuance
-        for (const credentialConfig of credentials) {
-            await this.credentialIssuanceBindingRepo.save({
-                credentialConfig: credentialConfig.config,
-                issuanceConfig,
-                keyID: credentialConfig.keyId,
-            });
-        }
         return issuanceConfig;
     }
 

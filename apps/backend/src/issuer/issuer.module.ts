@@ -17,7 +17,6 @@ import { CredentialsController } from "./credentials/credentials.controller";
 import { CredentialsService } from "./credentials/credentials.service";
 import { CredentialConfig } from "./credentials/entities/credential.entity";
 import { CredentialsMetadataController } from "./credentials-metadata/credentials-metadata.controller";
-import { CredentialIssuanceBinding } from "./issuance/entities/credential-issuance-binding.entity";
 import { IssuanceConfig } from "./issuance/entities/issuance-config.entity";
 import { IssuanceController } from "./issuance/issuance.controller";
 import { IssuanceService } from "./issuance/issuance.service";
@@ -41,7 +40,6 @@ export const ISSUER_VALIDATION_SCHEMA = {
         TypeOrmModule.forFeature([
             IssuanceConfig,
             CredentialConfig,
-            CredentialIssuanceBinding,
             DisplayEntity,
         ]),
     ],

@@ -168,7 +168,7 @@
           </div>
         }
 
-        @if (getObjectKeys(config.notifyWebhook).length > 1) {
+        @if (config.claimsWebhook) {
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title>
@@ -176,7 +176,7 @@
                 Webhook Details
               </mat-panel-title>
             </mat-expansion-panel-header>
-            <pre class="config-value">{{ formatJsonValue(config.notifyWebhook) }}</pre>
+            <pre class="config-value">{{ formatJsonValue(config.claimsWebhook) }}</pre>
           </mat-expansion-panel>
         }
       </mat-card-content>

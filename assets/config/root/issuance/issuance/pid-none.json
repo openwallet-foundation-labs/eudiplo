@@ -4,10 +4,8 @@
     "authenticationConfig": {
         "method": "none"
     },
-    "credentialConfigs": [
-        {
-            "id": "pid"
-        }
+    "credentialConfigIds": [
+        "pid"
     ],
     "claimsWebhook": {
         "url": "http://localhost:8787/request"

@@ -28,7 +28,6 @@ export class IssuanceConfigListComponent implements OnInit {
     'id',
     'description',
     'authenticationConfig',
-    'credentialIssuanceBindings',
     'actions',
   ];
 

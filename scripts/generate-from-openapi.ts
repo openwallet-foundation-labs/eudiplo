@@ -188,6 +188,10 @@ async function emitOperationSchemas(doc: AnyObj, isOAS31: boolean) {
 }
 
 async function main() {
+
+  // 0) clear folder
+  await rmSync(OUT_SCHEMAS, { recursive: true, force: true });
+
   // 1) fetch spec
   await fetchOpenAPI(URL, OUT_SPEC);
 

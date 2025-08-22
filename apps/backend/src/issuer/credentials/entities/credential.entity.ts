@@ -1,6 +1,11 @@
 // --- credential-config.entity.ts ---
 
-import { ApiHideProperty } from "@nestjs/swagger";
+import {
+    ApiExtraModels,
+    ApiHideProperty,
+    ApiProperty,
+    getSchemaPath,
+} from "@nestjs/swagger";
 import { CredentialConfigurationSupported } from "@openid4vc/openid4vci";
 import { Type } from "class-transformer";
 import {
@@ -11,16 +16,14 @@ import {
     IsString,
     ValidateNested,
 } from "class-validator";
-import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
+import { Column, Entity, ManyToMany, ManyToOne, OneToMany } from "typeorm";
 
 import { CertEntity } from "../../../crypto/key/entities/cert.entity";
-import { VCT } from "../../credentials-metadata/dto/credential-config.dto";
 import { SchemaResponse } from "../../credentials-metadata/dto/schema-response.dto";
-import { CredentialIssuanceBinding } from "../../issuance/entities/credential-issuance-binding.entity";
-
+import { VCT } from "../../credentials-metadata/dto/vct.dto";
+import { IssuanceConfig } from "../../issuance/entities/issuance-config.entity";
 import {
     AllowListPolicy,
-    AnyPolicy,
     AttestationBasedPolicy,
     EmbeddedDisclosurePolicy,
     NoneTrustPolicy,
@@ -28,6 +31,12 @@ import {
     RootOfTrustPolicy,
 } from "./policies";
 
+@ApiExtraModels(
+    AttestationBasedPolicy,
+    NoneTrustPolicy,
+    AllowListPolicy,
+    RootOfTrustPolicy,
+)
 @Entity()
 export class CredentialConfig {
     @IsString()
@@ -97,7 +106,15 @@ export class CredentialConfig {
      */
     @IsOptional()
     @ValidateNested()
-    @Type(() => EmbeddedDisclosurePolicy, {
+    @ApiProperty({
+        oneOf: [
+            { $ref: getSchemaPath(AttestationBasedPolicy) },
+            { $ref: getSchemaPath(NoneTrustPolicy) },
+            { $ref: getSchemaPath(AllowListPolicy) },
+            { $ref: getSchemaPath(RootOfTrustPolicy) },
+        ],
+    })
+    @Type(() => AttestationBasedPolicy, {
         discriminator: {
             property: "policy",
             subTypes: [
@@ -113,12 +130,12 @@ export class CredentialConfig {
         keepDiscriminatorProperty: true, // keep `policy` on the instance
     })
     @Column("json", { nullable: true })
-    embeddedDisclosurePolicy?: AnyPolicy;
+    embeddedDisclosurePolicy?: EmbeddedDisclosurePolicy;
 
-    @OneToMany(
-        () => CredentialIssuanceBinding,
-        (binding) => binding.credentialConfig,
+    @ManyToMany(
+        () => IssuanceConfig,
+        (issuance) => issuance.credentialConfigs,
         { cascade: ["remove"], onDelete: "CASCADE" },
     )
-    credentialIssuanceBindings!: CredentialIssuanceBinding[];
+    issuanceConfigs!: IssuanceConfig[];
 }

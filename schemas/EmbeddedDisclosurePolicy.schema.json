@@ -1,20 +1,7 @@
 {
-  "$id": "https://schemas.local/EmbeddedDisclosurePolicy.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/EmbeddedDisclosurePolicy.schema.json",
   "title": "EmbeddedDisclosurePolicy",
   "type": "object",
-  "properties": {
-    "policy": {
-      "type": "string",
-      "enum": [
-        "none",
-        "allowList",
-        "rootOfTrust",
-        "attestationBased"
-      ]
-    }
-  },
-  "required": [
-    "policy"
-  ],
-  "$schema": "http://json-schema.org/draft-04/schema#"
+  "properties": {}
 }

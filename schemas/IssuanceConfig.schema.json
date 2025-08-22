@@ -4,6 +4,20 @@
   "title": "IssuanceConfig",
   "type": "object",
   "properties": {
+    "authenticationConfig": {
+      "description": "Authentication configuration for the issuance process.",
+      "oneOf": [
+        {
+          "$ref": "./AuthenticationMethodNone.schema.json"
+        },
+        {
+          "$ref": "./AuthenticationMethodAuth.schema.json"
+        },
+        {
+          "$ref": "./AuthenticationMethodPresentation.schema.json"
+        }
+      ]
+    },
     "id": {
       "type": "string",
       "description": "Unique identifier for the issuance configuration."
@@ -18,14 +32,6 @@
       "items": {
         "$ref": "./CredentialIssuanceBinding.schema.json"
       }
-    },
-    "authenticationConfig": {
-      "description": "Authentication configuration for the issuance process.\nThis determines which OpenID4VC flow to use:\n- 'none': Pre-authorized code flow (no user authentication required)\n- 'auth': OID4VCI authorized code flow (user will be redirected for authentication)\n- 'presentationDuringIssuance': OID4VP request is sent (credential presentation required)",
-      "allOf": [
-        {
-          "$ref": "./AuthenticationConfigDto.schema.json"
-        }
-      ]
     },
     "createdAt": {
       "format": "date-time",
@@ -59,9 +65,9 @@
     }
   },
   "required": [
+    "authenticationConfig",
     "id",
     "credentialIssuanceBindings",
-    "authenticationConfig",
     "createdAt",
     "updatedAt"
   ]

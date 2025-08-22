@@ -15,14 +15,14 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { CredentialConfig, IssuanceDto } from '../../../generated';
+import { CredentialConfig, IssuanceDto, PresentationConfig } from '../../../generated';
 import { CredentialConfigService } from '../../credential-config/credential-config.service';
 import { IssuanceConfigService } from '../issuance-config.service';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
-import { EditorComponent, extractSchema } from '../../../utils/editor/editor.component';
-import { authenticationSchema, issuanceConfigSchema, webhookSchema } from '../../../utils/schemas';
+import { issuanceConfigSchema, webhookSchema } from '../../../utils/schemas';
 import { JsonViewDialogComponent } from '../../credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { PresentationManagementService } from '../../../presentation/presentation-config/presentation-management.service';
 
 @Component({
   selector: 'app-issuance-config-create',
@@ -44,7 +44,6 @@ import { MatDialog } from '@angular/material/dialog';
     ReactiveFormsModule,
     RouterModule,
     MonacoEditorModule,
-    EditorComponent,
   ],
   templateUrl: './issuance-config-create.component.html',
   styleUrl: './issuance-config-create.component.scss',
@@ -55,13 +54,14 @@ export class IssuanceConfigCreateComponent implements OnInit {
   public loading = false;
   public credentialConfigs: CredentialConfig[] = [];
   public availableCredentialConfigs: CredentialConfig[] = [];
+  public presentationConfigs: PresentationConfig[] = [];
 
   public webhookSchema = webhookSchema;
-  public authenticationSchema = authenticationSchema;
 
   constructor(
     private issuanceConfigService: IssuanceConfigService,
     private credentialConfigService: CredentialConfigService,
+    private presentationManagementService: PresentationManagementService,
     private router: Router,
     private route: ActivatedRoute,
     private snackBar: MatSnackBar,
@@ -70,11 +70,44 @@ export class IssuanceConfigCreateComponent implements OnInit {
     this.form = new FormGroup({
       id: new FormControl('', [Validators.required]),
       description: new FormControl(''),
-      authenticationConfig: new FormControl(''),
+      authenticationConfig: new FormGroup({
+        method: new FormControl('', Validators.required),
+        config: new FormControl(null, Validators.required),
+      }),
       selectedCredentialConfigs: new FormControl([], [Validators.required]),
       batchSize: new FormControl(1, [Validators.min(1)]),
-      notifyWebhook: new FormControl(''),
-      claimsWebhook: new FormControl(''),
+      notifyWebhook: new FormGroup({
+        url: new FormControl(''),
+        auth: new FormGroup({
+          type: new FormControl(''),
+          config: new FormGroup({
+            headerName: new FormControl(''),
+            value: new FormControl(''),
+          }),
+        }),
+      }),
+      claimsWebhook: new FormGroup({
+        url: new FormControl(''),
+        auth: new FormGroup({
+          type: new FormControl(''),
+          config: new FormGroup({
+            headerName: new FormControl(''),
+            value: new FormControl(''),
+          }),
+        }),
+      }),
+    });
+
+    // Listen for changes on authenticationConfig.method
+    this.form.get('authenticationConfig.method')!.valueChanges.subscribe((method) => {
+      const configGroup = new FormGroup({});
+      if (method === 'presentationDuringIssuance') {
+        configGroup.addControl('type', new FormControl('', Validators.required));
+      } else if (method === 'auth') {
+        configGroup.addControl('url', new FormControl('', Validators.required));
+      }
+      // Replace the config group
+      (this.form.get('authenticationConfig') as FormGroup).setControl('config', configGroup);
     });
 
     // Check if this is edit mode
@@ -87,6 +120,9 @@ export class IssuanceConfigCreateComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadCredentialConfigs();
+    this.presentationManagementService.loadConfigurations().then((configs) => {
+      this.presentationConfigs = configs;
+    });
   }
 
   private async loadCredentialConfigs(): Promise<void> {
@@ -112,8 +148,7 @@ export class IssuanceConfigCreateComponent implements OnInit {
       }
 
       // Extract selected credential config IDs
-      const selectedCredentialConfigs =
-        config.credentialIssuanceBindings?.map((binding: any) => binding.credentialConfigId) || [];
+      const selectedCredentialConfigs = config.credentialConfigs?.map((config) => config.id) || [];
 
       this.form.patchValue({
         id: config.id,
@@ -145,19 +180,14 @@ export class IssuanceConfigCreateComponent implements OnInit {
     const formValue = this.form.value;
 
     try {
-      // Prepare credential config mappings
-      const credentialConfigs = formValue.selectedCredentialConfigs.map((id: string) => ({
-        id: id,
-      }));
-
       const issuanceDto: IssuanceDto = {
         id: this.create ? formValue.id : this.route.snapshot.params['id'],
         description: formValue.description,
-        authenticationConfig: extractSchema(formValue.authenticationConfig),
-        credentialConfigs: credentialConfigs,
+        authenticationConfig: formValue.authenticationConfig,
+        credentialConfigIds: formValue.selectedCredentialConfigs,
         batch_size: formValue.batchSize,
-        notifyWebhook: extractSchema(formValue.notifyWebhook),
-        claimsWebhook: extractSchema(formValue.claimsWebhook),
+        notifyWebhook: formValue.notifyWebhook,
+        claimsWebhook: formValue.claimsWebhook,
       };
 
       this.issuanceConfigService
@@ -209,6 +239,8 @@ export class IssuanceConfigCreateComponent implements OnInit {
    */
   viewAsJson(): void {
     const currentConfig = this.form.value;
+    currentConfig.id = this.route.snapshot.params['id'];
+    currentConfig.credentialConfigs = this.form.get('selectedCredentialConfigs')?.value || [];
 
     const dialogRef = this.dialog.open(JsonViewDialogComponent, {
       data: {

@@ -53,12 +53,9 @@
             <mat-form-field class="full-width">
               <mat-label>Credential Configuration IDs</mat-label>
               <mat-select formControlName="credentialConfigurationIds" multiple>
-                @for (
-                  binding of selectedConfig.credentialIssuanceBindings;
-                  track binding.credentialConfigId
-                ) {
-                  <mat-option [value]="binding.credentialConfigId">
-                    {{ binding.credentialConfigId }}
+                @for (binding of selectedConfig.credentialConfigs; track binding.id) {
+                  <mat-option [value]="binding.id">
+                    {{ binding.id }}
                   </mat-option>
                 }
               </mat-select>

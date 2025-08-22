@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/PresentationDuringIssuanceConfig.schema.json",
+  "title": "PresentationDuringIssuanceConfig",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "description": "Link to the presentation configuration that is relevant for the issuance process"
+    }
+  },
+  "required": [
+    "type"
+  ]
+}

@@ -56,10 +56,3 @@ input[readonly] {
   color: rgba(0, 0, 0, 0.6);
   background-color: rgba(0, 0, 0, 0.04);
 }
-
-// Action buttons container
-div[fxLayoutAlign='end center'] {
-  margin-top: 32px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(0, 0, 0, 0.12);
-}
