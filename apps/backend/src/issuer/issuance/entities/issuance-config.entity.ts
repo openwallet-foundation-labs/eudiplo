@@ -1,5 +1,12 @@
 import { ApiHideProperty } from "@nestjs/swagger";
-import { IsEmpty, IsObject } from "class-validator";
+import { Type } from "class-transformer";
+import {
+    IsNumber,
+    IsObject,
+    IsOptional,
+    IsString,
+    ValidateNested,
+} from "class-validator";
 import {
     Column,
     CreateDateColumn,
@@ -9,7 +16,10 @@ import {
     UpdateDateColumn,
 } from "typeorm";
 import { WebhookConfig } from "../../../utils/webhook/webhook.dto";
-import type { AuthenticationConfig } from "../dto/authentication-config.dto";
+import {
+    type AuthenticationConfig,
+    AuthenticationConfigDto,
+} from "../dto/authentication-config.dto";
 import { CredentialIssuanceBinding } from "./credential-issuance-binding.entity";
 
 /**
@@ -20,19 +30,22 @@ export class IssuanceConfig {
     /**
      * Unique identifier for the issuance configuration.
      */
-    @PrimaryGeneratedColumn("uuid")
+    @IsString()
+    @Column("varchar", { primary: true })
     id: string;
 
     /**
      * Tenant ID for the issuance configuration.
      */
     @ApiHideProperty()
-    @Column("varchar")
+    @Column("varchar", { primary: true })
     tenantId: string;
 
     /**
      * Description of the issuance configuration.
      */
+    @IsString()
+    @IsOptional()
     @Column("varchar", { nullable: true })
     description?: string;
 
@@ -55,31 +68,39 @@ export class IssuanceConfig {
      */
     @IsObject()
     @Column("json")
-    authenticationConfig: AuthenticationConfig;
+    @ValidateNested()
+    @Type(() => AuthenticationConfigDto)
+    authenticationConfig: AuthenticationConfigDto;
 
     /**
      * The timestamp when the VP request was created.
      */
-    @IsEmpty()
     @CreateDateColumn()
     createdAt: Date;
 
     /**
      * The timestamp when the VP request was last updated.
      */
-    @IsEmpty()
     @UpdateDateColumn()
     updatedAt: Date;
 
     /**
      * Webhook to receive claims for the issuance process.
      */
+    @IsObject()
+    @IsOptional()
+    @ValidateNested()
+    @Type(() => WebhookConfig)
     @Column("json", { nullable: true })
     claimsWebhook?: WebhookConfig;
 
     /**
      * Webhook to send the result of the notification response
      */
+    @IsObject()
+    @IsOptional()
+    @ValidateNested()
+    @Type(() => WebhookConfig)
     @Column("json", { nullable: true })
     notifyWebhook?: WebhookConfig;
 
@@ -87,6 +108,8 @@ export class IssuanceConfig {
      * Value to determine the amount of credentials that are issued in a batch.
      * Default is 1.
      */
+    @IsNumber()
+    @IsOptional()
     @Column("int", { default: 1 })
     batch_size?: number;
 }

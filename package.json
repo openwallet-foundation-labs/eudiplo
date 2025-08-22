@@ -6,6 +6,7 @@
     "lint": "pnpm -r lint",
     "test": "pnpm -r test",
     "clean": "pnpm -r clean",
+    "gen:api": "ts-node scripts/generate-from-openapi.ts --url http://localhost:3000/api-json --out schemas --no-type",
     "setup:python": "python3 -m venv venv && source venv/bin/activate && python3 -m pip install -r requirements.txt",
     "setup": "pnpm install && pnpm run setup:python",
     "swagger": "cd apps/backend && SWAGGER_JSON=true nest start",
@@ -22,13 +23,19 @@
     "prepare": "husky"
   },
   "devDependencies": {
+    "@apidevtools/json-schema-ref-parser": "^14.2.0",
     "@codedependant/semantic-release-docker": "^5.1.1",
+    "@openapi-contrib/openapi-schema-to-json-schema": "^5.1.0",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/exec": "^7.1.0",
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^11.0.3",
+    "@types/node": "^24.2.0",
+    "cross-fetch": "^4.1.0",
     "husky": "^9.1.7",
-    "semantic-release": "^24.2.7"
+    "semantic-release": "^24.2.7",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
   },
   "packageManager": "pnpm@10.13.1+sha512.37ebf1a5c7a30d5fabe0c5df44ee8da4c965ca0c5af3dbab28c3a1681b70a256218d05c81c9c0dcf767ef6b8551eb5b960042b9ed4300c59242336377e01cfad"
 }

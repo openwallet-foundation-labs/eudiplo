@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/WebHookAuthConfig.schema.json",
+  "title": "WebHookAuthConfig",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "description": "The type of authentication used for the webhook.\nCurrently, only 'apiKey' is supported.",
+      "enum": [
+        "apiKey"
+      ]
+    },
+    "config": {
+      "description": "Configuration for API key authentication.\nThis is required if the type is 'apiKey'.",
+      "allOf": [
+        {
+          "$ref": "./ApiKeyConfig.schema.json"
+        }
+      ]
+    }
+  },
+  "required": [
+    "type",
+    "config"
+  ]
+}

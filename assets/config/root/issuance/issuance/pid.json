@@ -1,4 +1,6 @@
 {
+    "id": "pid",
+    "description": "PID issuance with auth flow",
     "authenticationConfig": {
         "method": "auth",
         "config": {

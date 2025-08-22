@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AuthenticationConfigDto.schema.json",
+  "title": "AuthenticationConfigDto",
+  "type": "object",
+  "properties": {
+    "method": {
+      "type": "string",
+      "description": "The authentication method to use:\n- 'none': Pre-authorized code flow (no user authentication)\n- 'auth': OID4VCI authorized code flow (user redirect for authentication)\n- 'presentationDuringIssuance': OID4VP flow (credential presentation required)",
+      "enum": [
+        "none",
+        "auth",
+        "presentationDuringIssuance"
+      ]
+    },
+    "config": {
+      "type": "object",
+      "description": "Configuration specific to the selected authentication method\n- For 'none': no config needed (undefined) - uses pre-authorized code flow\n- For 'auth': AuthenticationUrlConfig - for OID4VCI authorized code flow\n- For 'presentationDuringIssuance': PresentationDuringIssuanceConfig - for OID4VP flow"
+    }
+  },
+  "required": [
+    "method"
+  ]
+}

@@ -1,3 +1,4 @@
+import { OmitType } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import {
     IsArray,
@@ -8,6 +9,7 @@ import {
     ValidateNested,
 } from "class-validator";
 import { WebhookConfig } from "../../../utils/webhook/webhook.dto";
+import { IssuanceConfig } from "../entities/issuance-config.entity";
 import { AuthenticationConfigDto } from "./authentication-config.dto";
 
 /**
@@ -21,24 +23,15 @@ export class CredentialConfigMapping {
     id: string;
 }
 
-//TODO: check if this can be integrated into the entity
 /**
- * DTO for Issuance Configuration.
+ * DTO for mapping issuance configurations.
  */
-export class IssuanceDto {
-    /**
-     * Unique identifier for the issuance configuration.
-     */
-    @IsString()
-    id: string;
-
-    /**
-     * Description of the issuance configuration.
-     */
-    @IsString()
-    @IsOptional()
-    description?: string;
-
+export class IssuanceDto extends OmitType(IssuanceConfig, [
+    "tenantId",
+    "credentialIssuanceBindings",
+    "createdAt",
+    "updatedAt",
+] as const) {
     /**
      * Ids of the credential configurations associated with this issuance configuration.
      */
@@ -46,39 +39,4 @@ export class IssuanceDto {
     @ValidateNested({ each: true })
     @Type(() => CredentialConfigMapping)
     credentialConfigs: CredentialConfigMapping[];
-
-    /**
-     * Authentication configuration for the issuance process.
-     * This includes details like the authentication method and any required parameters.
-     */
-    @IsObject()
-    @ValidateNested()
-    @Type(() => AuthenticationConfigDto)
-    authenticationConfig: AuthenticationConfigDto;
-
-    /**
-     * Optional webhook configuration to receive claims during the issuance process.
-     */
-    @IsObject()
-    @IsOptional()
-    @ValidateNested()
-    @Type(() => WebhookConfig)
-    claimsWebhook?: WebhookConfig;
-
-    /**
-     * Optional webhook configuration to send the results of the notification response.
-     */
-    @IsObject()
-    @IsOptional()
-    @ValidateNested()
-    @Type(() => WebhookConfig)
-    notifyWebhook?: WebhookConfig;
-
-    /**
-     * Value to determine the amount of credentials that are issued in a batch.
-     * Default is 1.
-     */
-    @IsNumber()
-    @IsOptional()
-    batch_size?: number;
 }

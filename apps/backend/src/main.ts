@@ -11,7 +11,16 @@ import { AppModule } from "./app.module";
 async function bootstrap() {
     const app = await NestFactory.create(AppModule, { bufferLogs: true });
     app.enableCors();
-    app.useGlobalPipes(new ValidationPipe());
+    app.useGlobalPipes(
+        new ValidationPipe({
+            transform: true, // required for discriminator instantiation
+            whitelist: true,
+            forbidUnknownValues: false, // avoid false positives on plain objects
+            forbidNonWhitelisted: false,
+            stopAtFirstError: false,
+            validateCustomDecorators: true,
+        }),
+    );
 
     const configService = app.get(ConfigService);
 
@@ -24,6 +33,7 @@ async function bootstrap() {
             "Documentation",
             "https://openwallet-foundation-labs.github.io/eudiplo/latest/",
         )
+        .setOpenAPIVersion("3.1.0")
         .setVersion(process.env.VERSION ?? "main");
     // Add OAuth2 configuration - either external OIDC or integrated OAuth2 server
     const useExternalOIDC = configService.get<string>("OIDC");

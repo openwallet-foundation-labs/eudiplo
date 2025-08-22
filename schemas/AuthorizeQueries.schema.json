@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AuthorizeQueries.schema.json",
+  "title": "AuthorizeQueries",
+  "type": "object",
+  "properties": {
+    "issuer_state": {
+      "type": "string"
+    },
+    "response_type": {
+      "type": "string"
+    },
+    "client_id": {
+      "type": "string"
+    },
+    "redirect_uri": {
+      "type": "string"
+    },
+    "resource": {
+      "type": "string"
+    },
+    "scope": {
+      "type": "string"
+    },
+    "code_challenge": {
+      "type": "string"
+    },
+    "code_challenge_method": {
+      "type": "string"
+    },
+    "dpop_jkt": {
+      "type": "string"
+    },
+    "request_uri": {
+      "type": "string"
+    },
+    "auth_session": {
+      "type": "string"
+    }
+  }
+}

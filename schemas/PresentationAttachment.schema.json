@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/PresentationAttachment.schema.json",
+  "title": "PresentationAttachment",
+  "type": "object",
+  "properties": {
+    "format": {
+      "type": "string"
+    },
+    "data": {
+      "type": "object"
+    },
+    "credential_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "format",
+    "data"
+  ]
+}

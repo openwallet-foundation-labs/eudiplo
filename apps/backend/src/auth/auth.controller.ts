@@ -57,10 +57,15 @@ export class AuthController {
         status: 200,
         description: "OAuth2 token response",
         type: TokenResponse,
-        example: {
-            access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-            token_type: "Bearer",
-            expires_in: 86400,
+        examples: {
+            success: {
+                summary: "Successful response",
+                value: {
+                    access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                    token_type: "Bearer",
+                    expires_in: 86400,
+                },
+            },
         },
     })
     @ApiResponse({

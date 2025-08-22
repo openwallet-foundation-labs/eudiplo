@@ -123,13 +123,6 @@ export class AuthenticationConfigDto {
     @IsOptional()
     @Validate(AuthConfigValidator)
     config?: AuthenticationUrlConfig | PresentationDuringIssuanceConfig;
-
-    /**
-     * Description of the authentication configuration.
-     */
-    @IsOptional()
-    @IsString()
-    description?: string;
 }
 
 /**

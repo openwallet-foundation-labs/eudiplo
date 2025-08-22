@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/PresentationRequest.schema.json",
+  "title": "PresentationRequest",
+  "type": "object",
+  "properties": {
+    "response_type": {
+      "type": "string",
+      "description": "The type of response expected from the presentation request.",
+      "enum": [
+        "qrcode",
+        "uri"
+      ]
+    },
+    "requestId": {
+      "type": "string",
+      "description": "Identifier of the presentation configuration"
+    },
+    "webhook": {
+      "description": "Webhook configuration to receive the response.\nIf not provided, the configured webhook from the configuration will be used.",
+      "allOf": [
+        {
+          "$ref": "./WebhookConfig.schema.json"
+        }
+      ]
+    }
+  },
+  "required": [
+    "response_type",
+    "requestId"
+  ]
+}

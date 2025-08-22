@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/VCT.schema.json",
+  "title": "VCT",
+  "type": "object",
+  "properties": {
+    "vct": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "extends": {
+      "type": "string"
+    },
+    "extends#integrity": {
+      "type": "string"
+    },
+    "schema_uri": {
+      "type": "string"
+    },
+    "schema_uri#integrity": {
+      "type": "string"
+    }
+  }
+}

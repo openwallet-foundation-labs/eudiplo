@@ -278,20 +278,17 @@ export const VCTSchema = {
         'schema_uri#integrity': {
             type: 'string'
         }
-    },
-    required: ['vct']
+    }
 } as const;
 
 export const SchemaResponseSchema = {
     type: 'object',
     properties: {
         '$schema': {
-            type: 'object',
-            default: 'https://json-schema.org/draft/2020-12/schema'
+            type: 'string'
         },
         type: {
-            type: 'object',
-            default: 'object'
+            type: 'string'
         },
         properties: {
             type: 'object'
@@ -301,43 +298,34 @@ export const SchemaResponseSchema = {
             items: {
                 type: 'string'
             }
+        },
+        title: {
+            type: 'string'
+        },
+        description: {
+            type: 'string'
         }
     },
-    required: ['$schema', 'type', 'properties', 'required']
-} as const;
-
-export const EmbeddedDisclosurePolicySchema = {
-    type: 'object',
-    properties: {
-        policy: {
-            type: 'string',
-            enum: ['none', 'allowList', 'rootOfTrust', 'attestationBased']
-        }
-    },
-    required: ['policy']
+    required: ['$schema', 'type', 'properties']
 } as const;
 
 export const CredentialConfigSchema = {
     type: 'object',
     properties: {
         id: {
-            type: 'string',
-            description: 'Unique identifier for the configuration to reference it.'
+            type: 'string'
         },
-        tenantId: {
-            type: 'string',
-            description: 'Tenant ID for the issuance configuration.'
+        description: {
+            type: 'string'
         },
         config: {
             type: 'object'
         },
         claims: {
-            type: 'object',
-            description: 'Claims that should be set by default when this credential is being issued. Will be overwritten when passed during a credential offer request.'
+            type: 'object'
         },
         disclosureFrame: {
-            type: 'object',
-            description: 'Disclosure frame for the sd jwt vc.'
+            type: 'object'
         },
         vct: {
             '$ref': '#/components/schemas/VCT'
@@ -346,47 +334,56 @@ export const CredentialConfigSchema = {
             type: 'boolean'
         },
         keyId: {
-            type: 'string',
-            description: `Optional key ID for the credential configuration.
-This is used to identify the key used for signing the credential.`
+            type: 'string'
         },
         key: {
             '$ref': '#/components/schemas/CertEntity'
         },
         statusManagement: {
-            type: 'boolean',
-            description: `Optional status management flag for the credential configuration.
-If true, a status management will be applied to the credential.`
+            type: 'boolean'
         },
         lifeTime: {
-            type: 'number',
-            description: 'Optional livetime for the credential configuration in seconds.'
+            type: 'number'
         },
         schema: {
-            description: 'json schema that is used during issuance for the validation of the claims.',
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/SchemaResponse'
-                }
-            ]
+            '$ref': '#/components/schemas/SchemaResponse'
+        },
+        embeddedDisclosurePolicy: {
+            type: 'object',
+            description: `Embedded disclosure policy (discriminated union by \`policy\`).
+The discriminator makes class-transformer instantiate the right subclass,
+and then class-validator runs that subclass’s rules.`
         },
         credentialIssuanceBindings: {
-            description: 'Link to all the issuance config bindings that are using this credential.',
             type: 'array',
             items: {
                 '$ref': '#/components/schemas/CredentialIssuanceBinding'
             }
-        },
-        embeddedDisclosurePolicy: {
-            description: 'Embedded disclosure policy for the credential.',
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/EmbeddedDisclosurePolicy'
-                }
-            ]
         }
     },
-    required: ['id', 'tenantId', 'config', 'claims', 'disclosureFrame', 'key', 'credentialIssuanceBindings']
+    required: ['id', 'config', 'key', 'credentialIssuanceBindings']
+} as const;
+
+export const AuthenticationConfigDtoSchema = {
+    type: 'object',
+    properties: {
+        method: {
+            type: 'string',
+            description: `The authentication method to use:
+- 'none': Pre-authorized code flow (no user authentication)
+- 'auth': OID4VCI authorized code flow (user redirect for authentication)
+- 'presentationDuringIssuance': OID4VP flow (credential presentation required)`,
+            enum: ['none', 'auth', 'presentationDuringIssuance']
+        },
+        config: {
+            type: 'object',
+            description: `Configuration specific to the selected authentication method
+- For 'none': no config needed (undefined) - uses pre-authorized code flow
+- For 'auth': AuthenticationUrlConfig - for OID4VCI authorized code flow
+- For 'presentationDuringIssuance': PresentationDuringIssuanceConfig - for OID4VP flow`
+        }
+    },
+    required: ['method']
 } as const;
 
 export const ApiKeyConfigSchema = {
@@ -394,8 +391,7 @@ export const ApiKeyConfigSchema = {
     properties: {
         headerName: {
             type: 'string',
-            description: 'The name of the header where the API key will be sent.',
-            example: 'Authorization'
+            description: 'The name of the header where the API key will be sent.'
         },
         value: {
             type: 'string',
@@ -466,12 +462,16 @@ export const IssuanceConfigSchema = {
             }
         },
         authenticationConfig: {
-            type: 'object',
             description: `Authentication configuration for the issuance process.
 This determines which OpenID4VC flow to use:
 - 'none': Pre-authorized code flow (no user authentication required)
 - 'auth': OID4VCI authorized code flow (user will be redirected for authentication)
-- 'presentationDuringIssuance': OID4VP request is sent (credential presentation required)`
+- 'presentationDuringIssuance': OID4VP request is sent (credential presentation required)`,
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/AuthenticationConfigDto'
+                }
+            ]
         },
         createdAt: {
             format: 'date-time',
@@ -512,10 +512,12 @@ export const CredentialIssuanceBindingSchema = {
     type: 'object',
     properties: {
         credentialConfigId: {
-            type: 'string'
+            type: 'string',
+            description: 'Binding key for the credential configuration.'
         },
         issuanceConfigId: {
-            type: 'string'
+            type: 'string',
+            description: 'Binding key for the issuance configuration.'
         },
         credentialConfig: {
             description: 'Reference to the credential configuration.',
@@ -547,30 +549,81 @@ export const CredentialIssuanceBindingSchema = {
     required: ['credentialConfigId', 'issuanceConfigId', 'credentialConfig', 'issuanceConfig', 'createdAt', 'updatedAt']
 } as const;
 
+export const CredentialConfigCreateSchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string'
+        },
+        description: {
+            type: 'string'
+        },
+        config: {
+            type: 'object'
+        },
+        claims: {
+            type: 'object'
+        },
+        disclosureFrame: {
+            type: 'object'
+        },
+        vct: {
+            '$ref': '#/components/schemas/VCT'
+        },
+        keyBinding: {
+            type: 'boolean'
+        },
+        keyId: {
+            type: 'string'
+        },
+        statusManagement: {
+            type: 'boolean'
+        },
+        lifeTime: {
+            type: 'number'
+        },
+        schema: {
+            '$ref': '#/components/schemas/SchemaResponse'
+        },
+        embeddedDisclosurePolicy: {
+            type: 'object',
+            description: `Embedded disclosure policy (discriminated union by \`policy\`).
+The discriminator makes class-transformer instantiate the right subclass,
+and then class-validator runs that subclass’s rules.`
+        }
+    },
+    required: ['id', 'config']
+} as const;
+
 export const OfferRequestDtoSchema = {
     type: 'object',
     properties: {
         response_type: {
-            example: 'qrcode',
             enum: ['qrcode', 'uri'],
             type: 'string',
+            examples: [
+                {
+                    value: 'qrcode'
+                }
+            ],
             description: 'The type of response expected for the offer request.'
         },
         claims: {
             type: 'object',
             description: 'Override the default values for the credential claims.',
             properties: {},
-            examples: {
-                pid: {
-                    given_name: 'ERIKA',
-                    family_name: 'MUSTERMANN'
+            examples: [
+                {
+                    pid: {
+                        given_name: 'ERIKA',
+                        family_name: 'MUSTERMANN'
+                    }
                 }
-            }
+            ]
         },
         issuanceId: {
             type: 'string',
-            description: 'Issuance config id to reference the issuance configuration.',
-            example: 'pid'
+            description: 'Issuance config id to reference the issuance configuration.'
         },
         credentialConfigurationIds: {
             description: 'Overrides the default values for the credential ids.',
@@ -620,35 +673,16 @@ export const CredentialConfigMappingSchema = {
     required: ['id']
 } as const;
 
-export const AuthenticationConfigDtoSchema = {
-    type: 'object',
-    properties: {
-        method: {
-            type: 'string',
-            description: `The authentication method to use:
-- 'none': Pre-authorized code flow (no user authentication)
-- 'auth': OID4VCI authorized code flow (user redirect for authentication)
-- 'presentationDuringIssuance': OID4VP flow (credential presentation required)`,
-            enum: ['none', 'auth', 'presentationDuringIssuance']
-        },
-        config: {
-            type: 'object',
-            description: `Configuration specific to the selected authentication method
-- For 'none': no config needed (undefined) - uses pre-authorized code flow
-- For 'auth': AuthenticationUrlConfig - for OID4VCI authorized code flow
-- For 'presentationDuringIssuance': PresentationDuringIssuanceConfig - for OID4VP flow`
-        },
-        description: {
-            type: 'string',
-            description: 'Description of the authentication configuration.'
-        }
-    },
-    required: ['method']
-} as const;
-
 export const IssuanceDtoSchema = {
     type: 'object',
     properties: {
+        credentialConfigs: {
+            description: 'Ids of the credential configurations associated with this issuance configuration.',
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/CredentialConfigMapping'
+            }
+        },
         id: {
             type: 'string',
             description: 'Unique identifier for the issuance configuration.'
@@ -657,16 +691,12 @@ export const IssuanceDtoSchema = {
             type: 'string',
             description: 'Description of the issuance configuration.'
         },
-        credentialConfigs: {
-            description: 'Ids of the credential configurations associated with this issuance configuration.',
-            type: 'array',
-            items: {
-                '$ref': '#/components/schemas/CredentialConfigMapping'
-            }
-        },
         authenticationConfig: {
             description: `Authentication configuration for the issuance process.
-This includes details like the authentication method and any required parameters.`,
+This determines which OpenID4VC flow to use:
+- 'none': Pre-authorized code flow (no user authentication required)
+- 'auth': OID4VCI authorized code flow (user will be redirected for authentication)
+- 'presentationDuringIssuance': OID4VP request is sent (credential presentation required)`,
             allOf: [
                 {
                     '$ref': '#/components/schemas/AuthenticationConfigDto'
@@ -674,7 +704,7 @@ This includes details like the authentication method and any required parameters
             ]
         },
         claimsWebhook: {
-            description: 'Optional webhook configuration to receive claims during the issuance process.',
+            description: 'Webhook to receive claims for the issuance process.',
             allOf: [
                 {
                     '$ref': '#/components/schemas/WebhookConfig'
@@ -682,7 +712,7 @@ This includes details like the authentication method and any required parameters
             ]
         },
         notifyWebhook: {
-            description: 'Optional webhook configuration to send the results of the notification response.',
+            description: 'Webhook to send the result of the notification response',
             allOf: [
                 {
                     '$ref': '#/components/schemas/WebhookConfig'
@@ -695,7 +725,7 @@ This includes details like the authentication method and any required parameters
 Default is 1.`
         }
     },
-    required: ['id', 'credentialConfigs', 'authenticationConfig']
+    required: ['credentialConfigs', 'id', 'authenticationConfig']
 } as const;
 
 export const AuthorizationResponseSchema = {
@@ -714,13 +744,12 @@ export const PresentationRequestSchema = {
     properties: {
         response_type: {
             type: 'string',
-            example: 'qrcode',
+            description: 'The type of response expected from the presentation request.',
             enum: ['qrcode', 'uri']
         },
         requestId: {
             type: 'string',
-            description: 'Identifier of the presentation configuration',
-            example: 'pid'
+            description: 'Identifier of the presentation configuration'
         },
         webhook: {
             description: `Webhook configuration to receive the response.
@@ -822,7 +851,53 @@ export const PresentationConfigSchema = {
             }
         }
     },
-    required: ['id', 'lifeTime', 'dcql_query', 'createdAt', 'updatedAt', 'attached']
+    required: ['id', 'dcql_query', 'createdAt', 'updatedAt']
+} as const;
+
+export const PresentationConfigCreateDtoSchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string',
+            description: 'Unique identifier for the VP request.'
+        },
+        description: {
+            type: 'string',
+            description: 'Description of the presentation configuration.'
+        },
+        lifeTime: {
+            type: 'number',
+            description: 'Lifetime how long the presentation request is valid after creation, in seconds.'
+        },
+        dcql_query: {
+            type: 'object',
+            description: 'The DCQL query to be used for the VP request.'
+        },
+        registrationCert: {
+            description: 'The registration certificate request containing the necessary details.',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/RegistrationCertificateRequest'
+                }
+            ]
+        },
+        webhook: {
+            description: 'Optional webhook URL to receive the response.',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/WebhookConfig'
+                }
+            ]
+        },
+        attached: {
+            description: 'Attestation that should be attached',
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/PresentationAttachment'
+            }
+        }
+    },
+    required: ['id', 'dcql_query']
 } as const;
 
 export const SessionSchema = {

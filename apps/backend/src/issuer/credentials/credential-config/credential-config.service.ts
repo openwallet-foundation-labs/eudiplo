@@ -8,6 +8,7 @@ import { PinoLogger } from "nestjs-pino";
 import { join } from "path";
 import { Repository } from "typeorm";
 import { CryptoService } from "../../../crypto/crypto.service";
+import { CredentialConfigCreate } from "../dto/credential-config-create.dto";
 import { CredentialConfig } from "../entities/credential.entity";
 
 /**
@@ -58,10 +59,15 @@ export class CredentialConfigService {
                     }
 
                     // Validate the payload against CredentialConfig
-                    const config = plainToClass(CredentialConfig, payload);
+                    const config = plainToClass(
+                        CredentialConfigCreate,
+                        payload,
+                    );
                     const validationErrors = await validate(config, {
                         whitelist: true,
-                        forbidNonWhitelisted: true,
+                        forbidUnknownValues: false, // avoid false positives on plain objects
+                        forbidNonWhitelisted: false,
+                        stopAtFirstError: false,
                     });
 
                     // Check if keyId is provided and if the certificate exists
@@ -91,7 +97,7 @@ export class CredentialConfigService {
                             );
                             continue; // Skip this invalid config
                         }
-                        config.key = cert;
+                        (config as CredentialConfig).key = cert;
                     }
 
                     if (validationErrors.length > 0) {
@@ -156,7 +162,7 @@ export class CredentialConfigService {
      * @param config - The CredentialConfig entity to store.
      * @returns A promise that resolves to the stored CredentialConfig entity.
      */
-    store(tenantId: string, config: CredentialConfig) {
+    store(tenantId: string, config: CredentialConfigCreate) {
         return this.credentialConfigRepository.save({
             ...config,
             tenantId,

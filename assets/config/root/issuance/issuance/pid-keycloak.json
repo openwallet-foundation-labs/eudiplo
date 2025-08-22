@@ -1,4 +1,6 @@
 {
+    "id": "pid-keycloak",
+    "description": "PID issuance with Keycloak auth flow",
     "authenticationConfig": {
         "method": "auth",
         "config": {

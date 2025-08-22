@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/NotificationRequestDto.schema.json",
+  "title": "NotificationRequestDto",
+  "type": "object",
+  "properties": {
+    "notification_id": {
+      "type": "string"
+    },
+    "event": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "notification_id",
+    "event"
+  ]
+}

@@ -1,9 +1,10 @@
+// --- credential-config.entity.ts ---
+
+import { ApiHideProperty } from "@nestjs/swagger";
 import { CredentialConfigurationSupported } from "@openid4vc/openid4vci";
+import { Type } from "class-transformer";
 import {
-    IsArray,
     IsBoolean,
-    IsEmpty,
-    IsEnum,
     IsNumber,
     IsObject,
     IsOptional,
@@ -11,180 +12,113 @@ import {
     ValidateNested,
 } from "class-validator";
 import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
+
 import { CertEntity } from "../../../crypto/key/entities/cert.entity";
 import { VCT } from "../../credentials-metadata/dto/credential-config.dto";
 import { SchemaResponse } from "../../credentials-metadata/dto/schema-response.dto";
 import { CredentialIssuanceBinding } from "../../issuance/entities/credential-issuance-binding.entity";
 
-/**
- * Enum for the policy types.
- */
-export enum PolicyType {
-    NONE = "none",
-    ALLOW_LIST = "allowList",
-    ROOT_OF_TRUST = "rootOfTrust",
-    ATTESTATION_BASED = "attestationBased",
-}
-/**
- * Embedded disclosure policy for the credential.
- */
-export class EmbeddedDisclosurePolicy {
-    @IsEnum(PolicyType)
-    policy: PolicyType;
-}
+import {
+    AllowListPolicy,
+    AnyPolicy,
+    AttestationBasedPolicy,
+    EmbeddedDisclosurePolicy,
+    NoneTrustPolicy,
+    PolicyType,
+    RootOfTrustPolicy,
+} from "./policies";
 
-/**
- * Allow list disclosure policy for the credential.
- */
-export class AllowListPolicy extends EmbeddedDisclosurePolicy {
-    declare policy: PolicyType.ALLOW_LIST;
-
-    @IsString({ each: true })
-    values: string[];
-}
-
-/**
- * Root of trust disclosure policy for the credential.
- */
-export class RootOfTrustPolicy extends EmbeddedDisclosurePolicy {
-    declare policy: PolicyType.ROOT_OF_TRUST;
-
-    @IsString()
-    values: string;
-}
-
-/**
- * None trust disclosure policy for the credential.
- */
-export class NoneTrustPolicy extends EmbeddedDisclosurePolicy {
-    declare policy: PolicyType.NONE;
-}
-
-export class PolicyCredential {
-    @IsString()
-    format: string;
-    @IsObject()
-    meta: any;
-    @IsString()
-    iss: string;
-}
-
-/**
- * Attestation based disclosure policy for the credential.
- */
-export class AttestationBasedPolicy extends EmbeddedDisclosurePolicy {
-    declare policy: PolicyType.ATTESTATION_BASED;
-
-    @IsArray()
-    values: PolicyCredential[];
-}
-
-/**
- * Entity to manage a credential configuration
- */
 @Entity()
 export class CredentialConfig {
-    /**
-     * Unique identifier for the configuration to reference it.
-     */
     @IsString()
     @Column("varchar", { primary: true })
-    id: string;
-    /**
-     * Tenant ID for the issuance configuration.
-     */
-    @IsEmpty()
-    @Column("varchar", { primary: true })
-    tenantId: string;
+    id!: string;
 
-    //TODO: only allow display config for now
-    /**
-     * OID4VCI issuer metadata credential configuration element.
-     */
+    @IsString()
+    @Column("varchar", { nullable: true })
+    description?: string;
+
+    @ApiHideProperty()
+    @Column("varchar", { primary: true })
+    tenantId!: string;
+
     @Column("json")
     @IsObject()
-    config: CredentialConfigurationSupported;
-    /**
-     * Claims that should be set by default when this credential is being issued. Will be overwritten when passed during a credential offer request.
-     */
-    @Column("json", { nullable: true })
-    @IsObject()
-    claims: Record<string, any>;
-    /**
-     * Disclosure frame for the sd jwt vc.
-     */
-    @Column("json", { nullable: true })
-    @IsObject()
-    disclosureFrame: Record<string, any>;
-    @Column("json", { nullable: true })
-    /**
-     * VCT values that are hosted by this service.
-     */
-    @IsObject()
-    @IsOptional()
-    vct?: VCT;
-    @Column("json", { nullable: true })
+    config!: CredentialConfigurationSupported;
 
-    /**
-     * If true, the credential will be key bound.
-     */
-    @IsBoolean()
+    @Column("json", { nullable: true })
+    @IsOptional()
+    @IsObject()
+    claims?: Record<string, any>;
+
+    @Column("json", { nullable: true })
+    @IsOptional()
+    @IsObject()
+    disclosureFrame?: Record<string, any>;
+
+    @IsOptional()
+    @ValidateNested()
+    @Type(() => VCT)
+    @Column("json", { nullable: true })
+    vct?: VCT;
+
     @IsOptional()
     @Column("boolean", { default: false })
+    @IsBoolean()
     keyBinding?: boolean;
 
-    /**
-     * Optional key ID for the credential configuration.
-     * This is used to identify the key used for signing the credential.
-     */
-    @IsString()
     @IsOptional()
+    @IsString()
     keyId?: string;
 
-    @IsEmpty()
     @ManyToOne(() => CertEntity)
-    key: CertEntity;
+    key!: CertEntity;
 
-    /**
-     * Optional status management flag for the credential configuration.
-     * If true, a status management will be applied to the credential.
-     */
-    @IsBoolean()
     @IsOptional()
     @Column("boolean", { default: false })
+    @IsBoolean()
     statusManagement?: boolean;
-    /**
-     * Optional livetime for the credential configuration in seconds.
-     */
-    @IsNumber()
+
     @IsOptional()
     @Column("int", { nullable: true })
+    @IsNumber()
     lifeTime?: number;
 
-    /**
-     * json schema that is used during issuance for the validation of the claims.
-     */
-    @IsObject()
     @IsOptional()
+    @ValidateNested()
+    @Type(() => SchemaResponse)
     @Column("json", { nullable: true })
     schema?: SchemaResponse;
+
     /**
-     * Link to all the issuance config bindings that are using this credential.
+     * Embedded disclosure policy (discriminated union by `policy`).
+     * The discriminator makes class-transformer instantiate the right subclass,
+     * and then class-validator runs that subclass’s rules.
      */
-    @IsEmpty()
+    @IsOptional()
+    @ValidateNested()
+    @Type(() => EmbeddedDisclosurePolicy, {
+        discriminator: {
+            property: "policy",
+            subTypes: [
+                { name: PolicyType.NONE, value: NoneTrustPolicy },
+                { name: PolicyType.ALLOW_LIST, value: AllowListPolicy },
+                { name: PolicyType.ROOT_OF_TRUST, value: RootOfTrustPolicy },
+                {
+                    name: PolicyType.ATTESTATION_BASED,
+                    value: AttestationBasedPolicy,
+                },
+            ],
+        },
+        keepDiscriminatorProperty: true, // keep `policy` on the instance
+    })
+    @Column("json", { nullable: true })
+    embeddedDisclosurePolicy?: AnyPolicy;
+
     @OneToMany(
         () => CredentialIssuanceBinding,
         (binding) => binding.credentialConfig,
         { cascade: ["remove"], onDelete: "CASCADE" },
     )
-    credentialIssuanceBindings: CredentialIssuanceBinding[];
-
-    /**
-     * Embedded disclosure policy for the credential.
-     */
-    @Column("json", { nullable: true })
-    @IsObject()
-    @IsOptional()
-    @ValidateNested()
-    embeddedDisclosurePolicy?: EmbeddedDisclosurePolicy;
+    credentialIssuanceBindings!: CredentialIssuanceBinding[];
 }

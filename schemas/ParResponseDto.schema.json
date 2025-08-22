@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ParResponseDto.schema.json",
+  "title": "ParResponseDto",
+  "type": "object",
+  "properties": {
+    "request_uri": {
+      "type": "string",
+      "description": "The request URI for the Pushed Authorization Request."
+    },
+    "expires_in": {
+      "type": "number",
+      "description": "The expiration time for the request URI in seconds."
+    }
+  },
+  "required": [
+    "request_uri",
+    "expires_in"
+  ]
+}

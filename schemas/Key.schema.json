@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/Key.schema.json",
+  "title": "Key",
+  "type": "object",
+  "properties": {
+    "kid": {
+      "type": "string"
+    },
+    "kty": {
+      "type": "string"
+    },
+    "x": {
+      "type": "string"
+    },
+    "y": {
+      "type": "string"
+    },
+    "crv": {
+      "type": "string"
+    },
+    "d": {
+      "type": "string"
+    },
+    "alg": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "kid",
+    "kty",
+    "x",
+    "y",
+    "crv",
+    "d",
+    "alg"
+  ]
+}

@@ -1,6 +1,4 @@
-import { IsEmpty } from "class-validator";
 import {
-    Column,
     CreateDateColumn,
     Entity,
     ManyToOne,
@@ -17,9 +15,15 @@ import { IssuanceConfig } from "./issuance-config.entity";
  */
 @Entity()
 export class CredentialIssuanceBinding {
+    /**
+     * Binding key for the credential configuration.
+     */
     @PrimaryColumn()
     credentialConfigId: string;
 
+    /**
+     * Binding key for the issuance configuration.
+     */
     @PrimaryColumn()
     issuanceConfigId: string;
 
@@ -46,14 +50,12 @@ export class CredentialIssuanceBinding {
     /**
      * The timestamp when the VP request was created.
      */
-    @IsEmpty()
     @CreateDateColumn()
     createdAt: Date;
 
     /**
      * The timestamp when the VP request was last updated.
      */
-    @IsEmpty()
     @UpdateDateColumn()
     updatedAt: Date;
 }

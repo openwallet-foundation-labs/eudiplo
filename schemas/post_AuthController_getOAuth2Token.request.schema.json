@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AuthController_getOAuth2Token.request.schema.json",
+  "title": "AuthController_getOAuth2Token.request",
+  "$ref": "./ClientCredentialsDto.schema.json"
+}

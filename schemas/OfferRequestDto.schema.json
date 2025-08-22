@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/OfferRequestDto.schema.json",
+  "title": "OfferRequestDto",
+  "type": "object",
+  "properties": {
+    "response_type": {
+      "enum": [
+        "qrcode",
+        "uri"
+      ],
+      "type": "string",
+      "examples": [
+        {
+          "value": "qrcode"
+        }
+      ],
+      "description": "The type of response expected for the offer request."
+    },
+    "claims": {
+      "type": "object",
+      "description": "Override the default values for the credential claims.",
+      "properties": {},
+      "examples": [
+        {
+          "pid": {
+            "given_name": "ERIKA",
+            "family_name": "MUSTERMANN"
+          }
+        }
+      ]
+    },
+    "issuanceId": {
+      "type": "string",
+      "description": "Issuance config id to reference the issuance configuration."
+    },
+    "credentialConfigurationIds": {
+      "description": "Overrides the default values for the credential ids.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "claimsWebhook": {
+      "description": "Webhook configuration for claims",
+      "allOf": [
+        {
+          "$ref": "./WebhookConfig.schema.json"
+        }
+      ]
+    },
+    "session": {
+      "type": "string",
+      "description": "Pre defined session id",
+      "format": "uuid"
+    }
+  },
+  "required": [
+    "response_type",
+    "issuanceId"
+  ]
+}

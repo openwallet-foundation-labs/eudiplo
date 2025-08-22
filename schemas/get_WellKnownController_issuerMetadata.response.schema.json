@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/WellKnownController_issuerMetadata.response.schema.json",
+  "title": "WellKnownController_issuerMetadata.response",
+  "type": "object"
+}

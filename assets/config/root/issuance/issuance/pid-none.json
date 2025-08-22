@@ -1,4 +1,6 @@
 {
+    "id": "pid-none",
+    "description": "PID issuance with pre auth flow",
     "authenticationConfig": {
         "method": "none"
     },

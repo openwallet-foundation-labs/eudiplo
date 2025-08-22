@@ -18,7 +18,6 @@ import { Session } from "../../session/entities/session.entity";
 import { SessionService } from "../../session/session.service";
 import { WebhookConfig } from "../../utils/webhook/webhook.dto";
 import { Oid4vpService } from "../../verifier/oid4vp/oid4vp.service";
-import { AuthenticationConfigHelper } from "../issuance/dto/authentication-config.helper";
 import { IssuanceService } from "../issuance/issuance.service";
 import { getHeadersFromRequest } from "../oid4vci/util";
 import { AuthorizeQueries } from "./dto/authorize-request.dto";
@@ -271,30 +270,28 @@ export class AuthorizeService {
             );
         }
 
-        if (
-            AuthenticationConfigHelper.isPresentationDuringIssuanceAuth(
-                authConfig,
-            )
-        ) {
-            // OID4VP flow - credential presentation required
-            const webhook = issuanceConfig.claimsWebhook;
-            const response = await this.parseChallengeRequest(
-                body,
-                session.tenantId,
-                webhook,
-            );
-            res.status(400).send(response);
-        } else if (AuthenticationConfigHelper.isAuthUrlAuth(authConfig)) {
-            // OID4VCI authorized code flow - should not reach here typically in challenge endpoint
-            // But we'll handle it by sending authorization code
-            await this.sendAuthorizationCode(res, body.issuer_state!);
-        } else if (AuthenticationConfigHelper.isNoneAuth(authConfig)) {
-            // Pre-authorized code flow (method: 'none') - send authorization code directly
-            await this.sendAuthorizationCode(res, body.issuer_state!);
-        } else {
-            throw new Error(
-                `Unsupported authentication method: ${(authConfig as any).method}`,
-            );
+        switch (authConfig.method) {
+            case "presentationDuringIssuance": {
+                // OID4VP flow - credential presentation required
+                const webhook = issuanceConfig.claimsWebhook;
+                const response = await this.parseChallengeRequest(
+                    body,
+                    session.tenantId,
+                    webhook,
+                );
+                res.status(400).send(response);
+                break;
+            }
+            case "auth":
+                await this.sendAuthorizationCode(res, body.issuer_state!);
+                break;
+            case "none":
+                await this.sendAuthorizationCode(res, body.issuer_state!);
+                break;
+            default:
+                throw new Error(
+                    `Unsupported authentication method: ${(authConfig as any).method}`,
+                );
         }
     }
 

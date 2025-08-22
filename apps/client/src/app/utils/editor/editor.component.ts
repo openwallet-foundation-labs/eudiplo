@@ -3,18 +3,18 @@ import {
   NG_VALUE_ACCESSOR,
   NG_VALIDATORS,
   Validator,
-  AbstractControl,
   ValidationErrors,
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MonacoEditorModule, NgxEditorModel } from 'ngx-monaco-editor-v2';
-import Ajv, { ValidateFunction } from 'ajv';
+import Ajv, { ValidateFunction } from 'ajv/dist/2020';
 import addFormats from 'ajv-formats';
 import { Component, forwardRef, OnChanges, Input, SimpleChanges } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 import { SchemaValidation } from '../schemas';
+import schemas from '../schemas.json';
 
 /**
  * extact the schema that got added by the editor
@@ -54,6 +54,10 @@ export class EditorComponent implements ControlValueAccessor, Validator, OnChang
 
   constructor() {
     addFormats(this.ajv);
+    for (const schema of schemas) {
+      const key = (schema.schema as any)['$id'].split('/').pop() || '';
+      this.ajv.addSchema(schema.schema, key);
+    }
     this.model = {
       value: this.value,
       language: 'json',
@@ -65,6 +69,9 @@ export class EditorComponent implements ControlValueAccessor, Validator, OnChang
   writeValue(obj: any): void {
     if (this.schema) {
       let parsed = obj;
+      if (!obj) {
+        parsed = {};
+      }
       if (typeof obj !== 'object') {
         parsed = JSON.parse(obj === '' ? '{}' : obj);
       }
@@ -92,7 +99,7 @@ export class EditorComponent implements ControlValueAccessor, Validator, OnChang
   }
 
   // Validator
-  validate(_: AbstractControl): ValidationErrors | null {
+  validate(): ValidationErrors | null {
     const raw = this.value;
     if (!raw) return null;
     let parsed: any;
@@ -134,7 +141,7 @@ export class EditorComponent implements ControlValueAccessor, Validator, OnChang
     if ('schema' in changes) {
       const candidate = this.schema?.getSchema() ?? this.schema;
       try {
-        this.validateFn = candidate ? this.ajv.compile(candidate) : undefined;
+        this.validateFn = this.ajv.getSchema(candidate['$id']);
       } catch (error) {
         console.log(error);
         this.validateFn = undefined;

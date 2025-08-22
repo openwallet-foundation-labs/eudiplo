@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/WebhookConfig.schema.json",
+  "title": "WebhookConfig",
+  "type": "object",
+  "properties": {
+    "url": {
+      "type": "string",
+      "description": "The URL to which the webhook will send notifications."
+    },
+    "auth": {
+      "description": "Optional authentication configuration for the webhook.\nIf not provided, no authentication will be used.",
+      "allOf": [
+        {
+          "$ref": "./WebHookAuthConfig.schema.json"
+        }
+      ]
+    }
+  },
+  "required": [
+    "url"
+  ]
+}

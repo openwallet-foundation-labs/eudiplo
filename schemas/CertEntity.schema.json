@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertEntity.schema.json",
+  "title": "CertEntity",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for the key."
+    },
+    "tenantId": {
+      "type": "string",
+      "description": "Tenant ID for the key."
+    },
+    "crt": {
+      "type": "string",
+      "description": "Certificate in PEM format."
+    },
+    "type": {
+      "type": "object",
+      "description": "Type of the certificate (access or signing)."
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the key."
+    },
+    "createdAt": {
+      "format": "date-time",
+      "type": "string",
+      "description": "The timestamp when the VP request was created."
+    },
+    "updatedAt": {
+      "format": "date-time",
+      "type": "string",
+      "description": "The timestamp when the VP request was last updated."
+    }
+  },
+  "required": [
+    "id",
+    "tenantId",
+    "crt",
+    "type",
+    "createdAt",
+    "updatedAt"
+  ]
+}

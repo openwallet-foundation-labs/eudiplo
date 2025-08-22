@@ -1,12 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, type OnInit } from '@angular/core';
 import {
-  AbstractControl,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
   UntypedFormGroup,
-  ValidationErrors,
   Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -29,16 +27,6 @@ import { MatDividerModule } from '@angular/material/divider';
 import { JsonViewDialogComponent } from '../credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
-export function jsonFormatValidator(control: AbstractControl): ValidationErrors | null {
-  const value = control.value;
-  if (!value) return null; // Allow empty values, use Validators.required if needed
-  try {
-    JSON.parse(value);
-    return null;
-  } catch {
-    return { invalidJson: true };
-  }
-}
 @Component({
   selector: 'app-issuance-offer',
   imports: [
@@ -76,6 +64,7 @@ export class IssuanceOfferComponent implements OnInit {
   group: UntypedFormGroup;
 
   elements: any[] = [];
+  selected: IssuanceConfig | undefined;
 
   constructor(
     private issuanceConfigService: IssuanceConfigService,
@@ -88,7 +77,7 @@ export class IssuanceOfferComponent implements OnInit {
   ) {
     this.form = new FormGroup({
       issuanceId: new FormControl('', Validators.required),
-      credentialConfigurationIds: new FormControl([]),
+      credentialConfigurationIds: new FormControl([], Validators.required),
       claimsForm: new FormGroup({}),
     });
     this.group = this.form.get('claimsForm') as UntypedFormGroup;
@@ -96,25 +85,29 @@ export class IssuanceOfferComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     await this.loadConfigurations();
-    if (this.route.snapshot.params['id']) {
-      this.form.patchValue({ issuanceId: this.route.snapshot.params['id'] });
-    }
-
     this.form.get('issuanceId')?.valueChanges.subscribe(async (issuanceId) => {
-      const selected = this.configs.find((config) => config.id === issuanceId);
+      this.selected = this.configs.find((config) => config.id === issuanceId);
       const ids =
-        selected?.credentialIssuanceBindings.map((binding) => binding.credentialConfigId) || [];
+        this.selected?.credentialIssuanceBindings.map((binding) => binding.credentialConfigId) ||
+        [];
       this.form.get('credentialConfigurationIds')?.setValue(ids);
     });
 
     this.form
       .get('credentialConfigurationIds')
       ?.valueChanges.subscribe((ids) => this.setClaimFormFields(ids));
+
+    if (this.route.snapshot.params['id']) {
+      this.form.patchValue({ issuanceId: this.route.snapshot.params['id'] });
+    }
   }
 
   async setClaimFormFields(credentialConfigIds: string[]) {
     this.elements = [];
     this.fields = [];
+    if (this.selected?.claimsWebhook) {
+      return;
+    }
     for (const id of credentialConfigIds) {
       await this.credentialConfigService.getConfig(id).then((config) => {
         this.fields.push(this.formlyJsonschema.toFieldConfig(config!.schema as any));
