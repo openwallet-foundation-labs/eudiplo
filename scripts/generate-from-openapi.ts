@@ -27,6 +27,8 @@ import { rmSync } from "node:fs";
 
 type AnyObj = Record<string, any>;
 
+const schemas: any[] = [];
+
 function arg(name: string, fallback?: string) {
   const i = process.argv.indexOf(`--${name}`);
   if (i !== -1 && process.argv[i + 1]) return process.argv[i + 1];
@@ -116,6 +118,13 @@ async function emitComponentSchemas(doc: AnyObj, isOAS31: boolean) {
     const out = join(OUT_SCHEMAS, `${sanitize(String(name))}.schema.json`);
     await writeFile(out, JSON.stringify(finalSchema, null, 2), "utf8");
     count++;
+
+    schemas.push({
+      uri: finalSchema['$id'],
+      fileMatch: [`a://b/${sanitize(name)}.schema.json`],
+      schema: finalSchema,
+    });
+
   }
   console.log(`✓ Wrote ${count} component schema(s) → ${OUT_SCHEMAS}`);
 }
@@ -188,6 +197,8 @@ async function main() {
   // 3) emit JSON Schemas (components + operations)
   await emitComponentSchemas(bundled, isOAS31);
   await emitOperationSchemas(bundled, isOAS31);
+  
+  writeFile('apps/client/src/app/utils/schemas.json', JSON.stringify(schemas, null, 2));
 
   // 4) remove openapi file
   rmSync(OUT_SPEC);

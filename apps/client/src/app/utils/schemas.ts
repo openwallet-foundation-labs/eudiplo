@@ -1,9 +1,9 @@
 import { Uri } from 'monaco-editor';
 import embeddedDisclosurePolicySchemaObj from './schemas/embedded-disclosure-policy.json';
 import vctSchemaObj from './schemas/vct.json';
-import jwkSchemaObj from './schemas/jwk.json';
+import jwkSchemaObj from '../../../../../schemas/Key.schema.json';
 import authenticationSchemaObj from './schemas/authentication.json';
-import webhookSchemaObj from './schemas/webhook.json';
+import webhookSchemaObj from '../../../../../schemas/WebhookConfig.schema.json';
 
 export class SchemaValidation {
   constructor(
@@ -16,7 +16,7 @@ export class SchemaValidation {
   }
 
   getSchemaUrl() {
-    return `https://${this.uri}`;
+    return this.schema['$id'];
   }
 
   getEditorSchema() {
