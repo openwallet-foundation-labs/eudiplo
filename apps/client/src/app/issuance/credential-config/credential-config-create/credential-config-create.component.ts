@@ -29,7 +29,11 @@ import { CredentialConfigService } from '../credential-config.service';
 import { JsonViewDialogComponent } from './json-view-dialog/json-view-dialog.component';
 import { configs } from './pre-config';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
-import { embeddedDisclosurePolicySchema, vctSchema } from '../../../utils/schemas';
+import {
+  credentialConfigSchema,
+  embeddedDisclosurePolicySchema,
+  vctSchema,
+} from '../../../utils/schemas';
 import { EditorComponent, extractSchema } from '../../../utils/editor/editor.component';
 
 @Component({
@@ -266,6 +270,7 @@ export class CredentialConfigCreateComponent implements OnInit {
         title: 'Complete Configuration JSON',
         jsonData: currentConfig,
         readonly: false,
+        schema: credentialConfigSchema,
       },
       disableClose: false,
       maxWidth: '95vw',
@@ -369,7 +374,6 @@ export class CredentialConfigCreateComponent implements OnInit {
       data: {
         title: `${configTemplate.name} - Preview`,
         jsonData: configTemplate.config,
-        readonly: true,
       },
       disableClose: false,
       maxWidth: '95vw',

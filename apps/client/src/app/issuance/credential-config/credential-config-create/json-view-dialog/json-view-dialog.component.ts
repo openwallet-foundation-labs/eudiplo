@@ -11,11 +11,13 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { EditorComponent } from '../../../../utils/editor/editor.component';
+import { SchemaValidation } from '../../../../utils/schemas';
 
 export interface JsonViewDialogData {
   title: string;
   jsonData: any;
   readonly?: boolean;
+  schema: SchemaValidation;
 }
 
 @Component({
@@ -39,7 +41,7 @@ export interface JsonViewDialogData {
   styleUrl: './json-view-dialog.component.scss',
 })
 export class JsonViewDialogComponent {
-  jsonControl = new FormControl('', [this.jsonValidator]);
+  jsonControl = new FormControl('');
   formattedJson: string;
 
   editorOptions = {
@@ -55,35 +57,6 @@ export class JsonViewDialogComponent {
     this.jsonControl.setValue(this.formattedJson);
     if (data.readonly) {
       this.jsonControl.disable();
-    }
-  }
-
-  jsonValidator(control: any) {
-    if (!control.value) return null;
-    try {
-      JSON.parse(control.value);
-      return null;
-    } catch {
-      return { invalidJson: true };
-    }
-  }
-
-  formatJson(): void {
-    try {
-      const parsed = JSON.parse(this.jsonControl.value || '{}');
-      const formatted = JSON.stringify(parsed, null, 2);
-      this.jsonControl.setValue(formatted);
-      this.snackBar.open('JSON formatted successfully', 'OK', { duration: 2000 });
-    } catch {
-      this.snackBar.open('Invalid JSON - cannot format', 'OK', { duration: 3000 });
-    }
-  }
-
-  validateJson(): void {
-    if (this.jsonControl.valid) {
-      this.snackBar.open('JSON is valid', 'OK', { duration: 2000 });
-    } else {
-      this.snackBar.open('JSON is invalid', 'OK', { duration: 3000 });
     }
   }
 

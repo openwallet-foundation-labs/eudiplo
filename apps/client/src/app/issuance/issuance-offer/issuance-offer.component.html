@@ -48,10 +48,10 @@
             }
           </mat-form-field>
 
-          <!-- Credential Configuration IDs (Optional) -->
+          <!-- Credential Configuration IDs -->
           @if (selectedConfig) {
             <mat-form-field class="full-width">
-              <mat-label>Credential Configuration IDs (Optional)</mat-label>
+              <mat-label>Credential Configuration IDs</mat-label>
               <mat-select formControlName="credentialConfigurationIds" multiple>
                 @for (
                   binding of selectedConfig.credentialIssuanceBindings;
@@ -92,6 +92,19 @@
           <mat-card-actions fxLayout="row" fxLayoutAlign="end center">
             <button mat-button type="button" (click)="importClaims()">Import config</button>
           </mat-card-actions>
+        </mat-card>
+      } @else if (selected?.claimsWebhook) {
+        <mat-card class="webhook-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>webhook</mat-icon>
+              Claim Webhook
+            </mat-card-title>
+            <mat-card-subtitle>Webhook to fetch claims</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <p>Webhook URL: {{ selected!.claimsWebhook!.url }}</p>
+          </mat-card-content>
         </mat-card>
       }
 

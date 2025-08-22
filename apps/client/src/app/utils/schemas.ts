@@ -1,9 +1,11 @@
 import { Uri } from 'monaco-editor';
-import embeddedDisclosurePolicySchemaObj from './schemas/embedded-disclosure-policy.json';
-import vctSchemaObj from './schemas/vct.json';
+import embeddedDisclosurePolicySchemaObj from '../../../../../schemas/EmbeddedDisclosurePolicy.schema.json';
+import vctSchemaObj from '../../../../../schemas/VCT.schema.json';
 import jwkSchemaObj from '../../../../../schemas/Key.schema.json';
-import authenticationSchemaObj from './schemas/authentication.json';
+import authenticationSchemaObj from '../../../../../schemas/AuthenticationConfigDto.schema.json';
 import webhookSchemaObj from '../../../../../schemas/WebhookConfig.schema.json';
+import credentialConfigSchemaObj from '../../../../../schemas/CredentialConfigCreate.schema.json';
+import issuanceConfigSchemaObj from '../../../../../schemas/IssuanceDto.schema.json';
 
 export class SchemaValidation {
   constructor(
@@ -40,11 +42,11 @@ export const embeddedDisclosurePolicySchema = new SchemaValidation(
 export const jwkSchema = new SchemaValidation('jwk', jwkSchemaObj);
 export const authenticationSchema = new SchemaValidation('authentication', authenticationSchemaObj);
 export const webhookSchema = new SchemaValidation('webhook', webhookSchemaObj);
-
-export const schemas = [
-  vctSchema,
-  embeddedDisclosurePolicySchema,
-  jwkSchema,
-  authenticationSchema,
-  webhookSchema,
-].map((schema) => schema.getEditorSchema());
+export const credentialConfigSchema = new SchemaValidation(
+  'credential-config',
+  credentialConfigSchemaObj
+);
+export const issuanceConfigSchema = new SchemaValidation(
+  'issuance-config',
+  issuanceConfigSchemaObj
+);

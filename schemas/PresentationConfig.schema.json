@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/PresentationConfig.schema.json",
   "title": "PresentationConfig",
   "type": "object",
@@ -58,6 +59,5 @@
     "dcql_query",
     "createdAt",
     "updatedAt"
-  ],
-  "$schema": "http://json-schema.org/draft-04/schema#"
+  ]
 }

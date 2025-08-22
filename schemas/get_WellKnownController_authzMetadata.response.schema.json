@@ -1,6 +1,6 @@
 {
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/WellKnownController_authzMetadata.response.schema.json",
   "title": "WellKnownController_authzMetadata.response",
-  "$ref": "./Oauth2AuthorizationServerResponse.schema.json",
-  "$schema": "http://json-schema.org/draft-04/schema#"
+  "$ref": "./Oauth2AuthorizationServerResponse.schema.json"
 }

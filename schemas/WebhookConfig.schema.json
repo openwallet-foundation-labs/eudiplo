@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/WebhookConfig.schema.json",
   "title": "WebhookConfig",
   "type": "object",
@@ -18,6 +19,5 @@
   },
   "required": [
     "url"
-  ],
-  "$schema": "http://json-schema.org/draft-04/schema#"
+  ]
 }

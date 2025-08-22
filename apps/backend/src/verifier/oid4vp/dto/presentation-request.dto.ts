@@ -20,14 +20,13 @@ export enum ResponseType {
  */
 export class PresentationRequest {
     /**
-     * @example qrcode
+     * The type of response expected from the presentation request.
      */
     @IsEnum(ResponseType)
     response_type: ResponseType;
 
     /**
      * Identifier of the presentation configuration
-     * @example pid
      */
     @IsString()
     requestId: string;

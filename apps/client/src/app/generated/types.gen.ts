@@ -164,7 +164,7 @@ export type ParResponseDto = {
 };
 
 export type Vct = {
-    vct: string;
+    vct?: string;
     name?: string;
     description?: string;
     extends?: string;
@@ -174,75 +174,63 @@ export type Vct = {
 };
 
 export type SchemaResponse = {
-    $schema: {
-        [key: string]: unknown;
-    };
-    type: {
-        [key: string]: unknown;
-    };
+    $schema: string;
+    type: string;
     properties: {
         [key: string]: unknown;
     };
-    required: Array<string>;
-};
-
-export type EmbeddedDisclosurePolicy = {
-    policy: 'none' | 'allowList' | 'rootOfTrust' | 'attestationBased';
+    required?: Array<string>;
+    title?: string;
+    description?: string;
 };
 
 export type CredentialConfig = {
-    /**
-     * Unique identifier for the configuration to reference it.
-     */
     id: string;
-    /**
-     * Tenant ID for the issuance configuration.
-     */
-    tenantId: string;
+    description?: string;
     config: {
         [key: string]: unknown;
     };
-    /**
-     * Claims that should be set by default when this credential is being issued. Will be overwritten when passed during a credential offer request.
-     */
-    claims: {
+    claims?: {
         [key: string]: unknown;
     };
-    /**
-     * Disclosure frame for the sd jwt vc.
-     */
-    disclosureFrame: {
+    disclosureFrame?: {
         [key: string]: unknown;
     };
     vct?: Vct;
     keyBinding?: boolean;
-    /**
-     * Optional key ID for the credential configuration.
-     * This is used to identify the key used for signing the credential.
-     */
     keyId?: string;
     key: CertEntity;
-    /**
-     * Optional status management flag for the credential configuration.
-     * If true, a status management will be applied to the credential.
-     */
     statusManagement?: boolean;
-    /**
-     * Optional livetime for the credential configuration in seconds.
-     */
     lifeTime?: number;
-    /**
-     * json schema that is used during issuance for the validation of the claims.
-     */
     schema?: SchemaResponse;
     /**
-     * Link to all the issuance config bindings that are using this credential.
+     * Embedded disclosure policy (discriminated union by `policy`).
+     * The discriminator makes class-transformer instantiate the right subclass,
+     * and then class-validator runs that subclass’s rules.
      */
+    embeddedDisclosurePolicy?: {
+        [key: string]: unknown;
+    };
     credentialIssuanceBindings: Array<CredentialIssuanceBinding>;
+};
+
+export type AuthenticationConfigDto = {
     /**
-     * Embedded disclosure policy for the credential.
+     * The authentication method to use:
+     * - 'none': Pre-authorized code flow (no user authentication)
+     * - 'auth': OID4VCI authorized code flow (user redirect for authentication)
+     * - 'presentationDuringIssuance': OID4VP flow (credential presentation required)
      */
-    embeddedDisclosurePolicy?: EmbeddedDisclosurePolicy;
+    method: 'none' | 'auth' | 'presentationDuringIssuance';
+    /**
+     * Configuration specific to the selected authentication method
+     * - For 'none': no config needed (undefined) - uses pre-authorized code flow
+     * - For 'auth': AuthenticationUrlConfig - for OID4VCI authorized code flow
+     * - For 'presentationDuringIssuance': PresentationDuringIssuanceConfig - for OID4VP flow
+     */
+    config?: {
+        [key: string]: unknown;
+    };
 };
 
 export type ApiKeyConfig = {
@@ -301,9 +289,7 @@ export type IssuanceConfig = {
      * - 'auth': OID4VCI authorized code flow (user will be redirected for authentication)
      * - 'presentationDuringIssuance': OID4VP request is sent (credential presentation required)
      */
-    authenticationConfig: {
-        [key: string]: unknown;
-    };
+    authenticationConfig: AuthenticationConfigDto;
     /**
      * The timestamp when the VP request was created.
      */
@@ -328,7 +314,13 @@ export type IssuanceConfig = {
 };
 
 export type CredentialIssuanceBinding = {
+    /**
+     * Binding key for the credential configuration.
+     */
     credentialConfigId: string;
+    /**
+     * Binding key for the issuance configuration.
+     */
     issuanceConfigId: string;
     /**
      * Reference to the credential configuration.
@@ -346,6 +338,34 @@ export type CredentialIssuanceBinding = {
      * The timestamp when the VP request was last updated.
      */
     updatedAt: string;
+};
+
+export type CredentialConfigCreate = {
+    id: string;
+    description?: string;
+    config: {
+        [key: string]: unknown;
+    };
+    claims?: {
+        [key: string]: unknown;
+    };
+    disclosureFrame?: {
+        [key: string]: unknown;
+    };
+    vct?: Vct;
+    keyBinding?: boolean;
+    keyId?: string;
+    statusManagement?: boolean;
+    lifeTime?: number;
+    schema?: SchemaResponse;
+    /**
+     * Embedded disclosure policy (discriminated union by `policy`).
+     * The discriminator makes class-transformer instantiate the right subclass,
+     * and then class-validator runs that subclass’s rules.
+     */
+    embeddedDisclosurePolicy?: {
+        [key: string]: unknown;
+    };
 };
 
 export type OfferRequestDto = {
@@ -389,30 +409,11 @@ export type CredentialConfigMapping = {
     id: string;
 };
 
-export type AuthenticationConfigDto = {
-    /**
-     * The authentication method to use:
-     * - 'none': Pre-authorized code flow (no user authentication)
-     * - 'auth': OID4VCI authorized code flow (user redirect for authentication)
-     * - 'presentationDuringIssuance': OID4VP flow (credential presentation required)
-     */
-    method: 'none' | 'auth' | 'presentationDuringIssuance';
-    /**
-     * Configuration specific to the selected authentication method
-     * - For 'none': no config needed (undefined) - uses pre-authorized code flow
-     * - For 'auth': AuthenticationUrlConfig - for OID4VCI authorized code flow
-     * - For 'presentationDuringIssuance': PresentationDuringIssuanceConfig - for OID4VP flow
-     */
-    config?: {
-        [key: string]: unknown;
-    };
-    /**
-     * Description of the authentication configuration.
-     */
-    description?: string;
-};
-
 export type IssuanceDto = {
+    /**
+     * Ids of the credential configurations associated with this issuance configuration.
+     */
+    credentialConfigs: Array<CredentialConfigMapping>;
     /**
      * Unique identifier for the issuance configuration.
      */
@@ -422,20 +423,19 @@ export type IssuanceDto = {
      */
     description?: string;
     /**
-     * Ids of the credential configurations associated with this issuance configuration.
-     */
-    credentialConfigs: Array<CredentialConfigMapping>;
-    /**
      * Authentication configuration for the issuance process.
-     * This includes details like the authentication method and any required parameters.
+     * This determines which OpenID4VC flow to use:
+     * - 'none': Pre-authorized code flow (no user authentication required)
+     * - 'auth': OID4VCI authorized code flow (user will be redirected for authentication)
+     * - 'presentationDuringIssuance': OID4VP request is sent (credential presentation required)
      */
     authenticationConfig: AuthenticationConfigDto;
     /**
-     * Optional webhook configuration to receive claims during the issuance process.
+     * Webhook to receive claims for the issuance process.
      */
     claimsWebhook?: WebhookConfig;
     /**
-     * Optional webhook configuration to send the results of the notification response.
+     * Webhook to send the result of the notification response
      */
     notifyWebhook?: WebhookConfig;
     /**
@@ -453,6 +453,9 @@ export type AuthorizationResponse = {
 };
 
 export type PresentationRequest = {
+    /**
+     * The type of response expected from the presentation request.
+     */
     response_type: 'qrcode' | 'uri';
     /**
      * Identifier of the presentation configuration
@@ -498,7 +501,7 @@ export type PresentationConfig = {
     /**
      * Lifetime how long the presentation request is valid after creation, in seconds.
      */
-    lifeTime: number;
+    lifeTime?: number;
     /**
      * The DCQL query to be used for the VP request.
      */
@@ -524,7 +527,40 @@ export type PresentationConfig = {
     /**
      * Attestation that should be attached
      */
-    attached: Array<PresentationAttachment>;
+    attached?: Array<PresentationAttachment>;
+};
+
+export type PresentationConfigCreateDto = {
+    /**
+     * Unique identifier for the VP request.
+     */
+    id: string;
+    /**
+     * Description of the presentation configuration.
+     */
+    description?: string;
+    /**
+     * Lifetime how long the presentation request is valid after creation, in seconds.
+     */
+    lifeTime?: number;
+    /**
+     * The DCQL query to be used for the VP request.
+     */
+    dcql_query: {
+        [key: string]: unknown;
+    };
+    /**
+     * The registration certificate request containing the necessary details.
+     */
+    registrationCert?: RegistrationCertificateRequest;
+    /**
+     * Optional webhook URL to receive the response.
+     */
+    webhook?: WebhookConfig;
+    /**
+     * Attestation that should be attached
+     */
+    attached?: Array<PresentationAttachment>;
 };
 
 export type Session = {
@@ -862,7 +898,7 @@ export type CredentialsControllerGetConfigsResponses = {
 export type CredentialsControllerGetConfigsResponse = CredentialsControllerGetConfigsResponses[keyof CredentialsControllerGetConfigsResponses];
 
 export type CredentialsControllerStoreCredentialConfigurationData = {
-    body: CredentialConfig;
+    body: CredentialConfigCreate;
     path?: never;
     query?: never;
     url: '/issuer-management/credentials';
@@ -1051,14 +1087,16 @@ export type PresentationManagementControllerConfigurationResponses = {
 export type PresentationManagementControllerConfigurationResponse = PresentationManagementControllerConfigurationResponses[keyof PresentationManagementControllerConfigurationResponses];
 
 export type PresentationManagementControllerStorePresentationConfigData = {
-    body: PresentationConfig;
+    body: PresentationConfigCreateDto;
     path?: never;
     query?: never;
     url: '/presentation-management';
 };
 
 export type PresentationManagementControllerStorePresentationConfigResponses = {
-    201: PresentationConfig;
+    201: {
+        [key: string]: unknown;
+    };
 };
 
 export type PresentationManagementControllerStorePresentationConfigResponse = PresentationManagementControllerStorePresentationConfigResponses[keyof PresentationManagementControllerStorePresentationConfigResponses];
@@ -1146,13 +1184,13 @@ export type HealthControllerCheckErrors = {
                 status: string;
                 [key: string]: unknown | string;
             };
-        } | null;
+        };
         error?: {
             [key: string]: {
                 status: string;
                 [key: string]: unknown | string;
             };
-        } | null;
+        };
         details?: {
             [key: string]: {
                 status: string;
@@ -1175,13 +1213,13 @@ export type HealthControllerCheckResponses = {
                 status: string;
                 [key: string]: unknown | string;
             };
-        } | null;
+        };
         error?: {
             [key: string]: {
                 status: string;
                 [key: string]: unknown | string;
             };
-        } | null;
+        };
         details?: {
             [key: string]: {
                 status: string;

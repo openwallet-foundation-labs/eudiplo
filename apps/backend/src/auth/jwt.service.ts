@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { decodeJwt, jwtVerify, SignJWT } from "jose";
-import { TokenPayload } from "./token.decorator";
 import { DEFAULT_JWT_SECRET } from "./auth.module";
+import { TokenPayload } from "./token.decorator";
 
 export interface GenerateTokenOptions {
     expiresIn?: string;

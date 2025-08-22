@@ -33,7 +33,7 @@ import { SessionLogContext } from "../../utils/logger/session-logger-context";
 import { WebhookService } from "../../utils/webhook/webhook.service";
 import { AuthorizeService } from "../authorize/authorize.service";
 import { CredentialsService } from "../credentials/credentials.service";
-import { AuthenticationConfigHelper } from "../issuance/dto/authentication-config.helper";
+import { AuthenticationUrlConfig } from "../issuance/dto/authentication-config.dto";
 import { IssuanceService } from "../issuance/issuance.service";
 import { NotificationRequestDto } from "./dto/notification-request.dto";
 import { OfferRequestDto, OfferResponse } from "./dto/offer-request.dto";
@@ -137,12 +137,11 @@ export class Oid4vciService {
 
         let authServer: string;
 
-        if (
-            AuthenticationConfigHelper.isAuthUrlAuth(
-                issuanceConfig.authenticationConfig,
-            )
-        ) {
-            authServer = issuanceConfig.authenticationConfig.config.url;
+        if (issuanceConfig.authenticationConfig.method === "auth") {
+            authServer = (
+                issuanceConfig.authenticationConfig
+                    .config as AuthenticationUrlConfig
+            ).url;
             // fetch the authorization server metadata
             authorizationServerMetadata = await firstValueFrom(
                 this.httpService.get(

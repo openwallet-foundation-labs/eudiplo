@@ -1,9 +1,9 @@
 {
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/IssuanceController_getIssuanceConfigurations.response.schema.json",
   "title": "IssuanceController_getIssuanceConfigurations.response",
   "type": "array",
   "items": {
     "$ref": "./IssuanceConfig.schema.json"
-  },
-  "$schema": "http://json-schema.org/draft-04/schema#"
+  }
 }

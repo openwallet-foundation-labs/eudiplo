@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpdateKeyDto.schema.json",
   "title": "UpdateKeyDto",
   "type": "object",
@@ -11,6 +12,5 @@
       "type": "string",
       "description": "Description of the key."
     }
-  },
-  "$schema": "http://json-schema.org/draft-04/schema#"
+  }
 }

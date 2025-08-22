@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/KeyImportDto.schema.json",
   "title": "KeyImportDto",
   "type": "object",
@@ -22,6 +23,5 @@
   },
   "required": [
     "privateKey"
-  ],
-  "$schema": "http://json-schema.org/draft-04/schema#"
+  ]
 }

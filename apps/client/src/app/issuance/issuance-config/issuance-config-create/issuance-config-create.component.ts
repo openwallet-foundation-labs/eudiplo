@@ -20,7 +20,7 @@ import { CredentialConfigService } from '../../credential-config/credential-conf
 import { IssuanceConfigService } from '../issuance-config.service';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { EditorComponent, extractSchema } from '../../../utils/editor/editor.component';
-import { authenticationSchema, webhookSchema } from '../../../utils/schemas';
+import { authenticationSchema, issuanceConfigSchema, webhookSchema } from '../../../utils/schemas';
 import { JsonViewDialogComponent } from '../../credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -215,8 +215,10 @@ export class IssuanceConfigCreateComponent implements OnInit {
         title: 'Complete Configuration JSON',
         jsonData: currentConfig,
         readonly: false,
+        schema: issuanceConfigSchema,
       },
       disableClose: false,
+      height: '80vh',
       maxWidth: '95vw',
       maxHeight: '95vh',
     });

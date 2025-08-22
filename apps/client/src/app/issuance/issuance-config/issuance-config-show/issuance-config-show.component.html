@@ -67,17 +67,24 @@
           <mat-icon>security</mat-icon>
           Authentication Configuration
         </mat-card-title>
+        <mat-card-subtitle
+          >Configuration for authenticating the user during the process</mat-card-subtitle
+        >
       </mat-card-header>
       <mat-card-content fxLayout="column" fxLayoutGap="16px">
         <div>
           <div><strong>Authentication Type:</strong></div>
-          <div class="value-text">{{ getAuthenticationType(config.authenticationConfig) }}</div>
+          <div class="value-text">{{ config.authenticationConfig.method }}</div>
         </div>
 
         @if (getObjectKeys(config.authenticationConfig).length > 0) {
           <div>
             <div><strong>Configuration Details:</strong></div>
-            <pre class="config-value">{{ formatJsonValue(config.authenticationConfig) }}</pre>
+            @if (config.authenticationConfig.config) {
+              <pre class="config-value">{{
+                formatJsonValue(config.authenticationConfig.config)
+              }}</pre>
+            }
           </div>
         }
       </mat-card-content>
@@ -138,13 +145,51 @@
       </mat-card>
     }
 
-    <!-- Webhook Configuration Card -->
+    <!-- Claim Webhook Configuration -->
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>webhook</mat-icon>
+          Claim Webhook
+        </mat-card-title>
+        <mat-card-subtitle>Webhook to fetch the claims during issuance process</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content fxLayout="column" fxLayoutGap="16px">
+        <div>
+          <div><strong>URL:</strong></div>
+          <div class="value-text">{{ config.claimsWebhook?.url || 'Not configured' }}</div>
+        </div>
+
+        @if (config.claimsWebhook?.auth) {
+          <div>
+            <div><strong>Authentication:</strong></div>
+            <div class="value-text">Configured</div>
+          </div>
+        }
+
+        @if (getObjectKeys(config.notifyWebhook).length > 1) {
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <mat-icon>tune</mat-icon>
+                Webhook Details
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <pre class="config-value">{{ formatJsonValue(config.notifyWebhook) }}</pre>
+          </mat-expansion-panel>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Webhook Configuration -->
     <mat-card>
       <mat-card-header>
         <mat-card-title>
           <mat-icon>webhook</mat-icon>
           Notification Webhook
         </mat-card-title>
+        <mat-card-subtitle>Webhook to notify about issuance events</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content fxLayout="column" fxLayoutGap="16px">
         <div>

@@ -16,7 +16,10 @@ import {
     UpdateDateColumn,
 } from "typeorm";
 import { WebhookConfig } from "../../../utils/webhook/webhook.dto";
-import type { AuthenticationConfig } from "../dto/authentication-config.dto";
+import {
+    type AuthenticationConfig,
+    AuthenticationConfigDto,
+} from "../dto/authentication-config.dto";
 import { CredentialIssuanceBinding } from "./credential-issuance-binding.entity";
 
 /**
@@ -65,7 +68,9 @@ export class IssuanceConfig {
      */
     @IsObject()
     @Column("json")
-    authenticationConfig: AuthenticationConfig;
+    @ValidateNested()
+    @Type(() => AuthenticationConfigDto)
+    authenticationConfig: AuthenticationConfigDto;
 
     /**
      * The timestamp when the VP request was created.

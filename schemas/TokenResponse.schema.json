@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TokenResponse.schema.json",
   "title": "TokenResponse",
   "type": "object",
@@ -20,6 +21,5 @@
     "access_token",
     "token_type",
     "expires_in"
-  ],
-  "$schema": "http://json-schema.org/draft-04/schema#"
+  ]
 }

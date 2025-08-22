@@ -7,13 +7,11 @@ import { IsIn, IsObject, IsOptional, IsString } from "class-validator";
 export class ApiKeyConfig {
     /**
      * The name of the header where the API key will be sent.
-     * @example Authorization
      */
     @IsString()
     headerName: string;
     /**
      * The value of the API key to be sent in the header.
-     * @example Bearer your_api_key_here
      */
     @IsString()
     value: string;
