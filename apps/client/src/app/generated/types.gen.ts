@@ -208,6 +208,14 @@ export type AuthenticationMethodNone = {
     method: 'none';
 };
 
+export type WebHookAuthConfigNone = {
+    /**
+     * The type of authentication used for the webhook.
+     * Currently, only 'apiKey' is supported.
+     */
+    type: 'none';
+};
+
 export type ApiKeyConfig = {
     /**
      * The name of the header where the API key will be sent.
@@ -219,7 +227,7 @@ export type ApiKeyConfig = {
     value: string;
 };
 
-export type WebHookAuthConfig = {
+export type WebHookAuthConfigHeader = {
     /**
      * The type of authentication used for the webhook.
      * Currently, only 'apiKey' is supported.
@@ -234,14 +242,14 @@ export type WebHookAuthConfig = {
 
 export type WebhookConfig = {
     /**
-     * The URL to which the webhook will send notifications.
-     */
-    url: string;
-    /**
      * Optional authentication configuration for the webhook.
      * If not provided, no authentication will be used.
      */
-    auth?: WebHookAuthConfig;
+    auth?: WebHookAuthConfigNone | WebHookAuthConfigHeader;
+    /**
+     * The URL to which the webhook will send notifications.
+     */
+    url: string;
 };
 
 export type AuthenticationUrlConfig = {

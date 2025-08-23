@@ -345,6 +345,19 @@ export const AuthenticationMethodNoneSchema = {
     required: ['method']
 } as const;
 
+export const WebHookAuthConfigNoneSchema = {
+    type: 'object',
+    properties: {
+        type: {
+            type: 'string',
+            description: `The type of authentication used for the webhook.
+Currently, only 'apiKey' is supported.`,
+            enum: ['none']
+        }
+    },
+    required: ['type']
+} as const;
+
 export const ApiKeyConfigSchema = {
     type: 'object',
     properties: {
@@ -360,7 +373,7 @@ export const ApiKeyConfigSchema = {
     required: ['headerName', 'value']
 } as const;
 
-export const WebHookAuthConfigSchema = {
+export const WebHookAuthConfigHeaderSchema = {
     type: 'object',
     properties: {
         type: {
@@ -385,18 +398,21 @@ This is required if the type is 'apiKey'.`,
 export const WebhookConfigSchema = {
     type: 'object',
     properties: {
-        url: {
-            type: 'string',
-            description: 'The URL to which the webhook will send notifications.'
-        },
         auth: {
             description: `Optional authentication configuration for the webhook.
 If not provided, no authentication will be used.`,
-            allOf: [
+            oneOf: [
                 {
-                    '$ref': '#/components/schemas/WebHookAuthConfig'
+                    '$ref': '#/components/schemas/WebHookAuthConfigNone'
+                },
+                {
+                    '$ref': '#/components/schemas/WebHookAuthConfigHeader'
                 }
             ]
+        },
+        url: {
+            type: 'string',
+            description: 'The URL to which the webhook will send notifications.'
         }
     },
     required: ['url']

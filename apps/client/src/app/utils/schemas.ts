@@ -1,50 +1,34 @@
-import { Uri } from 'monaco-editor';
 import embeddedDisclosurePolicySchemaObj from '../../../../../schemas/EmbeddedDisclosurePolicy.schema.json';
 import vctSchemaObj from '../../../../../schemas/VCT.schema.json';
 import jwkSchemaObj from '../../../../../schemas/Key.schema.json';
 import webhookSchemaObj from '../../../../../schemas/WebhookConfig.schema.json';
 import credentialConfigSchemaObj from '../../../../../schemas/CredentialConfigCreate.schema.json';
 import issuanceConfigSchemaObj from '../../../../../schemas/IssuanceDto.schema.json';
+import presentationAttachementObj from '../../../../../schemas/PresentationAttachment.schema.json';
+import registrationCertificateRequestObj from '../../../../../schemas/RegistrationCertificateRequest.schema.json';
+import DCQLObj from '../../../../../schemas/DCQL.schema.json';
 
 export class SchemaValidation {
-  constructor(
-    private uri: string,
-    private schema: any
-  ) {}
-
-  getUri() {
-    return Uri.parse(`a://b/${this.uri}.json`);
-  }
+  constructor(private schema: any) {}
 
   getSchemaUrl() {
     return this.schema['$id'];
   }
-
-  getEditorSchema() {
-    return {
-      uri: `https://${this.uri}`,
-      fileMatch: [this.getUri().toString()],
-      schema: this.schema,
-    };
-  }
-
-  getSchema() {
-    return this.schema;
-  }
 }
 
-export const vctSchema = new SchemaValidation('vct', vctSchemaObj);
+export const vctSchema = new SchemaValidation(vctSchemaObj);
 export const embeddedDisclosurePolicySchema = new SchemaValidation(
-  'embedded-disclosure-policy',
   embeddedDisclosurePolicySchemaObj
 );
-export const jwkSchema = new SchemaValidation('jwk', jwkSchemaObj);
-export const webhookSchema = new SchemaValidation('webhook', webhookSchemaObj);
-export const credentialConfigSchema = new SchemaValidation(
-  'credential-config',
-  credentialConfigSchemaObj
+export const jwkSchema = new SchemaValidation(jwkSchemaObj);
+export const webhookSchema = new SchemaValidation(webhookSchemaObj);
+export const credentialConfigSchema = new SchemaValidation(credentialConfigSchemaObj);
+export const issuanceConfigSchema = new SchemaValidation(issuanceConfigSchemaObj);
+
+export const presentationAttachmentSchema = new SchemaValidation(presentationAttachementObj);
+
+export const registrationCertificateRequestSchema = new SchemaValidation(
+  registrationCertificateRequestObj
 );
-export const issuanceConfigSchema = new SchemaValidation(
-  'issuance-config',
-  issuanceConfigSchemaObj
-);
+
+export const DCQLSchema = new SchemaValidation(DCQLObj);

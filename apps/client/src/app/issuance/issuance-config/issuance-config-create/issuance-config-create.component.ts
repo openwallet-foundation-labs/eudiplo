@@ -18,11 +18,11 @@ import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { CredentialConfig, IssuanceDto, PresentationConfig } from '../../../generated';
 import { CredentialConfigService } from '../../credential-config/credential-config.service';
 import { IssuanceConfigService } from '../issuance-config.service';
-import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { issuanceConfigSchema, webhookSchema } from '../../../utils/schemas';
 import { JsonViewDialogComponent } from '../../credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { PresentationManagementService } from '../../../presentation/presentation-config/presentation-management.service';
+import { WebhookConfigComponent } from '../../../utils/webhook-config/webhook-config.component';
 
 @Component({
   selector: 'app-issuance-config-create',
@@ -43,7 +43,7 @@ import { PresentationManagementService } from '../../../presentation/presentatio
     FlexLayoutModule,
     ReactiveFormsModule,
     RouterModule,
-    MonacoEditorModule,
+    WebhookConfigComponent,
   ],
   templateUrl: './issuance-config-create.component.html',
   styleUrl: './issuance-config-create.component.scss',
@@ -186,8 +186,8 @@ export class IssuanceConfigCreateComponent implements OnInit {
         authenticationConfig: formValue.authenticationConfig,
         credentialConfigIds: formValue.selectedCredentialConfigs,
         batch_size: formValue.batchSize,
-        notifyWebhook: formValue.notifyWebhook,
-        claimsWebhook: formValue.claimsWebhook,
+        notifyWebhook: formValue.notifyWebhook.url ? formValue.notifyWebhook : undefined,
+        claimsWebhook: formValue.claimsWebhook.url ? formValue.claimsWebhook : undefined,
       };
 
       this.issuanceConfigService
@@ -217,6 +217,10 @@ export class IssuanceConfigCreateComponent implements OnInit {
       });
       this.loading = false;
     }
+  }
+
+  getFormGroup(controlName: string): FormGroup {
+    return this.form.get(controlName) as FormGroup;
   }
 
   private markFormGroupTouched(): void {

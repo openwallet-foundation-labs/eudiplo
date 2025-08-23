@@ -5,7 +5,10 @@
   "type": "object",
   "properties": {
     "method": {
-      "type": "string"
+      "type": "string",
+      "enum": [
+        "presentationDuringIssuance"
+      ]
     },
     "config": {
       "$ref": "./PresentationDuringIssuanceConfig.schema.json"

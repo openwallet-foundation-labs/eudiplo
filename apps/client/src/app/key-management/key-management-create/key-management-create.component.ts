@@ -1,12 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import {
-  FormBuilder,
-  type FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDivider } from '@angular/material/divider';
@@ -49,17 +43,12 @@ import { jwkSchema } from '../../utils/schemas';
 export class KeyManagementCreateComponent {
   public form: FormGroup;
   public create = true;
-  public loading = false;
 
   jwkSchema = jwkSchema;
 
-  editorOptions = {
-    language: 'json',
-    automaticLayout: true,
-  };
-
   editorOptionsPem = {
     automaticLayout: true,
+    language: 'pem',
   };
 
   constructor(
@@ -69,15 +58,14 @@ export class KeyManagementCreateComponent {
     private snackBar: MatSnackBar,
     private fb: FormBuilder
   ) {
+    this.create = !this.route.snapshot.params['id'];
     this.form = this.fb.group({
       id: ['', [Validators.required]],
       description: ['', [Validators.required]],
-      privateKey: ['', [Validators.required]],
       crt: [''],
     });
 
-    if (this.route.snapshot.params['id']) {
-      this.create = false;
+    if (!this.create) {
       this.keyManagementService.getKey(this.route.snapshot.params['id']).then(
         (key) => {
           if (!key) {
@@ -90,71 +78,26 @@ export class KeyManagementCreateComponent {
             id: key.id,
             description: key.description,
             crt: key.crt,
-            // privateKey is intentionally not set - it's not returned by the API for security
           });
 
           // Disable non-editable fields for edit mode
           this.form.get('id')?.disable();
-          this.form.get('privateKey')?.disable();
 
-          // Remove required validator from privateKey in edit mode
-          this.form.get('privateKey')?.clearValidators();
-          this.form.get('privateKey')?.updateValueAndValidity();
+          // Remove required validator from privateKey and id in edit mode
+          this.form.get('id')?.clearValidators();
+          this.form.get('id')?.updateValueAndValidity();
         },
         (error) => {
           console.error('Error loading key:', error);
           this.snackBar.open('Failed to load key', 'Close', { duration: 3000 });
         }
       );
-    }
-  }
-
-  keyValidator(control: FormControl): Record<string, boolean> | null {
-    if (!control.value) return null; // Allow empty value for optional validation
-
-    try {
-      const jwk = JSON.parse(control.value);
-
-      // Check if it's a valid EC private JWK
-      if (jwk.kty !== 'EC') {
-        return { invalidJwkType: true };
-      }
-
-      // Check for required EC private key fields
-      const requiredFields = ['kid', 'kty', 'x', 'y', 'crv', 'd', 'alg'];
-      const missingFields = requiredFields.filter((field) => !jwk[field]);
-
-      if (missingFields.length > 0) {
-        return { missingJwkFields: true };
-      }
-
-      // Check if it's actually a private key (has 'd' parameter)
-      if (!jwk.d || typeof jwk.d !== 'string' || jwk.d.trim() === '') {
-        return { notPrivateKey: true };
-      }
-
-      // Validate curve is supported (common EC curves)
-      const supportedCurves = ['P-256'];
-      if (!supportedCurves.includes(jwk.crv)) {
-        return { unsupportedCurve: true };
-      }
-
-      return null; // Valid EC private JWK
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (e) {
-      return { invalidJson: true };
+    } else {
+      this.form.addControl('privateKey', this.fb.control('', [Validators.required]));
     }
   }
 
   async onSubmit(): Promise<void> {
-    //TODO: validate certificate before submitting
-    if (this.form.invalid) {
-      this.markFormGroupTouched();
-      return;
-    }
-
-    this.loading = true;
-
     try {
       if (this.create) {
         // For creating a new key, use all form values
@@ -172,7 +115,6 @@ export class KeyManagementCreateComponent {
           this.route.snapshot.params['id'],
           this.form.value
         );
-        this.loading = false;
       }
 
       this.router.navigate(['../'], { relativeTo: this.route });
@@ -181,8 +123,6 @@ export class KeyManagementCreateComponent {
       this.snackBar.open('Failed to import key', 'Close', {
         duration: 3000,
       });
-    } finally {
-      this.loading = false;
     }
   }
 

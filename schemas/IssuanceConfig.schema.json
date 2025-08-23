@@ -26,11 +26,11 @@
       "type": "string",
       "description": "Description of the issuance configuration."
     },
-    "credentialIssuanceBindings": {
+    "credentialConfigs": {
       "description": "Links to all credential config bindings that are included in this issuance config.",
       "type": "array",
       "items": {
-        "$ref": "./CredentialIssuanceBinding.schema.json"
+        "$ref": "./CredentialConfig.schema.json"
       }
     },
     "createdAt": {
@@ -67,7 +67,7 @@
   "required": [
     "authenticationConfig",
     "id",
-    "credentialIssuanceBindings",
+    "credentialConfigs",
     "createdAt",
     "updatedAt"
   ]

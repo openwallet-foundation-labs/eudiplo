@@ -6,6 +6,24 @@
   "properties": {
     "vct": {
       "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "extends": {
+      "type": "string"
+    },
+    "extends#integrity": {
+      "type": "string"
+    },
+    "schema_uri": {
+      "type": "string"
+    },
+    "schema_uri#integrity": {
+      "type": "string"
     }
   }
 }

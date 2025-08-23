@@ -7,6 +7,8 @@ import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { IssuanceConfig } from '../../../generated';
 import { IssuanceConfigService } from '../issuance-config.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatChipsModule } from '@angular/material/chips';
 
 @Component({
   selector: 'app-issuance-config-list',
@@ -17,6 +19,8 @@ import { IssuanceConfigService } from '../issuance-config.service';
     MatButtonModule,
     RouterModule,
     FlexLayoutModule,
+    MatTooltipModule,
+    MatChipsModule,
   ],
   templateUrl: './issuance-config-list.component.html',
   styleUrl: './issuance-config-list.component.scss',
@@ -24,9 +28,11 @@ import { IssuanceConfigService } from '../issuance-config.service';
 export class IssuanceConfigListComponent implements OnInit {
   configs: IssuanceConfig[] = [];
 
-  displayedColumns: (keyof IssuanceConfig | 'actions')[] = [
+  displayedColumns: (keyof IssuanceConfig | 'actions' | 'webhooks')[] = [
     'id',
     'description',
+    'webhooks',
+    'credentialConfigs',
     'authenticationConfig',
     'actions',
   ];

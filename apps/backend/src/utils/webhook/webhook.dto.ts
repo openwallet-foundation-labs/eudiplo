@@ -1,5 +1,13 @@
+import { ApiExtraModels, ApiProperty, getSchemaPath } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsIn, IsObject, IsOptional, IsString } from "class-validator";
+import {
+    IsEnum,
+    IsIn,
+    IsObject,
+    IsOptional,
+    IsString,
+    ValidateNested,
+} from "class-validator";
 
 /**
  * Configuration for API key authentication in webhooks.
@@ -20,18 +28,21 @@ export class ApiKeyConfig {
 /**
  * Enum for the type of authentication used in webhooks.
  */
-export type AuthConfig = "apiKey";
+export enum AuthConfig {
+    API_KEY = "apiKey",
+    NONE = "none",
+}
 
 /**
  * Configuration for webhook authentication.
  */
-export class WebHookAuthConfig {
+export class WebHookAuthConfigHeader implements WebHookAuthConfig {
     /**
      * The type of authentication used for the webhook.
-     * Currently, only 'apiKey' is supported.
      */
-    @IsIn(["apiKey"])
-    type: AuthConfig;
+    @IsIn([AuthConfig.API_KEY])
+    @IsString()
+    type: AuthConfig.API_KEY;
     /**
      * Configuration for API key authentication.
      * This is required if the type is 'apiKey'.
@@ -41,9 +52,24 @@ export class WebHookAuthConfig {
     config: ApiKeyConfig;
 }
 
+export class WebHookAuthConfigNone implements WebHookAuthConfig {
+    /**
+     * The type of authentication used for the webhook.
+     */
+    @IsIn([AuthConfig.NONE])
+    @IsString()
+    type: AuthConfig.NONE;
+}
+
+export class WebHookAuthConfig {
+    @IsEnum(AuthConfig)
+    type: AuthConfig;
+}
+
 /**
  * Configuration for webhooks used in various services.
  */
+@ApiExtraModels(WebHookAuthConfigNone, WebHookAuthConfigHeader)
 export class WebhookConfig {
     /**
      * The URL to which the webhook will send notifications.
@@ -54,8 +80,28 @@ export class WebhookConfig {
      * Optional authentication configuration for the webhook.
      * If not provided, no authentication will be used.
      */
-    @Type(() => WebHookAuthConfig)
-    @IsOptional()
-    @IsObject()
-    auth?: WebHookAuthConfig;
+    @ValidateNested()
+    @ApiProperty({
+        oneOf: [
+            { $ref: getSchemaPath(WebHookAuthConfigNone) },
+            { $ref: getSchemaPath(WebHookAuthConfigHeader) },
+        ],
+    })
+    @Type(() => WebHookAuthConfig, {
+        discriminator: {
+            property: "type",
+            subTypes: [
+                {
+                    name: AuthConfig.NONE,
+                    value: WebHookAuthConfigNone,
+                },
+                {
+                    name: AuthConfig.API_KEY,
+                    value: WebHookAuthConfigHeader,
+                },
+            ],
+        },
+        keepDiscriminatorProperty: true,
+    })
+    auth?: WebHookAuthConfigNone | WebHookAuthConfigHeader;
 }

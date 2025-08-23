@@ -126,6 +126,7 @@ async function emitComponentSchemas(doc: AnyObj, isOAS31: boolean) {
     });
 
   }
+
   console.log(`✓ Wrote ${count} component schema(s) → ${OUT_SCHEMAS}`);
 }
 

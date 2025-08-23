@@ -18,7 +18,7 @@
 <mat-dialog-actions fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="end center">
   <button mat-button (click)="cancel()">Cancel</button>
   @if (!data.readonly) {
-    <button mat-raised-button color="primary" (click)="save()" [disabled]="jsonControl.invalid">
+    <button mat-raised-button (click)="save()" [disabled]="jsonControl.invalid">
       <mat-icon>save</mat-icon>
       Apply Changes
     </button>

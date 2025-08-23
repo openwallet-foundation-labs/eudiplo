@@ -18,9 +18,7 @@
         <h3>Access Denied</h3>
         <p>You do not have permission to manage Keycloak clients.</p>
         <p>Required roles: <strong>admin</strong> or <strong>client-admin</strong></p>
-        <button mat-raised-button color="primary" routerLink="/dashboard">
-          Return to Dashboard
-        </button>
+        <button mat-raised-button routerLink="/dashboard">Return to Dashboard</button>
       </div>
     </mat-card-content>
   </mat-card>
@@ -73,7 +71,7 @@
 
   <div *ngIf="!loading && clients.length === 0" class="no-data">
     <p>No clients found. Create your first client to get started.</p>
-    <button mat-raised-button color="primary" [routerLink]="['create']">
+    <button mat-raised-button [routerLink]="['create']">
       <mat-icon>add</mat-icon>
       Create Client
     </button>

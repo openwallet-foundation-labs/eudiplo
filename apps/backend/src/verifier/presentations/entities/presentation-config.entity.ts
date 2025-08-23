@@ -2,6 +2,7 @@ import { ApiHideProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import {
     IsArray,
+    IsBoolean,
     IsNotEmpty,
     IsNumber,
     IsObject,
@@ -27,6 +28,51 @@ export class PresentationAttachment {
     @IsNotEmpty()
     @IsString({ each: true })
     credential_ids?: string[];
+}
+
+//TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-credential-query
+
+export class CredentialQuery {
+    @IsString()
+    id: string;
+
+    @IsString()
+    format: string;
+
+    @IsOptional()
+    @IsBoolean()
+    multiple?: boolean;
+
+    @IsObject()
+    meta: any;
+
+    @IsArray()
+    @IsObject()
+    @IsOptional()
+    trusted_authorities?: any[];
+}
+
+//TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-credential-set-query
+export class CredentialSetQuery {
+    @IsString()
+    id: string;
+
+    @IsArray()
+    @IsObject({ each: true })
+    path: any[];
+}
+
+export class DCQL {
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => CredentialQuery)
+    credentials: CredentialQuery[];
+
+    @IsArray()
+    @IsOptional()
+    @ValidateNested({ each: true })
+    @Type(() => CredentialSetQuery)
+    credential_set?: CredentialSetQuery[];
 }
 
 /**
@@ -68,9 +114,9 @@ export class PresentationConfig {
      * The DCQL query to be used for the VP request.
      */
     @Column("json")
-    @IsObject()
-    //TODO: define the structure of the DCQL query
-    dcql_query: any;
+    @ValidateNested()
+    @Type(() => DCQL)
+    dcql_query: DCQL;
     /**
      * The registration certificate request containing the necessary details.
      */
@@ -106,6 +152,7 @@ export class PresentationConfig {
     @IsOptional()
     @IsArray()
     @ValidateNested()
+    @Type(() => PresentationAttachment)
     @Column("json", { nullable: true })
     attached?: PresentationAttachment[];
 }

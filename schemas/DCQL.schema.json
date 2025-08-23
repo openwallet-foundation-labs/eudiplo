@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/DCQL.schema.json",
+  "title": "DCQL",
+  "type": "object",
+  "properties": {
+    "credentials": {
+      "type": "array",
+      "items": {
+        "$ref": "./CredentialQuery.schema.json"
+      }
+    },
+    "credential_set": {
+      "type": "array",
+      "items": {
+        "$ref": "./CredentialSetQuery.schema.json"
+      }
+    }
+  },
+  "required": [
+    "credentials"
+  ]
+}

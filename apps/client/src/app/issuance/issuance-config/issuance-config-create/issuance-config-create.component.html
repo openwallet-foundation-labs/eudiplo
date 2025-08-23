@@ -157,33 +157,8 @@
         </mat-card-title>
         <mat-card-subtitle>URL to receive claims data</mat-card-subtitle>
       </mat-card-header>
-      <mat-card-content fxLayout="column" fxLayoutGap="16px" formGroupName="claimsWebhook">
-        <mat-form-field class="full-width">
-          <mat-label>Webhook URL</mat-label>
-          <input matInput formControlName="url" placeholder="https://example.com/webhook" />
-          <mat-icon matSuffix>webhook</mat-icon>
-          @if (form.get('claimsWebhook.url')?.invalid && form.get('claimsWebhook.url')?.touched) {
-            <mat-error>Webhook URL is required</mat-error>
-          }
-        </mat-form-field>
-        <div formGroupName="auth" fxLayout="column" fxLayoutGap="16px">
-          <mat-form-field>
-            <mat-label>Authorization Type</mat-label>
-            <mat-select formControlName="type" placeholder="Type">
-              <mat-option value="apiKey">Api Key</mat-option>
-            </mat-select>
-          </mat-form-field>
-          <div formGroupName="config" fxLayout="column" fxLayoutGap="16px">
-            <mat-form-field>
-              <mat-label>Header Name</mat-label>
-              <input matInput formControlName="headerName" placeholder="Header Name" />
-            </mat-form-field>
-            <mat-form-field>
-              <mat-label>Header Value</mat-label>
-              <input matInput formControlName="value" placeholder="Header Value" />
-            </mat-form-field>
-          </div>
-        </div>
+      <mat-card-content>
+        <app-webhook-config [group]="getFormGroup('claimsWebhook')"></app-webhook-config>
       </mat-card-content>
     </mat-card>
 
@@ -196,40 +171,15 @@
         </mat-card-title>
         <mat-card-subtitle>URL to receive notification data</mat-card-subtitle>
       </mat-card-header>
-      <mat-card-content fxLayout="column" fxLayoutGap="16px" formGroupName="notifyWebhook">
-        <mat-form-field class="full-width">
-          <mat-label>Webhook URL</mat-label>
-          <input matInput formControlName="url" placeholder="https://example.com/webhook" />
-          <mat-icon matSuffix>webhook</mat-icon>
-          @if (form.get('notifyWebhook.url')?.invalid && form.get('notifyWebhook.url')?.touched) {
-            <mat-error>Webhook URL is required</mat-error>
-          }
-        </mat-form-field>
-        <div formGroupName="auth" fxLayout="column" fxLayoutGap="16px">
-          <mat-form-field>
-            <mat-label>Authorization Type</mat-label>
-            <mat-select formControlName="type" placeholder="Type">
-              <mat-option value="apiKey">Api Key</mat-option>
-            </mat-select>
-          </mat-form-field>
-          <div formGroupName="config" fxLayout="column" fxLayoutGap="16px">
-            <mat-form-field>
-              <mat-label>Header Name</mat-label>
-              <input matInput formControlName="headerName" placeholder="Header Name" />
-            </mat-form-field>
-            <mat-form-field>
-              <mat-label>Header Value</mat-label>
-              <input matInput formControlName="value" placeholder="Header Value" />
-            </mat-form-field>
-          </div>
-        </div>
+      <mat-card-content>
+        <app-webhook-config [group]="getFormGroup('notifyWebhook')"></app-webhook-config>
       </mat-card-content>
     </mat-card>
 
     <!-- Action Buttons -->
     <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="end center">
       <button mat-button type="button" [routerLink]="['../']">Cancel</button>
-      <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || loading">
+      <button mat-flat-button type="submit" [disabled]="form.invalid || loading">
         @if (loading) {
           <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
         }
@@ -239,6 +189,5 @@
         {{ create ? 'Create' : 'Save' }} Configuration
       </button>
     </div>
-    {{ form.errors | json }}
   </form>
 </div>

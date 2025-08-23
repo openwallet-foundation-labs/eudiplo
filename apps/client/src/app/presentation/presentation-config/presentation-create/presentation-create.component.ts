@@ -20,6 +20,12 @@ import { MatDividerModule } from '@angular/material/divider';
 import { configs } from './pre-config';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { EditorComponent } from '../../../utils/editor/editor.component';
+import { WebhookConfigComponent } from '../../../utils/webhook-config/webhook-config.component';
+import {
+  DCQLSchema,
+  presentationAttachmentSchema,
+  registrationCertificateRequestSchema,
+} from '../../../utils/schemas';
 
 @Component({
   selector: 'app-presentation-create',
@@ -40,6 +46,7 @@ import { EditorComponent } from '../../../utils/editor/editor.component';
     MatDividerModule,
     MonacoEditorModule,
     EditorComponent,
+    WebhookConfigComponent,
   ],
   templateUrl: './presentation-create.component.html',
   styleUrls: ['./presentation-create.component.scss'],
@@ -48,10 +55,10 @@ export class PresentationCreateComponent {
   public form: FormGroup;
   public create = true;
 
-  editorOptions = {
-    language: 'json',
-    automaticLayout: true,
-  };
+  presentationAttachmentSchema = presentationAttachmentSchema;
+  registrationCertificateRequestSchema = registrationCertificateRequestSchema;
+
+  DCQLSchema = DCQLSchema;
 
   public predefinedConfigs = configs;
 
@@ -112,6 +119,10 @@ export class PresentationCreateComponent {
           this.create = false;
         });
     }
+  }
+
+  getFormGroup(value: string) {
+    return this.form.get(value) as FormGroup;
   }
 
   // Custom validator for JSON format
