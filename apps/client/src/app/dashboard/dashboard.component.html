@@ -41,12 +41,12 @@
 
       <div fxLayout="column" fxLayoutGap="8px" class="config-item">
         <mat-form-field appearance="outline" fxFlex>
-          <mat-label>OAuth Discovery URL</mat-label>
+          <mat-label>OAuth URL</mat-label>
           <input matInput [value]="currentOidcUrl" readonly />
           <button
             mat-icon-button
             matSuffix
-            (click)="copyToClipboard(currentOidcUrl, 'OAuth Discovery URL')"
+            (click)="copyToClipboard(currentOidcUrl, 'OAuth URL')"
             matTooltip="Copy to clipboard"
           >
             <mat-icon>content_copy</mat-icon>

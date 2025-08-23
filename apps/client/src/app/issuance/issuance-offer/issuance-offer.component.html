@@ -53,12 +53,9 @@
             <mat-form-field class="full-width">
               <mat-label>Credential Configuration IDs</mat-label>
               <mat-select formControlName="credentialConfigurationIds" multiple>
-                @for (
-                  binding of selectedConfig.credentialIssuanceBindings;
-                  track binding.credentialConfigId
-                ) {
-                  <mat-option [value]="binding.credentialConfigId">
-                    {{ binding.credentialConfigId }}
+                @for (binding of selectedConfig.credentialConfigs; track binding.id) {
+                  <mat-option [value]="binding.id">
+                    {{ binding.id }}
                   </mat-option>
                 }
               </mat-select>
@@ -131,7 +128,7 @@
             <mat-icon>warning</mat-icon>
             <h3>No Issuance Configurations</h3>
             <p>You need to create at least one issuance configuration before generating offers.</p>
-            <button mat-raised-button color="primary" [routerLink]="['../issuance-config/create']">
+            <button mat-raised-button [routerLink]="['../issuance-config/create']">
               <mat-icon>add</mat-icon>
               Create Issuance Configuration
             </button>

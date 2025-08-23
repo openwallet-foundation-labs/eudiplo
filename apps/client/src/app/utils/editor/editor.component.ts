@@ -20,6 +20,7 @@ import schemas from '../schemas.json';
  * extact the schema that got added by the editor
  */
 export function extractSchema(obj: any) {
+  if (!obj) return null;
   const element = typeof obj === 'string' ? JSON.parse(obj) : obj;
   delete element.$schema;
   if (Object.keys(element).length === 0) {
@@ -100,6 +101,10 @@ export class EditorComponent implements ControlValueAccessor, Validator, OnChang
 
   // Validator
   validate(): ValidationErrors | null {
+    if (this.editorOptions.language !== 'json') {
+      return null;
+    }
+
     const raw = this.value;
     if (!raw) return null;
     let parsed: any;
@@ -139,9 +144,8 @@ export class EditorComponent implements ControlValueAccessor, Validator, OnChang
 
   ngOnChanges(changes: SimpleChanges): void {
     if ('schema' in changes) {
-      const candidate = this.schema?.getSchema() ?? this.schema;
       try {
-        this.validateFn = this.ajv.getSchema(candidate['$id']);
+        this.validateFn = this.ajv.getSchema(this.schema?.getSchemaUrl());
       } catch (error) {
         console.log(error);
         this.validateFn = undefined;

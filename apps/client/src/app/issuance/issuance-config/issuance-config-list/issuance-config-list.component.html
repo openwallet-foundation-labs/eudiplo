@@ -34,12 +34,26 @@
     </td>
   </ng-container>
 
-  <ng-container matColumnDef="credentialIssuanceBindings">
-    <th mat-header-cell *matHeaderCellDef>Credential Issuance Bindings</th>
+  <ng-container matColumnDef="webhooks">
+    <th mat-header-cell *matHeaderCellDef>Webhooks</th>
     <td mat-cell *matCellDef="let config">
-      @for (binding of config.credentialIssuanceBindings; track binding) {
-        <a [routerLink]="['/credential-config', binding.credentialConfigId]">{{
-          binding.credentialConfigId
+      <mat-chip-set>
+        @if (config.claimsWebhook) {
+          <mat-chip [matTooltip]="config.claimsWebhook.url"> Claims Webhook</mat-chip>
+        }
+        @if (config.notifyWebhook) {
+          <mat-chip [matTooltip]="config.notifyWebhook.url"> Notify Webhook</mat-chip>
+        }
+      </mat-chip-set>
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="credentialConfigs">
+    <th mat-header-cell *matHeaderCellDef>Credential Configurations</th>
+    <td mat-cell *matCellDef="let config">
+      @for (config of config.credentialConfigs; track config) {
+        <a [routerLink]="['/credential-config', config.id]" [matTooltip]="config.description">{{
+          config.id
         }}</a
         ><br />
       }

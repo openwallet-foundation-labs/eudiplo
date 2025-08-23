@@ -10,7 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { IssuanceConfig } from '../../../generated';
+import { AuthenticationMethodAuth, IssuanceConfig } from '../../../generated';
 import { IssuanceConfigService } from '../issuance-config.service';
 
 @Component({
@@ -59,6 +59,13 @@ export class IssuanceConfigShowComponent implements OnInit {
         }
       );
     }
+  }
+
+  getAuthConfigDetails() {
+    if (this.config?.authenticationConfig.method !== 'none') {
+      return (this.config?.authenticationConfig as AuthenticationMethodAuth).config;
+    }
+    return undefined;
   }
 
   deleteConfig() {

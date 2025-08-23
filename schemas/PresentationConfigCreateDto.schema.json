@@ -17,8 +17,12 @@
       "description": "Lifetime how long the presentation request is valid after creation, in seconds."
     },
     "dcql_query": {
-      "type": "object",
-      "description": "The DCQL query to be used for the VP request."
+      "description": "The DCQL query to be used for the VP request.",
+      "allOf": [
+        {
+          "$ref": "./DCQL.schema.json"
+        }
+      ]
     },
     "registrationCert": {
       "description": "The registration certificate request containing the necessary details.",

@@ -2,7 +2,7 @@
   <!-- Header -->
   <div fxLayout="row" fxLayoutAlign="space-between center">
     <h2>{{ create ? 'Create' : 'Edit' }} Issuance Configuration</h2>
-    <div>
+    <div fxLayout="row" fxLayoutAlign="end center">
       <!-- JSON View Button -->
       <button mat-stroked-button (click)="viewAsJson()" matTooltip="View/Edit as JSON">
         <mat-icon>code</mat-icon>
@@ -115,14 +115,36 @@
           <mat-icon>security</mat-icon>
           Authentication Configuration
         </mat-card-title>
+        <mat-card-subtitle>Configure authentication settings</mat-card-subtitle>
       </mat-card-header>
-      <mat-card-content fxLayout="column" fxLayoutGap="16px">
-        <!-- Authentication Method -->
-        <app-editor
-          formControlName="authenticationConfig"
-          [schema]="authenticationSchema"
-          [errors]="form.get('authenticationConfig')?.errors"
-        ></app-editor>
+      <mat-card-content formGroupName="authenticationConfig" fxLayout="column" fxLayoutGap="16px">
+        <mat-form-field>
+          <mat-label>Authentication Method</mat-label>
+          <mat-select formControlName="method">
+            <mat-option value="none">None</mat-option>
+            <mat-option value="auth">Auth</mat-option>
+            <mat-option value="presentationDuringIssuance">Presentation During Issuance</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <div formGroupName="config" fxLayout="column" fxLayoutGap="16px">
+          @if (form.get('authenticationConfig.method')?.value === 'presentationDuringIssuance') {
+            <mat-form-field>
+              <mat-label>Type</mat-label>
+              <mat-select formControlName="type" placeholder="Type">
+                @for (type of presentationConfigs; track type) {
+                  <mat-option [value]="type.id">{{ type.id }} - {{ type.description }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          }
+          @if (form.get('authenticationConfig.method')?.value === 'auth') {
+            <mat-form-field>
+              <mat-label>Endpoint of the authorization server</mat-label>
+              <input matInput formControlName="url" placeholder="URL" />
+            </mat-form-field>
+          }
+        </div>
       </mat-card-content>
     </mat-card>
 
@@ -135,12 +157,8 @@
         </mat-card-title>
         <mat-card-subtitle>URL to receive claims data</mat-card-subtitle>
       </mat-card-header>
-      <mat-card-content fxLayout="column" fxLayoutGap="16px">
-        <app-editor
-          formControlName="claimsWebhook"
-          [schema]="webhookSchema"
-          [errors]="form.get('claimsWebhook')?.errors"
-        ></app-editor>
+      <mat-card-content>
+        <app-webhook-config [group]="getFormGroup('claimsWebhook')"></app-webhook-config>
       </mat-card-content>
     </mat-card>
 
@@ -153,19 +171,15 @@
         </mat-card-title>
         <mat-card-subtitle>URL to receive notification data</mat-card-subtitle>
       </mat-card-header>
-      <mat-card-content fxLayout="column" fxLayoutGap="16px">
-        <app-editor
-          formControlName="notifyWebhook"
-          [schema]="webhookSchema"
-          [errors]="form.get('notifyWebhook')?.errors"
-        ></app-editor>
+      <mat-card-content>
+        <app-webhook-config [group]="getFormGroup('notifyWebhook')"></app-webhook-config>
       </mat-card-content>
     </mat-card>
 
     <!-- Action Buttons -->
     <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="end center">
       <button mat-button type="button" [routerLink]="['../']">Cancel</button>
-      <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || loading">
+      <button mat-flat-button type="submit" [disabled]="form.invalid || loading">
         @if (loading) {
           <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
         }

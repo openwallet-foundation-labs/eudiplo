@@ -1,4 +1,9 @@
-import { ApiHideProperty } from "@nestjs/swagger";
+import {
+    ApiExtraModels,
+    ApiHideProperty,
+    ApiProperty,
+    getSchemaPath,
+} from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import {
     IsNumber,
@@ -11,20 +16,27 @@ import {
     Column,
     CreateDateColumn,
     Entity,
-    OneToMany,
-    PrimaryGeneratedColumn,
+    JoinTable,
+    ManyToMany,
     UpdateDateColumn,
 } from "typeorm";
 import { WebhookConfig } from "../../../utils/webhook/webhook.dto";
+import { CredentialConfig } from "../../credentials/entities/credential.entity";
 import {
-    type AuthenticationConfig,
-    AuthenticationConfigDto,
+    AuthenticationMethod,
+    AuthenticationMethodAuth,
+    AuthenticationMethodNone,
+    AuthenticationMethodPresentation,
 } from "../dto/authentication-config.dto";
-import { CredentialIssuanceBinding } from "./credential-issuance-binding.entity";
 
 /**
  * Entity to manage issuance configs
  */
+@ApiExtraModels(
+    AuthenticationMethodNone,
+    AuthenticationMethodAuth,
+    AuthenticationMethodPresentation,
+)
 @Entity()
 export class IssuanceConfig {
     /**
@@ -52,25 +64,50 @@ export class IssuanceConfig {
     /**
      * Links to all credential config bindings that are included in this issuance config.
      */
-    @OneToMany(
-        () => CredentialIssuanceBinding,
-        (binding) => binding.issuanceConfig,
-        { cascade: ["remove"], onDelete: "CASCADE" },
+    @ManyToMany(
+        () => CredentialConfig,
+        (credential) => credential.issuanceConfigs,
     )
-    credentialIssuanceBindings: CredentialIssuanceBinding[];
+    @JoinTable()
+    credentialConfigs: CredentialConfig[];
 
     /**
      * Authentication configuration for the issuance process.
-     * This determines which OpenID4VC flow to use:
-     * - 'none': Pre-authorized code flow (no user authentication required)
-     * - 'auth': OID4VCI authorized code flow (user will be redirected for authentication)
-     * - 'presentationDuringIssuance': OID4VP request is sent (credential presentation required)
      */
     @IsObject()
     @Column("json")
     @ValidateNested()
-    @Type(() => AuthenticationConfigDto)
-    authenticationConfig: AuthenticationConfigDto;
+    @ApiProperty({
+        oneOf: [
+            { $ref: getSchemaPath(AuthenticationMethodNone) },
+            { $ref: getSchemaPath(AuthenticationMethodAuth) },
+            { $ref: getSchemaPath(AuthenticationMethodPresentation) },
+        ],
+    })
+    @Type(() => AuthenticationMethodNone, {
+        discriminator: {
+            property: "method",
+            subTypes: [
+                {
+                    name: AuthenticationMethod.NONE,
+                    value: AuthenticationMethodNone,
+                },
+                {
+                    name: AuthenticationMethod.AUTH,
+                    value: AuthenticationMethodAuth,
+                },
+                {
+                    name: AuthenticationMethod.PRESENTATION_DURING_ISSUANCE,
+                    value: AuthenticationMethodPresentation,
+                },
+            ],
+        },
+        keepDiscriminatorProperty: true,
+    })
+    authenticationConfig:
+        | AuthenticationMethodNone
+        | AuthenticationMethodAuth
+        | AuthenticationMethodPresentation;
 
     /**
      * The timestamp when the VP request was created.

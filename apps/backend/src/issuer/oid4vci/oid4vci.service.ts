@@ -33,7 +33,10 @@ import { SessionLogContext } from "../../utils/logger/session-logger-context";
 import { WebhookService } from "../../utils/webhook/webhook.service";
 import { AuthorizeService } from "../authorize/authorize.service";
 import { CredentialsService } from "../credentials/credentials.service";
-import { AuthenticationUrlConfig } from "../issuance/dto/authentication-config.dto";
+import {
+    AuthenticationMethodAuth,
+    AuthenticationUrlConfig,
+} from "../issuance/dto/authentication-config.dto";
 import { IssuanceService } from "../issuance/issuance.service";
 import { NotificationRequestDto } from "./dto/notification-request.dto";
 import { OfferRequestDto, OfferResponse } from "./dto/offer-request.dto";
@@ -139,8 +142,9 @@ export class Oid4vciService {
 
         if (issuanceConfig.authenticationConfig.method === "auth") {
             authServer = (
-                issuanceConfig.authenticationConfig
-                    .config as AuthenticationUrlConfig
+                (
+                    issuanceConfig.authenticationConfig as AuthenticationMethodAuth
+                ).config as AuthenticationUrlConfig
             ).url;
             // fetch the authorization server metadata
             authorizationServerMetadata = await firstValueFrom(
@@ -227,9 +231,7 @@ export class Oid4vciService {
             });
         const credentialConfigurationIds =
             body.credentialConfigurationIds ||
-            issuanceConfig.credentialIssuanceBindings.map(
-                (config) => config.credentialConfigId,
-            );
+            issuanceConfig.credentialConfigs.map((config) => config.id);
 
         let authorization_code: string | undefined;
         let grants: any;

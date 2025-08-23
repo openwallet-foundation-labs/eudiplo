@@ -10,8 +10,8 @@ import { Repository } from "typeorm";
 import { CryptoService } from "../../crypto/crypto.service";
 import { CryptoImplementationService } from "../../crypto/key/crypto-implementation/crypto-implementation.service";
 import { Session } from "../../session/entities/session.entity";
-import { VCT } from "../credentials-metadata/dto/credential-config.dto";
 import { SchemaResponse } from "../credentials-metadata/dto/schema-response.dto";
+import { VCT } from "../credentials-metadata/dto/vct.dto";
 import { IssuanceConfig } from "../issuance/entities/issuance-config.entity";
 import { StatusListService } from "../status-list/status-list.service";
 import { CredentialConfig } from "./entities/credential.entity";
@@ -72,8 +72,8 @@ export class CredentialsService {
         };
 
         for (const value of configs) {
-            const isUsed = issuanceConfig.credentialIssuanceBindings.find(
-                (binding) => binding.credentialConfigId === value.id,
+            const isUsed = issuanceConfig.credentialConfigs.find(
+                (config) => config.id === value.id,
             );
             value.config.vct = `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${session.tenantId}/credentials/vct/${value.id}`;
 
@@ -82,7 +82,7 @@ export class CredentialsService {
                 value.config.disclosure_policy = value.embeddedDisclosurePolicy;
             }
 
-            if (isUsed?.credentialConfig)
+            if (isUsed?.id)
                 value.config = {
                     ...value.config,
                     ...kb,
@@ -123,13 +123,12 @@ export class CredentialsService {
             credentialConfiguration.claims;
         const disclosureFrame = credentialConfiguration.disclosureFrame;
 
-        const binding = issuanceConfig.credentialIssuanceBindings.find(
-            (binding) =>
-                binding.credentialConfigId === credentialConfigurationId,
+        const config = issuanceConfig.credentialConfigs.find(
+            (config) => config.id === credentialConfigurationId,
         );
 
         const keyId =
-            binding?.credentialConfig?.keyId ??
+            config?.keyId ??
             (await this.cryptoService.keyService.getKid(
                 session.tenantId,
                 "signing",

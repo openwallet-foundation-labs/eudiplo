@@ -4,17 +4,20 @@
   "title": "WebhookConfig",
   "type": "object",
   "properties": {
+    "auth": {
+      "description": "Optional authentication configuration for the webhook.\nIf not provided, no authentication will be used.",
+      "oneOf": [
+        {
+          "$ref": "./WebHookAuthConfigNone.schema.json"
+        },
+        {
+          "$ref": "./WebHookAuthConfigHeader.schema.json"
+        }
+      ]
+    },
     "url": {
       "type": "string",
       "description": "The URL to which the webhook will send notifications."
-    },
-    "auth": {
-      "description": "Optional authentication configuration for the webhook.\nIf not provided, no authentication will be used.",
-      "allOf": [
-        {
-          "$ref": "./WebHookAuthConfig.schema.json"
-        }
-      ]
     }
   },
   "required": [

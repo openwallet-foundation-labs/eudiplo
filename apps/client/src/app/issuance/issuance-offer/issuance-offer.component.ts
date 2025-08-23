@@ -87,9 +87,7 @@ export class IssuanceOfferComponent implements OnInit {
     await this.loadConfigurations();
     this.form.get('issuanceId')?.valueChanges.subscribe(async (issuanceId) => {
       this.selected = this.configs.find((config) => config.id === issuanceId);
-      const ids =
-        this.selected?.credentialIssuanceBindings.map((binding) => binding.credentialConfigId) ||
-        [];
+      const ids = this.selected?.credentialConfigs.map((config) => config.id) || [];
       this.form.get('credentialConfigurationIds')?.setValue(ids);
     });
 

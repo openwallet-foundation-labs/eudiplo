@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AuthenticationMethodPresentation.schema.json",
+  "title": "AuthenticationMethodPresentation",
+  "type": "object",
+  "properties": {
+    "method": {
+      "type": "string",
+      "enum": [
+        "presentationDuringIssuance"
+      ]
+    },
+    "config": {
+      "$ref": "./PresentationDuringIssuanceConfig.schema.json"
+    }
+  },
+  "required": [
+    "method",
+    "config"
+  ]
+}

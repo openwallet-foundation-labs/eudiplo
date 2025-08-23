@@ -82,7 +82,7 @@
 
         <!-- DCQL Query Field -->
         <h4>DCQL Query</h4>
-        <app-editor formControlName="dcql_query"></app-editor>
+        <app-editor formControlName="dcql_query" [schema]="DCQLSchema"></app-editor>
 
         <mat-form-field>
           <mat-label>Lifetime of the request</mat-label>
@@ -108,7 +108,10 @@
       <mat-card-content fxLayout="column" fxLayoutGap="16px">
         <!-- Registration Certificate Field -->
         <h4>Registrar Certificate (optional)</h4>
-        <app-editor formControlName="registrationCert"></app-editor>
+        <app-editor
+          formControlName="registrationCert"
+          [schema]="registrationCertificateRequestSchema"
+        ></app-editor>
       </mat-card-content>
     </mat-card>
 
@@ -123,7 +126,7 @@
       <mat-card-content fxLayout="column" fxLayoutGap="16px">
         <!-- Attached Files Field -->
         <h4>Attached Files (optional)</h4>
-        <app-editor formControlName="attached"></app-editor>
+        <app-editor formControlName="attached" [schema]="presentationAttachmentSchema"></app-editor>
       </mat-card-content>
     </mat-card>
 
@@ -137,68 +140,14 @@
       </mat-card-header>
 
       <mat-card-content fxLayout="column" fxLayoutGap="16px" formGroupName="webhook">
-        <!-- Webhook Configuration Section -->
-        <!-- Webhook URL -->
-        <mat-form-field>
-          <mat-label>Webhook URL</mat-label>
-          <input matInput formControlName="url" placeholder="https://your-webhook-url.com" />
-          @if (form.get('webhook.url')?.hasError('required')) {
-            <mat-error> Webhook URL is required </mat-error>
-          }
-        </mat-form-field>
-
-        <!-- Webhook Authentication Section -->
-        <div formGroupName="auth" fxLayout="column" fxLayoutGap="16px">
-          <h4>Authentication</h4>
-
-          <!-- Auth Type -->
-          <mat-form-field>
-            <mat-label>Authentication Type</mat-label>
-            <mat-select formControlName="type">
-              <mat-option value="none">None</mat-option>
-              <mat-option value="apiKey">API Key</mat-option>
-            </mat-select>
-            @if (form.get('webhook.auth.type')?.hasError('required')) {
-              <mat-error> Authentication type is required </mat-error>
-            }
-          </mat-form-field>
-
-          <!-- API Key Configuration -->
-          <div formGroupName="config" fxLayout="column" fxLayoutGap="16px">
-            <mat-form-field>
-              <mat-label>Header Name</mat-label>
-              <input matInput formControlName="headerName" placeholder="X-API-Key" />
-              @if (form.get('webhook.auth.config.headerName')?.hasError('required')) {
-                <mat-error> Header name is required </mat-error>
-              }
-            </mat-form-field>
-
-            <mat-form-field>
-              <mat-label>API Key Value</mat-label>
-              <input matInput formControlName="value" placeholder="Your API key" type="password" />
-              <button
-                mat-icon-button
-                matSuffix
-                (click)="
-                  copyToClipboard(form.get('webhook.auth.config.value')?.value, 'Client Secret')
-                "
-                matTooltip="Copy to clipboard"
-              >
-                <mat-icon>content_copy</mat-icon>
-              </button>
-              @if (form.get('webhook.auth.config.value')?.hasError('required')) {
-                <mat-error> API key value is required </mat-error>
-              }
-            </mat-form-field>
-          </div>
-        </div>
+        <app-webhook-config [group]="getFormGroup('webhook')"></app-webhook-config>
       </mat-card-content>
     </mat-card>
 
     <!-- Action Buttons -->
     <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="end center">
       <button mat-button type="button" [routerLink]="['../']">Cancel</button>
-      <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">
+      <button mat-flat-button type="submit" [disabled]="form.invalid">
         <mat-icon>{{ create ? 'add' : 'save' }}</mat-icon>
 
         {{ create ? 'Create' : 'Save' }} Configuration

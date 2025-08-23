@@ -4,11 +4,25 @@
   "title": "IssuanceDto",
   "type": "object",
   "properties": {
-    "credentialConfigs": {
+    "authenticationConfig": {
+      "description": "Authentication configuration for the issuance process.",
+      "oneOf": [
+        {
+          "$ref": "./AuthenticationMethodNone.schema.json"
+        },
+        {
+          "$ref": "./AuthenticationMethodAuth.schema.json"
+        },
+        {
+          "$ref": "./AuthenticationMethodPresentation.schema.json"
+        }
+      ]
+    },
+    "credentialConfigIds": {
       "description": "Ids of the credential configurations associated with this issuance configuration.",
       "type": "array",
       "items": {
-        "$ref": "./CredentialConfigMapping.schema.json"
+        "type": "string"
       }
     },
     "id": {
@@ -18,14 +32,6 @@
     "description": {
       "type": "string",
       "description": "Description of the issuance configuration."
-    },
-    "authenticationConfig": {
-      "description": "Authentication configuration for the issuance process.\nThis determines which OpenID4VC flow to use:\n- 'none': Pre-authorized code flow (no user authentication required)\n- 'auth': OID4VCI authorized code flow (user will be redirected for authentication)\n- 'presentationDuringIssuance': OID4VP request is sent (credential presentation required)",
-      "allOf": [
-        {
-          "$ref": "./AuthenticationConfigDto.schema.json"
-        }
-      ]
     },
     "claimsWebhook": {
       "description": "Webhook to receive claims for the issuance process.",
@@ -49,8 +55,8 @@
     }
   },
   "required": [
-    "credentialConfigs",
-    "id",
-    "authenticationConfig"
+    "authenticationConfig",
+    "credentialConfigIds",
+    "id"
   ]
 }

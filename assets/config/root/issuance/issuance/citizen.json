@@ -7,10 +7,8 @@
             "type": "pid"
         }
     },
-    "credentialConfigs": [
-        {
-            "id": "citizen"
-        }
+    "credentialConfigIds": [
+        "citizen"
     ],
     "claimsWebhook": {
         "url": "http://localhost:8787/process"

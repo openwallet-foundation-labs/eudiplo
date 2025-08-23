@@ -96,22 +96,22 @@
 
       <mat-card-content fxLayout="column" fxLayoutGap="16px">
         <h4>Certificate (PEM Format)</h4>
-        <app-editor formControlName="crt" [editorOptions]="editorOptionsPem"></app-editor>
+        <app-editor
+          formControlName="crt"
+          [editorOptions]="editorOptionsPem"
+          [errors]="form.get('crt')?.errors"
+        ></app-editor>
       </mat-card-content>
     </mat-card>
     <mat-divider></mat-divider>
     <!-- Action Buttons -->
     <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="end center">
       <button mat-button type="button" [routerLink]="['../']">Cancel</button>
-      <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || loading">
-        @if (loading) {
-          <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
-        }
-        @if (!loading) {
-          <mat-icon>{{ create ? 'add' : 'save' }}</mat-icon>
-        }
+      <button mat-flat-button type="submit" [disabled]="form.invalid">
+        <mat-icon>{{ create ? 'add' : 'save' }}</mat-icon>
         {{ create ? 'Create' : 'Save' }} Key
       </button>
     </div>
+    {{ form.errors | json }}
   </form>
 </div>

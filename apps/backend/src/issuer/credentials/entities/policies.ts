@@ -69,10 +69,3 @@ export class AttestationBasedPolicy extends EmbeddedDisclosurePolicy {
     @Type(() => PolicyCredential)
     values!: PolicyCredential[];
 }
-
-// Convenience union type if you use it elsewhere
-export type AnyPolicy =
-    | NoneTrustPolicy
-    | AllowListPolicy
-    | RootOfTrustPolicy
-    | AttestationBasedPolicy;
