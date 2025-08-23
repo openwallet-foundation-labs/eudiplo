@@ -80,10 +80,8 @@
         @if (getObjectKeys(config.authenticationConfig).length > 0) {
           <div>
             <div><strong>Configuration Details:</strong></div>
-            @if (config.authenticationConfig.config) {
-              <pre class="config-value">{{
-                formatJsonValue(config.authenticationConfig.config)
-              }}</pre>
+            @if (getAuthConfigDetails()) {
+              <pre class="config-value">{{ formatJsonValue(getAuthConfigDetails()) }}</pre>
             }
           </div>
         }
@@ -91,51 +89,44 @@
     </mat-card>
 
     <!-- Credential Bindings Card -->
-    @if (config.credentialIssuanceBindings && config.credentialIssuanceBindings.length > 0) {
+    @if (config.credentialConfigs && config.credentialConfigs.length > 0) {
       <mat-card>
         <mat-card-header>
           <mat-card-title>
             <mat-icon>link</mat-icon>
-            Credential Configurations ({{ config.credentialIssuanceBindings.length }})
+            Credential Configurations ({{ config.credentialConfigs.length }})
           </mat-card-title>
         </mat-card-header>
         <mat-card-content>
           <div fxLayout="column" fxLayoutGap="16px">
-            @for (binding of config.credentialIssuanceBindings; track binding.credentialConfigId) {
+            @for (config of config.credentialConfigs; track config.id) {
               <mat-card class="binding-card">
                 <mat-card-content fxLayout="column" fxLayoutGap="8px">
                   <div fxLayout="row" fxLayoutAlign="space-between center">
                     <div>
                       <div><strong>Credential Config ID:</strong></div>
                       <div class="value-text">
-                        <a [routerLink]="['/credential-config', binding.credentialConfigId]">
-                          {{ binding.credentialConfigId }}
+                        <a [routerLink]="['/credential-config', config.id]">
+                          {{ config.id }}
                         </a>
                       </div>
                     </div>
-                    @if (binding.createdAt) {
-                      <div>
-                        <div><strong>Bound At:</strong></div>
-                        <div class="value-text">{{ formatDate(binding.createdAt) }}</div>
-                      </div>
-                    }
                   </div>
-                  @if (binding.credentialConfig) {
-                    <mat-divider></mat-divider>
+
+                  <mat-divider></mat-divider>
+                  <div>
+                    <div><strong>Credential Type:</strong></div>
+                    <div class="value-text">
+                      {{ config.vct?.name || 'Not specified' }}
+                    </div>
+                  </div>
+                  @if (config.vct?.description) {
                     <div>
-                      <div><strong>Credential Type:</strong></div>
+                      <div><strong>Description:</strong></div>
                       <div class="value-text">
-                        {{ binding.credentialConfig.vct?.name || 'Not specified' }}
+                        {{ config.vct?.description }}
                       </div>
                     </div>
-                    @if (binding.credentialConfig.vct?.description) {
-                      <div>
-                        <div><strong>Description:</strong></div>
-                        <div class="value-text">
-                          {{ binding.credentialConfig.vct?.description }}
-                        </div>
-                      </div>
-                    }
                   }
                 </mat-card-content>
               </mat-card>
