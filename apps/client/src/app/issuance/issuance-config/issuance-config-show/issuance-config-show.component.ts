@@ -62,8 +62,8 @@ export class IssuanceConfigShowComponent implements OnInit {
   }
 
   getAuthConfigDetails() {
-    if(this.config?.authenticationConfig.method !== 'none') {
-      return (this.config?.authenticationConfig as AuthenticationMethodAuth).config
+    if (this.config?.authenticationConfig.method !== 'none') {
+      return (this.config?.authenticationConfig as AuthenticationMethodAuth).config;
     }
     return undefined;
   }
