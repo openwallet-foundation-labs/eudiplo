@@ -623,6 +623,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#configuration-editing-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Editing &amp; Validation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-steps" class="md-nav__link">
     <span class="md-ellipsis">
       Next Steps
@@ -1927,6 +1936,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#configuration-editing-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Editing &amp; Validation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#next-steps" class="md-nav__link">
     <span class="md-ellipsis">
       Next Steps
@@ -2012,11 +2030,32 @@
 <li>Not supported for other identity providers or when using EUDIPLO as IAM yet</li>
 </ul>
 <hr />
+<h2 id="configuration-editing-validation">Configuration Editing &amp; Validation<a class="headerlink" href="#configuration-editing-validation" title="Permanent link">&para;</a></h2>
+<p>The web client is designed for intuitive and robust configuration management:</p>
+<ul>
+<li><strong>Data Model &amp; Validation:</strong> The EUDIPLO service uses decorators on data transfer objects (DTOs) and entities to describe variables and their values, enabling server-side validation.</li>
+<li><strong>OpenAPI Specification:</strong> An OpenAPI spec is generated from these DTOs and entities, providing a standardized interface for backend interaction.</li>
+<li><strong>SDK Integration:</strong> The web client uses an SDK generated from the OpenAPI spec for seamless and type-safe communication with the backend.</li>
+<li>
+<p><strong>Editing Experience:</strong></p>
+</li>
+<li>
+<p>Simple variables (strings, numbers, booleans) are edited via text inputs, select options, or checkboxes.</p>
+</li>
+<li>
+<p>Complex data structures are managed using an integrated JSON editor (Monaco Editor), which leverages JSON schemas for each variable.</p>
+</li>
+<li>
+<p><strong>Client-Side Validation &amp; Guidance:</strong> The JSON editor uses the provided JSON schemas to offer inline descriptions, auto-completion, and validation directly in the browser.</p>
+</li>
+<li><strong>Direct JSON Access:</strong> Each configuration can be viewed and edited as raw JSON for advanced use cases.</li>
+</ul>
+<hr />
 <h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../../api/">API Documentation</a>: For programmatic integration</li>
 <li><a href="../../architecture/overview/">Configuration</a>: Advanced setup options</li>
-<li><a href="../../architecture/overview/">Architecture</a>: System design overview</li>
+<li><a href="../../architecture/overview/">Architecture</a>: System</li>
 </ul>
 
 

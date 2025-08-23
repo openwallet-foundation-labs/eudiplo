@@ -211,7 +211,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="29" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:29</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="30" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:30</a></div>
                         </td>
                     </tr>
 
@@ -247,7 +247,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:25</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="26" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:26</a></div>
                         </td>
                     </tr>
 
@@ -283,7 +283,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="22" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:22</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="23" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:23</a></div>
                         </td>
                     </tr>
 
@@ -306,6 +306,7 @@
 import { Type } from &quot;class-transformer&quot;;
 import {
     IsArray,
+    IsBoolean,
     IsNotEmpty,
     IsNumber,
     IsObject,
@@ -331,6 +332,51 @@ export class PresentationAttachment {
     @IsNotEmpty()
     @IsString({ each: true })
     credential_ids?: string[];
+}
+
+//TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-credential-query
+
+export class CredentialQuery {
+    @IsString()
+    id: string;
+
+    @IsString()
+    format: string;
+
+    @IsOptional()
+    @IsBoolean()
+    multiple?: boolean;
+
+    @IsObject()
+    meta: any;
+
+    @IsArray()
+    @IsObject()
+    @IsOptional()
+    trusted_authorities?: any[];
+}
+
+//TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-credential-set-query
+export class CredentialSetQuery {
+    @IsString()
+    id: string;
+
+    @IsArray()
+    @IsObject({ each: true })
+    path: any[];
+}
+
+export class DCQL {
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() &#x3D;&gt; CredentialQuery)
+    credentials: CredentialQuery[];
+
+    @IsArray()
+    @IsOptional()
+    @ValidateNested({ each: true })
+    @Type(() &#x3D;&gt; CredentialSetQuery)
+    credential_set?: CredentialSetQuery[];
 }
 
 /**
@@ -372,9 +418,9 @@ export class PresentationConfig {
      * The DCQL query to be used for the VP request.
      */
     @Column(&quot;json&quot;)
-    @IsObject()
-    //TODO: define the structure of the DCQL query
-    dcql_query: any;
+    @ValidateNested()
+    @Type(() &#x3D;&gt; DCQL)
+    dcql_query: DCQL;
     /**
      * The registration certificate request containing the necessary details.
      */
@@ -410,6 +456,7 @@ export class PresentationConfig {
     @IsOptional()
     @IsArray()
     @ValidateNested()
+    @Type(() &#x3D;&gt; PresentationAttachment)
     @Column(&quot;json&quot;, { nullable: true })
     attached?: PresentationAttachment[];
 }

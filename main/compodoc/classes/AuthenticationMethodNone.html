@@ -96,7 +96,7 @@
 
 <ol class="breadcrumb">
   <li class="breadcrumb-item">Classes</li>
-  <li class="breadcrumb-item" >IssuanceDto</li>
+  <li class="breadcrumb-item" >AuthenticationMethodNone</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -120,30 +120,18 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/issuer/issuance/dto/issuance.dto.ts</code>
+            <code>src/issuer/issuance/dto/authentication-config.dto.ts</code>
         </p>
 
 
-            <p class="comment">
-                <h3>Description</h3>
-            </p>
-            <p class="comment">
-                <p>DTO for mapping issuance configurations.</p>
 
-            </p>
 
             <p class="comment">
-                <h3>Extends</h3>
+                <h3>Implements</h3>
             </p>
             <p class="comment">
-                            <code><a href="../classes/IssuanceConfig.html" target="_self" >OmitType(IssuanceConfig, [
-    &quot;tenantId&quot;,
-    &quot;createdAt&quot;,
-    &quot;updatedAt&quot;,
-    &quot;credentialConfigs&quot;,
-] as const)</a></code>
+                            <code><a href="../interfaces/AuthenticationMethodInterface.html" target="_self" >AuthenticationMethodInterface</a></code>
             </p>
-
 
 
             <section data-compodoc="block-index">
@@ -160,7 +148,8 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier"></span>
-                                <a href="#credentialConfigIds" >credentialConfigIds</a>
+                                    <span class="modifier"></span>
+                                <a href="#method" >method</a>
                             </li>
                         </ul>
                     </td>
@@ -185,41 +174,30 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="credentialConfigIds"></a>
+                    <a name="method"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                        <span ><b>credentialConfigIds</b></span>
-                        <a href="#credentialConfigIds"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier"></span>
+                        <span ><b>method</b></span>
+                        <a href="#method"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>    <code>string[]</code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsArray()<br />
+                            @IsString()<br />@IsIn([&#x27;none&#x27;])<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="29" class="link-to-prism">src/issuer/issuance/dto/issuance.dto.ts:29</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="70" class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:70</a></div>
                         </td>
                     </tr>
 
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Ids of the credential configurations associated with this issuance configuration.</p>
-</div>
-                </td>
-            </tr>
 
         </tbody>
     </table>
@@ -235,35 +213,86 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { OmitType } from &quot;@nestjs/swagger&quot;;
-import { IsArray, IsString } from &quot;class-validator&quot;;
-import { IssuanceConfig } from &quot;../entities/issuance-config.entity&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Type } from &quot;class-transformer&quot;;
+import {
+    IsIn,
+    IsObject,
+    IsOptional,
+    IsString,
+    ValidateNested,
+} from &quot;class-validator&quot;;
+import { WebhookConfig } from &quot;../../../utils/webhook/webhook.dto&quot;;
 
 /**
- * DTO for mapping credential configurations in issuance.
+ * Configuration for authentication method &#x27;auth&#x27;
+ * Used for OID4VCI authorized code flow where the user will be redirected for authentication
  */
-export class CredentialConfigMapping {
+export class AuthenticationUrlConfig {
     /**
-     * Unique identifier for the credential configuration.
+     * The URL used in the OID4VCI authorized code flow.
+     * This URL is where users will be redirected for authentication.
      */
     @IsString()
-    id: string;
+    url: string;
+
+    /**
+     * Optional webhook configuration for authentication callbacks
+     */
+    @IsObject()
+    @IsOptional()
+    @ValidateNested()
+    @Type(() &#x3D;&gt; WebhookConfig)
+    webhook?: WebhookConfig;
 }
 
 /**
- * DTO for mapping issuance configurations.
+ * Configuration for authentication method &#x27;presentationDuringIssuance&#x27;
+ * Used for OID4VP flow where a credential presentation request is sent
  */
-export class IssuanceDto extends OmitType(IssuanceConfig, [
-    &quot;tenantId&quot;,
-    &quot;createdAt&quot;,
-    &quot;updatedAt&quot;,
-    &quot;credentialConfigs&quot;,
-] as const) {
+export class PresentationDuringIssuanceConfig {
     /**
-     * Ids of the credential configurations associated with this issuance configuration.
+     * Link to the presentation configuration that is relevant for the issuance process
      */
-    @IsArray()
-    credentialConfigIds: string[];
+    @IsString()
+    type: string;
+}
+
+export class AuthenticationMethodPresentation
+    implements AuthenticationMethodInterface
+{
+    @IsString()
+    @IsIn([&quot;presentationDuringIssuance&quot;])
+    method: &quot;presentationDuringIssuance&quot;;
+    @IsObject()
+    @ValidateNested()
+    @Type(() &#x3D;&gt; PresentationDuringIssuanceConfig)
+    config: PresentationDuringIssuanceConfig;
+}
+
+export class AuthenticationMethodAuth implements AuthenticationMethodInterface {
+    @IsString()
+    @IsIn([&quot;auth&quot;])
+    method: &quot;auth&quot;;
+    @IsObject()
+    @ValidateNested()
+    @Type(() &#x3D;&gt; AuthenticationUrlConfig)
+    config: AuthenticationUrlConfig;
+}
+
+export class AuthenticationMethodNone implements AuthenticationMethodInterface {
+    @IsString()
+    @IsIn([&quot;none&quot;])
+    method: &quot;none&quot;;
+}
+
+export interface AuthenticationMethodInterface {
+    method: &quot;none&quot; | &quot;auth&quot; | &quot;presentationDuringIssuance&quot;;
+}
+
+export enum AuthenticationMethod {
+    NONE &#x3D; &quot;none&quot;,
+    AUTH &#x3D; &quot;auth&quot;,
+    PRESENTATION_DURING_ISSUANCE &#x3D; &quot;presentationDuringIssuance&quot;,
 }
 </code></pre>
     </div>
@@ -303,7 +332,7 @@ export class IssuanceDto extends OmitType(IssuanceConfig, [
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
-            var COMPODOC_CURRENT_PAGE_URL = 'IssuanceDto.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'AuthenticationMethodNone.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

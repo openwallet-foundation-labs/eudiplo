@@ -200,7 +200,7 @@ Used for OID4VP flow where a credential presentation request is sent</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="100" class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:100</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:42</a></div>
                         </td>
                     </tr>
 
@@ -231,67 +231,9 @@ import {
     IsObject,
     IsOptional,
     IsString,
-    IsUrl,
-    Validate,
     ValidateNested,
-    ValidationArguments,
-    ValidatorConstraint,
-    ValidatorConstraintInterface,
 } from &quot;class-validator&quot;;
 import { WebhookConfig } from &quot;../../../utils/webhook/webhook.dto&quot;;
-
-/**
- * Custom validator to ensure config type matches the authentication method
- */
-@ValidatorConstraint({ name: &quot;authConfigValidator&quot;, async: false })
-export class AuthConfigValidator implements ValidatorConstraintInterface {
-    validate(config: any, args: ValidationArguments) {
-        const obj &#x3D; args.object as AuthenticationConfigDto;
-
-        if (obj.method &#x3D;&#x3D;&#x3D; &quot;none&quot;) {
-            // For &#x27;none&#x27; method, config should be undefined
-            return config &#x3D;&#x3D;&#x3D; undefined;
-        }
-
-        if (obj.method &#x3D;&#x3D;&#x3D; &quot;auth&quot;) {
-            // For &#x27;auth&#x27; method, config must be present and have &#x27;url&#x27; property
-            return (
-                config &amp;&amp;
-                typeof config &#x3D;&#x3D;&#x3D; &quot;object&quot; &amp;&amp;
-                typeof config.url &#x3D;&#x3D;&#x3D; &quot;string&quot;
-            );
-        }
-
-        if (obj.method &#x3D;&#x3D;&#x3D; &quot;presentationDuringIssuance&quot;) {
-            // For &#x27;presentationDuringIssuance&#x27; method, config must be present and have &#x27;presentation&#x27; property
-            return (
-                config &amp;&amp;
-                typeof config &#x3D;&#x3D;&#x3D; &quot;object&quot; &amp;&amp;
-                typeof config.type &#x3D;&#x3D;&#x3D; &quot;string&quot;
-            );
-        }
-
-        return false;
-    }
-
-    defaultMessage(args: ValidationArguments) {
-        const obj &#x3D; args.object as AuthenticationConfigDto;
-
-        if (obj.method &#x3D;&#x3D;&#x3D; &quot;none&quot;) {
-            return &#x27;config must be undefined when method is &quot;none&quot;&#x27;;
-        }
-
-        if (obj.method &#x3D;&#x3D;&#x3D; &quot;auth&quot;) {
-            return &#x27;config must be of type AuthenticationUrlConfig when method is &quot;auth&quot;&#x27;;
-        }
-
-        if (obj.method &#x3D;&#x3D;&#x3D; &quot;presentationDuringIssuance&quot;) {
-            return &#x27;config must be of type PresentationDuringIssuanceConfig when method is &quot;presentationDuringIssuance&quot;&#x27;;
-        }
-
-        return &quot;config type does not match the specified method&quot;;
-    }
-}
 
 /**
  * Configuration for authentication method &#x27;auth&#x27;
@@ -302,7 +244,7 @@ export class AuthenticationUrlConfig {
      * The URL used in the OID4VCI authorized code flow.
      * This URL is where users will be redirected for authentication.
      */
-    @IsUrl()
+    @IsString()
     url: string;
 
     /**
@@ -327,42 +269,43 @@ export class PresentationDuringIssuanceConfig {
     type: string;
 }
 
-/**
- * Base class for authentication configurations
- * Determines which OpenID4VC flow to use for the issuance process
- */
-export class AuthenticationConfigDto {
-    /**
-     * The authentication method to use:
-     * - &#x27;none&#x27;: Pre-authorized code flow (no user authentication)
-     * - &#x27;auth&#x27;: OID4VCI authorized code flow (user redirect for authentication)
-     * - &#x27;presentationDuringIssuance&#x27;: OID4VP flow (credential presentation required)
-     */
-    @IsIn([&quot;none&quot;, &quot;auth&quot;, &quot;presentationDuringIssuance&quot;])
-    method: &quot;none&quot; | &quot;auth&quot; | &quot;presentationDuringIssuance&quot;;
-
-    /**
-     * Configuration specific to the selected authentication method
-     * - For &#x27;none&#x27;: no config needed (undefined) - uses pre-authorized code flow
-     * - For &#x27;auth&#x27;: AuthenticationUrlConfig - for OID4VCI authorized code flow
-     * - For &#x27;presentationDuringIssuance&#x27;: PresentationDuringIssuanceConfig - for OID4VP flow
-     */
-    @IsOptional()
-    @Validate(AuthConfigValidator)
-    config?: AuthenticationUrlConfig | PresentationDuringIssuanceConfig;
+export class AuthenticationMethodPresentation
+    implements AuthenticationMethodInterface
+{
+    @IsString()
+    @IsIn([&quot;presentationDuringIssuance&quot;])
+    method: &quot;presentationDuringIssuance&quot;;
+    @IsObject()
+    @ValidateNested()
+    @Type(() &#x3D;&gt; PresentationDuringIssuanceConfig)
+    config: PresentationDuringIssuanceConfig;
 }
 
-/**
- * Union type for authentication configurations
- * Each method corresponds to a specific OpenID4VC flow
- */
-export type AuthenticationConfig &#x3D;
-    | { method: &quot;none&quot; } // Pre-authorized code flow
-    | { method: &quot;auth&quot;; config: AuthenticationUrlConfig } // OID4VCI authorized code flow
-    | {
-          method: &quot;presentationDuringIssuance&quot;; // OID4VP flow
-          config: PresentationDuringIssuanceConfig;
-      };
+export class AuthenticationMethodAuth implements AuthenticationMethodInterface {
+    @IsString()
+    @IsIn([&quot;auth&quot;])
+    method: &quot;auth&quot;;
+    @IsObject()
+    @ValidateNested()
+    @Type(() &#x3D;&gt; AuthenticationUrlConfig)
+    config: AuthenticationUrlConfig;
+}
+
+export class AuthenticationMethodNone implements AuthenticationMethodInterface {
+    @IsString()
+    @IsIn([&quot;none&quot;])
+    method: &quot;none&quot;;
+}
+
+export interface AuthenticationMethodInterface {
+    method: &quot;none&quot; | &quot;auth&quot; | &quot;presentationDuringIssuance&quot;;
+}
+
+export enum AuthenticationMethod {
+    NONE &#x3D; &quot;none&quot;,
+    AUTH &#x3D; &quot;auth&quot;,
+    PRESENTATION_DURING_ISSUANCE &#x3D; &quot;presentationDuringIssuance&quot;,
+}
 </code></pre>
     </div>
 </div>
