@@ -48,6 +48,8 @@ describe("Issuance", () => {
     let clientSecret: string;
     let host: string;
 
+    const predefinedSessionId = "fd3ebf28-8ad6-4909-8a7a-a739c2c412c0";
+
     const sdjwt = new SDJwtVcInstance({
         hasher: digest,
         hashAlg: "sha-256",
@@ -111,7 +113,6 @@ describe("Issuance", () => {
                 "utf-8",
             ),
         );
-        pidCredentialConfiguration.id = "pid";
         await request(app.getHttpServer())
             .post("/issuer-management/credentials")
             .trustLocalhost()
@@ -126,7 +127,6 @@ describe("Issuance", () => {
                 "utf-8",
             ),
         );
-        pidNoneIssuanceConfiguration.id = "pid-none";
         await request(app.getHttpServer())
             .post("/issuer-management/issuance")
             .trustLocalhost()
@@ -141,7 +141,7 @@ describe("Issuance", () => {
                 "utf-8",
             ),
         );
-        pidIssuanceConfiguration.id = "pid";
+        pidIssuanceConfiguration.authenticationConfig.config.url = `http://localhost:3000/${predefinedSessionId}`;
         await request(app.getHttpServer())
             .post("/issuer-management/issuance")
             .trustLocalhost()
@@ -157,7 +157,6 @@ describe("Issuance", () => {
                 "utf-8",
             ),
         );
-        citizenPresentationConfiguration.id = "pid";
         await request(app.getHttpServer())
             .post("/presentation-management")
             .trustLocalhost()
@@ -172,7 +171,6 @@ describe("Issuance", () => {
                 "utf-8",
             ),
         );
-        citizenCredentialConfiguration.id = "citizen";
         await request(app.getHttpServer())
             .post("/issuer-management/credentials")
             .trustLocalhost()
@@ -186,7 +184,6 @@ describe("Issuance", () => {
                 "utf-8",
             ),
         );
-        citizenIssuanceConfiguration.id = "citizen";
         await request(app.getHttpServer())
             .post("/issuer-management/issuance")
             .trustLocalhost()
@@ -295,7 +292,7 @@ describe("Issuance", () => {
     });
 
     test("create oid4vci offer with defined session", async () => {
-        const sessionId = "fd3ebf28-8ad6-4909-8a7a-a739c2c412c0";
+        const sessionId = predefinedSessionId;
         const res = await request(app.getHttpServer())
             .post("/issuer-management/offer")
             .trustLocalhost()
