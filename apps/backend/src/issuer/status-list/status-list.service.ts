@@ -54,6 +54,15 @@ export class StatusListService {
     }
 
     /**
+     * Delete the status list for a specific tenant.
+     * @param tenantId The ID of the tenant.
+     */
+    onTenantDelete(tenantId: string) {
+        this.statusListRepository.delete({ tenantId });
+        this.statusMappingRepository.delete({ tenantId });
+    }
+
+    /**
      * Create a new status list and stored it in the file
      */
     async createList(entry: StatusListEntity) {
@@ -133,6 +142,7 @@ export class StatusListService {
         );
         // store the index in the status mapping
         await this.statusMappingRepository.save({
+            tenantId: session.tenantId,
             sessionId: session.id,
             index: idx,
             list: sub,

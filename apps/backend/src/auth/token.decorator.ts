@@ -12,4 +12,5 @@ export const Token = createParamDecorator(
  */
 export interface TokenPayload {
     sub: string; // Subject (client_id for client credentials)
+    admin: boolean; // Admin flag
 }

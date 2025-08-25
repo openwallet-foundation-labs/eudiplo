@@ -3,7 +3,7 @@ import { Column, Entity, PrimaryColumn } from "typeorm";
 export type ClientStatus = "init" | "set up" | "error";
 
 @Entity()
-export class ClientEntry {
+export class TenantEntity {
     @PrimaryColumn()
     id: string;
 

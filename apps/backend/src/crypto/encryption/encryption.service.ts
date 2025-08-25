@@ -39,6 +39,14 @@ export class EncryptionService {
     }
 
     /**
+     * Deletes the encryption keys for a given tenant.
+     * @param tenantId - The ID of the tenant for which to delete the keys.
+     */
+    async onTenantDelete(tenantId: string) {
+        await this.keyRepository.delete({ tenantId });
+    }
+
+    /**
      * Encrypts a response using JWE (JSON Web Encryption).
      * @param response - The response to encrypt.
      * @param tenantId - The ID of the tenant for which to encrypt the response.

@@ -8,13 +8,14 @@ import { CryptoModule } from "../crypto/crypto.module";
 import { IssuerModule } from "../issuer/issuer.module";
 import { StatusListModule } from "../issuer/status-list/status-list.module";
 import { RegistrarModule } from "../registrar/registrar.module";
-import { StorageModule } from "../storage/storage.module";
+import { SessionModule } from "../session/session.module";
 import { AuthController } from "./auth.controller";
 import { JwtAuthGuard } from "./auth.guard";
-import { ClientService } from "./client.service";
-import { ClientEntry } from "./entitites/client.entity";
+import { ClientController } from "./client/client.controller";
+import { TenantEntity } from "./entitites/tenant.entity";
 import { JwtService } from "./jwt.service";
 import { JwtStrategy } from "./jwt.strategy";
+import { TenantService } from "./tenant.service";
 
 export const DEFAULT_JWT_SECRET = "supersecret";
 export const DEFAULT_AUTH_CLIENT_ID = "root";
@@ -62,20 +63,21 @@ export const AUTH_VALIDATION_SCHEMA = {
         CryptoModule,
         StatusListModule,
         RegistrarModule,
+        SessionModule,
         IssuerModule,
-        TypeOrmModule.forFeature([ClientEntry]),
+        TypeOrmModule.forFeature([TenantEntity]),
     ],
     providers: [
         JwtStrategy,
         JwtAuthGuard,
         JwtService,
-        ClientService,
+        TenantService,
         makeGaugeProvider({
             name: "tenant_client_total",
             help: "Total number of tenant clients",
         }),
     ],
-    controllers: [AuthController],
+    controllers: [AuthController, ClientController],
     exports: [PassportModule, JwtStrategy, JwtAuthGuard, JwtService],
 })
 export class AuthModule {}

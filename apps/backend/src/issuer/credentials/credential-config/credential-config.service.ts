@@ -143,6 +143,10 @@ export class CredentialConfigService {
         }
     }
 
+    async onTenantDelete(tenantId: string) {
+        await this.credentialConfigRepository.delete({ tenantId });
+    }
+
     /**
      * Retrieves all credential configurations for a given tenant.
      * @param tenantId - The ID of the tenant.

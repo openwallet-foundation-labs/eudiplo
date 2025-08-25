@@ -1,5 +1,6 @@
 import {
     BadRequestException,
+    ForbiddenException,
     Injectable,
     OnApplicationBootstrap,
 } from "@nestjs/common";
@@ -10,10 +11,14 @@ import { Gauge } from "prom-client";
 import { Repository } from "typeorm/repository/Repository";
 import { CryptoService } from "../crypto/crypto.service";
 import { EncryptionService } from "../crypto/encryption/encryption.service";
+import { CredentialConfigService } from "../issuer/credentials/credential-config/credential-config.service";
+import { IssuanceService } from "../issuer/issuance/issuance.service";
 import { Oid4vciService } from "../issuer/oid4vci/oid4vci.service";
 import { StatusListService } from "../issuer/status-list/status-list.service";
 import { RegistrarService } from "../registrar/registrar.service";
-import { ClientEntry } from "./entitites/client.entity";
+import { SessionService } from "../session/session.service";
+import { TenantEntity } from "./entitites/tenant.entity";
+import { TokenPayload } from "./token.decorator";
 
 // Client interface for service integration
 export interface Client {
@@ -22,25 +27,28 @@ export interface Client {
 }
 
 @Injectable()
-export class ClientService implements OnApplicationBootstrap {
+export class TenantService implements OnApplicationBootstrap {
     private clients: Client[] | null = null;
 
     constructor(
         private configService: ConfigService,
         private cryptoService: CryptoService,
         private encryptionService: EncryptionService,
-        private statutsListService: StatusListService,
+        private statusListService: StatusListService,
         private registrarService: RegistrarService,
         private oid4vciService: Oid4vciService,
-        @InjectRepository(ClientEntry)
-        private clientRepository: Repository<ClientEntry>,
+        private issuanceService: IssuanceService,
+        private credentialConfigService: CredentialConfigService,
+        private sessionService: SessionService,
+        @InjectRepository(TenantEntity)
+        private tenantRepository: Repository<TenantEntity>,
         @InjectMetric("tenant_client_total")
         private tenantClientTotal: Gauge<string>,
     ) {}
 
     async onApplicationBootstrap() {
         // Initialize the client metrics
-        const count = await this.clientRepository.countBy({ status: "set up" });
+        const count = await this.tenantRepository.countBy({ status: "set up" });
         this.tenantClientTotal.set({}, count);
     }
 
@@ -97,13 +105,13 @@ export class ClientService implements OnApplicationBootstrap {
      * @returns
      */
     async isSetUp(id: string) {
-        void this.clientRepository
+        void this.tenantRepository
             .countBy({ status: "set up" })
             .then((count) => {
                 this.tenantClientTotal.set({}, count);
             });
 
-        await this.clientRepository.findOneByOrFail({ id }).then(
+        await this.tenantRepository.findOneByOrFail({ id }).then(
             (res) => {
                 if (res.status === "set up") {
                     return true;
@@ -114,11 +122,11 @@ export class ClientService implements OnApplicationBootstrap {
             },
             async () => {
                 // create it to signl that the client getting set up
-                await this.clientRepository.save({ id });
+                await this.tenantRepository.save({ id });
                 await this.setUpClient(id).catch(async (err) => {
                     console.error(err);
                     // if there is an error, update the client status"
-                    await this.clientRepository.update(
+                    await this.tenantRepository.update(
                         { id },
                         { status: "error", error: err.message },
                     );
@@ -127,7 +135,7 @@ export class ClientService implements OnApplicationBootstrap {
                     );
                 });
                 // if everything is fine, update the client status
-                return this.clientRepository.update(
+                return this.tenantRepository.update(
                     { id },
                     { status: "set up" },
                 );
@@ -142,8 +150,32 @@ export class ClientService implements OnApplicationBootstrap {
     async setUpClient(id: string) {
         await this.cryptoService.onTenantInit(id);
         await this.encryptionService.onTenantInit(id);
-        await this.statutsListService.onTenantInit(id);
+        await this.statusListService.onTenantInit(id);
         await this.registrarService.onTenantInit(id);
         await this.oid4vciService.onTenantInit(id);
+    }
+
+    /**
+     * Deletes a client by ID
+     * @param tenantId The ID of the client to delete
+     * @param user The user requesting the deletion
+     */
+    async deleteClient(tenantId: string, user: TokenPayload) {
+        //TODO: right now only clients can trigger the delete endpoint by themself. Need to define how to get admin rights.
+        if (tenantId !== user.sub) {
+            throw new ForbiddenException(
+                `User ${user.sub} is not allowed to delete client ${tenantId}`,
+            );
+        }
+        // Proceed with the deletion
+        await this.sessionService.onTenantDelete(tenantId);
+        await this.oid4vciService.onTenantDelete(tenantId);
+        await this.credentialConfigService.onTenantDelete(tenantId);
+        await this.issuanceService.onTenantDelete(tenantId);
+        await this.registrarService.onTenantDelete(tenantId);
+        await this.statusListService.onTenantDelete(tenantId);
+        await this.encryptionService.onTenantDelete(tenantId);
+        await this.cryptoService.onTenantDelete(tenantId);
+        return this.tenantRepository.delete({ id: tenantId });
     }
 }

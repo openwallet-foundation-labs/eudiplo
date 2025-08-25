@@ -150,6 +150,10 @@ export class IssuanceService implements OnModuleInit {
         }
     }
 
+    async onTenantDelete(tenantId: string) {
+        await this.issuanceConfigRepo.delete({ tenantId });
+    }
+
     /**
      * Returns the issuance configurations for this tenant.
      * @param tenantId

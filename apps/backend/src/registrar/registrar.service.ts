@@ -127,6 +127,14 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
     }
 
     /**
+     * Deletes all registrar entries for a specific tenant.
+     * @param tenantId
+     */
+    async onTenantDelete(tenantId: string) {
+        await this.registrarRepository.delete({ tenantId });
+    }
+
+    /**
      * Refreshes the access token for the registrar using client credentials.
      * This method is called periodically to ensure the access token is valid.
      */

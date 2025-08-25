@@ -15,11 +15,11 @@ import {
     ApiTags,
 } from "@nestjs/swagger";
 import { KeyResponseDto } from "../crypto/key/dto/key-response.dto";
-import { ClientService } from "./client.service";
 import { ClientCredentialsDto } from "./dto/client-credentials.dto";
 import { OidcDiscoveryDto } from "./dto/oidc-discovery.dto";
 import { TokenResponse } from "./dto/token-response.dto";
 import { JwtService } from "./jwt.service";
+import { TenantService } from "./tenant.service";
 import { TokenPayload } from "./token.decorator";
 
 @ApiExcludeController(process.env.SWAGGER_ALL !== "true")
@@ -28,7 +28,7 @@ import { TokenPayload } from "./token.decorator";
 export class AuthController {
     constructor(
         private jwtService: JwtService,
-        private clientService: ClientService,
+        private clientService: TenantService,
         private configService: ConfigService,
     ) {}
 
@@ -132,6 +132,7 @@ export class AuthController {
         //TODO: check if the access token should only include the session id or also e.g. the credentials that should be issued. I would think this is not required since we still need the claims for it.
         const payload: TokenPayload = {
             sub: client.id,
+            admin: false,
         };
 
         //TODO: make expiresIn configurable?

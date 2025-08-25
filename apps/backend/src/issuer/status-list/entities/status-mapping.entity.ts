@@ -3,6 +3,9 @@ import { Column, Entity } from "typeorm";
 @Entity()
 export class StatusMapping {
     @Column({ type: "varchar", primary: true })
+    tenantId: string;
+
+    @Column({ type: "varchar", primary: true })
     sessionId: string;
 
     @Column({ type: "varchar", primary: true })

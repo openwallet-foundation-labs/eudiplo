@@ -84,6 +84,15 @@ export class Oid4vciService {
     }
 
     /**
+     * Delete the display information for a specific tenant.
+     * @param tenantId The ID of the tenant.
+     * @returns The result of the deletion operation.
+     */
+    onTenantDelete(tenantId: string) {
+        return this.displayRepository.delete({ tenantId });
+    }
+
+    /**
      * Get the OID4VCI issuer instance for a specific tenant.
      * @param tenantId The ID of the tenant.
      * @returns The OID4VCI issuer instance.

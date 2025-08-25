@@ -61,7 +61,12 @@ export const ISSUER_VALIDATION_SCHEMA = {
         CredentialConfigService,
         WebhookService,
     ],
-    exports: [AuthorizeService, Oid4vciService],
+    exports: [
+        AuthorizeService,
+        Oid4vciService,
+        IssuanceService,
+        CredentialConfigService,
+    ],
 })
 export class IssuerModule {
     constructor(configService: ConfigService) {

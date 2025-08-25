@@ -83,6 +83,14 @@ export class SessionService implements OnApplicationBootstrap {
     }
 
     /**
+     * Deletes all sessions for a specific tenant.
+     * @param tenantId
+     */
+    async onTenantDelete(tenantId: string) {
+        await this.sessionRepository.delete({ tenantId });
+    }
+
+    /**
      * Create a new session.
      * @param session
      * @returns

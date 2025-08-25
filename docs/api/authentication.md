@@ -136,7 +136,7 @@ All administrative endpoints require OAuth2 authentication:
 
 ## Security Considerations
 
-- **Token Lifetime**: Tokens expire after 24 hours for client credentials flow
+- **Token Lifetime**: Tokens expire after 24 hours for client credentials flow. It can be updated by setting the `JWT_EXPIRES_IN` to another value, default value is `24h`.
 - **Secure Storage**: Store client credentials and tokens securely and never
   expose them in logs or URLs
 - **Service-to-Service**: This API is designed for service-to-service
