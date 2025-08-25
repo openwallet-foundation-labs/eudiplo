@@ -45,80 +45,93 @@ export class CredentialConfigService {
                 const path = join(configPath, tenant.name, subfolder);
                 const files = readdirSync(path);
                 for (const file of files) {
-                    const payload = JSON.parse(
-                        readFileSync(join(path, file), "utf8"),
-                    );
-
-                    const id = file.replace(".json", "");
-                    payload.id = id;
-                    const exists = await this.getById(tenant.name, id).catch(
-                        () => false,
-                    );
-                    if (exists && !force) {
-                        continue; // Skip if config already exists and force is not set
-                    }
-
-                    // Validate the payload against CredentialConfig
-                    const config = plainToClass(
-                        CredentialConfigCreate,
-                        payload,
-                    );
-                    const validationErrors = await validate(config, {
-                        whitelist: true,
-                        forbidUnknownValues: false, // avoid false positives on plain objects
-                        forbidNonWhitelisted: false,
-                        stopAtFirstError: false,
-                    });
-
-                    // Check if keyId is provided and if the certificate exists
-                    if (config.keyId) {
-                        const cert = await this.cryptoService.getCertEntry(
-                            tenant.name,
-                            config.keyId,
+                    try {
+                        const payload = JSON.parse(
+                            readFileSync(join(path, file), "utf8"),
                         );
-                        if (!cert) {
+
+                        const id = file.replace(".json", "");
+                        payload.id = id;
+                        const exists = await this.getById(
+                            tenant.name,
+                            id,
+                        ).catch(() => false);
+                        if (exists && !force) {
+                            continue; // Skip if config already exists and force is not set
+                        }
+
+                        // Validate the payload against CredentialConfig
+                        const config = plainToClass(
+                            CredentialConfigCreate,
+                            payload,
+                        );
+                        const validationErrors = await validate(config, {
+                            whitelist: true,
+                            forbidUnknownValues: false, // avoid false positives on plain objects
+                            forbidNonWhitelisted: false,
+                            stopAtFirstError: false,
+                        });
+
+                        // Check if keyId is provided and if the certificate exists
+                        if (config.keyId) {
+                            const cert = await this.cryptoService.getCertEntry(
+                                tenant.name,
+                                config.keyId,
+                            );
+                            if (!cert) {
+                                this.logger.error(
+                                    {
+                                        event: "ValidationError",
+                                        file,
+                                        tenant: tenant.name,
+                                        errors: [
+                                            {
+                                                property: "keyId",
+                                                constraints: {
+                                                    isDefined:
+                                                        "Key ID must be defined in the crypto service.",
+                                                },
+                                                value: config.keyId,
+                                            },
+                                        ],
+                                    },
+                                    `Validation failed for credentials config ${file} in tenant ${tenant.name}`,
+                                );
+                                continue; // Skip this invalid config
+                            }
+                            (config as CredentialConfig).key = cert;
+                        }
+
+                        if (validationErrors.length > 0) {
                             this.logger.error(
                                 {
                                     event: "ValidationError",
                                     file,
                                     tenant: tenant.name,
-                                    errors: [
-                                        {
-                                            property: "keyId",
-                                            constraints: {
-                                                isDefined:
-                                                    "Key ID must be defined in the crypto service.",
-                                            },
-                                            value: config.keyId,
-                                        },
-                                    ],
+                                    errors: validationErrors.map((error) => ({
+                                        property: error.property,
+                                        constraints: error.constraints,
+                                        value: error.value,
+                                    })),
                                 },
                                 `Validation failed for credentials config ${file} in tenant ${tenant.name}`,
                             );
                             continue; // Skip this invalid config
                         }
-                        (config as CredentialConfig).key = cert;
-                    }
 
-                    if (validationErrors.length > 0) {
+                        await this.store(tenant.name, config);
+                        counter++;
+                    } catch (e) {
                         this.logger.error(
                             {
-                                event: "ValidationError",
+                                event: "ImportError",
                                 file,
                                 tenant: tenant.name,
-                                errors: validationErrors.map((error) => ({
-                                    property: error.property,
-                                    constraints: error.constraints,
-                                    value: error.value,
-                                })),
+                                error: e.message,
                             },
-                            `Validation failed for credentials config ${file} in tenant ${tenant.name}`,
+                            `Failed to import credentials config ${file} in tenant ${tenant.name}`,
                         );
-                        continue; // Skip this invalid config
                     }
-
-                    await this.store(tenant.name, config);
-                    counter++;
                 }
                 this.logger.info(
                     {

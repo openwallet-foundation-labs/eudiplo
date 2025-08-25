@@ -29,7 +29,7 @@ import {
     NoneTrustPolicy,
     PolicyType,
     RootOfTrustPolicy,
-} from "./policies";
+} from "./policies.dto";
 
 @ApiExtraModels(
     AttestationBasedPolicy,
@@ -118,11 +118,11 @@ export class CredentialConfig {
         discriminator: {
             property: "policy",
             subTypes: [
-                { name: PolicyType.NONE, value: NoneTrustPolicy },
-                { name: PolicyType.ALLOW_LIST, value: AllowListPolicy },
-                { name: PolicyType.ROOT_OF_TRUST, value: RootOfTrustPolicy },
+                { name: "none", value: NoneTrustPolicy },
+                { name: "allowList", value: AllowListPolicy },
+                { name: "rootOfTrust", value: RootOfTrustPolicy },
                 {
-                    name: PolicyType.ATTESTATION_BASED,
+                    name: "attestationBased",
                     value: AttestationBasedPolicy,
                 },
             ],

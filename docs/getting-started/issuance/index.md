@@ -155,7 +155,7 @@ Webhooks allow you to dynamically generate claims based on authentication contex
     - **[Authentication Guide](authentication.md#3-oid4vp-flow-presentationduringissuance)** - Configuration and setup
     - **[API Guide](api-guide.md#webhook-integration)** - Implementation examples and webhook payloads
     - **[Presentation Documentation](../presentation/index.md#presentation-during-issuance)** - Flow diagrams and use cases
-    - **[Webhooks Architecture](../../architecture/webhooks.md#2-presentation-during-issuance)** - Technical details
+    - **[Webhooks Architecture](../../architecture/webhooks.md)** - Technical details
 
 **When to use:**
 

@@ -1,10 +1,12 @@
-<ngx-monaco-editor
-  [options]="editorOptions"
-  [(ngModel)]="value"
-  [model]="model"
-  (ngModelChange)="handleChange($event)"
-  (blur)="onBlur()"
-></ngx-monaco-editor>
+<div class="editor">
+  <ngx-monaco-editor
+    [options]="editorOptions"
+    [(ngModel)]="value"
+    [model]="model"
+    (ngModelChange)="handleChange($event)"
+    (blur)="onBlur()"
+  ></ngx-monaco-editor>
+</div>
 @if (errors?.['invalidSchema']) {
   <mat-error>
     {{ errors?.['invalidSchema'] }}

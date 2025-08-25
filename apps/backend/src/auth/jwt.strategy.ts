@@ -29,9 +29,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
     }
 
     private static getExternalOIDCConfig(configService: ConfigService) {
-        const keycloakIssuerUrl = configService.get(
-            "KEYCLOAK_INTERNAL_ISSUER_URL",
-        );
+        const keycloakIssuerUrl = configService.get("OIDC_INTERNAL_ISSUER_URL");
         const jwksUri = `${keycloakIssuerUrl}/protocol/openid-connect/certs`;
 
         return {
@@ -53,7 +51,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
                 },
             }),
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            algorithms: [configService.get("KEYCLOAK_ALGORITHM")],
+            algorithms: [configService.get("OIDC_ALGORITHM")],
             issuer: keycloakIssuerUrl,
         };
     }
@@ -85,8 +83,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
     async validate(payload: TokenPayload): Promise<unknown> {
         const useExternalOIDC =
             this.configService.get<string>("OIDC") !== undefined;
-
-        const sub = useExternalOIDC ? (payload as any).azp : payload.sub;
+        let sub = payload.sub;
+        if (useExternalOIDC) {
+            const key = this.configService.getOrThrow<string>("OIDC_SUB");
+            sub = (payload as any)[key];
+        }
 
         await this.clientService.isSetUp(sub);
 

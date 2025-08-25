@@ -1,8 +1,9 @@
-import { ApiHideProperty } from "@nestjs/swagger";
+import { ApiHideProperty, ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import {
     IsArray,
     IsBoolean,
+    IsIn,
     IsNotEmpty,
     IsNumber,
     IsObject,
@@ -29,6 +30,16 @@ export class PresentationAttachment {
     @IsString({ each: true })
     credential_ids?: string[];
 }
+// TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-trusted-authorities-query
+export class TrustedAuthorityQuery {
+    @IsString()
+    @IsIn(["aki", "etsi_tl", "openid_federation"])
+    type: string;
+
+    @IsArray()
+    @IsString({ each: true })
+    values: string[];
+}
 
 //TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-credential-query
 
@@ -47,19 +58,37 @@ export class CredentialQuery {
     meta: any;
 
     @IsArray()
-    @IsObject()
     @IsOptional()
-    trusted_authorities?: any[];
+    @ValidateNested({ each: true })
+    @Type(() => TrustedAuthorityQuery)
+    trusted_authorities: TrustedAuthorityQuery[];
 }
 
-//TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-credential-set-query
-export class CredentialSetQuery {
+//TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#claims_query
+export class ClaimsQuery {
     @IsString()
     id: string;
 
     @IsArray()
-    @IsObject({ each: true })
-    path: any[];
+    path: string[];
+
+    @IsArray()
+    @IsOptional()
+    values?: any[];
+}
+
+//TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-credential-set-query
+export class CredentialSetQuery {
+    @ApiProperty({
+        type: "array",
+        items: { type: "array", items: { type: "string" } },
+    })
+    @IsArray()
+    options: string[][];
+
+    @IsBoolean()
+    @IsOptional()
+    required?: boolean;
 }
 
 export class DCQL {

@@ -57,7 +57,11 @@ export class EditorComponent implements ControlValueAccessor, Validator, OnChang
     addFormats(this.ajv);
     for (const schema of schemas) {
       const key = (schema.schema as any)['$id'].split('/').pop() || '';
-      this.ajv.addSchema(schema.schema, key);
+      try {
+        this.ajv.addSchema(schema.schema, key);
+      } catch (error) {
+        console.error(`Failed to add schema ${key}:`, error);
+      }
     }
     this.model = {
       value: this.value,

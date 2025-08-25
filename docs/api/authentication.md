@@ -91,7 +91,7 @@ PUBLIC_URL=https://your-api.example.com
 ```bash
 # Enable external OIDC
 OIDC=true
-KEYCLOAK_INTERNAL_ISSUER_URL=https://your-keycloak.example.com/realms/your-realm
+OIDC_INTERNAL_ISSUER_URL=https://your-keycloak.example.com/realms/your-realm
 PUBLIC_URL=https://your-api.example.com
 ```
 

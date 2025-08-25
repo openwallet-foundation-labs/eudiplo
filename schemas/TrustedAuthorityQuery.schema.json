@@ -1,13 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AllowListPolicy.schema.json",
-  "title": "AllowListPolicy",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustedAuthorityQuery.schema.json",
+  "title": "TrustedAuthorityQuery",
   "type": "object",
   "properties": {
-    "policy": {
+    "type": {
       "type": "string",
       "enum": [
-        "allowList"
+        "aki",
+        "etsi_tl",
+        "openid_federation"
       ]
     },
     "values": {
@@ -18,7 +20,7 @@
     }
   },
   "required": [
-    "policy",
+    "type",
     "values"
   ]
 }

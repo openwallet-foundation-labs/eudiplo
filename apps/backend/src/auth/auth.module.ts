@@ -22,11 +22,15 @@ export const DEFAULT_AUTH_CLIENT_SECRET = "root";
 
 export const AUTH_VALIDATION_SCHEMA = {
     OIDC: Joi.string().optional(),
-    KEYCLOAK_INTERNAL_ISSUER_URL: Joi.when("OIDC", {
+    OIDC_INTERNAL_ISSUER_URL: Joi.when("OIDC", {
         then: Joi.string().required(),
         otherwise: Joi.string().optional(),
     }),
-    KEYCLOAK_ALGORITHM: Joi.when("OIDC", {
+    OIDC_SUB: Joi.when("OIDC", {
+        then: Joi.string().default("azp"),
+        otherwise: Joi.string().optional(),
+    }),
+    OIDC_ALGORITHM: Joi.when("OIDC", {
         then: Joi.string().default("RS256"),
         otherwise: Joi.string().optional(),
     }),

@@ -1,29 +1,36 @@
 import { Type } from "class-transformer";
 import {
+    Equals,
     IsArray,
     IsDefined,
     IsEnum,
+    IsIn,
     IsOptional,
     IsString,
     ValidateNested,
 } from "class-validator";
+import {
+    ClaimsQuery,
+    CredentialQuery,
+    CredentialSetQuery,
+} from "../../../verifier/presentations/entities/presentation-config.entity";
 
-export enum PolicyType {
-    NONE = "none",
-    ALLOW_LIST = "allowList",
-    ROOT_OF_TRUST = "rootOfTrust",
-    ATTESTATION_BASED = "attestationBased",
-}
+export type PolicyType =
+    | "none"
+    | "allowList"
+    | "rootOfTrust"
+    | "attestationBased";
 
 export class EmbeddedDisclosurePolicy {
-    @IsDefined()
-    @IsEnum(PolicyType)
-    policy!: PolicyType;
+    @IsString()
+    policy!: string;
 }
 
 /** allowList */
 export class AllowListPolicy extends EmbeddedDisclosurePolicy {
-    declare policy: PolicyType.ALLOW_LIST;
+    @IsString()
+    @IsIn(["allowList"])
+    declare policy: "allowList";
 
     @IsDefined()
     @IsString({ each: true })
@@ -32,7 +39,9 @@ export class AllowListPolicy extends EmbeddedDisclosurePolicy {
 
 /** rootOfTrust */
 export class RootOfTrustPolicy extends EmbeddedDisclosurePolicy {
-    declare policy: PolicyType.ROOT_OF_TRUST;
+    @IsString()
+    @IsIn(["rootOfTrust"])
+    declare policy: "rootOfTrust";
 
     // adapt as needed if you want an array instead
     @IsDefined()
@@ -42,26 +51,35 @@ export class RootOfTrustPolicy extends EmbeddedDisclosurePolicy {
 
 /** none */
 export class NoneTrustPolicy extends EmbeddedDisclosurePolicy {
-    declare policy: PolicyType.NONE;
+    @IsString()
+    @IsIn(["none"])
+    declare policy: "none";
 }
-
 /** attestationBased */
 export class PolicyCredential {
     @IsOptional()
     @IsArray()
-    claims?: any[];
+    @ValidateNested({ each: true })
+    @Type(() => ClaimsQuery)
+    claims?: ClaimsQuery[];
 
     @IsDefined()
     @IsArray()
-    credentials!: any[];
+    @ValidateNested({ each: true })
+    @Type(() => CredentialQuery)
+    credentials!: CredentialQuery[];
 
     @IsOptional()
     @IsArray()
-    credential_sets?: any[];
+    @ValidateNested({ each: true })
+    @Type(() => CredentialSetQuery)
+    credential_sets?: CredentialSetQuery[];
 }
 
 export class AttestationBasedPolicy extends EmbeddedDisclosurePolicy {
-    declare policy: PolicyType.ATTESTATION_BASED;
+    @IsString()
+    @IsIn(["attestationBased"])
+    declare policy: "attestationBased";
 
     @IsDefined()
     @IsArray()
