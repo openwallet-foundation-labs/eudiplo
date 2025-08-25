@@ -89,6 +89,14 @@ export class IssuanceOfferComponent implements OnInit {
       this.selected = this.configs.find((config) => config.id === issuanceId);
       const ids = this.selected?.credentialConfigs.map((config) => config.id) || [];
       this.form.get('credentialConfigurationIds')?.setValue(ids);
+
+      if(this.selected?.claimsWebhook) {
+        this.form.removeControl('claimsForm');
+      } else {
+        this.form.addControl('claimsForm', new FormGroup({}));
+        this.group = this.form.get('claimsForm') as UntypedFormGroup;
+      }
+
     });
 
     this.form
