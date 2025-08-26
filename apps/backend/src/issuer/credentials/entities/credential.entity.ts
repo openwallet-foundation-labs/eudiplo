@@ -16,8 +16,8 @@ import {
     IsString,
     ValidateNested,
 } from "class-validator";
-import { Column, Entity, ManyToMany, ManyToOne, OneToMany } from "typeorm";
-
+import { Column, Entity, ManyToMany, ManyToOne } from "typeorm";
+import { TenantEntity } from "../../../auth/entitites/tenant.entity";
 import { CertEntity } from "../../../crypto/key/entities/cert.entity";
 import { SchemaResponse } from "../../credentials-metadata/dto/schema-response.dto";
 import { VCT } from "../../credentials-metadata/dto/vct.dto";
@@ -27,9 +27,8 @@ import {
     AttestationBasedPolicy,
     EmbeddedDisclosurePolicy,
     NoneTrustPolicy,
-    PolicyType,
     RootOfTrustPolicy,
-} from "./policies";
+} from "./policies.dto";
 
 @ApiExtraModels(
     AttestationBasedPolicy,
@@ -50,6 +49,12 @@ export class CredentialConfig {
     @ApiHideProperty()
     @Column("varchar", { primary: true })
     tenantId!: string;
+
+    /**
+     * The tenant that owns this object.
+     */
+    @ManyToOne(() => TenantEntity, { cascade: true, onDelete: "CASCADE" })
+    tenant: TenantEntity;
 
     @Column("json")
     @IsObject()
@@ -118,11 +123,11 @@ export class CredentialConfig {
         discriminator: {
             property: "policy",
             subTypes: [
-                { name: PolicyType.NONE, value: NoneTrustPolicy },
-                { name: PolicyType.ALLOW_LIST, value: AllowListPolicy },
-                { name: PolicyType.ROOT_OF_TRUST, value: RootOfTrustPolicy },
+                { name: "none", value: NoneTrustPolicy },
+                { name: "allowList", value: AllowListPolicy },
+                { name: "rootOfTrust", value: RootOfTrustPolicy },
                 {
-                    name: PolicyType.ATTESTATION_BASED,
+                    name: "attestationBased",
                     value: AttestationBasedPolicy,
                 },
             ],

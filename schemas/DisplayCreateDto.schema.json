@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/DisplayCreateDto.schema.json",
+  "title": "DisplayCreateDto",
+  "type": "object",
+  "properties": {
+    "value": {
+      "description": "The display information.",
+      "type": "array",
+      "items": {
+        "$ref": "./DisplayInfo.schema.json"
+      }
+    }
+  },
+  "required": [
+    "value"
+  ]
+}

@@ -30,6 +30,7 @@ export class CredentialConfigListComponent implements OnInit {
     'description',
     'keyBinding',
     'lifeTime',
+    'embeddedDisclosurePolicy',
     'statusManagement',
     'actions',
   ];

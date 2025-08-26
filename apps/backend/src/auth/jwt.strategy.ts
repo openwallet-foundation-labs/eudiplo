@@ -1,17 +1,13 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { passportJwtSecret } from "jwks-rsa";
 import { ExtractJwt, Strategy } from "passport-jwt";
-import { ClientService } from "./client.service";
 import { TokenPayload } from "./token.decorator";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
-    constructor(
-        private configService: ConfigService,
-        private clientService: ClientService,
-    ) {
+    constructor(private configService: ConfigService) {
         const useExternalOIDC = configService.get<boolean>("OIDC");
 
         const config = useExternalOIDC
@@ -29,9 +25,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
     }
 
     private static getExternalOIDCConfig(configService: ConfigService) {
-        const keycloakIssuerUrl = configService.get(
-            "KEYCLOAK_INTERNAL_ISSUER_URL",
-        );
+        const keycloakIssuerUrl = configService.get("OIDC_INTERNAL_ISSUER_URL");
         const jwksUri = `${keycloakIssuerUrl}/protocol/openid-connect/certs`;
 
         return {
@@ -53,7 +47,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
                 },
             }),
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            algorithms: [configService.get("KEYCLOAK_ALGORITHM")],
+            algorithms: [configService.get("OIDC_ALGORITHM")],
             issuer: keycloakIssuerUrl,
         };
     }
@@ -82,14 +76,15 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
      * @param payload The JWT payload
      * @returns The validated payload or an error
      */
-    async validate(payload: TokenPayload): Promise<unknown> {
+    validate(payload: TokenPayload): any {
         const useExternalOIDC =
             this.configService.get<string>("OIDC") !== undefined;
+        let sub = payload.sub;
+        if (useExternalOIDC) {
+            const key = this.configService.getOrThrow<string>("OIDC_SUB");
+            sub = (payload as any)[key] as string;
+        }
 
-        const sub = useExternalOIDC ? (payload as any).azp : payload.sub;
-
-        await this.clientService.isSetUp(sub);
-
-        return { sub };
+        return { sub, admin: payload.admin || false };
     }
 }

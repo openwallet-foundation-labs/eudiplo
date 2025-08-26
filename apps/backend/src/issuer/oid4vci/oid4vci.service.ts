@@ -33,6 +33,7 @@ import { SessionLogContext } from "../../utils/logger/session-logger-context";
 import { WebhookService } from "../../utils/webhook/webhook.service";
 import { AuthorizeService } from "../authorize/authorize.service";
 import { CredentialsService } from "../credentials/credentials.service";
+import { DisplayEntity } from "../display/entities/display.entity";
 import {
     AuthenticationMethodAuth,
     AuthenticationUrlConfig,
@@ -40,7 +41,6 @@ import {
 import { IssuanceService } from "../issuance/issuance.service";
 import { NotificationRequestDto } from "./dto/notification-request.dto";
 import { OfferRequestDto, OfferResponse } from "./dto/offer-request.dto";
-import { DisplayEntity } from "./entities/display.entity";
 import { getHeadersFromRequest } from "./util";
 
 /**
@@ -81,6 +81,15 @@ export class Oid4vciService {
                 },
             ],
         });
+    }
+
+    /**
+     * Delete the display information for a specific tenant.
+     * @param tenantId The ID of the tenant.
+     * @returns The result of the deletion operation.
+     */
+    onTenantDelete(tenantId: string) {
+        return this.displayRepository.delete({ tenantId });
     }
 
     /**
@@ -186,7 +195,7 @@ export class Oid4vciService {
             authorization_server: authServer,
             notification_endpoint: `${credential_issuer}/vci/notification`,
             nonce_endpoint: `${credential_issuer}/vci/nonce`,
-            display,
+            display: display as any,
         });
 
         if (issuanceConfig.batch_size) {

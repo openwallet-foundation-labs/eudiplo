@@ -86,6 +86,14 @@ describe("Issuance", () => {
         authToken = tokenResponse.body.access_token;
         expect(authToken).toBeDefined();
 
+        await request(app.getHttpServer())
+            .post("/tenant")
+            .trustLocalhost()
+            .set("Authorization", `Bearer ${authToken}`)
+            .send({
+                id: "root",
+            })
+            .expect(201);
         //import key
 
         const privateKey = {

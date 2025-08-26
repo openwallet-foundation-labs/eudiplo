@@ -2,89 +2,95 @@ name: Version release
 
 # Configures this workflow to run every time a change is pushed to the branch called `release`.
 on:
-    workflow_dispatch:
+  workflow_dispatch:
 jobs:
-    build-and-push-image:
-        runs-on: ubuntu-latest
-        permissions:
-            contents: write
-            packages: write
-            pull-requests: write
-            actions: read
-            pages: write
-            id-token: write
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
-              with:
-                  fetch-depth: 0 # Fetch full history for mike versioning
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      pull-requests: write
+      actions: read
+      pages: write
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch full history for mike versioning
 
-            - name: Set up Node.js with pnpm
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 22
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
 
-            - name: Enable pnpm
-              run: corepack enable
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
 
-            - name: Install dependencies
-              run: pnpm install
+      - name: Install dependencies
+        run: pnpm install
 
-            - name: Run semantic-release
-              id: semantic_release
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  DOCKER_REGISTRY_USER: ${{ github.actor }}
-                  DOCKER_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-              run: |
-                  echo "Running semantic-release..."
-                  npx semantic-release
+      - name: Run linter
+        run: pnpm run lint
 
-                  # Check if a new release was created by checking if a new tag was created
-                  echo "Checking for new tags..."
-                  git fetch --tags
-                  NEW_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-                  echo "Latest tag found: $NEW_TAG"
+      - name: Run semantic-release
+        id: semantic_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCKER_REGISTRY_USER: ${{ github.actor }}
+          DOCKER_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Running semantic-release..."
+          npx semantic-release
 
-                  if [ -n "$NEW_TAG" ]; then
-                      echo "New release detected: $NEW_TAG"
-                      echo "new_release=true" >> $GITHUB_OUTPUT
-                      echo "version=$NEW_TAG" >> $GITHUB_OUTPUT
-                  else
-                      echo "No new release detected"
-                      echo "new_release=false" >> $GITHUB_OUTPUT
-                  fi
+          # Check if a new release was created by checking if a new tag was created
+          echo "Checking for new tags..."
+          git fetch --tags
+          NEW_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          echo "Latest tag found: $NEW_TAG"
 
-            - name: Debug release detection
-              run: |
-                  echo "New release: ${{ steps.semantic_release.outputs.new_release }}"
-                  echo "Version: ${{ steps.semantic_release.outputs.version }}"
+          if [ -n "$NEW_TAG" ]; then
+              echo "New release detected: $NEW_TAG"
+              echo "new_release=true" >> $GITHUB_OUTPUT
+              echo "version=$NEW_TAG" >> $GITHUB_OUTPUT
+          else
+              echo "No new release detected"
+              echo "new_release=false" >> $GITHUB_OUTPUT
+          fi
 
-            - name: Set up Python for docs
-              if: steps.semantic_release.outputs.new_release == 'true'
-              uses: actions/setup-python@v5
-              with:
-                  python-version: '3.11'
+      - name: Debug release detection
+        run: |
+          echo "New release: ${{ steps.semantic_release.outputs.new_release }}"
+          echo "Version: ${{ steps.semantic_release.outputs.version }}"
 
-            - name: Install Python dependencies for docs
-              if: steps.semantic_release.outputs.new_release == 'true'
-              run: pip install -r requirements.txt
+      - name: Set up Python for docs
+        if: steps.semantic_release.outputs.new_release == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-            - name: Copy env file for docs
-              if: steps.semantic_release.outputs.new_release == 'true'
-              run: cp .env.example .env
+      - name: Install Python dependencies for docs
+        if: steps.semantic_release.outputs.new_release == 'true'
+        run: pip install -r requirements.txt
 
-            - name: Configure git for mike
-              if: steps.semantic_release.outputs.new_release == 'true'
-              run: |
-                  git config user.name "github-actions[bot]"
-                  git config user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Copy env file for docs
+        if: steps.semantic_release.outputs.new_release == 'true'
+        run: cp .env.example .env
 
-            - name: Build and deploy release docs
-              if: steps.semantic_release.outputs.new_release == 'true'
-              run: |
-                  pnpm run swagger
-                  pnpm run compodoc
-                  # Deploy to latest and set as default
-                  mike deploy --push --update-aliases latest
-                  mike set-default --push latest
+      - name: Configure git for mike
+        if: steps.semantic_release.outputs.new_release == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Build and deploy release docs
+        if: steps.semantic_release.outputs.new_release == 'true'
+        run: |
+          pnpm run swagger
+          pnpm run compodoc
+          # Deploy to latest and set as default
+          mike deploy --push --update-aliases latest
+          mike set-default --push latest

@@ -42,7 +42,7 @@ async function bootstrap() {
     if (useExternalOIDC) {
         // External OIDC provider (e.g., Keycloak)
         const oidcIssuerUrl = configService.get<string>(
-            "KEYCLOAK_INTERNAL_ISSUER_URL",
+            "OIDC_INTERNAL_ISSUER_URL",
         );
         if (oidcIssuerUrl) {
             config.addOAuth2(

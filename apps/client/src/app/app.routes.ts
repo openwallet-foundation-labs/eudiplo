@@ -20,12 +20,18 @@ import { PresentationShowComponent } from './presentation/presentation-config/pr
 import { PresentationOfferComponent } from './presentation/presentation-offer/presentation-offer.component';
 import { SessionManagementListComponent } from './session-management/session-management-list/session-management-list.component';
 import { SessionManagementShowComponent } from './session-management/session-management-show/session-management-show.component';
+import { DisplayComponent } from './issuance/display/display.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   {
     path: 'dashboard',
     component: DashboardComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'display',
+    component: DisplayComponent,
     canActivate: [AuthGuard],
   },
   {

@@ -3,5 +3,15 @@
   "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/NoneTrustPolicy.schema.json",
   "title": "NoneTrustPolicy",
   "type": "object",
-  "properties": {}
+  "properties": {
+    "policy": {
+      "type": "string",
+      "enum": [
+        "none"
+      ]
+    }
+  },
+  "required": [
+    "policy"
+  ]
 }

@@ -1,0 +1,60 @@
+<h2>Display Configurations</h2>
+<form [formGroup]="form" (ngSubmit)="submit()" fxLayout="column" fxLayoutGap="16px">
+  <div formArrayName="value">
+    @for (display of displays.controls; track $index; let i = $index) {
+      <div [formGroupName]="i" class="mat-elevation-z2">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>
+              <span> Display Entry {{ i + 1 }} </span>
+              @if (displays.length > 1) {
+                <button
+                  mat-icon-button
+                  type="button"
+                  color="warn"
+                  (click)="removeDisplay(i)"
+                  matTooltip="Remove this display configuration"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              }
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="form-row" fxLayout="row" fxLayoutGap="16px">
+              <mat-form-field fxFlex>
+                <mat-label>Name</mat-label>
+                <input matInput formControlName="name" required />
+              </mat-form-field>
+              <mat-form-field fxFlex>
+                <mat-label>Locale</mat-label>
+                <mat-select formControlName="locale">
+                  <mat-option value="en-US">English (US)</mat-option>
+                  <mat-option value="en-GB">English (UK)</mat-option>
+                  <mat-option value="de-DE">German</mat-option>
+                  <mat-option value="fr-FR">French</mat-option>
+                  <mat-option value="es-ES">Spanish</mat-option>
+                  <mat-option value="it-IT">Italian</mat-option>
+                </mat-select>
+                <mat-icon matSuffix>language</mat-icon>
+              </mat-form-field>
+            </div>
+            <app-image-field [field]="getControl(display.get('logo.url'))"></app-image-field>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    }
+  </div>
+  <div fxLayout="row" fxLayoutAlign="center center">
+    <button mat-raised-button color="primary" type="button" (click)="addDisplay()">
+      <mat-icon>add</mat-icon> Add Display
+    </button>
+  </div>
+
+  <mat-divider></mat-divider>
+  <div fxLayout="row" fxLayoutAlign="end center">
+    <button mat-flat-button color="accent" type="submit" [disabled]="form.invalid">
+      <mat-icon>save</mat-icon> Save
+    </button>
+  </div>
+</form>

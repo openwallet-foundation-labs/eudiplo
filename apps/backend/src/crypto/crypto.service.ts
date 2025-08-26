@@ -65,6 +65,14 @@ export class CryptoService {
     }
 
     /**
+     * Deletes the encryption keys for a given tenant.
+     * @param tenantId - The ID of the tenant for which to delete the keys.
+     */
+    async onTenantDelete(tenantId: string) {
+        await this.certRepository.delete({ tenantId });
+    }
+
+    /**
      * Imports keys and certificates from the configured folder.
      * @param tenantId
      * @returns

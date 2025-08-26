@@ -3,6 +3,7 @@ import { Component, type OnInit } from '@angular/core';
 import {
   type FormArray,
   FormBuilder,
+  FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators,
@@ -35,6 +36,7 @@ import {
   vctSchema,
 } from '../../../utils/schemas';
 import { EditorComponent, extractSchema } from '../../../utils/editor/editor.component';
+import { ImageFieldComponent } from '../../../utils/image-field/image-field.component';
 
 @Component({
   selector: 'app-credential-config-create',
@@ -59,6 +61,7 @@ import { EditorComponent, extractSchema } from '../../../utils/editor/editor.com
     RouterModule,
     MonacoEditorModule,
     EditorComponent,
+    ImageFieldComponent,
   ],
   templateUrl: './credential-config-create.component.html',
   styleUrl: './credential-config-create.component.scss',
@@ -220,6 +223,10 @@ export class CredentialConfigCreateComponent implements OnInit {
       .finally(() => {
         this.loading = false;
       });
+  }
+
+  getControl(value: any) {
+    return value as FormControl;
   }
 
   private markFormGroupTouched(): void {

@@ -3,5 +3,22 @@
   "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AttestationBasedPolicy.schema.json",
   "title": "AttestationBasedPolicy",
   "type": "object",
-  "properties": {}
+  "properties": {
+    "policy": {
+      "type": "string",
+      "enum": [
+        "attestationBased"
+      ]
+    },
+    "values": {
+      "type": "array",
+      "items": {
+        "$ref": "./PolicyCredential.schema.json"
+      }
+    }
+  },
+  "required": [
+    "policy",
+    "values"
+  ]
 }

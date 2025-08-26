@@ -62,6 +62,29 @@ export type JwksResponseDto = {
     keys: Array<EcPublic>;
 };
 
+export type ClientCredentialsDto = {
+    client_id: string;
+    client_secret: string;
+};
+
+export type TokenResponse = {
+    access_token: string;
+    refresh_token?: string;
+    token_type: string;
+    expires_in: number;
+};
+
+export type ClientInitDto = {
+    id: string;
+};
+
+export type TenantEntity = {
+    /**
+     * The unique identifier for the tenant.
+     */
+    id: string;
+};
+
 export type CertEntity = {
     /**
      * Unique identifier for the key.
@@ -71,6 +94,10 @@ export type CertEntity = {
      * Tenant ID for the key.
      */
     tenantId: string;
+    /**
+     * The tenant that owns this object.
+     */
+    tenant: TenantEntity;
     /**
      * Certificate in PEM format.
      */
@@ -131,87 +158,9 @@ export type UpdateKeyDto = {
     description?: string;
 };
 
-export type NotificationRequestDto = {
-    notification_id: string;
-    event: {
-        [key: string]: unknown;
-    };
-};
-
-export type AuthorizeQueries = {
-    issuer_state?: string;
-    response_type?: string;
-    client_id?: string;
-    redirect_uri?: string;
-    resource?: string;
-    scope?: string;
-    code_challenge?: string;
-    code_challenge_method?: string;
-    dpop_jkt?: string;
-    request_uri?: string;
-    auth_session?: string;
-};
-
-export type ParResponseDto = {
-    /**
-     * The request URI for the Pushed Authorization Request.
-     */
-    request_uri: string;
-    /**
-     * The expiration time for the request URI in seconds.
-     */
-    expires_in: number;
-};
-
-export type AttestationBasedPolicy = {
-    [key: string]: unknown;
-};
-
-export type NoneTrustPolicy = {
-    [key: string]: unknown;
-};
-
-export type AllowListPolicy = {
-    [key: string]: unknown;
-};
-
-export type RootOfTrustPolicy = {
-    [key: string]: unknown;
-};
-
-export type EmbeddedDisclosurePolicy = {
-    [key: string]: unknown;
-};
-
-export type Vct = {
-    vct?: string;
-    name?: string;
-    description?: string;
-    extends?: string;
-    'extends#integrity'?: string;
-    schema_uri?: string;
-    'schema_uri#integrity'?: string;
-};
-
-export type SchemaResponse = {
-    $schema: string;
-    type: string;
-    properties: {
-        [key: string]: unknown;
-    };
-    required?: Array<string>;
-    title?: string;
-    description?: string;
-};
-
-export type AuthenticationMethodNone = {
-    method: 'none';
-};
-
 export type WebHookAuthConfigNone = {
     /**
      * The type of authentication used for the webhook.
-     * Currently, only 'apiKey' is supported.
      */
     type: 'none';
 };
@@ -230,7 +179,6 @@ export type ApiKeyConfig = {
 export type WebHookAuthConfigHeader = {
     /**
      * The type of authentication used for the webhook.
-     * Currently, only 'apiKey' is supported.
      */
     type: 'apiKey';
     /**
@@ -252,203 +200,6 @@ export type WebhookConfig = {
     url: string;
 };
 
-export type AuthenticationUrlConfig = {
-    /**
-     * The URL used in the OID4VCI authorized code flow.
-     * This URL is where users will be redirected for authentication.
-     */
-    url: string;
-    /**
-     * Optional webhook configuration for authentication callbacks
-     */
-    webhook?: WebhookConfig;
-};
-
-export type AuthenticationMethodAuth = {
-    method: 'auth';
-    config: AuthenticationUrlConfig;
-};
-
-export type PresentationDuringIssuanceConfig = {
-    /**
-     * Link to the presentation configuration that is relevant for the issuance process
-     */
-    type: string;
-};
-
-export type AuthenticationMethodPresentation = {
-    method: 'presentationDuringIssuance';
-    config: PresentationDuringIssuanceConfig;
-};
-
-export type CredentialConfig = {
-    /**
-     * Embedded disclosure policy (discriminated union by `policy`).
-     * The discriminator makes class-transformer instantiate the right subclass,
-     * and then class-validator runs that subclass’s rules.
-     */
-    embeddedDisclosurePolicy?: EmbeddedDisclosurePolicy;
-    id: string;
-    description?: string;
-    config: {
-        [key: string]: unknown;
-    };
-    claims?: {
-        [key: string]: unknown;
-    };
-    disclosureFrame?: {
-        [key: string]: unknown;
-    };
-    vct?: Vct;
-    keyBinding?: boolean;
-    keyId?: string;
-    key: CertEntity;
-    statusManagement?: boolean;
-    lifeTime?: number;
-    schema?: SchemaResponse;
-    issuanceConfigs: Array<IssuanceConfig>;
-};
-
-export type IssuanceConfig = {
-    /**
-     * Authentication configuration for the issuance process.
-     */
-    authenticationConfig: AuthenticationMethodNone | AuthenticationMethodAuth | AuthenticationMethodPresentation;
-    /**
-     * Unique identifier for the issuance configuration.
-     */
-    id: string;
-    /**
-     * Description of the issuance configuration.
-     */
-    description?: string;
-    /**
-     * Links to all credential config bindings that are included in this issuance config.
-     */
-    credentialConfigs: Array<CredentialConfig>;
-    /**
-     * The timestamp when the VP request was created.
-     */
-    createdAt: string;
-    /**
-     * The timestamp when the VP request was last updated.
-     */
-    updatedAt: string;
-    /**
-     * Webhook to receive claims for the issuance process.
-     */
-    claimsWebhook?: WebhookConfig;
-    /**
-     * Webhook to send the result of the notification response
-     */
-    notifyWebhook?: WebhookConfig;
-    /**
-     * Value to determine the amount of credentials that are issued in a batch.
-     * Default is 1.
-     */
-    batch_size?: number;
-};
-
-export type CredentialConfigCreate = {
-    /**
-     * Embedded disclosure policy (discriminated union by `policy`).
-     * The discriminator makes class-transformer instantiate the right subclass,
-     * and then class-validator runs that subclass’s rules.
-     */
-    embeddedDisclosurePolicy?: EmbeddedDisclosurePolicy;
-    id: string;
-    description?: string;
-    config: {
-        [key: string]: unknown;
-    };
-    claims?: {
-        [key: string]: unknown;
-    };
-    disclosureFrame?: {
-        [key: string]: unknown;
-    };
-    vct?: Vct;
-    keyBinding?: boolean;
-    keyId?: string;
-    statusManagement?: boolean;
-    lifeTime?: number;
-    schema?: SchemaResponse;
-    issuanceConfigs: Array<IssuanceConfig>;
-};
-
-export type OfferRequestDto = {
-    /**
-     * The type of response expected for the offer request.
-     */
-    response_type: 'qrcode' | 'uri';
-    /**
-     * Override the default values for the credential claims.
-     */
-    claims?: {
-        [key: string]: unknown;
-    };
-    /**
-     * Issuance config id to reference the issuance configuration.
-     */
-    issuanceId: string;
-    /**
-     * Overrides the default values for the credential ids.
-     */
-    credentialConfigurationIds?: Array<string>;
-    /**
-     * Webhook configuration for claims
-     */
-    claimsWebhook?: WebhookConfig;
-    /**
-     * Pre defined session id
-     */
-    session?: string;
-};
-
-export type OfferResponse = {
-    uri: string;
-    session: string;
-};
-
-export type IssuanceDto = {
-    /**
-     * Authentication configuration for the issuance process.
-     */
-    authenticationConfig: AuthenticationMethodNone | AuthenticationMethodAuth | AuthenticationMethodPresentation;
-    /**
-     * Ids of the credential configurations associated with this issuance configuration.
-     */
-    credentialConfigIds: Array<string>;
-    /**
-     * Unique identifier for the issuance configuration.
-     */
-    id: string;
-    /**
-     * Description of the issuance configuration.
-     */
-    description?: string;
-    /**
-     * Webhook to receive claims for the issuance process.
-     */
-    claimsWebhook?: WebhookConfig;
-    /**
-     * Webhook to send the result of the notification response
-     */
-    notifyWebhook?: WebhookConfig;
-    /**
-     * Value to determine the amount of credentials that are issued in a batch.
-     * Default is 1.
-     */
-    batch_size?: number;
-};
-
-export type AuthorizationResponse = {
-    /**
-     * The response string containing the authorization details.
-     */
-    response: string;
-};
-
 export type PresentationRequest = {
     /**
      * The type of response expected from the presentation request.
@@ -463,6 +214,36 @@ export type PresentationRequest = {
      * If not provided, the configured webhook from the configuration will be used.
      */
     webhook?: WebhookConfig;
+};
+
+export type OfferResponse = {
+    uri: string;
+    session: string;
+};
+
+export type TrustedAuthorityQuery = {
+    type: 'aki' | 'etsi_tl' | 'openid_federation';
+    values: Array<string>;
+};
+
+export type CredentialQuery = {
+    id: string;
+    format: string;
+    multiple?: boolean;
+    meta: {
+        [key: string]: unknown;
+    };
+    trusted_authorities: Array<TrustedAuthorityQuery>;
+};
+
+export type CredentialSetQuery = {
+    options: Array<Array<string>>;
+    required?: boolean;
+};
+
+export type Dcql = {
+    credentials: Array<CredentialQuery>;
+    credential_set?: Array<CredentialSetQuery>;
 };
 
 export type RegistrationCertificateRequest = {
@@ -492,6 +273,10 @@ export type PresentationConfig = {
      */
     id: string;
     /**
+     * The tenant that owns this object.
+     */
+    tenant: TenantEntity;
+    /**
      * Description of the presentation configuration.
      */
     description?: string;
@@ -502,9 +287,7 @@ export type PresentationConfig = {
     /**
      * The DCQL query to be used for the VP request.
      */
-    dcql_query: {
-        [key: string]: unknown;
-    };
+    dcql_query: Dcql;
     /**
      * The registration certificate request containing the necessary details.
      */
@@ -533,6 +316,10 @@ export type PresentationConfigCreateDto = {
      */
     id: string;
     /**
+     * The tenant that owns this object.
+     */
+    tenant: TenantEntity;
+    /**
      * Description of the presentation configuration.
      */
     description?: string;
@@ -543,9 +330,7 @@ export type PresentationConfigCreateDto = {
     /**
      * The DCQL query to be used for the VP request.
      */
-    dcql_query: {
-        [key: string]: unknown;
-    };
+    dcql_query: Dcql;
     /**
      * The registration certificate request containing the necessary details.
      */
@@ -558,6 +343,56 @@ export type PresentationConfigCreateDto = {
      * Attestation that should be attached
      */
     attached?: Array<PresentationAttachment>;
+};
+
+export type AuthorizationResponse = {
+    /**
+     * The response string containing the authorization details.
+     */
+    response: string;
+};
+
+export type AuthorizeQueries = {
+    issuer_state?: string;
+    response_type?: string;
+    client_id?: string;
+    redirect_uri?: string;
+    resource?: string;
+    scope?: string;
+    code_challenge?: string;
+    code_challenge_method?: string;
+    dpop_jkt?: string;
+    request_uri?: string;
+    auth_session?: string;
+};
+
+export type OfferRequestDto = {
+    /**
+     * The type of response expected for the offer request.
+     */
+    response_type: 'qrcode' | 'uri';
+    /**
+     * Override the default values for the credential claims.
+     */
+    claims?: {
+        [key: string]: unknown;
+    };
+    /**
+     * Issuance config id to reference the issuance configuration.
+     */
+    issuanceId: string;
+    /**
+     * Overrides the default values for the credential ids.
+     */
+    credentialConfigurationIds?: Array<string>;
+    /**
+     * Webhook configuration for claims
+     */
+    claimsWebhook?: WebhookConfig;
+    /**
+     * Pre defined session id
+     */
+    session?: string;
 };
 
 export type Session = {
@@ -645,6 +480,10 @@ export type Session = {
      * Tenant ID for multi-tenancy support.
      */
     tenantId: string;
+    /**
+     * The tenant that owns this object.
+     */
+    tenant: TenantEntity;
 };
 
 export type StatusUpdateDto = {
@@ -664,16 +503,283 @@ export type StatusUpdateDto = {
     status: 0 | 1;
 };
 
-export type ClientCredentialsDto = {
-    client_id: string;
-    client_secret: string;
+export type NotificationRequestDto = {
+    notification_id: string;
+    event: {
+        [key: string]: unknown;
+    };
 };
 
-export type TokenResponse = {
-    access_token: string;
-    refresh_token?: string;
-    token_type: string;
+export type ParResponseDto = {
+    /**
+     * The request URI for the Pushed Authorization Request.
+     */
+    request_uri: string;
+    /**
+     * The expiration time for the request URI in seconds.
+     */
     expires_in: number;
+};
+
+export type ClaimsQuery = {
+    id: string;
+    path: Array<string>;
+    values?: Array<{
+        [key: string]: unknown;
+    }>;
+};
+
+export type PolicyCredential = {
+    claims?: Array<ClaimsQuery>;
+    credentials: Array<CredentialQuery>;
+    credential_sets?: Array<CredentialSetQuery>;
+};
+
+export type AttestationBasedPolicy = {
+    policy: 'attestationBased';
+    values: Array<PolicyCredential>;
+};
+
+export type NoneTrustPolicy = {
+    policy: 'none';
+};
+
+export type AllowListPolicy = {
+    policy: 'allowList';
+    values: Array<string>;
+};
+
+export type RootOfTrustPolicy = {
+    policy: 'rootOfTrust';
+    values: string;
+};
+
+export type EmbeddedDisclosurePolicy = {
+    policy: string;
+};
+
+export type Vct = {
+    vct?: string;
+    name?: string;
+    description?: string;
+    extends?: string;
+    'extends#integrity'?: string;
+    schema_uri?: string;
+    'schema_uri#integrity'?: string;
+};
+
+export type SchemaResponse = {
+    $schema: string;
+    type: string;
+    properties: {
+        [key: string]: unknown;
+    };
+    required?: Array<string>;
+    title?: string;
+    description?: string;
+};
+
+export type AuthenticationMethodNone = {
+    method: 'none';
+};
+
+export type AuthenticationUrlConfig = {
+    /**
+     * The URL used in the OID4VCI authorized code flow.
+     * This URL is where users will be redirected for authentication.
+     */
+    url: string;
+    /**
+     * Optional webhook configuration for authentication callbacks
+     */
+    webhook?: WebhookConfig;
+};
+
+export type AuthenticationMethodAuth = {
+    method: 'auth';
+    config: AuthenticationUrlConfig;
+};
+
+export type PresentationDuringIssuanceConfig = {
+    /**
+     * Link to the presentation configuration that is relevant for the issuance process
+     */
+    type: string;
+};
+
+export type AuthenticationMethodPresentation = {
+    method: 'presentationDuringIssuance';
+    config: PresentationDuringIssuanceConfig;
+};
+
+export type CredentialConfig = {
+    /**
+     * Embedded disclosure policy (discriminated union by `policy`).
+     * The discriminator makes class-transformer instantiate the right subclass,
+     * and then class-validator runs that subclass’s rules.
+     */
+    embeddedDisclosurePolicy?: EmbeddedDisclosurePolicy;
+    id: string;
+    description?: string;
+    /**
+     * The tenant that owns this object.
+     */
+    tenant: TenantEntity;
+    config: {
+        [key: string]: unknown;
+    };
+    claims?: {
+        [key: string]: unknown;
+    };
+    disclosureFrame?: {
+        [key: string]: unknown;
+    };
+    vct?: Vct;
+    keyBinding?: boolean;
+    keyId?: string;
+    key: CertEntity;
+    statusManagement?: boolean;
+    lifeTime?: number;
+    schema?: SchemaResponse;
+    issuanceConfigs: Array<IssuanceConfig>;
+};
+
+export type IssuanceConfig = {
+    /**
+     * Authentication configuration for the issuance process.
+     */
+    authenticationConfig: AuthenticationMethodNone | AuthenticationMethodAuth | AuthenticationMethodPresentation;
+    /**
+     * Unique identifier for the issuance configuration.
+     */
+    id: string;
+    /**
+     * The tenant that owns this object.
+     */
+    tenant: TenantEntity;
+    /**
+     * Description of the issuance configuration.
+     */
+    description?: string;
+    /**
+     * Links to all credential config bindings that are included in this issuance config.
+     */
+    credentialConfigs: Array<CredentialConfig>;
+    /**
+     * The timestamp when the VP request was created.
+     */
+    createdAt: string;
+    /**
+     * The timestamp when the VP request was last updated.
+     */
+    updatedAt: string;
+    /**
+     * Webhook to receive claims for the issuance process.
+     */
+    claimsWebhook?: WebhookConfig;
+    /**
+     * Webhook to send the result of the notification response
+     */
+    notifyWebhook?: WebhookConfig;
+    /**
+     * Value to determine the amount of credentials that are issued in a batch.
+     * Default is 1.
+     */
+    batch_size?: number;
+};
+
+export type CredentialConfigCreate = {
+    /**
+     * Embedded disclosure policy (discriminated union by `policy`).
+     * The discriminator makes class-transformer instantiate the right subclass,
+     * and then class-validator runs that subclass’s rules.
+     */
+    embeddedDisclosurePolicy?: EmbeddedDisclosurePolicy;
+    id: string;
+    description?: string;
+    /**
+     * The tenant that owns this object.
+     */
+    tenant: TenantEntity;
+    config: {
+        [key: string]: unknown;
+    };
+    claims?: {
+        [key: string]: unknown;
+    };
+    disclosureFrame?: {
+        [key: string]: unknown;
+    };
+    vct?: Vct;
+    keyBinding?: boolean;
+    keyId?: string;
+    statusManagement?: boolean;
+    lifeTime?: number;
+    schema?: SchemaResponse;
+};
+
+export type IssuanceDto = {
+    /**
+     * Authentication configuration for the issuance process.
+     */
+    authenticationConfig: AuthenticationMethodNone | AuthenticationMethodAuth | AuthenticationMethodPresentation;
+    /**
+     * Ids of the credential configurations associated with this issuance configuration.
+     */
+    credentialConfigIds: Array<string>;
+    /**
+     * Unique identifier for the issuance configuration.
+     */
+    id: string;
+    /**
+     * Description of the issuance configuration.
+     */
+    description?: string;
+    /**
+     * Webhook to receive claims for the issuance process.
+     */
+    claimsWebhook?: WebhookConfig;
+    /**
+     * Webhook to send the result of the notification response
+     */
+    notifyWebhook?: WebhookConfig;
+    /**
+     * Value to determine the amount of credentials that are issued in a batch.
+     * Default is 1.
+     */
+    batch_size?: number;
+};
+
+export type DisplayLogo = {
+    url: string;
+};
+
+export type DisplayInfo = {
+    name: string;
+    locale: string;
+    logo: DisplayLogo;
+};
+
+export type DisplayCreateDto = {
+    /**
+     * The display information.
+     */
+    value: Array<DisplayInfo>;
+};
+
+export type DisplayEntity = {
+    /**
+     * The tenant that owns this object.
+     */
+    tenant: TenantEntity;
+    /**
+     * The display information.
+     */
+    value: Array<DisplayInfo>;
+};
+
+export type FileUploadDto = {
+    file: Blob | File;
 };
 
 export type WellKnownControllerIssuerMetadataData = {
@@ -723,6 +829,82 @@ export type WellKnownControllerGetJwksResponses = {
 
 export type WellKnownControllerGetJwksResponse = WellKnownControllerGetJwksResponses[keyof WellKnownControllerGetJwksResponses];
 
+export type AuthControllerGetOAuth2TokenData = {
+    body: ClientCredentialsDto;
+    path?: never;
+    query?: never;
+    url: '/oauth2/token';
+};
+
+export type AuthControllerGetOAuth2TokenErrors = {
+    /**
+     * Invalid client credentials
+     */
+    401: unknown;
+};
+
+export type AuthControllerGetOAuth2TokenResponses = {
+    /**
+     * OAuth2 token response
+     */
+    200: TokenResponse;
+    201: TokenResponse;
+};
+
+export type AuthControllerGetOAuth2TokenResponse = AuthControllerGetOAuth2TokenResponses[keyof AuthControllerGetOAuth2TokenResponses];
+
+export type AuthControllerGetOidcDiscoveryData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/.well-known/oauth-authorization-server';
+};
+
+export type AuthControllerGetOidcDiscoveryResponses = {
+    /**
+     * OIDC Discovery Configuration
+     */
+    200: unknown;
+};
+
+export type AuthControllerGetGlobalJwksData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/.well-known/jwks.json';
+};
+
+export type AuthControllerGetGlobalJwksResponses = {
+    /**
+     * JSON Web Key Set
+     */
+    200: unknown;
+};
+
+export type TenantControllerInitTenantData = {
+    body: ClientInitDto;
+    path?: never;
+    query?: never;
+    url: '/tenant';
+};
+
+export type TenantControllerInitTenantResponses = {
+    201: unknown;
+};
+
+export type TenantControllerDeleteTenantData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/tenant/{id}';
+};
+
+export type TenantControllerDeleteTenantResponses = {
+    200: unknown;
+};
+
 export type KeyControllerGetKeysData = {
     body?: never;
     path?: never;
@@ -771,6 +953,158 @@ export type KeyControllerUpdateKeyData = {
 
 export type KeyControllerUpdateKeyResponses = {
     200: unknown;
+};
+
+export type StatusListControllerGetListData = {
+    body?: never;
+    path: {
+        tenantId: string;
+    };
+    query?: never;
+    url: '/{tenantId}/status-management/status-list';
+};
+
+export type StatusListControllerGetListResponses = {
+    200: string;
+};
+
+export type StatusListControllerGetListResponse = StatusListControllerGetListResponses[keyof StatusListControllerGetListResponses];
+
+export type PresentationManagementControllerGetOfferData = {
+    body: PresentationRequest;
+    path?: never;
+    query?: never;
+    url: '/presentation-management/request';
+};
+
+export type PresentationManagementControllerGetOfferResponses = {
+    /**
+     * JSON response
+     */
+    201: OfferResponse;
+};
+
+export type PresentationManagementControllerGetOfferResponse = PresentationManagementControllerGetOfferResponses[keyof PresentationManagementControllerGetOfferResponses];
+
+export type PresentationManagementControllerConfigurationData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/presentation-management';
+};
+
+export type PresentationManagementControllerConfigurationResponses = {
+    200: Array<PresentationConfig>;
+};
+
+export type PresentationManagementControllerConfigurationResponse = PresentationManagementControllerConfigurationResponses[keyof PresentationManagementControllerConfigurationResponses];
+
+export type PresentationManagementControllerStorePresentationConfigData = {
+    body: PresentationConfigCreateDto;
+    path?: never;
+    query?: never;
+    url: '/presentation-management';
+};
+
+export type PresentationManagementControllerStorePresentationConfigResponses = {
+    201: {
+        [key: string]: unknown;
+    };
+};
+
+export type PresentationManagementControllerStorePresentationConfigResponse = PresentationManagementControllerStorePresentationConfigResponses[keyof PresentationManagementControllerStorePresentationConfigResponses];
+
+export type PresentationManagementControllerDeleteConfigurationData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/presentation-management/{id}';
+};
+
+export type PresentationManagementControllerDeleteConfigurationResponses = {
+    200: unknown;
+};
+
+export type Oid4VpControllerGetRequestWithSessionData = {
+    body?: never;
+    path: {
+        session: unknown;
+    };
+    query?: never;
+    url: '/{session}/oid4vp';
+};
+
+export type Oid4VpControllerGetRequestWithSessionResponses = {
+    200: string;
+};
+
+export type Oid4VpControllerGetRequestWithSessionResponse = Oid4VpControllerGetRequestWithSessionResponses[keyof Oid4VpControllerGetRequestWithSessionResponses];
+
+export type Oid4VpControllerGetResponseData = {
+    body: AuthorizationResponse;
+    path: {
+        session: unknown;
+    };
+    query?: never;
+    url: '/{session}/oid4vp';
+};
+
+export type Oid4VpControllerGetResponseResponses = {
+    201: unknown;
+};
+
+export type SessionControllerGetAllSessionsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/session';
+};
+
+export type SessionControllerGetAllSessionsResponses = {
+    200: Array<Session>;
+};
+
+export type SessionControllerGetAllSessionsResponse = SessionControllerGetAllSessionsResponses[keyof SessionControllerGetAllSessionsResponses];
+
+export type SessionControllerDeleteSessionData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/session/{id}';
+};
+
+export type SessionControllerDeleteSessionResponses = {
+    200: unknown;
+};
+
+export type SessionControllerGetSessionData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/session/{id}';
+};
+
+export type SessionControllerGetSessionResponses = {
+    200: Session;
+};
+
+export type SessionControllerGetSessionResponse = SessionControllerGetSessionResponses[keyof SessionControllerGetSessionResponses];
+
+export type SessionControllerRevokeAllData = {
+    body: StatusUpdateDto;
+    path?: never;
+    query?: never;
+    url: '/session/revoke';
+};
+
+export type SessionControllerRevokeAllResponses = {
+    201: unknown;
 };
 
 export type Oid4VciControllerCredentialData = {
@@ -1011,157 +1345,33 @@ export type CredentialsMetadataControllerSchemaResponses = {
 
 export type CredentialsMetadataControllerSchemaResponse = CredentialsMetadataControllerSchemaResponses[keyof CredentialsMetadataControllerSchemaResponses];
 
-export type StatusListControllerGetListData = {
-    body?: never;
-    path: {
-        tenantId: string;
-    };
-    query?: never;
-    url: '/{tenantId}/status-management/status-list';
-};
-
-export type StatusListControllerGetListResponses = {
-    200: string;
-};
-
-export type StatusListControllerGetListResponse = StatusListControllerGetListResponses[keyof StatusListControllerGetListResponses];
-
-export type Oid4VpControllerGetRequestWithSessionData = {
-    body?: never;
-    path: {
-        session: unknown;
-    };
-    query?: never;
-    url: '/{session}/oid4vp';
-};
-
-export type Oid4VpControllerGetRequestWithSessionResponses = {
-    200: string;
-};
-
-export type Oid4VpControllerGetRequestWithSessionResponse = Oid4VpControllerGetRequestWithSessionResponses[keyof Oid4VpControllerGetRequestWithSessionResponses];
-
-export type Oid4VpControllerGetResponseData = {
-    body: AuthorizationResponse;
-    path: {
-        session: unknown;
-    };
-    query?: never;
-    url: '/{session}/oid4vp';
-};
-
-export type Oid4VpControllerGetResponseResponses = {
-    201: unknown;
-};
-
-export type PresentationManagementControllerGetOfferData = {
-    body: PresentationRequest;
-    path?: never;
-    query?: never;
-    url: '/presentation-management/request';
-};
-
-export type PresentationManagementControllerGetOfferResponses = {
-    /**
-     * JSON response
-     */
-    201: OfferResponse;
-};
-
-export type PresentationManagementControllerGetOfferResponse = PresentationManagementControllerGetOfferResponses[keyof PresentationManagementControllerGetOfferResponses];
-
-export type PresentationManagementControllerConfigurationData = {
+export type DisplayControllerGetDisplayData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/presentation-management';
+    url: '/display';
 };
 
-export type PresentationManagementControllerConfigurationResponses = {
-    200: Array<PresentationConfig>;
-};
-
-export type PresentationManagementControllerConfigurationResponse = PresentationManagementControllerConfigurationResponses[keyof PresentationManagementControllerConfigurationResponses];
-
-export type PresentationManagementControllerStorePresentationConfigData = {
-    body: PresentationConfigCreateDto;
-    path?: never;
-    query?: never;
-    url: '/presentation-management';
-};
-
-export type PresentationManagementControllerStorePresentationConfigResponses = {
-    201: {
+export type DisplayControllerGetDisplayResponses = {
+    200: {
         [key: string]: unknown;
     };
 };
 
-export type PresentationManagementControllerStorePresentationConfigResponse = PresentationManagementControllerStorePresentationConfigResponses[keyof PresentationManagementControllerStorePresentationConfigResponses];
+export type DisplayControllerGetDisplayResponse = DisplayControllerGetDisplayResponses[keyof DisplayControllerGetDisplayResponses];
 
-export type PresentationManagementControllerDeleteConfigurationData = {
-    body?: never;
-    path: {
-        id: string;
-    };
-    query?: never;
-    url: '/presentation-management/{id}';
-};
-
-export type PresentationManagementControllerDeleteConfigurationResponses = {
-    200: unknown;
-};
-
-export type SessionControllerGetAllSessionsData = {
-    body?: never;
+export type DisplayControllerCreateDisplayData = {
+    body: DisplayCreateDto;
     path?: never;
     query?: never;
-    url: '/session';
+    url: '/display';
 };
 
-export type SessionControllerGetAllSessionsResponses = {
-    200: Array<Session>;
+export type DisplayControllerCreateDisplayResponses = {
+    201: DisplayEntity;
 };
 
-export type SessionControllerGetAllSessionsResponse = SessionControllerGetAllSessionsResponses[keyof SessionControllerGetAllSessionsResponses];
-
-export type SessionControllerDeleteSessionData = {
-    body?: never;
-    path: {
-        id: string;
-    };
-    query?: never;
-    url: '/session/{id}';
-};
-
-export type SessionControllerDeleteSessionResponses = {
-    200: unknown;
-};
-
-export type SessionControllerGetSessionData = {
-    body?: never;
-    path: {
-        id: string;
-    };
-    query?: never;
-    url: '/session/{id}';
-};
-
-export type SessionControllerGetSessionResponses = {
-    200: Session;
-};
-
-export type SessionControllerGetSessionResponse = SessionControllerGetSessionResponses[keyof SessionControllerGetSessionResponses];
-
-export type SessionControllerRevokeAllData = {
-    body: StatusUpdateDto;
-    path?: never;
-    query?: never;
-    url: '/session/revoke';
-};
-
-export type SessionControllerRevokeAllResponses = {
-    201: unknown;
-};
+export type DisplayControllerCreateDisplayResponse = DisplayControllerCreateDisplayResponses[keyof DisplayControllerCreateDisplayResponses];
 
 export type HealthControllerCheckData = {
     body?: never;
@@ -1228,58 +1438,6 @@ export type HealthControllerCheckResponses = {
 
 export type HealthControllerCheckResponse = HealthControllerCheckResponses[keyof HealthControllerCheckResponses];
 
-export type AuthControllerGetOAuth2TokenData = {
-    body: ClientCredentialsDto;
-    path?: never;
-    query?: never;
-    url: '/oauth2/token';
-};
-
-export type AuthControllerGetOAuth2TokenErrors = {
-    /**
-     * Invalid client credentials
-     */
-    401: unknown;
-};
-
-export type AuthControllerGetOAuth2TokenResponses = {
-    /**
-     * OAuth2 token response
-     */
-    200: TokenResponse;
-    201: TokenResponse;
-};
-
-export type AuthControllerGetOAuth2TokenResponse = AuthControllerGetOAuth2TokenResponses[keyof AuthControllerGetOAuth2TokenResponses];
-
-export type AuthControllerGetOidcDiscoveryData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/.well-known/oauth-authorization-server';
-};
-
-export type AuthControllerGetOidcDiscoveryResponses = {
-    /**
-     * OIDC Discovery Configuration
-     */
-    200: unknown;
-};
-
-export type AuthControllerGetGlobalJwksData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/.well-known/jwks.json';
-};
-
-export type AuthControllerGetGlobalJwksResponses = {
-    /**
-     * JSON Web Key Set
-     */
-    200: unknown;
-};
-
 export type PrometheusControllerIndexData = {
     body?: never;
     path?: never;
@@ -1290,6 +1448,24 @@ export type PrometheusControllerIndexData = {
 export type PrometheusControllerIndexResponses = {
     200: unknown;
 };
+
+export type StorageControllerUploadData = {
+    /**
+     * List of cats
+     */
+    body: FileUploadDto;
+    path?: never;
+    query?: never;
+    url: '/storage';
+};
+
+export type StorageControllerUploadResponses = {
+    201: {
+        [key: string]: unknown;
+    };
+};
+
+export type StorageControllerUploadResponse = StorageControllerUploadResponses[keyof StorageControllerUploadResponses];
 
 export type ClientOptions = {
     baseUrl: string;

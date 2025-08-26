@@ -1,5 +1,11 @@
-import { IsEmpty } from "class-validator";
-import { Column, CreateDateColumn, Entity, UpdateDateColumn } from "typeorm";
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    ManyToOne,
+    UpdateDateColumn,
+} from "typeorm";
+import { TenantEntity } from "../../../auth/entitites/tenant.entity";
 
 export type CertificateType = "access" | "signing";
 
@@ -19,6 +25,12 @@ export class CertEntity {
      */
     @Column("varchar", { primary: true })
     tenantId: string;
+
+    /**
+     * The tenant that owns this object.
+     */
+    @ManyToOne(() => TenantEntity, { cascade: true, onDelete: "CASCADE" })
+    tenant: TenantEntity;
 
     /**
      * Certificate in PEM format.

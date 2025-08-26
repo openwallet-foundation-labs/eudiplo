@@ -1,5 +1,6 @@
 import { BitsPerStatus } from "@sd-jwt/jwt-status-list";
-import { Column, Entity } from "typeorm";
+import { Column, Entity, ManyToOne } from "typeorm";
+import { TenantEntity } from "../../../auth/entitites/tenant.entity";
 
 /**
  * Entity representing the status list for a tenant.
@@ -11,6 +12,12 @@ export class StatusListEntity {
      */
     @Column("varchar", { primary: true })
     tenantId: string;
+
+    /**
+     * The tenant that owns this object.
+     */
+    @ManyToOne(() => TenantEntity, { cascade: true, onDelete: "CASCADE" })
+    tenant: TenantEntity;
 
     /**
      * The elements of the status list.

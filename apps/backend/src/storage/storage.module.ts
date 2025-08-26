@@ -1,10 +1,14 @@
 import { S3Client } from "@aws-sdk/client-s3";
 import { DynamicModule, Global, Module } from "@nestjs/common";
-import { ConfigModule, ConfigService } from "@nestjs/config";
+import { ConfigService } from "@nestjs/config";
+import { TypeOrmModule } from "@nestjs/typeorm";
 import * as Joi from "joi";
+import { join } from "path";
 import { LocalFileStorage } from "./adapters/local.storage";
 import { S3FileStorage } from "./adapters/s3.storage";
+import { FileEntity } from "./entities/files.entity";
 import { FilesService } from "./files.service";
+import { StorageController } from "./storage.controller";
 import { FILE_STORAGE, FileStorage } from "./storage.types";
 
 type Driver = "local" | "s3";
@@ -13,7 +17,7 @@ export const CONFIG_STORAGE_SCHEMA = {
     STORAGE_DRIVER: Joi.string().valid("local", "s3").default("local"),
     LOCAL_STORAGE_DIR: Joi.string().when(Joi.ref("STORAGE_DRIVER"), {
         is: "local",
-        then: Joi.string().default("uploads"),
+        then: Joi.string().default((parent) => join(parent.FOLDER, "uploads")),
     }),
     S3_REGION: Joi.string().when(Joi.ref("STORAGE_DRIVER"), {
         is: "s3",
@@ -51,8 +55,10 @@ export class StorageModule {
     static forRoot(): DynamicModule {
         return {
             module: StorageModule,
-            imports: [ConfigModule.forRoot({ isGlobal: true })],
+            imports: [TypeOrmModule.forFeature([FileEntity])],
+            controllers: [StorageController],
             providers: [
+                FilesService,
                 {
                     provide: FILE_STORAGE,
                     inject: [ConfigService],
@@ -87,7 +93,7 @@ export class StorageModule {
                     },
                 },
             ],
-            exports: [FILE_STORAGE],
+            exports: [FilesService],
         };
     }
 }

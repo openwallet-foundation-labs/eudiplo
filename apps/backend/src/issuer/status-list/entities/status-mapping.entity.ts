@@ -1,7 +1,17 @@
-import { Column, Entity } from "typeorm";
+import { Column, Entity, ManyToOne } from "typeorm";
+import { TenantEntity } from "../../../auth/entitites/tenant.entity";
 
 @Entity()
 export class StatusMapping {
+    @Column({ type: "varchar", primary: true })
+    tenantId: string;
+
+    /**
+     * The tenant that owns this object.
+     */
+    @ManyToOne(() => TenantEntity, { cascade: true, onDelete: "CASCADE" })
+    tenant: TenantEntity;
+
     @Column({ type: "varchar", primary: true })
     sessionId: string;
 

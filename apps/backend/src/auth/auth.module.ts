@@ -8,13 +8,14 @@ import { CryptoModule } from "../crypto/crypto.module";
 import { IssuerModule } from "../issuer/issuer.module";
 import { StatusListModule } from "../issuer/status-list/status-list.module";
 import { RegistrarModule } from "../registrar/registrar.module";
-import { StorageModule } from "../storage/storage.module";
+import { SessionModule } from "../session/session.module";
 import { AuthController } from "./auth.controller";
 import { JwtAuthGuard } from "./auth.guard";
-import { ClientService } from "./client.service";
-import { ClientEntry } from "./entitites/client.entity";
+import { TenantEntity } from "./entitites/tenant.entity";
 import { JwtService } from "./jwt.service";
 import { JwtStrategy } from "./jwt.strategy";
+import { TenantController } from "./tenant/tenant.controller";
+import { TenantService } from "./tenant.service";
 
 export const DEFAULT_JWT_SECRET = "supersecret";
 export const DEFAULT_AUTH_CLIENT_ID = "root";
@@ -22,11 +23,15 @@ export const DEFAULT_AUTH_CLIENT_SECRET = "root";
 
 export const AUTH_VALIDATION_SCHEMA = {
     OIDC: Joi.string().optional(),
-    KEYCLOAK_INTERNAL_ISSUER_URL: Joi.when("OIDC", {
+    OIDC_INTERNAL_ISSUER_URL: Joi.when("OIDC", {
         then: Joi.string().required(),
         otherwise: Joi.string().optional(),
     }),
-    KEYCLOAK_ALGORITHM: Joi.when("OIDC", {
+    OIDC_SUB: Joi.when("OIDC", {
+        then: Joi.string().default("azp"),
+        otherwise: Joi.string().optional(),
+    }),
+    OIDC_ALGORITHM: Joi.when("OIDC", {
         then: Joi.string().default("RS256"),
         otherwise: Joi.string().optional(),
     }),
@@ -58,20 +63,21 @@ export const AUTH_VALIDATION_SCHEMA = {
         CryptoModule,
         StatusListModule,
         RegistrarModule,
+        SessionModule,
         IssuerModule,
-        TypeOrmModule.forFeature([ClientEntry]),
+        TypeOrmModule.forFeature([TenantEntity]),
     ],
     providers: [
         JwtStrategy,
         JwtAuthGuard,
         JwtService,
-        ClientService,
+        TenantService,
         makeGaugeProvider({
-            name: "tenant_client_total",
-            help: "Total number of tenant clients",
+            name: "tenant_total",
+            help: "Total number of tenants",
         }),
     ],
-    controllers: [AuthController],
+    controllers: [AuthController, TenantController],
     exports: [PassportModule, JwtStrategy, JwtAuthGuard, JwtService],
 })
 export class AuthModule {}

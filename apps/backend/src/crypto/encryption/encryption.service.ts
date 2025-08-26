@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import e from "express";
 import { exportJWK, generateKeyPair, importJWK, JWK, jwtDecrypt } from "jose";
 import { Repository } from "typeorm/repository/Repository";
 import { v4 } from "uuid";
@@ -36,6 +35,14 @@ export class EncryptionService {
             key: privateKey,
             usage: "encrypt",
         });
+    }
+
+    /**
+     * Deletes the encryption keys for a given tenant.
+     * @param tenantId - The ID of the tenant for which to delete the keys.
+     */
+    async onTenantDelete(tenantId: string) {
+        await this.keyRepository.delete({ tenantId });
     }
 
     /**

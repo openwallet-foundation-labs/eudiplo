@@ -1,5 +1,9 @@
 import { HttpService } from "@nestjs/axios";
-import { ConflictException, Injectable, OnModuleInit } from "@nestjs/common";
+import {
+    ConflictException,
+    Injectable,
+    OnApplicationBootstrap,
+} from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { digest, ES256 } from "@sd-jwt/crypto-nodejs";
@@ -22,7 +26,7 @@ import { PresentationConfig } from "./entities/presentation-config.entity";
  * Service for managing Verifiable Presentations (VPs) and handling SD-JWT-VCs.
  */
 @Injectable()
-export class PresentationsService implements OnModuleInit {
+export class PresentationsService implements OnApplicationBootstrap {
     /**
      * Instance of SDJwtVcInstance for handling SD-JWT-VCs.
      */
@@ -44,21 +48,15 @@ export class PresentationsService implements OnModuleInit {
     ) {}
 
     /**
-     * Initializes the SDJwtVcInstance with the necessary configurations.
+     * Imports presentation configurations from a predefined directory structure.
      */
-    onModuleInit() {
+    async onApplicationBootstrap() {
         this.sdjwtInstance = new SDJwtVcInstance({
             hasher: digest,
             verifier: this.verifier.bind(this),
             kbVerifier: this.kbVerifier.bind(this),
             statusListFetcher: this.statusListFetcher.bind(this),
         });
-    }
-
-    /**
-     * Imports presentation configurations from a predefined directory structure.
-     */
-    async onApplicationBootstrap() {
         await this.import();
     }
 

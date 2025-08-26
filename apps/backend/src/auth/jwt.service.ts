@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { decodeJwt, jwtVerify, SignJWT } from "jose";
+import { jwtVerify, SignJWT } from "jose";
 import { DEFAULT_JWT_SECRET } from "./auth.module";
 import { TokenPayload } from "./token.decorator";
 
@@ -82,17 +82,6 @@ export class JwtService {
             return payload;
         } catch (error) {
             throw new Error(`Invalid token: ${error.message}`);
-        }
-    }
-
-    /**
-     * Decode token without verification (for debugging)
-     */
-    decodeToken(token: string): TokenPayload | null {
-        try {
-            return decodeJwt(token) as TokenPayload;
-        } catch {
-            return null;
         }
     }
 

@@ -18,6 +18,7 @@ export class CredentialConfigMapping {
  */
 export class IssuanceDto extends OmitType(IssuanceConfig, [
     "tenantId",
+    "tenant",
     "createdAt",
     "updatedAt",
     "credentialConfigs",

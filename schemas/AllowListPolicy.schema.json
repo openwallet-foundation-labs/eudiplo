@@ -3,5 +3,22 @@
   "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AllowListPolicy.schema.json",
   "title": "AllowListPolicy",
   "type": "object",
-  "properties": {}
+  "properties": {
+    "policy": {
+      "type": "string",
+      "enum": [
+        "allowList"
+      ]
+    },
+    "values": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "policy",
+    "values"
+  ]
 }
