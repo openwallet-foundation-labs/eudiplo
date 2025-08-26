@@ -16,13 +16,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-      - name: Use Node.js 22
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 10
+          run_install: false
+
+      - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'pnpm'
+
       - name: Install dependencies
         run: pnpm install
 
@@ -43,15 +49,25 @@ jobs:
     needs: [lint]
     steps:
       - uses: actions/checkout@v4
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-      - name: Use Node.js 22
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 10
+          run_install: false
+
+      - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'pnpm'
+
       - name: Install dependencies
         run: pnpm install
+
+      - name: Run linter
+        run: pnpm run lint
+
       - name: Build backend
         run: pnpm --filter @eudiplo/backend build
 
@@ -61,15 +77,24 @@ jobs:
     needs: [lint]
     steps:
       - uses: actions/checkout@v4
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-      - name: Use Node.js 22
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 10
+          run_install: false
+
+      - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'pnpm'
+
       - name: Install dependencies
         run: pnpm install
+
+      - name: Run linter
+        run: pnpm run lint
 
       - name: Build client
         run: pnpm --filter @eudiplo/client build
@@ -80,15 +105,24 @@ jobs:
     needs: [lint]
     steps:
       - uses: actions/checkout@v4
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-      - name: Use Node.js 22
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 10
+          run_install: false
+
+      - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'pnpm'
+
       - name: Install dependencies
         run: pnpm install
+
+      - name: Run linter
+        run: pnpm run lint
 
       - name: Build webhook
         run: pnpm --filter test-rp build
@@ -99,15 +133,24 @@ jobs:
     needs: [lint]
     steps:
       - uses: actions/checkout@v4
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-      - name: Use Node.js 22
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 10
+          run_install: false
+
+      - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'pnpm'
+
       - name: Install dependencies
         run: pnpm install
+
+      - name: Run linter
+        run: pnpm run lint
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -137,15 +180,24 @@ jobs:
       #        run: echo "127.0.0.1       host.testcontainers.internal" | sudo tee
       #          -a /etc/hosts
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-      - name: Use Node.js 22
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 10
+          run_install: false
+
+      - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'pnpm'
+
       - name: Install dependencies
         run: pnpm install
+
+      - name: Run linter
+        run: pnpm run lint
+
       - name: setup test webhooks
         run: |
           nohup pnpm --filter test-rp dev &
