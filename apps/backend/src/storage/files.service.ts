@@ -74,9 +74,8 @@ export class FilesService {
         return Promise.resolve(this.storage.delete(key));
     }
 
-    getDownloadUrl(key: string, ttlSeconds = 300) {
-        if (this.storage.getSignedUrl)
-            return this.storage.getSignedUrl(key, ttlSeconds);
+    getDownloadUrl(key: string) {
+        if (this.storage.getSignedUrl) return this.storage.getSignedUrl(key);
         return Promise.resolve(
             `${this.configService.get<string>("PUBLIC_URL")}/storage/${key}`,
         );
@@ -88,7 +87,6 @@ export class FilesService {
      */
     async deleteByTenant(tenantId: string) {
         const files = await this.fileRepository.find({ where: { tenantId } });
-        console.log(files);
         await Promise.all(files.map((file) => this.storage.delete(file.id)));
         await this.fileRepository.delete({ tenantId });
     }

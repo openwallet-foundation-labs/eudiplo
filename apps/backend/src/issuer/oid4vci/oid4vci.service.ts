@@ -74,6 +74,7 @@ export class Oid4vciService {
                 {
                     name: "EUDI Wallet dev",
                     locale: "de-DE",
+                    //TODO: use some default urls
                     logo: {
                         uri: "<PUBLIC_URL>/issuer.png",
                         url: "<PUBLIC_URL>/issuer.png",
@@ -303,6 +304,7 @@ export class Oid4vciService {
      * @returns
      */
     async nonceRequest(session: Session) {
+        //TODO: check if nonces should be handled in another way (document lifetime, allow multiple (then a new table would be better))
         const nonce = v4();
         await this.sessionService.add(session.id, { nonce });
         return {
@@ -323,6 +325,11 @@ export class Oid4vciService {
         const issuer = this.getIssuer(session.tenantId);
         const issuerMetadata = await this.issuerMetadata(session, issuer);
         const resourceServer = this.getResourceServer(session.tenantId);
+        const issuanceConfig =
+            await this.issuanceService.getIssuanceConfigurationById(
+                session.issuanceId!,
+                session.tenantId,
+            );
 
         const parsedCredentialRequest = issuer.parseCredentialRequest({
             issuerMetadata,
@@ -339,6 +346,16 @@ export class Oid4vciService {
 
         const headers = getHeadersFromRequest(req);
 
+        const allowedAuthenticationSchemes = [
+            SupportedAuthenticationScheme.Bearer,
+        ];
+
+        if (issuanceConfig.dPopRequired) {
+            allowedAuthenticationSchemes.push(
+                SupportedAuthenticationScheme.DPoP,
+            );
+        }
+        //TODO: check how the nonce for the dpop has to be passed
         const { tokenPayload } = await resourceServer.verifyResourceRequest({
             authorizationServers: issuerMetadata.authorizationServers,
             request: {
@@ -348,10 +365,7 @@ export class Oid4vciService {
             },
             //TODO: Keycloak is setting aud to `account`, but it should be the value of resource server
             resourceServer: issuerMetadata.credentialIssuer.credential_issuer,
-            allowedAuthenticationSchemes: [
-                SupportedAuthenticationScheme.DPoP,
-                SupportedAuthenticationScheme.Bearer,
-            ],
+            allowedAuthenticationSchemes,
         });
 
         if (tokenPayload.sub !== session.id) {
@@ -379,12 +393,6 @@ export class Oid4vciService {
             if (expectedNonce === undefined) {
                 throw new BadRequestException("Nonce not found");
             }
-
-            const issuanceConfig =
-                await this.issuanceService.getIssuanceConfigurationById(
-                    session.issuanceId!,
-                    session.tenantId,
-                );
 
             // if a webhook is provided, fetch the data from it.
 
@@ -476,10 +484,25 @@ export class Oid4vciService {
         const issuer = this.getIssuer(session.tenantId);
         const resourceServer = this.getResourceServer(session.tenantId);
         const issuerMetadata = await this.issuerMetadata(session, issuer);
+        const issuanceConfig =
+            await this.issuanceService.getIssuanceConfigurationById(
+                session.issuanceId!,
+                session.tenantId,
+            );
         const headers = getHeadersFromRequest(req);
         const protocol = new URL(
             this.configService.getOrThrow<string>("PUBLIC_URL"),
         ).protocol;
+
+        const allowedAuthenticationSchemes: SupportedAuthenticationScheme[] = [
+            SupportedAuthenticationScheme.Bearer,
+        ];
+        if (issuanceConfig.dPopRequired) {
+            allowedAuthenticationSchemes.push(
+                SupportedAuthenticationScheme.DPoP,
+            );
+        }
+
         const { tokenPayload } = await resourceServer.verifyResourceRequest({
             authorizationServers: issuerMetadata.authorizationServers,
             request: {
@@ -488,7 +511,7 @@ export class Oid4vciService {
                 headers,
             },
             resourceServer: issuerMetadata.credentialIssuer.credential_issuer,
-            allowedAuthenticationSchemes: [SupportedAuthenticationScheme.DPoP],
+            allowedAuthenticationSchemes,
         });
 
         if (session.id !== tokenPayload.sub) {

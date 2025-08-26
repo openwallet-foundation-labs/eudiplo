@@ -118,6 +118,12 @@ export class AuthorizeService {
             },
         });
 
+        const issuanceConfig =
+            await this.issuanceService.getIssuanceConfigurationById(
+                session.issuanceId!,
+                session.tenantId,
+            );
+
         const authorizationServerMetadata = this.authzMetadata(session);
         let dpopValue;
         if (
@@ -135,7 +141,7 @@ export class AuthorizeService {
                     headers: getHeadersFromRequest(req),
                 },
                 dpop: {
-                    required: true,
+                    required: issuanceConfig.dPopRequired,
                     allowedSigningAlgs:
                         authorizationServerMetadata.dpop_signing_alg_values_supported,
                     jwt: parsedAccessTokenRequest.dpop?.jwt,
@@ -167,7 +173,7 @@ export class AuthorizeService {
                     headers: getHeadersFromRequest(req),
                 },
                 dpop: {
-                    required: true,
+                    required: issuanceConfig.dPopRequired,
                     allowedSigningAlgs:
                         authorizationServerMetadata.dpop_signing_alg_values_supported,
                     jwt: parsedAccessTokenRequest.dpop?.jwt,

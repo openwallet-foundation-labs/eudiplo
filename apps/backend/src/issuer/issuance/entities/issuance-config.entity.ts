@@ -6,6 +6,7 @@ import {
 } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import {
+    IsBoolean,
     IsNumber,
     IsOptional,
     IsString,
@@ -153,4 +154,12 @@ export class IssuanceConfig {
     @IsOptional()
     @Column("int", { default: 1 })
     batch_size?: number;
+
+    /**
+     * Indicates whether DPoP is required for the issuance process. Default value is true.
+     */
+    @IsBoolean()
+    @IsOptional()
+    @Column("boolean", { default: true })
+    dPopRequired?: boolean;
 }
