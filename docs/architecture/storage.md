@@ -130,5 +130,3 @@ return this.fileRepository.save(file);
 - Easily extend to other storage backends
 - Multi-tenant support ensures data isolation
 - Configuration is dynamic and environment-driven
-
-See the [storage module](../../apps/backend/src/storage/storage.module.ts) for implementation
