@@ -9,20 +9,26 @@ import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-image-field',
-  imports: [ReactiveFormsModule, MatInputModule, MatIconModule, MatSnackBarModule, FlexLayoutModule, MatButtonModule],
+  imports: [
+    ReactiveFormsModule,
+    MatInputModule,
+    MatIconModule,
+    MatSnackBarModule,
+    FlexLayoutModule,
+    MatButtonModule,
+  ],
   templateUrl: './image-field.component.html',
-  styleUrls: ['./image-field.component.scss']
+  styleUrls: ['./image-field.component.scss'],
 })
 export class ImageFieldComponent {
-    @Input() field!: FormControl<string>;
-    @Input() label!: string;
-    @ViewChild('logoFileInput') logoFileInput!: ElementRef<HTMLInputElement>;
+  @Input() field!: FormControl<string>;
+  @Input() label!: string;
+  @ViewChild('logoFileInput') logoFileInput!: ElementRef<HTMLInputElement>;
 
   constructor(private snackBar: MatSnackBar) {}
 
   triggerLogoFileInput() {
-      this.logoFileInput.nativeElement.click();
-
+    this.logoFileInput.nativeElement.click();
   }
 
   uploadLogoFile(event: Event) {
@@ -30,12 +36,14 @@ export class ImageFieldComponent {
     if (!input.files || input.files.length === 0) return;
     const file = input.files[0];
 
-    storageControllerUpload({ body: { file } }).then((response: any) => {
-      const url = response.url || response.data?.url;
-      this.field.setValue(url);
-      this.snackBar.open('Logo uploaded!', 'Close', { duration: 2000 });
-    }).catch((error: any) => {
-      this.snackBar.open(`Upload failed: ${error.message}`, 'Close', { duration: 3000 });
-    });
+    storageControllerUpload({ body: { file } })
+      .then((response: any) => {
+        const url = response.url || response.data?.url;
+        this.field.setValue(url);
+        this.snackBar.open('Logo uploaded!', 'Close', { duration: 2000 });
+      })
+      .catch((error: any) => {
+        this.snackBar.open(`Upload failed: ${error.message}`, 'Close', { duration: 3000 });
+      });
   }
 }

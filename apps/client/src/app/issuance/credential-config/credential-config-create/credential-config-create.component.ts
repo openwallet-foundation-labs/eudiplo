@@ -61,7 +61,7 @@ import { ImageFieldComponent } from '../../../utils/image-field/image-field.comp
     RouterModule,
     MonacoEditorModule,
     EditorComponent,
-    ImageFieldComponent
+    ImageFieldComponent,
   ],
   templateUrl: './credential-config-create.component.html',
   styleUrl: './credential-config-create.component.scss',

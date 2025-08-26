@@ -26,7 +26,7 @@ import { IssuerManagementController } from "./issuer-management/issuer-managemen
 import { Oid4vciController } from "./oid4vci/oid4vci.controller";
 import { Oid4vciService } from "./oid4vci/oid4vci.service";
 import { StatusListModule } from "./status-list/status-list.module";
-import { DisplayService } from './display/display.service';
+import { DisplayService } from "./display/display.service";
 
 export const ISSUER_VALIDATION_SCHEMA = {
     PUBLIC_URL: Joi.string().default("http://localhost:3000"),
