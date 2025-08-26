@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsEnum, IsObject, IsOptional, IsString } from "class-validator";
+import { IsEnum, IsOptional, IsString, ValidateNested } from "class-validator";
 import { JWK } from "jose";
 
 class Key implements JWK {
@@ -26,7 +26,7 @@ export class KeyImportDto {
     /**
      * The private key in JWK format.
      */
-    @IsObject()
+    @ValidateNested()
     @Type(() => Key)
     privateKey: Key;
 

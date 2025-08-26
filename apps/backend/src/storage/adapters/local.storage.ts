@@ -1,11 +1,9 @@
-// src/storage/adapters/local.storage.ts
-
 import {
     createReadStream,
     createWriteStream,
     existsSync,
     mkdirSync,
-    rmdirSync,
+    rmSync,
     statSync,
 } from "fs";
 import { dirname, join } from "path";
@@ -42,9 +40,7 @@ export class LocalFileStorage implements FileStorage {
     }
 
     delete(key: string) {
-        return Promise.resolve(
-            rmdirSync(join(this.baseDir, key), { recursive: true }),
-        );
+        return Promise.resolve(rmSync(join(this.baseDir, key)));
     }
 
     exists(key: string) {

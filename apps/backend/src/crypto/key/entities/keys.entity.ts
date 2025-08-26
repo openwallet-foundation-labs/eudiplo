@@ -1,5 +1,6 @@
 import { JWK } from "jose";
-import { Column, Entity } from "typeorm";
+import { Column, Entity, ManyToOne } from "typeorm";
+import { TenantEntity } from "../../../auth/entitites/tenant.entity";
 
 /**
  * Key usage types.
@@ -19,6 +20,12 @@ export class KeyEntity {
      */
     @Column("varchar", { primary: true })
     tenantId: string;
+
+    /**
+     * The tenant that owns this object.
+     */
+    @ManyToOne(() => TenantEntity, { cascade: true, onDelete: "CASCADE" })
+    tenant: TenantEntity;
 
     /**
      * The key material.

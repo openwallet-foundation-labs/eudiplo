@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { Type } from "class-transformer";
 import {
     IsArray,
     IsEnum,
@@ -6,6 +7,7 @@ import {
     IsOptional,
     IsString,
     IsUUID,
+    ValidateNested,
 } from "class-validator";
 import { WebhookConfig } from "../../../utils/webhook/webhook.dto";
 import { ResponseType } from "../../../verifier/oid4vp/dto/presentation-request.dto";
@@ -58,7 +60,8 @@ export class OfferRequestDto {
     /**
      * Webhook configuration for claims
      */
-    @IsObject()
+    @ValidateNested()
+    @Type(() => WebhookConfig)
     @IsOptional()
     claimsWebhook?: WebhookConfig;
 

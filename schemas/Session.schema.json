@@ -117,6 +117,14 @@
     "tenantId": {
       "type": "string",
       "description": "Tenant ID for multi-tenancy support."
+    },
+    "tenant": {
+      "description": "The tenant that owns this object.",
+      "allOf": [
+        {
+          "$ref": "./TenantEntity.schema.json"
+        }
+      ]
     }
   },
   "required": [
@@ -125,6 +133,7 @@
     "createdAt",
     "updatedAt",
     "notifications",
-    "tenantId"
+    "tenantId",
+    "tenant"
   ]
 }

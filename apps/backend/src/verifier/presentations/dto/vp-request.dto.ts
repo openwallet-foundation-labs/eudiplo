@@ -1,4 +1,4 @@
-import { IsObject, IsString } from "class-validator";
+import { IsObject, IsOptional, IsString } from "class-validator";
 import { RegistrationCertificateCreation } from "../../../registrar/generated";
 
 /**
@@ -8,6 +8,7 @@ export class RegistrationCertificateRequest {
     /**
      * Identifier of the registration certificate that got issued.
      */
+    @IsOptional()
     @IsString()
     id?: string;
     /**

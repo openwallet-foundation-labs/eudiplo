@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/DisplayInfo.schema.json",
+  "title": "DisplayInfo",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "locale": {
+      "type": "string"
+    },
+    "logo": {
+      "$ref": "./DisplayLogo.schema.json"
+    }
+  },
+  "required": [
+    "name",
+    "locale",
+    "logo"
+  ]
+}

@@ -1,4 +1,4 @@
-import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
+import { Injectable, OnApplicationBootstrap } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
@@ -18,7 +18,7 @@ import { IssuanceConfig } from "./entities/issuance-config.entity";
  * It provides methods to get, store, and delete issuance configurations.
  */
 @Injectable()
-export class IssuanceService implements OnModuleInit {
+export class IssuanceService implements OnApplicationBootstrap {
     /**
      * Constructor for IssuanceService.
      * @param issuanceConfigRepo
@@ -36,7 +36,7 @@ export class IssuanceService implements OnModuleInit {
     /**
      * Import issuance configurations and the credential configurations from the configured folder.
      */
-    async onModuleInit() {
+    async onApplicationBootstrap() {
         await this.cryptoService.import();
         await this.credentialsConfigService.import();
         await this.import();

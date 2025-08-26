@@ -11,10 +11,10 @@ import { RegistrarModule } from "../registrar/registrar.module";
 import { SessionModule } from "../session/session.module";
 import { AuthController } from "./auth.controller";
 import { JwtAuthGuard } from "./auth.guard";
-import { ClientController } from "./client/client.controller";
 import { TenantEntity } from "./entitites/tenant.entity";
 import { JwtService } from "./jwt.service";
 import { JwtStrategy } from "./jwt.strategy";
+import { TenantController } from "./tenant/tenant.controller";
 import { TenantService } from "./tenant.service";
 
 export const DEFAULT_JWT_SECRET = "supersecret";
@@ -73,11 +73,11 @@ export const AUTH_VALIDATION_SCHEMA = {
         JwtService,
         TenantService,
         makeGaugeProvider({
-            name: "tenant_client_total",
-            help: "Total number of tenant clients",
+            name: "tenant_total",
+            help: "Total number of tenants",
         }),
     ],
-    controllers: [AuthController, ClientController],
+    controllers: [AuthController, TenantController],
     exports: [PassportModule, JwtStrategy, JwtAuthGuard, JwtService],
 })
 export class AuthModule {}

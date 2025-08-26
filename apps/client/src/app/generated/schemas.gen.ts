@@ -85,6 +85,59 @@ export const JwksResponseDtoSchema = {
     required: ['keys']
 } as const;
 
+export const ClientCredentialsDtoSchema = {
+    type: 'object',
+    properties: {
+        client_id: {
+            type: 'string'
+        },
+        client_secret: {
+            type: 'string'
+        }
+    },
+    required: ['client_id', 'client_secret']
+} as const;
+
+export const TokenResponseSchema = {
+    type: 'object',
+    properties: {
+        access_token: {
+            type: 'string'
+        },
+        refresh_token: {
+            type: 'string'
+        },
+        token_type: {
+            type: 'string'
+        },
+        expires_in: {
+            type: 'number'
+        }
+    },
+    required: ['access_token', 'token_type', 'expires_in']
+} as const;
+
+export const ClientInitDtoSchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string'
+        }
+    },
+    required: ['id']
+} as const;
+
+export const TenantEntitySchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string',
+            description: 'The unique identifier for the tenant.'
+        }
+    },
+    required: ['id']
+} as const;
+
 export const CertEntitySchema = {
     type: 'object',
     properties: {
@@ -95,6 +148,14 @@ export const CertEntitySchema = {
         tenantId: {
             type: 'string',
             description: 'Tenant ID for the key.'
+        },
+        tenant: {
+            description: 'The tenant that owns this object.',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/TenantEntity'
+                }
+            ]
         },
         crt: {
             type: 'string',
@@ -119,7 +180,7 @@ export const CertEntitySchema = {
             description: 'The timestamp when the VP request was last updated.'
         }
     },
-    required: ['id', 'tenantId', 'crt', 'type', 'createdAt', 'updatedAt']
+    required: ['id', 'tenantId', 'tenant', 'crt', 'type', 'createdAt', 'updatedAt']
 } as const;
 
 export const KeySchema = {
@@ -187,17 +248,364 @@ export const UpdateKeyDtoSchema = {
     }
 } as const;
 
-export const NotificationRequestDtoSchema = {
+export const WebHookAuthConfigNoneSchema = {
     type: 'object',
     properties: {
-        notification_id: {
-            type: 'string'
-        },
-        event: {
-            type: 'object'
+        type: {
+            type: 'string',
+            description: 'The type of authentication used for the webhook.',
+            enum: ['none']
         }
     },
-    required: ['notification_id', 'event']
+    required: ['type']
+} as const;
+
+export const ApiKeyConfigSchema = {
+    type: 'object',
+    properties: {
+        headerName: {
+            type: 'string',
+            description: 'The name of the header where the API key will be sent.'
+        },
+        value: {
+            type: 'string',
+            description: 'The value of the API key to be sent in the header.'
+        }
+    },
+    required: ['headerName', 'value']
+} as const;
+
+export const WebHookAuthConfigHeaderSchema = {
+    type: 'object',
+    properties: {
+        type: {
+            type: 'string',
+            description: 'The type of authentication used for the webhook.',
+            enum: ['apiKey']
+        },
+        config: {
+            description: `Configuration for API key authentication.
+This is required if the type is 'apiKey'.`,
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/ApiKeyConfig'
+                }
+            ]
+        }
+    },
+    required: ['type', 'config']
+} as const;
+
+export const WebhookConfigSchema = {
+    type: 'object',
+    properties: {
+        auth: {
+            description: `Optional authentication configuration for the webhook.
+If not provided, no authentication will be used.`,
+            oneOf: [
+                {
+                    '$ref': '#/components/schemas/WebHookAuthConfigNone'
+                },
+                {
+                    '$ref': '#/components/schemas/WebHookAuthConfigHeader'
+                }
+            ]
+        },
+        url: {
+            type: 'string',
+            description: 'The URL to which the webhook will send notifications.'
+        }
+    },
+    required: ['url']
+} as const;
+
+export const PresentationRequestSchema = {
+    type: 'object',
+    properties: {
+        response_type: {
+            type: 'string',
+            description: 'The type of response expected from the presentation request.',
+            enum: ['qrcode', 'uri']
+        },
+        requestId: {
+            type: 'string',
+            description: 'Identifier of the presentation configuration'
+        },
+        webhook: {
+            description: `Webhook configuration to receive the response.
+If not provided, the configured webhook from the configuration will be used.`,
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/WebhookConfig'
+                }
+            ]
+        }
+    },
+    required: ['response_type', 'requestId']
+} as const;
+
+export const OfferResponseSchema = {
+    type: 'object',
+    properties: {
+        uri: {
+            type: 'string'
+        },
+        session: {
+            type: 'string'
+        }
+    },
+    required: ['uri', 'session']
+} as const;
+
+export const TrustedAuthorityQuerySchema = {
+    type: 'object',
+    properties: {
+        type: {
+            type: 'string',
+            enum: ['aki', 'etsi_tl', 'openid_federation']
+        },
+        values: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        }
+    },
+    required: ['type', 'values']
+} as const;
+
+export const CredentialQuerySchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string'
+        },
+        format: {
+            type: 'string'
+        },
+        multiple: {
+            type: 'boolean'
+        },
+        meta: {
+            type: 'object'
+        },
+        trusted_authorities: {
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/TrustedAuthorityQuery'
+            }
+        }
+    },
+    required: ['id', 'format', 'meta', 'trusted_authorities']
+} as const;
+
+export const CredentialSetQuerySchema = {
+    type: 'object',
+    properties: {
+        options: {
+            type: 'array',
+            items: {
+                type: 'array',
+                items: {
+                    type: 'string'
+                }
+            }
+        },
+        required: {
+            type: 'boolean'
+        }
+    },
+    required: ['options']
+} as const;
+
+export const DCQLSchema = {
+    type: 'object',
+    properties: {
+        credentials: {
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/CredentialQuery'
+            }
+        },
+        credential_set: {
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/CredentialSetQuery'
+            }
+        }
+    },
+    required: ['credentials']
+} as const;
+
+export const RegistrationCertificateRequestSchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string',
+            description: 'Identifier of the registration certificate that got issued.'
+        },
+        body: {
+            type: 'object',
+            description: 'The body of the registration certificate request containing the necessary details.'
+        }
+    },
+    required: ['body']
+} as const;
+
+export const PresentationAttachmentSchema = {
+    type: 'object',
+    properties: {
+        format: {
+            type: 'string'
+        },
+        data: {
+            type: 'object'
+        },
+        credential_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        }
+    },
+    required: ['format', 'data']
+} as const;
+
+export const PresentationConfigSchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string',
+            description: 'Unique identifier for the VP request.'
+        },
+        tenant: {
+            description: 'The tenant that owns this object.',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/TenantEntity'
+                }
+            ]
+        },
+        description: {
+            type: 'string',
+            description: 'Description of the presentation configuration.'
+        },
+        lifeTime: {
+            type: 'number',
+            description: 'Lifetime how long the presentation request is valid after creation, in seconds.'
+        },
+        dcql_query: {
+            description: 'The DCQL query to be used for the VP request.',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/DCQL'
+                }
+            ]
+        },
+        registrationCert: {
+            description: 'The registration certificate request containing the necessary details.',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/RegistrationCertificateRequest'
+                }
+            ]
+        },
+        webhook: {
+            description: 'Optional webhook URL to receive the response.',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/WebhookConfig'
+                }
+            ]
+        },
+        createdAt: {
+            format: 'date-time',
+            type: 'string',
+            description: 'The timestamp when the VP request was created.'
+        },
+        updatedAt: {
+            format: 'date-time',
+            type: 'string',
+            description: 'The timestamp when the VP request was last updated.'
+        },
+        attached: {
+            description: 'Attestation that should be attached',
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/PresentationAttachment'
+            }
+        }
+    },
+    required: ['id', 'tenant', 'dcql_query', 'createdAt', 'updatedAt']
+} as const;
+
+export const PresentationConfigCreateDtoSchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string',
+            description: 'Unique identifier for the VP request.'
+        },
+        tenant: {
+            description: 'The tenant that owns this object.',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/TenantEntity'
+                }
+            ]
+        },
+        description: {
+            type: 'string',
+            description: 'Description of the presentation configuration.'
+        },
+        lifeTime: {
+            type: 'number',
+            description: 'Lifetime how long the presentation request is valid after creation, in seconds.'
+        },
+        dcql_query: {
+            description: 'The DCQL query to be used for the VP request.',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/DCQL'
+                }
+            ]
+        },
+        registrationCert: {
+            description: 'The registration certificate request containing the necessary details.',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/RegistrationCertificateRequest'
+                }
+            ]
+        },
+        webhook: {
+            description: 'Optional webhook URL to receive the response.',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/WebhookConfig'
+                }
+            ]
+        },
+        attached: {
+            description: 'Attestation that should be attached',
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/PresentationAttachment'
+            }
+        }
+    },
+    required: ['id', 'tenant', 'dcql_query']
+} as const;
+
+export const AuthorizationResponseSchema = {
+    type: 'object',
+    properties: {
+        response: {
+            type: 'string',
+            description: 'The response string containing the authorization details.'
+        }
+    },
+    required: ['response']
 } as const;
 
 export const AuthorizeQueriesSchema = {
@@ -237,454 +645,6 @@ export const AuthorizeQueriesSchema = {
             type: 'string'
         }
     }
-} as const;
-
-export const ParResponseDtoSchema = {
-    type: 'object',
-    properties: {
-        request_uri: {
-            type: 'string',
-            description: 'The request URI for the Pushed Authorization Request.'
-        },
-        expires_in: {
-            type: 'number',
-            description: 'The expiration time for the request URI in seconds.'
-        }
-    },
-    required: ['request_uri', 'expires_in']
-} as const;
-
-export const AttestationBasedPolicySchema = {
-    type: 'object',
-    properties: {}
-} as const;
-
-export const NoneTrustPolicySchema = {
-    type: 'object',
-    properties: {}
-} as const;
-
-export const AllowListPolicySchema = {
-    type: 'object',
-    properties: {}
-} as const;
-
-export const RootOfTrustPolicySchema = {
-    type: 'object',
-    properties: {}
-} as const;
-
-export const EmbeddedDisclosurePolicySchema = {
-    type: 'object',
-    properties: {}
-} as const;
-
-export const VCTSchema = {
-    type: 'object',
-    properties: {
-        vct: {
-            type: 'string'
-        },
-        name: {
-            type: 'string'
-        },
-        description: {
-            type: 'string'
-        },
-        extends: {
-            type: 'string'
-        },
-        'extends#integrity': {
-            type: 'string'
-        },
-        schema_uri: {
-            type: 'string'
-        },
-        'schema_uri#integrity': {
-            type: 'string'
-        }
-    }
-} as const;
-
-export const SchemaResponseSchema = {
-    type: 'object',
-    properties: {
-        '$schema': {
-            type: 'string'
-        },
-        type: {
-            type: 'string'
-        },
-        properties: {
-            type: 'object'
-        },
-        required: {
-            type: 'array',
-            items: {
-                type: 'string'
-            }
-        },
-        title: {
-            type: 'string'
-        },
-        description: {
-            type: 'string'
-        }
-    },
-    required: ['$schema', 'type', 'properties']
-} as const;
-
-export const AuthenticationMethodNoneSchema = {
-    type: 'object',
-    properties: {
-        method: {
-            type: 'string',
-            enum: ['none']
-        }
-    },
-    required: ['method']
-} as const;
-
-export const WebHookAuthConfigNoneSchema = {
-    type: 'object',
-    properties: {
-        type: {
-            type: 'string',
-            description: `The type of authentication used for the webhook.
-Currently, only 'apiKey' is supported.`,
-            enum: ['none']
-        }
-    },
-    required: ['type']
-} as const;
-
-export const ApiKeyConfigSchema = {
-    type: 'object',
-    properties: {
-        headerName: {
-            type: 'string',
-            description: 'The name of the header where the API key will be sent.'
-        },
-        value: {
-            type: 'string',
-            description: 'The value of the API key to be sent in the header.'
-        }
-    },
-    required: ['headerName', 'value']
-} as const;
-
-export const WebHookAuthConfigHeaderSchema = {
-    type: 'object',
-    properties: {
-        type: {
-            type: 'string',
-            description: `The type of authentication used for the webhook.
-Currently, only 'apiKey' is supported.`,
-            enum: ['apiKey']
-        },
-        config: {
-            description: `Configuration for API key authentication.
-This is required if the type is 'apiKey'.`,
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/ApiKeyConfig'
-                }
-            ]
-        }
-    },
-    required: ['type', 'config']
-} as const;
-
-export const WebhookConfigSchema = {
-    type: 'object',
-    properties: {
-        auth: {
-            description: `Optional authentication configuration for the webhook.
-If not provided, no authentication will be used.`,
-            oneOf: [
-                {
-                    '$ref': '#/components/schemas/WebHookAuthConfigNone'
-                },
-                {
-                    '$ref': '#/components/schemas/WebHookAuthConfigHeader'
-                }
-            ]
-        },
-        url: {
-            type: 'string',
-            description: 'The URL to which the webhook will send notifications.'
-        }
-    },
-    required: ['url']
-} as const;
-
-export const AuthenticationUrlConfigSchema = {
-    type: 'object',
-    properties: {
-        url: {
-            type: 'string',
-            description: `The URL used in the OID4VCI authorized code flow.
-This URL is where users will be redirected for authentication.`
-        },
-        webhook: {
-            description: 'Optional webhook configuration for authentication callbacks',
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/WebhookConfig'
-                }
-            ]
-        }
-    },
-    required: ['url']
-} as const;
-
-export const AuthenticationMethodAuthSchema = {
-    type: 'object',
-    properties: {
-        method: {
-            type: 'string',
-            enum: ['auth']
-        },
-        config: {
-            '$ref': '#/components/schemas/AuthenticationUrlConfig'
-        }
-    },
-    required: ['method', 'config']
-} as const;
-
-export const PresentationDuringIssuanceConfigSchema = {
-    type: 'object',
-    properties: {
-        type: {
-            type: 'string',
-            description: 'Link to the presentation configuration that is relevant for the issuance process'
-        }
-    },
-    required: ['type']
-} as const;
-
-export const AuthenticationMethodPresentationSchema = {
-    type: 'object',
-    properties: {
-        method: {
-            type: 'string',
-            enum: ['presentationDuringIssuance']
-        },
-        config: {
-            '$ref': '#/components/schemas/PresentationDuringIssuanceConfig'
-        }
-    },
-    required: ['method', 'config']
-} as const;
-
-export const CredentialConfigSchema = {
-    type: 'object',
-    properties: {
-        embeddedDisclosurePolicy: {
-            description: `Embedded disclosure policy (discriminated union by \`policy\`).
-The discriminator makes class-transformer instantiate the right subclass,
-and then class-validator runs that subclass’s rules.`,
-            oneOf: [
-                {
-                    '$ref': '#/components/schemas/AttestationBasedPolicy'
-                },
-                {
-                    '$ref': '#/components/schemas/NoneTrustPolicy'
-                },
-                {
-                    '$ref': '#/components/schemas/AllowListPolicy'
-                },
-                {
-                    '$ref': '#/components/schemas/RootOfTrustPolicy'
-                }
-            ],
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/EmbeddedDisclosurePolicy'
-                }
-            ]
-        },
-        id: {
-            type: 'string'
-        },
-        description: {
-            type: 'string'
-        },
-        config: {
-            type: 'object'
-        },
-        claims: {
-            type: 'object'
-        },
-        disclosureFrame: {
-            type: 'object'
-        },
-        vct: {
-            '$ref': '#/components/schemas/VCT'
-        },
-        keyBinding: {
-            type: 'boolean'
-        },
-        keyId: {
-            type: 'string'
-        },
-        key: {
-            '$ref': '#/components/schemas/CertEntity'
-        },
-        statusManagement: {
-            type: 'boolean'
-        },
-        lifeTime: {
-            type: 'number'
-        },
-        schema: {
-            '$ref': '#/components/schemas/SchemaResponse'
-        },
-        issuanceConfigs: {
-            type: 'array',
-            items: {
-                '$ref': '#/components/schemas/IssuanceConfig'
-            }
-        }
-    },
-    required: ['id', 'config', 'key', 'issuanceConfigs']
-} as const;
-
-export const IssuanceConfigSchema = {
-    type: 'object',
-    properties: {
-        authenticationConfig: {
-            description: 'Authentication configuration for the issuance process.',
-            oneOf: [
-                {
-                    '$ref': '#/components/schemas/AuthenticationMethodNone'
-                },
-                {
-                    '$ref': '#/components/schemas/AuthenticationMethodAuth'
-                },
-                {
-                    '$ref': '#/components/schemas/AuthenticationMethodPresentation'
-                }
-            ]
-        },
-        id: {
-            type: 'string',
-            description: 'Unique identifier for the issuance configuration.'
-        },
-        description: {
-            type: 'string',
-            description: 'Description of the issuance configuration.'
-        },
-        credentialConfigs: {
-            description: 'Links to all credential config bindings that are included in this issuance config.',
-            type: 'array',
-            items: {
-                '$ref': '#/components/schemas/CredentialConfig'
-            }
-        },
-        createdAt: {
-            format: 'date-time',
-            type: 'string',
-            description: 'The timestamp when the VP request was created.'
-        },
-        updatedAt: {
-            format: 'date-time',
-            type: 'string',
-            description: 'The timestamp when the VP request was last updated.'
-        },
-        claimsWebhook: {
-            description: 'Webhook to receive claims for the issuance process.',
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/WebhookConfig'
-                }
-            ]
-        },
-        notifyWebhook: {
-            description: 'Webhook to send the result of the notification response',
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/WebhookConfig'
-                }
-            ]
-        },
-        batch_size: {
-            type: 'number',
-            description: `Value to determine the amount of credentials that are issued in a batch.
-Default is 1.`
-        }
-    },
-    required: ['authenticationConfig', 'id', 'credentialConfigs', 'createdAt', 'updatedAt']
-} as const;
-
-export const CredentialConfigCreateSchema = {
-    type: 'object',
-    properties: {
-        embeddedDisclosurePolicy: {
-            description: `Embedded disclosure policy (discriminated union by \`policy\`).
-The discriminator makes class-transformer instantiate the right subclass,
-and then class-validator runs that subclass’s rules.`,
-            oneOf: [
-                {
-                    '$ref': '#/components/schemas/AttestationBasedPolicy'
-                },
-                {
-                    '$ref': '#/components/schemas/NoneTrustPolicy'
-                },
-                {
-                    '$ref': '#/components/schemas/AllowListPolicy'
-                },
-                {
-                    '$ref': '#/components/schemas/RootOfTrustPolicy'
-                }
-            ],
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/EmbeddedDisclosurePolicy'
-                }
-            ]
-        },
-        id: {
-            type: 'string'
-        },
-        description: {
-            type: 'string'
-        },
-        config: {
-            type: 'object'
-        },
-        claims: {
-            type: 'object'
-        },
-        disclosureFrame: {
-            type: 'object'
-        },
-        vct: {
-            '$ref': '#/components/schemas/VCT'
-        },
-        keyBinding: {
-            type: 'boolean'
-        },
-        keyId: {
-            type: 'string'
-        },
-        statusManagement: {
-            type: 'boolean'
-        },
-        lifeTime: {
-            type: 'number'
-        },
-        schema: {
-            '$ref': '#/components/schemas/SchemaResponse'
-        },
-        issuanceConfigs: {
-            type: 'array',
-            items: {
-                '$ref': '#/components/schemas/IssuanceConfig'
-            }
-        }
-    },
-    required: ['id', 'config', 'issuanceConfigs']
 } as const;
 
 export const OfferRequestDtoSchema = {
@@ -739,248 +699,6 @@ export const OfferRequestDtoSchema = {
         }
     },
     required: ['response_type', 'issuanceId']
-} as const;
-
-export const OfferResponseSchema = {
-    type: 'object',
-    properties: {
-        uri: {
-            type: 'string'
-        },
-        session: {
-            type: 'string'
-        }
-    },
-    required: ['uri', 'session']
-} as const;
-
-export const IssuanceDtoSchema = {
-    type: 'object',
-    properties: {
-        authenticationConfig: {
-            description: 'Authentication configuration for the issuance process.',
-            oneOf: [
-                {
-                    '$ref': '#/components/schemas/AuthenticationMethodNone'
-                },
-                {
-                    '$ref': '#/components/schemas/AuthenticationMethodAuth'
-                },
-                {
-                    '$ref': '#/components/schemas/AuthenticationMethodPresentation'
-                }
-            ]
-        },
-        credentialConfigIds: {
-            description: 'Ids of the credential configurations associated with this issuance configuration.',
-            type: 'array',
-            items: {
-                type: 'string'
-            }
-        },
-        id: {
-            type: 'string',
-            description: 'Unique identifier for the issuance configuration.'
-        },
-        description: {
-            type: 'string',
-            description: 'Description of the issuance configuration.'
-        },
-        claimsWebhook: {
-            description: 'Webhook to receive claims for the issuance process.',
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/WebhookConfig'
-                }
-            ]
-        },
-        notifyWebhook: {
-            description: 'Webhook to send the result of the notification response',
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/WebhookConfig'
-                }
-            ]
-        },
-        batch_size: {
-            type: 'number',
-            description: `Value to determine the amount of credentials that are issued in a batch.
-Default is 1.`
-        }
-    },
-    required: ['authenticationConfig', 'credentialConfigIds', 'id']
-} as const;
-
-export const AuthorizationResponseSchema = {
-    type: 'object',
-    properties: {
-        response: {
-            type: 'string',
-            description: 'The response string containing the authorization details.'
-        }
-    },
-    required: ['response']
-} as const;
-
-export const PresentationRequestSchema = {
-    type: 'object',
-    properties: {
-        response_type: {
-            type: 'string',
-            description: 'The type of response expected from the presentation request.',
-            enum: ['qrcode', 'uri']
-        },
-        requestId: {
-            type: 'string',
-            description: 'Identifier of the presentation configuration'
-        },
-        webhook: {
-            description: `Webhook configuration to receive the response.
-If not provided, the configured webhook from the configuration will be used.`,
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/WebhookConfig'
-                }
-            ]
-        }
-    },
-    required: ['response_type', 'requestId']
-} as const;
-
-export const RegistrationCertificateRequestSchema = {
-    type: 'object',
-    properties: {
-        id: {
-            type: 'string',
-            description: 'Identifier of the registration certificate that got issued.'
-        },
-        body: {
-            type: 'object',
-            description: 'The body of the registration certificate request containing the necessary details.'
-        }
-    },
-    required: ['body']
-} as const;
-
-export const PresentationAttachmentSchema = {
-    type: 'object',
-    properties: {
-        format: {
-            type: 'string'
-        },
-        data: {
-            type: 'object'
-        },
-        credential_ids: {
-            type: 'array',
-            items: {
-                type: 'string'
-            }
-        }
-    },
-    required: ['format', 'data']
-} as const;
-
-export const PresentationConfigSchema = {
-    type: 'object',
-    properties: {
-        id: {
-            type: 'string',
-            description: 'Unique identifier for the VP request.'
-        },
-        description: {
-            type: 'string',
-            description: 'Description of the presentation configuration.'
-        },
-        lifeTime: {
-            type: 'number',
-            description: 'Lifetime how long the presentation request is valid after creation, in seconds.'
-        },
-        dcql_query: {
-            type: 'object',
-            description: 'The DCQL query to be used for the VP request.'
-        },
-        registrationCert: {
-            description: 'The registration certificate request containing the necessary details.',
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/RegistrationCertificateRequest'
-                }
-            ]
-        },
-        webhook: {
-            description: 'Optional webhook URL to receive the response.',
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/WebhookConfig'
-                }
-            ]
-        },
-        createdAt: {
-            format: 'date-time',
-            type: 'string',
-            description: 'The timestamp when the VP request was created.'
-        },
-        updatedAt: {
-            format: 'date-time',
-            type: 'string',
-            description: 'The timestamp when the VP request was last updated.'
-        },
-        attached: {
-            description: 'Attestation that should be attached',
-            type: 'array',
-            items: {
-                '$ref': '#/components/schemas/PresentationAttachment'
-            }
-        }
-    },
-    required: ['id', 'dcql_query', 'createdAt', 'updatedAt']
-} as const;
-
-export const PresentationConfigCreateDtoSchema = {
-    type: 'object',
-    properties: {
-        id: {
-            type: 'string',
-            description: 'Unique identifier for the VP request.'
-        },
-        description: {
-            type: 'string',
-            description: 'Description of the presentation configuration.'
-        },
-        lifeTime: {
-            type: 'number',
-            description: 'Lifetime how long the presentation request is valid after creation, in seconds.'
-        },
-        dcql_query: {
-            type: 'object',
-            description: 'The DCQL query to be used for the VP request.'
-        },
-        registrationCert: {
-            description: 'The registration certificate request containing the necessary details.',
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/RegistrationCertificateRequest'
-                }
-            ]
-        },
-        webhook: {
-            description: 'Optional webhook URL to receive the response.',
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/WebhookConfig'
-                }
-            ]
-        },
-        attached: {
-            description: 'Attestation that should be attached',
-            type: 'array',
-            items: {
-                '$ref': '#/components/schemas/PresentationAttachment'
-            }
-        }
-    },
-    required: ['id', 'dcql_query']
 } as const;
 
 export const SessionSchema = {
@@ -1093,9 +811,17 @@ export const SessionSchema = {
         tenantId: {
             type: 'string',
             description: 'Tenant ID for multi-tenancy support.'
+        },
+        tenant: {
+            description: 'The tenant that owns this object.',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/TenantEntity'
+                }
+            ]
         }
     },
-    required: ['status', 'id', 'createdAt', 'updatedAt', 'notifications', 'tenantId']
+    required: ['status', 'id', 'createdAt', 'updatedAt', 'notifications', 'tenantId', 'tenant']
 } as const;
 
 export const StatusUpdateDtoSchema = {
@@ -1120,34 +846,629 @@ This is optional, if not provided, all credentials will be revoked of the sessio
     required: ['sessionId', 'status']
 } as const;
 
-export const ClientCredentialsDtoSchema = {
+export const NotificationRequestDtoSchema = {
     type: 'object',
     properties: {
-        client_id: {
+        notification_id: {
             type: 'string'
         },
-        client_secret: {
-            type: 'string'
+        event: {
+            type: 'object'
         }
     },
-    required: ['client_id', 'client_secret']
+    required: ['notification_id', 'event']
 } as const;
 
-export const TokenResponseSchema = {
+export const ParResponseDtoSchema = {
     type: 'object',
     properties: {
-        access_token: {
-            type: 'string'
-        },
-        refresh_token: {
-            type: 'string'
-        },
-        token_type: {
-            type: 'string'
+        request_uri: {
+            type: 'string',
+            description: 'The request URI for the Pushed Authorization Request.'
         },
         expires_in: {
-            type: 'number'
+            type: 'number',
+            description: 'The expiration time for the request URI in seconds.'
         }
     },
-    required: ['access_token', 'token_type', 'expires_in']
+    required: ['request_uri', 'expires_in']
+} as const;
+
+export const ClaimsQuerySchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string'
+        },
+        path: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        },
+        values: {
+            type: 'array',
+            items: {
+                type: 'object'
+            }
+        }
+    },
+    required: ['id', 'path']
+} as const;
+
+export const PolicyCredentialSchema = {
+    type: 'object',
+    properties: {
+        claims: {
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/ClaimsQuery'
+            }
+        },
+        credentials: {
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/CredentialQuery'
+            }
+        },
+        credential_sets: {
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/CredentialSetQuery'
+            }
+        }
+    },
+    required: ['credentials']
+} as const;
+
+export const AttestationBasedPolicySchema = {
+    type: 'object',
+    properties: {
+        policy: {
+            type: 'string',
+            enum: ['attestationBased']
+        },
+        values: {
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/PolicyCredential'
+            }
+        }
+    },
+    required: ['policy', 'values']
+} as const;
+
+export const NoneTrustPolicySchema = {
+    type: 'object',
+    properties: {
+        policy: {
+            type: 'string',
+            enum: ['none']
+        }
+    },
+    required: ['policy']
+} as const;
+
+export const AllowListPolicySchema = {
+    type: 'object',
+    properties: {
+        policy: {
+            type: 'string',
+            enum: ['allowList']
+        },
+        values: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        }
+    },
+    required: ['policy', 'values']
+} as const;
+
+export const RootOfTrustPolicySchema = {
+    type: 'object',
+    properties: {
+        policy: {
+            type: 'string',
+            enum: ['rootOfTrust']
+        },
+        values: {
+            type: 'string'
+        }
+    },
+    required: ['policy', 'values']
+} as const;
+
+export const EmbeddedDisclosurePolicySchema = {
+    type: 'object',
+    properties: {
+        policy: {
+            type: 'string'
+        }
+    },
+    required: ['policy']
+} as const;
+
+export const VCTSchema = {
+    type: 'object',
+    properties: {
+        vct: {
+            type: 'string'
+        },
+        name: {
+            type: 'string'
+        },
+        description: {
+            type: 'string'
+        },
+        extends: {
+            type: 'string'
+        },
+        'extends#integrity': {
+            type: 'string'
+        },
+        schema_uri: {
+            type: 'string'
+        },
+        'schema_uri#integrity': {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const SchemaResponseSchema = {
+    type: 'object',
+    properties: {
+        '$schema': {
+            type: 'string'
+        },
+        type: {
+            type: 'string'
+        },
+        properties: {
+            type: 'object'
+        },
+        required: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        },
+        title: {
+            type: 'string'
+        },
+        description: {
+            type: 'string'
+        }
+    },
+    required: ['$schema', 'type', 'properties']
+} as const;
+
+export const AuthenticationMethodNoneSchema = {
+    type: 'object',
+    properties: {
+        method: {
+            type: 'string',
+            enum: ['none']
+        }
+    },
+    required: ['method']
+} as const;
+
+export const AuthenticationUrlConfigSchema = {
+    type: 'object',
+    properties: {
+        url: {
+            type: 'string',
+            description: `The URL used in the OID4VCI authorized code flow.
+This URL is where users will be redirected for authentication.`
+        },
+        webhook: {
+            description: 'Optional webhook configuration for authentication callbacks',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/WebhookConfig'
+                }
+            ]
+        }
+    },
+    required: ['url']
+} as const;
+
+export const AuthenticationMethodAuthSchema = {
+    type: 'object',
+    properties: {
+        method: {
+            type: 'string',
+            enum: ['auth']
+        },
+        config: {
+            '$ref': '#/components/schemas/AuthenticationUrlConfig'
+        }
+    },
+    required: ['method', 'config']
+} as const;
+
+export const PresentationDuringIssuanceConfigSchema = {
+    type: 'object',
+    properties: {
+        type: {
+            type: 'string',
+            description: 'Link to the presentation configuration that is relevant for the issuance process'
+        }
+    },
+    required: ['type']
+} as const;
+
+export const AuthenticationMethodPresentationSchema = {
+    type: 'object',
+    properties: {
+        method: {
+            type: 'string',
+            enum: ['presentationDuringIssuance']
+        },
+        config: {
+            '$ref': '#/components/schemas/PresentationDuringIssuanceConfig'
+        }
+    },
+    required: ['method', 'config']
+} as const;
+
+export const CredentialConfigSchema = {
+    type: 'object',
+    properties: {
+        embeddedDisclosurePolicy: {
+            description: `Embedded disclosure policy (discriminated union by \`policy\`).
+The discriminator makes class-transformer instantiate the right subclass,
+and then class-validator runs that subclass’s rules.`,
+            oneOf: [
+                {
+                    '$ref': '#/components/schemas/AttestationBasedPolicy'
+                },
+                {
+                    '$ref': '#/components/schemas/NoneTrustPolicy'
+                },
+                {
+                    '$ref': '#/components/schemas/AllowListPolicy'
+                },
+                {
+                    '$ref': '#/components/schemas/RootOfTrustPolicy'
+                }
+            ],
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/EmbeddedDisclosurePolicy'
+                }
+            ]
+        },
+        id: {
+            type: 'string'
+        },
+        description: {
+            type: 'string'
+        },
+        tenant: {
+            description: 'The tenant that owns this object.',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/TenantEntity'
+                }
+            ]
+        },
+        config: {
+            type: 'object'
+        },
+        claims: {
+            type: 'object'
+        },
+        disclosureFrame: {
+            type: 'object'
+        },
+        vct: {
+            '$ref': '#/components/schemas/VCT'
+        },
+        keyBinding: {
+            type: 'boolean'
+        },
+        keyId: {
+            type: 'string'
+        },
+        key: {
+            '$ref': '#/components/schemas/CertEntity'
+        },
+        statusManagement: {
+            type: 'boolean'
+        },
+        lifeTime: {
+            type: 'number'
+        },
+        schema: {
+            '$ref': '#/components/schemas/SchemaResponse'
+        },
+        issuanceConfigs: {
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/IssuanceConfig'
+            }
+        }
+    },
+    required: ['id', 'tenant', 'config', 'key', 'issuanceConfigs']
+} as const;
+
+export const IssuanceConfigSchema = {
+    type: 'object',
+    properties: {
+        authenticationConfig: {
+            description: 'Authentication configuration for the issuance process.',
+            oneOf: [
+                {
+                    '$ref': '#/components/schemas/AuthenticationMethodNone'
+                },
+                {
+                    '$ref': '#/components/schemas/AuthenticationMethodAuth'
+                },
+                {
+                    '$ref': '#/components/schemas/AuthenticationMethodPresentation'
+                }
+            ]
+        },
+        id: {
+            type: 'string',
+            description: 'Unique identifier for the issuance configuration.'
+        },
+        tenant: {
+            description: 'The tenant that owns this object.',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/TenantEntity'
+                }
+            ]
+        },
+        description: {
+            type: 'string',
+            description: 'Description of the issuance configuration.'
+        },
+        credentialConfigs: {
+            description: 'Links to all credential config bindings that are included in this issuance config.',
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/CredentialConfig'
+            }
+        },
+        createdAt: {
+            format: 'date-time',
+            type: 'string',
+            description: 'The timestamp when the VP request was created.'
+        },
+        updatedAt: {
+            format: 'date-time',
+            type: 'string',
+            description: 'The timestamp when the VP request was last updated.'
+        },
+        claimsWebhook: {
+            description: 'Webhook to receive claims for the issuance process.',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/WebhookConfig'
+                }
+            ]
+        },
+        notifyWebhook: {
+            description: 'Webhook to send the result of the notification response',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/WebhookConfig'
+                }
+            ]
+        },
+        batch_size: {
+            type: 'number',
+            description: `Value to determine the amount of credentials that are issued in a batch.
+Default is 1.`
+        }
+    },
+    required: ['authenticationConfig', 'id', 'tenant', 'credentialConfigs', 'createdAt', 'updatedAt']
+} as const;
+
+export const CredentialConfigCreateSchema = {
+    type: 'object',
+    properties: {
+        embeddedDisclosurePolicy: {
+            description: `Embedded disclosure policy (discriminated union by \`policy\`).
+The discriminator makes class-transformer instantiate the right subclass,
+and then class-validator runs that subclass’s rules.`,
+            oneOf: [
+                {
+                    '$ref': '#/components/schemas/AttestationBasedPolicy'
+                },
+                {
+                    '$ref': '#/components/schemas/NoneTrustPolicy'
+                },
+                {
+                    '$ref': '#/components/schemas/AllowListPolicy'
+                },
+                {
+                    '$ref': '#/components/schemas/RootOfTrustPolicy'
+                }
+            ],
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/EmbeddedDisclosurePolicy'
+                }
+            ]
+        },
+        id: {
+            type: 'string'
+        },
+        description: {
+            type: 'string'
+        },
+        tenant: {
+            description: 'The tenant that owns this object.',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/TenantEntity'
+                }
+            ]
+        },
+        config: {
+            type: 'object'
+        },
+        claims: {
+            type: 'object'
+        },
+        disclosureFrame: {
+            type: 'object'
+        },
+        vct: {
+            '$ref': '#/components/schemas/VCT'
+        },
+        keyBinding: {
+            type: 'boolean'
+        },
+        keyId: {
+            type: 'string'
+        },
+        statusManagement: {
+            type: 'boolean'
+        },
+        lifeTime: {
+            type: 'number'
+        },
+        schema: {
+            '$ref': '#/components/schemas/SchemaResponse'
+        }
+    },
+    required: ['id', 'tenant', 'config']
+} as const;
+
+export const IssuanceDtoSchema = {
+    type: 'object',
+    properties: {
+        authenticationConfig: {
+            description: 'Authentication configuration for the issuance process.',
+            oneOf: [
+                {
+                    '$ref': '#/components/schemas/AuthenticationMethodNone'
+                },
+                {
+                    '$ref': '#/components/schemas/AuthenticationMethodAuth'
+                },
+                {
+                    '$ref': '#/components/schemas/AuthenticationMethodPresentation'
+                }
+            ]
+        },
+        credentialConfigIds: {
+            description: 'Ids of the credential configurations associated with this issuance configuration.',
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        },
+        id: {
+            type: 'string',
+            description: 'Unique identifier for the issuance configuration.'
+        },
+        description: {
+            type: 'string',
+            description: 'Description of the issuance configuration.'
+        },
+        claimsWebhook: {
+            description: 'Webhook to receive claims for the issuance process.',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/WebhookConfig'
+                }
+            ]
+        },
+        notifyWebhook: {
+            description: 'Webhook to send the result of the notification response',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/WebhookConfig'
+                }
+            ]
+        },
+        batch_size: {
+            type: 'number',
+            description: `Value to determine the amount of credentials that are issued in a batch.
+Default is 1.`
+        }
+    },
+    required: ['authenticationConfig', 'credentialConfigIds', 'id']
+} as const;
+
+export const DisplayLogoSchema = {
+    type: 'object',
+    properties: {
+        url: {
+            type: 'string'
+        }
+    },
+    required: ['url']
+} as const;
+
+export const DisplayInfoSchema = {
+    type: 'object',
+    properties: {
+        name: {
+            type: 'string'
+        },
+        locale: {
+            type: 'string'
+        },
+        logo: {
+            '$ref': '#/components/schemas/DisplayLogo'
+        }
+    },
+    required: ['name', 'locale', 'logo']
+} as const;
+
+export const DisplayCreateDtoSchema = {
+    type: 'object',
+    properties: {
+        value: {
+            description: 'The display information.',
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/DisplayInfo'
+            }
+        }
+    },
+    required: ['value']
+} as const;
+
+export const DisplayEntitySchema = {
+    type: 'object',
+    properties: {
+        tenant: {
+            description: 'The tenant that owns this object.',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/TenantEntity'
+                }
+            ]
+        },
+        value: {
+            description: 'The display information.',
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/DisplayInfo'
+            }
+        }
+    },
+    required: ['tenant', 'value']
+} as const;
+
+export const FileUploadDtoSchema = {
+    type: 'object',
+    properties: {
+        file: {
+            type: 'string',
+            format: 'binary'
+        }
+    },
+    required: ['file']
 } as const;

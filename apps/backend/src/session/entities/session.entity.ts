@@ -8,9 +8,11 @@ import {
     Column,
     CreateDateColumn,
     Entity,
+    ManyToOne,
     PrimaryColumn,
     UpdateDateColumn,
 } from "typeorm";
+import { TenantEntity } from "../../auth/entitites/tenant.entity";
 import { AuthorizeQueries } from "../../issuer/authorize/dto/authorize-request.dto";
 import { OfferRequestDto } from "../../issuer/oid4vci/dto/offer-request.dto";
 import { WebhookConfig } from "../../utils/webhook/webhook.dto";
@@ -154,6 +156,12 @@ export class Session {
      */
     @Column("varchar")
     tenantId: string;
+
+    /**
+     * The tenant that owns this object.
+     */
+    @ManyToOne(() => TenantEntity, { cascade: true, onDelete: "CASCADE" })
+    tenant: TenantEntity;
 
     /**
      * Status of the session.

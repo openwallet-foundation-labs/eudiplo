@@ -121,7 +121,7 @@ export class AuthController {
             );
         }
 
-        const client = this.clientService.validateClient(
+        const client = this.clientService.validateTenant(
             clientId,
             clientSecret,
         );

@@ -26,7 +26,6 @@ import {
 } from "../oid4vp/dto/presentation-request.dto";
 import { Oid4vpService } from "../oid4vp/oid4vp.service";
 import { PresentationConfigCreateDto } from "./dto/presentation-config-create.dto";
-import { PresentationConfig } from "./entities/presentation-config.entity";
 import { PresentationsService } from "./presentations.service";
 
 @ApiTags("Presentation management")

@@ -1,8 +1,10 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
+import { MulterModule } from "@nestjs/platform-express";
 import { ScheduleModule } from "@nestjs/schedule";
 import { ServeStaticModule } from "@nestjs/serve-static";
 import * as Joi from "joi";
+import { memoryStorage } from "multer";
 import { LoggerModule } from "nestjs-pino";
 import { isAbsolute, join } from "path";
 import { AppController } from "./app/app.controller";
@@ -108,7 +110,11 @@ import { WellKnownService } from "./well-known/well-known.service";
                 };
             },
         }),
+        AuthModule,
         KeyModule.forRoot(),
+        MulterModule.register({
+            storage: memoryStorage(),
+        }),
         CryptoModule,
         IssuerModule,
         VerifierModule,
@@ -133,7 +139,6 @@ import { WellKnownService } from "./well-known/well-known.service";
         SessionModule,
         DatabaseModule,
         HealthModule,
-        AuthModule,
         MetricModule,
         StorageModule.forRoot(),
     ],

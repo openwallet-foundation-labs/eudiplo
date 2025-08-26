@@ -12,7 +12,6 @@ import { JwtAuthGuard } from "../../auth/auth.guard";
 import { Token, TokenPayload } from "../../auth/token.decorator";
 import { CredentialConfigService } from "./credential-config/credential-config.service";
 import { CredentialConfigCreate } from "./dto/credential-config-create.dto";
-import { CredentialConfig } from "./entities/credential.entity";
 
 /**
  * Controller for managing credential configurations.

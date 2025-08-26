@@ -1,9 +1,7 @@
 import { Type } from "class-transformer";
 import {
-    Equals,
     IsArray,
     IsDefined,
-    IsEnum,
     IsIn,
     IsOptional,
     IsString,

@@ -4,7 +4,6 @@ import { Signer } from "@sd-jwt/types";
 import { JoseHeaderParameters, JWK, JWTPayload } from "jose";
 import { Repository } from "typeorm";
 import { KeyImportDto } from "./dto/key-import.dto";
-import { KeyObj } from "./dto/key-object.dto";
 import { CertEntity, CertificateType } from "./entities/cert.entity";
 
 /**

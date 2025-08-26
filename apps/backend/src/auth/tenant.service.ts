@@ -1,34 +1,33 @@
 import {
-    BadRequestException,
     ForbiddenException,
     Injectable,
     OnApplicationBootstrap,
+    OnModuleInit,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
+import { readdirSync } from "fs";
 import { Gauge } from "prom-client";
 import { Repository } from "typeorm/repository/Repository";
 import { CryptoService } from "../crypto/crypto.service";
 import { EncryptionService } from "../crypto/encryption/encryption.service";
-import { CredentialConfigService } from "../issuer/credentials/credential-config/credential-config.service";
-import { IssuanceService } from "../issuer/issuance/issuance.service";
 import { Oid4vciService } from "../issuer/oid4vci/oid4vci.service";
 import { StatusListService } from "../issuer/status-list/status-list.service";
 import { RegistrarService } from "../registrar/registrar.service";
-import { SessionService } from "../session/session.service";
+import { FilesService } from "../storage/files.service";
 import { TenantEntity } from "./entitites/tenant.entity";
 import { TokenPayload } from "./token.decorator";
 
-// Client interface for service integration
-export interface Client {
+// Tenant interface for service integration
+export interface Tenants {
     id: string;
     secret: string;
 }
 
 @Injectable()
-export class TenantService implements OnApplicationBootstrap {
-    private clients: Client[] | null = null;
+export class TenantService implements OnApplicationBootstrap, OnModuleInit {
+    private tenants: Tenants[] | null = null;
 
     constructor(
         private configService: ConfigService,
@@ -37,37 +36,58 @@ export class TenantService implements OnApplicationBootstrap {
         private statusListService: StatusListService,
         private registrarService: RegistrarService,
         private oid4vciService: Oid4vciService,
-        private issuanceService: IssuanceService,
-        private credentialConfigService: CredentialConfigService,
-        private sessionService: SessionService,
         @InjectRepository(TenantEntity)
         private tenantRepository: Repository<TenantEntity>,
-        @InjectMetric("tenant_client_total")
-        private tenantClientTotal: Gauge<string>,
+        @InjectMetric("tenant_total")
+        private tenantTotal: Gauge<string>,
+        private filesService: FilesService,
     ) {}
 
+    async onModuleInit() {
+        if (this.configService.get<boolean>("CONFIG_IMPORT")) {
+            const configPath = this.configService.getOrThrow("CONFIG_FOLDER");
+            if (this.configService.get<boolean>("CONFIG_IMPORT")) {
+                const tenantFolders = readdirSync(configPath, {
+                    withFileTypes: true,
+                }).filter((tenant) => tenant.isDirectory());
+                for (const tenant of tenantFolders) {
+                    await this.tenantRepository.save({ id: tenant.name });
+                }
+            }
+        }
+    }
+
     async onApplicationBootstrap() {
-        // Initialize the client metrics
-        const count = await this.tenantRepository.countBy({ status: "set up" });
-        this.tenantClientTotal.set({}, count);
+        // Initialize the tenant metrics
+        const count = await this.tenantRepository.count();
+        this.tenantTotal.set({}, count);
     }
 
     /**
-     * Get clients from configuration
+     * Initialize a tenant for the given user.
+     * @param user The user to initialize the tenant for
+     */
+    async initTenant(id: string) {
+        await this.tenantRepository.save({ id });
+        return this.setUpTenant(id);
+    }
+
+    /**
+     * Get tenants from configuration
      * @returns
      */
-    private getClients(): Client[] {
-        if (!this.clients) {
-            this.clients = this.loadClients();
+    private getTenants(): Tenants[] {
+        if (!this.tenants) {
+            this.tenants = this.loadTenants();
         }
-        return this.clients;
+        return this.tenants;
     }
 
     /**
-     * Load clients from configuration
+     * Load tenants from configuration
      */
-    private loadClients(): Client[] {
-        // Default clients for development/testing
+    private loadTenants(): Tenants[] {
+        // Default tenants for development/testing
         return [
             {
                 id: this.configService.getOrThrow<string>("AUTH_CLIENT_ID"),
@@ -79,75 +99,31 @@ export class TenantService implements OnApplicationBootstrap {
     }
 
     /**
-     * Validate client credentials (OAuth2 Client Credentials flow)
+     * Validate tenant credentials (OAuth2 Tenant Credentials flow)
      * This is the primary authentication method for service integration
      */
-    validateClient(clientId: string, clientSecret: string): Client | null {
-        const client = this.getClients().find((c) => c.id === clientId);
+    validateTenant(tenantId: string, tenantSecret: string): Tenants | null {
+        const tenant = this.getTenants().find((c) => c.id === tenantId);
 
-        if (!client || client.secret !== clientSecret) {
+        if (!tenant || tenant.secret !== tenantSecret) {
             return null;
         }
 
-        return client;
+        return tenant;
     }
 
     /**
-     * Find client by ID
+     * Find tenant by ID
      */
-    findClientById(clientId: string): Client | null {
-        return this.getClients().find((c) => c.id === clientId) || null;
+    findTenantById(tenantId: string): Tenants | null {
+        return this.getTenants().find((c) => c.id === tenantId) || null;
     }
 
     /**
-     * Check if the client is set up, if not, set it up.
-     * @param id
-     * @returns
-     */
-    async isSetUp(id: string) {
-        void this.tenantRepository
-            .countBy({ status: "set up" })
-            .then((count) => {
-                this.tenantClientTotal.set({}, count);
-            });
-
-        await this.tenantRepository.findOneByOrFail({ id }).then(
-            (res) => {
-                if (res.status === "set up") {
-                    return true;
-                }
-                throw new BadRequestException(
-                    `Client ${id} is not set up. Please retry later.`,
-                );
-            },
-            async () => {
-                // create it to signl that the client getting set up
-                await this.tenantRepository.save({ id });
-                await this.setUpClient(id).catch(async (err) => {
-                    console.error(err);
-                    // if there is an error, update the client status"
-                    await this.tenantRepository.update(
-                        { id },
-                        { status: "error", error: err.message },
-                    );
-                    throw new BadRequestException(
-                        `Error setting up client ${id}. Please retry later.`,
-                    );
-                });
-                // if everything is fine, update the client status
-                return this.tenantRepository.update(
-                    { id },
-                    { status: "set up" },
-                );
-            },
-        );
-    }
-
-    /**
-     * Sends an event to set up a client, allowing all other services to listen and react accordingly.
+     * Sends an event to set up a tenant, allowing all other services to listen and react accordingly.
      * @param id
      */
-    async setUpClient(id: string) {
+    async setUpTenant(id: string) {
         await this.cryptoService.onTenantInit(id);
         await this.encryptionService.onTenantInit(id);
         await this.statusListService.onTenantInit(id);
@@ -156,26 +132,19 @@ export class TenantService implements OnApplicationBootstrap {
     }
 
     /**
-     * Deletes a client by ID
-     * @param tenantId The ID of the client to delete
+     * Deletes a tenant by ID
+     * @param tenantId The ID of the tenant to delete
      * @param user The user requesting the deletion
      */
-    async deleteClient(tenantId: string, user: TokenPayload) {
-        //TODO: right now only clients can trigger the delete endpoint by themself. Need to define how to get admin rights.
+    async deleteTenant(tenantId: string, user: TokenPayload) {
         if (tenantId !== user.sub) {
             throw new ForbiddenException(
-                `User ${user.sub} is not allowed to delete client ${tenantId}`,
+                `User ${user.sub} is not allowed to delete tenant ${tenantId}`,
             );
         }
-        // Proceed with the deletion
-        await this.sessionService.onTenantDelete(tenantId);
-        await this.oid4vciService.onTenantDelete(tenantId);
-        await this.credentialConfigService.onTenantDelete(tenantId);
-        await this.issuanceService.onTenantDelete(tenantId);
-        await this.registrarService.onTenantDelete(tenantId);
-        await this.statusListService.onTenantDelete(tenantId);
-        await this.encryptionService.onTenantDelete(tenantId);
-        await this.cryptoService.onTenantDelete(tenantId);
-        return this.tenantRepository.delete({ id: tenantId });
+        //delete all files associated with the tenant
+        await this.filesService.deleteByTenant(tenantId);
+        //because of cascading, all related entities will be deleted.
+        await this.tenantRepository.delete({ id: tenantId });
     }
 }

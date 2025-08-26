@@ -1,15 +1,13 @@
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import { Entity, PrimaryColumn } from "typeorm";
 
-export type ClientStatus = "init" | "set up" | "error";
-
+/**
+ * Represents a tenant in the system.
+ */
 @Entity()
 export class TenantEntity {
+    /**
+     * The unique identifier for the tenant.
+     */
     @PrimaryColumn()
     id: string;
-
-    @Column("varchar", { default: "init" })
-    status: ClientStatus;
-
-    @Column("varchar", { nullable: true })
-    error?: string;
 }

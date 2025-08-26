@@ -28,11 +28,11 @@ All API calls are tenant-scoped. Access control and endpoint protection are cove
 
 A tenant goes through several stages:
 
-- **Provisioning (Create Tenant):** A tenant is initialized on first use. Default configurations (keys, session settings) are created automatically.
+- **Provisioning (Create Tenant):** A tenant is initialized on first use. Default configurations (keys, session settings) are created when calling the `/client` endpoint.
 - **Enable:** The tenant becomes active; sessions, keys, and credential templates can be used.
 - **Suspend:** A tenant can be disabled (e.g., revoking OIDC client access). Data remains in place but is inaccessible.
 - **Re-Enable:** Suspended tenants can be reactivated without data loss.
-- **Delete (planned):** A full removal workflow, including key destruction and data wiping, will be added.
+- **Delete:** A full removal workflow, including key destruction and data wiping, will be added.
 
 ---
 
@@ -56,6 +56,10 @@ From the UI you can:
 > Even with management privileges, users will **only see tenant-scoped data**.  
 > EUDIPLO enforces tenant context based on the **subject claim** of the access token.
 
+### Client Management via the API
+
+The `/tenant` endpoint allows programmatic management of tenants. Keep in mind when using an external OIDC provider, you still need to call the POST `/tenant` endpoint to create the default values.
+
 ### Authentication Methods
 
 Instead of client ID/secret, you may use any authentication method supported by your OIDC provider.  
@@ -67,8 +71,7 @@ EUDIPLO only validates the **access token**; it does not care how authentication
 
 - **Access control:** All API calls are validated against tenant context embedded in the access token.
 - **Auditability:** All operations are logged with `tenantId` for traceability.
-- **Compliance:** Data deletion is not yet implemented; currently, tenants can only be suspended. (⚠️ Relevant for GDPR).
-- **Admin Role:** Certain lifecycle actions (e.g., deletion) will require a **super admin** credential beyond tenant admins.
+  1- **Admin Role:** Certain lifecycle actions (e.g., deletion) will require a **super admin** credential beyond tenant admins.
 
 See also:
 

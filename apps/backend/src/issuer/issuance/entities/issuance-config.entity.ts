@@ -7,7 +7,6 @@ import {
 import { Type } from "class-transformer";
 import {
     IsNumber,
-    IsObject,
     IsOptional,
     IsString,
     ValidateNested,
@@ -18,8 +17,10 @@ import {
     Entity,
     JoinTable,
     ManyToMany,
+    ManyToOne,
     UpdateDateColumn,
 } from "typeorm";
+import { TenantEntity } from "../../../auth/entitites/tenant.entity";
 import { WebhookConfig } from "../../../utils/webhook/webhook.dto";
 import { CredentialConfig } from "../../credentials/entities/credential.entity";
 import {
@@ -54,6 +55,12 @@ export class IssuanceConfig {
     tenantId: string;
 
     /**
+     * The tenant that owns this object.
+     */
+    @ManyToOne(() => TenantEntity, { cascade: true, onDelete: "CASCADE" })
+    tenant: TenantEntity;
+
+    /**
      * Description of the issuance configuration.
      */
     @IsString()
@@ -74,7 +81,6 @@ export class IssuanceConfig {
     /**
      * Authentication configuration for the issuance process.
      */
-    @IsObject()
     @Column("json")
     @ValidateNested()
     @ApiProperty({
@@ -124,7 +130,6 @@ export class IssuanceConfig {
     /**
      * Webhook to receive claims for the issuance process.
      */
-    @IsObject()
     @IsOptional()
     @ValidateNested()
     @Type(() => WebhookConfig)
@@ -134,7 +139,6 @@ export class IssuanceConfig {
     /**
      * Webhook to send the result of the notification response
      */
-    @IsObject()
     @IsOptional()
     @ValidateNested()
     @Type(() => WebhookConfig)

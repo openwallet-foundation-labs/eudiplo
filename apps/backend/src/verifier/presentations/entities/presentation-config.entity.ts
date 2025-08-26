@@ -12,7 +12,14 @@ import {
     Validate,
     ValidateNested,
 } from "class-validator";
-import { Column, CreateDateColumn, Entity, UpdateDateColumn } from "typeorm";
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    ManyToOne,
+    UpdateDateColumn,
+} from "typeorm";
+import { TenantEntity } from "../../../auth/entitites/tenant.entity";
 import { WebhookConfig } from "../../../utils/webhook/webhook.dto";
 import { RegistrationCertificateRequest } from "../dto/vp-request.dto";
 
@@ -124,6 +131,12 @@ export class PresentationConfig {
     tenantId: string;
 
     /**
+     * The tenant that owns this object.
+     */
+    @ManyToOne(() => TenantEntity, { cascade: true, onDelete: "CASCADE" })
+    tenant: TenantEntity;
+
+    /**
      * Description of the presentation configuration.
      */
     @Column("varchar", { nullable: true })
@@ -150,7 +163,8 @@ export class PresentationConfig {
      * The registration certificate request containing the necessary details.
      */
     @IsOptional()
-    @IsObject()
+    @ValidateNested()
+    @Type(() => RegistrationCertificateRequest)
     @Column("json", { nullable: true })
     registrationCert?: RegistrationCertificateRequest;
     /**
@@ -158,7 +172,6 @@ export class PresentationConfig {
      */
     @Column("json", { nullable: true })
     @IsOptional()
-    @IsObject()
     @Validate(WebhookConfig)
     @Type(() => WebhookConfig)
     webhook?: WebhookConfig;

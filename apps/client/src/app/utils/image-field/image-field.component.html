@@ -1,0 +1,31 @@
+<div fxLayout="row" fxLayoutGap="16px">
+  <mat-form-field fxFlex>
+    <mat-label>{{ label }}</mat-label>
+    <input matInput [formControl]="field" required />
+    <button
+      mat-icon-button
+      matSuffix
+      type="button"
+      (click)="triggerLogoFileInput()"
+      matTooltip="Upload Logo"
+    >
+      <mat-icon>upload</mat-icon>
+    </button>
+  </mat-form-field>
+  <input
+    #logoFileInput
+    type="file"
+    accept="image/*"
+    style="display: none"
+    (change)="uploadLogoFile($event)"
+  />
+  <div fxLayout="row" fxFlex fxLayoutAlign="center center">
+    @if (field.value) {
+      <img
+        [src]="field.value"
+        alt="Logo Preview"
+        style="max-width: 120px; max-height: 60px; border-radius: 4px"
+      />
+    }
+  </div>
+</div>

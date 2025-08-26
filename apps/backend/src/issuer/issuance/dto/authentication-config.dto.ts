@@ -23,7 +23,6 @@ export class AuthenticationUrlConfig {
     /**
      * Optional webhook configuration for authentication callbacks
      */
-    @IsObject()
     @IsOptional()
     @ValidateNested()
     @Type(() => WebhookConfig)
