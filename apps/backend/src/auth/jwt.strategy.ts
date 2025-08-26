@@ -85,6 +85,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
             sub = (payload as any)[key] as string;
         }
 
-        return { sub };
+        return { sub, admin: payload.admin || false };
     }
 }

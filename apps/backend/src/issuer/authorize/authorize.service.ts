@@ -118,14 +118,6 @@ export class AuthorizeService {
             },
         });
 
-        /*         const session = await this.sessionService.getBy({
-            authorization_code: body.code ?? body['pre-authorized_code'],
-            tenantId,
-        });
-
-        if (!session) {
-            throw new ConflictException('Authorization code not found');
-        } */
         const authorizationServerMetadata = this.authzMetadata(session);
         let dpopValue;
         if (

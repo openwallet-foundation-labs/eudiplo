@@ -87,14 +87,13 @@ describe("Issuance", () => {
         expect(authToken).toBeDefined();
 
         await request(app.getHttpServer())
-            .post("/client")
+            .post("/tenant")
             .trustLocalhost()
             .set("Authorization", `Bearer ${authToken}`)
             .send({
                 id: "root",
             })
             .expect(201);
-
         //import key
 
         const privateKey = {

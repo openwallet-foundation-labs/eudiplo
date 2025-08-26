@@ -132,7 +132,7 @@ export class AuthController {
         //TODO: check if the access token should only include the session id or also e.g. the credentials that should be issued. I would think this is not required since we still need the claims for it.
         const payload: TokenPayload = {
             sub: client.id,
-            admin: false,
+            admin: true,
         };
 
         //TODO: make expiresIn configurable?
