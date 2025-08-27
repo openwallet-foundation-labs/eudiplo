@@ -1,15 +1,7 @@
-import {
-    Body,
-    Controller,
-    Get,
-    Post,
-    UseGuards,
-    UseInterceptors,
-} from "@nestjs/common";
+import { Body, Controller, Get, Post, UseInterceptors } from "@nestjs/common";
 import { ApiExcludeController, ApiParam } from "@nestjs/swagger";
 import { Session } from "../../session/entities/session.entity";
 import { SessionEntity } from "../../session/session.decorator";
-import { SessionGuard } from "../../session/session.guard";
 import { SessionLogger } from "../../utils/logger/session-logger.decorator";
 import { SessionLoggerInterceptor } from "../../utils/logger/session-logger.interceptor";
 import { AuthorizationResponse } from "./dto/authorization-response.dto";
@@ -19,7 +11,6 @@ import { Oid4vpService } from "./oid4vp.service";
  * Controller for handling OID4VP (OpenID for Verifiable Presentations) requests.
  */
 @Controller(":session/oid4vp")
-@UseGuards(SessionGuard)
 @UseInterceptors(SessionLoggerInterceptor)
 @ApiParam({ name: "session", required: true })
 @ApiExcludeController(process.env.SWAGGER_ALL !== "true")

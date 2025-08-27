@@ -13,6 +13,7 @@ import { Token, TokenPayload } from "../auth/token.decorator";
 import { StatusUpdateDto } from "../issuer/status-list/dto/status-update.dto";
 import { StatusListService } from "../issuer/status-list/status-list.service";
 import { Session } from "./entities/session.entity";
+import { SessionPipe } from "./session.pipe";
 import { SessionService } from "./session.service";
 
 @ApiTags("Session management")
@@ -38,12 +39,12 @@ export class SessionController {
      * @param id - The identifier of the session.
      */
     @Get(":id")
-    getSession(@Param("id") id: string): Promise<Session> {
-        return this.sessionService.get(id);
+    getSession(@Param("id", SessionPipe) session: Session): Session {
+        return session;
     }
 
     /**
-     * Deletes a session by its ID.
+     * Deletes a session by its ID
      * @param id
      * @param user
      * @returns

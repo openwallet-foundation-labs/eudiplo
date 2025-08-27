@@ -39,7 +39,10 @@
                 <mat-icon matSuffix>language</mat-icon>
               </mat-form-field>
             </div>
-            <app-image-field [field]="getControl(display.get('logo.url'))"></app-image-field>
+            <app-image-field
+              [field]="getControl(display.get('logo.url'))"
+              label="Logo URL"
+            ></app-image-field>
           </mat-card-content>
         </mat-card>
       </div>

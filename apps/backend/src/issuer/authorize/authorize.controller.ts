@@ -1,19 +1,9 @@
 import { randomUUID } from "node:crypto";
-import {
-    Body,
-    Controller,
-    Get,
-    Post,
-    Query,
-    Req,
-    Res,
-    UseGuards,
-} from "@nestjs/common";
+import { Body, Controller, Get, Post, Query, Req, Res } from "@nestjs/common";
 import { ApiBody, ApiExcludeController } from "@nestjs/swagger";
 import type { Request, Response } from "express";
 import { Session } from "../../session/entities/session.entity";
 import { SessionEntity } from "../../session/session.decorator";
-import { SessionGuard } from "../../session/session.guard";
 import { SessionService } from "../../session/session.service";
 import { AuthorizeService } from "./authorize.service";
 import { AuthorizeQueries } from "./dto/authorize-request.dto";
@@ -24,7 +14,6 @@ import { ParResponseDto } from "./dto/par-response.dto";
  * This controller handles the authorization requests, token requests.
  */
 @ApiExcludeController(process.env.SWAGGER_ALL !== "true")
-@UseGuards(SessionGuard)
 @Controller(":session/authorize")
 export class AuthorizeController {
     constructor(
@@ -72,7 +61,6 @@ export class AuthorizeController {
      * @param req
      * @returns
      */
-    @UseGuards(SessionGuard)
     @Post("token")
     token(
         @Body() body: any,
@@ -89,7 +77,6 @@ export class AuthorizeController {
      * @param body
      * @returns
      */
-    @UseGuards(SessionGuard)
     @Post("challenge")
     authorizationChallengeEndpoint(
         @Res() res: Response,

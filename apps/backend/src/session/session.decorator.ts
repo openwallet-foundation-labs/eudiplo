@@ -1,9 +1,8 @@
-import { createParamDecorator, ExecutionContext } from "@nestjs/common";
-import { Session } from "./entities/session.entity";
+import { applyDecorators, Param } from "@nestjs/common";
+import { SessionPipe } from "./session.pipe";
 
-export const SessionEntity = createParamDecorator(
-    (data: unknown, ctx: ExecutionContext) => {
-        const request = ctx.switchToHttp().getRequest();
-        return request.session as Session;
-    },
-);
+export function SessionEntity(): ParameterDecorator {
+    return applyDecorators(
+        Param("session", SessionPipe) as any,
+    ) as ParameterDecorator;
+}
