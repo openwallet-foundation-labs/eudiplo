@@ -227,6 +227,41 @@ jobs:
       - name: Build Backend Docker image
         run: docker build -t ghcr.io/openwallet-foundation-labs/eudiplo:main --build-arg VERSION=main . --target eudiplo
 
+      # --- HEALTH TEST ---
+      - name: Run container (detached)
+        run: |
+          docker run -d --rm \
+            --name eudiplo-test \
+            -p 8080:8080 \
+            ghcr.io/openwallet-foundation-labs/eudiplo:main
+
+      - name: Wait for healthy
+        run: |
+          set -e
+          # wait up to ~90s (45 * 2s) for HEALTHCHECK to pass
+          for i in $(seq 1 45); do
+            STATUS=$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' eudiplo-test)
+            if [ "$STATUS" = "healthy" ]; then
+              echo "Container is healthy ✅"
+              exit 0
+            fi
+            if [ "$STATUS" = "unhealthy" ]; then
+              echo "Container reported unhealthy ❌"
+              docker logs eudiplo-test || true
+              exit 1
+            fi
+            sleep 2
+          done
+          echo "Timed out waiting for healthy ❌"
+          docker ps
+          docker inspect eudiplo-test || true
+          docker logs eudiplo-test || true
+          exit 1
+
+      - name: Stop test container
+        if: always()
+        run: docker stop eudiplo-test || true
+
       - name: Log in to GitHub Container Registry
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin

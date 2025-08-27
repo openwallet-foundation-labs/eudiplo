@@ -245,10 +245,6 @@ If no claims are provided through any of the three methods, the credential will 
 
 ## Display Configuration
 
-TODO: needs to be updated
+The display information from the [OID4VCI spec](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-credential-issuer-metadata:~:text=2%20or%20greater.-,display,-%3A%20OPTIONAL.%20A%20non) can be configured via the `/display` endpoint.
 
-This display information gets included into the
-[credential issuer metadata](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-credential-issuer-metadata:~:text=2%20or%20greater.-,display,-%3A%20OPTIONAL.%20A%20non).
-
-> `<PUBLIC_URL>` will be dynamically replaced at runtime with your public URL
-> together with the tenant ID.
+To host images or logos, you can use the [storage](../../architecture/storage.md) system provided by EUDIPLO.

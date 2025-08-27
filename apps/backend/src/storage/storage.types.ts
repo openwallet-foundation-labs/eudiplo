@@ -32,7 +32,7 @@ export interface FileStorage {
 
     exists(key: string): Promise<boolean>;
 
-    getSignedUrl?(key: string, expiresInSec: number): Promise<string>; // optional for local
+    getSignedUrl?(key: string): Promise<string>; // optional for local
 }
 
 export const FILE_STORAGE = Symbol("FILE_STORAGE");

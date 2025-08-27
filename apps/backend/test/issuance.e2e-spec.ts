@@ -361,20 +361,10 @@ describe("Issuance", () => {
             credentialOffer.credential_issuer,
         );
 
-        const dpopSigner = {
-            method: "jwk",
-            alg: "ES256",
-            publicJwk: holderPublicKeyJwk,
-        } as JwtSignerJwk;
-
-        const { accessTokenResponse, dpop } =
+        const { accessTokenResponse } =
             await client.retrievePreAuthorizedCodeAccessTokenFromOffer({
                 credentialOffer,
                 issuerMetadata,
-                dpop: {
-                    nonce: "random-nonce",
-                    signer: dpopSigner,
-                },
             });
 
         const { jwt: proofJwt } = await client.createCredentialRequestJwtProof({
@@ -396,10 +386,6 @@ describe("Issuance", () => {
             credentialConfigurationId:
                 credentialOffer.credential_configuration_ids[0],
             issuerMetadata,
-            dpop: {
-                ...dpop,
-                signer: dpopSigner,
-            },
             proof: {
                 proof_type: "jwt",
                 jwt: proofJwt,
@@ -414,10 +400,6 @@ describe("Issuance", () => {
                 event: "credential_accepted",
             },
             accessToken: accessTokenResponse.access_token,
-            dpop: {
-                ...dpop,
-                signer: dpopSigner,
-            },
         });
         const session = await request(app.getHttpServer())
             .get(`/session/${offerResponse.body.session}`)

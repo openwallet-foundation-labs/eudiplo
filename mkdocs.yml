@@ -107,6 +107,7 @@ nav:
         - Issuance:
           - Overview: getting-started/issuance/index.md
           - Credential Configuration: getting-started/issuance/credential-configuration.md
+          - Issuance Configuration: getting-started/issuance/issuance-configuration.md
           - Advanced Features: getting-started/issuance/advanced-features.md
           - Authentication: getting-started/issuance/authentication.md
           - API Guide: getting-started/issuance/api-guide.md
@@ -119,7 +120,7 @@ nav:
           - Integration Examples: getting-started/presentation/integration-examples.md          
       - Advanced:
         - Registrar: getting-started/registrar.md
-        - Monitor: getting-started/monitor.md
+        - Monitor: getting-started/monitor.md        
   - Architecture:
       - Overview: architecture/overview.md      
       - Supported Protocols: architecture/supported-protocols.md
@@ -128,9 +129,10 @@ nav:
       - Webhooks: architecture/webhooks.md
       - Config Import: architecture/configuration-import.md
       - Key Management: architecture/key-management.md
-      - Database: architecture/database.md      
-  - API:    
-    - Overview: api/index.md    
+      - Database: architecture/database.md
+      - Storage: architecture/storage.md
+  - API:
+    - Overview: api/index.md
     - Authentication: api/authentication.md
     - OpenApi: api/openapi.md
   - Development:

@@ -82,12 +82,11 @@ export class S3FileStorage implements FileStorage {
         }
     }
 
-    getSignedUrl(key: string, expiresInSec: number) {
+    getSignedUrl(key: string) {
         return Promise.resolve(
             sign(
                 this.s3,
                 new GetObjectCommand({ Bucket: this.bucket, Key: key }),
-                { expiresIn: expiresInSec },
             ),
         );
     }
