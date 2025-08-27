@@ -205,8 +205,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="41"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:41</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="32"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:32</a></div>
                         </td>
                     </tr>
 
@@ -284,8 +284,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="52"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:52</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="43"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:43</a></div>
                         </td>
                     </tr>
 
@@ -349,18 +349,10 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
-    Body,
-    Controller,
-    Get,
-    Post,
-    UseGuards,
-    UseInterceptors,
-} from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Body, Controller, Get, Post, UseInterceptors } from &quot;@nestjs/common&quot;;
 import { ApiExcludeController, ApiParam } from &quot;@nestjs/swagger&quot;;
 import { Session } from &quot;../../session/entities/session.entity&quot;;
 import { SessionEntity } from &quot;../../session/session.decorator&quot;;
-import { SessionGuard } from &quot;../../session/session.guard&quot;;
 import { SessionLogger } from &quot;../../utils/logger/session-logger.decorator&quot;;
 import { SessionLoggerInterceptor } from &quot;../../utils/logger/session-logger.interceptor&quot;;
 import { AuthorizationResponse } from &quot;./dto/authorization-response.dto&quot;;
@@ -370,7 +362,6 @@ import { Oid4vpService } from &quot;./oid4vp.service&quot;;
  * Controller for handling OID4VP (OpenID for Verifiable Presentations) requests.
  */
 @Controller(&quot;:session/oid4vp&quot;)
-@UseGuards(SessionGuard)
 @UseInterceptors(SessionLoggerInterceptor)
 @ApiParam({ name: &quot;session&quot;, required: true })
 @ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &quot;true&quot;)

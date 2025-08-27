@@ -80,7 +80,7 @@
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
-               <div class="content guard">
+               <div class="content injectable">
                    <div class="content-data">
 
 
@@ -90,11 +90,9 @@
 
 
 
-
-
 <ol class="breadcrumb">
-    <li class="breadcrumb-item">Guards</li>
-    <li class="breadcrumb-item" >SessionGuard</li>
+  <li class="breadcrumb-item">Injectables</li>
+  <li class="breadcrumb-item" >SessionPipe</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -113,20 +111,19 @@
 </ul>
 
 <div class="tab-content">
-        <div class="tab-pane fade active in" id="info">
-            <p class="comment">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
             <h3>File</h3>
-            </p>
-            <p class="comment">
-                <code>src/session/session.guard.ts</code>
-            </p>
+        </p>
+        <p class="comment">
+            <code>src/session/session.pipe.ts</code>
+        </p>
 
 
 
 
 
-
-                <section data-compodoc="block-index">
+            <section data-compodoc="block-index">
     <h3 id="index">Index</h3>
     <table class="table table-sm table-bordered index-table">
         <tbody>
@@ -141,7 +138,7 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#canActivate" >canActivate</a>
+                                <a href="#transform" >transform</a>
                             </li>
                         </ul>
                     </td>
@@ -155,7 +152,7 @@
     </table>
 </section>
 
-                <section data-compodoc="block-constructor">
+            <section data-compodoc="block-constructor">
     <h3 id="constructor">Constructor</h3>
         <table class="table table-sm table-bordered">
             <tbody>
@@ -166,7 +163,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="10" class="link-to-prism">src/session/session.guard.ts:10</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="6" class="link-to-prism">src/session/session.pipe.ts:6</a></div>
                             </td>
                         </tr>
 
@@ -204,7 +201,7 @@
         </table>
 </section>
 
-                <section data-compodoc="block-methods">
+            <section data-compodoc="block-methods">
     
     <h3 id="methods">
         Methods
@@ -213,26 +210,26 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="canActivate"></a>
+                    <a name="transform"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
-                        <span ><b>canActivate</b></span>
-                        <a href="#canActivate"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>transform</b></span>
+                        <a href="#transform"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>canActivate(context: ExecutionContext)</code>
+                    <code>transform(sessionId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="13"
-                                    class="link-to-prism">src/session/session.guard.ts:13</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="9"
+                                    class="link-to-prism">src/session/session.pipe.ts:9</a></div>
                         </td>
                     </tr>
 
@@ -253,9 +250,9 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>context</td>
+                                                <td>sessionId</td>
                                             <td>
-                                                        <code>ExecutionContext</code>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
 
                                             <td>
@@ -268,7 +265,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;boolean&gt;</code>
+                            <b>Returns : </b>        <code><a href="../entitys/Session.html" target="_self" >Promise&lt;Session&gt;</a></code>
 
                         </div>
                             <div class="io-description">
@@ -279,43 +276,43 @@
         </tbody>
     </table>
 </section>
-        </div>
+
+    </div>
 
 
-        <div class="tab-pane fade  tab-source-code" id="source">
-            <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
-    CanActivate,
-    ExecutionContext,
-    Injectable,
-    NotFoundException,
-} from &quot;@nestjs/common&quot;;
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, NotFoundException, PipeTransform } from &quot;@nestjs/common&quot;;
+import { Session } from &quot;./entities/session.entity&quot;;
 import { SessionService } from &quot;./session.service&quot;;
 
 @Injectable()
-export class SessionGuard implements CanActivate {
+export class SessionPipe implements PipeTransform&lt;string, Promise&lt;Session&gt;&gt; {
     constructor(private readonly sessionService: SessionService) {}
 
-    async canActivate(context: ExecutionContext): Promise&lt;boolean&gt; {
-        const request &#x3D; context.switchToHttp().getRequest();
-        const sessionId &#x3D; request.params.session;
+    async transform(sessionId: string): Promise&lt;Session&gt; {
         if (!sessionId) {
             throw new NotFoundException(
                 &quot;Session ID not found in request parameters&quot;,
             );
         }
+
         const session &#x3D; await this.sessionService.get(sessionId);
         if (!session) {
             throw new NotFoundException(
                 &#x60;Session with ID ${sessionId} not found&#x60;,
             );
         }
-        request.session &#x3D; session;
-        return true;
+
+        // Return the entity so the controller parameter receives it
+        return session;
     }
 }
 </code></pre>
-        </div>
+    </div>
+
 </div>
+
+
 
 
 
@@ -352,8 +349,8 @@ export class SessionGuard implements CanActivate {
 
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'guard';
-            var COMPODOC_CURRENT_PAGE_URL = 'SessionGuard.html';
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'injectable';
+            var COMPODOC_CURRENT_PAGE_URL = 'SessionPipe.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

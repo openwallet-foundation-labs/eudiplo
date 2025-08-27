@@ -209,8 +209,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="59"
-                                    class="link-to-prism">src/well-known/well-known.controller.ts:59</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="57"
+                                    class="link-to-prism">src/well-known/well-known.controller.ts:57</a></div>
                         </td>
                     </tr>
 
@@ -288,8 +288,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="71"
-                                    class="link-to-prism">src/well-known/well-known.controller.ts:71</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="69"
+                                    class="link-to-prism">src/well-known/well-known.controller.ts:69</a></div>
                         </td>
                     </tr>
 
@@ -368,8 +368,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="47"
-                                    class="link-to-prism">src/well-known/well-known.controller.ts:47</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="45"
+                                    class="link-to-prism">src/well-known/well-known.controller.ts:45</a></div>
                         </td>
                     </tr>
 
@@ -433,7 +433,7 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Controller, Get, Header, UseGuards } from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Controller, Get, Header } from &quot;@nestjs/common&quot;;
 import {
     ApiExcludeController,
     ApiOperation,
@@ -442,7 +442,6 @@ import {
 } from &quot;@nestjs/swagger&quot;;
 import { Session } from &quot;../session/entities/session.entity&quot;;
 import { SessionEntity } from &quot;../session/session.decorator&quot;;
-import { SessionGuard } from &quot;../session/session.guard&quot;;
 import { ContentType } from &quot;../utils/mediaType/media-type.decorator&quot;;
 import { MediaType } from &quot;../utils/mediaType/media-type.enum&quot;;
 import { JwksResponseDto } from &quot;./dto/jwks-response.dto&quot;;
@@ -453,7 +452,6 @@ import { WellKnownService } from &quot;./well-known.service&quot;;
  * Controller for the OpenID4VCI well-known endpoints.
  */
 @ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &quot;true&quot;)
-@UseGuards(SessionGuard)
 @ApiParam({
     name: &quot;session&quot;,
     required: true,

@@ -210,8 +210,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="38"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.controller.ts:38</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="29"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.controller.ts:29</a></div>
                         </td>
                     </tr>
 
@@ -301,8 +301,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="62"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.controller.ts:62</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="53"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.controller.ts:53</a></div>
                         </td>
                     </tr>
 
@@ -378,8 +378,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="52"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.controller.ts:52</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="43"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.controller.ts:43</a></div>
                         </td>
                     </tr>
 
@@ -455,21 +455,13 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
-    Body,
-    Controller,
-    Post,
-    Req,
-    UseGuards,
-    UseInterceptors,
-} from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Body, Controller, Post, Req, UseInterceptors } from &quot;@nestjs/common&quot;;
 import { ApiExcludeController, ApiParam } from &quot;@nestjs/swagger&quot;;
 import type { CredentialResponse } from &quot;@openid4vc/openid4vci&quot;;
 import type { Request } from &quot;express&quot;;
 import { Oid4vciService } from &quot;../../issuer/oid4vci/oid4vci.service&quot;;
 import { Session } from &quot;../../session/entities/session.entity&quot;;
 import { SessionEntity } from &quot;../../session/session.decorator&quot;;
-import { SessionGuard } from &quot;../../session/session.guard&quot;;
 import { SessionLogger } from &quot;../../utils/logger//session-logger.decorator&quot;;
 import { SessionLoggerInterceptor } from &quot;../../utils/logger/session-logger.interceptor&quot;;
 import { NotificationRequestDto } from &quot;./dto/notification-request.dto&quot;;
@@ -479,7 +471,6 @@ import { NotificationRequestDto } from &quot;./dto/notification-request.dto&quot
  */
 @ApiParam({ name: &quot;session&quot;, required: true })
 @ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &quot;true&quot;)
-@UseGuards(SessionGuard)
 @Controller(&quot;:session/vci&quot;)
 @UseInterceptors(SessionLoggerInterceptor)
 export class Oid4vciController {

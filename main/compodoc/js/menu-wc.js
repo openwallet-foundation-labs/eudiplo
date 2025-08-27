@@ -758,21 +758,11 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <li class="link">
                                     <a href="injectables/LoggerConfigService.html" data-type="entity-link" >LoggerConfigService</a>
                                 </li>
+                                <li class="link">
+                                    <a href="injectables/SessionPipe.html" data-type="entity-link" >SessionPipe</a>
+                                </li>
                             </ul>
                         </li>
-                    <li class="chapter">
-                        <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ? 'data-bs-target="#guards-links"' :
-                            'data-bs-target="#xs-guards-links"' }>
-                            <span class="icon ion-ios-lock"></span>
-                            <span>Guards</span>
-                            <span class="icon ion-ios-arrow-down"></span>
-                        </div>
-                        <ul class="links collapse " ${ isNormalMode ? 'id="guards-links"' : 'id="xs-guards-links"' }>
-                            <li class="link">
-                                <a href="guards/SessionGuard.html" data-type="entity-link" >SessionGuard</a>
-                            </li>
-                        </ul>
-                    </li>
                     <li class="chapter">
                         <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ? 'data-bs-target="#interfaces-links"' :
                             'data-bs-target="#xs-interfaces-links"' }>

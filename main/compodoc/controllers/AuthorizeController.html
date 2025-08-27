@@ -151,7 +151,6 @@ This controller handles the authorization requests, token requests.</p>
                         <ul class="index-list">
                             <li>
                                     <span class="modifier"></span>
-                                    <span class="modifier"></span>
                                 <a href="#authorizationChallengeEndpoint" >authorizationChallengeEndpoint</a>
                             </li>
                             <li>
@@ -165,7 +164,6 @@ This controller handles the authorization requests, token requests.</p>
                                 <a href="#par" >par</a>
                             </li>
                             <li>
-                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                 <a href="#token" >token</a>
                             </li>
@@ -193,7 +191,6 @@ This controller handles the authorization requests, token requests.</p>
                     <a name="authorizationChallengeEndpoint"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                            <span class="modifier"></span>
                         <span ><b>authorizationChallengeEndpoint</b></span>
                         <a href="#authorizationChallengeEndpoint"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -210,14 +207,14 @@ This controller handles the authorization requests, token requests.</p>
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@UseGuards(SessionGuard)<br />@Post(&#x27;challenge&#x27;)<br /></code>
+                    <code>@Post(&#x27;challenge&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="94"
-                                    class="link-to-prism">src/issuer/authorize/authorize.controller.ts:94</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="81"
+                                    class="link-to-prism">src/issuer/authorize/authorize.controller.ts:81</a></div>
                         </td>
                     </tr>
 
@@ -318,8 +315,8 @@ This controller handles the authorization requests, token requests.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="41"
-                                    class="link-to-prism">src/issuer/authorize/authorize.controller.ts:41</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="30"
+                                    class="link-to-prism">src/issuer/authorize/authorize.controller.ts:30</a></div>
                         </td>
                     </tr>
 
@@ -410,8 +407,8 @@ This controller handles the authorization requests, token requests.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="55"
-                                    class="link-to-prism">src/issuer/authorize/authorize.controller.ts:55</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="44"
+                                    class="link-to-prism">src/issuer/authorize/authorize.controller.ts:44</a></div>
                         </td>
                     </tr>
 
@@ -466,7 +463,6 @@ This controller handles the authorization requests, token requests.</p>
                     <a name="token"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                            <span class="modifier"></span>
                         <span ><b>token</b></span>
                         <a href="#token"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -483,14 +479,14 @@ This controller handles the authorization requests, token requests.</p>
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@UseGuards(SessionGuard)<br />@Post(&#x27;token&#x27;)<br /></code>
+                    <code>@Post(&#x27;token&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="77"
-                                    class="link-to-prism">src/issuer/authorize/authorize.controller.ts:77</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="65"
+                                    class="link-to-prism">src/issuer/authorize/authorize.controller.ts:65</a></div>
                         </td>
                     </tr>
 
@@ -568,21 +564,11 @@ This endpoint is used to exchange the authorization code for an access token.</p
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { randomUUID } from &quot;node:crypto&quot;;
-import {
-    Body,
-    Controller,
-    Get,
-    Post,
-    Query,
-    Req,
-    Res,
-    UseGuards,
-} from &quot;@nestjs/common&quot;;
+import { Body, Controller, Get, Post, Query, Req, Res } from &quot;@nestjs/common&quot;;
 import { ApiBody, ApiExcludeController } from &quot;@nestjs/swagger&quot;;
 import type { Request, Response } from &quot;express&quot;;
 import { Session } from &quot;../../session/entities/session.entity&quot;;
 import { SessionEntity } from &quot;../../session/session.decorator&quot;;
-import { SessionGuard } from &quot;../../session/session.guard&quot;;
 import { SessionService } from &quot;../../session/session.service&quot;;
 import { AuthorizeService } from &quot;./authorize.service&quot;;
 import { AuthorizeQueries } from &quot;./dto/authorize-request.dto&quot;;
@@ -593,7 +579,6 @@ import { ParResponseDto } from &quot;./dto/par-response.dto&quot;;
  * This controller handles the authorization requests, token requests.
  */
 @ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &quot;true&quot;)
-@UseGuards(SessionGuard)
 @Controller(&quot;:session/authorize&quot;)
 export class AuthorizeController {
     constructor(
@@ -641,7 +626,6 @@ export class AuthorizeController {
      * @param req
      * @returns
      */
-    @UseGuards(SessionGuard)
     @Post(&quot;token&quot;)
     token(
         @Body() body: any,
@@ -658,7 +642,6 @@ export class AuthorizeController {
      * @param body
      * @returns
      */
-    @UseGuards(SessionGuard)
     @Post(&quot;challenge&quot;)
     authorizationChallengeEndpoint(
         @Res() res: Response,
