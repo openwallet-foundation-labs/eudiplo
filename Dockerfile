@@ -29,6 +29,15 @@ ENV CONFIG_FOLDER=/app/config/config
 
 WORKDIR /app
 EXPOSE 3000
+
+# --- Healthcheck dependencies ---
+# Install curl for HEALTHCHECK
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+
+# --- HEALTHCHECK ---
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD curl -f http://localhost:3000/health || exit 1
+
 # Run compiled NestJS app
 CMD [ "node", "dist/main.js" ]
 
@@ -42,4 +51,12 @@ COPY apps/client/nginx.conf /etc/nginx/nginx.conf
 
 # Expose port 80 and start nginx
 EXPOSE 80
+
+# --- Healthcheck dependencies ---
+RUN apk add --no-cache curl
+
+# --- HEALTHCHECK (Client / Nginx) ---
+HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
+  CMD curl -f http://localhost/ || exit 
+
 CMD ["nginx", "-g", "daemon off;"]
