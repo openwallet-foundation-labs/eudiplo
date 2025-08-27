@@ -1,4 +1,4 @@
-import { Controller, Get, Header, UseGuards } from "@nestjs/common";
+import { Controller, Get, Header } from "@nestjs/common";
 import {
     ApiExcludeController,
     ApiOperation,
@@ -7,7 +7,6 @@ import {
 } from "@nestjs/swagger";
 import { Session } from "../session/entities/session.entity";
 import { SessionEntity } from "../session/session.decorator";
-import { SessionGuard } from "../session/session.guard";
 import { ContentType } from "../utils/mediaType/media-type.decorator";
 import { MediaType } from "../utils/mediaType/media-type.enum";
 import { JwksResponseDto } from "./dto/jwks-response.dto";
@@ -18,7 +17,6 @@ import { WellKnownService } from "./well-known.service";
  * Controller for the OpenID4VCI well-known endpoints.
  */
 @ApiExcludeController(process.env.SWAGGER_ALL !== "true")
-@UseGuards(SessionGuard)
 @ApiParam({
     name: "session",
     required: true,

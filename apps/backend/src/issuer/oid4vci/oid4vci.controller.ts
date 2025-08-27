@@ -1,18 +1,10 @@
-import {
-    Body,
-    Controller,
-    Post,
-    Req,
-    UseGuards,
-    UseInterceptors,
-} from "@nestjs/common";
+import { Body, Controller, Post, Req, UseInterceptors } from "@nestjs/common";
 import { ApiExcludeController, ApiParam } from "@nestjs/swagger";
 import type { CredentialResponse } from "@openid4vc/openid4vci";
 import type { Request } from "express";
 import { Oid4vciService } from "../../issuer/oid4vci/oid4vci.service";
 import { Session } from "../../session/entities/session.entity";
 import { SessionEntity } from "../../session/session.decorator";
-import { SessionGuard } from "../../session/session.guard";
 import { SessionLogger } from "../../utils/logger//session-logger.decorator";
 import { SessionLoggerInterceptor } from "../../utils/logger/session-logger.interceptor";
 import { NotificationRequestDto } from "./dto/notification-request.dto";
@@ -22,7 +14,6 @@ import { NotificationRequestDto } from "./dto/notification-request.dto";
  */
 @ApiParam({ name: "session", required: true })
 @ApiExcludeController(process.env.SWAGGER_ALL !== "true")
-@UseGuards(SessionGuard)
 @Controller(":session/vci")
 @UseInterceptors(SessionLoggerInterceptor)
 export class Oid4vciController {

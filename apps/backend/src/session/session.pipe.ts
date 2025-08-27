@@ -1,30 +1,26 @@
-import {
-    CanActivate,
-    ExecutionContext,
-    Injectable,
-    NotFoundException,
-} from "@nestjs/common";
+import { Injectable, NotFoundException, PipeTransform } from "@nestjs/common";
+import { Session } from "./entities/session.entity";
 import { SessionService } from "./session.service";
 
 @Injectable()
-export class SessionGuard implements CanActivate {
+export class SessionPipe implements PipeTransform<string, Promise<Session>> {
     constructor(private readonly sessionService: SessionService) {}
 
-    async canActivate(context: ExecutionContext): Promise<boolean> {
-        const request = context.switchToHttp().getRequest();
-        const sessionId = request.params.session;
+    async transform(sessionId: string): Promise<Session> {
         if (!sessionId) {
             throw new NotFoundException(
                 "Session ID not found in request parameters",
             );
         }
+
         const session = await this.sessionService.get(sessionId);
         if (!session) {
             throw new NotFoundException(
                 `Session with ID ${sessionId} not found`,
             );
         }
-        request.session = session;
-        return true;
+
+        // Return the entity so the controller parameter receives it
+        return session;
     }
 }
