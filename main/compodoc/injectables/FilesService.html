@@ -140,12 +140,17 @@
                                 <a href="#delete" >delete</a>
                             </li>
                             <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#deleteByTenant" >deleteByTenant</a>
+                            </li>
+                            <li>
                                 <a href="#getDownloadUrl" >getDownloadUrl</a>
                             </li>
                             <li>
                                 <a href="#getStream" >getStream</a>
                             </li>
                             <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#saveUserUpload" >saveUserUpload</a>
                             </li>
                         </ul>
@@ -166,12 +171,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(storage: <a href="../interfaces/FileStorage.html" target="_self">FileStorage</a>)</code>
+<code>constructor(storage: <a href="../interfaces/FileStorage.html" target="_self">FileStorage</a>, fileRepository: <a href="../entitys/FileEntity.html" target="_self">Repository&lt;FileEntity&gt;</a>, configService: ConfigService)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="13" class="link-to-prism">src/storage/files.service.ts:13</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/storage/files.service.ts:15</a></div>
                             </td>
                         </tr>
 
@@ -193,6 +198,30 @@
                                                   
                                                         <td>
                                                                         <code><a href="../interfaces/FileStorage.html" target="_self" >FileStorage</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>fileRepository</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../entitys/FileEntity.html" target="_self" >Repository&lt;FileEntity&gt;</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>configService</td>
+                                                  
+                                                        <td>
+                                                                    <code>ConfigService</code>
                                                         </td>
                                                   
                                                     <td>
@@ -234,14 +263,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="42"
-                                    class="link-to-prism">src/storage/files.service.ts:42</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="73"
+                                    class="link-to-prism">src/storage/files.service.ts:73</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Deletes a file from the storage.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -252,6 +283,7 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
+                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -266,6 +298,87 @@
                                             </td>
 
 
+                                            <td>
+                                                    <p>The unique identifier of the file.</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>A promise that resolves when the file is deleted.</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="deleteByTenant"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>deleteByTenant</b></span>
+                        <a href="#deleteByTenant"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>deleteByTenant(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="88"
+                                    class="link-to-prism">src/storage/files.service.ts:88</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Deletes all files associated with a specific tenant</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The ID of the tenant whose files should be deleted.</p>
+
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -294,15 +407,15 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>getDownloadUrl(key: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, ttlSeconds: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+<code>getDownloadUrl(key: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="46"
-                                    class="link-to-prism">src/storage/files.service.ts:46</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="77"
+                                    class="link-to-prism">src/storage/files.service.ts:77</a></div>
                         </td>
                     </tr>
 
@@ -319,7 +432,6 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
-                                                <td>Default value</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -333,23 +445,6 @@
                                                     No
                                             </td>
 
-                                            <td>
-                                            </td>
-
-                                        </tr>
-                                        <tr>
-                                                <td>ttlSeconds</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-                                            <td>
-                                                    <code>300</code>
-                                            </td>
 
                                         </tr>
                                     </tbody>
@@ -386,14 +481,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="38"
-                                    class="link-to-prism">src/storage/files.service.ts:38</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="64"
+                                    class="link-to-prism">src/storage/files.service.ts:64</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Retrieves a readable stream of the file associated with the given key.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -404,6 +501,7 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
+                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -418,6 +516,10 @@
                                             </td>
 
 
+                                            <td>
+                                                    <p>The unique identifier of the file.</p>
+
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -427,7 +529,8 @@
 
                         </div>
                             <div class="io-description">
-                                
+                                <p>A promise that resolves to a readable stream of the file.</p>
+
                             </div>
                 </td>
             </tr>
@@ -439,6 +542,7 @@
                 <td class="col-md-4">
                     <a name="saveUserUpload"></a>
                     <span class="name">
+                            <span class="modifier">Async</span>
                         <span ><b>saveUserUpload</b></span>
                         <a href="#saveUserUpload"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -446,21 +550,24 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>saveUserUpload(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, fileName: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, body: Buffer | Readable, contentType?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, isPublic)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>saveUserUpload(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, file: Express.Multer.File, isPublic)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="16"
-                                    class="link-to-prism">src/storage/files.service.ts:16</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="30"
+                                    class="link-to-prism">src/storage/files.service.ts:30</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Saves a user-uploaded file to the storage.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -472,6 +579,7 @@
                                                 <td>Type</td>
                                             <td>Optional</td>
                                                 <td>Default value</td>
+                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -488,11 +596,15 @@
                                             <td>
                                             </td>
 
+                                            <td>
+                                                    <p>The ID of the tenant uploading the file.</p>
+
+                                            </td>
                                         </tr>
                                         <tr>
-                                                <td>fileName</td>
+                                                <td>file</td>
                                             <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                                        <code>Express.Multer.File</code>
                                             </td>
 
                                             <td>
@@ -502,34 +614,10 @@
                                             <td>
                                             </td>
 
-                                        </tr>
-                                        <tr>
-                                                <td>body</td>
                                             <td>
-                                                        <code>Buffer | Readable</code>
-                                            </td>
+                                                    <p>The file to upload.</p>
 
-                                            <td>
-                                                    No
                                             </td>
-
-                                            <td>
-                                            </td>
-
-                                        </tr>
-                                        <tr>
-                                                <td>contentType</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    Yes
-                                            </td>
-
-                                            <td>
-                                            </td>
-
                                         </tr>
                                         <tr>
                                                 <td>isPublic</td>
@@ -544,6 +632,10 @@
                                                     <code>false</code>
                                             </td>
 
+                                            <td>
+                                                    <p>Whether the file should be publicly accessible.</p>
+
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -553,7 +645,8 @@
 
                         </div>
                             <div class="io-description">
-                                
+                                <p>The metadata of the stored file.</p>
+
                             </div>
                 </td>
             </tr>
@@ -566,54 +659,96 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Inject, Injectable } from &quot;@nestjs/common&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
+import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { randomUUID } from &quot;crypto&quot;;
 import { extname } from &quot;path&quot;;
-import { Readable } from &quot;stream&quot;;
+import { Repository } from &quot;typeorm&quot;;
 import {
     FILE_STORAGE,
     FileStorage,
     StoredObject,
 } from &quot;../storage/storage.types&quot;;
+import { FileEntity } from &quot;./entities/files.entity&quot;;
 
 @Injectable()
 export class FilesService {
-    constructor(@Inject(FILE_STORAGE) private storage: FileStorage) {}
+    constructor(
+        @Inject(FILE_STORAGE) private storage: FileStorage,
+        @InjectRepository(FileEntity)
+        private fileRepository: Repository&lt;FileEntity&gt;,
+        private configService: ConfigService,
+    ) {}
 
-    saveUserUpload(
+    /**
+     * Saves a user-uploaded file to the storage.
+     * @param tenantId The ID of the tenant uploading the file.
+     * @param file The file to upload.
+     * @param isPublic Whether the file should be publicly accessible.
+     * @returns The metadata of the stored file.
+     */
+    async saveUserUpload(
         tenantId: string,
-        fileName: string,
-        body: Buffer | Readable,
-        contentType?: string,
+        file: Express.Multer.File,
         isPublic &#x3D; false,
     ): Promise&lt;StoredObject&gt; {
-        const safeExt &#x3D; extname(fileName || &quot;&quot;)
+        const safeExt &#x3D; extname(file.originalname || &quot;&quot;)
             .toLowerCase()
             .slice(1);
-        const key &#x3D; &#x60;${tenantId}/${new Date().toISOString().slice(0, 10)}/${randomUUID()}${safeExt ? &quot;.&quot; + safeExt : &quot;&quot;}&#x60;;
+        const key &#x3D; &#x60;${new Date().toISOString().slice(0, 10)}-${randomUUID()}${safeExt ? &quot;.&quot; + safeExt : &quot;&quot;}&#x60;;
 
         // TODO: add checksum if you want tamper detection:
         // const checksum &#x3D; createHash(&#x27;sha256&#x27;).update(bufferOrStreamToBuffer(body)).digest(&#x27;base64&#x27;);
 
-        return this.storage.put(key, body, {
-            contentType,
+        const response &#x3D; await this.storage.put(key, file.buffer, {
+            contentType: file.mimetype,
             acl: isPublic ? &quot;public&quot; : &quot;private&quot;,
-            metadata: { originalName: fileName },
+            metadata: { originalName: file.originalname },
         });
+        await this.fileRepository.save({
+            id: key,
+            tenantId,
+        });
+        const url &#x3D; await this.getDownloadUrl(response.key);
+        return {
+            key: response.key,
+            url,
+        };
     }
 
+    /**
+     * Retrieves a readable stream of the file associated with the given key.
+     * @param key The unique identifier of the file.
+     * @returns A promise that resolves to a readable stream of the file.
+     */
     getStream(key: string) {
         return Promise.resolve(this.storage.getStream(key));
     }
 
+    /**
+     * Deletes a file from the storage.
+     * @param key The unique identifier of the file.
+     * @returns A promise that resolves when the file is deleted.
+     */
     delete(key: string) {
         return Promise.resolve(this.storage.delete(key));
     }
 
-    getDownloadUrl(key: string, ttlSeconds &#x3D; 300) {
-        if (this.storage.getSignedUrl)
-            return this.storage.getSignedUrl(key, ttlSeconds);
-        // For local, expose via your HTTP controller at /files/:key
-        return Promise.resolve(undefined);
+    getDownloadUrl(key: string) {
+        if (this.storage.getSignedUrl) return this.storage.getSignedUrl(key);
+        return Promise.resolve(
+            &#x60;${this.configService.get&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/storage/${key}&#x60;,
+        );
+    }
+
+    /**
+     * Deletes all files associated with a specific tenant
+     * @param tenantId The ID of the tenant whose files should be deleted.
+     */
+    async deleteByTenant(tenantId: string) {
+        const files &#x3D; await this.fileRepository.find({ where: { tenantId } });
+        await Promise.all(files.map((file) &#x3D;&gt; this.storage.delete(file.id)));
+        await this.fileRepository.delete({ tenantId });
     }
 }
 </code></pre>

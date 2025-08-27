@@ -184,7 +184,7 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(s3: <a href="../interfaces/Client.html" target="_self">S3Client</a>, bucket: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, publicBaseUrl?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+<code>constructor(s3: S3Client, bucket: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, publicBaseUrl?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                     </td>
                 </tr>
                         <tr>
@@ -210,7 +210,7 @@
                                                         <td>s3</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../interfaces/Client.html" target="_self" >S3Client</a></code>
+                                                                    <code>S3Client</code>
                                                         </td>
                                                   
                                                     <td>
@@ -408,7 +408,7 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>getSignedUrl(key: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, expiresInSec: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+<code>getSignedUrl(key: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
@@ -440,18 +440,6 @@
                                                 <td>key</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>expiresInSec</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
                                             </td>
 
                                             <td>
@@ -729,12 +717,11 @@ export class S3FileStorage implements FileStorage {
         }
     }
 
-    getSignedUrl(key: string, expiresInSec: number) {
+    getSignedUrl(key: string) {
         return Promise.resolve(
             sign(
                 this.s3,
                 new GetObjectCommand({ Bucket: this.bucket, Key: key }),
-                { expiresIn: expiresInSec },
             ),
         );
     }

@@ -137,9 +137,6 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
-                                <a href="#decodeToken" >decodeToken</a>
-                            </li>
-                            <li>
                                     <span class="modifier">Async</span>
                                 <a href="#generateToken" >generateToken</a>
                             </li>
@@ -216,75 +213,6 @@
     <h3 id="methods">
         Methods
     </h3>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="decodeToken"></a>
-                    <span class="name">
-                        <span ><b>decodeToken</b></span>
-                        <a href="#decodeToken"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>decodeToken(token: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="91"
-                                    class="link-to-prism">src/auth/jwt.service.ts:91</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Decode token without verification (for debugging)</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>token</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload | null</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
     <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -394,8 +322,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="102"
-                                    class="link-to-prism">src/auth/jwt.service.ts:102</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="91"
+                                    class="link-to-prism">src/auth/jwt.service.ts:91</a></div>
                         </td>
                     </tr>
 
@@ -492,7 +420,7 @@
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
-import { decodeJwt, jwtVerify, SignJWT } from &quot;jose&quot;;
+import { jwtVerify, SignJWT } from &quot;jose&quot;;
 import { DEFAULT_JWT_SECRET } from &quot;./auth.module&quot;;
 import { TokenPayload } from &quot;./token.decorator&quot;;
 
@@ -574,17 +502,6 @@ export class JwtService {
             return payload;
         } catch (error) {
             throw new Error(&#x60;Invalid token: ${error.message}&#x60;);
-        }
-    }
-
-    /**
-     * Decode token without verification (for debugging)
-     */
-    decodeToken(token: string): TokenPayload | null {
-        try {
-            return decodeJwt(token) as TokenPayload;
-        } catch {
-            return null;
         }
     }
 

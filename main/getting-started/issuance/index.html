@@ -584,6 +584,8 @@
       
         
       
+        
+      
     
     
     
@@ -642,6 +644,29 @@
   
   <span class="md-ellipsis">
     Credential Configuration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="issuance-configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Issuance Configuration
     
   </span>
   
@@ -1068,6 +1093,8 @@
       
         
       
+        
+      
     
     
     
@@ -1280,6 +1307,29 @@
   
   <span class="md-ellipsis">
     Database
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Storage
     
   </span>
   
@@ -2012,7 +2062,7 @@ the <a href="advanced-features/">Advanced Features</a> section.</p>
 <li><strong><a href="authentication/#3-oid4vp-flow-presentationduringissuance">Authentication Guide</a></strong> - Configuration and setup</li>
 <li><strong><a href="api-guide/#webhook-integration">API Guide</a></strong> - Implementation examples and webhook payloads</li>
 <li><strong><a href="../presentation/#presentation-during-issuance">Presentation Documentation</a></strong> - Flow diagrams and use cases</li>
-<li><strong><a href="../../architecture/webhooks/#2-presentation-during-issuance">Webhooks Architecture</a></strong> - Technical details</li>
+<li><strong><a href="../../architecture/webhooks/">Webhooks Architecture</a></strong> - Technical details</li>
 </ul>
 </div>
 <p><strong>When to use:</strong></p>
@@ -2086,13 +2136,8 @@ the <a href="advanced-features/">Advanced Features</a> section.</p>
 </ul>
 <hr />
 <h2 id="display-configuration">Display Configuration<a class="headerlink" href="#display-configuration" title="Permanent link">&para;</a></h2>
-<p>TODO: needs to be updated</p>
-<p>This display information gets included into the
-<a href="https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-credential-issuer-metadata:~:text=2%20or%20greater.-,display,-%3A%20OPTIONAL.%20A%20non">credential issuer metadata</a>.</p>
-<blockquote>
-<p><code>&lt;PUBLIC_URL&gt;</code> will be dynamically replaced at runtime with your public URL
-together with the tenant ID.</p>
-</blockquote>
+<p>The display information from the <a href="https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-credential-issuer-metadata:~:text=2%20or%20greater.-,display,-%3A%20OPTIONAL.%20A%20non">OID4VCI spec</a> can be configured via the <code>/display</code> endpoint.</p>
+<p>To host images or logos, you can use the <a href="../../architecture/storage/">storage</a> system provided by EUDIPLO.</p>
 
 
 

@@ -200,7 +200,7 @@ Used for OID4VP flow where a credential presentation request is sent</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:42</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:41</a></div>
                         </td>
                     </tr>
 
@@ -250,7 +250,6 @@ export class AuthenticationUrlConfig {
     /**
      * Optional webhook configuration for authentication callbacks
      */
-    @IsObject()
     @IsOptional()
     @ValidateNested()
     @Type(() &#x3D;&gt; WebhookConfig)

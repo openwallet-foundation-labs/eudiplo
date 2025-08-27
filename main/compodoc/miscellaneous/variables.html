@@ -208,11 +208,15 @@
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
     OIDC: Joi.string().optional(),
-    KEYCLOAK_INTERNAL_ISSUER_URL: Joi.when(&quot;OIDC&quot;, {
+    OIDC_INTERNAL_ISSUER_URL: Joi.when(&quot;OIDC&quot;, {
         then: Joi.string().required(),
         otherwise: Joi.string().optional(),
     }),
-    KEYCLOAK_ALGORITHM: Joi.when(&quot;OIDC&quot;, {
+    OIDC_SUB: Joi.when(&quot;OIDC&quot;, {
+        then: Joi.string().default(&quot;azp&quot;),
+        otherwise: Joi.string().optional(),
+    }),
+    OIDC_ALGORITHM: Joi.when(&quot;OIDC&quot;, {
         then: Joi.string().default(&quot;RS256&quot;),
         otherwise: Joi.string().optional(),
     }),
@@ -347,7 +351,7 @@
     STORAGE_DRIVER: Joi.string().valid(&quot;local&quot;, &quot;s3&quot;).default(&quot;local&quot;),
     LOCAL_STORAGE_DIR: Joi.string().when(Joi.ref(&quot;STORAGE_DRIVER&quot;), {
         is: &quot;local&quot;,
-        then: Joi.string().default(&quot;uploads&quot;),
+        then: Joi.string().default((parent) &#x3D;&gt; join(parent.FOLDER, &quot;uploads&quot;)),
     }),
     S3_REGION: Joi.string().when(Joi.ref(&quot;STORAGE_DRIVER&quot;), {
         is: &quot;s3&quot;,

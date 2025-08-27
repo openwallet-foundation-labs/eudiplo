@@ -206,7 +206,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="75" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:75</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="111" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:111</a></div>
                         </td>
                     </tr>
 
@@ -244,7 +244,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="69" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:69</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="105" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:105</a></div>
                         </td>
                     </tr>
 
@@ -263,11 +263,12 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiHideProperty } from &quot;@nestjs/swagger&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiHideProperty, ApiProperty } from &quot;@nestjs/swagger&quot;;
 import { Type } from &quot;class-transformer&quot;;
 import {
     IsArray,
     IsBoolean,
+    IsIn,
     IsNotEmpty,
     IsNumber,
     IsObject,
@@ -276,7 +277,14 @@ import {
     Validate,
     ValidateNested,
 } from &quot;class-validator&quot;;
-import { Column, CreateDateColumn, Entity, UpdateDateColumn } from &quot;typeorm&quot;;
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    ManyToOne,
+    UpdateDateColumn,
+} from &quot;typeorm&quot;;
+import { TenantEntity } from &quot;../../../auth/entitites/tenant.entity&quot;;
 import { WebhookConfig } from &quot;../../../utils/webhook/webhook.dto&quot;;
 import { RegistrationCertificateRequest } from &quot;../dto/vp-request.dto&quot;;
 
@@ -293,6 +301,16 @@ export class PresentationAttachment {
     @IsNotEmpty()
     @IsString({ each: true })
     credential_ids?: string[];
+}
+// TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-trusted-authorities-query
+export class TrustedAuthorityQuery {
+    @IsString()
+    @IsIn([&quot;aki&quot;, &quot;etsi_tl&quot;, &quot;openid_federation&quot;])
+    type: string;
+
+    @IsArray()
+    @IsString({ each: true })
+    values: string[];
 }
 
 //TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-credential-query
@@ -312,19 +330,37 @@ export class CredentialQuery {
     meta: any;
 
     @IsArray()
-    @IsObject()
     @IsOptional()
-    trusted_authorities?: any[];
+    @ValidateNested({ each: true })
+    @Type(() &#x3D;&gt; TrustedAuthorityQuery)
+    trusted_authorities: TrustedAuthorityQuery[];
 }
 
-//TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-credential-set-query
-export class CredentialSetQuery {
+//TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#claims_query
+export class ClaimsQuery {
     @IsString()
     id: string;
 
     @IsArray()
-    @IsObject({ each: true })
-    path: any[];
+    path: string[];
+
+    @IsArray()
+    @IsOptional()
+    values?: any[];
+}
+
+//TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-credential-set-query
+export class CredentialSetQuery {
+    @ApiProperty({
+        type: &quot;array&quot;,
+        items: { type: &quot;array&quot;, items: { type: &quot;string&quot; } },
+    })
+    @IsArray()
+    options: string[][];
+
+    @IsBoolean()
+    @IsOptional()
+    required?: boolean;
 }
 
 export class DCQL {
@@ -360,6 +396,12 @@ export class PresentationConfig {
     tenantId: string;
 
     /**
+     * The tenant that owns this object.
+     */
+    @ManyToOne(() &#x3D;&gt; TenantEntity, { cascade: true, onDelete: &quot;CASCADE&quot; })
+    tenant: TenantEntity;
+
+    /**
      * Description of the presentation configuration.
      */
     @Column(&quot;varchar&quot;, { nullable: true })
@@ -386,7 +428,8 @@ export class PresentationConfig {
      * The registration certificate request containing the necessary details.
      */
     @IsOptional()
-    @IsObject()
+    @ValidateNested()
+    @Type(() &#x3D;&gt; RegistrationCertificateRequest)
     @Column(&quot;json&quot;, { nullable: true })
     registrationCert?: RegistrationCertificateRequest;
     /**
@@ -394,7 +437,6 @@ export class PresentationConfig {
      */
     @Column(&quot;json&quot;, { nullable: true })
     @IsOptional()
-    @IsObject()
     @Validate(WebhookConfig)
     @Type(() &#x3D;&gt; WebhookConfig)
     webhook?: WebhookConfig;

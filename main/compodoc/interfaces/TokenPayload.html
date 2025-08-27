@@ -149,6 +149,12 @@
                         <td class="col-md-4">
                             <ul class="index-list">
                                 <li>
+                                        <a href="#admin" 
+>
+                                            admin
+                                        </a>
+                                </li>
+                                <li>
                                         <a href="#sub" 
 >
                                             sub
@@ -165,6 +171,39 @@
 
             <section data-compodoc="block-properties">
                 <h3 id="inputs">Properties</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="admin"></a>
+                                        <span class="name "><b>admin</b>
+                                            <a href="#admin">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>admin:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
                     <table class="table table-sm table-bordered">
                         <tbody>
                                 <tr>
@@ -217,6 +256,7 @@ export const Token &#x3D; createParamDecorator(
  */
 export interface TokenPayload {
     sub: string; // Subject (client_id for client credentials)
+    admin: boolean; // Admin flag
 }
 </code></pre>
     </div>

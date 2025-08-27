@@ -332,7 +332,7 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>getSignedUrl(key: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, expiresInSec: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+<code>getSignedUrl(key: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
@@ -364,18 +364,6 @@
                                                 <td>key</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>expiresInSec</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
                                             </td>
 
                                             <td>
@@ -595,7 +583,7 @@ export interface FileStorage {
 
     exists(key: string): Promise&lt;boolean&gt;;
 
-    getSignedUrl?(key: string, expiresInSec: number): Promise&lt;string&gt;; // optional for local
+    getSignedUrl?(key: string): Promise&lt;string&gt;; // optional for local
 }
 
 export const FILE_STORAGE &#x3D; Symbol(&quot;FILE_STORAGE&quot;);

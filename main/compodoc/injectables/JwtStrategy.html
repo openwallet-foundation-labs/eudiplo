@@ -156,7 +156,6 @@
                                 <a href="#getIntegratedOAuth2Config" >getIntegratedOAuth2Config</a>
                             </li>
                             <li>
-                                    <span class="modifier">Async</span>
                                 <a href="#validate" >validate</a>
                             </li>
                         </ul>
@@ -177,12 +176,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(configService: ConfigService, clientService: <a href="../injectables/ClientService.html" target="_self">ClientService</a>)</code>
+<code>constructor(configService: ConfigService)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="10" class="link-to-prism">src/auth/jwt.strategy.ts:10</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="9" class="link-to-prism">src/auth/jwt.strategy.ts:9</a></div>
                             </td>
                         </tr>
 
@@ -204,18 +203,6 @@
                                                   
                                                         <td>
                                                                     <code>ConfigService</code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
-                                                        <td>clientService</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../injectables/ClientService.html" target="_self" >ClientService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -257,8 +244,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="24"
-                                    class="link-to-prism">src/auth/jwt.strategy.ts:24</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="20"
+                                    class="link-to-prism">src/auth/jwt.strategy.ts:20</a></div>
                         </td>
                     </tr>
 
@@ -339,8 +326,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="31"
-                                    class="link-to-prism">src/auth/jwt.strategy.ts:31</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="27"
+                                    class="link-to-prism">src/auth/jwt.strategy.ts:27</a></div>
                         </td>
                     </tr>
 
@@ -409,8 +396,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="61"
-                                    class="link-to-prism">src/auth/jwt.strategy.ts:61</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="55"
+                                    class="link-to-prism">src/auth/jwt.strategy.ts:55</a></div>
                         </td>
                     </tr>
 
@@ -462,7 +449,6 @@
                 <td class="col-md-4">
                     <a name="validate"></a>
                     <span class="name">
-                            <span class="modifier">Async</span>
                         <span ><b>validate</b></span>
                         <a href="#validate"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -470,16 +456,15 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>validate(payload: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
+<code>validate(payload: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="85"
-                                    class="link-to-prism">src/auth/jwt.strategy.ts:85</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="79"
+                                    class="link-to-prism">src/auth/jwt.strategy.ts:79</a></div>
                         </td>
                     </tr>
 
@@ -522,7 +507,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;&gt;</code>
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
 
                         </div>
                             <div class="io-description">
@@ -539,20 +524,16 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Inject, Injectable } from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { PassportStrategy } from &quot;@nestjs/passport&quot;;
 import { passportJwtSecret } from &quot;jwks-rsa&quot;;
 import { ExtractJwt, Strategy } from &quot;passport-jwt&quot;;
-import { ClientService } from &quot;./client.service&quot;;
 import { TokenPayload } from &quot;./token.decorator&quot;;
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, &quot;jwt&quot;) {
-    constructor(
-        private configService: ConfigService,
-        private clientService: ClientService,
-    ) {
+    constructor(private configService: ConfigService) {
         const useExternalOIDC &#x3D; configService.get&lt;boolean&gt;(&quot;OIDC&quot;);
 
         const config &#x3D; useExternalOIDC
@@ -570,9 +551,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, &quot;jwt&quot;) {
     }
 
     private static getExternalOIDCConfig(configService: ConfigService) {
-        const keycloakIssuerUrl &#x3D; configService.get(
-            &quot;KEYCLOAK_INTERNAL_ISSUER_URL&quot;,
-        );
+        const keycloakIssuerUrl &#x3D; configService.get(&quot;OIDC_INTERNAL_ISSUER_URL&quot;);
         const jwksUri &#x3D; &#x60;${keycloakIssuerUrl}/protocol/openid-connect/certs&#x60;;
 
         return {
@@ -594,7 +573,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, &quot;jwt&quot;) {
                 },
             }),
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            algorithms: [configService.get(&quot;KEYCLOAK_ALGORITHM&quot;)],
+            algorithms: [configService.get(&quot;OIDC_ALGORITHM&quot;)],
             issuer: keycloakIssuerUrl,
         };
     }
@@ -623,15 +602,16 @@ export class JwtStrategy extends PassportStrategy(Strategy, &quot;jwt&quot;) {
      * @param payload The JWT payload
      * @returns The validated payload or an error
      */
-    async validate(payload: TokenPayload): Promise&lt;unknown&gt; {
+    validate(payload: TokenPayload): any {
         const useExternalOIDC &#x3D;
             this.configService.get&lt;string&gt;(&quot;OIDC&quot;) !&#x3D;&#x3D; undefined;
+        let sub &#x3D; payload.sub;
+        if (useExternalOIDC) {
+            const key &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;OIDC_SUB&quot;);
+            sub &#x3D; (payload as any)[key] as string;
+        }
 
-        const sub &#x3D; useExternalOIDC ? (payload as any).azp : payload.sub;
-
-        await this.clientService.isSetUp(sub);
-
-        return { sub };
+        return { sub, admin: payload.admin || false };
     }
 }
 </code></pre>

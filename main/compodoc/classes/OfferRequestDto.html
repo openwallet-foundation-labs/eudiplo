@@ -150,6 +150,7 @@
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                     <span class="modifier">Optional</span>
                                 <a href="#claimsWebhook" >claimsWebhook</a>
                             </li>
@@ -225,7 +226,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="56" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:56</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="58" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:58</a></div>
                         </td>
                     </tr>
 
@@ -246,6 +247,7 @@
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                             <span class="modifier">Optional</span>
                         <span ><b>claimsWebhook</b></span>
                         <a href="#claimsWebhook"><span class="icon ion-ios-link"></span></a>
@@ -263,13 +265,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsObject()<br />@IsOptional()<br />
+                            @ValidateNested()<br />@Type(undefined)<br />@IsOptional()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="63" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:63</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="66" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:66</a></div>
                         </td>
                     </tr>
 
@@ -313,7 +315,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:36</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="38" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:38</a></div>
                         </td>
                     </tr>
 
@@ -355,7 +357,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="29" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:29</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:31</a></div>
                         </td>
                     </tr>
 
@@ -398,7 +400,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="23" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:23</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:25</a></div>
                         </td>
                     </tr>
 
@@ -436,7 +438,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="70" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:70</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="73" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:73</a></div>
                         </td>
                     </tr>
 
@@ -462,6 +464,7 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiProperty } from &quot;@nestjs/swagger&quot;;
+import { Type } from &quot;class-transformer&quot;;
 import {
     IsArray,
     IsEnum,
@@ -469,6 +472,7 @@ import {
     IsOptional,
     IsString,
     IsUUID,
+    ValidateNested,
 } from &quot;class-validator&quot;;
 import { WebhookConfig } from &quot;../../../utils/webhook/webhook.dto&quot;;
 import { ResponseType } from &quot;../../../verifier/oid4vp/dto/presentation-request.dto&quot;;
@@ -521,7 +525,8 @@ export class OfferRequestDto {
     /**
      * Webhook configuration for claims
      */
-    @IsObject()
+    @ValidateNested()
+    @Type(() &#x3D;&gt; WebhookConfig)
     @IsOptional()
     claimsWebhook?: WebhookConfig;
 

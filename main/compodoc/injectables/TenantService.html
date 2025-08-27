@@ -92,7 +92,7 @@
 
 <ol class="breadcrumb">
   <li class="breadcrumb-item">Injectables</li>
-  <li class="breadcrumb-item" >ClientService</li>
+  <li class="breadcrumb-item" >TenantService</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -116,7 +116,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/auth/client.service.ts</code>
+            <code>src/auth/tenant.service.ts</code>
         </p>
 
 
@@ -137,7 +137,7 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier">Private</span>
-                                <a href="#clients" >clients</a>
+                                <a href="#tenants" >tenants</a>
                             </li>
                         </ul>
                     </td>
@@ -152,19 +152,23 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
-                                <a href="#findClientById" >findClientById</a>
+                                    <span class="modifier">Async</span>
+                                <a href="#deleteTenant" >deleteTenant</a>
+                            </li>
+                            <li>
+                                <a href="#findTenantById" >findTenantById</a>
                             </li>
                             <li>
                                     <span class="modifier">Private</span>
-                                <a href="#getClients" >getClients</a>
+                                <a href="#getTenants" >getTenants</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#isSetUp" >isSetUp</a>
+                                <a href="#initTenant" >initTenant</a>
                             </li>
                             <li>
                                     <span class="modifier">Private</span>
-                                <a href="#loadClients" >loadClients</a>
+                                <a href="#loadTenants" >loadTenants</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
@@ -172,10 +176,14 @@
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#setUpClient" >setUpClient</a>
+                                <a href="#onModuleInit" >onModuleInit</a>
                             </li>
                             <li>
-                                <a href="#validateClient" >validateClient</a>
+                                    <span class="modifier">Async</span>
+                                <a href="#setUpTenant" >setUpTenant</a>
+                            </li>
+                            <li>
+                                <a href="#validateTenant" >validateTenant</a>
                             </li>
                         </ul>
                     </td>
@@ -195,12 +203,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(configService: ConfigService, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, encryptionService: <a href="../injectables/EncryptionService.html" target="_self">EncryptionService</a>, statutsListService: <a href="../injectables/StatusListService.html" target="_self">StatusListService</a>, registrarService: <a href="../injectables/RegistrarService.html" target="_self">RegistrarService</a>, oid4vciService: <a href="../injectables/Oid4vciService.html" target="_self">Oid4vciService</a>, clientRepository: <a href="../interfaces/Client.html" target="_self">Repository&lt;ClientEntry&gt;</a>, tenantClientTotal: Gauge<string>)</code>
+<code>constructor(configService: ConfigService, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, encryptionService: <a href="../injectables/EncryptionService.html" target="_self">EncryptionService</a>, statusListService: <a href="../injectables/StatusListService.html" target="_self">StatusListService</a>, registrarService: <a href="../injectables/RegistrarService.html" target="_self">RegistrarService</a>, oid4vciService: <a href="../injectables/Oid4vciService.html" target="_self">Oid4vciService</a>, tenantRepository: <a href="../entitys/TenantEntity.html" target="_self">Repository&lt;TenantEntity&gt;</a>, tenantTotal: Gauge<string>, filesService: <a href="../injectables/FilesService.html" target="_self">FilesService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="26" class="link-to-prism">src/auth/client.service.ts:26</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="30" class="link-to-prism">src/auth/tenant.service.ts:30</a></div>
                             </td>
                         </tr>
 
@@ -254,7 +262,7 @@
                                                     
                                                 </tr>
                                                 <tr>
-                                                        <td>statutsListService</td>
+                                                        <td>statusListService</td>
                                                   
                                                         <td>
                                                                         <code><a href="../injectables/StatusListService.html" target="_self" >StatusListService</a></code>
@@ -290,10 +298,10 @@
                                                     
                                                 </tr>
                                                 <tr>
-                                                        <td>clientRepository</td>
+                                                        <td>tenantRepository</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../interfaces/Client.html" target="_self" >Repository&lt;ClientEntry&gt;</a></code>
+                                                                        <code><a href="../entitys/TenantEntity.html" target="_self" >Repository&lt;TenantEntity&gt;</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -302,10 +310,22 @@
                                                     
                                                 </tr>
                                                 <tr>
-                                                        <td>tenantClientTotal</td>
+                                                        <td>tenantTotal</td>
                                                   
                                                         <td>
                                                                     <code>Gauge&lt;string&gt;</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>filesService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/FilesService.html" target="_self" >FilesService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -331,31 +351,123 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="findClientById"></a>
+                    <a name="deleteTenant"></a>
                     <span class="name">
-                        <span ><b>findClientById</b></span>
-                        <a href="#findClientById"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier">Async</span>
+                        <span ><b>deleteTenant</b></span>
+                        <a href="#deleteTenant"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>findClientById(clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>deleteTenant(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, user: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="90"
-                                    class="link-to-prism">src/auth/client.service.ts:90</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="139"
+                                    class="link-to-prism">src/auth/tenant.service.ts:139</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Find client by ID</p>
+                        <div class="io-description"><p>Deletes a tenant by ID</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The ID of the tenant to delete</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>user</td>
+                                            <td>
+                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The user requesting the deletion</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="findTenantById"></a>
+                    <span class="name">
+                        <span ><b>findTenantById</b></span>
+                        <a href="#findTenantById"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>findTenantById(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="118"
+                                    class="link-to-prism">src/auth/tenant.service.ts:118</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Find tenant by ID</p>
 </div>
 
                             <div class="io-description">
@@ -371,7 +483,7 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>clientId</td>
+                                                <td>tenantId</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -386,7 +498,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../interfaces/Client.html" target="_self" >Client | null</a></code>
+                            <b>Returns : </b>        <code><a href="../interfaces/Tenants.html" target="_self" >Tenants | null</a></code>
 
                         </div>
                             <div class="io-description">
@@ -400,37 +512,37 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getClients"></a>
+                    <a name="getTenants"></a>
                     <span class="name">
                             <span class="modifier">Private</span>
-                        <span ><b>getClients</b></span>
-                        <a href="#getClients"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>getTenants</b></span>
+                        <a href="#getTenants"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getClients()</code>
+                    <code>getTenants()</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="51"
-                                    class="link-to-prism">src/auth/client.service.ts:51</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="79"
+                                    class="link-to-prism">src/auth/tenant.service.ts:79</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Get clients from configuration</p>
+                        <div class="io-description"><p>Get tenants from configuration</p>
 </div>
 
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../interfaces/Client.html" target="_self" >Client[]</a></code>
+                            <b>Returns : </b>        <code><a href="../interfaces/Tenants.html" target="_self" >Tenants[]</a></code>
 
                         </div>
                             <div class="io-description">
@@ -444,33 +556,33 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="isSetUp"></a>
+                    <a name="initTenant"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
-                        <span ><b>isSetUp</b></span>
-                        <a href="#isSetUp"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>initTenant</b></span>
+                        <a href="#initTenant"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>isSetUp(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>initTenant(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="99"
-                                    class="link-to-prism">src/auth/client.service.ts:99</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="70"
+                                    class="link-to-prism">src/auth/tenant.service.ts:70</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Check if the client is set up, if not, set it up.</p>
+                        <div class="io-description"><p>Initialize a tenant for the given user.</p>
 </div>
 
                             <div class="io-description">
@@ -501,7 +613,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>    <code>unknown</code>
 
                         </div>
                             <div class="io-description">
@@ -515,37 +627,37 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="loadClients"></a>
+                    <a name="loadTenants"></a>
                     <span class="name">
                             <span class="modifier">Private</span>
-                        <span ><b>loadClients</b></span>
-                        <a href="#loadClients"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>loadTenants</b></span>
+                        <a href="#loadTenants"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>loadClients()</code>
+                    <code>loadTenants()</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="61"
-                                    class="link-to-prism">src/auth/client.service.ts:61</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="89"
+                                    class="link-to-prism">src/auth/tenant.service.ts:89</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Load clients from configuration</p>
+                        <div class="io-description"><p>Load tenants from configuration</p>
 </div>
 
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../interfaces/Client.html" target="_self" >Client[]</a></code>
+                            <b>Returns : </b>        <code><a href="../interfaces/Tenants.html" target="_self" >Tenants[]</a></code>
 
                         </div>
                 </td>
@@ -574,8 +686,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="41"
-                                    class="link-to-prism">src/auth/client.service.ts:41</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="60"
+                                    class="link-to-prism">src/auth/tenant.service.ts:60</a></div>
                         </td>
                     </tr>
 
@@ -595,33 +707,72 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="setUpClient"></a>
+                    <a name="onModuleInit"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
-                        <span ><b>setUpClient</b></span>
-                        <a href="#setUpClient"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>onModuleInit</b></span>
+                        <a href="#onModuleInit"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>setUpClient(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>onModuleInit()</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="142"
-                                    class="link-to-prism">src/auth/client.service.ts:142</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="46"
+                                    class="link-to-prism">src/auth/tenant.service.ts:46</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Sends an event to set up a client, allowing all other services to listen and react accordingly.</p>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="setUpTenant"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>setUpTenant</b></span>
+                        <a href="#setUpTenant"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>setUpTenant(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="126"
+                                    class="link-to-prism">src/auth/tenant.service.ts:126</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Sends an event to set up a tenant, allowing all other services to listen and react accordingly.</p>
 </div>
 
                             <div class="io-description">
@@ -666,31 +817,31 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="validateClient"></a>
+                    <a name="validateTenant"></a>
                     <span class="name">
-                        <span ><b>validateClient</b></span>
-                        <a href="#validateClient"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>validateTenant</b></span>
+                        <a href="#validateTenant"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>validateClient(clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientSecret: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+<code>validateTenant(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, tenantSecret: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="77"
-                                    class="link-to-prism">src/auth/client.service.ts:77</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="105"
+                                    class="link-to-prism">src/auth/tenant.service.ts:105</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Validate client credentials (OAuth2 Client Credentials flow)
+                        <div class="io-description"><p>Validate tenant credentials (OAuth2 Tenant Credentials flow)
 This is the primary authentication method for service integration</p>
 </div>
 
@@ -707,7 +858,7 @@ This is the primary authentication method for service integration</p>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>clientId</td>
+                                                <td>tenantId</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -719,7 +870,7 @@ This is the primary authentication method for service integration</p>
 
                                         </tr>
                                         <tr>
-                                                <td>clientSecret</td>
+                                                <td>tenantSecret</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -734,7 +885,7 @@ This is the primary authentication method for service integration</p>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../interfaces/Client.html" target="_self" >Client | null</a></code>
+                            <b>Returns : </b>        <code><a href="../interfaces/Tenants.html" target="_self" >Tenants | null</a></code>
 
                         </div>
                             <div class="io-description">
@@ -754,17 +905,17 @@ This is the primary authentication method for service integration</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="clients"></a>
+                    <a name="tenants"></a>
                     <span class="name">
                             <span class="modifier">Private</span>
-                        <span ><b>clients</b></span>
-                        <a href="#clients"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>tenants</b></span>
+                        <a href="#tenants"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../interfaces/Client.html" target="_self" >Client[] | null</a></code>
+                        <i>Type : </i>        <code><a href="../interfaces/Tenants.html" target="_self" >Tenants[] | null</a></code>
 
                     </td>
                 </tr>
@@ -775,7 +926,7 @@ This is the primary authentication method for service integration</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="26" class="link-to-prism">src/auth/client.service.ts:26</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="30" class="link-to-prism">src/auth/tenant.service.ts:30</a></div>
                         </td>
                     </tr>
 
@@ -789,13 +940,15 @@ This is the primary authentication method for service integration</p>
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
-    BadRequestException,
+    ForbiddenException,
     Injectable,
     OnApplicationBootstrap,
+    OnModuleInit,
 } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { InjectMetric } from &quot;@willsoto/nestjs-prometheus&quot;;
+import { readdirSync } from &quot;fs&quot;;
 import { Gauge } from &quot;prom-client&quot;;
 import { Repository } from &quot;typeorm/repository/Repository&quot;;
 import { CryptoService } from &quot;../crypto/crypto.service&quot;;
@@ -803,53 +956,79 @@ import { EncryptionService } from &quot;../crypto/encryption/encryption.service&
 import { Oid4vciService } from &quot;../issuer/oid4vci/oid4vci.service&quot;;
 import { StatusListService } from &quot;../issuer/status-list/status-list.service&quot;;
 import { RegistrarService } from &quot;../registrar/registrar.service&quot;;
-import { ClientEntry } from &quot;./entitites/client.entity&quot;;
+import { FilesService } from &quot;../storage/files.service&quot;;
+import { TenantEntity } from &quot;./entitites/tenant.entity&quot;;
+import { TokenPayload } from &quot;./token.decorator&quot;;
 
-// Client interface for service integration
-export interface Client {
+// Tenant interface for service integration
+export interface Tenants {
     id: string;
     secret: string;
 }
 
 @Injectable()
-export class ClientService implements OnApplicationBootstrap {
-    private clients: Client[] | null &#x3D; null;
+export class TenantService implements OnApplicationBootstrap, OnModuleInit {
+    private tenants: Tenants[] | null &#x3D; null;
 
     constructor(
         private configService: ConfigService,
         private cryptoService: CryptoService,
         private encryptionService: EncryptionService,
-        private statutsListService: StatusListService,
+        private statusListService: StatusListService,
         private registrarService: RegistrarService,
         private oid4vciService: Oid4vciService,
-        @InjectRepository(ClientEntry)
-        private clientRepository: Repository&lt;ClientEntry&gt;,
-        @InjectMetric(&quot;tenant_client_total&quot;)
-        private tenantClientTotal: Gauge&lt;string&gt;,
+        @InjectRepository(TenantEntity)
+        private tenantRepository: Repository&lt;TenantEntity&gt;,
+        @InjectMetric(&quot;tenant_total&quot;)
+        private tenantTotal: Gauge&lt;string&gt;,
+        private filesService: FilesService,
     ) {}
 
+    async onModuleInit() {
+        if (this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT&quot;)) {
+            const configPath &#x3D; this.configService.getOrThrow(&quot;CONFIG_FOLDER&quot;);
+            if (this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT&quot;)) {
+                const tenantFolders &#x3D; readdirSync(configPath, {
+                    withFileTypes: true,
+                }).filter((tenant) &#x3D;&gt; tenant.isDirectory());
+                for (const tenant of tenantFolders) {
+                    await this.tenantRepository.save({ id: tenant.name });
+                }
+            }
+        }
+    }
+
     async onApplicationBootstrap() {
-        // Initialize the client metrics
-        const count &#x3D; await this.clientRepository.countBy({ status: &quot;set up&quot; });
-        this.tenantClientTotal.set({}, count);
+        // Initialize the tenant metrics
+        const count &#x3D; await this.tenantRepository.count();
+        this.tenantTotal.set({}, count);
     }
 
     /**
-     * Get clients from configuration
+     * Initialize a tenant for the given user.
+     * @param user The user to initialize the tenant for
+     */
+    async initTenant(id: string) {
+        await this.tenantRepository.save({ id });
+        return this.setUpTenant(id);
+    }
+
+    /**
+     * Get tenants from configuration
      * @returns
      */
-    private getClients(): Client[] {
-        if (!this.clients) {
-            this.clients &#x3D; this.loadClients();
+    private getTenants(): Tenants[] {
+        if (!this.tenants) {
+            this.tenants &#x3D; this.loadTenants();
         }
-        return this.clients;
+        return this.tenants;
     }
 
     /**
-     * Load clients from configuration
+     * Load tenants from configuration
      */
-    private loadClients(): Client[] {
-        // Default clients for development/testing
+    private loadTenants(): Tenants[] {
+        // Default tenants for development/testing
         return [
             {
                 id: this.configService.getOrThrow&lt;string&gt;(&quot;AUTH_CLIENT_ID&quot;),
@@ -861,80 +1040,53 @@ export class ClientService implements OnApplicationBootstrap {
     }
 
     /**
-     * Validate client credentials (OAuth2 Client Credentials flow)
+     * Validate tenant credentials (OAuth2 Tenant Credentials flow)
      * This is the primary authentication method for service integration
      */
-    validateClient(clientId: string, clientSecret: string): Client | null {
-        const client &#x3D; this.getClients().find((c) &#x3D;&gt; c.id &#x3D;&#x3D;&#x3D; clientId);
+    validateTenant(tenantId: string, tenantSecret: string): Tenants | null {
+        const tenant &#x3D; this.getTenants().find((c) &#x3D;&gt; c.id &#x3D;&#x3D;&#x3D; tenantId);
 
-        if (!client || client.secret !&#x3D;&#x3D; clientSecret) {
+        if (!tenant || tenant.secret !&#x3D;&#x3D; tenantSecret) {
             return null;
         }
 
-        return client;
+        return tenant;
     }
 
     /**
-     * Find client by ID
+     * Find tenant by ID
      */
-    findClientById(clientId: string): Client | null {
-        return this.getClients().find((c) &#x3D;&gt; c.id &#x3D;&#x3D;&#x3D; clientId) || null;
+    findTenantById(tenantId: string): Tenants | null {
+        return this.getTenants().find((c) &#x3D;&gt; c.id &#x3D;&#x3D;&#x3D; tenantId) || null;
     }
 
     /**
-     * Check if the client is set up, if not, set it up.
-     * @param id
-     * @returns
-     */
-    async isSetUp(id: string) {
-        void this.clientRepository
-            .countBy({ status: &quot;set up&quot; })
-            .then((count) &#x3D;&gt; {
-                this.tenantClientTotal.set({}, count);
-            });
-
-        await this.clientRepository.findOneByOrFail({ id }).then(
-            (res) &#x3D;&gt; {
-                if (res.status &#x3D;&#x3D;&#x3D; &quot;set up&quot;) {
-                    return true;
-                }
-                throw new BadRequestException(
-                    &#x60;Client ${id} is not set up. Please retry later.&#x60;,
-                );
-            },
-            async () &#x3D;&gt; {
-                // create it to signl that the client getting set up
-                await this.clientRepository.save({ id });
-                await this.setUpClient(id).catch(async (err) &#x3D;&gt; {
-                    console.error(err);
-                    // if there is an error, update the client status&quot;
-                    await this.clientRepository.update(
-                        { id },
-                        { status: &quot;error&quot;, error: err.message },
-                    );
-                    throw new BadRequestException(
-                        &#x60;Error setting up client ${id}. Please retry later.&#x60;,
-                    );
-                });
-                // if everything is fine, update the client status
-                return this.clientRepository.update(
-                    { id },
-                    { status: &quot;set up&quot; },
-                );
-            },
-        );
-    }
-
-    /**
-     * Sends an event to set up a client, allowing all other services to listen and react accordingly.
+     * Sends an event to set up a tenant, allowing all other services to listen and react accordingly.
      * @param id
      */
-    async setUpClient(id: string) {
+    async setUpTenant(id: string) {
         await this.cryptoService.onTenantInit(id);
         await this.encryptionService.onTenantInit(id);
-        await this.statutsListService.onTenantInit(id);
+        await this.statusListService.onTenantInit(id);
         await this.registrarService.onTenantInit(id);
         await this.oid4vciService.onTenantInit(id);
+    }
+
+    /**
+     * Deletes a tenant by ID
+     * @param tenantId The ID of the tenant to delete
+     * @param user The user requesting the deletion
+     */
+    async deleteTenant(tenantId: string, user: TokenPayload) {
+        if (tenantId !&#x3D;&#x3D; user.sub) {
+            throw new ForbiddenException(
+                &#x60;User ${user.sub} is not allowed to delete tenant ${tenantId}&#x60;,
+            );
+        }
+        //delete all files associated with the tenant
+        await this.filesService.deleteByTenant(tenantId);
+        //because of cascading, all related entities will be deleted.
+        await this.tenantRepository.delete({ id: tenantId });
     }
 }
 </code></pre>
@@ -980,7 +1132,7 @@ export class ClientService implements OnApplicationBootstrap {
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'injectable';
-            var COMPODOC_CURRENT_PAGE_URL = 'ClientService.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'TenantService.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

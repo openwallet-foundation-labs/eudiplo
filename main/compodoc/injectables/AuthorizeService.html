@@ -303,8 +303,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="226"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:226</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="224"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:224</a></div>
                         </td>
                     </tr>
 
@@ -530,8 +530,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="208"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:208</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="206"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:206</a></div>
                         </td>
                     </tr>
 
@@ -624,8 +624,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="298"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:298</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="296"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:296</a></div>
                         </td>
                     </tr>
 
@@ -786,8 +786,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="305"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:305</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="303"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:303</a></div>
                         </td>
                     </tr>
 
@@ -1052,14 +1052,12 @@ export class AuthorizeService {
             },
         });
 
-        /*         const session &#x3D; await this.sessionService.getBy({
-            authorization_code: body.code ?? body[&#x27;pre-authorized_code&#x27;],
-            tenantId,
-        });
+        const issuanceConfig &#x3D;
+            await this.issuanceService.getIssuanceConfigurationById(
+                session.issuanceId!,
+                session.tenantId,
+            );
 
-        if (!session) {
-            throw new ConflictException(&#x27;Authorization code not found&#x27;);
-        } */
         const authorizationServerMetadata &#x3D; this.authzMetadata(session);
         let dpopValue;
         if (
@@ -1077,7 +1075,7 @@ export class AuthorizeService {
                     headers: getHeadersFromRequest(req),
                 },
                 dpop: {
-                    required: true,
+                    required: issuanceConfig.dPopRequired,
                     allowedSigningAlgs:
                         authorizationServerMetadata.dpop_signing_alg_values_supported,
                     jwt: parsedAccessTokenRequest.dpop?.jwt,
@@ -1109,7 +1107,7 @@ export class AuthorizeService {
                     headers: getHeadersFromRequest(req),
                 },
                 dpop: {
-                    required: true,
+                    required: issuanceConfig.dPopRequired,
                     allowedSigningAlgs:
                         authorizationServerMetadata.dpop_signing_alg_values_supported,
                     jwt: parsedAccessTokenRequest.dpop?.jwt,

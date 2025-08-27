@@ -458,7 +458,7 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Type } from &quot;class-transformer&quot;;
-import { IsEnum, IsObject, IsOptional, IsString } from &quot;class-validator&quot;;
+import { IsEnum, IsOptional, IsString, ValidateNested } from &quot;class-validator&quot;;
 import { JWK } from &quot;jose&quot;;
 
 class Key implements JWK {
@@ -485,7 +485,7 @@ export class KeyImportDto {
     /**
      * The private key in JWK format.
      */
-    @IsObject()
+    @ValidateNested()
     @Type(() &#x3D;&gt; Key)
     privateKey: Key;
 

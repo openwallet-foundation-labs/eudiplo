@@ -99,7 +99,7 @@
   <li class="breadcrumb-item">Interfaces</li>
   <li class="breadcrumb-item"
   >
-  Client</li>
+  Tenants</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -123,7 +123,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/auth/client.service.ts</code>
+            <code>src/auth/tenant.service.ts</code>
         </p>
 
 
@@ -236,13 +236,15 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
-    BadRequestException,
+    ForbiddenException,
     Injectable,
     OnApplicationBootstrap,
+    OnModuleInit,
 } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { InjectMetric } from &quot;@willsoto/nestjs-prometheus&quot;;
+import { readdirSync } from &quot;fs&quot;;
 import { Gauge } from &quot;prom-client&quot;;
 import { Repository } from &quot;typeorm/repository/Repository&quot;;
 import { CryptoService } from &quot;../crypto/crypto.service&quot;;
@@ -250,53 +252,79 @@ import { EncryptionService } from &quot;../crypto/encryption/encryption.service&
 import { Oid4vciService } from &quot;../issuer/oid4vci/oid4vci.service&quot;;
 import { StatusListService } from &quot;../issuer/status-list/status-list.service&quot;;
 import { RegistrarService } from &quot;../registrar/registrar.service&quot;;
-import { ClientEntry } from &quot;./entitites/client.entity&quot;;
+import { FilesService } from &quot;../storage/files.service&quot;;
+import { TenantEntity } from &quot;./entitites/tenant.entity&quot;;
+import { TokenPayload } from &quot;./token.decorator&quot;;
 
-// Client interface for service integration
-export interface Client {
+// Tenant interface for service integration
+export interface Tenants {
     id: string;
     secret: string;
 }
 
 @Injectable()
-export class ClientService implements OnApplicationBootstrap {
-    private clients: Client[] | null &#x3D; null;
+export class TenantService implements OnApplicationBootstrap, OnModuleInit {
+    private tenants: Tenants[] | null &#x3D; null;
 
     constructor(
         private configService: ConfigService,
         private cryptoService: CryptoService,
         private encryptionService: EncryptionService,
-        private statutsListService: StatusListService,
+        private statusListService: StatusListService,
         private registrarService: RegistrarService,
         private oid4vciService: Oid4vciService,
-        @InjectRepository(ClientEntry)
-        private clientRepository: Repository&lt;ClientEntry&gt;,
-        @InjectMetric(&quot;tenant_client_total&quot;)
-        private tenantClientTotal: Gauge&lt;string&gt;,
+        @InjectRepository(TenantEntity)
+        private tenantRepository: Repository&lt;TenantEntity&gt;,
+        @InjectMetric(&quot;tenant_total&quot;)
+        private tenantTotal: Gauge&lt;string&gt;,
+        private filesService: FilesService,
     ) {}
 
+    async onModuleInit() {
+        if (this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT&quot;)) {
+            const configPath &#x3D; this.configService.getOrThrow(&quot;CONFIG_FOLDER&quot;);
+            if (this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT&quot;)) {
+                const tenantFolders &#x3D; readdirSync(configPath, {
+                    withFileTypes: true,
+                }).filter((tenant) &#x3D;&gt; tenant.isDirectory());
+                for (const tenant of tenantFolders) {
+                    await this.tenantRepository.save({ id: tenant.name });
+                }
+            }
+        }
+    }
+
     async onApplicationBootstrap() {
-        // Initialize the client metrics
-        const count &#x3D; await this.clientRepository.countBy({ status: &quot;set up&quot; });
-        this.tenantClientTotal.set({}, count);
+        // Initialize the tenant metrics
+        const count &#x3D; await this.tenantRepository.count();
+        this.tenantTotal.set({}, count);
     }
 
     /**
-     * Get clients from configuration
+     * Initialize a tenant for the given user.
+     * @param user The user to initialize the tenant for
+     */
+    async initTenant(id: string) {
+        await this.tenantRepository.save({ id });
+        return this.setUpTenant(id);
+    }
+
+    /**
+     * Get tenants from configuration
      * @returns
      */
-    private getClients(): Client[] {
-        if (!this.clients) {
-            this.clients &#x3D; this.loadClients();
+    private getTenants(): Tenants[] {
+        if (!this.tenants) {
+            this.tenants &#x3D; this.loadTenants();
         }
-        return this.clients;
+        return this.tenants;
     }
 
     /**
-     * Load clients from configuration
+     * Load tenants from configuration
      */
-    private loadClients(): Client[] {
-        // Default clients for development/testing
+    private loadTenants(): Tenants[] {
+        // Default tenants for development/testing
         return [
             {
                 id: this.configService.getOrThrow&lt;string&gt;(&quot;AUTH_CLIENT_ID&quot;),
@@ -308,80 +336,53 @@ export class ClientService implements OnApplicationBootstrap {
     }
 
     /**
-     * Validate client credentials (OAuth2 Client Credentials flow)
+     * Validate tenant credentials (OAuth2 Tenant Credentials flow)
      * This is the primary authentication method for service integration
      */
-    validateClient(clientId: string, clientSecret: string): Client | null {
-        const client &#x3D; this.getClients().find((c) &#x3D;&gt; c.id &#x3D;&#x3D;&#x3D; clientId);
+    validateTenant(tenantId: string, tenantSecret: string): Tenants | null {
+        const tenant &#x3D; this.getTenants().find((c) &#x3D;&gt; c.id &#x3D;&#x3D;&#x3D; tenantId);
 
-        if (!client || client.secret !&#x3D;&#x3D; clientSecret) {
+        if (!tenant || tenant.secret !&#x3D;&#x3D; tenantSecret) {
             return null;
         }
 
-        return client;
+        return tenant;
     }
 
     /**
-     * Find client by ID
+     * Find tenant by ID
      */
-    findClientById(clientId: string): Client | null {
-        return this.getClients().find((c) &#x3D;&gt; c.id &#x3D;&#x3D;&#x3D; clientId) || null;
+    findTenantById(tenantId: string): Tenants | null {
+        return this.getTenants().find((c) &#x3D;&gt; c.id &#x3D;&#x3D;&#x3D; tenantId) || null;
     }
 
     /**
-     * Check if the client is set up, if not, set it up.
-     * @param id
-     * @returns
-     */
-    async isSetUp(id: string) {
-        void this.clientRepository
-            .countBy({ status: &quot;set up&quot; })
-            .then((count) &#x3D;&gt; {
-                this.tenantClientTotal.set({}, count);
-            });
-
-        await this.clientRepository.findOneByOrFail({ id }).then(
-            (res) &#x3D;&gt; {
-                if (res.status &#x3D;&#x3D;&#x3D; &quot;set up&quot;) {
-                    return true;
-                }
-                throw new BadRequestException(
-                    &#x60;Client ${id} is not set up. Please retry later.&#x60;,
-                );
-            },
-            async () &#x3D;&gt; {
-                // create it to signl that the client getting set up
-                await this.clientRepository.save({ id });
-                await this.setUpClient(id).catch(async (err) &#x3D;&gt; {
-                    console.error(err);
-                    // if there is an error, update the client status&quot;
-                    await this.clientRepository.update(
-                        { id },
-                        { status: &quot;error&quot;, error: err.message },
-                    );
-                    throw new BadRequestException(
-                        &#x60;Error setting up client ${id}. Please retry later.&#x60;,
-                    );
-                });
-                // if everything is fine, update the client status
-                return this.clientRepository.update(
-                    { id },
-                    { status: &quot;set up&quot; },
-                );
-            },
-        );
-    }
-
-    /**
-     * Sends an event to set up a client, allowing all other services to listen and react accordingly.
+     * Sends an event to set up a tenant, allowing all other services to listen and react accordingly.
      * @param id
      */
-    async setUpClient(id: string) {
+    async setUpTenant(id: string) {
         await this.cryptoService.onTenantInit(id);
         await this.encryptionService.onTenantInit(id);
-        await this.statutsListService.onTenantInit(id);
+        await this.statusListService.onTenantInit(id);
         await this.registrarService.onTenantInit(id);
         await this.oid4vciService.onTenantInit(id);
+    }
+
+    /**
+     * Deletes a tenant by ID
+     * @param tenantId The ID of the tenant to delete
+     * @param user The user requesting the deletion
+     */
+    async deleteTenant(tenantId: string, user: TokenPayload) {
+        if (tenantId !&#x3D;&#x3D; user.sub) {
+            throw new ForbiddenException(
+                &#x60;User ${user.sub} is not allowed to delete tenant ${tenantId}&#x60;,
+            );
+        }
+        //delete all files associated with the tenant
+        await this.filesService.deleteByTenant(tenantId);
+        //because of cascading, all related entities will be deleted.
+        await this.tenantRepository.delete({ id: tenantId });
     }
 }
 </code></pre>
@@ -421,7 +422,7 @@ export class ClientService implements OnApplicationBootstrap {
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'interface';
-            var COMPODOC_CURRENT_PAGE_URL = 'Client.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'Tenants.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

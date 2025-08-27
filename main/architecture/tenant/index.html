@@ -576,6 +576,8 @@
       
         
       
+        
+      
     
     
     
@@ -636,6 +638,29 @@
   
   <span class="md-ellipsis">
     Credential Configuration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/issuance/issuance-configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Issuance Configuration
     
   </span>
   
@@ -1061,6 +1086,8 @@
       
         
       
+        
+      
     
     
     
@@ -1212,18 +1239,60 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#tenant-management" class="md-nav__link">
+  <a href="#tenant-lifecycle" class="md-nav__link">
     <span class="md-ellipsis">
-      Tenant Management
+      Tenant Lifecycle
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#deleting-a-tenant" class="md-nav__link">
+  <a href="#tenant-management" class="md-nav__link">
     <span class="md-ellipsis">
-      Deleting a Tenant
+      Tenant Management
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tenant Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#client-management-via-web-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      Client Management via Web Client
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#client-management-via-the-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      Client Management via the API
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#authentication-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Authentication Methods
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security Considerations
     </span>
   </a>
   
@@ -1343,6 +1412,29 @@
   
   <span class="md-ellipsis">
     Database
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Storage
     
   </span>
   
@@ -1780,18 +1872,60 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#tenant-management" class="md-nav__link">
+  <a href="#tenant-lifecycle" class="md-nav__link">
     <span class="md-ellipsis">
-      Tenant Management
+      Tenant Lifecycle
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#deleting-a-tenant" class="md-nav__link">
+  <a href="#tenant-management" class="md-nav__link">
     <span class="md-ellipsis">
-      Deleting a Tenant
+      Tenant Management
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tenant Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#client-management-via-web-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      Client Management via Web Client
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#client-management-via-the-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      Client Management via the API
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#authentication-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Authentication Methods
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security Considerations
     </span>
   </a>
   
@@ -1830,33 +1964,72 @@
 
 
 <h1 id="tenant-based-architecture">Tenant-Based Architecture<a class="headerlink" href="#tenant-based-architecture" title="Permanent link">&para;</a></h1>
-<p>EUDIPLO is built on a <strong>tenant-based architecture</strong> that allows you to isolate
-configurations and data for different clients or environments. This means you
-can run multiple instances of EUDIPLO, each serving a different tenant or
-client, while sharing the same codebase.</p>
+<p>EUDIPLO uses a <strong>tenant-based architecture</strong> that enables you to manage configurations and data for multiple clients or environments within a single deployment.<br />
+This model is designed for <strong>multi-tenancy</strong>: a single EUDIPLO instance can serve multiple <strong>organizations</strong> (e.g., relying parties, issuers, verifiers) or <strong>environments</strong> (e.g., staging, testing, production) while keeping their data and configurations separate.</p>
+<p>You do not need to deploy separate applications for each tenant; instead, all tenants are centrally managed through one deployment.</p>
+<hr />
 <h2 id="tenant-isolation">Tenant Isolation<a class="headerlink" href="#tenant-isolation" title="Permanent link">&para;</a></h2>
-<p>Each tenant has:</p>
+<p>Each tenant is logically isolated. Isolation is currently implemented via a <code>tenantId</code> column in all database entities, with the following guarantees:</p>
 <ul>
-<li><strong>Separate configurations</strong>: Managed in the database</li>
-<li><strong>Isolated database records</strong>: All entities include <code>tenantId</code> field</li>
-<li><strong>Independent key management</strong>: Tenant-specific cryptographic keys</li>
-<li><strong>Dedicated session management</strong>: Sessions scoped to tenant</li>
-<li><strong>Individual credential configurations</strong>: Per-tenant issuance and presentation
-  templates</li>
+<li><strong>Separate configurations</strong>: Tenant-specific settings stored in the database.</li>
+<li><strong>Isolated database records</strong>: All queries scoped by <code>tenantId</code>.</li>
+<li><strong>Independent key management</strong>: Cryptographic keys are bound to a tenant context.</li>
+<li><strong>Dedicated session management</strong>: Sessions are created and validated per tenant.</li>
+<li><strong>Individual credential configurations</strong>: Issuance and presentation templates can differ per tenant.</li>
 </ul>
 <blockquote>
-<p>For now the separation in the database is done by a <code>tenantId</code> field in all
-entities. In the future, we may support separate databases per tenant.</p>
+<p>For now, separation is <strong>row-based</strong> via <code>tenantId</code>.<br />
+Future improvements may include <strong>per-tenant databases</strong> or <strong>row-level security (RLS)</strong> enforcement for stronger isolation.</p>
 </blockquote>
+<p>All API calls are tenant-scoped. Access control and endpoint protection are covered in the <a href="../../api/authentication/">Authentication</a> documentation.</p>
+<hr />
+<h2 id="tenant-lifecycle">Tenant Lifecycle<a class="headerlink" href="#tenant-lifecycle" title="Permanent link">&para;</a></h2>
+<p>A tenant goes through several stages:</p>
+<ul>
+<li><strong>Provisioning (Create Tenant):</strong> A tenant is initialized on first use. Default configurations (keys, session settings) are created when calling the <code>/client</code> endpoint.</li>
+<li><strong>Enable:</strong> The tenant becomes active; sessions, keys, and credential templates can be used.</li>
+<li><strong>Suspend:</strong> A tenant can be disabled (e.g., revoking OIDC client access). Data remains in place but is inaccessible.</li>
+<li><strong>Re-Enable:</strong> Suspended tenants can be reactivated without data loss.</li>
+<li><strong>Delete:</strong> A full removal workflow, including key destruction and data wiping, will be added.</li>
+</ul>
+<hr />
 <h2 id="tenant-management">Tenant Management<a class="headerlink" href="#tenant-management" title="Permanent link">&para;</a></h2>
-<p>When a protected endpoint is called, the system will check if the tenant is
-already set up. If not, it will call the required functions to do so. This can
-result in a longer response time for the first request, but subsequent requests
-will be faster.</p>
-<h2 id="deleting-a-tenant">Deleting a Tenant<a class="headerlink" href="#deleting-a-tenant" title="Permanent link">&para;</a></h2>
-<p>This is not yet implemented, since you need some kind of admin credential to
-start the process in case it is not triggered by the tenant itself.</p>
-<p>TODO: needs to be implemented.</p>
+<p>When a protected endpoint is called, the system checks if the tenant exists. If not, EUDIPLO will automatically set it up. This may lead to longer latency on the first request, but subsequent requests are faster.</p>
+<h3 id="client-management-via-web-client">Client Management via Web Client<a class="headerlink" href="#client-management-via-web-client" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Currently supported with <strong>Keycloak</strong> as external OIDC provider.</li>
+<li>Users with the <code>manage-account</code> role can manage tenants at <code>/clients</code>.</li>
+<li>The web client authenticates against Keycloak and interacts with EUDIPLO using the provided access token.</li>
+</ul>
+<p>From the UI you can:</p>
+<ul>
+<li><strong>Create new clients</strong> (provision a tenant)</li>
+<li><strong>Enable/disable clients</strong> (toggle active state)</li>
+<li><strong>Remove clients</strong> (currently soft delete; no EUDIPLO wipe yet)</li>
+<li><strong>Share configurations</strong> via URL (clicking the share icon copies a tenant URL with parameters)</li>
+</ul>
+<blockquote>
+<p>Even with management privileges, users will <strong>only see tenant-scoped data</strong>.<br />
+EUDIPLO enforces tenant context based on the <strong>subject claim</strong> of the access token.</p>
+</blockquote>
+<h3 id="client-management-via-the-api">Client Management via the API<a class="headerlink" href="#client-management-via-the-api" title="Permanent link">&para;</a></h3>
+<p>The <code>/tenant</code> endpoint allows programmatic management of tenants. Keep in mind when using an external OIDC provider, you still need to call the POST <code>/tenant</code> endpoint to create the default values.</p>
+<h3 id="authentication-methods">Authentication Methods<a class="headerlink" href="#authentication-methods" title="Permanent link">&para;</a></h3>
+<p>Instead of client ID/secret, you may use any authentication method supported by your OIDC provider.<br />
+EUDIPLO only validates the <strong>access token</strong>; it does not care how authentication was performed.</p>
+<hr />
+<h2 id="security-considerations">Security Considerations<a class="headerlink" href="#security-considerations" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Access control:</strong> All API calls are validated against tenant context embedded in the access token.</li>
+<li><strong>Auditability:</strong> All operations are logged with <code>tenantId</code> for traceability.
+  1- <strong>Admin Role:</strong> Certain lifecycle actions (e.g., deletion) will require a <strong>super admin</strong> credential beyond tenant admins.</li>
+</ul>
+<p>See also:</p>
+<ul>
+<li><a href="../../api/authentication/">Authentication</a></li>
+<li><a href="../key-management/">Key Management</a></li>
+<li><a href="../../getting-started/issuance/credential-configuration/">Credential Configuration</a></li>
+</ul>
 
 
 

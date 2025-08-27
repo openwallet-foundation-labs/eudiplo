@@ -203,8 +203,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="206"
-                                    class="link-to-prism">src/auth/auth.controller.ts:206</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="207"
+                                    class="link-to-prism">src/auth/auth.controller.ts:207</a></div>
                         </td>
                     </tr>
 
@@ -349,8 +349,8 @@ Accepts client credentials either in Authorization header (Basic auth) or reques
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="171"
-                                    class="link-to-prism">src/auth/auth.controller.ts:171</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="172"
+                                    class="link-to-prism">src/auth/auth.controller.ts:172</a></div>
                         </td>
                     </tr>
 
@@ -391,11 +391,11 @@ import {
     ApiTags,
 } from &quot;@nestjs/swagger&quot;;
 import { KeyResponseDto } from &quot;../crypto/key/dto/key-response.dto&quot;;
-import { ClientService } from &quot;./client.service&quot;;
 import { ClientCredentialsDto } from &quot;./dto/client-credentials.dto&quot;;
 import { OidcDiscoveryDto } from &quot;./dto/oidc-discovery.dto&quot;;
 import { TokenResponse } from &quot;./dto/token-response.dto&quot;;
 import { JwtService } from &quot;./jwt.service&quot;;
+import { TenantService } from &quot;./tenant.service&quot;;
 import { TokenPayload } from &quot;./token.decorator&quot;;
 
 @ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &quot;true&quot;)
@@ -404,7 +404,7 @@ import { TokenPayload } from &quot;./token.decorator&quot;;
 export class AuthController {
     constructor(
         private jwtService: JwtService,
-        private clientService: ClientService,
+        private clientService: TenantService,
         private configService: ConfigService,
     ) {}
 
@@ -497,7 +497,7 @@ export class AuthController {
             );
         }
 
-        const client &#x3D; this.clientService.validateClient(
+        const client &#x3D; this.clientService.validateTenant(
             clientId,
             clientSecret,
         );
@@ -508,6 +508,7 @@ export class AuthController {
         //TODO: check if the access token should only include the session id or also e.g. the credentials that should be issued. I would think this is not required since we still need the claims for it.
         const payload: TokenPayload &#x3D; {
             sub: client.id,
+            admin: true,
         };
 
         //TODO: make expiresIn configurable?

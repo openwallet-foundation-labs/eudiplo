@@ -294,7 +294,7 @@
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
-import { decodeJwt, jwtVerify, SignJWT } from &quot;jose&quot;;
+import { jwtVerify, SignJWT } from &quot;jose&quot;;
 import { DEFAULT_JWT_SECRET } from &quot;./auth.module&quot;;
 import { TokenPayload } from &quot;./token.decorator&quot;;
 
@@ -376,17 +376,6 @@ export class JwtService {
             return payload;
         } catch (error) {
             throw new Error(&#x60;Invalid token: ${error.message}&#x60;);
-        }
-    }
-
-    /**
-     * Decode token without verification (for debugging)
-     */
-    decodeToken(token: string): TokenPayload | null {
-        try {
-            return decodeJwt(token) as TokenPayload;
-        } catch {
-            return null;
         }
     }
 

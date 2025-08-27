@@ -156,7 +156,6 @@ Used for OID4VCI authorized code flow where the user will be redirected for auth
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
-                                    <span class="modifier"></span>
                                     <span class="modifier">Optional</span>
                                 <a href="#webhook" >webhook</a>
                             </li>
@@ -231,7 +230,6 @@ This URL is where users will be redirected for authentication.</p>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
-                            <span class="modifier"></span>
                             <span class="modifier">Optional</span>
                         <span ><b>webhook</b></span>
                         <a href="#webhook"><span class="icon ion-ios-link"></span></a>
@@ -249,13 +247,13 @@ This URL is where users will be redirected for authentication.</p>
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsObject()<br />@IsOptional()<br />@ValidateNested()<br />@Type(undefined)<br />
+                            @IsOptional()<br />@ValidateNested()<br />@Type(undefined)<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="30" class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:30</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="29" class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:29</a></div>
                         </td>
                     </tr>
 
@@ -305,7 +303,6 @@ export class AuthenticationUrlConfig {
     /**
      * Optional webhook configuration for authentication callbacks
      */
-    @IsObject()
     @IsOptional()
     @ValidateNested()
     @Type(() &#x3D;&gt; WebhookConfig)

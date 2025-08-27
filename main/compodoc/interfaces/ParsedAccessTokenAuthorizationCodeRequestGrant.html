@@ -355,14 +355,12 @@ export class AuthorizeService {
             },
         });
 
-        /*         const session &#x3D; await this.sessionService.getBy({
-            authorization_code: body.code ?? body[&#x27;pre-authorized_code&#x27;],
-            tenantId,
-        });
+        const issuanceConfig &#x3D;
+            await this.issuanceService.getIssuanceConfigurationById(
+                session.issuanceId!,
+                session.tenantId,
+            );
 
-        if (!session) {
-            throw new ConflictException(&#x27;Authorization code not found&#x27;);
-        } */
         const authorizationServerMetadata &#x3D; this.authzMetadata(session);
         let dpopValue;
         if (
@@ -380,7 +378,7 @@ export class AuthorizeService {
                     headers: getHeadersFromRequest(req),
                 },
                 dpop: {
-                    required: true,
+                    required: issuanceConfig.dPopRequired,
                     allowedSigningAlgs:
                         authorizationServerMetadata.dpop_signing_alg_values_supported,
                     jwt: parsedAccessTokenRequest.dpop?.jwt,
@@ -412,7 +410,7 @@ export class AuthorizeService {
                     headers: getHeadersFromRequest(req),
                 },
                 dpop: {
-                    required: true,
+                    required: issuanceConfig.dPopRequired,
                     allowedSigningAlgs:
                         authorizationServerMetadata.dpop_signing_alg_values_supported,
                     jwt: parsedAccessTokenRequest.dpop?.jwt,

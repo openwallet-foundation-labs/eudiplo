@@ -161,7 +161,11 @@ It provides methods to get, store, and delete issuance configurations.</p>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#onModuleInit" >onModuleInit</a>
+                                <a href="#onApplicationBootstrap" >onApplicationBootstrap</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#onTenantDelete" >onTenantDelete</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
@@ -303,8 +307,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="211"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:211</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="215"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:215</a></div>
                         </td>
                     </tr>
 
@@ -386,8 +390,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="158"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:158</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="162"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:162</a></div>
                         </td>
                     </tr>
 
@@ -455,8 +459,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="171"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:171</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="175"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:175</a></div>
                         </td>
                     </tr>
 
@@ -562,18 +566,18 @@ It provides methods to get, store, and delete issuance configurations.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="onModuleInit"></a>
+                    <a name="onApplicationBootstrap"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
-                        <span ><b>onModuleInit</b></span>
-                        <a href="#onModuleInit"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>onApplicationBootstrap</b></span>
+                        <a href="#onApplicationBootstrap"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>onModuleInit()</code>
+                    <code>onApplicationBootstrap()</code>
                 </td>
             </tr>
 
@@ -603,6 +607,75 @@ It provides methods to get, store, and delete issuance configurations.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="onTenantDelete"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>onTenantDelete</b></span>
+                        <a href="#onTenantDelete"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>onTenantDelete(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="153"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:153</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="storeIssuanceConfiguration"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
@@ -621,8 +694,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="187"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:187</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="191"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:191</a></div>
                         </td>
                     </tr>
 
@@ -688,7 +761,7 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Inject, Injectable, OnModuleInit } from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, OnApplicationBootstrap } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { plainToClass } from &quot;class-transformer&quot;;
@@ -708,7 +781,7 @@ import { IssuanceConfig } from &quot;./entities/issuance-config.entity&quot;;
  * It provides methods to get, store, and delete issuance configurations.
  */
 @Injectable()
-export class IssuanceService implements OnModuleInit {
+export class IssuanceService implements OnApplicationBootstrap {
     /**
      * Constructor for IssuanceService.
      * @param issuanceConfigRepo
@@ -726,7 +799,7 @@ export class IssuanceService implements OnModuleInit {
     /**
      * Import issuance configurations and the credential configurations from the configured folder.
      */
-    async onModuleInit() {
+    async onApplicationBootstrap() {
         await this.cryptoService.import();
         await this.credentialsConfigService.import();
         await this.import();
@@ -838,6 +911,10 @@ export class IssuanceService implements OnModuleInit {
                 );
             }
         }
+    }
+
+    async onTenantDelete(tenantId: string) {
+        await this.issuanceConfigRepo.delete({ tenantId });
     }
 
     /**
