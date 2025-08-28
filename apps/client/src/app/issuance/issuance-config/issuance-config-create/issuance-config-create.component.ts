@@ -23,6 +23,7 @@ import { JsonViewDialogComponent } from '../../credential-config/credential-conf
 import { MatDialog } from '@angular/material/dialog';
 import { PresentationManagementService } from '../../../presentation/presentation-config/presentation-management.service';
 import { WebhookConfigComponent } from '../../../utils/webhook-config/webhook-config.component';
+import { MatSlideToggle, MatSlideToggleModule } from "@angular/material/slide-toggle";
 
 @Component({
   selector: 'app-issuance-config-create',
@@ -43,8 +44,10 @@ import { WebhookConfigComponent } from '../../../utils/webhook-config/webhook-co
     FlexLayoutModule,
     ReactiveFormsModule,
     RouterModule,
+    MatSlideToggleModule,
     WebhookConfigComponent,
-  ],
+    MatSlideToggle
+],
   templateUrl: './issuance-config-create.component.html',
   styleUrl: './issuance-config-create.component.scss',
 })
@@ -74,8 +77,9 @@ export class IssuanceConfigCreateComponent implements OnInit {
         method: new FormControl('', Validators.required),
         config: new FormControl(null, Validators.required),
       }),
-      selectedCredentialConfigs: new FormControl([], [Validators.required]),
+      credentialConfigIds: new FormControl([], [Validators.required]),
       batchSize: new FormControl(1, [Validators.min(1)]),
+      dPopRequired: new FormControl(true),
       notifyWebhook: new FormGroup({
         url: new FormControl(''),
         auth: new FormGroup({
@@ -96,7 +100,7 @@ export class IssuanceConfigCreateComponent implements OnInit {
           }),
         }),
       }),
-    });
+    } as { [k in keyof IssuanceDto]: any });
 
     // Listen for changes on authenticationConfig.method
     this.form.get('authenticationConfig.method')!.valueChanges.subscribe((method) => {
@@ -148,14 +152,15 @@ export class IssuanceConfigCreateComponent implements OnInit {
       }
 
       // Extract selected credential config IDs
-      const selectedCredentialConfigs = config.credentialConfigs?.map((config) => config.id) || [];
+      const credentialConfigIds = config.credentialConfigs?.map((config) => config.id) || [];
 
       this.form.patchValue({
         id: config.id,
         description: config.description,
         authenticationConfig: config.authenticationConfig,
-        selectedCredentialConfigs: selectedCredentialConfigs,
-        batchSize: config.batch_size,
+        credentialConfigIds,
+        batchSize: config.batchSize,
+        dPopRequired: config.dPopRequired,
         notifyWebhook: config.notifyWebhook,
         claimsWebhook: config.claimsWebhook,
       });
@@ -184,10 +189,11 @@ export class IssuanceConfigCreateComponent implements OnInit {
         id: this.create ? formValue.id : this.route.snapshot.params['id'],
         description: formValue.description,
         authenticationConfig: formValue.authenticationConfig,
-        credentialConfigIds: formValue.selectedCredentialConfigs,
-        batch_size: formValue.batchSize,
-        notifyWebhook: formValue.notifyWebhook.url ? formValue.notifyWebhook : undefined,
-        claimsWebhook: formValue.claimsWebhook.url ? formValue.claimsWebhook : undefined,
+        credentialConfigIds: formValue.credentialConfigIds,
+        batchSize: formValue.batchSize,
+        dPopRequired: formValue.dPopRequired,
+        notifyWebhook: formValue.notifyWebhook.url ? formValue.notifyWebhook : null,
+        claimsWebhook: formValue.claimsWebhook.url ? formValue.claimsWebhook : null,
       };
 
       this.issuanceConfigService

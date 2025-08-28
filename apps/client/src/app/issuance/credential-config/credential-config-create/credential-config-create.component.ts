@@ -24,7 +24,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { CertEntity } from '../../../generated';
+import { CertEntity, CredentialConfig, CredentialConfigCreate } from '../../../generated';
 import { KeyManagementService } from '../../../key-management/key-management.service';
 import { CredentialConfigService } from '../credential-config.service';
 import { JsonViewDialogComponent } from './json-view-dialog/json-view-dialog.component';
@@ -88,6 +88,7 @@ export class CredentialConfigCreateComponent implements OnInit {
   ) {
     this.form = this.fb.group({
       id: ['', [Validators.required]],
+      description: ['', Validators.required],
       keyId: [''],
       lifeTime: [3600, [Validators.min(1)]],
       keyBinding: [true, [Validators.required]],
@@ -98,7 +99,7 @@ export class CredentialConfigCreateComponent implements OnInit {
       schema: [''],
       displayConfigs: this.fb.array([this.createDisplayConfigGroup()]),
       embeddedDisclosurePolicy: [''],
-    });
+    } as { [k in keyof Omit<CredentialConfigCreate, 'config'>]: any });
 
     if (this.route.snapshot.params['id']) {
       this.create = false;
@@ -115,6 +116,7 @@ export class CredentialConfigCreateComponent implements OnInit {
           // Disable non-editable fields for edit mode
           this.form.patchValue({
             id: config.id,
+            description: config.description,
             keyId: config.keyId,
             lifeTime: config.lifeTime,
             keyBinding: config.keyBinding,
@@ -177,13 +179,23 @@ export class CredentialConfigCreateComponent implements OnInit {
             ? JSON.parse(formValue.disclosureFrame)
             : formValue.disclosureFrame;
       }
+
+      if(formValue.vct === "") {
+        formValue.vct = null;
+      }
       if (formValue.vct) {
         formValue.vct =
           typeof formValue.vct === 'string' ? extractSchema(formValue.vct) : formValue.vct;
       }
+      if(formValue.schema === "") {
+        formValue.schema = null;
+      }
       if (formValue.schema) {
         formValue.schema =
           typeof formValue.schema === 'string' ? JSON.parse(formValue.schema) : formValue.schema;
+      }
+      if(formValue.embeddedDisclosurePolicy === "") {
+        formValue.embeddedDisclosurePolicy = null;
       }
       if (formValue.embeddedDisclosurePolicy) {
         formValue.embeddedDisclosurePolicy =
@@ -215,7 +227,7 @@ export class CredentialConfigCreateComponent implements OnInit {
         },
         (error) => {
           console.error('Error saving configuration:', error);
-          this.snackBar.open('Failed to save configuration', 'Close', {
+          this.snackBar.open(`Failed to save configuration: ${error.message}`, 'Close', {
             duration: 3000,
           });
         }
@@ -334,6 +346,7 @@ export class CredentialConfigCreateComponent implements OnInit {
       this.form.patchValue({
         id: config.id || '',
         keyId: config.keyId || '',
+        description: config.description || '',
         lifeTime: config.lifeTime || 3600,
         keyBinding: config.keyBinding ?? true,
         statusManagement: config.statusManagement ?? true,

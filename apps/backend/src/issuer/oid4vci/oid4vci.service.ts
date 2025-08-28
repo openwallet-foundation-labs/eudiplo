@@ -199,9 +199,9 @@ export class Oid4vciService {
             display: display as any,
         });
 
-        if (issuanceConfig.batch_size) {
+        if (issuanceConfig.batchSize) {
             credentialIssuer.batch_credential_issuance = {
-                batch_size: issuanceConfig.batch_size,
+                batch_size: issuanceConfig.batchSize,
             };
         }
 

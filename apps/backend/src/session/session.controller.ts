@@ -7,7 +7,7 @@ import {
     Post,
     UseGuards,
 } from "@nestjs/common";
-import { ApiSecurity, ApiTags } from "@nestjs/swagger";
+import { ApiParam, ApiSecurity, ApiTags } from "@nestjs/swagger";
 import { JwtAuthGuard } from "../auth/auth.guard";
 import { Token, TokenPayload } from "../auth/token.decorator";
 import { StatusUpdateDto } from "../issuer/status-list/dto/status-update.dto";
@@ -38,6 +38,7 @@ export class SessionController {
      * Retrieves the session information for a given session ID.
      * @param id - The identifier of the session.
      */
+    @ApiParam({ name: "id", description: "The session ID", type: String })
     @Get(":id")
     getSession(@Param("id", SessionPipe) session: Session): Session {
         return session;

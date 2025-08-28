@@ -55,6 +55,14 @@
             <mat-error>Batch size must be at least 1</mat-error>
           }
         </mat-form-field>
+        <mat-slide-toggle formControlName="dPopRequired">
+          <div fxLayout="column">
+            <span><strong>DPop Required</strong></span>
+            <span class="toggle-description"
+              >Enable DPop (Delegated Proof of Possession) for this configuration</span
+            >
+          </div>
+        </mat-slide-toggle>
       </mat-card-content>
     </mat-card>
 
@@ -70,7 +78,7 @@
         <!-- Credential Config Selection -->
         <mat-form-field class="full-width">
           <mat-label>Select Credential Configurations</mat-label>
-          <mat-select formControlName="selectedCredentialConfigs" multiple>
+          <mat-select formControlName="credentialConfigIds" multiple>
             @for (config of availableCredentialConfigs; track config.id) {
               <mat-option [value]="config.id">
                 <div fxLayout="column">
@@ -85,15 +93,14 @@
           <mat-icon matSuffix>link</mat-icon>
           <mat-hint>Select one or more credential configurations to include</mat-hint>
           @if (
-            form.get('selectedCredentialConfigs')?.invalid &&
-            form.get('selectedCredentialConfigs')?.touched
+            form.get('credentialConfigIds')?.invalid && form.get('credentialConfigIds')?.touched
           ) {
             <mat-error>At least one credential configuration must be selected</mat-error>
           }
         </mat-form-field>
 
         <!-- Selected Configurations Preview -->
-        @if (form.get('selectedCredentialConfigs')?.value?.length > 0) {
+        @if (form.get('credentialConfigIds')?.value?.length > 0) {
           <div>
             <div><strong>Selected Configurations:</strong></div>
             <div fxLayout="row wrap" fxLayoutGap="8px" class="selected-configs">
