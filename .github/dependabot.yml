@@ -1,0 +1,73 @@
+version: 2
+
+updates:
+  # --- JS/TS deps across the pnpm monorepo ---
+  - package-ecosystem: npm
+    directory: "/"                     # scans all package.json + pnpm-lock.yaml
+    schedule:
+      interval: weekly
+      day: tuesday
+      time: "05:00"
+      timezone: "Europe/Berlin"
+    open-pull-requests-limit: 8
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    versioning-strategy: increase-if-necessary
+    labels: ["dependencies", "pnpm", "javascript"]
+
+    groups:
+      angular-minor-patch:
+        patterns: ["@angular/*", "rxjs", "zone.js"]
+        update-types: ["minor", "patch"]
+
+      nestjs-minor-patch:
+        patterns: ["@nestjs/*", "reflect-metadata", "class-transformer", "class-validator"]
+        update-types: ["minor", "patch"]
+
+      lint-and-format:
+        patterns: ["eslint*", "@eslint/*", "typescript-eslint*", "prettier", "@trivago/prettier-plugin-sort-imports"]
+        dependency-type: "development"
+        update-types: ["minor", "patch"]
+
+      test-stack:
+        patterns: ["jest*", "ts-jest", "@types/jest", "vitest", "@vitest/*", "testing-library*", "cypress*"]
+        dependency-type: "development"
+        update-types: ["minor", "patch"]
+
+      types-packages:
+        patterns: ["@types/*"]
+        dependency-type: "development"
+        update-types: ["minor", "patch"]
+
+      # Keep majors separate for easier review
+      angular-majors:
+        patterns: ["@angular/*", "rxjs", "zone.js"]
+        update-types: ["major"]
+
+      nestjs-majors:
+        patterns: ["@nestjs/*", "reflect-metadata", "class-transformer", "class-validator"]
+        update-types: ["major"]
+
+      tooling-majors:
+        patterns: ["eslint*", "@eslint/*", "typescript-eslint*", "prettier", "jest*", "vitest", "cypress*"]
+        update-types: ["major"]
+
+  # --- GitHub Actions versions in .github/workflows ---
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: wednesday
+      time: "05:30"
+      timezone: "Europe/Berlin"
+    labels: ["dependencies", "github-actions"]
+
+  # --- Docker base images (adjust directory if Dockerfiles live elsewhere) ---
+  - package-ecosystem: docker
+    directory: "/"
+    schedule:
+      interval: monthly
+      time: "06:00"
+      timezone: "Europe/Berlin"
+    labels: ["dependencies", "docker"]
