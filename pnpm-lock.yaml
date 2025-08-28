@@ -109,8 +109,8 @@ importers:
         specifier: 0.3.0-alpha-20250714110838
         version: 0.3.0-alpha-20250714110838
       '@openid4vc/utils':
-        specifier: 0.3.0-alpha-20250714110838
-        version: 0.3.0-alpha-20250714110838
+        specifier: 0.3.0-alpha-20250825150235
+        version: 0.3.0-alpha-20250825150235
       '@peculiar/x509':
         specifier: ^1.13.0
         version: 1.13.0
@@ -3297,6 +3297,9 @@ packages:
 
   '@openid4vc/utils@0.3.0-alpha-20250714110838':
     resolution: {integrity: sha512-10TCSw/AMtgD4AIUob6kkFg6UdRv5kEYHovLJnfi5MHt4KdxSfSGfu2zc1cxJlKaBEg7su1BKiAT9j9WDmxSrA==}
+
+  '@openid4vc/utils@0.3.0-alpha-20250825150235':
+    resolution: {integrity: sha512-lxm+PTGPB3g8ZObEned2wIX3mzBjoj/UIsv0xRGZGKsf9Z3Z+T4ukje05oj8HYn0d7sApPw5v1cJaBC+uzdjFg==}
 
   '@opentelemetry/api@1.9.0':
     resolution: {integrity: sha512-3giAOQvZiH5F9bMlMiv8+GSPMeqg0dbaeo58/0SlA9sxSqZhnUtxzX9/2FzyhS9sWQf5S0GJE0AKBrFqjpeYcg==}
@@ -13278,6 +13281,11 @@ snapshots:
       zod: 3.25.76
 
   '@openid4vc/utils@0.3.0-alpha-20250714110838':
+    dependencies:
+      buffer: 6.0.3
+      zod: 3.25.76
+
+  '@openid4vc/utils@0.3.0-alpha-20250825150235':
     dependencies:
       buffer: 6.0.3
       zod: 3.25.76
