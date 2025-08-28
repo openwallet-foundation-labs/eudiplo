@@ -1879,7 +1879,7 @@
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="nt">&quot;method&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;none&quot;</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="p">},</span>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="nt">&quot;credentialConfigIds&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;pid&quot;</span><span class="p">],</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span><span class="nt">&quot;batch_size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span><span class="nt">&quot;batchSize&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">  </span><span class="nt">&quot;dPopRequired&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
 <a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">}</span>
 </code></pre></div>
@@ -1889,7 +1889,7 @@
 <li><code>description</code> (string, required): Description of the issuance configuration.</li>
 <li><code>authenticationConfig</code> (object, required): Configuration for <a href="../authentication/">authentication methods</a>.</li>
 <li><code>credentialConfigIds</code> (array of strings, required): List of <a href="../credential-configuration/">credential configuration</a> IDs to be issued.</li>
-<li><code>batch_size</code> (integer, optional): Number of credentials to issue in a batch (default is 1).</li>
+<li><code>batchSize</code> (integer, optional): Number of credentials to issue in a batch (default is 1).</li>
 <li><code>dPopRequired</code> (boolean, optional): Indicates whether DPoP (Demonstration of Proof-of-Possession) is required for this issuance configuration (default is true).</li>
 <li><code>claimsWebhook</code>: (object, optional), webhook configuration for dynamic claims retrieval. See <a href="../../../architecture/webhooks/#claims-webhook">Webhooks</a>.</li>
 <li><code>notifyWebhook</code>: (object, optional), webhook configuration for issuance status notifications. See <a href="../../../architecture/webhooks/#notification-webhook">Webhooks</a>.</li>

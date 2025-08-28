@@ -151,6 +151,7 @@
                             </li>
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#getSession" >getSession</a>
                             </li>
                             <li>
@@ -203,8 +204,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="53"
-                                    class="link-to-prism">src/session/session.controller.ts:53</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="54"
+                                    class="link-to-prism">src/session/session.controller.ts:54</a></div>
                         </td>
                     </tr>
 
@@ -319,6 +320,7 @@
                     <a name="getSession"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>getSession</b></span>
                         <a href="#getSession"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -335,14 +337,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Get(&#x27;:id&#x27;)<br /></code>
+                    <code>@ApiParam({name: &#x27;id&#x27;, description: &#x27;The session ID&#x27;, type: String})<br />@Get(&#x27;:id&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="42"
-                                    class="link-to-prism">src/session/session.controller.ts:42</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="43"
+                                    class="link-to-prism">src/session/session.controller.ts:43</a></div>
                         </td>
                     </tr>
 
@@ -419,8 +421,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="66"
-                                    class="link-to-prism">src/session/session.controller.ts:66</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="67"
+                                    class="link-to-prism">src/session/session.controller.ts:67</a></div>
                         </td>
                     </tr>
 
@@ -493,7 +495,7 @@
     Post,
     UseGuards,
 } from &quot;@nestjs/common&quot;;
-import { ApiSecurity, ApiTags } from &quot;@nestjs/swagger&quot;;
+import { ApiParam, ApiSecurity, ApiTags } from &quot;@nestjs/swagger&quot;;
 import { JwtAuthGuard } from &quot;../auth/auth.guard&quot;;
 import { Token, TokenPayload } from &quot;../auth/token.decorator&quot;;
 import { StatusUpdateDto } from &quot;../issuer/status-list/dto/status-update.dto&quot;;
@@ -524,6 +526,7 @@ export class SessionController {
      * Retrieves the session information for a given session ID.
      * @param id - The identifier of the session.
      */
+    @ApiParam({ name: &quot;id&quot;, description: &quot;The session ID&quot;, type: String })
     @Get(&quot;:id&quot;)
     getSession(@Param(&quot;id&quot;, SessionPipe) session: Session): Session {
         return session;

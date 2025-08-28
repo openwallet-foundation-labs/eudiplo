@@ -151,7 +151,7 @@
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier">Optional</span>
-                                <a href="#batch_size" >batch_size</a>
+                                <a href="#batchSize" >batchSize</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
@@ -277,14 +277,14 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="batch_size"></a>
+                    <a name="batchSize"></a>
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier">Optional</span>
-                        <span ><b>batch_size</b></span>
-                        <a href="#batch_size"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>batchSize</b></span>
+                        <a href="#batchSize"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
@@ -916,7 +916,7 @@ export class IssuanceConfig {
     @IsNumber()
     @IsOptional()
     @Column(&quot;int&quot;, { default: 1 })
-    batch_size?: number;
+    batchSize?: number;
 
     /**
      * Indicates whether DPoP is required for the issuance process. Default value is true.
