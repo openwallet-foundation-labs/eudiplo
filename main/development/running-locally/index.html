@@ -2036,11 +2036,13 @@
 
 
 <h1 id="running-locally">Running Locally<a class="headerlink" href="#running-locally" title="Permanent link">&para;</a></h1>
-<p>This guide will help you run the project locally for development or testing purposes. </p>
-<p>EUDIPLO is now organized as a <strong>monorepo workspace</strong> containing:
-- <strong>Backend</strong> (<code>apps/backend/</code>) - NestJS API server
-- <strong>Client</strong> (<code>apps/client/</code>) - Angular web interface<br />
-- <strong>Webhook</strong> (<code>apps/webhook/</code>) - Cloudflare Worker for testing</p>
+<p>This guide will help you run the project locally for development or testing purposes.</p>
+<p>EUDIPLO is now organized as a <strong>monorepo workspace</strong> containing:</p>
+<ul>
+<li><strong>Backend</strong> (<code>apps/backend/</code>) - NestJS API server</li>
+<li><strong>Client</strong> (<code>apps/client/</code>) - Angular web interface</li>
+<li><strong>Webhook</strong> (<code>apps/webhook/</code>) - Cloudflare Worker for testing</li>
+</ul>
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
 <p>Before you start, make sure you have the following tools installed:</p>
 <ul>
@@ -2110,22 +2112,24 @@ configure key storage and database options beyond the default settings.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># Start all applications in development mode</span>
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>pnpm<span class="w"> </span>run<span class="w"> </span>dev
 </code></pre></div>
-<p>This will:
-- Compile and watch your TypeScript code
-- Reload on changes
-- Use your <code>.env</code> configuration for keys, database, and registrar access</p>
+<p>This will:</p>
+<ul>
+<li>Compile and watch your TypeScript code</li>
+<li>Reload on changes</li>
+<li>Use your <code>.env</code> configuration for keys, database, and registrar access</li>
+</ul>
 <p>Make sure any external services (like PostgreSQL or Vault) are available, either locally or through Docker.</p>
 <h2 id="5-access-the-services">5. Access the Services<a class="headerlink" href="#5-access-the-services" title="Permanent link">&para;</a></h2>
 <p>Once running, the applications are accessible at:</p>
-<p><strong>Backend API:</strong>
+<p><strong>Backend API:</strong></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>http://localhost:3000
-</code></pre></div></p>
-<p><strong>Client Web Interface:</strong>
+</code></pre></div>
+<p><strong>Client Web Interface:</strong></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>http://localhost:4200
-</code></pre></div></p>
-<p><strong>Or via the public URL configured with ngrok:</strong>
+</code></pre></div>
+<p><strong>Or via the public URL configured with ngrok:</strong></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>https://f8e3-84-123-45-67.ngrok.io
-</code></pre></div></p>
+</code></pre></div>
 <hr />
 <h2 id="6-troubleshooting">6. Troubleshooting<a class="headerlink" href="#6-troubleshooting" title="Permanent link">&para;</a></h2>
 <ul>
