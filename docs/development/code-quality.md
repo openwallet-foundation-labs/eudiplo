@@ -36,7 +36,7 @@ pnpm run lint:fix
 
 1. **Install the Biome extension**:
 
-   ```
+   ```string
    Extension ID: biomejs.biome
    ```
 

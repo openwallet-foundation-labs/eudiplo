@@ -30,6 +30,7 @@ eudiplo/
 ## 🏗️ Applications
 
 ### Backend (`@eudiplo/backend`)
+
 - **Technology**: NestJS with TypeScript
 - **Purpose**: Core API server for EUDI Wallet integration
 - **Port**: 3000
@@ -39,7 +40,8 @@ eudiplo/
   - Pluggable key management
   - Database abstraction
 
-### Client (`@eudiplo/client`) 
+### Client (`@eudiplo/client`)
+
 - **Technology**: Angular with TypeScript
 - **Purpose**: Web interface for EUDIPLO management
 - **Port**: 4200
@@ -50,6 +52,7 @@ eudiplo/
   - Admin dashboard
 
 ### Webhook (`test-rp`)
+
 - **Technology**: Cloudflare Worker
 - **Purpose**: Testing relying party implementation
 - **Key Features**:
@@ -62,6 +65,7 @@ eudiplo/
 The workspace provides several convenient commands:
 
 ### Development
+
 ```bash
 # Install all dependencies
 pnpm install
@@ -76,6 +80,7 @@ pnpm --filter test-rp run dev
 ```
 
 ### Building
+
 ```bash
 # Build all applications
 pnpm run build
@@ -86,6 +91,7 @@ pnpm --filter @eudiplo/client run build
 ```
 
 ### Testing
+
 ```bash
 # Test all applications
 pnpm run test
@@ -96,6 +102,7 @@ pnpm --filter @eudiplo/client run test
 ```
 
 ### Linting & Formatting
+
 ```bash
 # Check code quality across workspace
 pnpm run lint

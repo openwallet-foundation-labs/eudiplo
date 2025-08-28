@@ -42,7 +42,7 @@ CONFIG_IMPORT_FORCE=true
 
 The configuration import follows a specific directory structure:
 
-```
+```shell
 assets/
 └── config/
     ├── tenant1/
@@ -104,16 +104,16 @@ Import cryptographic keys for signing and certificate operations.
 
 ```json
 {
-    "privateKey": {
-        "kty": "EC",
-        "x": "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
-        "y": "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
-        "crv": "P-256",
-        "d": "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
-        "kid": "039af178-3ca0-48f4-a2e4-7b1209f30376",
-        "alg": "ES256"
-    },
-    "crt": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
+  "privateKey": {
+    "kty": "EC",
+    "x": "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
+    "y": "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
+    "crv": "P-256",
+    "d": "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
+    "kid": "039af178-3ca0-48f4-a2e4-7b1209f30376",
+    "alg": "ES256"
+  },
+  "crt": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
 }
 ```
 
@@ -189,10 +189,10 @@ Import activities are logged with structured information:
 
 ```json
 {
-    "event": "Import",
-    "tenant": "company-xyz",
-    "files": 5,
-    "message": "5 credential configs imported for company-xyz"
+  "event": "Import",
+  "tenant": "company-xyz",
+  "files": 5,
+  "message": "5 credential configs imported for company-xyz"
 }
 ```
 
@@ -200,9 +200,9 @@ Import activities are logged with structured information:
 
 ```json
 {
-    "event": "Import",
-    "tenant": "company-xyz",
-    "message": "3 keys imported for company-xyz"
+  "event": "Import",
+  "tenant": "company-xyz",
+  "message": "3 keys imported for company-xyz"
 }
 ```
 
@@ -210,16 +210,16 @@ Import activities are logged with structured information:
 
 ```json
 {
-    "event": "ValidationError",
-    "file": "invalid-config.json",
-    "tenant": "company-xyz",
-    "errors": [
-        {
-            "property": "credentialConfigs",
-            "constraints": { "isArray": "credentialConfigs must be an array" },
-            "value": "not-an-array"
-        }
-    ]
+  "event": "ValidationError",
+  "file": "invalid-config.json",
+  "tenant": "company-xyz",
+  "errors": [
+    {
+      "property": "credentialConfigs",
+      "constraints": { "isArray": "credentialConfigs must be an array" },
+      "value": "not-an-array"
+    }
+  ]
 }
 ```
 

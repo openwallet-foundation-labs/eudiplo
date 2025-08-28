@@ -132,8 +132,8 @@ request is sent to the wallet to present specific credentials.
 ### Configuration Fields
 
 - `presentation`: **REQUIRED** - Presentation configuration
-    - `type`: Type of credential to present (e.g., "pid", "oid4vp")
-    - `webhook`: Webhook configuration for processing presented credentials
+  - `type`: Type of credential to present (e.g., "pid", "oid4vp")
+  - `webhook`: Webhook configuration for processing presented credentials
 
 ### Use Cases
 

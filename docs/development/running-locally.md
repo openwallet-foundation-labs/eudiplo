@@ -1,10 +1,11 @@
 # Running Locally
 
-This guide will help you run the project locally for development or testing purposes. 
+This guide will help you run the project locally for development or testing purposes.
 
 EUDIPLO is now organized as a **monorepo workspace** containing:
+
 - **Backend** (`apps/backend/`) - NestJS API server
-- **Client** (`apps/client/`) - Angular web interface  
+- **Client** (`apps/client/`) - Angular web interface
 - **Webhook** (`apps/webhook/`) - Cloudflare Worker for testing
 
 ## Prerequisites
@@ -118,6 +119,7 @@ pnpm run dev
 ```
 
 This will:
+
 - Compile and watch your TypeScript code
 - Reload on changes
 - Use your `.env` configuration for keys, database, and registrar access
@@ -129,17 +131,20 @@ Make sure any external services (like PostgreSQL or Vault) are available, either
 Once running, the applications are accessible at:
 
 **Backend API:**
-```
+
+```string
 http://localhost:3000
 ```
 
 **Client Web Interface:**
-```
+
+```string
 http://localhost:4200
 ```
 
 **Or via the public URL configured with ngrok:**
-```
+
+```string
 https://f8e3-84-123-45-67.ngrok.io
 ```
 

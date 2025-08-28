@@ -185,7 +185,7 @@ CONFIG_IMPORT_FORCE=false  # Set to true to overwrite existing keys
 
 **Directory Structure**:
 
-```
+```shell
 assets/config/
 ├── tenant-1/
 │   └── keys/

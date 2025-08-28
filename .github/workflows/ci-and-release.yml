@@ -31,8 +31,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Run linter
+      - name: Run linter for code
         run: pnpm run lint
+
+      - name: Run linter for documentation
+        run: pnpm run doc:lint
 
       - name: Run license check (backend, production)
         working-directory: apps/backend

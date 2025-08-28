@@ -96,7 +96,7 @@ identifier.
 In multi-tenant mode, data isolation is achieved through a `tenantId` column in
 all relevant entities:
 
-#### Core Entities with Tenant Support:
+#### Core Entities with Tenant Support
 
 **Session Entity:**
 
