@@ -158,7 +158,7 @@ Choose your preferred approach:
 
 ---
 
-## Success!
+## Success
 
 EUDIPLO is now running and ready for credential issuance and verification.
 
@@ -166,17 +166,17 @@ EUDIPLO is now running and ready for credential issuance and verification.
 
 === "🖥️ Web Client Users"
 
-  - 🎫 **Issue Your First Credential** - Use the web interface to create and send credentials to wallets
-  - 🔍 **Verify Credentials** - Set up verification flows through the web UI
-  - 📋 **Manage Templates** - Create custom credential templates for your use case
-  - 📊 **Monitor Activity** - Track credential issuance and verification through the dashboard
+- 🎫 **Issue Your First Credential** - Use the web interface to create and send credentials to wallets
+- 🔍 **Verify Credentials** - Set up verification flows through the web UI
+- 📋 **Manage Templates** - Create custom credential templates for your use case
+- 📊 **Monitor Activity** - Track credential issuance and verification through the dashboard
 
 === "🔧 API Users"
 
-  - 🎫 **[Issue Your First Credential](./issuance/index.md)** - Learn credential issuance flows
-  - 🔍 **[Verify Credentials](./presentation/index.md)** - Set up credential verification
-  - 🔌 **[API Integration](../api/index.md)** - Integrate EUDIPLO into your applications
-  - 📖 **[API Authentication](../api/authentication.md)** - External OIDC, multi-tenant setup
+- 🎫 **[Issue Your First Credential](./issuance/index.md)** - Learn credential issuance flows
+- 🔍 **[Verify Credentials](./presentation/index.md)** - Set up credential verification
+- 🔌 **[API Integration](../api/index.md)** - Integrate EUDIPLO into your applications
+- 📖 **[API Authentication](../api/authentication.md)** - External OIDC, multi-tenant setup
 
 ### Common Next Steps
 
@@ -189,12 +189,14 @@ EUDIPLO is now running and ready for credential issuance and verification.
 When you're done experimenting:
 
 **For Full Setup users:**
+
 ```bash
 docker stop eudiplo eudiplo-client
 docker rm eudiplo eudiplo-client
 ```
 
 **For API-Only Setup users:**
+
 ```bash
 docker stop eudiplo && docker rm eudiplo
 ```

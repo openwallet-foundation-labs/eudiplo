@@ -7,8 +7,8 @@ both local development and Docker container scenarios.
 
 The monitoring stack includes:
 
-- **Prometheus** on http://localhost:9090 - Metrics collection
-- **Grafana** on http://localhost:3001 - Dashboards and visualization
+- **Prometheus** on <http://localhost:9090> - Metrics collection
+- **Grafana** on <http://localhost:3001> - Dashboards and visualization
 
 ### Start Monitoring Stack
 
@@ -29,8 +29,8 @@ npm install
 npm run start:dev
 ```
 
-EUDIPLO will be available at http://localhost:3000 with metrics at
-http://localhost:3000/metrics
+EUDIPLO will be available at <http://localhost:3000> with metrics at
+<http://localhost:3000/metrics>
 
 ### 2. Configure Prometheus for Local EUDIPLO
 
@@ -118,11 +118,11 @@ EUDIPLO exposes these important metrics:
 
 ## Access Dashboards
 
-1. **Prometheus**: http://localhost:9090
+1. **Prometheus**: <http://localhost:9090>
     - View metrics and run queries
     - Check targets status at `/targets`
 
-2. **Grafana**: http://localhost:3001
+2. **Grafana**: <http://localhost:3001>
     - Username: `admin`
     - Password: `admin`
     - Import or create dashboards
@@ -164,7 +164,7 @@ docker run --rm appropriate/curl curl -I http://host.docker.internal:3000/metric
 
 **No data in Grafana:**
 
-- Check Prometheus targets: http://localhost:9090/targets
+- Check Prometheus targets: <http://localhost:9090/targets>
 - Verify time range in Grafana dashboards
 - Ensure Prometheus data source is configured
 

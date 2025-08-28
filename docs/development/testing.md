@@ -89,7 +89,7 @@ your browser to view it.
 
 Tests are located next to their implementation files:
 
-```
+```bash
 src/
   service/
     my.service.ts

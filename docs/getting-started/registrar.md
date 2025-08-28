@@ -21,7 +21,7 @@ Used to authenticate against the Registrar using any OIDC-compliant provider.
 
 | Variable                       | Description                                              |
 | ------------------------------ | -------------------------------------------------------- |
-| `REGISTRAR_OIDC_URL`           | OIDC URL (e.g., https://auth.example.com/realms/myrealm) |
+| `REGISTRAR_OIDC_URL`           | OIDC URL (e.g., <https://auth.example.com/realms/myrealm>) |
 | `REGISTRAR_OIDC_CLIENT_ID`     | Client ID as configured in the OIDC provider             |
 | `REGISTRAR_OIDC_CLIENT_SECRET` | Secret associated with the OIDC client                   |
 

@@ -3,7 +3,7 @@
 EUDIPLO is organized as a **monorepo workspace** containing multiple applications:
 
 - **Backend**: NestJS API server (`apps/backend/`)
-- **Client**: Angular web interface (`apps/client/`)  
+- **Client**: Angular web interface (`apps/client/`)
 - **Webhook**: Cloudflare Worker for testing (`apps/webhook/`)
 
 ## Quick Start
@@ -41,7 +41,7 @@ codebase, including:
 pnpm run compodoc:start
 ```
 
-A rendered version of the build is included [here](../compodoc/index.html).
+A [rendered version](../compodoc/index.html) is included.
 
 ## Source Code Structure
 

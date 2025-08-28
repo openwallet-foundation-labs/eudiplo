@@ -22,7 +22,7 @@ publishes it with the `:main` tag.
 
 Use this tag for development environments:
 
-```
+```bash
 ghcr.io/openwallet-foundation-labs/eudiplo:main
 ```
 

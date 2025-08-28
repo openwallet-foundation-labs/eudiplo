@@ -12,6 +12,8 @@
     "swagger": "cd apps/backend && SWAGGER_JSON=true nest start",
     "compodoc": "cd apps/backend && compodoc -p tsconfig.doc.json --theme material -d ../../docs/compodoc",
     "compodoc:serve": "cd apps/backend && compodoc -p tsconfig.doc.json --theme material -d ../../docs/compodoc -s -r 3001 -w",
+    "doc:lint": "markdownlint \"docs/**/*.md\"",
+    "doc:format": "markdownlint --fix \"docs/**/*.md\"",
     "doc:watch": "source venv/bin/activate && pnpm run swagger && mkdocs serve",
     "doc:build": "source venv/bin/activate && pnpm run swagger && pnpm run compodoc && mkdocs build --strict",
     "doc:init": "source venv/bin/activate && pnpm run swagger && pnpm run compodoc && mike deploy --update-aliases main latest-dev && mike set-default main",
@@ -33,6 +35,7 @@
     "@types/node": "^24.2.0",
     "cross-fetch": "^4.1.0",
     "husky": "^9.1.7",
+    "markdownlint-cli": "^0.45.0",
     "semantic-release": "^24.2.7",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
