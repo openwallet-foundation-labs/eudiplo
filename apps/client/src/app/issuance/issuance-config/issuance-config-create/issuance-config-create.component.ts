@@ -23,7 +23,7 @@ import { JsonViewDialogComponent } from '../../credential-config/credential-conf
 import { MatDialog } from '@angular/material/dialog';
 import { PresentationManagementService } from '../../../presentation/presentation-config/presentation-management.service';
 import { WebhookConfigComponent } from '../../../utils/webhook-config/webhook-config.component';
-import { MatSlideToggle, MatSlideToggleModule } from "@angular/material/slide-toggle";
+import { MatSlideToggle, MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'app-issuance-config-create',
@@ -46,8 +46,8 @@ import { MatSlideToggle, MatSlideToggleModule } from "@angular/material/slide-to
     RouterModule,
     MatSlideToggleModule,
     WebhookConfigComponent,
-    MatSlideToggle
-],
+    MatSlideToggle,
+  ],
   templateUrl: './issuance-config-create.component.html',
   styleUrl: './issuance-config-create.component.scss',
 })

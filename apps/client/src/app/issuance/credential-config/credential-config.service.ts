@@ -30,13 +30,13 @@ export class CredentialConfigService {
    */
   async saveConfiguration(config: CredentialConfigCreate): Promise<void> {
     return credentialsControllerStoreCredentialConfiguration({
-        body: config,
-      }).then(response => {
-        if (response.error) {
-          throw new Error((response.error as any).message);
-        }
-        //return response.data;
-      });
+      body: config,
+    }).then((response) => {
+      if (response.error) {
+        throw new Error((response.error as any).message);
+      }
+      //return response.data;
+    });
   }
 
   /**

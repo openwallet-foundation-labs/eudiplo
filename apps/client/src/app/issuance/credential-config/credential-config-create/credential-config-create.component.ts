@@ -180,21 +180,21 @@ export class CredentialConfigCreateComponent implements OnInit {
             : formValue.disclosureFrame;
       }
 
-      if(formValue.vct === "") {
+      if (formValue.vct === '') {
         formValue.vct = null;
       }
       if (formValue.vct) {
         formValue.vct =
           typeof formValue.vct === 'string' ? extractSchema(formValue.vct) : formValue.vct;
       }
-      if(formValue.schema === "") {
+      if (formValue.schema === '') {
         formValue.schema = null;
       }
       if (formValue.schema) {
         formValue.schema =
           typeof formValue.schema === 'string' ? JSON.parse(formValue.schema) : formValue.schema;
       }
-      if(formValue.embeddedDisclosurePolicy === "") {
+      if (formValue.embeddedDisclosurePolicy === '') {
         formValue.embeddedDisclosurePolicy = null;
       }
       if (formValue.embeddedDisclosurePolicy) {
