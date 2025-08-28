@@ -130,36 +130,36 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &#x27;@nestjs/common&#x27;;
-import { ConfigModule, ConfigService } from &#x27;@nestjs/config&#x27;;
-import { TypeOrmModule, TypeOrmModuleOptions } from &#x27;@nestjs/typeorm&#x27;;
-import * as Joi from &#x27;joi&#x27;;
-import { join } from &#x27;path&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &quot;@nestjs/common&quot;;
+import { ConfigModule, ConfigService } from &quot;@nestjs/config&quot;;
+import { TypeOrmModule, TypeOrmModuleOptions } from &quot;@nestjs/typeorm&quot;;
+import * as Joi from &quot;joi&quot;;
+import { join } from &quot;path&quot;;
 
 export const DB_VALIDATION_SCHEMA &#x3D; {
-    DB_TYPE: Joi.string().valid(&#x27;sqlite&#x27;, &#x27;postgres&#x27;).default(&#x27;sqlite&#x27;),
-    DB_HOST: Joi.string().when(&#x27;DB_TYPE&#x27;, {
-        is: &#x27;sqlite&#x27;,
+    DB_TYPE: Joi.string().valid(&quot;sqlite&quot;, &quot;postgres&quot;).default(&quot;sqlite&quot;),
+    DB_HOST: Joi.string().when(&quot;DB_TYPE&quot;, {
+        is: &quot;sqlite&quot;,
         then: Joi.optional(),
         otherwise: Joi.required(),
     }),
-    DB_PORT: Joi.number().when(&#x27;DB_TYPE&#x27;, {
-        is: &#x27;sqlite&#x27;,
+    DB_PORT: Joi.number().when(&quot;DB_TYPE&quot;, {
+        is: &quot;sqlite&quot;,
         then: Joi.optional(),
         otherwise: Joi.required(),
     }),
-    DB_USERNAME: Joi.string().when(&#x27;DB_TYPE&#x27;, {
-        is: &#x27;sqlite&#x27;,
+    DB_USERNAME: Joi.string().when(&quot;DB_TYPE&quot;, {
+        is: &quot;sqlite&quot;,
         then: Joi.optional(),
         otherwise: Joi.required(),
     }),
-    DB_PASSWORD: Joi.string().when(&#x27;DB_TYPE&#x27;, {
-        is: &#x27;sqlite&#x27;,
+    DB_PASSWORD: Joi.string().when(&quot;DB_TYPE&quot;, {
+        is: &quot;sqlite&quot;,
         then: Joi.optional(),
         otherwise: Joi.required(),
     }),
-    DB_DATABASE: Joi.string().when(&#x27;DB_TYPE&#x27;, {
-        is: &#x27;sqlite&#x27;,
+    DB_DATABASE: Joi.string().when(&quot;DB_TYPE&quot;, {
+        is: &quot;sqlite&quot;,
         then: Joi.optional(),
         otherwise: Joi.required(),
     }),
@@ -173,8 +173,8 @@ export const DB_VALIDATION_SCHEMA &#x3D; {
             useFactory: (
                 configService: ConfigService,
             ): TypeOrmModuleOptions &#x3D;&gt; {
-                const dbType &#x3D; configService.get&lt;&#x27;sqlite&#x27; | &#x27;postgres&#x27;&gt;(
-                    &#x27;DB_TYPE&#x27;,
+                const dbType &#x3D; configService.get&lt;&quot;sqlite&quot; | &quot;postgres&quot;&gt;(
+                    &quot;DB_TYPE&quot;,
                 );
 
                 const commonOptions &#x3D; {
@@ -182,26 +182,26 @@ export const DB_VALIDATION_SCHEMA &#x3D; {
                     autoLoadEntities: true,
                 };
 
-                if (dbType &#x3D;&#x3D;&#x3D; &#x27;postgres&#x27;) {
+                if (dbType &#x3D;&#x3D;&#x3D; &quot;postgres&quot;) {
                     return {
-                        type: &#x27;postgres&#x27;,
-                        host: configService.getOrThrow&lt;string&gt;(&#x27;DB_HOST&#x27;),
-                        port: configService.getOrThrow&lt;number&gt;(&#x27;DB_PORT&#x27;),
+                        type: &quot;postgres&quot;,
+                        host: configService.getOrThrow&lt;string&gt;(&quot;DB_HOST&quot;),
+                        port: configService.getOrThrow&lt;number&gt;(&quot;DB_PORT&quot;),
                         username:
-                            configService.getOrThrow&lt;string&gt;(&#x27;DB_USERNAME&#x27;),
+                            configService.getOrThrow&lt;string&gt;(&quot;DB_USERNAME&quot;),
                         password:
-                            configService.getOrThrow&lt;string&gt;(&#x27;DB_PASSWORD&#x27;),
+                            configService.getOrThrow&lt;string&gt;(&quot;DB_PASSWORD&quot;),
                         database:
-                            configService.getOrThrow&lt;string&gt;(&#x27;DB_DATABASE&#x27;),
+                            configService.getOrThrow&lt;string&gt;(&quot;DB_DATABASE&quot;),
                         ...commonOptions,
                     };
                 }
 
                 return {
-                    type: &#x27;sqlite&#x27;,
+                    type: &quot;sqlite&quot;,
                     database: join(
-                        configService.getOrThrow&lt;string&gt;(&#x27;FOLDER&#x27;),
-                        &#x27;service.db&#x27;,
+                        configService.getOrThrow&lt;string&gt;(&quot;FOLDER&quot;),
+                        &quot;service.db&quot;,
                     ),
                     ...commonOptions,
                 };

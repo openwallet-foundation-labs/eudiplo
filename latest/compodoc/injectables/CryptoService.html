@@ -204,7 +204,8 @@
                                 <a href="#importKey" >importKey</a>
                             </li>
                             <li>
-                                <a href="#onModuleInit" >onModuleInit</a>
+                                    <span class="modifier">Async</span>
+                                <a href="#onTenantDelete" >onTenantDelete</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
@@ -216,6 +217,9 @@
                             <li>
                                     <span class="modifier">Async</span>
                                 <a href="#storeAccessCertificate" >storeAccessCertificate</a>
+                            </li>
+                            <li>
+                                <a href="#updateCert" >updateCert</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
@@ -244,7 +248,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">src/crypto/crypto.service.ts:41</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/crypto/crypto.service.ts:42</a></div>
                             </td>
                         </tr>
 
@@ -345,8 +349,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="528"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:528</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="527"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:527</a></div>
                         </td>
                     </tr>
 
@@ -426,8 +430,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="436"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:436</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="435"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:435</a></div>
                         </td>
                     </tr>
 
@@ -495,8 +499,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="337"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:337</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="326"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:326</a></div>
                         </td>
                     </tr>
 
@@ -578,8 +582,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="350"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:350</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="349"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:349</a></div>
                         </td>
                     </tr>
 
@@ -613,7 +617,7 @@
                                             </td>
 
                                             <td>
-                                                    <code>&#x27;signing&#x27;</code>
+                                                    <code>&quot;signing&quot;</code>
                                             </td>
 
                                         </tr>
@@ -679,8 +683,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="327"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:327</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="316"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:316</a></div>
                         </td>
                     </tr>
 
@@ -760,8 +764,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="85"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:85</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="80"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:80</a></div>
                         </td>
                     </tr>
 
@@ -829,8 +833,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="515"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:515</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="514"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:514</a></div>
                         </td>
                     </tr>
 
@@ -898,8 +902,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="474"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:474</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="473"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:473</a></div>
                         </td>
                     </tr>
 
@@ -967,16 +971,15 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="194"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:194</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="190"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:190</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Checks if there is a signing certificate and access certificate available.
-If not it will be created.</p>
+                        <div class="io-description"><p>Ensures a signing certificate (and default access cert) exist for the given tenant/key id.</p>
 </div>
 
                             <div class="io-description">
@@ -1049,8 +1052,8 @@ If not it will be created.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="315"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:315</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="304"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:304</a></div>
                         </td>
                     </tr>
 
@@ -1132,8 +1135,8 @@ If not it will be created.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="95"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:95</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="90"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:90</a></div>
                         </td>
                     </tr>
 
@@ -1173,8 +1176,8 @@ If not it will be created.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="167"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:167</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="164"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:164</a></div>
                         </td>
                     </tr>
 
@@ -1238,37 +1241,76 @@ If not it will be created.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="onModuleInit"></a>
+                    <a name="onTenantDelete"></a>
                     <span class="name">
-                        <span ><b>onModuleInit</b></span>
-                        <a href="#onModuleInit"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier">Async</span>
+                        <span ><b>onTenantDelete</b></span>
+                        <a href="#onTenantDelete"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>onModuleInit()</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>onTenantDelete(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="60"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:60</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="71"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:71</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Initializes the crypto service by creating the folder if it does not exist.</p>
+                        <div class="io-description"><p>Deletes the encryption keys for a given tenant.</p>
 </div>
 
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The ID of the tenant for which to delete the keys.</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
 
                         </div>
+                            <div class="io-description">
+                                
+                            </div>
                 </td>
             </tr>
         </tbody>
@@ -1295,8 +1337,8 @@ If not it will be created.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="71"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:71</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="62"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:62</a></div>
                         </td>
                     </tr>
 
@@ -1364,8 +1406,8 @@ If not it will be created.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="396"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:396</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="395"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:395</a></div>
                         </td>
                     </tr>
 
@@ -1471,8 +1513,8 @@ If not it will be created.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="380"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:380</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="379"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:379</a></div>
                         </td>
                     </tr>
 
@@ -1548,6 +1590,99 @@ If not it will be created.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="updateCert"></a>
+                    <span class="name">
+                        <span ><b>updateCert</b></span>
+                        <a href="#updateCert"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>updateCert(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, body: <a href="../classes/UpdateKeyDto.html" target="_self">UpdateKeyDto</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="338"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:338</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Update an existing certificate in the key service.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>body</td>
+                                            <td>
+                                                            <code><a href="../classes/UpdateKeyDto.html" target="_self" >UpdateKeyDto</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="verifyJwt"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
@@ -1566,8 +1701,8 @@ If not it will be created.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="412"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:412</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="411"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:411</a></div>
                         </td>
                     </tr>
 
@@ -1664,7 +1799,7 @@ If not it will be created.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">src/crypto/crypto.service.ts:41</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/crypto/crypto.service.ts:42</a></div>
                         </td>
                     </tr>
 
@@ -1708,7 +1843,7 @@ If not it will be created.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="51" class="link-to-prism">src/crypto/crypto.service.ts:51</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="52" class="link-to-prism">src/crypto/crypto.service.ts:52</a></div>
                         </td>
                     </tr>
 
@@ -1721,20 +1856,13 @@ If not it will be created.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { execSync } from &#x27;node:child_process&#x27;;
-import { createHash, randomBytes } from &#x27;node:crypto&#x27;;
-import {
-    existsSync,
-    mkdirSync,
-    readdirSync,
-    readFileSync,
-    rmSync,
-    writeFileSync,
-} from &#x27;node:fs&#x27;;
-import { join } from &#x27;node:path&#x27;;
-import { Inject, Injectable, OnModuleInit } from &#x27;@nestjs/common&#x27;;
-import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { createHash, randomBytes } from &quot;node:crypto&quot;;
+import { readdirSync, readFileSync } from &quot;node:fs&quot;;
+import { join } from &quot;node:path&quot;;
+import { URL } from &quot;node:url&quot;;
+import { Inject, Injectable } from &quot;@nestjs/common&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
+import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import {
     type CallbackContext,
     calculateJwkThumbprint,
@@ -1742,22 +1870,30 @@ import {
     HashAlgorithm,
     type Jwk,
     SignJwtCallback,
-} from &#x27;@openid4vc/oauth2&#x27;;
-import { plainToClass } from &#x27;class-transformer&#x27;;
-import { validate } from &#x27;class-validator&#x27;;
-import { importJWK, type JWK, jwtVerify } from &#x27;jose&#x27;;
-import { PinoLogger } from &#x27;nestjs-pino&#x27;;
-import { Repository } from &#x27;typeorm/repository/Repository&#x27;;
-import { EC_Public } from &#x27;../well-known/dto/jwks-response.dto&#x27;;
-import { KeyImportDto } from &#x27;./key/dto/key-import.dto&#x27;;
-import { CertEntity, CertificateType } from &#x27;./key/entities/cert.entity&#x27;;
-import { KeyService } from &#x27;./key/key.service&#x27;;
+} from &quot;@openid4vc/oauth2&quot;;
+import * as x509 from &quot;@peculiar/x509&quot;;
+import { plainToClass } from &quot;class-transformer&quot;;
+import { validate } from &quot;class-validator&quot;;
+import { importJWK, type JWK, jwtVerify } from &quot;jose&quot;;
+import { PinoLogger } from &quot;nestjs-pino&quot;;
+import { Repository } from &quot;typeorm/repository/Repository&quot;;
+import { EC_Public } from &quot;../well-known/dto/jwks-response.dto&quot;;
+import { KeyImportDto } from &quot;./key/dto/key-import.dto&quot;;
+import { UpdateKeyDto } from &quot;./key/dto/key-update.dto&quot;;
+import { CertEntity, CertificateType } from &quot;./key/entities/cert.entity&quot;;
+import { KeyService } from &quot;./key/key.service&quot;;
+
+const ECDSA_P256 &#x3D; {
+    name: &quot;ECDSA&quot;,
+    namedCurve: &quot;P-256&quot;,
+    hash: &quot;SHA-256&quot; as const,
+};
 
 /**
  * Service for cryptographic operations, including key management and certificate handling.
  */
 @Injectable()
-export class CryptoService implements OnModuleInit {
+export class CryptoService {
     /**
      * Folder where the keys are stored.
      */
@@ -1771,33 +1907,27 @@ export class CryptoService implements OnModuleInit {
      */
     constructor(
         private readonly configService: ConfigService,
-        @Inject(&#x27;KeyService&#x27;) public readonly keyService: KeyService,
+        @Inject(&quot;KeyService&quot;) public readonly keyService: KeyService,
         @InjectRepository(CertEntity)
         private certRepository: Repository&lt;CertEntity&gt;,
         private logger: PinoLogger,
     ) {}
 
     /**
-     * Initializes the crypto service by creating the folder if it does not exist.
-     */
-    onModuleInit() {
-        this.folder &#x3D; join(this.configService.getOrThrow&lt;string&gt;(&#x27;FOLDER&#x27;));
-        if (!existsSync(this.folder)) {
-            mkdirSync(this.folder, { recursive: true });
-        }
-    }
-
-    /**
      * Initializes the key service for a specific tenant.
      * @param tenantId
      */
     async onTenantInit(tenantId: string) {
-        const folder &#x3D; join(this.folder, tenantId, &#x27;keys&#x27;);
-        if (!existsSync(folder)) {
-            mkdirSync(folder, { recursive: true });
-        }
         const keyId &#x3D; await this.keyService.init(tenantId);
         await this.hasCerts(tenantId, keyId);
+    }
+
+    /**
+     * Deletes the encryption keys for a given tenant.
+     * @param tenantId - The ID of the tenant for which to delete the keys.
+     */
+    async onTenantDelete(tenantId: string) {
+        await this.certRepository.delete({ tenantId });
     }
 
     /**
@@ -1808,7 +1938,7 @@ export class CryptoService implements OnModuleInit {
     getCerts(tenantId: string): Promise&lt;CertEntity[]&gt; {
         return this.certRepository.findBy({
             tenantId,
-            type: &#x27;signing&#x27;,
+            type: &quot;signing&quot;,
         });
     }
 
@@ -1816,13 +1946,13 @@ export class CryptoService implements OnModuleInit {
      * Imports keys from the file system into the key service.
      */
     async import() {
-        if (this.configService.get&lt;boolean&gt;(&#x27;CONFIG_IMPORT&#x27;)) {
-            const configPath &#x3D; this.configService.getOrThrow(&#x27;CONFIG_FOLDER&#x27;);
-            const subfolder &#x3D; &#x27;keys&#x27;;
+        if (this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT&quot;)) {
+            const configPath &#x3D; this.configService.getOrThrow(&quot;CONFIG_FOLDER&quot;);
+            const subfolder &#x3D; &quot;keys&quot;;
             const force &#x3D; this.configService.get&lt;boolean&gt;(
-                &#x27;CONFIG_IMPORT_FORCE&#x27;,
+                &quot;CONFIG_IMPORT_FORCE&quot;,
             );
-            if (this.configService.get&lt;boolean&gt;(&#x27;CONFIG_IMPORT&#x27;)) {
+            if (this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT&quot;)) {
                 const tenantFolders &#x3D; readdirSync(configPath, {
                     withFileTypes: true,
                 }).filter((tenant) &#x3D;&gt; tenant.isDirectory());
@@ -1833,12 +1963,12 @@ export class CryptoService implements OnModuleInit {
                     const files &#x3D; readdirSync(path);
                     for (const file of files) {
                         const payload &#x3D; JSON.parse(
-                            readFileSync(join(path, file), &#x27;utf8&#x27;),
+                            readFileSync(join(path, file), &quot;utf8&quot;),
                         );
 
                         const id &#x3D; payload.kid;
                         const exists &#x3D; await this.keyService
-                            .getPublicKey(&#x27;jwk&#x27;, tenant.name, id)
+                            .getPublicKey(&quot;jwk&quot;, tenant.name, id)
                             .catch(() &#x3D;&gt; false);
                         if (exists &amp;&amp; !force) {
                             continue; // Skip if config already exists and force is not set
@@ -1848,13 +1978,15 @@ export class CryptoService implements OnModuleInit {
                         const config &#x3D; plainToClass(KeyImportDto, payload);
                         const validationErrors &#x3D; await validate(config, {
                             whitelist: true,
-                            forbidNonWhitelisted: true,
+                            forbidUnknownValues: false, // avoid false positives on plain objects
+                            forbidNonWhitelisted: false,
+                            stopAtFirstError: false,
                         });
 
                         if (validationErrors.length &gt; 0) {
                             this.logger.error(
                                 {
-                                    event: &#x27;ValidationError&#x27;,
+                                    event: &quot;ValidationError&quot;,
                                     file,
                                     tenant: tenant.name,
                                     errors: validationErrors.map((error) &#x3D;&gt; ({
@@ -1872,7 +2004,7 @@ export class CryptoService implements OnModuleInit {
                     }
                     this.logger.info(
                         {
-                            event: &#x27;Import&#x27;,
+                            event: &quot;Import&quot;,
                         },
                         &#x60;${counter} keys imported for ${tenant.name}&#x60;,
                     );
@@ -1911,122 +2043,114 @@ export class CryptoService implements OnModuleInit {
     }
 
     /**
-     * Checks if there is a signing certificate and access certificate available.
-     * If not it will be created.
+     * Ensures a signing certificate (and default access cert) exist for the given tenant/key id.
      */
     async hasCerts(tenantId: string, id?: string) {
-        id &#x3D; id || (await this.keyService.getKid(tenantId));
+        id &#x3D; id ?? (await this.keyService.getKid(tenantId));
 
-        const certObj &#x3D; await this.certRepository.findOneBy({
-            tenantId,
-            id: id,
-        });
+        const existing &#x3D; await this.certRepository.findOneBy({ tenantId, id });
+        if (existing?.crt) return;
+        //TODO: load CN from other source, e.g. config. Also required for access certificate
+        // &#x3D;&#x3D;&#x3D; Inputs/parameters (subject + SAN hostname) &#x3D;&#x3D;&#x3D;
+        const subjectCN &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;RP_NAME&quot;);
+        const hostname &#x3D; new URL(
+            this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;),
+        ).hostname;
 
-        //when there is no cert, create one
-        if (certObj?.crt) {
-            return;
-        }
-
-        const publicKey &#x3D; await this.keyService.getPublicKey(
-            &#x27;pem&#x27;,
+        // &#x3D;&#x3D;&#x3D; Parse the subject public key we want the leaf cert to contain &#x3D;&#x3D;&#x3D;
+        // Expecting PEM SPKI. If you have JWK, convert or import as CryptoKey first.
+        const subjectSpkiPem &#x3D; await this.keyService.getPublicKey(
+            &quot;pem&quot;,
             tenantId,
             id,
         );
+        const subjectPublicKey &#x3D; await new x509.PublicKey(
+            subjectSpkiPem,
+        ).export({ name: &quot;ECDSA&quot;, namedCurve: &quot;P-256&quot; }, [&quot;verify&quot;]);
 
-        const folder &#x3D; join(this.folder, tenantId, id);
-        // create a temporary folder for the cert generation
-        if (!existsSync(folder)) {
-            mkdirSync(folder, { recursive: true });
-        }
-        const publicKeyPath &#x3D; join(folder, &#x60;public-key.${id}.pem&#x60;);
-        writeFileSync(publicKeyPath, publicKey);
-        const dummyKey &#x3D; join(folder, &#x27;dummy_key.pem&#x27;);
-        const dummyCsr &#x3D; join(folder, &#x27;dummy.csr&#x27;);
-        const issuerKey &#x3D; join(folder, &#x27;issuer_key.pem&#x27;);
-        const issuerCert &#x3D; join(folder, &#x27;issuer_cert.pem&#x27;);
+        // &#x3D;&#x3D;&#x3D; Create issuer key pair and self-signed issuer certificate &#x3D;&#x3D;&#x3D;
+        const issuerKeys &#x3D; await crypto.subtle.generateKey(ECDSA_P256, true, [
+            &quot;sign&quot;,
+            &quot;verify&quot;,
+        ]);
+        const now &#x3D; new Date();
+        const inOneYear &#x3D; new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
 
-        const certOut &#x3D; join(folder, &#x60;${id}.pem&#x60;);
-        const sanExt &#x3D; join(folder, &#x27;san.ext&#x27;);
-
-        // &#x3D;&#x3D;&#x3D; Configurable parameters (you can parameterize these when calling the script) &#x3D;&#x3D;&#x3D;
-        const subject &#x3D; this.configService.getOrThrow&lt;string&gt;(&#x27;RP_NAME&#x27;);
-        const hostname &#x3D; new URL(
-            this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;),
-        ).hostname; // Use URL to parse and get hostname
-
-        // &#x3D;&#x3D;&#x3D; Helper to run shell commands &#x3D;&#x3D;&#x3D;
-        const run &#x3D; (cmd) &#x3D;&gt; {
-            execSync(cmd, { stdio: &#x27;pipe&#x27; });
-        };
-
-        // &#x3D;&#x3D;&#x3D; Step-by-step &#x3D;&#x3D;&#x3D;
-        mkdirSync(this.folder, { recursive: true });
-
-        // Step 1: Create dummy key pair if public key is missing
-        if (!existsSync(dummyKey)) {
-            // Generate private key (PKCS#8)
-            run(
-                &#x60;openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:prime256v1 -out &quot;${dummyKey}&quot;&#x60;,
-            );
-        } else {
-            if (!existsSync(dummyKey)) {
-                throw new Error(
-                    &#x60;Public key exists but ${dummyKey} is missing.&#x60;,
-                );
-            }
-        }
-
-        // Step 2: Generate issuer key
-        run(
-            &#x60;openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:prime256v1 -out &quot;${issuerKey}&quot;&#x60;,
+        const issuerCert &#x3D; await x509.X509CertificateGenerator.createSelfSigned(
+            {
+                serialNumber: &quot;01&quot;,
+                name: &#x60;CN&#x3D;${subjectCN}&#x60;,
+                notBefore: now,
+                notAfter: inOneYear,
+                signingAlgorithm: ECDSA_P256,
+                keys: issuerKeys,
+                extensions: [
+                    new x509.BasicConstraintsExtension(true, 0, true), // CA: true, pathLen:0
+                    new x509.KeyUsagesExtension(
+                        x509.KeyUsageFlags.keyCertSign |
+                            x509.KeyUsageFlags.cRLSign,
+                        true,
+                    ),
+                    await x509.SubjectKeyIdentifierExtension.create(
+                        issuerKeys.publicKey,
+                    ),
+                    new x509.SubjectAlternativeNameExtension([
+                        { type: &quot;dns&quot;, value: hostname },
+                    ]),
+                ],
+            },
         );
 
-        // Step 3: Create self-signed issuer cert
-        run(
-            &#x60;openssl req -x509 -new -key &quot;${issuerKey}&quot; -subj &quot;/CN&#x3D;${subject}&quot; -addext &quot;subjectAltName&#x3D;DNS:${hostname}&quot; -days 365 -out &quot;${issuerCert}&quot;&#x60;,
-        );
+        // &#x3D;&#x3D;&#x3D; Issue end-entity certificate for the provided public key &#x3D;&#x3D;&#x3D;
+        const leafCert &#x3D; await x509.X509CertificateGenerator.create({
+            serialNumber: &quot;02&quot;,
+            subject: &#x60;CN&#x3D;${subjectCN}&#x60;,
+            issuer: issuerCert.subject, // DN string from issuer
+            notBefore: now,
+            notAfter: inOneYear,
+            signingAlgorithm: ECDSA_P256,
+            publicKey: subjectPublicKey, // &lt;-- your key goes into the cert
+            signingKey: issuerKeys.privateKey, // signed by issuer
+            extensions: [
+                new x509.SubjectAlternativeNameExtension([
+                    { type: &quot;dns&quot;, value: hostname },
+                ]),
+                new x509.KeyUsagesExtension(
+                    x509.KeyUsageFlags.digitalSignature,
+                    false,
+                ),
+                await x509.SubjectKeyIdentifierExtension.create(
+                    subjectPublicKey,
+                ),
+                await x509.AuthorityKeyIdentifierExtension.create(
+                    issuerCert.publicKey,
+                ),
+            ],
+        });
 
-        // Step 4: Create dummy CSR
-        run(
-            &#x60;openssl req -new -key &quot;${dummyKey}&quot; -subj &quot;/CN&#x3D;${subject}&quot; -addext &quot;subjectAltName&#x3D;DNS:${hostname}&quot; -out &quot;${dummyCsr}&quot;&#x60;,
-        );
+        const crtPem &#x3D; leafCert.toString(&quot;pem&quot;); // PEM-encoded certificate
 
-        // Step 5: Create SAN extension file
-        writeFileSync(sanExt, &#x60;subjectAltName&#x3D;DNS:${hostname}&#x60;);
-
-        // Step 6: Sign certificate using issuer
-        run(
-            &#x60;openssl x509 -req -in &quot;${dummyCsr}&quot; -force_pubkey &quot;${publicKeyPath}&quot; -CA &quot;${issuerCert}&quot; -CAkey &quot;${issuerKey}&quot; -CAcreateserial -days 365 -extfile &quot;${sanExt}&quot; -out &quot;${certOut}&quot;&#x60;,
-        );
-
-        const crt &#x3D; readFileSync(certOut, &#x27;utf-8&#x27;);
-        // Store the certificate in the database
+        // Persist the signing certificate
         await this.certRepository.save({
             tenantId,
             id,
-            crt,
-            type: &#x27;signing&#x27;,
+            crt: crtPem,
+            type: &quot;signing&quot;,
         });
 
-        // Step 7: Clean up
-        rmSync(folder, { recursive: true });
-
-        //set access certificate
-        await this.certRepository
-            .countBy({
+        // Mirror your logic: if no &quot;access&quot; cert yet, reuse the same PEM
+        const accessCount &#x3D; await this.certRepository.countBy({
+            tenantId,
+            type: &quot;access&quot;,
+        });
+        if (accessCount &#x3D;&#x3D;&#x3D; 0) {
+            await this.certRepository.save({
                 tenantId,
-                type: &#x27;access&#x27;,
-            })
-            .then((count) &#x3D;&gt; {
-                if (count &#x3D;&#x3D;&#x3D; 0) {
-                    return this.certRepository.save({
-                        tenantId,
-                        id,
-                        crt,
-                        type: &#x27;access&#x27;,
-                    });
-                }
+                id,
+                crt: crtPem,
+                type: &quot;access&quot;,
             });
+        }
     }
 
     /**
@@ -2064,6 +2188,16 @@ export class CryptoService implements OnModuleInit {
     }
 
     /**
+     * Update an existing certificate in the key service.
+     * @param tenantId
+     * @param id
+     * @param body
+     */
+    updateCert(tenantId: string, id: string, body: UpdateKeyDto) {
+        this.certRepository.update({ tenantId, id }, body);
+    }
+
+    /**
      * Get the certificate chain for the given type to be included in the JWS header.
      * @param type
      * @param tenantId
@@ -2071,27 +2205,27 @@ export class CryptoService implements OnModuleInit {
      * @returns
      */
     async getCertChain(
-        type: CertificateType &#x3D; &#x27;signing&#x27;,
+        type: CertificateType &#x3D; &quot;signing&quot;,
         tenantId: string,
         keyId?: string,
     ) {
         let cert: string;
-        if (type &#x3D;&#x3D;&#x3D; &#x27;signing&#x27;) {
+        if (type &#x3D;&#x3D;&#x3D; &quot;signing&quot;) {
             keyId &#x3D; keyId || (await this.keyService.getKid(tenantId));
             cert &#x3D; await this.getCert(tenantId, keyId);
         } else {
             cert &#x3D; await this.certRepository
                 .findOneByOrFail({
                     tenantId,
-                    type: &#x27;access&#x27;,
+                    type: &quot;access&quot;,
                 })
                 .then((cert) &#x3D;&gt; cert.crt);
         }
 
         const chain &#x3D; cert
-            .replace(&#x27;-----BEGIN CERTIFICATE-----&#x27;, &#x27;&#x27;)
-            .replace(&#x27;-----END CERTIFICATE-----&#x27;, &#x27;&#x27;)
-            .replace(/\r?\n|\r/g, &#x27;&#x27;);
+            .replace(&quot;-----BEGIN CERTIFICATE-----&quot;, &quot;&quot;)
+            .replace(&quot;-----END CERTIFICATE-----&quot;, &quot;&quot;)
+            .replace(/\r?\n|\r/g, &quot;&quot;);
         return [chain];
     }
 
@@ -2105,7 +2239,7 @@ export class CryptoService implements OnModuleInit {
             tenantId,
             id,
             crt,
-            type: &#x27;access&#x27;,
+            type: &quot;access&quot;,
         });
     }
 
@@ -2137,8 +2271,8 @@ export class CryptoService implements OnModuleInit {
         tenantId: string,
         payload?: Record&lt;string, any&gt;,
     ): Promise&lt;{ verified: boolean }&gt; {
-        const publicJwk &#x3D; await this.keyService.getPublicKey(&#x27;jwk&#x27;, tenantId);
-        const publicCryptoKey &#x3D; await importJWK(publicJwk, &#x27;ES256&#x27;);
+        const publicJwk &#x3D; await this.keyService.getPublicKey(&quot;jwk&quot;, tenantId);
+        const publicCryptoKey &#x3D; await importJWK(publicJwk, &quot;ES256&quot;);
 
         try {
             await jwtVerify(compact, publicCryptoKey, {
@@ -2158,21 +2292,21 @@ export class CryptoService implements OnModuleInit {
      */
     getCallbackContext(
         tenantId: string,
-    ): Omit&lt;CallbackContext, &#x27;encryptJwe&#x27; | &#x27;decryptJwe&#x27;&gt; {
+    ): Omit&lt;CallbackContext, &quot;encryptJwe&quot; | &quot;decryptJwe&quot;&gt; {
         return {
             hash: (data, alg) &#x3D;&gt;
-                createHash(alg.replace(&#x27;-&#x27;, &#x27;&#x27;).toLowerCase())
+                createHash(alg.replace(&quot;-&quot;, &quot;&quot;).toLowerCase())
                     .update(data)
                     .digest(),
             generateRandom: (bytes) &#x3D;&gt; randomBytes(bytes),
             clientAuthentication: clientAuthenticationNone({
-                clientId: &#x27;some-random&#x27;,
+                clientId: &quot;some-random&quot;,
             }),
             //clientId: &#x27;some-random-client-id&#x27;, // TODO: Replace with your real clientId if necessary
             signJwt: this.getSignJwtCallback(tenantId),
             verifyJwt: async (signer, { compact, payload }) &#x3D;&gt; {
-                if (signer.method !&#x3D;&#x3D; &#x27;jwk&#x27;) {
-                    throw new Error(&#x27;Signer method not supported&#x27;);
+                if (signer.method !&#x3D;&#x3D; &quot;jwk&quot;) {
+                    throw new Error(&quot;Signer method not supported&quot;);
                 }
 
                 const josePublicKey &#x3D; await importJWK(
@@ -2196,8 +2330,8 @@ export class CryptoService implements OnModuleInit {
     // Helper to generate signJwt callback
     getSignJwtCallback(tenantId: string): SignJwtCallback {
         return async (signer, { header, payload }) &#x3D;&gt; {
-            if (signer.method !&#x3D;&#x3D; &#x27;jwk&#x27;) {
-                throw new Error(&#x27;Signer method not supported&#x27;);
+            if (signer.method !&#x3D;&#x3D; &quot;jwk&quot;) {
+                throw new Error(&quot;Signer method not supported&quot;);
             }
             const hashCallback &#x3D; this.getCallbackContext(tenantId).hash;
             const jwkThumbprint &#x3D; await calculateJwkThumbprint({
@@ -2208,7 +2342,7 @@ export class CryptoService implements OnModuleInit {
 
             const privateThumbprint &#x3D; await calculateJwkThumbprint({
                 jwk: (await this.keyService.getPublicKey(
-                    &#x27;jwk&#x27;,
+                    &quot;jwk&quot;,
                     tenantId,
                 )) as Jwk,
                 hashAlgorithm: HashAlgorithm.Sha256,
@@ -2237,7 +2371,7 @@ export class CryptoService implements OnModuleInit {
      */
     getJwks(tenantId: string) {
         return this.keyService.getPublicKey(
-            &#x27;jwk&#x27;,
+            &quot;jwk&quot;,
             tenantId,
         ) as Promise&lt;EC_Public&gt;;
     }
@@ -2250,7 +2384,7 @@ export class CryptoService implements OnModuleInit {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     deleteKey(tenantId: string, id: string) {
         //TODO: before deleting it, make sure it is not used in a configuration
-        throw new Error(&#x27;Method not implemented.&#x27;);
+        throw new Error(&quot;Method not implemented.&quot;);
     }
 }
 </code></pre>

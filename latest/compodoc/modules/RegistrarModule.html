@@ -277,11 +277,13 @@ It provides the RegistrarService and imports necessary modules.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &#x27;@nestjs/common&#x27;;
-import * as Joi from &#x27;joi&#x27;;
-import { CryptoModule } from &#x27;../crypto/crypto.module&#x27;;
-import { PresentationsModule } from &#x27;../verifier/presentations/presentations.module&#x27;;
-import { RegistrarService } from &#x27;./registrar.service&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &quot;@nestjs/common&quot;;
+import { TypeOrmModule } from &quot;@nestjs/typeorm&quot;;
+import * as Joi from &quot;joi&quot;;
+import { CryptoModule } from &quot;../crypto/crypto.module&quot;;
+import { PresentationsModule } from &quot;../verifier/presentations/presentations.module&quot;;
+import { RegistrarEntity } from &quot;./entities/registrar.entity&quot;;
+import { RegistrarService } from &quot;./registrar.service&quot;;
 
 /**
  * Validation schema for the registrar module.
@@ -289,15 +291,15 @@ import { RegistrarService } from &#x27;./registrar.service&#x27;;
  */
 export const REGISTRAR_VALIDATION_SCHEMA &#x3D; {
     REGISTRAR_URL: Joi.string(),
-    REGISTRAR_OIDC_URL: Joi.string().when(&#x27;REGISTRAR_URL&#x27;, {
+    REGISTRAR_OIDC_URL: Joi.string().when(&quot;REGISTRAR_URL&quot;, {
         is: Joi.exist(),
         then: Joi.required(),
     }),
-    REGISTRAR_OIDC_CLIENT_ID: Joi.string().when(&#x27;REGISTRAR_URL&#x27;, {
+    REGISTRAR_OIDC_CLIENT_ID: Joi.string().when(&quot;REGISTRAR_URL&quot;, {
         is: Joi.exist(),
         then: Joi.required(),
     }),
-    REGISTRAR_OIDC_CLIENT_SECRET: Joi.string().when(&#x27;REGISTRAR_URL&#x27;, {
+    REGISTRAR_OIDC_CLIENT_SECRET: Joi.string().when(&quot;REGISTRAR_URL&quot;, {
         is: Joi.exist(),
         then: Joi.required(),
     }),
@@ -308,7 +310,11 @@ export const REGISTRAR_VALIDATION_SCHEMA &#x3D; {
  * It provides the RegistrarService and imports necessary modules.
  */
 @Module({
-    imports: [CryptoModule, PresentationsModule],
+    imports: [
+        CryptoModule,
+        PresentationsModule,
+        TypeOrmModule.forFeature([RegistrarEntity]),
+    ],
     providers: [RegistrarService],
     exports: [RegistrarService],
 })

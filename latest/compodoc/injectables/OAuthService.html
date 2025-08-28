@@ -779,11 +779,11 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, UnauthorizedException } from &#x27;@nestjs/common&#x27;;
-import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { CryptoService } from &#x27;../crypto/crypto.service&#x27;;
-import { TokenRequestDto } from &#x27;./dto/token-request.dto&#x27;;
-import { TokenResponseDto } from &#x27;./dto/token-response.dto&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, UnauthorizedException } from &quot;@nestjs/common&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
+import { CryptoService } from &quot;../crypto/crypto.service&quot;;
+import { TokenRequestDto } from &quot;./dto/token-request.dto&quot;;
+import { TokenResponseDto } from &quot;./dto/token-response.dto&quot;;
 
 @Injectable()
 export class OAuthService {
@@ -801,9 +801,9 @@ export class OAuthService {
     private initializeClients() {
         // Add default client from environment variables if available
         const defaultClientId &#x3D;
-            this.configService.get&lt;string&gt;(&#x27;OAUTH_CLIENT_ID&#x27;);
+            this.configService.get&lt;string&gt;(&quot;OAUTH_CLIENT_ID&quot;);
         const defaultClientSecret &#x3D; this.configService.get&lt;string&gt;(
-            &#x27;OAUTH_CLIENT_SECRET&#x27;,
+            &quot;OAUTH_CLIENT_SECRET&quot;,
         );
 
         if (defaultClientId &amp;&amp; defaultClientSecret) {
@@ -821,7 +821,7 @@ export class OAuthService {
                 request.client_secret,
             )
         ) {
-            throw new UnauthorizedException(&#x27;Invalid client credentials&#x27;);
+            throw new UnauthorizedException(&quot;Invalid client credentials&quot;);
         }
 
         // Generate access token
@@ -832,9 +832,9 @@ export class OAuthService {
 
         return {
             access_token: accessToken,
-            token_type: &#x27;Bearer&#x27;,
+            token_type: &quot;Bearer&quot;,
             expires_in: 3600, // 1 hour
-            scope: request.scope || &#x27;openid&#x27;,
+            scope: request.scope || &quot;openid&quot;,
         };
     }
 
@@ -852,19 +852,19 @@ export class OAuthService {
     ): Promise&lt;string&gt; {
         const payload &#x3D; {
             sub: clientId,
-            aud: this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;),
-            iss: this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;),
-            scope: scope || &#x27;openid&#x27;,
+            aud: this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;),
+            iss: this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;),
+            scope: scope || &quot;openid&quot;,
             exp: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
             iat: Math.floor(Date.now() / 1000),
         };
 
         // For now, we&#x27;ll use the root tenant for signing
         // In a real implementation, you might want to use a dedicated OAuth signing key
-        const tenantId &#x3D; &#x27;root&#x27;;
+        const tenantId &#x3D; &quot;root&quot;;
         return await this.cryptoService.signJwt(
             payload,
-            { alg: &#x27;RS256&#x27; },
+            { alg: &quot;RS256&quot; },
             tenantId,
         );
     }

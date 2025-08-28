@@ -118,13 +118,13 @@
 <title>cluster_CryptoModule</title>
 <polygon fill="none" stroke="black" stroke-dasharray="1,5" points="73,-70 73,-268 423,-268 423,-70 73,-70"/>
 </g>
-<g id="clust6" class="cluster">
-<title>cluster_CryptoModule_providers</title>
-<polygon fill="none" stroke="black" points="81,-78 81,-130 415,-130 415,-78 81,-78"/>
-</g>
 <g id="clust4" class="cluster">
 <title>cluster_CryptoModule_exports</title>
 <polygon fill="none" stroke="black" points="105,-208 105,-260 363,-260 363,-208 105,-208"/>
+</g>
+<g id="clust6" class="cluster">
+<title>cluster_CryptoModule_providers</title>
+<polygon fill="none" stroke="black" points="81,-78 81,-130 415,-130 415,-78 81,-78"/>
 </g>
 <!-- CryptoService  -->
 <g id="node1" class="node">
@@ -268,15 +268,16 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &#x27;@nestjs/common&#x27;;
-import { TypeOrmModule } from &#x27;@nestjs/typeorm&#x27;;
-import { CryptoService } from &#x27;./crypto.service&#x27;;
-import { EncryptionService } from &#x27;./encryption/encryption.service&#x27;;
-import { CertEntity } from &#x27;./key/entities/cert.entity&#x27;;
-import { KeyController } from &#x27;./key/key.controller&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &quot;@nestjs/common&quot;;
+import { TypeOrmModule } from &quot;@nestjs/typeorm&quot;;
+import { CryptoService } from &quot;./crypto.service&quot;;
+import { EncryptionService } from &quot;./encryption/encryption.service&quot;;
+import { CertEntity } from &quot;./key/entities/cert.entity&quot;;
+import { KeyEntity } from &quot;./key/entities/keys.entity&quot;;
+import { KeyController } from &quot;./key/key.controller&quot;;
 
 @Module({
-    imports: [TypeOrmModule.forFeature([CertEntity])],
+    imports: [TypeOrmModule.forFeature([CertEntity, KeyEntity])],
     controllers: [KeyController],
     providers: [CryptoService, EncryptionService],
     exports: [CryptoService, EncryptionService],

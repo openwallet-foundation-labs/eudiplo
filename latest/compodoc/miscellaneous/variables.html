@@ -116,6 +116,9 @@
                             <a href="#AUTH_VALIDATION_SCHEMA" title="src/auth/auth.module.ts" ><b>AUTH_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../auth.module.ts)</a>
                         </li>
                         <li>
+                            <a href="#CONFIG_STORAGE_SCHEMA" title="src/storage/storage.module.ts" ><b>CONFIG_STORAGE_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../storage.module.ts)</a>
+                        </li>
+                        <li>
                             <a href="#ContentType" title="src/utils/mediaType/media-type.decorator.ts" ><b>ContentType</b>&nbsp;&nbsp;&nbsp;(src/.../media-type.decorator.ts)</a>
                         </li>
                         <li>
@@ -134,7 +137,13 @@
                             <a href="#DEFAULT_JWT_SECRET" title="src/auth/auth.module.ts" ><b>DEFAULT_JWT_SECRET</b>&nbsp;&nbsp;&nbsp;(src/.../auth.module.ts)</a>
                         </li>
                         <li>
+                            <a href="#ECDSA_P256" title="src/crypto/crypto.service.ts" ><b>ECDSA_P256</b>&nbsp;&nbsp;&nbsp;(src/.../crypto.service.ts)</a>
+                        </li>
+                        <li>
                             <a href="#ED25519" title="src/crypto/key/crypto-implementation/ed25519.ts" ><b>ED25519</b>&nbsp;&nbsp;&nbsp;(src/.../ed25519.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#FILE_STORAGE" title="src/storage/storage.types.ts" ><b>FILE_STORAGE</b>&nbsp;&nbsp;&nbsp;(src/.../storage.types.ts)</a>
                         </li>
                         <li>
                             <a href="#IS_PUBLIC_KEY" title="src/auth/public.decorator.ts" ><b>IS_PUBLIC_KEY</b>&nbsp;&nbsp;&nbsp;(src/.../public.decorator.ts)</a>
@@ -159,9 +168,6 @@
                         </li>
                         <li>
                             <a href="#SESSION_VALIDATION_SCHEMA" title="src/session/session.module.ts" ><b>SESSION_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../session.module.ts)</a>
-                        </li>
-                        <li>
-                            <a href="#SessionEntity" title="src/session/session.decorator.ts" ><b>SessionEntity</b>&nbsp;&nbsp;&nbsp;(src/.../session.decorator.ts)</a>
                         </li>
                         <li>
                             <a href="#SessionLogger" title="src/utils/logger/session-logger.decorator.ts" ><b>SessionLogger</b>&nbsp;&nbsp;&nbsp;(src/.../session-logger.decorator.ts)</a>
@@ -199,31 +205,35 @@
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
     OIDC: Joi.string().optional(),
-    KEYCLOAK_INTERNAL_ISSUER_URL: Joi.when(&#x27;OIDC&#x27;, {
+    OIDC_INTERNAL_ISSUER_URL: Joi.when(&quot;OIDC&quot;, {
         then: Joi.string().required(),
         otherwise: Joi.string().optional(),
     }),
-    KEYCLOAK_ALGORITHM: Joi.when(&#x27;OIDC&#x27;, {
-        then: Joi.string().default(&#x27;RS256&#x27;),
+    OIDC_SUB: Joi.when(&quot;OIDC&quot;, {
+        then: Joi.string().default(&quot;azp&quot;),
         otherwise: Joi.string().optional(),
     }),
-    JWT_SECRET: Joi.when(&#x27;OIDC&#x27;, {
+    OIDC_ALGORITHM: Joi.when(&quot;OIDC&quot;, {
+        then: Joi.string().default(&quot;RS256&quot;),
+        otherwise: Joi.string().optional(),
+    }),
+    JWT_SECRET: Joi.when(&quot;OIDC&quot;, {
         then: Joi.string().optional(),
         otherwise: Joi.string().default(DEFAULT_JWT_SECRET),
     }),
-    JWT_ISSUER: Joi.when(&#x27;OIDC&#x27;, {
+    JWT_ISSUER: Joi.when(&quot;OIDC&quot;, {
         then: Joi.string().optional(),
-        otherwise: Joi.string().optional().default(&#x27;eudiplo-service&#x27;),
+        otherwise: Joi.string().optional().default(&quot;eudiplo-service&quot;),
     }),
-    JWT_EXPIRES_IN: Joi.when(&#x27;OIDC&#x27;, {
+    JWT_EXPIRES_IN: Joi.when(&quot;OIDC&quot;, {
         then: Joi.string().optional(),
-        otherwise: Joi.string().default(&#x27;24h&#x27;),
+        otherwise: Joi.string().default(&quot;24h&quot;),
     }),
-    AUTH_CLIENT_SECRET: Joi.when(&#x27;OIDC&#x27;, {
+    AUTH_CLIENT_SECRET: Joi.when(&quot;OIDC&quot;, {
         then: Joi.string().optional(),
         otherwise: Joi.string().default(DEFAULT_AUTH_CLIENT_SECRET),
     }),
-    AUTH_CLIENT_ID: Joi.when(&#x27;OIDC&#x27;, {
+    AUTH_CLIENT_ID: Joi.when(&quot;OIDC&quot;, {
         then: Joi.string().optional(),
         otherwise: Joi.string().default(DEFAULT_AUTH_CLIENT_ID),
     }),
@@ -253,7 +263,7 @@
                 </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Default value : </i><code>&#x27;root&#x27;</code>
+                        <i>Default value : </i><code>&quot;root&quot;</code>
                     </td>
                 </tr>
 
@@ -279,7 +289,7 @@
                 </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Default value : </i><code>&#x27;root&#x27;</code>
+                        <i>Default value : </i><code>&quot;root&quot;</code>
                     </td>
                 </tr>
 
@@ -305,7 +315,70 @@
                 </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Default value : </i><code>&#x27;supersecret&#x27;</code>
+                        <i>Default value : </i><code>&quot;supersecret&quot;</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/storage/storage.module.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="CONFIG_STORAGE_SCHEMA"></a>
+                    <span class="name">
+                        <span ><b>CONFIG_STORAGE_SCHEMA</b></span>
+                        <a href="#CONFIG_STORAGE_SCHEMA"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object" target="_blank" >object</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>{
+    STORAGE_DRIVER: Joi.string().valid(&quot;local&quot;, &quot;s3&quot;).default(&quot;local&quot;),
+    LOCAL_STORAGE_DIR: Joi.string().when(Joi.ref(&quot;STORAGE_DRIVER&quot;), {
+        is: &quot;local&quot;,
+        then: Joi.string().default((parent) &#x3D;&gt; join(parent.FOLDER, &quot;uploads&quot;)),
+    }),
+    S3_REGION: Joi.string().when(Joi.ref(&quot;STORAGE_DRIVER&quot;), {
+        is: &quot;s3&quot;,
+        then: Joi.required(),
+    }),
+    S3_BUCKET: Joi.string().when(Joi.ref(&quot;STORAGE_DRIVER&quot;), {
+        is: &quot;s3&quot;,
+        then: Joi.required(),
+    }),
+    S3_ACCESS_KEY_ID: Joi.string().when(Joi.ref(&quot;STORAGE_DRIVER&quot;), {
+        is: &quot;s3&quot;,
+        then: Joi.required(),
+    }),
+    S3_SECRET_ACCESS_KEY: Joi.string().when(Joi.ref(&quot;STORAGE_DRIVER&quot;), {
+        is: &quot;s3&quot;,
+        then: Joi.required(),
+    }),
+    S3_ENDPOINT: Joi.string().when(Joi.ref(&quot;STORAGE_DRIVER&quot;), {
+        is: &quot;s3&quot;,
+        then: Joi.optional(),
+    }),
+    S3_FORCE_PATH_STYLE: Joi.boolean().when(Joi.ref(&quot;STORAGE_DRIVER&quot;), {
+        is: &quot;s3&quot;,
+        then: Joi.boolean().default(false),
+    }),
+    S3_PUBLIC_BASE_URL: Joi.string().when(Joi.ref(&quot;STORAGE_DRIVER&quot;), {
+        is: &quot;s3&quot;,
+        then: Joi.required(),
+    }),
+}</code>
                     </td>
                 </tr>
 
@@ -331,7 +404,7 @@
                         <i>Default value : </i><code>createParamDecorator(
     (data: unknown, ctx: ExecutionContext) &#x3D;&gt; {
         const request &#x3D; ctx.switchToHttp().getRequest();
-        return request.headers[&#x27;accept&#x27;] as string | undefined;
+        return request.headers[&quot;accept&quot;] as string | undefined;
     },
 )</code>
                     </td>
@@ -370,7 +443,7 @@ This decorator can be used to determine the media type of the request.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-    CRYPTO_ALG: Joi.string().valid(&#x27;ES256&#x27;).default(&#x27;ES256&#x27;),
+    CRYPTO_ALG: Joi.string().valid(&quot;ES256&quot;).default(&quot;ES256&quot;),
 }</code>
                     </td>
                 </tr>
@@ -401,32 +474,65 @@ This decorator can be used to determine the media type of the request.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-    DB_TYPE: Joi.string().valid(&#x27;sqlite&#x27;, &#x27;postgres&#x27;).default(&#x27;sqlite&#x27;),
-    DB_HOST: Joi.string().when(&#x27;DB_TYPE&#x27;, {
-        is: &#x27;sqlite&#x27;,
+    DB_TYPE: Joi.string().valid(&quot;sqlite&quot;, &quot;postgres&quot;).default(&quot;sqlite&quot;),
+    DB_HOST: Joi.string().when(&quot;DB_TYPE&quot;, {
+        is: &quot;sqlite&quot;,
         then: Joi.optional(),
         otherwise: Joi.required(),
     }),
-    DB_PORT: Joi.number().when(&#x27;DB_TYPE&#x27;, {
-        is: &#x27;sqlite&#x27;,
+    DB_PORT: Joi.number().when(&quot;DB_TYPE&quot;, {
+        is: &quot;sqlite&quot;,
         then: Joi.optional(),
         otherwise: Joi.required(),
     }),
-    DB_USERNAME: Joi.string().when(&#x27;DB_TYPE&#x27;, {
-        is: &#x27;sqlite&#x27;,
+    DB_USERNAME: Joi.string().when(&quot;DB_TYPE&quot;, {
+        is: &quot;sqlite&quot;,
         then: Joi.optional(),
         otherwise: Joi.required(),
     }),
-    DB_PASSWORD: Joi.string().when(&#x27;DB_TYPE&#x27;, {
-        is: &#x27;sqlite&#x27;,
+    DB_PASSWORD: Joi.string().when(&quot;DB_TYPE&quot;, {
+        is: &quot;sqlite&quot;,
         then: Joi.optional(),
         otherwise: Joi.required(),
     }),
-    DB_DATABASE: Joi.string().when(&#x27;DB_TYPE&#x27;, {
-        is: &#x27;sqlite&#x27;,
+    DB_DATABASE: Joi.string().when(&quot;DB_TYPE&quot;, {
+        is: &quot;sqlite&quot;,
         then: Joi.optional(),
         otherwise: Joi.required(),
     }),
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/crypto/crypto.service.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ECDSA_P256"></a>
+                    <span class="name">
+                        <span ><b>ECDSA_P256</b></span>
+                        <a href="#ECDSA_P256"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object" target="_blank" >object</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>{
+    name: &quot;ECDSA&quot;,
+    namedCurve: &quot;P-256&quot;,
+    hash: &quot;SHA-256&quot; as const,
 }</code>
                     </td>
                 </tr>
@@ -457,23 +563,23 @@ This decorator can be used to determine the media type of the request.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-    alg: &#x27;EdDSA&#x27;,
+    alg: &quot;EdDSA&quot;,
     async generateKeyPair() {
         const keyPair &#x3D; await crypto.webcrypto.subtle.generateKey(
             {
-                name: &#x27;EdDSA&#x27;,
-                namedCurve: &#x27;Ed25519&#x27;,
+                name: &quot;EdDSA&quot;,
+                namedCurve: &quot;Ed25519&quot;,
             },
             true,
-            [&#x27;sign&#x27;, &#x27;verify&#x27;],
+            [&quot;sign&quot;, &quot;verify&quot;],
         );
 
         const publicKey &#x3D; await crypto.webcrypto.subtle.exportKey(
-            &#x27;jwk&#x27;,
+            &quot;jwk&quot;,
             keyPair.publicKey,
         );
         const privateKey &#x3D; await crypto.webcrypto.subtle.exportKey(
-            &#x27;jwk&#x27;,
+            &quot;jwk&quot;,
             keyPair.privateKey,
         );
 
@@ -481,42 +587,42 @@ This decorator can be used to determine the media type of the request.</p>
     },
     async getSigner(privateKeyJWK: object) {
         const privateKey &#x3D; await crypto.webcrypto.subtle.importKey(
-            &#x27;jwk&#x27;,
+            &quot;jwk&quot;,
             privateKeyJWK,
             {
-                name: &#x27;EdDSA&#x27;,
-                namedCurve: &#x27;Ed25519&#x27;,
+                name: &quot;EdDSA&quot;,
+                namedCurve: &quot;Ed25519&quot;,
             },
             false,
-            [&#x27;sign&#x27;],
+            [&quot;sign&quot;],
         );
 
         return async (data: string) &#x3D;&gt; {
             const signature &#x3D; await crypto.webcrypto.subtle.sign(
-                &#x27;EdDSA&#x27;,
+                &quot;EdDSA&quot;,
                 privateKey,
                 new TextEncoder().encode(data),
             );
 
-            return Buffer.from(signature).toString(&#x27;base64url&#x27;);
+            return Buffer.from(signature).toString(&quot;base64url&quot;);
         };
     },
     async getVerifier(publicKeyJWK: object) {
         const publicKey &#x3D; await crypto.webcrypto.subtle.importKey(
-            &#x27;jwk&#x27;,
+            &quot;jwk&quot;,
             publicKeyJWK,
             {
-                name: &#x27;EdDSA&#x27;,
-                namedCurve: &#x27;Ed25519&#x27;,
+                name: &quot;EdDSA&quot;,
+                namedCurve: &quot;Ed25519&quot;,
             },
             false,
-            [&#x27;verify&#x27;],
+            [&quot;verify&quot;],
         );
 
         return async (data: string, signatureBase64url: string) &#x3D;&gt; {
-            const signature &#x3D; Buffer.from(signatureBase64url, &#x27;base64url&#x27;);
+            const signature &#x3D; Buffer.from(signatureBase64url, &quot;base64url&quot;);
             const isVerified &#x3D; await crypto.webcrypto.subtle.verify(
-                &#x27;EdDSA&#x27;,
+                &quot;EdDSA&quot;,
                 publicKey,
                 signature,
                 new TextEncoder().encode(data),
@@ -526,6 +632,29 @@ This decorator can be used to determine the media type of the request.</p>
         };
     },
 }</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/storage/storage.types.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="FILE_STORAGE"></a>
+                    <span class="name">
+                        <span ><b>FILE_STORAGE</b></span>
+                        <a href="#FILE_STORAGE"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>Symbol(&quot;FILE_STORAGE&quot;)</code>
                     </td>
                 </tr>
 
@@ -554,7 +683,7 @@ This decorator can be used to determine the media type of the request.</p>
                 </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Default value : </i><code>&#x27;isPublic&#x27;</code>
+                        <i>Default value : </i><code>&quot;isPublic&quot;</code>
                     </td>
                 </tr>
 
@@ -604,7 +733,7 @@ This decorator can be used to determine the media type of the request.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-    PUBLIC_URL: Joi.string().default(&#x27;http://localhost:3000&#x27;),
+    PUBLIC_URL: Joi.string().default(&quot;http://localhost:3000&quot;),
 }</code>
                     </td>
                 </tr>
@@ -635,16 +764,16 @@ This decorator can be used to determine the media type of the request.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
-    KM_TYPE: Joi.string().valid(&#x27;file&#x27;, &#x27;vault&#x27;).default(&#x27;file&#x27;),
+    KM_TYPE: Joi.string().valid(&quot;db&quot;, &quot;vault&quot;).default(&quot;db&quot;),
 
     // Vault-related config
-    VAULT_URL: Joi.string().uri().when(&#x27;KM_TYPE&#x27;, {
-        is: &#x27;vault&#x27;,
+    VAULT_URL: Joi.string().uri().when(&quot;KM_TYPE&quot;, {
+        is: &quot;vault&quot;,
         then: Joi.required(),
         otherwise: Joi.optional(),
     }),
-    VAULT_TOKEN: Joi.string().when(&#x27;KM_TYPE&#x27;, {
-        is: &#x27;vault&#x27;,
+    VAULT_TOKEN: Joi.string().when(&quot;KM_TYPE&quot;, {
+        is: &quot;vault&quot;,
         then: Joi.required(),
         otherwise: Joi.optional(),
     }),
@@ -711,15 +840,15 @@ This decorator can be used to determine the media type of the request.</p>
                     <td class="col-md-4">
                         <i>Default value : </i><code>{
     REGISTRAR_URL: Joi.string(),
-    REGISTRAR_OIDC_URL: Joi.string().when(&#x27;REGISTRAR_URL&#x27;, {
+    REGISTRAR_OIDC_URL: Joi.string().when(&quot;REGISTRAR_URL&quot;, {
         is: Joi.exist(),
         then: Joi.required(),
     }),
-    REGISTRAR_OIDC_CLIENT_ID: Joi.string().when(&#x27;REGISTRAR_URL&#x27;, {
+    REGISTRAR_OIDC_CLIENT_ID: Joi.string().when(&quot;REGISTRAR_URL&quot;, {
         is: Joi.exist(),
         then: Joi.required(),
     }),
-    REGISTRAR_OIDC_CLIENT_SECRET: Joi.string().when(&#x27;REGISTRAR_URL&#x27;, {
+    REGISTRAR_OIDC_CLIENT_SECRET: Joi.string().when(&quot;REGISTRAR_URL&quot;, {
         is: Joi.exist(),
         then: Joi.required(),
     }),
@@ -759,7 +888,7 @@ Defines the required environment variables and their types.</p>
                 </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Default value : </i><code>&#x27;session-logger&#x27;</code>
+                        <i>Default value : </i><code>&quot;session-logger&quot;</code>
                     </td>
                 </tr>
 
@@ -787,7 +916,7 @@ Defines the required environment variables and their types.</p>
                     <td class="col-md-4">
                         <i>Default value : </i><code>(
     sessionIdParam: string,
-    flowType: &#x27;OID4VCI&#x27; | &#x27;OID4VP&#x27;,
+    flowType: &quot;OID4VCI&quot; | &quot;OID4VP&quot;,
 ) &#x3D;&gt; SetMetadata(SESSION_LOGGER_KEY, { sessionIdParam, flowType })</code>
                     </td>
                 </tr>
@@ -836,34 +965,6 @@ Defines the required environment variables and their types.</p>
 </div>
                 </td>
             </tr>
-
-        </tbody>
-    </table>
-</section>
-    <h3>src/session/session.decorator.ts</h3>
-    <section data-compodoc="block-properties">
-    <h3></h3>    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="SessionEntity"></a>
-                    <span class="name">
-                        <span ><b>SessionEntity</b></span>
-                        <a href="#SessionEntity"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Default value : </i><code>createParamDecorator(
-    (data: unknown, ctx: ExecutionContext) &#x3D;&gt; {
-        const request &#x3D; ctx.switchToHttp().getRequest();
-        return request.session as Session;
-    },
-)</code>
-                    </td>
-                </tr>
-
 
         </tbody>
     </table>

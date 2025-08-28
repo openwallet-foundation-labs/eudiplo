@@ -152,6 +152,10 @@
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
+                                <a href="#onTenantDelete" >onTenantDelete</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#onTenantInit" >onTenantInit</a>
                             </li>
                         </ul>
@@ -172,12 +176,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(configService: ConfigService)</code>
+<code>constructor(keyRepository: <a href="../classes/Key.html" target="_self">Repository&lt;KeyEntity&gt;</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="11" class="link-to-prism">src/crypto/encryption/encryption.service.ts:11</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="12" class="link-to-prism">src/crypto/encryption/encryption.service.ts:12</a></div>
                             </td>
                         </tr>
 
@@ -197,10 +201,10 @@
                                         </thead>
                                         <tbody>
                                                 <tr>
-                                                        <td>configService</td>
+                                                        <td>keyRepository</td>
                                                   
                                                         <td>
-                                                                    <code>ConfigService</code>
+                                                                        <code><a href="../classes/Key.html" target="_self" >Repository&lt;KeyEntity&gt;</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -244,8 +248,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="53"
-                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:53</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="54"
+                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:54</a></div>
                         </td>
                     </tr>
 
@@ -347,8 +351,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="75"
-                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:75</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="74"
+                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:74</a></div>
                         </td>
                     </tr>
 
@@ -393,12 +397,90 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>JWK</code>
+                            <b>Returns : </b>    <code>Promise&lt;JWK&gt;</code>
 
                         </div>
                             <div class="io-description">
                                 <p>The public encryption key as a JWK.</p>
 
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onTenantDelete"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>onTenantDelete</b></span>
+                        <a href="#onTenantDelete"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>onTenantDelete(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="44"
+                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:44</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Deletes the encryption keys for a given tenant.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The ID of the tenant for which to delete the keys.</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
                             </div>
                 </td>
             </tr>
@@ -426,8 +508,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="22"
-                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:22</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="26"
+                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:26</a></div>
                         </td>
                     </tr>
 
@@ -488,11 +570,12 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &#x27;@nestjs/common&#x27;;
-import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { existsSync, readFileSync, writeFileSync } from &#x27;fs&#x27;;
-import { exportJWK, generateKeyPair, importJWK, JWK, jwtDecrypt } from &#x27;jose&#x27;;
-import { join } from &#x27;path&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
+import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
+import { exportJWK, generateKeyPair, importJWK, JWK, jwtDecrypt } from &quot;jose&quot;;
+import { Repository } from &quot;typeorm/repository/Repository&quot;;
+import { v4 } from &quot;uuid&quot;;
+import { KeyEntity } from &quot;../key/entities/keys.entity&quot;;
 
 /**
  * Service for handling encryption and decryption operations.
@@ -503,35 +586,35 @@ export class EncryptionService {
      * Constructor for the EncryptionService.
      * @param configService
      */
-    constructor(private configService: ConfigService) {}
+    constructor(
+        @InjectRepository(KeyEntity)
+        private keyRepository: Repository&lt;KeyEntity&gt;,
+    ) {}
 
     /**
      * Initializes the encryption keys for a given tenant.
      * @param tenantId - The ID of the tenant for which to initialize the keys.
      */
     async onTenantInit(tenantId: string) {
-        const folder &#x3D; join(
-            this.configService.getOrThrow&lt;string&gt;(&#x27;FOLDER&#x27;),
+        const privateKey &#x3D; await generateKeyPair(&quot;ECDH-ES&quot;, {
+            crv: &quot;P-256&quot;,
+            extractable: true,
+        }).then(async (secret) &#x3D;&gt; exportJWK(secret.privateKey));
+
+        this.keyRepository.save({
+            id: v4(),
             tenantId,
-            &#x27;keys&#x27;,
-        );
-        const privateEncryptionPath &#x3D; join(folder, &#x27;private-encryption.json&#x27;);
-        const publicEncryptionPath &#x3D; join(folder, &#x27;public-encryption.json&#x27;);
-        if (!existsSync(privateEncryptionPath)) {
-            await generateKeyPair(&#x27;ECDH-ES&#x27;, {
-                crv: &#x27;P-256&#x27;,
-                extractable: true,
-            }).then(async (secret) &#x3D;&gt; {
-                writeFileSync(
-                    privateEncryptionPath,
-                    JSON.stringify(await exportJWK(secret.privateKey), null, 2),
-                );
-                writeFileSync(
-                    publicEncryptionPath,
-                    JSON.stringify(await exportJWK(secret.publicKey), null, 2),
-                );
-            });
-        }
+            key: privateKey,
+            usage: &quot;encrypt&quot;,
+        });
+    }
+
+    /**
+     * Deletes the encryption keys for a given tenant.
+     * @param tenantId - The ID of the tenant for which to delete the keys.
+     */
+    async onTenantDelete(tenantId: string) {
+        await this.keyRepository.delete({ tenantId });
     }
 
     /**
@@ -541,17 +624,15 @@ export class EncryptionService {
      * @returns The encrypted response as a JWE string.
      */
     async decryptJwe&lt;T&gt;(response: string, tenantId: string): Promise&lt;T&gt; {
-        const folder &#x3D; join(
-            this.configService.getOrThrow&lt;string&gt;(&#x27;FOLDER&#x27;),
-            tenantId,
-            &#x27;keys&#x27;,
-        );
-        const privateEncryptionPath &#x3D; join(folder, &#x27;private-encryption.json&#x27;);
-
-        const privateEncryptionKey &#x3D; await importJWK(
-            JSON.parse(readFileSync(privateEncryptionPath, &#x27;utf-8&#x27;)),
-            &#x27;ECDH-ES&#x27;,
-        );
+        const privateEncryptionKey &#x3D; await this.keyRepository
+            .findOneByOrFail({
+                tenantId,
+                usage: &quot;encrypt&quot;,
+            })
+            .then(
+                (keyEntity) &#x3D;&gt;
+                    importJWK(keyEntity.key, &quot;ECDH-ES&quot;) as Promise&lt;CryptoKey&gt;,
+            );
 
         const res &#x3D; await jwtDecrypt&lt;T&gt;(response, privateEncryptionKey);
         return res.payload;
@@ -562,14 +643,16 @@ export class EncryptionService {
      * @param tenantId - The ID of the tenant for which to retrieve the public key.
      * @returns The public encryption key as a JWK.
      */
-    getEncryptionPublicKey(tenantId: string): JWK {
-        const folder &#x3D; join(
-            this.configService.getOrThrow&lt;string&gt;(&#x27;FOLDER&#x27;),
-            tenantId,
-            &#x27;keys&#x27;,
-        );
-        const publicEncryptionPath &#x3D; join(folder, &#x27;public-encryption.json&#x27;);
-        return JSON.parse(readFileSync(publicEncryptionPath, &#x27;utf-8&#x27;)) as JWK;
+    getEncryptionPublicKey(tenantId: string): Promise&lt;JWK&gt; {
+        return this.keyRepository
+            .findOneByOrFail({
+                tenantId,
+                usage: &quot;encrypt&quot;,
+            })
+            .then((entry) &#x3D;&gt; {
+                delete entry.key.d;
+                return entry.key;
+            });
     }
 }
 </code></pre>

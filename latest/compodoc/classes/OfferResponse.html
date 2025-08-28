@@ -184,7 +184,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="54" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:54</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="78" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:78</a></div>
                         </td>
                     </tr>
 
@@ -210,7 +210,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="53" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:53</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="77" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:77</a></div>
                         </td>
                     </tr>
 
@@ -229,7 +229,8 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiProperty } from &#x27;@nestjs/swagger&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiProperty } from &quot;@nestjs/swagger&quot;;
+import { Type } from &quot;class-transformer&quot;;
 import {
     IsArray,
     IsEnum,
@@ -237,23 +238,25 @@ import {
     IsOptional,
     IsString,
     IsUUID,
-} from &#x27;class-validator&#x27;;
-import { ResponseType } from &#x27;../../../verifier/oid4vp/dto/presentation-request.dto&#x27;;
+    ValidateNested,
+} from &quot;class-validator&quot;;
+import { WebhookConfig } from &quot;../../../utils/webhook/webhook.dto&quot;;
+import { ResponseType } from &quot;../../../verifier/oid4vp/dto/presentation-request.dto&quot;;
 
 export class OfferRequestDto {
-    /**
-     * @example &quot;qrcode&quot;
-     */
     @ApiProperty({
-        example: &#x27;qrcode&#x27;,
-        description: &#x27;The type of response expected for the offer request.&#x27;,
+        examples: [
+            {
+                value: &quot;qrcode&quot;,
+            },
+        ],
+        description: &quot;The type of response expected for the offer request.&quot;,
     })
     @IsEnum(ResponseType)
     response_type: ResponseType;
 
     /**
      * Issuance config id to reference the issuance configuration.
-     * @example &quot;pid&quot;
      */
     @IsString()
     issuanceId: string;
@@ -268,9 +271,30 @@ export class OfferRequestDto {
     /**
      * Override the default values for the credential claims.
      */
+    @ApiProperty({
+        type: &quot;object&quot;,
+        description: &quot;Override the default values for the credential claims.&quot;,
+        properties: {},
+        examples: [
+            {
+                pid: {
+                    given_name: &quot;ERIKA&quot;,
+                    family_name: &quot;MUSTERMANN&quot;,
+                },
+            },
+        ],
+    })
     @IsObject()
     @IsOptional()
-    claims?: { [key: string]: Record&lt;string, any&gt; };
+    claims?: Record&lt;string, Record&lt;string, any&gt;&gt;;
+
+    /**
+     * Webhook configuration for claims
+     */
+    @ValidateNested()
+    @Type(() &#x3D;&gt; WebhookConfig)
+    @IsOptional()
+    claimsWebhook?: WebhookConfig;
 
     /**
      * Pre defined session id

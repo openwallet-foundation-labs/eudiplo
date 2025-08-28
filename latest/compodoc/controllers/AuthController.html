@@ -203,8 +203,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="193"
-                                    class="link-to-prism">src/auth/auth.controller.ts:193</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="207"
+                                    class="link-to-prism">src/auth/auth.controller.ts:207</a></div>
                         </td>
                     </tr>
 
@@ -250,14 +250,14 @@ This provides the JSON Web Key Set for verifying tokens issued by this server.</
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Post(&#x27;oauth2/token&#x27;)<br />@ApiBody({type: ClientCredentialsDto, examples: undefined})<br />@ApiResponse({status: 200, description: &#x27;OAuth2 token response&#x27;, type: TokenResponse, example: undefined})<br />@ApiResponse({status: 401, description: &#x27;Invalid client credentials&#x27;})<br /></code>
+                    <code>@Post(&#x27;oauth2/token&#x27;)<br />@ApiBody({type: ClientCredentialsDto, examples: undefined})<br />@ApiResponse({status: 200, description: &#x27;OAuth2 token response&#x27;, type: TokenResponse, examples: undefined})<br />@ApiResponse({status: 401, description: &#x27;Invalid client credentials&#x27;})<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="70"
-                                    class="link-to-prism">src/auth/auth.controller.ts:70</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="75"
+                                    class="link-to-prism">src/auth/auth.controller.ts:75</a></div>
                         </td>
                     </tr>
 
@@ -349,8 +349,8 @@ Accepts client credentials either in Authorization header (Basic auth) or reques
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="158"
-                                    class="link-to-prism">src/auth/auth.controller.ts:158</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="172"
+                                    class="link-to-prism">src/auth/auth.controller.ts:172</a></div>
                         </td>
                     </tr>
 
@@ -381,30 +381,30 @@ that need to authenticate using client_id and client_secret.</p>
     Headers,
     Post,
     UnauthorizedException,
-} from &#x27;@nestjs/common&#x27;;
-import { ConfigService } from &#x27;@nestjs/config&#x27;;
+} from &quot;@nestjs/common&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
 import {
     ApiBody,
     ApiExcludeController,
     ApiOperation,
     ApiResponse,
     ApiTags,
-} from &#x27;@nestjs/swagger&#x27;;
-import { KeyResponseDto } from &#x27;../crypto/key/dto/key-response.dto&#x27;;
-import { ClientService } from &#x27;./client.service&#x27;;
-import { ClientCredentialsDto } from &#x27;./dto/client-credentials.dto&#x27;;
-import { OidcDiscoveryDto } from &#x27;./dto/oidc-discovery.dto&#x27;;
-import { TokenResponse } from &#x27;./dto/token-response.dto&#x27;;
-import { JwtService } from &#x27;./jwt.service&#x27;;
-import { TokenPayload } from &#x27;./token.decorator&#x27;;
+} from &quot;@nestjs/swagger&quot;;
+import { KeyResponseDto } from &quot;../crypto/key/dto/key-response.dto&quot;;
+import { ClientCredentialsDto } from &quot;./dto/client-credentials.dto&quot;;
+import { OidcDiscoveryDto } from &quot;./dto/oidc-discovery.dto&quot;;
+import { TokenResponse } from &quot;./dto/token-response.dto&quot;;
+import { JwtService } from &quot;./jwt.service&quot;;
+import { TenantService } from &quot;./tenant.service&quot;;
+import { TokenPayload } from &quot;./token.decorator&quot;;
 
-@ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &#x27;true&#x27;)
-@ApiTags(&#x27;Authentication&#x27;)
-@Controller(&#x27;&#x27;)
+@ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &quot;true&quot;)
+@ApiTags(&quot;Authentication&quot;)
+@Controller(&quot;&quot;)
 export class AuthController {
     constructor(
         private jwtService: JwtService,
-        private clientService: ClientService,
+        private clientService: TenantService,
         private configService: ConfigService,
     ) {}
 
@@ -415,33 +415,38 @@ export class AuthController {
      * @param headers
      * @returns
      */
-    @Post(&#x27;oauth2/token&#x27;)
+    @Post(&quot;oauth2/token&quot;)
     @ApiBody({
         type: ClientCredentialsDto,
         examples: {
             client_credentials: {
-                summary: &#x27;Client Credentials Flow&#x27;,
+                summary: &quot;Client Credentials Flow&quot;,
                 value: {
-                    grant_type: &#x27;client_credentials&#x27;,
-                    client_id: &#x27;root&#x27;,
-                    client_secret: &#x27;root&#x27;,
+                    grant_type: &quot;client_credentials&quot;,
+                    client_id: &quot;root&quot;,
+                    client_secret: &quot;root&quot;,
                 },
             },
         },
     })
     @ApiResponse({
         status: 200,
-        description: &#x27;OAuth2 token response&#x27;,
+        description: &quot;OAuth2 token response&quot;,
         type: TokenResponse,
-        example: {
-            access_token: &#x27;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...&#x27;,
-            token_type: &#x27;Bearer&#x27;,
-            expires_in: 86400,
+        examples: {
+            success: {
+                summary: &quot;Successful response&quot;,
+                value: {
+                    access_token: &quot;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...&quot;,
+                    token_type: &quot;Bearer&quot;,
+                    expires_in: 86400,
+                },
+            },
         },
     })
     @ApiResponse({
         status: 401,
-        description: &#x27;Invalid client credentials&#x27;,
+        description: &quot;Invalid client credentials&quot;,
     })
     async getOAuth2Token(
         @Body() body: any,
@@ -449,14 +454,14 @@ export class AuthController {
     ): Promise&lt;TokenResponse&gt; {
         if (this.jwtService.isUsingExternalOIDC()) {
             throw new UnauthorizedException(
-                &#x27;OAuth2 token endpoint is not available when using external OIDC provider. Use your external OIDC provider for authentication.&#x27;,
+                &quot;OAuth2 token endpoint is not available when using external OIDC provider. Use your external OIDC provider for authentication.&quot;,
             );
         }
 
         // Only support client credentials flow
-        if (body.grant_type !&#x3D;&#x3D; &#x27;client_credentials&#x27;) {
+        if (body.grant_type !&#x3D;&#x3D; &quot;client_credentials&quot;) {
             throw new UnauthorizedException(
-                &#x27;Only client_credentials grant type is supported&#x27;,
+                &quot;Only client_credentials grant type is supported&quot;,
             );
         }
 
@@ -465,19 +470,19 @@ export class AuthController {
 
         // Try to extract credentials from Authorization header (Basic auth)
         const authHeader &#x3D; headers.authorization;
-        if (authHeader &amp;&amp; authHeader.startsWith(&#x27;Basic &#x27;)) {
+        if (authHeader &amp;&amp; authHeader.startsWith(&quot;Basic &quot;)) {
             try {
                 const base64Credentials &#x3D; authHeader.substring(6);
                 const credentials &#x3D; Buffer.from(
                     base64Credentials,
-                    &#x27;base64&#x27;,
-                ).toString(&#x27;ascii&#x27;);
-                const [id, secret] &#x3D; credentials.split(&#x27;:&#x27;);
+                    &quot;base64&quot;,
+                ).toString(&quot;ascii&quot;);
+                const [id, secret] &#x3D; credentials.split(&quot;:&quot;);
                 clientId &#x3D; id;
                 clientSecret &#x3D; secret;
             } catch {
                 throw new UnauthorizedException(
-                    &#x27;Invalid Authorization header format&#x27;,
+                    &quot;Invalid Authorization header format&quot;,
                 );
             }
         } else {
@@ -488,30 +493,39 @@ export class AuthController {
 
         if (!clientId || !clientSecret) {
             throw new UnauthorizedException(
-                &#x27;Client credentials must be provided either in Authorization header (Basic auth) or request body&#x27;,
+                &quot;Client credentials must be provided either in Authorization header (Basic auth) or request body&quot;,
             );
         }
 
-        const client &#x3D; this.clientService.validateClient(
+        const client &#x3D; this.clientService.validateTenant(
             clientId,
             clientSecret,
         );
         if (!client) {
-            throw new UnauthorizedException(&#x27;Invalid client credentials&#x27;);
+            throw new UnauthorizedException(&quot;Invalid client credentials&quot;);
         }
 
+        //TODO: check if the access token should only include the session id or also e.g. the credentials that should be issued. I would think this is not required since we still need the claims for it.
         const payload: TokenPayload &#x3D; {
             sub: client.id,
+            admin: true,
         };
 
-        const token &#x3D; await this.jwtService.generateToken(payload, {
-            expiresIn: &#x27;24h&#x27;,
-            audience: &#x27;eudiplo-service&#x27;,
+        //TODO: make expiresIn configurable?
+        const access_token &#x3D; await this.jwtService.generateToken(payload, {
+            expiresIn: &quot;24h&quot;,
+            audience: &quot;eudiplo-service&quot;,
+        });
+
+        const refresh_token &#x3D; await this.jwtService.generateToken(payload, {
+            expiresIn: &quot;30d&quot;,
+            audience: &quot;eudiplo-service&quot;,
         });
 
         return {
-            access_token: token,
-            token_type: &#x27;Bearer&#x27;,
+            access_token,
+            refresh_token,
+            token_type: &quot;Bearer&quot;,
             expires_in: 86400, // 24 hours in seconds
         };
     }
@@ -521,35 +535,35 @@ export class AuthController {
      * This endpoint provides the OpenID Connect configuration for applications
      * that need to authenticate using client_id and client_secret.
      */
-    @Get(&#x27;.well-known/oauth-authorization-server&#x27;)
+    @Get(&quot;.well-known/oauth-authorization-server&quot;)
     @ApiOperation({
-        summary: &#x27;OIDC Discovery Configuration&#x27;,
+        summary: &quot;OIDC Discovery Configuration&quot;,
         description:
-            &#x27;Returns the OpenID Connect discovery configuration for client credentials authentication.&#x27;,
+            &quot;Returns the OpenID Connect discovery configuration for client credentials authentication.&quot;,
     })
     @ApiResponse({
         status: 200,
-        description: &#x27;OIDC Discovery Configuration&#x27;,
+        description: &quot;OIDC Discovery Configuration&quot;,
     })
     getOidcDiscovery(): OidcDiscoveryDto {
-        const publicUrl &#x3D; this.configService.getOrThrow&lt;string&gt;(&#x27;PUBLIC_URL&#x27;);
+        const publicUrl &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;);
 
         return {
             issuer: publicUrl,
             token_endpoint: &#x60;${publicUrl}/oauth2/token&#x60;,
             jwks_uri: &#x60;${publicUrl}/.well-known/jwks.json&#x60;,
-            response_types_supported: [&#x27;token&#x27;],
-            grant_types_supported: [&#x27;client_credentials&#x27;],
+            response_types_supported: [&quot;token&quot;],
+            grant_types_supported: [&quot;client_credentials&quot;],
             token_endpoint_auth_methods_supported: [
-                &#x27;client_secret_basic&#x27;,
-                &#x27;client_secret_post&#x27;,
+                &quot;client_secret_basic&quot;,
+                &quot;client_secret_post&quot;,
             ],
-            subject_types_supported: [&#x27;public&#x27;],
-            id_token_signing_alg_values_supported: [&#x27;ES256&#x27;],
-            scopes_supported: [&#x27;openid&#x27;],
-            claims_supported: [&#x27;iss&#x27;, &#x27;sub&#x27;, &#x27;aud&#x27;, &#x27;exp&#x27;, &#x27;iat&#x27;],
+            subject_types_supported: [&quot;public&quot;],
+            id_token_signing_alg_values_supported: [&quot;ES256&quot;],
+            scopes_supported: [&quot;openid&quot;],
+            claims_supported: [&quot;iss&quot;, &quot;sub&quot;, &quot;aud&quot;, &quot;exp&quot;, &quot;iat&quot;],
             service_documentation:
-                &#x27;https://openwallet-foundation-labs.github.io/eudiplo/latest/&#x27;,
+                &quot;https://openwallet-foundation-labs.github.io/eudiplo/latest/&quot;,
         };
     }
 
@@ -557,14 +571,14 @@ export class AuthController {
      * Global JWKS endpoint for client credentials flow.
      * This provides the JSON Web Key Set for verifying tokens issued by this server.
      */
-    @Get(&#x27;.well-known/jwks.json&#x27;)
+    @Get(&quot;.well-known/jwks.json&quot;)
     @ApiOperation({
-        summary: &#x27;JSON Web Key Set&#x27;,
-        description: &#x27;Returns the JSON Web Key Set for token verification.&#x27;,
+        summary: &quot;JSON Web Key Set&quot;,
+        description: &quot;Returns the JSON Web Key Set for token verification.&quot;,
     })
     @ApiResponse({
         status: 200,
-        description: &#x27;JSON Web Key Set&#x27;,
+        description: &quot;JSON Web Key Set&quot;,
     })
     getGlobalJwks(): KeyResponseDto {
         // For now, return an empty key set since the actual keys are tenant-specific

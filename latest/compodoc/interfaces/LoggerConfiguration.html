@@ -352,15 +352,15 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, LogLevel } from &#x27;@nestjs/common&#x27;;
-import { ConfigService } from &#x27;@nestjs/config&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, LogLevel } from &quot;@nestjs/common&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
 
 export interface LoggerConfiguration {
     level: LogLevel;
     enableSessionLogger: boolean;
     enableHttpLogger: boolean;
     enableDebugMode: boolean;
-    logFormat: &#x27;json&#x27; | &#x27;pretty&#x27;;
+    logFormat: &quot;json&quot; | &quot;pretty&quot;;
 }
 
 /**
@@ -377,37 +377,37 @@ export class LoggerConfigService {
     private loadConfiguration(): void {
         this.config &#x3D; {
             level: this.parseLogLevel(
-                this.configService.get&lt;string&gt;(&#x27;LOG_LEVEL&#x27;, &#x27;info&#x27;),
+                this.configService.get&lt;string&gt;(&quot;LOG_LEVEL&quot;, &quot;info&quot;),
             ),
             enableSessionLogger: this.configService.get&lt;boolean&gt;(
-                &#x27;LOG_ENABLE_SESSION_LOGGER&#x27;,
+                &quot;LOG_ENABLE_SESSION_LOGGER&quot;,
                 false,
             ),
             enableHttpLogger: this.configService.get&lt;boolean&gt;(
-                &#x27;LOG_ENABLE_HTTP_LOGGER&#x27;,
+                &quot;LOG_ENABLE_HTTP_LOGGER&quot;,
                 false,
             ),
             enableDebugMode: this.configService.get&lt;boolean&gt;(
-                &#x27;LOG_DEBUG_MODE&#x27;,
+                &quot;LOG_DEBUG_MODE&quot;,
                 false,
             ),
-            logFormat: this.configService.get&lt;&#x27;json&#x27; | &#x27;pretty&#x27;&gt;(
-                &#x27;LOG_FORMAT&#x27;,
-                &#x27;pretty&#x27;,
+            logFormat: this.configService.get&lt;&quot;json&quot; | &quot;pretty&quot;&gt;(
+                &quot;LOG_FORMAT&quot;,
+                &quot;pretty&quot;,
             ),
         };
     }
 
     private parseLogLevel(level: string): LogLevel {
         const levels: Record&lt;string, LogLevel&gt; &#x3D; {
-            verbose: &#x27;verbose&#x27;,
-            debug: &#x27;debug&#x27;,
-            log: &#x27;log&#x27;,
-            warn: &#x27;warn&#x27;,
-            error: &#x27;error&#x27;,
-            fatal: &#x27;fatal&#x27;,
+            verbose: &quot;verbose&quot;,
+            debug: &quot;debug&quot;,
+            log: &quot;log&quot;,
+            warn: &quot;warn&quot;,
+            error: &quot;error&quot;,
+            fatal: &quot;fatal&quot;,
         };
-        return levels[level.toLowerCase()] || &#x27;log&#x27;;
+        return levels[level.toLowerCase()] || &quot;log&quot;;
     }
 
     getConfiguration(): LoggerConfiguration {
@@ -430,7 +430,7 @@ export class LoggerConfigService {
         return this.config.level;
     }
 
-    getLogFormat(): &#x27;json&#x27; | &#x27;pretty&#x27; {
+    getLogFormat(): &quot;json&quot; | &quot;pretty&quot; {
         return this.config.logFormat;
     }
 

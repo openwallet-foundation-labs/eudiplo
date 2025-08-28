@@ -203,14 +203,14 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="13" class="link-to-prism">src/utils/webhook/webhook.dto.ts:13</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/utils/webhook/webhook.dto.ts:19</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
                     <div class="io-description"><p>The name of the header where the API key will be sent.</p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-html"></code></pre></div></div>
+</div>
                 </td>
             </tr>
 
@@ -245,14 +245,14 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/utils/webhook/webhook.dto.ts:19</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="24" class="link-to-prism">src/utils/webhook/webhook.dto.ts:24</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
                     <div class="io-description"><p>The value of the API key to be sent in the header.</p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-html"></code></pre></div></div>
+</div>
                 </td>
             </tr>
 
@@ -270,8 +270,15 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Type } from &#x27;class-transformer&#x27;;
-import { IsIn, IsObject, IsOptional, IsString } from &#x27;class-validator&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiExtraModels, ApiProperty, getSchemaPath } from &quot;@nestjs/swagger&quot;;
+import { Type } from &quot;class-transformer&quot;;
+import {
+    IsEnum,
+    IsIn,
+    IsObject,
+    IsString,
+    ValidateNested,
+} from &quot;class-validator&quot;;
 
 /**
  * Configuration for API key authentication in webhooks.
@@ -279,13 +286,11 @@ import { IsIn, IsObject, IsOptional, IsString } from &#x27;class-validator&#x27;
 export class ApiKeyConfig {
     /**
      * The name of the header where the API key will be sent.
-     * @example Authorization
      */
     @IsString()
     headerName: string;
     /**
      * The value of the API key to be sent in the header.
-     * @example Bearer your_api_key_here
      */
     @IsString()
     value: string;
@@ -294,18 +299,21 @@ export class ApiKeyConfig {
 /**
  * Enum for the type of authentication used in webhooks.
  */
-export type AuthConfig &#x3D; &#x27;apiKey&#x27;;
+export enum AuthConfig {
+    API_KEY &#x3D; &quot;apiKey&quot;,
+    NONE &#x3D; &quot;none&quot;,
+}
 
 /**
  * Configuration for webhook authentication.
  */
-export class WebHookAuthConfig {
+export class WebHookAuthConfigHeader implements WebHookAuthConfig {
     /**
      * The type of authentication used for the webhook.
-     * Currently, only &#x27;apiKey&#x27; is supported.
      */
-    @IsIn([&#x27;apiKey&#x27;])
-    type: AuthConfig;
+    @IsIn([AuthConfig.API_KEY])
+    @IsString()
+    type: AuthConfig.API_KEY;
     /**
      * Configuration for API key authentication.
      * This is required if the type is &#x27;apiKey&#x27;.
@@ -315,9 +323,24 @@ export class WebHookAuthConfig {
     config: ApiKeyConfig;
 }
 
+export class WebHookAuthConfigNone implements WebHookAuthConfig {
+    /**
+     * The type of authentication used for the webhook.
+     */
+    @IsIn([AuthConfig.NONE])
+    @IsString()
+    type: AuthConfig.NONE;
+}
+
+export class WebHookAuthConfig {
+    @IsEnum(AuthConfig)
+    type: AuthConfig;
+}
+
 /**
  * Configuration for webhooks used in various services.
  */
+@ApiExtraModels(WebHookAuthConfigNone, WebHookAuthConfigHeader)
 export class WebhookConfig {
     /**
      * The URL to which the webhook will send notifications.
@@ -328,10 +351,30 @@ export class WebhookConfig {
      * Optional authentication configuration for the webhook.
      * If not provided, no authentication will be used.
      */
-    @Type(() &#x3D;&gt; WebHookAuthConfig)
-    @IsOptional()
-    @IsObject()
-    auth?: WebHookAuthConfig;
+    @ValidateNested()
+    @ApiProperty({
+        oneOf: [
+            { $ref: getSchemaPath(WebHookAuthConfigNone) },
+            { $ref: getSchemaPath(WebHookAuthConfigHeader) },
+        ],
+    })
+    @Type(() &#x3D;&gt; WebHookAuthConfig, {
+        discriminator: {
+            property: &quot;type&quot;,
+            subTypes: [
+                {
+                    name: AuthConfig.NONE,
+                    value: WebHookAuthConfigNone,
+                },
+                {
+                    name: AuthConfig.API_KEY,
+                    value: WebHookAuthConfigHeader,
+                },
+            ],
+        },
+        keepDiscriminatorProperty: true,
+    })
+    auth?: WebHookAuthConfigNone | WebHookAuthConfigHeader;
 }
 </code></pre>
     </div>

@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.16">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.18">
     
     
       
@@ -576,6 +576,8 @@
       
         
       
+        
+      
     
     
     
@@ -636,6 +638,29 @@
   
   <span class="md-ellipsis">
     Credential Configuration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/issuance/issuance-configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Issuance Configuration
     
   </span>
   
@@ -1059,6 +1084,8 @@
       
         
       
+        
+      
     
     
     
@@ -1271,6 +1298,29 @@
   
   <span class="md-ellipsis">
     Database
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Storage
     
   </span>
   
@@ -1986,11 +2036,13 @@
 
 
 <h1 id="running-locally">Running Locally<a class="headerlink" href="#running-locally" title="Permanent link">&para;</a></h1>
-<p>This guide will help you run the project locally for development or testing purposes. </p>
-<p>EUDIPLO is now organized as a <strong>monorepo workspace</strong> containing:
-- <strong>Backend</strong> (<code>apps/backend/</code>) - NestJS API server
-- <strong>Client</strong> (<code>apps/client/</code>) - Angular web interface<br />
-- <strong>Webhook</strong> (<code>apps/webhook/</code>) - Cloudflare Worker for testing</p>
+<p>This guide will help you run the project locally for development or testing purposes.</p>
+<p>EUDIPLO is now organized as a <strong>monorepo workspace</strong> containing:</p>
+<ul>
+<li><strong>Backend</strong> (<code>apps/backend/</code>) - NestJS API server</li>
+<li><strong>Client</strong> (<code>apps/client/</code>) - Angular web interface</li>
+<li><strong>Webhook</strong> (<code>apps/webhook/</code>) - Cloudflare Worker for testing</li>
+</ul>
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
 <p>Before you start, make sure you have the following tools installed:</p>
 <ul>
@@ -2060,22 +2112,24 @@ configure key storage and database options beyond the default settings.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># Start all applications in development mode</span>
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>pnpm<span class="w"> </span>run<span class="w"> </span>dev
 </code></pre></div>
-<p>This will:
-- Compile and watch your TypeScript code
-- Reload on changes
-- Use your <code>.env</code> configuration for keys, database, and registrar access</p>
+<p>This will:</p>
+<ul>
+<li>Compile and watch your TypeScript code</li>
+<li>Reload on changes</li>
+<li>Use your <code>.env</code> configuration for keys, database, and registrar access</li>
+</ul>
 <p>Make sure any external services (like PostgreSQL or Vault) are available, either locally or through Docker.</p>
 <h2 id="5-access-the-services">5. Access the Services<a class="headerlink" href="#5-access-the-services" title="Permanent link">&para;</a></h2>
 <p>Once running, the applications are accessible at:</p>
-<p><strong>Backend API:</strong>
+<p><strong>Backend API:</strong></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>http://localhost:3000
-</code></pre></div></p>
-<p><strong>Client Web Interface:</strong>
+</code></pre></div>
+<p><strong>Client Web Interface:</strong></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>http://localhost:4200
-</code></pre></div></p>
-<p><strong>Or via the public URL configured with ngrok:</strong>
+</code></pre></div>
+<p><strong>Or via the public URL configured with ngrok:</strong></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>https://f8e3-84-123-45-67.ngrok.io
-</code></pre></div></p>
+</code></pre></div>
 <hr />
 <h2 id="6-troubleshooting">6. Troubleshooting<a class="headerlink" href="#6-troubleshooting" title="Permanent link">&para;</a></h2>
 <ul>
@@ -2178,7 +2232,8 @@ configure key storage and database options beyond the default settings.</p>
   
 </div>
       
-        <div class="md-social">
+        
+<div class="md-social">
   
     
     
@@ -2216,10 +2271,10 @@ configure key storage and database options beyond the default settings.</p>
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "content.action.view", "content.action.edit", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.instant.prefetch", "navigation.path", "navigation.sections", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "content.action.view", "content.action.edit", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.instant.prefetch", "navigation.path", "navigation.sections", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.50899def.min.js"></script>
+      <script src="../../assets/javascripts/bundle.92b07e13.min.js"></script>
       
         <script src="../../assets/external/unpkg.com/mermaid@11/dist/mermaid.min.js"></script>
       

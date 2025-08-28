@@ -125,7 +125,7 @@
                 <h3>Extends</h3>
             </p>
             <p class="comment">
-                        <code>AuthGuard(&#x27;jwt&#x27;)</code>
+                        <code>AuthGuard(&quot;jwt&quot;)</code>
             </p>
 
 
@@ -284,13 +284,13 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ExecutionContext, Injectable } from &#x27;@nestjs/common&#x27;;
-import { Reflector } from &#x27;@nestjs/core&#x27;;
-import { AuthGuard } from &#x27;@nestjs/passport&#x27;;
-import { IS_PUBLIC_KEY } from &#x27;./public.decorator&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ExecutionContext, Injectable } from &quot;@nestjs/common&quot;;
+import { Reflector } from &quot;@nestjs/core&quot;;
+import { AuthGuard } from &quot;@nestjs/passport&quot;;
+import { IS_PUBLIC_KEY } from &quot;./public.decorator&quot;;
 
 @Injectable()
-export class JwtAuthGuard extends AuthGuard(&#x27;jwt&#x27;) {
+export class JwtAuthGuard extends AuthGuard(&quot;jwt&quot;) {
     constructor(private reflector: Reflector) {
         super();
     }

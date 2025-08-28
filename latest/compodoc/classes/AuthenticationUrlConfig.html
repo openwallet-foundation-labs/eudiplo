@@ -156,7 +156,6 @@ Used for OID4VCI authorized code flow where the user will be redirected for auth
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
-                                    <span class="modifier"></span>
                                     <span class="modifier">Optional</span>
                                 <a href="#webhook" >webhook</a>
                             </li>
@@ -202,13 +201,13 @@ Used for OID4VCI authorized code flow where the user will be redirected for auth
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsUrl()<br />
+                            @IsString()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="75" class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:75</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="21" class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:21</a></div>
                         </td>
                     </tr>
 
@@ -231,7 +230,6 @@ This URL is where users will be redirected for authentication.</p>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
-                            <span class="modifier"></span>
                             <span class="modifier">Optional</span>
                         <span ><b>webhook</b></span>
                         <a href="#webhook"><span class="icon ion-ios-link"></span></a>
@@ -249,13 +247,13 @@ This URL is where users will be redirected for authentication.</p>
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsObject()<br />@IsOptional()<br />@ValidateNested()<br />@Type(undefined)<br />
+                            @IsOptional()<br />@ValidateNested()<br />@Type(undefined)<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="84" class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:84</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="29" class="link-to-prism">src/issuer/issuance/dto/authentication-config.dto.ts:29</a></div>
                         </td>
                     </tr>
 
@@ -280,69 +278,15 @@ This URL is where users will be redirected for authentication.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Type } from &#x27;class-transformer&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Type } from &quot;class-transformer&quot;;
 import {
     IsIn,
     IsObject,
     IsOptional,
-    IsUrl,
-    Validate,
+    IsString,
     ValidateNested,
-    ValidationArguments,
-    ValidatorConstraint,
-    ValidatorConstraintInterface,
-} from &#x27;class-validator&#x27;;
-import { WebhookConfig } from &#x27;../../../utils/webhook/webhook.dto&#x27;;
-import { PresentationDuringIssuance } from &#x27;../../credentials-metadata/dto/credential-config.dto&#x27;;
-
-/**
- * Custom validator to ensure config type matches the authentication method
- */
-@ValidatorConstraint({ name: &#x27;authConfigValidator&#x27;, async: false })
-export class AuthConfigValidator implements ValidatorConstraintInterface {
-    validate(config: any, args: ValidationArguments) {
-        const obj &#x3D; args.object as AuthenticationConfigDto;
-
-        if (obj.method &#x3D;&#x3D;&#x3D; &#x27;none&#x27;) {
-            // For &#x27;none&#x27; method, config should be undefined
-            return config &#x3D;&#x3D;&#x3D; undefined;
-        }
-
-        if (obj.method &#x3D;&#x3D;&#x3D; &#x27;auth&#x27;) {
-            // For &#x27;auth&#x27; method, config must be present and have &#x27;url&#x27; property
-            return (
-                config &amp;&amp;
-                typeof config &#x3D;&#x3D;&#x3D; &#x27;object&#x27; &amp;&amp;
-                typeof config.url &#x3D;&#x3D;&#x3D; &#x27;string&#x27;
-            );
-        }
-
-        if (obj.method &#x3D;&#x3D;&#x3D; &#x27;presentationDuringIssuance&#x27;) {
-            // For &#x27;presentationDuringIssuance&#x27; method, config must be present and have &#x27;presentation&#x27; property
-            return config &amp;&amp; typeof config &#x3D;&#x3D;&#x3D; &#x27;object&#x27; &amp;&amp; config.presentation;
-        }
-
-        return false;
-    }
-
-    defaultMessage(args: ValidationArguments) {
-        const obj &#x3D; args.object as AuthenticationConfigDto;
-
-        if (obj.method &#x3D;&#x3D;&#x3D; &#x27;none&#x27;) {
-            return &#x27;config must be undefined when method is &quot;none&quot;&#x27;;
-        }
-
-        if (obj.method &#x3D;&#x3D;&#x3D; &#x27;auth&#x27;) {
-            return &#x27;config must be of type AuthenticationUrlConfig when method is &quot;auth&quot;&#x27;;
-        }
-
-        if (obj.method &#x3D;&#x3D;&#x3D; &#x27;presentationDuringIssuance&#x27;) {
-            return &#x27;config must be of type PresentationDuringIssuanceConfig when method is &quot;presentationDuringIssuance&quot;&#x27;;
-        }
-
-        return &#x27;config type does not match the specified method&#x27;;
-    }
-}
+} from &quot;class-validator&quot;;
+import { WebhookConfig } from &quot;../../../utils/webhook/webhook.dto&quot;;
 
 /**
  * Configuration for authentication method &#x27;auth&#x27;
@@ -353,13 +297,12 @@ export class AuthenticationUrlConfig {
      * The URL used in the OID4VCI authorized code flow.
      * This URL is where users will be redirected for authentication.
      */
-    @IsUrl()
+    @IsString()
     url: string;
 
     /**
      * Optional webhook configuration for authentication callbacks
      */
-    @IsObject()
     @IsOptional()
     @ValidateNested()
     @Type(() &#x3D;&gt; WebhookConfig)
@@ -372,50 +315,49 @@ export class AuthenticationUrlConfig {
  */
 export class PresentationDuringIssuanceConfig {
     /**
-     * Presentation configuration that specifies what credentials need to be presented via OID4VP
+     * Link to the presentation configuration that is relevant for the issuance process
      */
+    @IsString()
+    type: string;
+}
+
+export class AuthenticationMethodPresentation
+    implements AuthenticationMethodInterface
+{
+    @IsString()
+    @IsIn([&quot;presentationDuringIssuance&quot;])
+    method: &quot;presentationDuringIssuance&quot;;
     @IsObject()
     @ValidateNested()
-    @Type(() &#x3D;&gt; PresentationDuringIssuance)
-    presentation: PresentationDuringIssuance;
+    @Type(() &#x3D;&gt; PresentationDuringIssuanceConfig)
+    config: PresentationDuringIssuanceConfig;
 }
 
-/**
- * Base class for authentication configurations
- * Determines which OpenID4VC flow to use for the issuance process
- */
-export class AuthenticationConfigDto {
-    /**
-     * The authentication method to use:
-     * - &#x27;none&#x27;: Pre-authorized code flow (no user authentication)
-     * - &#x27;auth&#x27;: OID4VCI authorized code flow (user redirect for authentication)
-     * - &#x27;presentationDuringIssuance&#x27;: OID4VP flow (credential presentation required)
-     */
-    @IsIn([&#x27;none&#x27;, &#x27;auth&#x27;, &#x27;presentationDuringIssuance&#x27;])
-    method: &#x27;none&#x27; | &#x27;auth&#x27; | &#x27;presentationDuringIssuance&#x27;;
-
-    /**
-     * Configuration specific to the selected authentication method
-     * - For &#x27;none&#x27;: no config needed (undefined) - uses pre-authorized code flow
-     * - For &#x27;auth&#x27;: AuthenticationUrlConfig - for OID4VCI authorized code flow
-     * - For &#x27;presentationDuringIssuance&#x27;: PresentationDuringIssuanceConfig - for OID4VP flow
-     */
-    @IsOptional()
-    @Validate(AuthConfigValidator)
-    config?: AuthenticationUrlConfig | PresentationDuringIssuanceConfig;
+export class AuthenticationMethodAuth implements AuthenticationMethodInterface {
+    @IsString()
+    @IsIn([&quot;auth&quot;])
+    method: &quot;auth&quot;;
+    @IsObject()
+    @ValidateNested()
+    @Type(() &#x3D;&gt; AuthenticationUrlConfig)
+    config: AuthenticationUrlConfig;
 }
 
-/**
- * Union type for authentication configurations
- * Each method corresponds to a specific OpenID4VC flow
- */
-export type AuthenticationConfig &#x3D;
-    | { method: &#x27;none&#x27; } // Pre-authorized code flow
-    | { method: &#x27;auth&#x27;; config: AuthenticationUrlConfig } // OID4VCI authorized code flow
-    | {
-          method: &#x27;presentationDuringIssuance&#x27;; // OID4VP flow
-          config: PresentationDuringIssuanceConfig;
-      };
+export class AuthenticationMethodNone implements AuthenticationMethodInterface {
+    @IsString()
+    @IsIn([&quot;none&quot;])
+    method: &quot;none&quot;;
+}
+
+export interface AuthenticationMethodInterface {
+    method: &quot;none&quot; | &quot;auth&quot; | &quot;presentationDuringIssuance&quot;;
+}
+
+export enum AuthenticationMethod {
+    NONE &#x3D; &quot;none&quot;,
+    AUTH &#x3D; &quot;auth&quot;,
+    PRESENTATION_DURING_ISSUANCE &#x3D; &quot;presentationDuringIssuance&quot;,
+}
 </code></pre>
     </div>
 </div>

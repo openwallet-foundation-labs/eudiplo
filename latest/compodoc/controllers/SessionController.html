@@ -151,6 +151,7 @@
                             </li>
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#getSession" >getSession</a>
                             </li>
                             <li>
@@ -203,15 +204,15 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="51"
-                                    class="link-to-prism">src/session/session.controller.ts:51</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="54"
+                                    class="link-to-prism">src/session/session.controller.ts:54</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Deletes a session by its ID.</p>
+                        <div class="io-description"><p>Deletes a session by its ID</p>
 </div>
 
                             <div class="io-description">
@@ -293,8 +294,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="31"
-                                    class="link-to-prism">src/session/session.controller.ts:31</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="33"
+                                    class="link-to-prism">src/session/session.controller.ts:33</a></div>
                         </td>
                     </tr>
 
@@ -319,6 +320,7 @@
                     <a name="getSession"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>getSession</b></span>
                         <a href="#getSession"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -327,7 +329,7 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getSession(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>getSession(session: <a href="../entitys/Session.html" target="_self">Session</a>)</code>
                 </td>
             </tr>
 
@@ -335,14 +337,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Get(&#x27;:id&#x27;)<br /></code>
+                    <code>@ApiParam({name: &#x27;id&#x27;, description: &#x27;The session ID&#x27;, type: String})<br />@Get(&#x27;:id&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="40"
-                                    class="link-to-prism">src/session/session.controller.ts:40</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="43"
+                                    class="link-to-prism">src/session/session.controller.ts:43</a></div>
                         </td>
                     </tr>
 
@@ -361,14 +363,13 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
-                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>id</td>
+                                                <td>session</td>
                                             <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                                            <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
                                             </td>
 
                                             <td>
@@ -376,18 +377,12 @@
                                             </td>
 
 
-                                            <td>
-                                                    <ul>
-<li>The identifier of the session.</li>
-</ul>
-
-                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../entitys/Session.html" target="_self" >Promise&lt;Session&gt;</a></code>
+                            <b>Returns : </b>        <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
 
                         </div>
                             <div class="io-description">
@@ -426,8 +421,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="64"
-                                    class="link-to-prism">src/session/session.controller.ts:64</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="67"
+                                    class="link-to-prism">src/session/session.controller.ts:67</a></div>
                         </td>
                     </tr>
 
@@ -499,19 +494,20 @@
     Param,
     Post,
     UseGuards,
-} from &#x27;@nestjs/common&#x27;;
-import { ApiSecurity, ApiTags } from &#x27;@nestjs/swagger&#x27;;
-import { JwtAuthGuard } from &#x27;../auth/auth.guard&#x27;;
-import { Token, TokenPayload } from &#x27;../auth/token.decorator&#x27;;
-import { StatusUpdateDto } from &#x27;../issuer/status-list/dto/status-update.dto&#x27;;
-import { StatusListService } from &#x27;../issuer/status-list/status-list.service&#x27;;
-import { Session } from &#x27;./entities/session.entity&#x27;;
-import { SessionService } from &#x27;./session.service&#x27;;
+} from &quot;@nestjs/common&quot;;
+import { ApiParam, ApiSecurity, ApiTags } from &quot;@nestjs/swagger&quot;;
+import { JwtAuthGuard } from &quot;../auth/auth.guard&quot;;
+import { Token, TokenPayload } from &quot;../auth/token.decorator&quot;;
+import { StatusUpdateDto } from &quot;../issuer/status-list/dto/status-update.dto&quot;;
+import { StatusListService } from &quot;../issuer/status-list/status-list.service&quot;;
+import { Session } from &quot;./entities/session.entity&quot;;
+import { SessionPipe } from &quot;./session.pipe&quot;;
+import { SessionService } from &quot;./session.service&quot;;
 
-@ApiTags(&#x27;Session management&#x27;)
+@ApiTags(&quot;Session management&quot;)
 @UseGuards(JwtAuthGuard)
-@ApiSecurity(&#x27;oauth2&#x27;)
-@Controller(&#x27;session&#x27;)
+@ApiSecurity(&quot;oauth2&quot;)
+@Controller(&quot;session&quot;)
 export class SessionController {
     constructor(
         private readonly sessionService: SessionService,
@@ -520,7 +516,8 @@ export class SessionController {
 
     /**
      * Retrieves all sessions.
-     */ @Get()
+     */
+    @Get()
     getAllSessions(): Promise&lt;Session[]&gt; {
         return this.sessionService.getAll();
     }
@@ -529,20 +526,21 @@ export class SessionController {
      * Retrieves the session information for a given session ID.
      * @param id - The identifier of the session.
      */
-    @Get(&#x27;:id&#x27;)
-    getSession(@Param(&#x27;id&#x27;) id: string): Promise&lt;Session&gt; {
-        return this.sessionService.get(id);
+    @ApiParam({ name: &quot;id&quot;, description: &quot;The session ID&quot;, type: String })
+    @Get(&quot;:id&quot;)
+    getSession(@Param(&quot;id&quot;, SessionPipe) session: Session): Session {
+        return session;
     }
 
     /**
-     * Deletes a session by its ID.
+     * Deletes a session by its ID
      * @param id
      * @param user
      * @returns
      */
-    @Delete(&#x27;:id&#x27;)
+    @Delete(&quot;:id&quot;)
     deleteSession(
-        @Param(&#x27;id&#x27;) id: string,
+        @Param(&quot;id&quot;) id: string,
         @Token() user: TokenPayload,
     ): Promise&lt;void&gt; {
         return this.sessionService.delete(id, user.sub);
@@ -553,7 +551,7 @@ export class SessionController {
      * @param value
      * @returns
      */
-    @Post(&#x27;revoke&#x27;)
+    @Post(&quot;revoke&quot;)
     revokeAll(@Body() value: StatusUpdateDto, @Token() user: TokenPayload) {
         return this.statusListService.updateStatus(value, user.sub);
     }

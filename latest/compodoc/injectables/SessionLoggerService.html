@@ -1260,10 +1260,10 @@ Uses PinoLogger for structured logging.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &#x27;@nestjs/common&#x27;;
-import { ConfigService } from &#x27;@nestjs/config&#x27;;
-import { PinoLogger } from &#x27;nestjs-pino&#x27;;
-import { SessionLogContext } from &#x27;./session-logger-context&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
+import { PinoLogger } from &quot;nestjs-pino&quot;;
+import { SessionLogContext } from &quot;./session-logger-context&quot;;
 
 /**
  * Service for logging session-related events and errors.
@@ -1282,9 +1282,9 @@ export class SessionLoggerService {
         private readonly logger: PinoLogger,
         private readonly configService: ConfigService,
     ) {
-        this.logger.setContext(&#x27;SessionLoggerService&#x27;);
+        this.logger.setContext(&quot;SessionLoggerService&quot;);
         this.isEnabled &#x3D; this.configService.get&lt;boolean&gt;(
-            &#x27;LOG_ENABLE_SESSION_LOGGER&#x27;,
+            &quot;LOG_ENABLE_SESSION_LOGGER&quot;,
             false,
         );
     }
@@ -1304,8 +1304,8 @@ export class SessionLoggerService {
         this.logger.info(
             {
                 ...context,
-                event: &#x27;flow_start&#x27;,
-                stage: &#x27;initialization&#x27;,
+                event: &quot;flow_start&quot;,
+                stage: &quot;initialization&quot;,
                 ...additionalData,
             },
             message,
@@ -1323,8 +1323,8 @@ export class SessionLoggerService {
         this.logger.info(
             {
                 ...context,
-                event: &#x27;flow_complete&#x27;,
-                stage: &#x27;completion&#x27;,
+                event: &quot;flow_complete&quot;,
+                stage: &quot;completion&quot;,
                 ...additionalData,
             },
             message,
@@ -1346,7 +1346,7 @@ export class SessionLoggerService {
         this.logger.error(
             {
                 ...context,
-                event: &#x27;flow_error&#x27;,
+                event: &quot;flow_error&quot;,
                 error: {
                     name: error.name,
                     message: error.message,
@@ -1371,8 +1371,8 @@ export class SessionLoggerService {
         this.logger.info(
             {
                 ...context,
-                event: &#x27;credential_issuance&#x27;,
-                stage: &#x27;credential_creation&#x27;,
+                event: &quot;credential_issuance&quot;,
+                stage: &quot;credential_creation&quot;,
                 credentialType,
                 ...additionalData,
             },
@@ -1393,12 +1393,12 @@ export class SessionLoggerService {
         this.logger.info(
             {
                 ...context,
-                event: &#x27;credential_verification&#x27;,
-                stage: &#x27;verification&#x27;,
+                event: &quot;credential_verification&quot;,
+                stage: &quot;verification&quot;,
                 verificationResult,
                 ...additionalData,
             },
-            &#x60;[${context.flowType}] Credential verification ${verificationResult ? &#x27;succeeded&#x27; : &#x27;failed&#x27;} for session ${context.sessionId}&#x60;,
+            &#x60;[${context.flowType}] Credential verification ${verificationResult ? &quot;succeeded&quot; : &quot;failed&quot;} for session ${context.sessionId}&#x60;,
         );
     }
 
@@ -1411,8 +1411,8 @@ export class SessionLoggerService {
         this.logger.info(
             {
                 ...context,
-                event: &#x27;authorization_request&#x27;,
-                stage: &#x27;authorization&#x27;,
+                event: &quot;authorization_request&quot;,
+                stage: &quot;authorization&quot;,
                 ...additionalData,
             },
             &#x60;[${context.flowType}] Authorization request created for session ${context.sessionId}&#x60;,
@@ -1428,8 +1428,8 @@ export class SessionLoggerService {
         this.logger.info(
             {
                 ...context,
-                event: &#x27;token_exchange&#x27;,
-                stage: &#x27;token_exchange&#x27;,
+                event: &quot;token_exchange&quot;,
+                stage: &quot;token_exchange&quot;,
                 ...additionalData,
             },
             &#x60;[${context.flowType}] Token exchange for session ${context.sessionId}&#x60;,
@@ -1449,8 +1449,8 @@ export class SessionLoggerService {
         this.logger.info(
             {
                 ...context,
-                event: &#x27;notification&#x27;,
-                stage: &#x27;notification&#x27;,
+                event: &quot;notification&quot;,
+                stage: &quot;notification&quot;,
                 notificationEvent,
                 ...additionalData,
             },

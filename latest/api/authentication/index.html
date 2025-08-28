@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.16">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.18">
     
     
       
@@ -576,6 +576,8 @@
       
         
       
+        
+      
     
     
     
@@ -636,6 +638,29 @@
   
   <span class="md-ellipsis">
     Credential Configuration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/issuance/issuance-configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Issuance Configuration
     
   </span>
   
@@ -1059,6 +1084,8 @@
       
         
       
+        
+      
     
     
     
@@ -1271,6 +1298,29 @@
   
   <span class="md-ellipsis">
     Database
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Storage
     
   </span>
   
@@ -2236,7 +2286,7 @@ integrate with external OIDC providers like Keycloak, Auth0, or Azure AD.</p>
 <h3 id="external-oidc-provider_1">External OIDC Provider<a class="headerlink" href="#external-oidc-provider_1" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Enable external OIDC</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nv">OIDC</span><span class="o">=</span><span class="nb">true</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nv">KEYCLOAK_INTERNAL_ISSUER_URL</span><span class="o">=</span>https://your-keycloak.example.com/realms/your-realm
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nv">OIDC_INTERNAL_ISSUER_URL</span><span class="o">=</span>https://your-keycloak.example.com/realms/your-realm
 <a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="nv">PUBLIC_URL</span><span class="o">=</span>https://your-api.example.com
 </code></pre></div>
 <h3 id="integrated-oauth2-server">Integrated OAuth2 Server<a class="headerlink" href="#integrated-oauth2-server" title="Permanent link">&para;</a></h3>
@@ -2274,7 +2324,7 @@ variables, see <a href="../../architecture/key-management/">Key Management</a> a
 </ol>
 <h2 id="security-considerations">Security Considerations<a class="headerlink" href="#security-considerations" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Token Lifetime</strong>: Tokens expire after 24 hours for client credentials flow</li>
+<li><strong>Token Lifetime</strong>: Tokens expire after 24 hours for client credentials flow. It can be updated by setting the <code>JWT_EXPIRES_IN</code> to another value, default value is <code>24h</code>.</li>
 <li><strong>Secure Storage</strong>: Store client credentials and tokens securely and never
   expose them in logs or URLs</li>
 <li><strong>Service-to-Service</strong>: This API is designed for service-to-service
@@ -2387,7 +2437,8 @@ variables, see <a href="../../architecture/key-management/">Key Management</a> a
   
 </div>
       
-        <div class="md-social">
+        
+<div class="md-social">
   
     
     
@@ -2425,10 +2476,10 @@ variables, see <a href="../../architecture/key-management/">Key Management</a> a
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "content.action.view", "content.action.edit", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.instant.prefetch", "navigation.path", "navigation.sections", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "content.action.view", "content.action.edit", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.instant.prefetch", "navigation.path", "navigation.sections", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "search.highlight", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.50899def.min.js"></script>
+      <script src="../../assets/javascripts/bundle.92b07e13.min.js"></script>
       
         <script src="../../assets/external/unpkg.com/mermaid@11/dist/mermaid.min.js"></script>
       
