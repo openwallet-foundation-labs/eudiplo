@@ -23,6 +23,7 @@ import { MatButtonModule } from '@angular/material/button';
 export class ImageFieldComponent {
   @Input() field!: FormControl<string>;
   @Input() label!: string;
+  @Input() required = false;
   @ViewChild('logoFileInput') logoFileInput!: ElementRef<HTMLInputElement>;
 
   constructor(private snackBar: MatSnackBar) {}

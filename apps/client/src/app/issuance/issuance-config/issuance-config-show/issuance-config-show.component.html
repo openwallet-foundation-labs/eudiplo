@@ -48,7 +48,11 @@
           </div>
           <div fxFlex>
             <div><strong>Batch Size:</strong></div>
-            <div class="value-text">{{ config.batch_size || 1 }}</div>
+            <div class="value-text">{{ config.batchSize || 1 }}</div>
+          </div>
+          <div fxFlex>
+            <div><strong>DPop required:</strong></div>
+            <div class="value-text">{{ config.dPopRequired ? 'Yes' : 'No' }}</div>
           </div>
           @if (config.description) {
             <div fxFlex>

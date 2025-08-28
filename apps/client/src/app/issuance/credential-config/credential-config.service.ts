@@ -5,7 +5,7 @@ import {
   credentialsControllerGetConfigs,
   credentialsControllerStoreCredentialConfiguration,
 } from '../../generated/sdk.gen';
-import { CredentialConfig } from '../../generated/types.gen';
+import { CredentialConfig, CredentialConfigCreate } from '../../generated/types.gen';
 
 @Injectable({
   providedIn: 'root',
@@ -28,16 +28,15 @@ export class CredentialConfigService {
   /**
    * Save or update a credential configuration
    */
-  async saveConfiguration(config: CredentialConfig): Promise<void> {
-    try {
-      await credentialsControllerStoreCredentialConfiguration({
-        client,
-        body: config,
-      });
-    } catch (error) {
-      console.error('Failed to save credential configuration:', error);
-      throw new Error('Failed to save configuration');
-    }
+  async saveConfiguration(config: CredentialConfigCreate): Promise<void> {
+    return credentialsControllerStoreCredentialConfiguration({
+      body: config,
+    }).then((response) => {
+      if (response.error) {
+        throw new Error((response.error as any).message);
+      }
+      //return response.data;
+    });
   }
 
   /**

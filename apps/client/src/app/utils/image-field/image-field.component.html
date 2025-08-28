@@ -1,7 +1,7 @@
 <div fxLayout="row" fxLayoutGap="16px">
   <mat-form-field fxFlex>
     <mat-label>{{ label }}</mat-label>
-    <input matInput [formControl]="field" required />
+    <input matInput [formControl]="field" [required]="required" />
     <button
       mat-icon-button
       matSuffix

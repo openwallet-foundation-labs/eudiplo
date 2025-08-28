@@ -67,7 +67,7 @@
         }
       ]
     },
-    "batch_size": {
+    "batchSize": {
       "type": "number",
       "description": "Value to determine the amount of credentials that are issued in a batch.\nDefault is 1."
     },

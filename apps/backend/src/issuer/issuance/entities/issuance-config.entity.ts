@@ -153,7 +153,7 @@ export class IssuanceConfig {
     @IsNumber()
     @IsOptional()
     @Column("int", { default: 1 })
-    batch_size?: number;
+    batchSize?: number;
 
     /**
      * Indicates whether DPoP is required for the issuance process. Default value is true.
