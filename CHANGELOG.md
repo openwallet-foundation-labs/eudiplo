@@ -1,3 +1,34 @@
+# [1.6.0](https://github.com/openwallet-foundation-labs/eudiplo/compare/v1.5.0...v1.6.0) (2025-08-28)
+
+
+### Bug Fixes
+
+* add dependabot config ([#72](https://github.com/openwallet-foundation-labs/eudiplo/issues/72)) ([4fb0597](https://github.com/openwallet-foundation-labs/eudiplo/commit/4fb0597dfa064153af2bda5b87b5af103c09f3c5))
+* add dpop management to client ([#70](https://github.com/openwallet-foundation-labs/eudiplo/issues/70)) ([8225958](https://github.com/openwallet-foundation-labs/eudiplo/commit/8225958a9d9162707fcee0435b67f085beea1226))
+* add e2e test for client ([#83](https://github.com/openwallet-foundation-labs/eudiplo/issues/83)) ([31ebeb1](https://github.com/openwallet-foundation-labs/eudiplo/commit/31ebeb1aa83826fc92f904639052547ec17906b6))
+* add linting to md files ([#71](https://github.com/openwallet-foundation-labs/eudiplo/issues/71)) ([9e54201](https://github.com/openwallet-foundation-labs/eudiplo/commit/9e54201355815dc6d6acf978c1f400a732c4e327))
+* add missing doc ([#68](https://github.com/openwallet-foundation-labs/eudiplo/issues/68)) ([a35255c](https://github.com/openwallet-foundation-labs/eudiplo/commit/a35255cae13dbf2955c0fc36862213ec4464dd98))
+* add missing package ([e5794f5](https://github.com/openwallet-foundation-labs/eudiplo/commit/e5794f5bcce28b5016520462bc1fcbb0dfc30614))
+* add protocol for oid4vp request url ([d2a2376](https://github.com/openwallet-foundation-labs/eudiplo/commit/d2a2376ba3116b99e105114d746c7a0776da89fc))
+* add schema to disclosure policy ([298d64d](https://github.com/openwallet-foundation-labs/eudiplo/commit/298d64de475db1c77c697cb4291b27496b868b65))
+* allow also empty config just with the schema ([0401a6e](https://github.com/openwallet-foundation-labs/eudiplo/commit/0401a6e8f3fbe7e8d3e029a9dcfd936c04a85ae5))
+* **ci:** run docker build also on PRs ([#58](https://github.com/openwallet-foundation-labs/eudiplo/issues/58)) ([f71118f](https://github.com/openwallet-foundation-labs/eudiplo/commit/f71118f0254bbf90be3c395c39ca181edc2d9f30))
+* **client:** include sourcemaps in build ([4dc60f2](https://github.com/openwallet-foundation-labs/eudiplo/commit/4dc60f2f4b56c79041eb38d6222d4f7201faafe5))
+* extract webhook from presentation object ([#54](https://github.com/openwallet-foundation-labs/eudiplo/issues/54)) ([340a736](https://github.com/openwallet-foundation-labs/eudiplo/commit/340a7369f4241180be2a0cd4cad14abd43cd8332))
+* improve offer form ([#52](https://github.com/openwallet-foundation-labs/eudiplo/issues/52)) ([0527f82](https://github.com/openwallet-foundation-labs/eudiplo/commit/0527f828eeedb3424f8423a5c8254f917e5c50f6))
+* migrate from file storage to full db usage ([#49](https://github.com/openwallet-foundation-labs/eudiplo/issues/49)) ([a662a0b](https://github.com/openwallet-foundation-labs/eudiplo/commit/a662a0bdf41657e106dc55d09fb00856fb0e06a6))
+* remove form when not required ([8f67870](https://github.com/openwallet-foundation-labs/eudiplo/commit/8f6787072ba1ed77ce9b5ef4988e7b46b962d0ca))
+* rename filesystem key manager to db system key manager ([#53](https://github.com/openwallet-foundation-labs/eudiplo/issues/53)) ([80c6369](https://github.com/openwallet-foundation-labs/eudiplo/commit/80c6369cc4309290d219721b6782924dd665bb4d))
+* store qr code in session ([7d5743a](https://github.com/openwallet-foundation-labs/eudiplo/commit/7d5743aab531d06a6774d63db3b398bb0b985bc7))
+* use monaco editor for all textareas ([#55](https://github.com/openwallet-foundation-labs/eudiplo/issues/55)) ([737add5](https://github.com/openwallet-foundation-labs/eudiplo/commit/737add559b3bd99fa2dd967c27cb5d8a0aa05488))
+* use pipe instead of a guard ([#69](https://github.com/openwallet-foundation-labs/eudiplo/issues/69)) ([63cf73d](https://github.com/openwallet-foundation-labs/eudiplo/commit/63cf73d50937f2ff255348c3ed3d54bab6efdbfd))
+
+
+### Features
+
+* add embedded disclosure policy ([#57](https://github.com/openwallet-foundation-labs/eudiplo/issues/57)) ([7b9357a](https://github.com/openwallet-foundation-labs/eudiplo/commit/7b9357aaffd0483b3f291b1d06228771fd56f709))
+* generate schemas for better validation ([#62](https://github.com/openwallet-foundation-labs/eudiplo/issues/62)) ([2c565e0](https://github.com/openwallet-foundation-labs/eudiplo/commit/2c565e01deaf73c9c7bcbf1c52115c9b3114264c))
+
 # [1.5.0](https://github.com/openwallet-foundation-labs/eudiplo/compare/v1.4.0...v1.5.0) (2025-08-14)
 
 
