@@ -134,6 +134,17 @@
               "src/**/*.html"
             ]
           }
+        },
+        "e2e": {
+          "builder": "playwright-ng-schematics:playwright",
+          "options": {
+            "devServerTarget": "eudiplo-client:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "eudiplo-client:serve:production"
+            }
+          }
         }
       }
     }

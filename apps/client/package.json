@@ -13,7 +13,8 @@
     "lint:fix": "ng lint --fix",
     "format": "prettier --write \"src/**/*.{ts,html,css,scss,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,html,css,scss,json}\"",
-    "check": "npm run lint:fix && npm run format"
+    "check": "npm run lint:fix && npm run format",
+    "e2e": "ng e2e"
   },
   "dependencies": {
     "@angular/animations": "^20.1.6",
@@ -50,6 +51,7 @@
     "@angular/compiler-cli": "^20.1.6",
     "@eslint/js": "^9.29.0",
     "@hey-api/openapi-ts": "^0.80.10",
+    "@playwright/test": "1.55.0",
     "@types/jasmine": "~5.1.0",
     "angular-eslint": "20.1.1",
     "eslint": "^9.29.0",
@@ -61,6 +63,7 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "playwright-ng-schematics": "1.2.2",
     "prettier": "^3.6.2",
     "typescript": "~5.8.3",
     "typescript-eslint": "8.34.1"
