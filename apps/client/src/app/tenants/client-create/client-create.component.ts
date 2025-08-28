@@ -9,6 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { KeycloakService } from '../keycloak.service';
+import { tenantControllerInitTenant } from '../../generated';
 
 @Component({
   selector: 'app-client-create',
@@ -66,6 +67,7 @@ export class ClientCreateComponent {
     try {
       await this.keycloakService.createClient(clientId, description);
       this.snackBar.open('Client created successfully', 'Close', { duration: 3000 });
+      await tenantControllerInitTenant({ body: { id: clientId } });
       await this.router.navigate(['/clients']);
     } catch (error) {
       console.error('Error creating client:', error);

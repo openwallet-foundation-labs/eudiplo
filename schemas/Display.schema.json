@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/Display.schema.json",
+  "title": "Display",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "locale": {
+      "type": "string"
+    },
+    "background_color": {
+      "type": "string"
+    },
+    "text_color": {
+      "type": "string"
+    },
+    "background_image": {
+      "$ref": "./DisplayImage.schema.json"
+    },
+    "logo": {
+      "$ref": "./DisplayImage.schema.json"
+    }
+  },
+  "required": [
+    "name",
+    "description",
+    "locale"
+  ]
+}

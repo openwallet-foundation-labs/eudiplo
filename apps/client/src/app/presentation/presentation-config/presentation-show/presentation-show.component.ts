@@ -8,6 +8,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { PresentationConfig } from '../../../generated';
 import { PresentationManagementService } from '../presentation-management.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-presentation-show',
@@ -16,6 +17,7 @@ import { PresentationManagementService } from '../presentation-management.servic
     MatIconModule,
     MatCardModule,
     MatButtonModule,
+    MatTooltipModule,
     FlexLayoutModule,
     RouterModule,
   ],
@@ -23,7 +25,7 @@ import { PresentationManagementService } from '../presentation-management.servic
   styleUrls: ['./presentation-show.component.scss'],
 })
 export class PresentationShowComponent implements OnInit {
-  presentation?: PresentationConfig;
+  config?: PresentationConfig;
 
   constructor(
     private presentationService: PresentationManagementService,
@@ -40,7 +42,7 @@ export class PresentationShowComponent implements OnInit {
     try {
       const presentationId = this.route.snapshot.paramMap.get('id');
       if (presentationId) {
-        this.presentation = await this.presentationService.getPresentationById(presentationId);
+        this.config = await this.presentationService.getPresentationById(presentationId);
       }
     } catch (error) {
       console.error('Error loading presentation:', error);
@@ -48,9 +50,9 @@ export class PresentationShowComponent implements OnInit {
   }
 
   deletePresentation() {
-    if (this.presentation && confirm('Are you sure you want to delete this presentation?')) {
+    if (this.config && confirm('Are you sure you want to delete this presentation?')) {
       this.presentationService
-        .deleteConfiguration(this.presentation.id)
+        .deleteConfiguration(this.config.id)
         .then(() => {
           this.snackBar.open('Presentation deleted successfully', 'Close', {
             duration: 3000,
@@ -64,5 +66,25 @@ export class PresentationShowComponent implements OnInit {
           console.error('Delete error:', error);
         });
     }
+  }
+
+  /**
+   * Downloads the current configuration as a JSON file.
+   */
+  downloadConfig() {
+    if (this.config) {
+      const blob = new Blob([JSON.stringify(this.config, null, 2)], {
+        type: 'application/json',
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `presentation-config-${this.config.id}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    this.snackBar.open('Configuration downloaded', 'Close', {
+      duration: 3000,
+    });
   }
 }

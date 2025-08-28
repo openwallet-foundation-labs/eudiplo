@@ -75,11 +75,14 @@ export class CredentialsService {
             const isUsed = issuanceConfig.credentialConfigs.find(
                 (config) => config.id === value.id,
             );
-            value.config.vct = `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${session.tenantId}/credentials/vct/${value.id}`;
+            (value.config as CredentialConfigurationSupported).vct =
+                `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${session.tenantId}/credentials/vct/${value.id}`;
 
             if (value.embeddedDisclosurePolicy) {
                 delete (value.embeddedDisclosurePolicy as any).$schema;
-                value.config.disclosure_policy = value.embeddedDisclosurePolicy;
+                (
+                    value.config as CredentialConfigurationSupported
+                ).disclosure_policy = value.embeddedDisclosurePolicy;
             }
 
             if (isUsed?.id)
@@ -87,7 +90,9 @@ export class CredentialsService {
                     ...value.config,
                     ...kb,
                 };
-            credential_configurations_supported[value.id] = value.config;
+            (
+                credential_configurations_supported as CredentialConfigurationSupported
+            )[value.id] = value.config;
         }
         return credential_configurations_supported;
     }

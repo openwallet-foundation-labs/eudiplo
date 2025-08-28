@@ -989,6 +989,63 @@ export const EmbeddedDisclosurePolicySchema = {
     required: ['policy']
 } as const;
 
+export const DisplayImageSchema = {
+    type: 'object',
+    properties: {
+        uri: {
+            type: 'string'
+        }
+    },
+    required: ['uri']
+} as const;
+
+export const DisplaySchema = {
+    type: 'object',
+    properties: {
+        name: {
+            type: 'string'
+        },
+        description: {
+            type: 'string'
+        },
+        locale: {
+            type: 'string'
+        },
+        background_color: {
+            type: 'string'
+        },
+        text_color: {
+            type: 'string'
+        },
+        background_image: {
+            '$ref': '#/components/schemas/DisplayImage'
+        },
+        logo: {
+            '$ref': '#/components/schemas/DisplayImage'
+        }
+    },
+    required: ['name', 'description', 'locale']
+} as const;
+
+export const IssuerMetadataCredentialConfigSchema = {
+    type: 'object',
+    properties: {
+        format: {
+            type: 'string'
+        },
+        display: {
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/Display'
+            }
+        },
+        scope: {
+            type: 'string'
+        }
+    },
+    required: ['format', 'display']
+} as const;
+
 export const VCTSchema = {
     type: 'object',
     properties: {
@@ -1156,7 +1213,7 @@ and then class-validator runs that subclass’s rules.`,
             ]
         },
         config: {
-            type: 'object'
+            '$ref': '#/components/schemas/IssuerMetadataCredentialConfig'
         },
         claims: {
             type: 'object'
@@ -1308,7 +1365,7 @@ and then class-validator runs that subclass’s rules.`,
             type: 'string'
         },
         config: {
-            type: 'object'
+            '$ref': '#/components/schemas/IssuerMetadataCredentialConfig'
         },
         claims: {
             type: 'object'

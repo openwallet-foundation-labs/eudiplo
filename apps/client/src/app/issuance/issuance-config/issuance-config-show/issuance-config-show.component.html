@@ -17,6 +17,9 @@
         <button mat-icon-button [routerLink]="['edit']" matTooltip="Edit configuration">
           <mat-icon>edit</mat-icon>
         </button>
+        <button mat-icon-button (click)="downloadConfig()" matTooltip="Download configuration">
+          <mat-icon>download</mat-icon>
+        </button>
         <button
           mat-icon-button
           (click)="deleteConfig()"
