@@ -90,6 +90,10 @@ export type TenantEntity = {
      * The unique identifier for the tenant.
      */
     id: string;
+    /**
+     * The current status of the tenant.
+     */
+    status: string;
 };
 
 export type Session = {
@@ -367,7 +371,7 @@ export type CredentialQuery = {
     meta: {
         [key: string]: unknown;
     };
-    trusted_authorities: Array<TrustedAuthorityQuery>;
+    trusted_authorities?: Array<TrustedAuthorityQuery>;
 };
 
 export type CredentialSetQuery = {
@@ -911,6 +915,19 @@ export type TenantControllerInitTenantData = {
 export type TenantControllerInitTenantResponses = {
     201: unknown;
 };
+
+export type TenantControllerGetTenantStatusData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/tenant/status';
+};
+
+export type TenantControllerGetTenantStatusResponses = {
+    200: TenantEntity;
+};
+
+export type TenantControllerGetTenantStatusResponse = TenantControllerGetTenantStatusResponses[keyof TenantControllerGetTenantStatusResponses];
 
 export type TenantControllerDeleteTenantData = {
     body?: never;

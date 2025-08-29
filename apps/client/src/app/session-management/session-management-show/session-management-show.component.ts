@@ -15,7 +15,7 @@ import { Session } from '../../generated';
 import { SessionManagementService } from '../session-management.service';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-
+import { decodeJwt } from 'jose';
 @Component({
   selector: 'app-session-management-show',
   imports: [
@@ -48,6 +48,7 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
   pollingStartTime: number | null = null;
   offerUri: string | null = null;
   metadata?: any;
+  presentationRequest?: any;
 
   constructor(
     private sessionManagementService: SessionManagementService,
@@ -76,6 +77,10 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
       if (this.session.issuanceId) {
         this.getIssuerMetadata();
       }
+
+      if (this.session.requestId) {
+        this.getPresentationRequest();
+      }
     } catch (error) {
       console.error('Error loading session:', error);
       this.snackBar.open('Failed to load session', 'Close', {
@@ -85,6 +90,17 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
     } finally {
       this.loading = false;
     }
+  }
+
+  getPresentationRequest() {
+    if (!this.session?.requestUrl) return;
+    const parsed = new URL(this.session.requestUrl.replace('openid4vp://', 'https://example.com')); // Replace scheme for parsing
+    const requestUriEncoded = parsed.searchParams.get('request_uri');
+    const requestUri = decodeURIComponent(requestUriEncoded!);
+    firstValueFrom(this.httpClient.get(requestUri, { responseType: 'text' })).then((res) => {
+      const jwt = decodeJwt(res.toString());
+      this.presentationRequest = jwt;
+    });
   }
 
   getIssuerMetadata(): void {

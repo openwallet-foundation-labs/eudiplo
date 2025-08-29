@@ -8,7 +8,7 @@
         "format": "dc+sd-jwt",
         "meta": {
           "vct_values": [
-            "<PUBLIC_URL>/credentials/vct/pid"
+            "<PUBLIC_URL>/credentials-metadata/vct/pid"
           ]
         },
         "claims": [
@@ -41,7 +41,7 @@
           "format": "dc+sd-jwt",
           "meta": {
             "vct_values": [
-              "<PUBLIC_URL>/credentials/vct/pid"
+              "<PUBLIC_URL>/credentials-metadata/vct/pid"
             ]
           },
           "claims": [

@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn } from "typeorm";
+import { Column, Entity, PrimaryColumn } from "typeorm";
 
 /**
  * Represents a tenant in the system.
@@ -10,4 +10,10 @@ export class TenantEntity {
      */
     @PrimaryColumn()
     id: string;
+
+    /**
+     * The current status of the tenant.
+     */
+    @Column({ nullable: true })
+    status: string;
 }

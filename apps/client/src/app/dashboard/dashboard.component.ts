@@ -13,7 +13,11 @@ import { Router } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { ApiService } from '../api.service';
 import { EnvironmentService } from '../services/environment.service';
-
+import {
+  tenantControllerGetTenantStatus,
+  tenantControllerInitTenant,
+  TenantEntity,
+} from '../generated';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -52,6 +56,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // Initial check
     this.checkTokenStatus();
+    this.getTenantStatus();
   }
 
   ngOnDestroy(): void {
@@ -61,6 +66,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (this.tokenCheckInterval) {
       clearInterval(this.tokenCheckInterval);
     }
+  }
+
+  /**
+   * Get the status of the tenant. When there is none, hit the endpoint.
+   */
+  getTenantStatus() {
+    tenantControllerGetTenantStatus()
+      .then((res) => res.data)
+      .then((res) => {
+        if (!res) return;
+        if (!res.status) {
+          tenantControllerInitTenant({ body: { id: res.id } })
+            .then((res) => res.data)
+            .then((res) => {
+              console.log('Initialized tenant:', res);
+            });
+        }
+      });
   }
 
   /**
