@@ -170,9 +170,13 @@ export const TenantEntitySchema = {
         id: {
             type: 'string',
             description: 'The unique identifier for the tenant.'
+        },
+        status: {
+            type: 'string',
+            description: 'The current status of the tenant.'
         }
     },
-    required: ['id']
+    required: ['id', 'status']
 } as const;
 
 export const SessionSchema = {
@@ -611,7 +615,7 @@ export const CredentialQuerySchema = {
             }
         }
     },
-    required: ['id', 'format', 'meta', 'trusted_authorities']
+    required: ['id', 'format', 'meta']
 } as const;
 
 export const CredentialSetQuerySchema = {

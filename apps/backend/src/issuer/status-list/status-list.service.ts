@@ -125,9 +125,18 @@ export class StatusListService {
         session: Session,
         credentialConfigurationId: string,
     ): Promise<JWTwithStatusListPayload> {
-        const file = await this.statusListRepository.findOneByOrFail({
-            tenantId: session.tenantId,
-        });
+        const file = await this.statusListRepository
+            .findOneByOrFail({
+                tenantId: session.tenantId,
+            })
+            //if none if found, create one
+            .then(() =>
+                this.onTenantInit(session.tenantId).then(() =>
+                    this.statusListRepository.findOneByOrFail({
+                        tenantId: session.tenantId,
+                    }),
+                ),
+            );
         // get the last element from the stack
         const idx = file.stack.pop();
         //TODO: what to do if the stack is empty

@@ -3,6 +3,7 @@ import {
     ConflictException,
     Controller,
     Delete,
+    Get,
     Param,
     Post,
     UseGuards,
@@ -34,6 +35,16 @@ export class TenantController {
             throw new ConflictException("User is not an admin");
         }
         return this.tenantService.initTenant(values.id || user.sub);
+    }
+
+    /**
+     * Get the status of a tenant
+     * @param id The ID of the tenant
+     * @returns The status of the tenant
+     */
+    @Get("status")
+    getTenantStatus(@Token() user: TokenPayload) {
+        return this.tenantService.getTenantStatus(user.sub);
     }
 
     /**

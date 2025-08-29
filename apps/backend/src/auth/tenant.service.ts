@@ -1,6 +1,7 @@
 import {
     ForbiddenException,
     Injectable,
+    NotFoundException,
     OnApplicationBootstrap,
     OnModuleInit,
 } from "@nestjs/common";
@@ -72,6 +73,14 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
         return this.setUpTenant(id);
     }
 
+    async getTenantStatus(id: string) {
+        const tenant = await this.tenantRepository.findOneBy({ id });
+        if (!tenant) {
+            throw new NotFoundException(`Tenant ${id} not found`);
+        }
+        return tenant;
+    }
+
     /**
      * Get tenants from configuration
      * @returns
@@ -129,6 +138,7 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
         await this.statusListService.onTenantInit(id);
         await this.registrarService.onTenantInit(id);
         await this.oid4vciService.onTenantInit(id);
+        await this.tenantRepository.update({ id }, { status: "active" });
     }
 
     /**
