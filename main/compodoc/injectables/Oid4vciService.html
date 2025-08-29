@@ -209,7 +209,7 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(authzService: <a href="../injectables/AuthorizeService.html" target="_self">AuthorizeService</a>, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, credentialsService: <a href="../injectables/CredentialsService.html" target="_self">CredentialsService</a>, configService: ConfigService, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, sessionLogger: <a href="../injectables/SessionLoggerService.html" target="_self">SessionLoggerService</a>, issuanceService: <a href="../injectables/IssuanceService.html" target="_self">IssuanceService</a>, webhookService: <a href="../injectables/WebhookService.html" target="_self">WebhookService</a>, httpService: HttpService, displayRepository: <a href="../entitys/DisplayEntity.html" target="_self">Repository&lt;DisplayEntity&gt;</a>)</code>
+<code>constructor(authzService: <a href="../injectables/AuthorizeService.html" target="_self">AuthorizeService</a>, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, credentialsService: <a href="../injectables/CredentialsService.html" target="_self">CredentialsService</a>, configService: ConfigService, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, sessionLogger: <a href="../injectables/SessionLoggerService.html" target="_self">SessionLoggerService</a>, issuanceService: <a href="../injectables/IssuanceService.html" target="_self">IssuanceService</a>, webhookService: <a href="../injectables/WebhookService.html" target="_self">WebhookService</a>, httpService: HttpService, displayRepository: <a href="../classes/Display.html" target="_self">Repository&lt;DisplayEntity&gt;</a>)</code>
                     </td>
                 </tr>
                         <tr>
@@ -343,7 +343,7 @@
                                                         <td>displayRepository</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../entitys/DisplayEntity.html" target="_self" >Repository&lt;DisplayEntity&gt;</a></code>
+                                                                        <code><a href="../classes/Display.html" target="_self" >Repository&lt;DisplayEntity&gt;</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -1503,12 +1503,12 @@ export class Oid4vciService {
         const headers &#x3D; getHeadersFromRequest(req);
 
         const allowedAuthenticationSchemes &#x3D; [
-            SupportedAuthenticationScheme.Bearer,
+            SupportedAuthenticationScheme.DPoP,
         ];
 
-        if (issuanceConfig.dPopRequired) {
+        if (!issuanceConfig.dPopRequired) {
             allowedAuthenticationSchemes.push(
-                SupportedAuthenticationScheme.DPoP,
+                SupportedAuthenticationScheme.Bearer,
             );
         }
         //TODO: check how the nonce for the dpop has to be passed
@@ -1651,11 +1651,11 @@ export class Oid4vciService {
         ).protocol;
 
         const allowedAuthenticationSchemes: SupportedAuthenticationScheme[] &#x3D; [
-            SupportedAuthenticationScheme.Bearer,
+            SupportedAuthenticationScheme.DPoP,
         ];
-        if (issuanceConfig.dPopRequired) {
+        if (!issuanceConfig.dPopRequired) {
             allowedAuthenticationSchemes.push(
-                SupportedAuthenticationScheme.DPoP,
+                SupportedAuthenticationScheme.Bearer,
             );
         }
 

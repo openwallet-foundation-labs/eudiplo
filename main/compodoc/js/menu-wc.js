@@ -611,7 +611,13 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/DCQL.html" data-type="entity-link" >DCQL</a>
                             </li>
                             <li class="link">
+                                <a href="classes/Display.html" data-type="entity-link" >Display</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/DisplayCreateDto.html" data-type="entity-link" >DisplayCreateDto</a>
+                            </li>
+                            <li class="link">
+                                <a href="classes/DisplayImage.html" data-type="entity-link" >DisplayImage</a>
                             </li>
                             <li class="link">
                                 <a href="classes/DisplayInfo.html" data-type="entity-link" >DisplayInfo</a>
@@ -633,6 +639,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             </li>
                             <li class="link">
                                 <a href="classes/IssuanceDto.html" data-type="entity-link" >IssuanceDto</a>
+                            </li>
+                            <li class="link">
+                                <a href="classes/IssuerMetadataCredentialConfig.html" data-type="entity-link" >IssuerMetadataCredentialConfig</a>
                             </li>
                             <li class="link">
                                 <a href="classes/JwksResponseDto.html" data-type="entity-link" >JwksResponseDto</a>
