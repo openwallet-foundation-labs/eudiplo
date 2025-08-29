@@ -89,6 +89,12 @@ export class PresentationsService implements OnApplicationBootstrap {
                     ).catch(() => false);
                     if (presentationExists && !force) {
                         continue; // Skip if config already exists and force is not set
+                    } else if (presentationExists && force) {
+                        //delete old element so removed elements are not present
+                        await this.vpRequestRepository.delete({
+                            id,
+                            tenantId: tenant.name,
+                        });
                     }
 
                     // Validate the payload against PresentationConfig

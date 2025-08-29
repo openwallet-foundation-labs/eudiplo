@@ -26,7 +26,7 @@
       </mat-card-header>
       <mat-card-content fxLayout="column" fxLayoutGap="16px">
         <!-- Configuration ID -->
-        <mat-form-field class="full-width">
+        <mat-form-field>
           <mat-label>Configuration ID</mat-label>
           <input matInput formControlName="id" placeholder="unique-issuance-config-id" />
           <mat-icon matSuffix>fingerprint</mat-icon>
@@ -36,7 +36,7 @@
         </mat-form-field>
 
         <!-- Description -->
-        <mat-form-field class="full-width">
+        <mat-form-field>
           <mat-label>Description</mat-label>
           <input matInput formControlName="description" placeholder="Enter description" />
           <mat-icon matSuffix>description</mat-icon>
@@ -46,7 +46,7 @@
         </mat-form-field>
 
         <!-- Batch Size -->
-        <mat-form-field class="full-width">
+        <mat-form-field>
           <mat-label>Batch Size</mat-label>
           <input matInput type="number" formControlName="batchSize" placeholder="1" min="1" />
           <mat-icon matSuffix>batch_prediction</mat-icon>
@@ -76,7 +76,7 @@
       </mat-card-header>
       <mat-card-content fxLayout="column" fxLayoutGap="16px">
         <!-- Credential Config Selection -->
-        <mat-form-field class="full-width">
+        <mat-form-field>
           <mat-label>Select Credential Configurations</mat-label>
           <mat-select formControlName="credentialConfigIds" multiple>
             @for (config of availableCredentialConfigs; track config.id) {

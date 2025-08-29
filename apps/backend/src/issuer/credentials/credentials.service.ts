@@ -76,7 +76,7 @@ export class CredentialsService {
                 (config) => config.id === value.id,
             );
             (value.config as CredentialConfigurationSupported).vct =
-                `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${session.tenantId}/credentials/vct/${value.id}`;
+                `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${session.tenantId}/credentials-metadata/vct/${value.id}`;
 
             if (value.embeddedDisclosurePolicy) {
                 delete (value.embeddedDisclosurePolicy as any).$schema;
@@ -187,7 +187,7 @@ export class CredentialsService {
                 iss: this.configService.getOrThrow<string>("PUBLIC_URL"),
                 iat,
                 exp,
-                vct: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${session.tenantId}/credentials/vct/${credentialConfigurationId}`,
+                vct: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${session.tenantId}/credentials-metadata/vct/${credentialConfigurationId}`,
                 cnf,
                 ...claims,
                 ...status,

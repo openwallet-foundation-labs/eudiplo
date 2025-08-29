@@ -7,9 +7,6 @@
     "credentialConfigIds": [
         "pid"
     ],
-    "claimsWebhook": {
-        "url": "http://localhost:8787/request"
-    },
     "batchSize": 10,
     "dPopRequired": false
 }

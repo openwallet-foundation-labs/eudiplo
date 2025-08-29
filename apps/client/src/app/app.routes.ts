@@ -69,6 +69,10 @@ export const routes: Routes = [
         path: 'presentation',
         component: PresentationOfferComponent,
       },
+      {
+        path: 'presentation/:id',
+        component: PresentationOfferComponent,
+      },
     ],
   },
   {

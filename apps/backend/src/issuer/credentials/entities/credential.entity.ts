@@ -58,6 +58,7 @@ export class IssuerMetadataCredentialConfig {
     @ValidateNested()
     @Type(() => Display)
     display: Display[];
+    @IsOptional()
     @IsString()
     scope?: string;
 }

@@ -6,6 +6,13 @@
         <button mat-icon-button [routerLink]="['../']">
           <mat-icon>arrow_back</mat-icon>
         </button>
+        <button
+          mat-icon-button
+          [routerLink]="['/offer/presentation', config.id]"
+          matTooltip="Create offer"
+        >
+          <mat-icon>add</mat-icon>
+        </button>
         <button mat-icon-button [routerLink]="['edit']">
           <mat-icon>edit</mat-icon>
         </button>

@@ -749,7 +749,7 @@
           }
         }
       },
-      "required": ["id", "format", "meta", "trusted_authorities"]
+      "required": ["id", "format", "meta"]
     }
   },
   {
@@ -1294,6 +1294,9 @@
           "items": {
             "$ref": "./Display.schema.json"
           }
+        },
+        "scope": {
+          "type": "string"
         }
       },
       "required": ["format", "display"]

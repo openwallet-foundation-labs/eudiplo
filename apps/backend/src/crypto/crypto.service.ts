@@ -114,6 +114,12 @@ export class CryptoService {
                             .catch(() => false);
                         if (exists && !force) {
                             continue; // Skip if config already exists and force is not set
+                        } else if (exists && force) {
+                            //delete old element so removed elements are not present
+                            await this.certRepository.delete({
+                                id,
+                                tenantId: tenant.name,
+                            });
                         }
 
                         // Validate the payload against KeyImportDto

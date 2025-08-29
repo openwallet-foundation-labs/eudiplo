@@ -64,7 +64,11 @@
       <mat-card-content fxLayout="column" fxLayoutGap="16px">
         @if (create) {
           <h4>Private Key (JSON Web Key)</h4>
-          <app-editor formControlName="privateKey" [schema]="jwkSchema"></app-editor>
+          <app-editor
+            formControlName="privateKey"
+            [schema]="jwkSchema"
+            [errors]="form.get('privateKey')?.errors"
+          ></app-editor>
         } @else {
           <mat-card class="info-card">
             <mat-card-content>

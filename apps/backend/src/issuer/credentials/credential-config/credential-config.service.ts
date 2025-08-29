@@ -58,6 +58,12 @@ export class CredentialConfigService {
                         ).catch(() => false);
                         if (exists && !force) {
                             continue; // Skip if config already exists and force is not set
+                        } else if (exists && force) {
+                            //delete old element so removed elements are not present
+                            await this.credentialConfigRepository.delete({
+                                id,
+                                tenantId: tenant.name,
+                            });
                         }
 
                         // Validate the payload against CredentialConfig
@@ -108,11 +114,8 @@ export class CredentialConfigService {
                                     event: "ValidationError",
                                     file,
                                     tenant: tenant.name,
-                                    errors: validationErrors.map((error) => ({
-                                        property: error.property,
-                                        constraints: error.constraints,
-                                        value: error.value,
-                                    })),
+                                    //we need to extract the constraints because they tell what is wrong, also from the children elements
+                                    errors: validationErrors,
                                 },
                                 `Validation failed for credentials config ${file} in tenant ${tenant.name}`,
                             );
