@@ -5,7 +5,7 @@ import {
     Openid4vpAuthorizationRequest,
     Openid4vpClient,
 } from "@openid4vc/openid4vp";
-import { readFileSync } from "fs";
+import { readFileSync, rmSync } from "fs";
 import { CryptoKey, EncryptJWT, importJWK, JWK } from "jose";
 import request from "supertest";
 import { App } from "supertest/types";
@@ -20,6 +20,8 @@ describe("Presentation", () => {
     let clientId: string;
     let clientSecret: string;
     beforeAll(async () => {
+        //delete the database
+        rmSync("../../tmp/service.db", { force: true });
         const moduleFixture: TestingModule = await Test.createTestingModule({
             imports: [AppModule],
         }).compile();
