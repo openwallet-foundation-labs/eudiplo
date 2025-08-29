@@ -15,7 +15,7 @@ import { Session } from '../../generated';
 import { SessionManagementService } from '../session-management.service';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import {decodeJwt} from 'jose'
+import { decodeJwt } from 'jose';
 @Component({
   selector: 'app-session-management-show',
   imports: [
@@ -78,7 +78,7 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
         this.getIssuerMetadata();
       }
 
-      if(this.session.requestId) {
+      if (this.session.requestId) {
         this.getPresentationRequest();
       }
     } catch (error) {
@@ -97,7 +97,7 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
     const parsed = new URL(this.session.requestUrl.replace('openid4vp://', 'https://example.com')); // Replace scheme for parsing
     const requestUriEncoded = parsed.searchParams.get('request_uri');
     const requestUri = decodeURIComponent(requestUriEncoded!);
-    firstValueFrom(this.httpClient.get(requestUri, { responseType: 'text' })).then(res => {
+    firstValueFrom(this.httpClient.get(requestUri, { responseType: 'text' })).then((res) => {
       const jwt = decodeJwt(res.toString());
       this.presentationRequest = jwt;
     });
