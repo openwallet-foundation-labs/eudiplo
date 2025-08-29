@@ -154,6 +154,10 @@
                             </li>
                             <li>
                                     <span class="modifier"></span>
+                                <a href="#getTenantStatus" >getTenantStatus</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
                                 <a href="#initTenant" >initTenant</a>
                             </li>
                         </ul>
@@ -202,8 +206,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="44"
-                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:44</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="55"
+                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:55</a></div>
                         </td>
                     </tr>
 
@@ -274,6 +278,85 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="getTenantStatus"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                        <span ><b>getTenantStatus</b></span>
+                        <a href="#getTenantStatus"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getTenantStatus(user: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;status&#x27;)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="46"
+                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:46</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get the status of a tenant</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>user</td>
+                                            <td>
+                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>The status of the tenant</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="initTenant"></a>
                     <span class="name">
                             <span class="modifier"></span>
@@ -299,8 +382,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="31"
-                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:31</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="32"
+                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:32</a></div>
                         </td>
                     </tr>
 
@@ -376,6 +459,7 @@
     ConflictException,
     Controller,
     Delete,
+    Get,
     Param,
     Post,
     UseGuards,
@@ -407,6 +491,16 @@ export class TenantController {
             throw new ConflictException(&quot;User is not an admin&quot;);
         }
         return this.tenantService.initTenant(values.id || user.sub);
+    }
+
+    /**
+     * Get the status of a tenant
+     * @param id The ID of the tenant
+     * @returns The status of the tenant
+     */
+    @Get(&quot;status&quot;)
+    getTenantStatus(@Token() user: TokenPayload) {
+        return this.tenantService.getTenantStatus(user.sub);
     }
 
     /**

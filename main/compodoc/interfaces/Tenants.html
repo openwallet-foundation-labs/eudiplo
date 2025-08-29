@@ -238,6 +238,7 @@
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
     ForbiddenException,
     Injectable,
+    NotFoundException,
     OnApplicationBootstrap,
     OnModuleInit,
 } from &quot;@nestjs/common&quot;;
@@ -309,6 +310,14 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
         return this.setUpTenant(id);
     }
 
+    async getTenantStatus(id: string) {
+        const tenant &#x3D; await this.tenantRepository.findOneBy({ id });
+        if (!tenant) {
+            throw new NotFoundException(&#x60;Tenant ${id} not found&#x60;);
+        }
+        return tenant;
+    }
+
     /**
      * Get tenants from configuration
      * @returns
@@ -366,6 +375,7 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
         await this.statusListService.onTenantInit(id);
         await this.registrarService.onTenantInit(id);
         await this.oid4vciService.onTenantInit(id);
+        await this.tenantRepository.update({ id }, { status: &quot;active&quot; });
     }
 
     /**

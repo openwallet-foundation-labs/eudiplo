@@ -665,8 +665,8 @@ entries. The status list is stored in the file system as a JSON file.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="167"
-                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:167</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="176"
+                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:176</a></div>
                         </td>
                     </tr>
 
@@ -760,8 +760,8 @@ entries. The status list is stored in the file system as a JSON file.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="183"
-                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:183</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="192"
+                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:192</a></div>
                         </td>
                     </tr>
 
@@ -954,9 +954,18 @@ export class StatusListService {
         session: Session,
         credentialConfigurationId: string,
     ): Promise&lt;JWTwithStatusListPayload&gt; {
-        const file &#x3D; await this.statusListRepository.findOneByOrFail({
-            tenantId: session.tenantId,
-        });
+        const file &#x3D; await this.statusListRepository
+            .findOneByOrFail({
+                tenantId: session.tenantId,
+            })
+            //if none if found, create one
+            .then(() &#x3D;&gt;
+                this.onTenantInit(session.tenantId).then(() &#x3D;&gt;
+                    this.statusListRepository.findOneByOrFail({
+                        tenantId: session.tenantId,
+                    }),
+                ),
+            );
         // get the last element from the stack
         const idx &#x3D; file.stack.pop();
         //TODO: what to do if the stack is empty
