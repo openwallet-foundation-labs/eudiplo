@@ -10,10 +10,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { OfferResponse, PresentationConfig, PresentationRequest } from '../../generated';
-import { SessionManagementService } from '../../session-management/session-management.service';
 import { PresentationManagementService } from '../presentation-config/presentation-management.service';
 
 @Component({
@@ -46,9 +45,9 @@ export class PresentationOfferComponent implements OnInit {
 
   constructor(
     private presentationManagementService: PresentationManagementService,
-    private sessionManagementService: SessionManagementService,
     private snackBar: MatSnackBar,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.form = new FormGroup({
       requestId: new FormControl('', Validators.required),
@@ -63,6 +62,11 @@ export class PresentationOfferComponent implements OnInit {
     this.loading = true;
     try {
       this.configs = await this.presentationManagementService.loadConfigurations();
+      if (this.route.snapshot.params['id']) {
+        this.form.patchValue({ requestId: this.route.snapshot.params['id'] });
+        //since we do not have any other values for now, we can submit the form
+        this.onSubmit();
+      }
     } catch (error) {
       console.error('Error loading configurations:', error);
       this.snackBar.open('Failed to load presentation configurations', 'Close', {

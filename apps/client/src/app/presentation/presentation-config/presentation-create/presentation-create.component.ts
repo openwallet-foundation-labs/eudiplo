@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -19,13 +19,10 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { configs } from './pre-config';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
-import { EditorComponent } from '../../../utils/editor/editor.component';
+import { EditorComponent, extractSchema } from '../../../utils/editor/editor.component';
 import { WebhookConfigComponent } from '../../../utils/webhook-config/webhook-config.component';
-import {
-  DCQLSchema,
-  presentationAttachmentSchema,
-  registrationCertificateRequestSchema,
-} from '../../../utils/schemas';
+import { DCQLSchema, registrationCertificateRequestSchema } from '../../../utils/schemas';
+import { CredentialIdsComponent } from '../../credential-ids/credential-ids.component';
 
 @Component({
   selector: 'app-presentation-create',
@@ -47,6 +44,7 @@ import {
     MonacoEditorModule,
     EditorComponent,
     WebhookConfigComponent,
+    CredentialIdsComponent,
   ],
   templateUrl: './presentation-create.component.html',
   styleUrls: ['./presentation-create.component.scss'],
@@ -55,7 +53,6 @@ export class PresentationCreateComponent {
   public form: FormGroup;
   public create = true;
 
-  presentationAttachmentSchema = presentationAttachmentSchema;
   registrationCertificateRequestSchema = registrationCertificateRequestSchema;
 
   DCQLSchema = DCQLSchema;
@@ -75,7 +72,7 @@ export class PresentationCreateComponent {
       dcql_query: new FormControl(undefined, [Validators.required, this.jsonValidator]),
       lifeTime: new FormControl(300, [Validators.required, Validators.min(1)]),
       registrationCert: new FormControl(undefined), // Optional field
-      attached: new FormControl(undefined), // Optional field
+      attached: new FormArray([]),
       webhook: new FormGroup({
         url: new FormControl(undefined), // Optional, but if filled, should be valid URL
         auth: new FormGroup({
@@ -110,9 +107,7 @@ export class PresentationCreateComponent {
             formData.registrationCert = JSON.stringify(formData.registrationCert, null, 2);
           }
 
-          if (formData.attached && typeof formData.attached === 'object') {
-            formData.attached = JSON.stringify(formData.attached, null, 2);
-          }
+          (formData.attached || []).forEach(() => this.addAttachment());
 
           this.form.patchValue(formData);
           this.form.get('id')?.disable(); // Disable ID field in edit mode
@@ -121,8 +116,30 @@ export class PresentationCreateComponent {
     }
   }
 
+  getFormArray(value: string) {
+    return this.form.get(value) as FormArray;
+  }
+
+  addAttachment(): void {
+    this.getFormArray('attached').push(
+      new FormGroup({
+        format: new FormControl(undefined, [Validators.required]),
+        data: new FormControl(undefined, [Validators.required]),
+        credential_ids: new FormControl(),
+      })
+    );
+  }
+
+  removeAttachment(index: number) {
+    (this.form.get('attached') as FormArray).removeAt(index);
+  }
+
   getFormGroup(value: string) {
     return this.form.get(value) as FormGroup;
+  }
+
+  asFormGroup(value: any) {
+    return value as FormGroup;
   }
 
   // Custom validator for JSON format
@@ -139,6 +156,10 @@ export class PresentationCreateComponent {
   }
 
   createOrUpdatePresentation(): void {
+    Object.entries(this.form.controls).forEach(([key, control]) => {
+      console.log(key, control.invalid, control.errors);
+    });
+
     if (this.form.valid) {
       // Parse the JSON string to an object for dcql_query
       const formValue = { ...this.form.value };
@@ -146,11 +167,8 @@ export class PresentationCreateComponent {
       // Convert dcql_query from string to object
       if (formValue.dcql_query) {
         try {
-          formValue.dcql_query = JSON.parse(formValue.dcql_query);
-          formValue.registrationCert = JSON.parse(formValue.registrationCert);
-          if (formValue.attached) {
-            formValue.attached = JSON.parse(formValue.attached);
-          }
+          formValue.dcql_query = extractSchema(formValue.dcql_query);
+          formValue.registrationCert = extractSchema(formValue.registrationCert);
         } catch (error) {
           console.error('Error parsing DCQL Query JSON:', error);
           return;
@@ -182,7 +200,7 @@ export class PresentationCreateComponent {
             });
           }
         },
-        (err: any) => alert(err.message)
+        (err: any) => this.snackBar.open(err.message, 'Close')
       );
     }
   }
@@ -233,8 +251,8 @@ export class PresentationCreateComponent {
     // Parse dcql_query if it's a string
     if (formValue.dcql_query && typeof formValue.dcql_query === 'string') {
       try {
-        formValue.dcql_query = JSON.parse(formValue.dcql_query);
-        formValue.registrationCert = JSON.parse(formValue.registrationCert);
+        formValue.dcql_query = extractSchema(formValue.dcql_query);
+        formValue.registrationCert = extractSchema(formValue.registrationCert);
       } catch {
         // Ignore JSON parse errors
       }
@@ -277,15 +295,11 @@ export class PresentationCreateComponent {
   private loadConfigurationFromJson(config: any): void {
     try {
       const formData: any = { ...config };
-      if (formData.dcql_query && typeof formData.dcql_query === 'object') {
-        formData.dcql_query = JSON.stringify(formData.dcql_query, null, 2);
+      if (formData.dcql_query) {
+        formData.dcql_query = extractSchema(formData.dcql_query);
       }
-      if (formData.registrationCert && typeof formData.registrationCert === 'object') {
-        formData.registrationCert = JSON.stringify(formData.registrationCert, null, 2);
-      }
-
-      if (formData.attached && typeof formData.attached === 'object') {
-        formData.attached = JSON.stringify(formData.attached, null, 2);
+      if (formData.registrationCert) {
+        formData.registrationCert = extractSchema(formData.registrationCert);
       }
 
       this.form.patchValue(formData);

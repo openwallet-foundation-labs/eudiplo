@@ -111,4 +111,28 @@ export class CredentialConfigShowComponent implements OnInit {
     }
     return JSON.stringify(value, null, 2);
   }
+
+  /**
+   * Downloads the current configuration as a JSON file.
+   */
+  downloadConfig() {
+    if (this.config) {
+      const blob = new Blob([JSON.stringify(this.config, null, 2)], {
+        type: 'application/json',
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `credential-config-${this.config.id}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    this.snackBar.open('Configuration downloaded', 'Close', {
+      duration: 3000,
+    });
+  }
+
+  asAny(obj: any) {
+    return obj as any;
+  }
 }

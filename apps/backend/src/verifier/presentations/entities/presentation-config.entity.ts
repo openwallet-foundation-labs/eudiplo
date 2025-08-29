@@ -33,7 +33,7 @@ export class PresentationAttachment {
     @IsNotEmpty()
     data: any;
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsString({ each: true })
     credential_ids?: string[];
 }
@@ -68,7 +68,7 @@ export class CredentialQuery {
     @IsOptional()
     @ValidateNested({ each: true })
     @Type(() => TrustedAuthorityQuery)
-    trusted_authorities: TrustedAuthorityQuery[];
+    trusted_authorities?: TrustedAuthorityQuery[];
 }
 
 //TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#claims_query

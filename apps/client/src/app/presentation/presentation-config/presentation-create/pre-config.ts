@@ -11,7 +11,7 @@ export const configs = [
             id: 'pid',
             format: 'dc+sd-jwt',
             meta: {
-              vct_values: ['<PUBLIC_URL>/credentials/vct/pid'],
+              vct_values: ['<PUBLIC_URL>/credentials-metadata/vct/pid'],
             },
             claims: [
               {
@@ -39,7 +39,7 @@ export const configs = [
             {
               format: 'dc+sd-jwt',
               meta: {
-                vct_values: ['<PUBLIC_URL>/credentials/vct/pid'],
+                vct_values: ['<PUBLIC_URL>/credentials-metadata/vct/pid'],
               },
               claims: [
                 {

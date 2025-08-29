@@ -347,12 +347,12 @@ export class Oid4vciService {
         const headers = getHeadersFromRequest(req);
 
         const allowedAuthenticationSchemes = [
-            SupportedAuthenticationScheme.Bearer,
+            SupportedAuthenticationScheme.DPoP,
         ];
 
-        if (issuanceConfig.dPopRequired) {
+        if (!issuanceConfig.dPopRequired) {
             allowedAuthenticationSchemes.push(
-                SupportedAuthenticationScheme.DPoP,
+                SupportedAuthenticationScheme.Bearer,
             );
         }
         //TODO: check how the nonce for the dpop has to be passed
@@ -495,11 +495,11 @@ export class Oid4vciService {
         ).protocol;
 
         const allowedAuthenticationSchemes: SupportedAuthenticationScheme[] = [
-            SupportedAuthenticationScheme.Bearer,
+            SupportedAuthenticationScheme.DPoP,
         ];
-        if (issuanceConfig.dPopRequired) {
+        if (!issuanceConfig.dPopRequired) {
             allowedAuthenticationSchemes.push(
-                SupportedAuthenticationScheme.DPoP,
+                SupportedAuthenticationScheme.Bearer,
             );
         }
 

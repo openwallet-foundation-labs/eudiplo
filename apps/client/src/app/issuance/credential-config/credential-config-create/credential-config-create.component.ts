@@ -24,7 +24,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { CertEntity, CredentialConfig, CredentialConfigCreate } from '../../../generated';
+import { CertEntity, CredentialConfigCreate } from '../../../generated';
 import { KeyManagementService } from '../../../key-management/key-management.service';
 import { CredentialConfigService } from '../credential-config.service';
 import { JsonViewDialogComponent } from './json-view-dialog/json-view-dialog.component';
@@ -90,6 +90,7 @@ export class CredentialConfigCreateComponent implements OnInit {
       id: ['', [Validators.required]],
       description: ['', Validators.required],
       keyId: [''],
+      scope: [''],
       lifeTime: [3600, [Validators.min(1)]],
       keyBinding: [true, [Validators.required]],
       statusManagement: [true, [Validators.required]],
@@ -118,6 +119,7 @@ export class CredentialConfigCreateComponent implements OnInit {
             id: config.id,
             description: config.description,
             keyId: config.keyId,
+            scope: config.config.scope,
             lifeTime: config.lifeTime,
             keyBinding: config.keyBinding,
             statusManagement: config.statusManagement,
@@ -127,7 +129,7 @@ export class CredentialConfigCreateComponent implements OnInit {
               : '',
             vct: config.vct ? JSON.stringify(config.vct, null, 2) : '',
             schema: config.schema ? JSON.stringify(config.schema, null, 2) : '',
-            displayConfigs: config.config?.['display'] || [],
+            displayConfigs: config.config.display || [],
             embeddedDisclosurePolicy: config.embeddedDisclosurePolicy
               ? JSON.stringify(config.embeddedDisclosurePolicy, null, 2)
               : '',
@@ -166,6 +168,7 @@ export class CredentialConfigCreateComponent implements OnInit {
       formValue.config = {
         format: 'dc+sd-jwt',
         display: formValue.displayConfigs,
+        scope: formValue.scope,
       };
 
       // Parse JSON fields when there is a value
@@ -257,10 +260,12 @@ export class CredentialConfigCreateComponent implements OnInit {
       background_color: ['#FFFFFF'],
       text_color: ['#000000'],
       // Handle both nested (from API/JSON) and flattened (from form) formats
-      background_image_uri: [''],
-      background_image_url: [''],
-      logo_uri: [''],
-      logo_url: [''],
+      background_image: this.fb.group({
+        uri: [''],
+      }),
+      logo: this.fb.group({
+        uri: [''],
+      }),
     });
   }
 
@@ -340,12 +345,13 @@ export class CredentialConfigCreateComponent implements OnInit {
   /**
    * Load configuration from JSON object into the form
    */
-  private loadConfigurationFromJson(config: any): void {
+  private loadConfigurationFromJson(config: CredentialConfigCreate): void {
     try {
       // Update basic form fields
       this.form.patchValue({
         id: config.id || '',
         keyId: config.keyId || '',
+        scope: config.config.scope || [''],
         description: config.description || '',
         lifeTime: config.lifeTime || 3600,
         keyBinding: config.keyBinding ?? true,

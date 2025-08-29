@@ -17,7 +17,7 @@ import {
 } from "@openid4vc/openid4vp";
 import { digest } from "@sd-jwt/crypto-nodejs";
 import { SDJwtVcInstance } from "@sd-jwt/sd-jwt-vc";
-import { readFileSync } from "fs";
+import { readFileSync, rmSync } from "fs";
 import {
     EncryptJWT,
     exportJWK,
@@ -56,6 +56,9 @@ describe("Issuance", () => {
     });
 
     beforeAll(async () => {
+        //delete the database
+        rmSync("../../tmp/service.db", { force: true });
+
         const moduleFixture: TestingModule = await Test.createTestingModule({
             imports: [AppModule],
         }).compile();

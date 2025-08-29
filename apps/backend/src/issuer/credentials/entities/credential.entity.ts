@@ -6,7 +6,6 @@ import {
     ApiProperty,
     getSchemaPath,
 } from "@nestjs/swagger";
-import { CredentialConfigurationSupported } from "@openid4vc/openid4vci";
 import { Type } from "class-transformer";
 import {
     IsBoolean,
@@ -29,6 +28,40 @@ import {
     NoneTrustPolicy,
     RootOfTrustPolicy,
 } from "./policies.dto";
+
+export class DisplayImage {
+    @IsString()
+    uri: string;
+}
+export class Display {
+    @IsString()
+    name: string;
+    @IsString()
+    description: string;
+    @IsString()
+    locale: string;
+    @IsString()
+    background_color?: string;
+    @IsString()
+    text_color?: string;
+    @ValidateNested()
+    @Type(() => DisplayImage)
+    background_image?: DisplayImage;
+    @ValidateNested()
+    @Type(() => DisplayImage)
+    logo?: DisplayImage;
+}
+
+export class IssuerMetadataCredentialConfig {
+    @IsString()
+    format: string;
+    @ValidateNested()
+    @Type(() => Display)
+    display: Display[];
+    @IsOptional()
+    @IsString()
+    scope?: string;
+}
 
 @ApiExtraModels(
     AttestationBasedPolicy,
@@ -57,8 +90,9 @@ export class CredentialConfig {
     tenant: TenantEntity;
 
     @Column("json")
-    @IsObject()
-    config!: CredentialConfigurationSupported;
+    @ValidateNested()
+    @Type(() => IssuerMetadataCredentialConfig)
+    config!: IssuerMetadataCredentialConfig;
 
     @Column("json", { nullable: true })
     @IsOptional()

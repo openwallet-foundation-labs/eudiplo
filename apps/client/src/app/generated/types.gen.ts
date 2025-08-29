@@ -558,6 +558,26 @@ export type EmbeddedDisclosurePolicy = {
     policy: string;
 };
 
+export type DisplayImage = {
+    uri: string;
+};
+
+export type Display = {
+    name: string;
+    description: string;
+    locale: string;
+    background_color?: string;
+    text_color?: string;
+    background_image?: DisplayImage;
+    logo?: DisplayImage;
+};
+
+export type IssuerMetadataCredentialConfig = {
+    format: string;
+    display: Array<Display>;
+    scope?: string;
+};
+
 export type Vct = {
     vct?: string;
     name?: string;
@@ -625,9 +645,7 @@ export type CredentialConfig = {
      * The tenant that owns this object.
      */
     tenant: TenantEntity;
-    config: {
-        [key: string]: unknown;
-    };
+    config: IssuerMetadataCredentialConfig;
     claims?: {
         [key: string]: unknown;
     };
@@ -701,9 +719,7 @@ export type CredentialConfigCreate = {
     embeddedDisclosurePolicy?: EmbeddedDisclosurePolicy;
     id: string;
     description?: string;
-    config: {
-        [key: string]: unknown;
-    };
+    config: IssuerMetadataCredentialConfig;
     claims?: {
         [key: string]: unknown;
     };

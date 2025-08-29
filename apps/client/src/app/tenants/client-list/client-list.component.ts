@@ -10,6 +10,7 @@ import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { KeycloakService, type ClientInfo } from '../keycloak.service';
 import { ApiService } from '../../api.service';
+import { tenantControllerDeleteTenant } from '../../generated';
 
 @Component({
   selector: 'app-client-list',
@@ -99,6 +100,7 @@ export class ClientListComponent implements OnInit {
 
     try {
       await this.keycloakService.deleteClient(client.clientId);
+      await tenantControllerDeleteTenant({ path: { id: client.clientId } });
       await this.loadClients(); // Reload the list
       this.snackBar.open('Client deleted successfully', 'Close', { duration: 3000 });
     } catch (error) {

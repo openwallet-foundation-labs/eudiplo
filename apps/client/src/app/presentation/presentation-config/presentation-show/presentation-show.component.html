@@ -1,29 +1,39 @@
-@if (presentation) {
+@if (config) {
   <div fxLayout="column" fxFlex fxLayoutGap="16px">
     <div fxLayout="row" fxLayoutAlign="space-between center">
-      <h2>Presentation Configuration: {{ presentation.id }}</h2>
+      <h2>Presentation Configuration: {{ config.id }}</h2>
       <div>
         <button mat-icon-button [routerLink]="['../']">
           <mat-icon>arrow_back</mat-icon>
         </button>
+        <button
+          mat-icon-button
+          [routerLink]="['/offer/presentation', config.id]"
+          matTooltip="Create offer"
+        >
+          <mat-icon>add</mat-icon>
+        </button>
         <button mat-icon-button [routerLink]="['edit']">
           <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button (click)="downloadConfig()" [matTooltip]="'Download configuration'">
+          <mat-icon>download</mat-icon>
         </button>
         <button mat-icon-button (click)="deletePresentation()" class="delete-button">
           <mat-icon>delete</mat-icon>
         </button>
       </div>
     </div>
-    <p><strong>Created At:</strong> {{ presentation.createdAt | date }}</p>
-    <p><strong>Lifetime of the request:</strong> {{ presentation.lifeTime }} seconds</p>
-    <p><strong>Description:</strong> {{ presentation.description }}</p>
+    <p><strong>Created At:</strong> {{ config.createdAt | date }}</p>
+    <p><strong>Lifetime of the request:</strong> {{ config.lifeTime }} seconds</p>
+    <p><strong>Description:</strong> {{ config.description }}</p>
     <mat-card>
       <mat-card-header>
         <mat-card-title>DCQL</mat-card-title>
         <mat-card-subtitle>Which credentials to query</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
-        <pre>{{ presentation.dcql_query | json }}</pre>
+        <pre>{{ config.dcql_query | json }}</pre>
       </mat-card-content>
     </mat-card>
 
@@ -33,7 +43,7 @@
         <mat-card-subtitle>Certificate used for the presentation</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
-        <pre>{{ presentation.registrationCert | json }}</pre>
+        <pre>{{ config.registrationCert | json }}</pre>
       </mat-card-content>
     </mat-card>
 
@@ -43,7 +53,7 @@
         <mat-card-subtitle>Where to send the the verification result</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
-        <pre>{{ presentation.webhook | json }}</pre>
+        <pre>{{ config.webhook | json }}</pre>
       </mat-card-content>
     </mat-card>
 
@@ -53,7 +63,7 @@
         <mat-card-subtitle>Additional data attached to the presentation</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
-        <pre>{{ presentation.attached | json }}</pre>
+        <pre>{{ config.attached | json }}</pre>
       </mat-card-content>
     </mat-card>
   </div>
