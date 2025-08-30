@@ -275,7 +275,7 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { promises as fs } from &quot;node:fs&quot;;
-import * as path from &quot;node:path&quot;;
+import { dirname } from &quot;node:path&quot;;
 import { Injectable, Logger, OnModuleInit } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { VALIDATION_SCHEMA } from &quot;./combined.schema&quot;;
@@ -309,11 +309,17 @@ export interface ConfigModel {
     all: ConfigItem[];
 }
 
+/**
+ * Service for printing configuration.
+ */
 @Injectable()
 export class ConfigPrinterService implements OnModuleInit {
     constructor(private readonly cfg: ConfigService) {}
 
-    /** Build a reusable model of your config (values + meta + conditions). */
+    /**
+     * Builds the configuration model.
+     * @returns The configuration model.
+     */
     public buildModel(): ConfigModel {
         const described &#x3D; VALIDATION_SCHEMA.describe() as any;
         const descKeys: Record&lt;string, any&gt; &#x3D; described.keys ?? {};
@@ -401,8 +407,11 @@ export class ConfigPrinterService implements OnModuleInit {
         };
     }
 
-    /* ---------- renderers ---------- */
-
+    /**
+     * Generates notes for a configuration item.
+     * @param i - The configuration item to generate notes for.
+     * @returns The generated notes as a string.
+     */
     private itemNotes(i: ConfigItem): string {
         const presence &#x3D; i.presence ? &#x60; [${i.presence}]&#x60; : &quot;&quot;;
         const defTag &#x3D; i.usedDefault ? &quot; (default)&quot; : &quot;&quot;;
@@ -422,6 +431,11 @@ export class ConfigPrinterService implements OnModuleInit {
             .trim();
     }
 
+    /**
+     * Renders the configuration model as plain text.
+     * @param model - The configuration model to render.
+     * @returns The rendered configuration as a plain text string.
+     */
     private renderText(model: ConfigModel): string {
         const out: string[] &#x3D; [];
         for (const g of model.groups) {
@@ -435,6 +449,11 @@ export class ConfigPrinterService implements OnModuleInit {
         return &#x60;\n${out.join(&quot;\n&quot;)}\n&#x60;;
     }
 
+    /**
+     * Renders the configuration model as Markdown.
+     * @param model - The configuration model to render.
+     * @returns The rendered configuration as a Markdown string.
+     */
     private renderMarkdown(model: ConfigModel): string {
         const out: string[] &#x3D; [
             &#x60;&lt;!-- generated: ${model.createdAt} --&gt;&#x60;,
@@ -454,10 +473,21 @@ export class ConfigPrinterService implements OnModuleInit {
         return out.join(&quot;\n&quot;);
     }
 
+    /**
+     * Renders the configuration model as JSON.
+     * @param model - The configuration model to render.
+     * @returns The rendered configuration as a JSON string.
+     */
     private renderJson(model: ConfigModel): string {
         return JSON.stringify(model, null, 2);
     }
 
+    /**
+     * Renders the configuration model into the specified format.
+     * @param model - The configuration model to render.
+     * @param format - The format to render the model in.
+     * @returns The rendered configuration as a string.
+     */
     private render(model: ConfigModel, format: string): string {
         switch (format) {
             case &quot;markdown&quot;:
@@ -471,22 +501,24 @@ export class ConfigPrinterService implements OnModuleInit {
         }
     }
 
+    /**
+     * Writes a file safely, creating directories as needed.
+     * @param filePath - The path to the file to write.
+     * @param content - The content to write to the file.
+     */
     private async writeFileSafely(
         filePath: string,
         content: string,
     ): Promise&lt;void&gt; {
-        const dir &#x3D; path.dirname(filePath);
+        const dir &#x3D; dirname(filePath);
         await fs.mkdir(dir, { recursive: true });
         await fs.writeFile(filePath, content, &quot;utf8&quot;);
     }
 
-    /* ---------- lifecycle ---------- */
-
+    /**
+     * Lifecycle hook that is called when the module is initialized.
+     */
     async onModuleInit(): Promise&lt;void&gt; {
-        // Only print in non-prod by default (override with CONFIG_PRINT_IN_PROD&#x3D;true)
-        const inProd &#x3D; this.cfg.get(&quot;NODE_ENV&quot;) &#x3D;&#x3D;&#x3D; &quot;production&quot;;
-        if (inProd &amp;&amp; this.cfg.get(&quot;CONFIG_PRINT_IN_PROD&quot;) !&#x3D;&#x3D; &quot;true&quot;) return;
-
         const model &#x3D; this.buildModel();
         const format &#x3D; String(
             this.cfg.get(&quot;CONFIG_PRINT_FORMAT&quot;) || &quot;text&quot;,
@@ -497,7 +529,7 @@ export class ConfigPrinterService implements OnModuleInit {
             const file &#x3D; this.cfg.get(&quot;CONFIG_PRINT_FILE&quot;);
             await this.writeFileSafely(String(file), out);
             Logger.log(&#x60;Wrote config to ${file}&#x60;, &quot;Config&quot;);
-        } else {
+        } else if (this.cfg.get&lt;boolean&gt;(&quot;CONFIG_PRINT&quot;)) {
             Logger.log(out, &quot;Config&quot;);
         }
     }

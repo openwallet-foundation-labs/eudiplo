@@ -1904,7 +1904,7 @@ necessary environment variables.</p>
 <p>On startup, EUDIPLO checks whether a Relying Party (RP) is already registered
 using the <code>config/registrar.json</code> file. If no ID is specified, EUDIPLO will
 automatically register a new Relying Party with the registrar using the
-<code>RP_NAME</code> value.</p>
+<code>name</code> from the tenant entity stored in the database.</p>
 <h2 id="access-certificate">Access Certificate<a class="headerlink" href="#access-certificate" title="Permanent link">&para;</a></h2>
 <p>At startup, EUDIPLO checks for a valid access certificate based on the
 <code>accessCertificateId</code> in <code>config/registrar.json</code>. If no valid certificate is

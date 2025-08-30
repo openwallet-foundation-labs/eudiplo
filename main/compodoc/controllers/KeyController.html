@@ -303,8 +303,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="82"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:82</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="81"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:81</a></div>
                         </td>
                     </tr>
 
@@ -472,8 +472,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="67"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:67</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="66"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:66</a></div>
                         </td>
                     </tr>
 
@@ -603,8 +603,7 @@ export class KeyController {
         @Token() token: TokenPayload,
         @Body() body: KeyImportDto,
     ): Promise&lt;{ id: string }&gt; {
-        const tenantId &#x3D; token.sub;
-        const id &#x3D; await this.cryptoService.importKey(tenantId, body);
+        const id &#x3D; await this.cryptoService.importKey(token.entity!, body);
         return { id };
     }
 

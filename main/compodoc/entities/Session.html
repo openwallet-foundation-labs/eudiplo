@@ -1009,7 +1009,7 @@ request URI, authorization queries, and more.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="171" class="link-to-prism">src/session/entities/session.entity.ts:171</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="175" class="link-to-prism">src/session/entities/session.entity.ts:175</a></div>
                         </td>
                     </tr>
 
@@ -1045,13 +1045,13 @@ request URI, authorization queries, and more.</p>
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ManyToOne(undefined, {cascade: true, onDelete: &#x27;CASCADE&#x27;})<br />
+                            @ManyToOne(undefined, {cascade: true, onDelete: &#x27;CASCADE&#x27;, eager: true})<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="164" class="link-to-prism">src/session/entities/session.entity.ts:164</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="168" class="link-to-prism">src/session/entities/session.entity.ts:168</a></div>
                         </td>
                     </tr>
 
@@ -1358,7 +1358,11 @@ export class Session {
     /**
      * The tenant that owns this object.
      */
-    @ManyToOne(() &#x3D;&gt; TenantEntity, { cascade: true, onDelete: &quot;CASCADE&quot; })
+    @ManyToOne(() &#x3D;&gt; TenantEntity, {
+        cascade: true,
+        onDelete: &quot;CASCADE&quot;,
+        eager: true,
+    })
     tenant: TenantEntity;
 
     /**

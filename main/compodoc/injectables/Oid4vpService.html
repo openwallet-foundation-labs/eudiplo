@@ -393,8 +393,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="205"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:205</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="204"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:204</a></div>
                         </td>
                     </tr>
 
@@ -488,8 +488,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="264"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:264</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="263"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:263</a></div>
                         </td>
                     </tr>
 
@@ -689,8 +689,7 @@ export class Oid4vpService {
                         },
                         authorization_encrypted_response_alg: &quot;ECDH-ES&quot;,
                         authorization_encrypted_response_enc: &quot;A128GCM&quot;,
-                        client_name:
-                            this.configService.getOrThrow&lt;string&gt;(&quot;RP_NAME&quot;),
+                        client_name: session.tenant.name,
                         response_types_supported: [&quot;vp_token&quot;],
                     },
                     state: session.id,

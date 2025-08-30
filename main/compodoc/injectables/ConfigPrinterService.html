@@ -120,6 +120,13 @@
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Service for printing configuration.</p>
+
+            </p>
 
 
 
@@ -192,7 +199,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="37" class="link-to-prism">src/utils/config-printer/config-printer.service.ts:37</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="40" class="link-to-prism">src/utils/config-printer/config-printer.service.ts:40</a></div>
                             </td>
                         </tr>
 
@@ -257,21 +264,25 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="41"
-                                    class="link-to-prism">src/utils/config-printer/config-printer.service.ts:41</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="47"
+                                    class="link-to-prism">src/utils/config-printer/config-printer.service.ts:47</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Build a reusable model of your config (values + meta + conditions).</p>
+                        <div class="io-description"><p>Builds the configuration model.</p>
 </div>
 
                         <div class="io-description">
                             <b>Returns : </b>        <code><a href="../interfaces/ConfigModel.html" target="_self" >ConfigModel</a></code>
 
                         </div>
+                            <div class="io-description">
+                                <p>The configuration model.</p>
+
+                            </div>
                 </td>
             </tr>
         </tbody>
@@ -298,14 +309,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="130"
-                                    class="link-to-prism">src/utils/config-printer/config-printer.service.ts:130</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="139"
+                                    class="link-to-prism">src/utils/config-printer/config-printer.service.ts:139</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Generates notes for a configuration item.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -316,6 +329,7 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
+                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -330,6 +344,12 @@
                                             </td>
 
 
+                                            <td>
+                                                    <ul>
+<li>The configuration item to generate notes for.</li>
+</ul>
+
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -339,7 +359,8 @@
 
                         </div>
                             <div class="io-description">
-                                
+                                <p>The generated notes as a string.</p>
+
                             </div>
                 </td>
             </tr>
@@ -367,14 +388,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="209"
-                                    class="link-to-prism">src/utils/config-printer/config-printer.service.ts:209</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="245"
+                                    class="link-to-prism">src/utils/config-printer/config-printer.service.ts:245</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Lifecycle hook that is called when the module is initialized.</p>
+</div>
 
                         <div class="io-description">
                             <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
@@ -406,14 +429,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="185"
-                                    class="link-to-prism">src/utils/config-printer/config-printer.service.ts:185</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="215"
+                                    class="link-to-prism">src/utils/config-printer/config-printer.service.ts:215</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Renders the configuration model into the specified format.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -424,6 +449,7 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
+                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -438,6 +464,12 @@
                                             </td>
 
 
+                                            <td>
+                                                    <ul>
+<li>The configuration model to render.</li>
+</ul>
+
+                                            </td>
                                         </tr>
                                         <tr>
                                                 <td>format</td>
@@ -450,6 +482,12 @@
                                             </td>
 
 
+                                            <td>
+                                                    <ul>
+<li>The format to render the model in.</li>
+</ul>
+
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -459,7 +497,8 @@
 
                         </div>
                             <div class="io-description">
-                                
+                                <p>The rendered configuration as a string.</p>
+
                             </div>
                 </td>
             </tr>
@@ -487,14 +526,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="181"
-                                    class="link-to-prism">src/utils/config-printer/config-printer.service.ts:181</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="205"
+                                    class="link-to-prism">src/utils/config-printer/config-printer.service.ts:205</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Renders the configuration model as JSON.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -505,6 +546,7 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
+                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -519,6 +561,12 @@
                                             </td>
 
 
+                                            <td>
+                                                    <ul>
+<li>The configuration model to render.</li>
+</ul>
+
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -528,7 +576,8 @@
 
                         </div>
                             <div class="io-description">
-                                
+                                <p>The rendered configuration as a JSON string.</p>
+
                             </div>
                 </td>
             </tr>
@@ -556,14 +605,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="162"
-                                    class="link-to-prism">src/utils/config-printer/config-printer.service.ts:162</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="181"
+                                    class="link-to-prism">src/utils/config-printer/config-printer.service.ts:181</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Renders the configuration model as Markdown.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -574,6 +625,7 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
+                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -588,6 +640,12 @@
                                             </td>
 
 
+                                            <td>
+                                                    <ul>
+<li>The configuration model to render.</li>
+</ul>
+
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -597,7 +655,8 @@
 
                         </div>
                             <div class="io-description">
-                                
+                                <p>The rendered configuration as a Markdown string.</p>
+
                             </div>
                 </td>
             </tr>
@@ -625,14 +684,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="149"
-                                    class="link-to-prism">src/utils/config-printer/config-printer.service.ts:149</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="163"
+                                    class="link-to-prism">src/utils/config-printer/config-printer.service.ts:163</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Renders the configuration model as plain text.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -643,6 +704,7 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
+                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -657,6 +719,12 @@
                                             </td>
 
 
+                                            <td>
+                                                    <ul>
+<li>The configuration model to render.</li>
+</ul>
+
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -666,7 +734,8 @@
 
                         </div>
                             <div class="io-description">
-                                
+                                <p>The rendered configuration as a plain text string.</p>
+
                             </div>
                 </td>
             </tr>
@@ -695,14 +764,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="198"
-                                    class="link-to-prism">src/utils/config-printer/config-printer.service.ts:198</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="233"
+                                    class="link-to-prism">src/utils/config-printer/config-printer.service.ts:233</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Writes a file safely, creating directories as needed.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -713,6 +784,7 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
+                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -727,6 +799,12 @@
                                             </td>
 
 
+                                            <td>
+                                                    <ul>
+<li>The path to the file to write.</li>
+</ul>
+
+                                            </td>
                                         </tr>
                                         <tr>
                                                 <td>content</td>
@@ -739,6 +817,12 @@
                                             </td>
 
 
+                                            <td>
+                                                    <ul>
+<li>The content to write to the file.</li>
+</ul>
+
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -761,7 +845,7 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { promises as fs } from &quot;node:fs&quot;;
-import * as path from &quot;node:path&quot;;
+import { dirname } from &quot;node:path&quot;;
 import { Injectable, Logger, OnModuleInit } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { VALIDATION_SCHEMA } from &quot;./combined.schema&quot;;
@@ -795,11 +879,17 @@ export interface ConfigModel {
     all: ConfigItem[];
 }
 
+/**
+ * Service for printing configuration.
+ */
 @Injectable()
 export class ConfigPrinterService implements OnModuleInit {
     constructor(private readonly cfg: ConfigService) {}
 
-    /** Build a reusable model of your config (values + meta + conditions). */
+    /**
+     * Builds the configuration model.
+     * @returns The configuration model.
+     */
     public buildModel(): ConfigModel {
         const described &#x3D; VALIDATION_SCHEMA.describe() as any;
         const descKeys: Record&lt;string, any&gt; &#x3D; described.keys ?? {};
@@ -887,8 +977,11 @@ export class ConfigPrinterService implements OnModuleInit {
         };
     }
 
-    /* ---------- renderers ---------- */
-
+    /**
+     * Generates notes for a configuration item.
+     * @param i - The configuration item to generate notes for.
+     * @returns The generated notes as a string.
+     */
     private itemNotes(i: ConfigItem): string {
         const presence &#x3D; i.presence ? &#x60; [${i.presence}]&#x60; : &quot;&quot;;
         const defTag &#x3D; i.usedDefault ? &quot; (default)&quot; : &quot;&quot;;
@@ -908,6 +1001,11 @@ export class ConfigPrinterService implements OnModuleInit {
             .trim();
     }
 
+    /**
+     * Renders the configuration model as plain text.
+     * @param model - The configuration model to render.
+     * @returns The rendered configuration as a plain text string.
+     */
     private renderText(model: ConfigModel): string {
         const out: string[] &#x3D; [];
         for (const g of model.groups) {
@@ -921,6 +1019,11 @@ export class ConfigPrinterService implements OnModuleInit {
         return &#x60;\n${out.join(&quot;\n&quot;)}\n&#x60;;
     }
 
+    /**
+     * Renders the configuration model as Markdown.
+     * @param model - The configuration model to render.
+     * @returns The rendered configuration as a Markdown string.
+     */
     private renderMarkdown(model: ConfigModel): string {
         const out: string[] &#x3D; [
             &#x60;&lt;!-- generated: ${model.createdAt} --&gt;&#x60;,
@@ -940,10 +1043,21 @@ export class ConfigPrinterService implements OnModuleInit {
         return out.join(&quot;\n&quot;);
     }
 
+    /**
+     * Renders the configuration model as JSON.
+     * @param model - The configuration model to render.
+     * @returns The rendered configuration as a JSON string.
+     */
     private renderJson(model: ConfigModel): string {
         return JSON.stringify(model, null, 2);
     }
 
+    /**
+     * Renders the configuration model into the specified format.
+     * @param model - The configuration model to render.
+     * @param format - The format to render the model in.
+     * @returns The rendered configuration as a string.
+     */
     private render(model: ConfigModel, format: string): string {
         switch (format) {
             case &quot;markdown&quot;:
@@ -957,22 +1071,24 @@ export class ConfigPrinterService implements OnModuleInit {
         }
     }
 
+    /**
+     * Writes a file safely, creating directories as needed.
+     * @param filePath - The path to the file to write.
+     * @param content - The content to write to the file.
+     */
     private async writeFileSafely(
         filePath: string,
         content: string,
     ): Promise&lt;void&gt; {
-        const dir &#x3D; path.dirname(filePath);
+        const dir &#x3D; dirname(filePath);
         await fs.mkdir(dir, { recursive: true });
         await fs.writeFile(filePath, content, &quot;utf8&quot;);
     }
 
-    /* ---------- lifecycle ---------- */
-
+    /**
+     * Lifecycle hook that is called when the module is initialized.
+     */
     async onModuleInit(): Promise&lt;void&gt; {
-        // Only print in non-prod by default (override with CONFIG_PRINT_IN_PROD&#x3D;true)
-        const inProd &#x3D; this.cfg.get(&quot;NODE_ENV&quot;) &#x3D;&#x3D;&#x3D; &quot;production&quot;;
-        if (inProd &amp;&amp; this.cfg.get(&quot;CONFIG_PRINT_IN_PROD&quot;) !&#x3D;&#x3D; &quot;true&quot;) return;
-
         const model &#x3D; this.buildModel();
         const format &#x3D; String(
             this.cfg.get(&quot;CONFIG_PRINT_FORMAT&quot;) || &quot;text&quot;,
@@ -983,7 +1099,7 @@ export class ConfigPrinterService implements OnModuleInit {
             const file &#x3D; this.cfg.get(&quot;CONFIG_PRINT_FILE&quot;);
             await this.writeFileSafely(String(file), out);
             Logger.log(&#x60;Wrote config to ${file}&#x60;, &quot;Config&quot;);
-        } else {
+        } else if (this.cfg.get&lt;boolean&gt;(&quot;CONFIG_PRINT&quot;)) {
             Logger.log(out, &quot;Config&quot;);
         }
     }

@@ -154,13 +154,13 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="modules/CryptoModule.html" data-type="entity-link" >CryptoModule</a>
                                     <li class="chapter inner">
                                         <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ?
-                                            'data-bs-target="#controllers-links-module-CryptoModule-2c0c31da7c2402ffdae57f687c91ddc5c9bedad9157420341c7c6cb9bcbcb71eea3033fea9604daeb4d8cbca4d60de787cf57033adbd4fc3e9005f05f7540d5a"' : 'data-bs-target="#xs-controllers-links-module-CryptoModule-2c0c31da7c2402ffdae57f687c91ddc5c9bedad9157420341c7c6cb9bcbcb71eea3033fea9604daeb4d8cbca4d60de787cf57033adbd4fc3e9005f05f7540d5a"' }>
+                                            'data-bs-target="#controllers-links-module-CryptoModule-b0ccf5142488af48369d287529a13dad2782833aa19234f7ebb11649fa6575e5be76ad76599d6b2eef0cb2508a3a35d7a2e537cea5d13ce76bb8837443bcc2a2"' : 'data-bs-target="#xs-controllers-links-module-CryptoModule-b0ccf5142488af48369d287529a13dad2782833aa19234f7ebb11649fa6575e5be76ad76599d6b2eef0cb2508a3a35d7a2e537cea5d13ce76bb8837443bcc2a2"' }>
                                             <span class="icon ion-md-swap"></span>
                                             <span>Controllers</span>
                                             <span class="icon ion-ios-arrow-down"></span>
                                         </div>
-                                        <ul class="links collapse" ${ isNormalMode ? 'id="controllers-links-module-CryptoModule-2c0c31da7c2402ffdae57f687c91ddc5c9bedad9157420341c7c6cb9bcbcb71eea3033fea9604daeb4d8cbca4d60de787cf57033adbd4fc3e9005f05f7540d5a"' :
-                                            'id="xs-controllers-links-module-CryptoModule-2c0c31da7c2402ffdae57f687c91ddc5c9bedad9157420341c7c6cb9bcbcb71eea3033fea9604daeb4d8cbca4d60de787cf57033adbd4fc3e9005f05f7540d5a"' }>
+                                        <ul class="links collapse" ${ isNormalMode ? 'id="controllers-links-module-CryptoModule-b0ccf5142488af48369d287529a13dad2782833aa19234f7ebb11649fa6575e5be76ad76599d6b2eef0cb2508a3a35d7a2e537cea5d13ce76bb8837443bcc2a2"' :
+                                            'id="xs-controllers-links-module-CryptoModule-b0ccf5142488af48369d287529a13dad2782833aa19234f7ebb11649fa6575e5be76ad76599d6b2eef0cb2508a3a35d7a2e537cea5d13ce76bb8837443bcc2a2"' }>
                                             <li class="link">
                                                 <a href="controllers/KeyController.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >KeyController</a>
                                             </li>
@@ -168,13 +168,13 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                     </li>
                                 <li class="chapter inner">
                                     <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ?
-                                        'data-bs-target="#injectables-links-module-CryptoModule-2c0c31da7c2402ffdae57f687c91ddc5c9bedad9157420341c7c6cb9bcbcb71eea3033fea9604daeb4d8cbca4d60de787cf57033adbd4fc3e9005f05f7540d5a"' : 'data-bs-target="#xs-injectables-links-module-CryptoModule-2c0c31da7c2402ffdae57f687c91ddc5c9bedad9157420341c7c6cb9bcbcb71eea3033fea9604daeb4d8cbca4d60de787cf57033adbd4fc3e9005f05f7540d5a"' }>
+                                        'data-bs-target="#injectables-links-module-CryptoModule-b0ccf5142488af48369d287529a13dad2782833aa19234f7ebb11649fa6575e5be76ad76599d6b2eef0cb2508a3a35d7a2e537cea5d13ce76bb8837443bcc2a2"' : 'data-bs-target="#xs-injectables-links-module-CryptoModule-b0ccf5142488af48369d287529a13dad2782833aa19234f7ebb11649fa6575e5be76ad76599d6b2eef0cb2508a3a35d7a2e537cea5d13ce76bb8837443bcc2a2"' }>
                                         <span class="icon ion-md-arrow-round-down"></span>
                                         <span>Injectables</span>
                                         <span class="icon ion-ios-arrow-down"></span>
                                     </div>
-                                    <ul class="links collapse" ${ isNormalMode ? 'id="injectables-links-module-CryptoModule-2c0c31da7c2402ffdae57f687c91ddc5c9bedad9157420341c7c6cb9bcbcb71eea3033fea9604daeb4d8cbca4d60de787cf57033adbd4fc3e9005f05f7540d5a"' :
-                                        'id="xs-injectables-links-module-CryptoModule-2c0c31da7c2402ffdae57f687c91ddc5c9bedad9157420341c7c6cb9bcbcb71eea3033fea9604daeb4d8cbca4d60de787cf57033adbd4fc3e9005f05f7540d5a"' }>
+                                    <ul class="links collapse" ${ isNormalMode ? 'id="injectables-links-module-CryptoModule-b0ccf5142488af48369d287529a13dad2782833aa19234f7ebb11649fa6575e5be76ad76599d6b2eef0cb2508a3a35d7a2e537cea5d13ce76bb8837443bcc2a2"' :
+                                        'id="xs-injectables-links-module-CryptoModule-b0ccf5142488af48369d287529a13dad2782833aa19234f7ebb11649fa6575e5be76ad76599d6b2eef0cb2508a3a35d7a2e537cea5d13ce76bb8837443bcc2a2"' }>
                                         <li class="link">
                                             <a href="injectables/CryptoService.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >CryptoService</a>
                                         </li>

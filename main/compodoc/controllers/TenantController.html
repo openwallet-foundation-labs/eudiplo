@@ -490,7 +490,7 @@ export class TenantController {
         if (values.id &amp;&amp; !user.admin) {
             throw new ConflictException(&quot;User is not an admin&quot;);
         }
-        return this.tenantService.initTenant(values.id || user.sub);
+        return this.tenantService.initTenant(values.id || user.sub, values);
     }
 
     /**

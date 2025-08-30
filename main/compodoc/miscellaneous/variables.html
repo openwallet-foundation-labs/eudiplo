@@ -310,10 +310,6 @@
         .default(&quot;../../tmp&quot;)
         .description(&quot;Root working folder for temp files&quot;)
         .meta({ group: &quot;general&quot;, order: 10 }),
-    RP_NAME: Joi.string()
-        .default(&quot;EUDIPLO&quot;)
-        .description(&quot;Relying Party display name&quot;)
-        .meta({ group: &quot;general&quot;, order: 20 }),
 }).unknown(true)</code>
                     </td>
                 </tr>
@@ -359,11 +355,6 @@
         .default(true)
         .description(&quot;Enable advanced config printing&quot;)
         .meta({ group: &quot;config&quot;, order: 2 }),
-
-    CONFIG_PRINT_IN_PROD: Joi.boolean()
-        .default(false)
-        .description(&quot;Allow config printing in production environments&quot;)
-        .meta({ group: &quot;config&quot;, order: 3 }),
 
     CONFIG_PRINT_FILE: Joi.string()
         .default(&quot;../../docs/architecture/environment-config.md&quot;)
@@ -1210,6 +1201,12 @@ Defines the required environment variables and their types.</p>
                     </td>
                 </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Token decorator</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>

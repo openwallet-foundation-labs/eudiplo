@@ -270,6 +270,7 @@
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &quot;@nestjs/common&quot;;
 import { TypeOrmModule } from &quot;@nestjs/typeorm&quot;;
+import { TenantEntity } from &quot;../auth/entitites/tenant.entity&quot;;
 import { CryptoService } from &quot;./crypto.service&quot;;
 import { EncryptionService } from &quot;./encryption/encryption.service&quot;;
 import { CertEntity } from &quot;./key/entities/cert.entity&quot;;
@@ -277,7 +278,7 @@ import { KeyEntity } from &quot;./key/entities/keys.entity&quot;;
 import { KeyController } from &quot;./key/key.controller&quot;;
 
 @Module({
-    imports: [TypeOrmModule.forFeature([CertEntity, KeyEntity])],
+    imports: [TypeOrmModule.forFeature([CertEntity, KeyEntity, TenantEntity])],
     controllers: [KeyController],
     providers: [CryptoService, EncryptionService],
     exports: [CryptoService, EncryptionService],
