@@ -17,26 +17,10 @@ starts. This is particularly useful for:
 
 > When running locally with nodejs, the default directory is `assets/config/`.
 
-## Environment Variables
+!!! Environment-Variables
 
-Configure the import behavior using these environment variables:
-
-| Variable              | Type    | Default          | Description                                                                                     |
-| --------------------- | ------- | ---------------- | ----------------------------------------------------------------------------------------------- |
-| `CONFIG_IMPORT`       | boolean | `false`          | Enable configuration import on startup                                                          |
-| `CONFIG_IMPORT_FORCE` | boolean | `false`          | Overwrite existing configurations with same ID                                                  |
-| `CONFIG_FOLDER`       | string  | `assets/config/` | Directory containing configuration files. Will be set in the Dockerfile to `app/config/config/` |
-
-### Examples
-
-```bash
-# Enable import (skip existing configs)
-CONFIG_IMPORT=true
-
-# Enable import and overwrite existing configs
-CONFIG_IMPORT=true
-CONFIG_IMPORT_FORCE=true
-```
+    The list of environment variables is auto-generated from the implementation and published in [Environment Config](./environment-config.md#config).
+    Always refer there for the latest and complete configuration options.
 
 ## Directory Structure
 

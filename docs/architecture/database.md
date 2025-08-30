@@ -8,22 +8,10 @@ thanks to TypeORM’s flexible architecture.
 > 💡 Database configuration is fully dynamic and can be defined via environment
 > variables.
 
----
+!!! Environment-Variables
 
-## Configuration Overview
-
-| Variable      | Description                                                   | Required for | Default  |
-| ------------- | ------------------------------------------------------------- | ------------ | -------- |
-| `DB_TYPE`     | Database engine (`sqlite` or `postgres`)                      | All          | `sqlite` |
-| `FOLDER`      | Path for local SQLite database. Will be extended by tenant id | `sqlite`     | `./tmp`  |
-| `DB_HOST`     | Hostname for PostgreSQL                                       | `postgres`   | –        |
-| `DB_PORT`     | Port for PostgreSQL                                           | `postgres`   | –        |
-| `DB_USERNAME` | PostgreSQL username                                           | `postgres`   | –        |
-| `DB_PASSWORD` | PostgreSQL password                                           | `postgres`   | –        |
-| `DB_DATABASE` | PostgreSQL database name                                      | `postgres`   | –        |
-
-> ✅ If `DB_TYPE=sqlite`, only the `FOLDER` variable is needed. For `postgres`,
-> all `DB_*` variables must be provided.
+    The list of environment variables is auto-generated from the implementation and published in [Environment Config](./environment-config.md#database).
+    Always refer there for the latest and complete configuration options.
 
 ---
 

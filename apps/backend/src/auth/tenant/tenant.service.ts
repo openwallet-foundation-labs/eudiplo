@@ -11,14 +11,14 @@ import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { readdirSync } from "fs";
 import { Gauge } from "prom-client";
 import { Repository } from "typeorm/repository/Repository";
-import { CryptoService } from "../crypto/crypto.service";
-import { EncryptionService } from "../crypto/encryption/encryption.service";
-import { Oid4vciService } from "../issuer/oid4vci/oid4vci.service";
-import { StatusListService } from "../issuer/status-list/status-list.service";
-import { RegistrarService } from "../registrar/registrar.service";
-import { FilesService } from "../storage/files.service";
-import { TenantEntity } from "./entitites/tenant.entity";
-import { TokenPayload } from "./token.decorator";
+import { CryptoService } from "../../crypto/crypto.service";
+import { EncryptionService } from "../../crypto/encryption/encryption.service";
+import { Oid4vciService } from "../../issuer/oid4vci/oid4vci.service";
+import { StatusListService } from "../../issuer/status-list/status-list.service";
+import { RegistrarService } from "../../registrar/registrar.service";
+import { FilesService } from "../../storage/files.service";
+import { TenantEntity } from "../entitites/tenant.entity";
+import { TokenPayload } from "../token.decorator";
 
 // Tenant interface for service integration
 export interface Tenants {

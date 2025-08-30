@@ -2,8 +2,6 @@ import { S3Client } from "@aws-sdk/client-s3";
 import { DynamicModule, Global, Module } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import * as Joi from "joi";
-import { join } from "path";
 import { LocalFileStorage } from "./adapters/local.storage";
 import { S3FileStorage } from "./adapters/s3.storage";
 import { FileEntity } from "./entities/files.entity";
@@ -12,42 +10,6 @@ import { StorageController } from "./storage.controller";
 import { FILE_STORAGE, FileStorage } from "./storage.types";
 
 type Driver = "local" | "s3";
-
-export const CONFIG_STORAGE_SCHEMA = {
-    STORAGE_DRIVER: Joi.string().valid("local", "s3").default("local"),
-    LOCAL_STORAGE_DIR: Joi.string().when(Joi.ref("STORAGE_DRIVER"), {
-        is: "local",
-        then: Joi.string().default((parent) => join(parent.FOLDER, "uploads")),
-    }),
-    S3_REGION: Joi.string().when(Joi.ref("STORAGE_DRIVER"), {
-        is: "s3",
-        then: Joi.required(),
-    }),
-    S3_BUCKET: Joi.string().when(Joi.ref("STORAGE_DRIVER"), {
-        is: "s3",
-        then: Joi.required(),
-    }),
-    S3_ACCESS_KEY_ID: Joi.string().when(Joi.ref("STORAGE_DRIVER"), {
-        is: "s3",
-        then: Joi.required(),
-    }),
-    S3_SECRET_ACCESS_KEY: Joi.string().when(Joi.ref("STORAGE_DRIVER"), {
-        is: "s3",
-        then: Joi.required(),
-    }),
-    S3_ENDPOINT: Joi.string().when(Joi.ref("STORAGE_DRIVER"), {
-        is: "s3",
-        then: Joi.optional(),
-    }),
-    S3_FORCE_PATH_STYLE: Joi.boolean().when(Joi.ref("STORAGE_DRIVER"), {
-        is: "s3",
-        then: Joi.boolean().default(false),
-    }),
-    S3_PUBLIC_BASE_URL: Joi.string().when(Joi.ref("STORAGE_DRIVER"), {
-        is: "s3",
-        then: Joi.required(),
-    }),
-};
 
 @Global()
 @Module({})

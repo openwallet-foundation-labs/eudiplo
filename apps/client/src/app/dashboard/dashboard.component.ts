@@ -13,11 +13,7 @@ import { Router } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { ApiService } from '../api.service';
 import { EnvironmentService } from '../services/environment.service';
-import {
-  tenantControllerGetTenantStatus,
-  tenantControllerInitTenant,
-  TenantEntity,
-} from '../generated';
+import { tenantControllerGetTenantStatus, tenantControllerInitTenant } from '../generated';
 @Component({
   selector: 'app-dashboard',
   standalone: true,

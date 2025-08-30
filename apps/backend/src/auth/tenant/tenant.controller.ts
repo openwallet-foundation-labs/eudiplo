@@ -11,8 +11,8 @@ import {
 import { ApiSecurity } from "@nestjs/swagger";
 import { AdminAuthGuard } from "../admin.guard";
 import { ClientInitDto } from "../dto/client-init.dto";
-import { TenantService } from "../tenant.service";
 import { Token, TokenPayload } from "../token.decorator";
+import { TenantService } from "./tenant.service";
 
 /**
  * Tenant management controller

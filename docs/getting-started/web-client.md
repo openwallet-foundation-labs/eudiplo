@@ -66,11 +66,3 @@ The web client is designed for intuitive and robust configuration management:
 
 - **Client-Side Validation & Guidance:** The JSON editor uses the provided JSON schemas to offer inline descriptions, auto-completion, and validation directly in the browser.
 - **Direct JSON Access:** Each configuration can be viewed and edited as raw JSON for advanced use cases.
-
----
-
-## Next Steps
-
-- [API Documentation](../api/index.md): For programmatic integration
-- [Configuration](../architecture/overview.md): Advanced setup options
-- [Architecture](../architecture/overview.md): System

@@ -272,11 +272,3 @@ curl -X 'GET' \
 2. Check cache configuration
 3. Verify database performance
 4. Consider status list rotation
-
----
-
-## Next Steps
-
-- Learn about [Advanced Features](advanced-features.md) for enhanced credential
-  management
-- Use the [API Guide](api-guide.md) to implement revocation workflows

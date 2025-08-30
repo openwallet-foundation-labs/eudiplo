@@ -8,32 +8,10 @@ To interact with an EUDI Wallet, two types of certificates are required:
 You can still use EUDIPLO without these certificates, but it can end up into
 warnings when making requests to the EUDI Wallet.
 
-## Registrar Settings
+!!! Environment-Variables
 
-These values are used to request access and registration certificates from the
-Registrar.
-
-| Variable        | Description          |
-| --------------- | -------------------- |
-| `REGISTRAR_URL` | URL of the registrar |
-
-Used to authenticate against the Registrar using any OIDC-compliant provider.
-
-| Variable                       | Description                                              |
-| ------------------------------ | -------------------------------------------------------- |
-| `REGISTRAR_OIDC_URL`           | OIDC URL (e.g., <https://auth.example.com/realms/myrealm>) |
-| `REGISTRAR_OIDC_CLIENT_ID`     | Client ID as configured in the OIDC provider             |
-| `REGISTRAR_OIDC_CLIENT_SECRET` | Secret associated with the OIDC client                   |
-
-### Example Configurations
-
-**Keycloak:**
-
-```env
-REGISTRAR_OIDC_URL=https://keycloak.example.com/realms/registrar
-REGISTRAR_OIDC_CLIENT_ID=eudiplo-client
-REGISTRAR_OIDC_CLIENT_SECRET=your-client-secret
-```
+    The list of environment variables is auto-generated from the implementation and published in [Environment Config](../architecture/environment-config.md#registrar).
+    Always refer there for the latest and complete configuration options.
 
 ## Accessing the Registrar
 

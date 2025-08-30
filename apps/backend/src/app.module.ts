@@ -3,28 +3,22 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { MulterModule } from "@nestjs/platform-express";
 import { ScheduleModule } from "@nestjs/schedule";
 import { ServeStaticModule } from "@nestjs/serve-static";
-import * as Joi from "joi";
 import { memoryStorage } from "multer";
 import { LoggerModule } from "nestjs-pino";
 import { isAbsolute, join } from "path";
 import { AppController } from "./app/app.controller";
-import { AUTH_VALIDATION_SCHEMA, AuthModule } from "./auth/auth.module";
+import { AuthModule } from "./auth/auth.module";
 import { CryptoModule } from "./crypto/crypto.module";
-import { CRYPTO_VALIDATION_SCHEMA } from "./crypto/key/crypto-implementation/crypto-implementation.module";
-import { KEY_VALIDATION_SCHEMA, KeyModule } from "./crypto/key/key.module";
+import { KeyModule } from "./crypto/key/key.module";
 import { DatabaseModule } from "./database/database.module";
 import { HealthModule } from "./health/health.module";
-import { ISSUER_VALIDATION_SCHEMA, IssuerModule } from "./issuer/issuer.module";
+import { IssuerModule } from "./issuer/issuer.module";
 import { MetricModule } from "./metric/metric.module";
-import {
-    REGISTRAR_VALIDATION_SCHEMA,
-    RegistrarModule,
-} from "./registrar/registrar.module";
-import {
-    SESSION_VALIDATION_SCHEMA,
-    SessionModule,
-} from "./session/session.module";
-import { CONFIG_STORAGE_SCHEMA, StorageModule } from "./storage/storage.module";
+import { RegistrarModule } from "./registrar/registrar.module";
+import { SessionModule } from "./session/session.module";
+import { StorageModule } from "./storage/storage.module";
+import { VALIDATION_SCHEMA } from "./utils/config-printer/combined.schema";
+import { ConfigPrinterService } from "./utils/config-printer/config-printer.service";
 import { VerifierModule } from "./verifier/verifier.module";
 import { WellKnownController } from "./well-known/well-known.controller";
 import { WellKnownService } from "./well-known/well-known.service";
@@ -32,37 +26,7 @@ import { WellKnownService } from "./well-known/well-known.service";
 @Module({
     imports: [
         ConfigModule.forRoot({
-            validationSchema: Joi.object({
-                FOLDER: Joi.string().default("../../tmp"),
-                RP_NAME: Joi.string().default("EUDIPLO"),
-                LOG_LEVEL: Joi.string()
-                    .valid("trace", "debug", "info", "warn", "error", "fatal")
-                    .default(
-                        process.env.NODE_ENV === "production"
-                            ? "warn"
-                            : "debug",
-                    ),
-                CONFIG_IMPORT: Joi.boolean().default(false),
-                CONFIG_IMPORT_FORCE: Joi.boolean().default(false),
-                CONFIG_FOLDER: Joi.string().default("../../assets/config"),
-                ...AUTH_VALIDATION_SCHEMA,
-                ...REGISTRAR_VALIDATION_SCHEMA,
-                ...KEY_VALIDATION_SCHEMA,
-                ...CRYPTO_VALIDATION_SCHEMA,
-                ...ISSUER_VALIDATION_SCHEMA,
-                ...SESSION_VALIDATION_SCHEMA,
-                ...CONFIG_STORAGE_SCHEMA,
-                LOG_ENABLE_HTTP_LOGGER: Joi.boolean().default(false),
-                LOG_ENABLE_SESSION_LOGGER: Joi.boolean().default(false),
-                LOG_DEBUG_MODE: Joi.boolean().default(false),
-                LOG_FORMAT: Joi.string()
-                    .valid("json", "pretty")
-                    .default(
-                        process.env.NODE_ENV === "production"
-                            ? "json"
-                            : "pretty",
-                    ),
-            }),
+            validationSchema: VALIDATION_SCHEMA,
             isGlobal: true,
             expandVariables: true,
         }),
@@ -143,6 +107,6 @@ import { WellKnownService } from "./well-known/well-known.service";
         StorageModule.forRoot(),
     ],
     controllers: [WellKnownController, AppController],
-    providers: [WellKnownService],
+    providers: [WellKnownService, ConfigPrinterService],
 })
 export class AppModule {}

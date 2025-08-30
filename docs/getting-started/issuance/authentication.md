@@ -290,10 +290,3 @@ processing.
 | **Pre-Authorized** | User already authenticated    |
 | **External Auth**  | User verification required    |
 | **Presentation**   | Credential-based verification |
-
----
-
-## Next Steps
-
-- Learn about [Advanced Features](advanced-features.md) for enhanced security
-- Use the [API Guide](api-guide.md) to implement these authentication flows
