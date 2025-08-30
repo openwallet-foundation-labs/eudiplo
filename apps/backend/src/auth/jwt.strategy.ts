@@ -80,7 +80,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
      * @param payload The JWT payload
      * @returns The validated payload or an error
      */
-    validate(payload: TokenPayload): any {
+    async validate(payload: TokenPayload): Promise<any> {
         const useExternalOIDC =
             this.configService.get<string>("OIDC") !== undefined;
         let sub = payload.sub;
@@ -89,7 +89,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
             sub = (payload as any)[key] as string;
         }
 
-        const tenantEntity = this.tenantService.getTenant(sub);
+        const tenantEntity = await this.tenantService
+            .getTenant(sub)
+            .catch(() => null);
 
         return { sub, admin: payload.admin || false, entity: tenantEntity };
     }
