@@ -111,33 +111,28 @@ export class CredentialsService {
         issuanceConfig: IssuanceConfig,
         claims?: Record<string, Record<string, unknown>>,
     ) {
-        const credentialConfiguration = await this.credentialConfigRepo
-            .findOneByOrFail({
-                id: credentialConfigurationId,
-                tenantId: session.tenantId,
-            })
-            .catch(() => {
-                throw new ConflictException(
-                    `Credential configuration with id ${credentialConfigurationId} not found`,
-                );
-            });
+        const credentialConfiguration = issuanceConfig.credentialConfigs.find(
+            (config) => config.id === credentialConfigurationId,
+        );
+        if (!credentialConfiguration)
+            throw new ConflictException(
+                `Credential configuration with id ${credentialConfigurationId} not found`,
+            );
         //use passed claims, if not provided try the ones stored in the session and the use default ones from the config is provided
-        claims =
-            claims ??
+        const usedClaims =
+            claims?.[credentialConfigurationId] ??
             session.credentialPayload?.claims?.[credentialConfigurationId] ??
             credentialConfiguration.claims;
         const disclosureFrame = credentialConfiguration.disclosureFrame;
 
-        const config = issuanceConfig.credentialConfigs.find(
-            (config) => config.id === credentialConfigurationId,
-        );
-
         const keyId =
-            config?.keyId ??
+            credentialConfiguration?.keyId ??
             (await this.cryptoService.keyService.getKid(
                 session.tenantId,
                 "signing",
             ));
+
+        //at this point it is sd-jwt specific.
 
         const sdjwt = new SDJwtVcInstance({
             signer: await this.cryptoService.keyService.signer(
@@ -151,15 +146,9 @@ export class CredentialsService {
             loadTypeMetadataFormat: true,
         });
 
-        const credentialConfig =
-            await this.credentialConfigRepo.findOneByOrFail({
-                id: credentialConfigurationId,
-                tenantId: session.tenantId,
-            });
-
         // If status management is enabled, create a status entry
         let status: JWTwithStatusListPayload | undefined;
-        if (credentialConfig.statusManagement) {
+        if (credentialConfiguration.statusManagement) {
             status = await this.statusListService.createEntry(
                 session,
                 credentialConfigurationId,
@@ -169,14 +158,14 @@ export class CredentialsService {
         const iat = Math.round(new Date().getTime() / 1000);
         // Set expiration time if lifeTime is defined
         let exp: number | undefined;
-        if (credentialConfig.lifeTime) {
-            exp = iat + credentialConfig.lifeTime;
+        if (credentialConfiguration.lifeTime) {
+            exp = iat + credentialConfiguration.lifeTime;
         }
 
         // If key binding is enabled, include the JWK in the cnf
         let cnf: { jwk: Jwk } | undefined;
 
-        if (credentialConfig.keyBinding) {
+        if (credentialConfiguration.keyBinding) {
             cnf = {
                 jwk: holderCnf,
             };
@@ -189,7 +178,7 @@ export class CredentialsService {
                 exp,
                 vct: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${session.tenantId}/credentials-metadata/vct/${credentialConfigurationId}`,
                 cnf,
-                ...claims,
+                ...usedClaims,
                 ...status,
             },
             disclosureFrame,
