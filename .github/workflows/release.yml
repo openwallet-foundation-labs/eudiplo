@@ -89,7 +89,7 @@ jobs:
       - name: Build and deploy release docs
         if: steps.semantic_release.outputs.new_release == 'true'
         run: |
-          pnpm run swagger
+          pnpm run doc:generate
           pnpm run compodoc
           # Deploy to latest and set as default
           mike deploy --push --update-aliases latest

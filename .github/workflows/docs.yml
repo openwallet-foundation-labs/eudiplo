@@ -70,7 +70,7 @@ jobs:
       - name: Build and deploy main branch docs
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
-          pnpm run swagger
+          pnpm run doc:generate
           pnpm run compodoc
           mike deploy --push --update-aliases main
           mike set-default --push main
@@ -79,7 +79,7 @@ jobs:
         if: github.event_name == 'release' && (github.event.action ==
           'published' || github.event.action == 'released')
         run: |
-          pnpm run swagger
+          pnpm run doc:generate
           pnpm run compodoc
           # Deploy to latest and set as default
           mike deploy --push --update-aliases latest
@@ -88,7 +88,7 @@ jobs:
       - name: Manual deployment
         if: github.event_name == 'workflow_dispatch'
         run: |
-          pnpm run swagger
+          pnpm run doc:generate
           pnpm run compodoc
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             mike deploy --push --update-aliases main
