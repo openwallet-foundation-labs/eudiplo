@@ -13,6 +13,41 @@ spec:
       labels:
         app: eudiplo
     spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: postgres:16
+          env:
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: eudiplo-env
+                  key: DB_USERNAME
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: eudiplo-env
+                  key: DB_PASSWORD
+            - name: PGDATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: eudiplo-env
+                  key: DB_DATABASE
+          command:
+            - sh
+            - -c
+            - |
+              until pg_isready -h postgres -p 5432 -U "$PGUSER" -d "$PGDATABASE"; do
+                echo "waiting for postgres..."; sleep 3;
+              done
+        - name: wait-for-minio
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              until wget -qO- http://minio:9000/minio/health/ready >/dev/null 2>&1; do
+                echo "waiting for minio..."; sleep 3;
+              done
       containers:
         - name: eudiplo
           image: ghcr.io/openwallet-foundation-labs/eudiplo:latest
@@ -22,6 +57,13 @@ spec:
           envFrom:
             - secretRef:
                 name: eudiplo-env
+          env:
+            - name: DB_HOST
+              value: "postgres"
+            - name: DB_PORT
+              value: "5432"
+            - name: S3_ENDPOINT
+              value: "http://minio:9000"
           readinessProbe:
             httpGet:
               path: /health
@@ -33,6 +75,7 @@ spec:
             httpGet:
               path: /health
               port: 3000
+            initialDelaySeconds: 20
             periodSeconds: 20
             timeoutSeconds: 5
             failureThreshold: 3
