@@ -5,18 +5,10 @@ ways, depending on the selected key management type (`KM_TYPE`).
 
 > 💡 **Encryption operations** are always proceed with database stored keys for not and independent from the used KeyManagement Module.
 
----
+!!! Environment-Variables
 
-## Configuration Overview
-
-| Variable              | Description                                              | Required for | Default |
-| --------------------- | -------------------------------------------------------- | ------------ | ------- |
-| `KM_TYPE`             | Key management engine type (`db` or `vault`)             | All          | `db`    |
-| `CRYPTO_ALG`          | Cryptographic algorithm (`ES256`)                        | All          | `ES256` |
-| `VAULT_URL`           | Vault API URL to vault instance like `http://vault:8200` | `vault`      | –       |
-| `VAULT_TOKEN`         | Authentication token for Vault                           | `vault`      | –       |
-| `CONFIG_IMPORT`       | Enable automatic key import from config files            | Optional     | `false` |
-| `CONFIG_IMPORT_FORCE` | Overwrite existing keys during import                    | Optional     | `false` |
+    The list of environment variables is auto-generated from the implementation and published in [Environment Config](./environment-config.md#key).
+    Always refer there for the latest and complete configuration options.
 
 ---
 

@@ -3,6 +3,11 @@
 The EUDIPLO Service provides flexible logging configuration to help with
 debugging and monitoring.
 
+!!! Environment-Variables
+
+    The list of environment variables is auto-generated from the implementation and published in [Environment Config](../architecture/environment-config.md#log).
+    Always refer there for the latest and complete configuration options.
+
 ## Basic Log Level Configuration
 
 Control the overall log level using the `LOG_LEVEL` environment variable:

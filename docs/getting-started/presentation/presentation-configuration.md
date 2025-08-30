@@ -521,12 +521,3 @@ curl -X 'DELETE' \
   'http://localhost:3000/presentation-management/identity-verification' \
   -H 'Authorization: Bearer eyJhb...npoNk'
 ```
-
----
-
-## Next Steps
-
-- Learn about [Authentication](authentication.md) for securing your API calls
-- Explore the [API Guide](api-guide.md) for detailed implementation examples
-- Review [Integration Examples](integration-examples.md) for real-world
-  scenarios

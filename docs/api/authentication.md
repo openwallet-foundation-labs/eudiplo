@@ -3,6 +3,11 @@
 EUDIPLO uses OAuth 2.0 Client Credentials flow for API authentication, designed
 for service-to-service communication without user interaction.
 
+!!! Environment-Variables
+
+    The list of environment variables is auto-generated from the implementation and published in [Environment Config](../architecture/environment-config.md#auth).
+    Always refer there for the latest and complete configuration options.
+
 ## Authentication Architecture
 
 ### Design Principles

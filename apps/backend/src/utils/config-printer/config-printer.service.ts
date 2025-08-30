@@ -1,61 +1,50 @@
-import { Injectable, OnModuleInit } from "@nestjs/common";
+import { promises as fs } from "node:fs";
+import * as path from "node:path";
+import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { PinoLogger } from "nestjs-pino";
 import { VALIDATION_SCHEMA } from "./combined.schema";
-import {
-    extractConditionsFromKeyDesc,
-    flattenMetas,
-    isEffectivelyRequired,
-} from "./helpers";
+import { extractConditionsFromKeyDesc, flattenMetas } from "./helpers";
 
-/** ----- Types for the structured model ----- */
 type Presence = "required" | "optional" | "";
 
 export interface ConfigItem {
     key: string;
-    value: unknown; // effective value from ConfigService
-    shown: string; // masked/pretty value for display
-    group: string; // from meta.group (defaults to "Other")
-    order: number; // from meta.order (defaults to 999)
-    description: string; // from Joi description/notes
-    presence: Presence; // required/optional/""
-    usedDefault: boolean; // true if schema default applied (env not set)
-    secret: boolean; // from meta.secret (mask)
-    conditions: string[]; // human-readable when/then/otherwise
-    meta: Record<string, any>; // flattened metas for extensibility
+    value: unknown;
+    shown: string;
+    group: string;
+    order: number;
+    description: string;
+    presence: Presence;
+    usedDefault: boolean;
+    secret: boolean;
+    conditions: string[];
+    meta: Record<string, any>;
 }
 
 export interface ConfigGroup {
     name: string;
-    order: number; // min(item.order) within the group
-    items: ConfigItem[]; // sorted by order then key
+    order: number;
+    items: ConfigItem[];
 }
 
 export interface ConfigModel {
-    createdAt: string; // ISO timestamp
-    groups: ConfigGroup[]; // grouped + sorted
-    all: ConfigItem[]; // flat list (already filtered wrt advanced etc.)
+    createdAt: string;
+    groups: ConfigGroup[];
+    all: ConfigItem[];
 }
 
 @Injectable()
 export class ConfigPrinterService implements OnModuleInit {
-    constructor(
-        private readonly cfg: ConfigService,
-        private readonly logger: PinoLogger,
-    ) {}
+    constructor(private readonly cfg: ConfigService) {}
 
-    /** Build a structured, reusable config model (JSON-friendly). */
+    /** Build a reusable model of your config (values + meta + conditions). */
     public buildModel(): ConfigModel {
         const described = VALIDATION_SCHEMA.describe() as any;
         const descKeys: Record<string, any> = described.keys ?? {};
         const allKeys = Object.keys(descKeys);
-
         const showAdvanced = this.cfg.get("CONFIG_PRINT_ADVANCED") === "true";
+
         const items: ConfigItem[] = [];
-
-        // snapshot current *raw* env seen by validation
-        const rawEnv: Record<string, any> = { ...process.env };
-
         for (const key of allKeys) {
             const keyDesc = descKeys[key] ?? {};
             const flags = keyDesc.flags ?? {};
@@ -92,11 +81,9 @@ export class ConfigPrinterService implements OnModuleInit {
                         : JSON.stringify(value);
 
             const usedDefault =
-                !(key in rawEnv) && Object.hasOwn.call(flags, "default");
+                !(key in process.env) && Object.hasOwn.call(flags, "default");
 
             const conditions = extractConditionsFromKeyDesc(keyDesc);
-
-            const effectiveRequired = isEffectivelyRequired(key, rawEnv);
 
             items.push({
                 key,
@@ -110,13 +97,10 @@ export class ConfigPrinterService implements OnModuleInit {
                 secret,
                 conditions,
                 meta,
-                // you can store it directly on the item:
-                // @ts-ignore – add to your ConfigItem interface if you want it typed
-                effectiveRequired,
-            } as any);
+            });
         }
 
-        // Group & sort
+        // Group and sort
         const groupsMap = new Map<string, ConfigItem[]>();
         for (const i of items) {
             const arr = groupsMap.get(i.group) ?? [];
@@ -141,14 +125,12 @@ export class ConfigPrinterService implements OnModuleInit {
         };
     }
 
-    private buildNotes(
-        i: ConfigItem & { effectiveRequired?: boolean },
-    ): string {
+    /* ---------- renderers ---------- */
+
+    private itemNotes(i: ConfigItem): string {
         const presence = i.presence ? ` [${i.presence}]` : "";
         const defTag = i.usedDefault ? " (default)" : "";
         const conds = i.conditions.map((c) => `[${c}]`).join(" ");
-        const nowReq = i.effectiveRequired ? " [required now]" : ""; // NEW
-
         const extra = [
             i.meta?.deprecated ? `(deprecated: ${i.meta.deprecated})` : "",
             i.meta?.restartRequired ? "(restart required)" : "",
@@ -158,68 +140,89 @@ export class ConfigPrinterService implements OnModuleInit {
             .filter(Boolean)
             .join(" ");
 
-        return [i.description, presence, nowReq, defTag, conds, extra]
+        return [i.description, presence, defTag, conds, extra]
             .filter(Boolean)
             .join(" ")
             .trim();
     }
 
     private renderText(model: ConfigModel): string {
-        const sections: string[] = [];
+        const out: string[] = [];
         for (const g of model.groups) {
-            sections.push(`\n=== ${g.name} ===`);
+            out.push(`\n=== ${g.name} ===`);
             for (const i of g.items) {
-                sections.push(
-                    `${i.key.padEnd(28)} = ${String(i.shown).padEnd(24)}  # ${this.buildNotes(i)}`,
+                out.push(
+                    `${i.key.padEnd(28)} = ${String(i.shown).padEnd(24)}  # ${this.itemNotes(i)}`,
                 );
             }
         }
-        return `\n${sections.join("\n")}\n`;
+        return `\n${out.join("\n")}\n`;
     }
 
     private renderMarkdown(model: ConfigModel): string {
-        const sections: string[] = [];
+        const out: string[] = [
+            `<!-- generated: ${model.createdAt} -->`,
+            `# Configuration`,
+            `This file gets auto-generated by the application. Do not edit it manually.`,
+        ];
         for (const g of model.groups) {
-            sections.push(`\n### ${g.name}\n`);
-            sections.push(`| Key | Value | Notes |`);
-            sections.push(`| --- | ----- | ----- |`);
+            out.push(`\n## ${g.name}\n`);
+            out.push(`| Key | Value | Notes |`);
+            out.push(`| --- | ----- | ----- |`);
             for (const i of g.items) {
-                const notes = this.buildNotes(i).replace(/\|/g, "\\|");
+                const notes = this.itemNotes(i).replace(/\|/g, "\\|");
                 const shown = String(i.shown).replace(/\|/g, "\\|");
-                sections.push(`| \`${i.key}\` | \`${shown}\` | ${notes} |`);
+                out.push(`| \`${i.key}\` | \`${shown}\` | ${notes} |`);
             }
         }
-        return sections.join("\n");
+        return out.join("\n");
     }
 
     private renderJson(model: ConfigModel): string {
         return JSON.stringify(model, null, 2);
     }
 
-    /** Called when the module is initialized: build -> render -> log */
-    onModuleInit(): void {
-        if (!this.cfg.get<boolean>("CONFIG_PRINT")) return;
-
-        const model = this.buildModel();
-        const fmt = String(this.cfg.get("CONFIG_PRINT_FORMAT"));
-
-        let output: string;
-        switch (fmt) {
+    private render(model: ConfigModel, format: string): string {
+        switch (format) {
             case "markdown":
             case "md":
-                output = this.renderMarkdown(model);
-                break;
+                return this.renderMarkdown(model);
             case "json":
-                output = this.renderJson(model);
-                break;
+                return this.renderJson(model);
             case "text":
             default:
-                output = this.renderText(model);
-                break;
+                return this.renderText(model);
         }
+    }
 
-        this.logger.info(
-            `Application configuration (format=${fmt}):\n${output}`,
-        );
+    private async writeFileSafely(
+        filePath: string,
+        content: string,
+    ): Promise<void> {
+        const dir = path.dirname(filePath);
+        await fs.mkdir(dir, { recursive: true });
+        await fs.writeFile(filePath, content, "utf8");
+    }
+
+    /* ---------- lifecycle ---------- */
+
+    async onModuleInit(): Promise<void> {
+        // Only print in non-prod by default (override with CONFIG_PRINT_IN_PROD=true)
+        const inProd = this.cfg.get("NODE_ENV") === "production";
+        if (inProd && this.cfg.get("CONFIG_PRINT_IN_PROD") !== "true") return;
+
+        const model = this.buildModel();
+        const format = String(
+            this.cfg.get("CONFIG_PRINT_FORMAT") || "text",
+        ).toLowerCase();
+        const out = this.render(model, format);
+        if (process.env.DOC_GENERATE) {
+            const out = this.render(model, "markdown");
+            const file = this.cfg.get("CONFIG_PRINT_FILE");
+            await this.writeFileSafely(String(file), out);
+            Logger.log(`Wrote config to ${file}`, "Config");
+        } else {
+            Logger.log(out, "Config");
+        }
     }
 }

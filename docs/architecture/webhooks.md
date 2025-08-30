@@ -154,8 +154,8 @@ EUDIPLO sends an HTTP `POST` request with the following structure:
 ```
 
 !!! info
-Requests always use `Content-Type: application/json`.  
- A retry mechanism is not yet implemented—if a webhook fails, the process halts. Retry support may be added in the future.
+
+    Requests always use `Content-Type: application/json`. A retry mechanism is not yet implemented—if a webhook fails, the process halts. Retry support may be added in the future.
 
 ---
 

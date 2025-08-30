@@ -116,13 +116,13 @@ nav:
           - Overview: getting-started/presentation/index.md
           - Presentation Configuration: getting-started/presentation/presentation-configuration.md
           - Authentication: getting-started/presentation/authentication.md
-          - API Guide: getting-started/presentation/api-guide.md
-          - Integration Examples: getting-started/presentation/integration-examples.md          
+          - API Guide: getting-started/presentation/api-guide.md          
       - Advanced:
         - Registrar: getting-started/registrar.md
         - Monitor: getting-started/monitor.md        
   - Architecture:
       - Overview: architecture/overview.md      
+      - Environment Variables: architecture/environment-config.md
       - Supported Protocols: architecture/supported-protocols.md
       - Tenant-Based: architecture/tenant.md
       - Sessions: architecture/sessions.md
