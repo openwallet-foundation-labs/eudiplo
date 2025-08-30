@@ -9,7 +9,7 @@
     "gen:api": "ts-node scripts/generate-from-openapi.ts --url http://localhost:3000/api-json --out schemas --no-type",
     "setup:python": "python3 -m venv venv && source venv/bin/activate && python3 -m pip install -r requirements.txt",
     "setup": "pnpm install && pnpm run setup:python",
-    "doc:generate": "cd apps/backend && DOC_GENERATE=true PORT=3456 nest start",
+    "doc:generate": "cd apps/backend && DOC_GENERATE=true PORT=3456 nest start && cd ../../ && pnpm run doc:format",
     "compodoc": "cd apps/backend && compodoc -p tsconfig.doc.json --theme material -d ../../docs/compodoc",
     "compodoc:serve": "cd apps/backend && compodoc -p tsconfig.doc.json --theme material -d ../../docs/compodoc -s -r 3001 -w",
     "doc:lint": "markdownlint \"docs/**/*.md\"",
