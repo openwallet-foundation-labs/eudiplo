@@ -790,8 +790,6 @@
       
         
       
-        
-      
     
     
     
@@ -898,29 +896,6 @@
   
   <span class="md-ellipsis">
     API Guide
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../getting-started/presentation/integration-examples/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Integration Examples
     
   </span>
   
@@ -1088,6 +1063,8 @@
       
         
       
+        
+      
     
     
     
@@ -1140,6 +1117,29 @@
   
   <span class="md-ellipsis">
     Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../environment-config/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Environment Variables
     
   </span>
   
@@ -1343,15 +1343,6 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#configuration-overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      Configuration Overview
-    </span>
-  </a>
-  
-</li>
       
         <li class="md-nav__item">
   <a href="#sqlite-default" class="md-nav__link">
@@ -1863,15 +1854,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#configuration-overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      Configuration Overview
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#sqlite-default" class="md-nav__link">
     <span class="md-ellipsis">
       SQLite (Default)
@@ -1972,66 +1954,11 @@ thanks to TypeORM’s flexible architecture.</p>
 <p>💡 Database configuration is fully dynamic and can be defined via environment
 variables.</p>
 </blockquote>
-<hr />
-<h2 id="configuration-overview">Configuration Overview<a class="headerlink" href="#configuration-overview" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Variable</th>
-<th>Description</th>
-<th>Required for</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>DB_TYPE</code></td>
-<td>Database engine (<code>sqlite</code> or <code>postgres</code>)</td>
-<td>All</td>
-<td><code>sqlite</code></td>
-</tr>
-<tr>
-<td><code>FOLDER</code></td>
-<td>Path for local SQLite database. Will be extended by tenant id</td>
-<td><code>sqlite</code></td>
-<td><code>./tmp</code></td>
-</tr>
-<tr>
-<td><code>DB_HOST</code></td>
-<td>Hostname for PostgreSQL</td>
-<td><code>postgres</code></td>
-<td>–</td>
-</tr>
-<tr>
-<td><code>DB_PORT</code></td>
-<td>Port for PostgreSQL</td>
-<td><code>postgres</code></td>
-<td>–</td>
-</tr>
-<tr>
-<td><code>DB_USERNAME</code></td>
-<td>PostgreSQL username</td>
-<td><code>postgres</code></td>
-<td>–</td>
-</tr>
-<tr>
-<td><code>DB_PASSWORD</code></td>
-<td>PostgreSQL password</td>
-<td><code>postgres</code></td>
-<td>–</td>
-</tr>
-<tr>
-<td><code>DB_DATABASE</code></td>
-<td>PostgreSQL database name</td>
-<td><code>postgres</code></td>
-<td>–</td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p>✅ If <code>DB_TYPE=sqlite</code>, only the <code>FOLDER</code> variable is needed. For <code>postgres</code>,
-all <code>DB_*</code> variables must be provided.</p>
-</blockquote>
+<div class="admonition environment-variables">
+<p class="admonition-title">Environment-variables</p>
+<p>The list of environment variables is auto-generated from the implementation and published in <a href="../environment-config/#database">Environment Config</a>.
+Always refer there for the latest and complete configuration options.</p>
+</div>
 <hr />
 <h2 id="sqlite-default">SQLite (Default)<a class="headerlink" href="#sqlite-default" title="Permanent link">&para;</a></h2>
 <p>When using <code>DB_TYPE=sqlite</code>, the service will store its data in a local

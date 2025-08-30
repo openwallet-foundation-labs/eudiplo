@@ -790,8 +790,6 @@
       
         
       
-        
-      
     
     
     
@@ -898,29 +896,6 @@
   
   <span class="md-ellipsis">
     API Guide
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../getting-started/presentation/integration-examples/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Integration Examples
     
   </span>
   
@@ -1088,6 +1063,8 @@
       
         
       
+        
+      
     
     
     
@@ -1140,6 +1117,29 @@
   
   <span class="md-ellipsis">
     Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../environment-config/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Environment Variables
     
   </span>
   
@@ -1320,15 +1320,6 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#configuration-overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      Configuration Overview
-    </span>
-  </a>
-  
-</li>
       
         <li class="md-nav__item">
   <a href="#database-based-key-management" class="md-nav__link">
@@ -1962,15 +1953,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#configuration-overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      Configuration Overview
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#database-based-key-management" class="md-nav__link">
     <span class="md-ellipsis">
       Database based Key Management
@@ -2167,56 +2149,11 @@ ways, depending on the selected key management type (<code>KM_TYPE</code>).</p>
 <blockquote>
 <p>💡 <strong>Encryption operations</strong> are always proceed with database stored keys for not and independent from the used KeyManagement Module.</p>
 </blockquote>
-<hr />
-<h2 id="configuration-overview">Configuration Overview<a class="headerlink" href="#configuration-overview" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Variable</th>
-<th>Description</th>
-<th>Required for</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>KM_TYPE</code></td>
-<td>Key management engine type (<code>db</code> or <code>vault</code>)</td>
-<td>All</td>
-<td><code>db</code></td>
-</tr>
-<tr>
-<td><code>CRYPTO_ALG</code></td>
-<td>Cryptographic algorithm (<code>ES256</code>)</td>
-<td>All</td>
-<td><code>ES256</code></td>
-</tr>
-<tr>
-<td><code>VAULT_URL</code></td>
-<td>Vault API URL to vault instance like <code>http://vault:8200</code></td>
-<td><code>vault</code></td>
-<td>–</td>
-</tr>
-<tr>
-<td><code>VAULT_TOKEN</code></td>
-<td>Authentication token for Vault</td>
-<td><code>vault</code></td>
-<td>–</td>
-</tr>
-<tr>
-<td><code>CONFIG_IMPORT</code></td>
-<td>Enable automatic key import from config files</td>
-<td>Optional</td>
-<td><code>false</code></td>
-</tr>
-<tr>
-<td><code>CONFIG_IMPORT_FORCE</code></td>
-<td>Overwrite existing keys during import</td>
-<td>Optional</td>
-<td><code>false</code></td>
-</tr>
-</tbody>
-</table>
+<div class="admonition environment-variables">
+<p class="admonition-title">Environment-variables</p>
+<p>The list of environment variables is auto-generated from the implementation and published in <a href="../environment-config/#key">Environment Config</a>.
+Always refer there for the latest and complete configuration options.</p>
+</div>
 <hr />
 <h2 id="database-based-key-management">Database based Key Management<a class="headerlink" href="#database-based-key-management" title="Permanent link">&para;</a></h2>
 <p>When <code>KM_TYPE=db</code> (default), keys are stored unencrypted in the database. This mode is ideal for development or testing.</p>

@@ -9,7 +9,7 @@
       
       
       
-        <link rel="prev" href="../presentation/integration-examples/">
+        <link rel="prev" href="../presentation/api-guide/">
       
       
         <link rel="next" href="../monitor/">
@@ -796,8 +796,6 @@
       
         
       
-        
-      
     
     
     
@@ -904,29 +902,6 @@
   
   <span class="md-ellipsis">
     API Guide
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../presentation/integration-examples/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Integration Examples
     
   </span>
   
@@ -1064,30 +1039,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#registrar-settings" class="md-nav__link">
-    <span class="md-ellipsis">
-      Registrar Settings
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Registrar Settings">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#example-configurations" class="md-nav__link">
-    <span class="md-ellipsis">
-      Example Configurations
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#accessing-the-registrar" class="md-nav__link">
     <span class="md-ellipsis">
       Accessing the Registrar
@@ -1188,6 +1139,8 @@
       
         
       
+        
+      
     
     
     
@@ -1239,6 +1192,29 @@
   
   <span class="md-ellipsis">
     Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/environment-config/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Environment Variables
     
   </span>
   
@@ -1851,30 +1827,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#registrar-settings" class="md-nav__link">
-    <span class="md-ellipsis">
-      Registrar Settings
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Registrar Settings">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#example-configurations" class="md-nav__link">
-    <span class="md-ellipsis">
-      Example Configurations
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#accessing-the-registrar" class="md-nav__link">
     <span class="md-ellipsis">
       Accessing the Registrar
@@ -1941,52 +1893,11 @@
 </ul>
 <p>You can still use EUDIPLO without these certificates, but it can end up into
 warnings when making requests to the EUDI Wallet.</p>
-<h2 id="registrar-settings">Registrar Settings<a class="headerlink" href="#registrar-settings" title="Permanent link">&para;</a></h2>
-<p>These values are used to request access and registration certificates from the
-Registrar.</p>
-<table>
-<thead>
-<tr>
-<th>Variable</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>REGISTRAR_URL</code></td>
-<td>URL of the registrar</td>
-</tr>
-</tbody>
-</table>
-<p>Used to authenticate against the Registrar using any OIDC-compliant provider.</p>
-<table>
-<thead>
-<tr>
-<th>Variable</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>REGISTRAR_OIDC_URL</code></td>
-<td>OIDC URL (e.g., <a href="https://auth.example.com/realms/myrealm">https://auth.example.com/realms/myrealm</a>)</td>
-</tr>
-<tr>
-<td><code>REGISTRAR_OIDC_CLIENT_ID</code></td>
-<td>Client ID as configured in the OIDC provider</td>
-</tr>
-<tr>
-<td><code>REGISTRAR_OIDC_CLIENT_SECRET</code></td>
-<td>Secret associated with the OIDC client</td>
-</tr>
-</tbody>
-</table>
-<h3 id="example-configurations">Example Configurations<a class="headerlink" href="#example-configurations" title="Permanent link">&para;</a></h3>
-<p><strong>Keycloak:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>REGISTRAR_OIDC_URL=https://keycloak.example.com/realms/registrar
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>REGISTRAR_OIDC_CLIENT_ID=eudiplo-client
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>REGISTRAR_OIDC_CLIENT_SECRET=your-client-secret
-</code></pre></div>
+<div class="admonition environment-variables">
+<p class="admonition-title">Environment-variables</p>
+<p>The list of environment variables is auto-generated from the implementation and published in <a href="../../architecture/environment-config/#registrar">Environment Config</a>.
+Always refer there for the latest and complete configuration options.</p>
+</div>
 <h2 id="accessing-the-registrar">Accessing the Registrar<a class="headerlink" href="#accessing-the-registrar" title="Permanent link">&para;</a></h2>
 <p>To enable EUDIPLO to communicate with the registrar, you must configure the
 necessary environment variables.</p>
@@ -2044,7 +1955,7 @@ presentation request is made.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../presentation/integration-examples/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Integration Examples">
+          <a href="../presentation/api-guide/" class="md-footer__link md-footer__link--prev" aria-label="Previous: API Guide">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2054,7 +1965,7 @@ presentation request is made.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Integration Examples
+                API Guide
               </div>
             </div>
           </a>

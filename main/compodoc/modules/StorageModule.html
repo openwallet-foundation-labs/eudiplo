@@ -152,8 +152,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="55"
-                                    class="link-to-prism">src/storage/storage.module.ts:55</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="17"
+                                    class="link-to-prism">src/storage/storage.module.ts:17</a></div>
                         </td>
                     </tr>
 
@@ -178,8 +178,6 @@
 import { DynamicModule, Global, Module } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { TypeOrmModule } from &quot;@nestjs/typeorm&quot;;
-import * as Joi from &quot;joi&quot;;
-import { join } from &quot;path&quot;;
 import { LocalFileStorage } from &quot;./adapters/local.storage&quot;;
 import { S3FileStorage } from &quot;./adapters/s3.storage&quot;;
 import { FileEntity } from &quot;./entities/files.entity&quot;;
@@ -188,42 +186,6 @@ import { StorageController } from &quot;./storage.controller&quot;;
 import { FILE_STORAGE, FileStorage } from &quot;./storage.types&quot;;
 
 type Driver &#x3D; &quot;local&quot; | &quot;s3&quot;;
-
-export const CONFIG_STORAGE_SCHEMA &#x3D; {
-    STORAGE_DRIVER: Joi.string().valid(&quot;local&quot;, &quot;s3&quot;).default(&quot;local&quot;),
-    LOCAL_STORAGE_DIR: Joi.string().when(Joi.ref(&quot;STORAGE_DRIVER&quot;), {
-        is: &quot;local&quot;,
-        then: Joi.string().default((parent) &#x3D;&gt; join(parent.FOLDER, &quot;uploads&quot;)),
-    }),
-    S3_REGION: Joi.string().when(Joi.ref(&quot;STORAGE_DRIVER&quot;), {
-        is: &quot;s3&quot;,
-        then: Joi.required(),
-    }),
-    S3_BUCKET: Joi.string().when(Joi.ref(&quot;STORAGE_DRIVER&quot;), {
-        is: &quot;s3&quot;,
-        then: Joi.required(),
-    }),
-    S3_ACCESS_KEY_ID: Joi.string().when(Joi.ref(&quot;STORAGE_DRIVER&quot;), {
-        is: &quot;s3&quot;,
-        then: Joi.required(),
-    }),
-    S3_SECRET_ACCESS_KEY: Joi.string().when(Joi.ref(&quot;STORAGE_DRIVER&quot;), {
-        is: &quot;s3&quot;,
-        then: Joi.required(),
-    }),
-    S3_ENDPOINT: Joi.string().when(Joi.ref(&quot;STORAGE_DRIVER&quot;), {
-        is: &quot;s3&quot;,
-        then: Joi.optional(),
-    }),
-    S3_FORCE_PATH_STYLE: Joi.boolean().when(Joi.ref(&quot;STORAGE_DRIVER&quot;), {
-        is: &quot;s3&quot;,
-        then: Joi.boolean().default(false),
-    }),
-    S3_PUBLIC_BASE_URL: Joi.string().when(Joi.ref(&quot;STORAGE_DRIVER&quot;), {
-        is: &quot;s3&quot;,
-        then: Joi.required(),
-    }),
-};
 
 @Global()
 @Module({})

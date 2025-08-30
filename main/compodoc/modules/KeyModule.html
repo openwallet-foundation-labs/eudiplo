@@ -152,8 +152,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="33"
-                                    class="link-to-prism">src/crypto/key/key.module.ts:33</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="16"
+                                    class="link-to-prism">src/crypto/key/key.module.ts:16</a></div>
                         </td>
                     </tr>
 
@@ -178,7 +178,6 @@
 import { DynamicModule, Global, Module } from &quot;@nestjs/common&quot;;
 import { ConfigModule, ConfigService } from &quot;@nestjs/config&quot;;
 import { getRepositoryToken, TypeOrmModule } from &quot;@nestjs/typeorm&quot;;
-import * as Joi from &quot;joi&quot;;
 import { Repository } from &quot;typeorm/repository/Repository&quot;;
 import { DBKeyService } from &quot;./adapters/db-key.service&quot;;
 import { VaultKeyService } from &quot;./adapters/vault-key.service&quot;;
@@ -186,22 +185,6 @@ import { CryptoImplementatationModule } from &quot;./crypto-implementation/crypt
 import { CryptoImplementationService } from &quot;./crypto-implementation/crypto-implementation.service&quot;;
 import { CertEntity } from &quot;./entities/cert.entity&quot;;
 import { KeyEntity } from &quot;./entities/keys.entity&quot;;
-
-export const KEY_VALIDATION_SCHEMA &#x3D; {
-    KM_TYPE: Joi.string().valid(&quot;db&quot;, &quot;vault&quot;).default(&quot;db&quot;),
-
-    // Vault-related config
-    VAULT_URL: Joi.string().uri().when(&quot;KM_TYPE&quot;, {
-        is: &quot;vault&quot;,
-        then: Joi.required(),
-        otherwise: Joi.optional(),
-    }),
-    VAULT_TOKEN: Joi.string().when(&quot;KM_TYPE&quot;, {
-        is: &quot;vault&quot;,
-        then: Joi.required(),
-        otherwise: Joi.optional(),
-    }),
-};
 
 @Global()
 @Module({})

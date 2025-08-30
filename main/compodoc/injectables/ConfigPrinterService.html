@@ -92,7 +92,7 @@
 
 <ol class="breadcrumb">
   <li class="breadcrumb-item">Injectables</li>
-  <li class="breadcrumb-item" >OAuthService</li>
+  <li class="breadcrumb-item" >ConfigPrinterService</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -116,7 +116,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/oauth/oauth.service.ts</code>
+            <code>src/utils/config-printer/config-printer.service.ts</code>
         </p>
 
 
@@ -127,22 +127,6 @@
     <h3 id="index">Index</h3>
     <table class="table table-sm table-bordered index-table">
         <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <h6><b>Properties</b></h6>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <ul class="index-list">
-                            <li>
-                                    <span class="modifier">Private</span>
-                                    <span class="modifier">Readonly</span>
-                                <a href="#clients" >clients</a>
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
 
                 <tr>
                     <td class="col-md-4">
@@ -153,30 +137,37 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
-                                <a href="#addClient" >addClient</a>
+                                    <span class="modifier">Public</span>
+                                <a href="#buildModel" >buildModel</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#itemNotes" >itemNotes</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#onModuleInit" >onModuleInit</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#render" >render</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#renderJson" >renderJson</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#renderMarkdown" >renderMarkdown</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#renderText" >renderText</a>
                             </li>
                             <li>
                                     <span class="modifier">Private</span>
                                     <span class="modifier">Async</span>
-                                <a href="#generateAccessToken" >generateAccessToken</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Async</span>
-                                <a href="#handleClientCredentialsGrant" >handleClientCredentialsGrant</a>
-                            </li>
-                            <li>
-                                <a href="#hasClient" >hasClient</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Private</span>
-                                <a href="#initializeClients" >initializeClients</a>
-                            </li>
-                            <li>
-                                <a href="#removeClient" >removeClient</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Private</span>
-                                <a href="#validateClientCredentials" >validateClientCredentials</a>
+                                <a href="#writeFileSafely" >writeFileSafely</a>
                             </li>
                         </ul>
                     </td>
@@ -196,12 +187,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(configService: ConfigService, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>)</code>
+<code>constructor(cfg: ConfigService)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="10" class="link-to-prism">src/oauth/oauth.service.ts:10</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="37" class="link-to-prism">src/utils/config-printer/config-printer.service.ts:37</a></div>
                             </td>
                         </tr>
 
@@ -219,22 +210,10 @@
                                         </thead>
                                         <tbody>
                                                 <tr>
-                                                        <td>configService</td>
+                                                        <td>cfg</td>
                                                   
                                                         <td>
                                                                     <code>ConfigService</code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
-                                                        <td>cryptoService</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../injectables/CryptoService.html" target="_self" >CryptoService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -260,24 +239,67 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="addClient"></a>
+                    <a name="buildModel"></a>
                     <span class="name">
-                        <span ><b>addClient</b></span>
-                        <a href="#addClient"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier">Public</span>
+                        <span ><b>buildModel</b></span>
+                        <a href="#buildModel"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>addClient(clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientSecret: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>buildModel()</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="92"
-                                    class="link-to-prism">src/oauth/oauth.service.ts:92</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="41"
+                                    class="link-to-prism">src/utils/config-printer/config-printer.service.ts:41</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Build a reusable model of your config (values + meta + conditions).</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../interfaces/ConfigModel.html" target="_self" >ConfigModel</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="itemNotes"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>itemNotes</b></span>
+                        <a href="#itemNotes"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>itemNotes(i: <a href="../interfaces/ConfigItem.html" target="_self">ConfigItem</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="130"
+                                    class="link-to-prism">src/utils/config-printer/config-printer.service.ts:130</a></div>
                         </td>
                     </tr>
 
@@ -298,9 +320,117 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>clientId</td>
+                                                <td>i</td>
                                             <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                                            <code><a href="../interfaces/ConfigItem.html" target="_self" >ConfigItem</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onModuleInit"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>onModuleInit</b></span>
+                        <a href="#onModuleInit"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>onModuleInit()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="209"
+                                    class="link-to-prism">src/utils/config-printer/config-printer.service.ts:209</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="render"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>render</b></span>
+                        <a href="#render"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>render(model: <a href="../interfaces/ConfigModel.html" target="_self">ConfigModel</a>, format: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="185"
+                                    class="link-to-prism">src/utils/config-printer/config-printer.service.ts:185</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>model</td>
+                                            <td>
+                                                            <code><a href="../interfaces/ConfigModel.html" target="_self" >ConfigModel</a></code>
                                             </td>
 
                                             <td>
@@ -310,7 +440,7 @@
 
                                         </tr>
                                         <tr>
-                                                <td>clientSecret</td>
+                                                <td>format</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -325,7 +455,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
 
                         </div>
                             <div class="io-description">
@@ -339,27 +469,234 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="generateAccessToken"></a>
+                    <a name="renderJson"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>renderJson</b></span>
+                        <a href="#renderJson"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>renderJson(model: <a href="../interfaces/ConfigModel.html" target="_self">ConfigModel</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="181"
+                                    class="link-to-prism">src/utils/config-printer/config-printer.service.ts:181</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>model</td>
+                                            <td>
+                                                            <code><a href="../interfaces/ConfigModel.html" target="_self" >ConfigModel</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="renderMarkdown"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>renderMarkdown</b></span>
+                        <a href="#renderMarkdown"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>renderMarkdown(model: <a href="../interfaces/ConfigModel.html" target="_self">ConfigModel</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="162"
+                                    class="link-to-prism">src/utils/config-printer/config-printer.service.ts:162</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>model</td>
+                                            <td>
+                                                            <code><a href="../interfaces/ConfigModel.html" target="_self" >ConfigModel</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="renderText"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>renderText</b></span>
+                        <a href="#renderText"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>renderText(model: <a href="../interfaces/ConfigModel.html" target="_self">ConfigModel</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="149"
+                                    class="link-to-prism">src/utils/config-printer/config-printer.service.ts:149</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>model</td>
+                                            <td>
+                                                            <code><a href="../interfaces/ConfigModel.html" target="_self" >ConfigModel</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="writeFileSafely"></a>
                     <span class="name">
                             <span class="modifier">Private</span>
                             <span class="modifier">Async</span>
-                        <span ><b>generateAccessToken</b></span>
-                        <a href="#generateAccessToken"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>writeFileSafely</b></span>
+                        <a href="#writeFileSafely"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>generateAccessToken(clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, scope?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>writeFileSafely(filePath: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, content: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="68"
-                                    class="link-to-prism">src/oauth/oauth.service.ts:68</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="198"
+                                    class="link-to-prism">src/utils/config-printer/config-printer.service.ts:198</a></div>
                         </td>
                     </tr>
 
@@ -380,7 +717,7 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>clientId</td>
+                                                <td>filePath</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -392,143 +729,7 @@
 
                                         </tr>
                                         <tr>
-                                                <td>scope</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    Yes
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="handleClientCredentialsGrant"></a>
-                    <span class="name">
-                            <span class="modifier">Async</span>
-                        <span ><b>handleClientCredentialsGrant</b></span>
-                        <a href="#handleClientCredentialsGrant"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>handleClientCredentialsGrant(request: <a href="../classes/TokenRequestDto.html" target="_self">TokenRequestDto</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="33"
-                                    class="link-to-prism">src/oauth/oauth.service.ts:33</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>request</td>
-                                            <td>
-                                                            <code><a href="../classes/TokenRequestDto.html" target="_self" >TokenRequestDto</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../miscellaneous/variables.html#Token" target="_self" >Promise&lt;TokenResponseDto&gt;</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="hasClient"></a>
-                    <span class="name">
-                        <span ><b>hasClient</b></span>
-                        <a href="#hasClient"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>hasClient(clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="100"
-                                    class="link-to-prism">src/oauth/oauth.service.ts:100</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>clientId</td>
+                                                <td>content</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -543,7 +744,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
 
                         </div>
                             <div class="io-description">
@@ -551,226 +752,6 @@
                             </div>
                 </td>
             </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="initializeClients"></a>
-                    <span class="name">
-                            <span class="modifier">Private</span>
-                        <span ><b>initializeClients</b></span>
-                        <a href="#initializeClients"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>initializeClients()</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="20"
-                                    class="link-to-prism">src/oauth/oauth.service.ts:20</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                        </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="removeClient"></a>
-                    <span class="name">
-                        <span ><b>removeClient</b></span>
-                        <a href="#removeClient"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>removeClient(clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="96"
-                                    class="link-to-prism">src/oauth/oauth.service.ts:96</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>clientId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="validateClientCredentials"></a>
-                    <span class="name">
-                            <span class="modifier">Private</span>
-                        <span ><b>validateClientCredentials</b></span>
-                        <a href="#validateClientCredentials"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>validateClientCredentials(clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientSecret: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="60"
-                                    class="link-to-prism">src/oauth/oauth.service.ts:60</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>clientId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>clientSecret</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</section>
-            <section data-compodoc="block-properties">
-    
-    <h3 id="inputs">
-        Properties
-    </h3>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="clients"></a>
-                    <span class="name">
-                            <span class="modifier">Private</span>
-                            <span class="modifier">Readonly</span>
-                        <span ><b>clients</b></span>
-                        <a href="#clients"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Default value : </i><code>new Map&lt;string, string&gt;()</code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="10" class="link-to-prism">src/oauth/oauth.service.ts:10</a></div>
-                        </td>
-                    </tr>
-
-
         </tbody>
     </table>
 </section>
@@ -779,107 +760,232 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, UnauthorizedException } from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { promises as fs } from &quot;node:fs&quot;;
+import * as path from &quot;node:path&quot;;
+import { Injectable, Logger, OnModuleInit } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
-import { CryptoService } from &quot;../crypto/crypto.service&quot;;
-import { TokenRequestDto } from &quot;./dto/token-request.dto&quot;;
-import { TokenResponseDto } from &quot;./dto/token-response.dto&quot;;
+import { VALIDATION_SCHEMA } from &quot;./combined.schema&quot;;
+import { extractConditionsFromKeyDesc, flattenMetas } from &quot;./helpers&quot;;
+
+type Presence &#x3D; &quot;required&quot; | &quot;optional&quot; | &quot;&quot;;
+
+export interface ConfigItem {
+    key: string;
+    value: unknown;
+    shown: string;
+    group: string;
+    order: number;
+    description: string;
+    presence: Presence;
+    usedDefault: boolean;
+    secret: boolean;
+    conditions: string[];
+    meta: Record&lt;string, any&gt;;
+}
+
+export interface ConfigGroup {
+    name: string;
+    order: number;
+    items: ConfigItem[];
+}
+
+export interface ConfigModel {
+    createdAt: string;
+    groups: ConfigGroup[];
+    all: ConfigItem[];
+}
 
 @Injectable()
-export class OAuthService {
-    // In a real implementation, you&#x27;d store these securely in a database
-    private readonly clients &#x3D; new Map&lt;string, string&gt;();
+export class ConfigPrinterService implements OnModuleInit {
+    constructor(private readonly cfg: ConfigService) {}
 
-    constructor(
-        private readonly configService: ConfigService,
-        private readonly cryptoService: CryptoService,
-    ) {
-        // Initialize with some default clients - you can move this to configuration
-        this.initializeClients();
-    }
+    /** Build a reusable model of your config (values + meta + conditions). */
+    public buildModel(): ConfigModel {
+        const described &#x3D; VALIDATION_SCHEMA.describe() as any;
+        const descKeys: Record&lt;string, any&gt; &#x3D; described.keys ?? {};
+        const allKeys &#x3D; Object.keys(descKeys);
+        const showAdvanced &#x3D; this.cfg.get(&quot;CONFIG_PRINT_ADVANCED&quot;) &#x3D;&#x3D;&#x3D; &quot;true&quot;;
 
-    private initializeClients() {
-        // Add default client from environment variables if available
-        const defaultClientId &#x3D;
-            this.configService.get&lt;string&gt;(&quot;OAUTH_CLIENT_ID&quot;);
-        const defaultClientSecret &#x3D; this.configService.get&lt;string&gt;(
-            &quot;OAUTH_CLIENT_SECRET&quot;,
-        );
+        const items: ConfigItem[] &#x3D; [];
+        for (const key of allKeys) {
+            const keyDesc &#x3D; descKeys[key] ?? {};
+            const flags &#x3D; keyDesc.flags ?? {};
+            const meta &#x3D; flattenMetas(keyDesc);
 
-        if (defaultClientId &amp;&amp; defaultClientSecret) {
-            this.clients.set(defaultClientId, defaultClientSecret);
+            const group &#x3D; meta.group ?? &quot;Other&quot;;
+            const order &#x3D; Number.isFinite(meta.order)
+                ? Number(meta.order)
+                : 999;
+            const advanced &#x3D; meta.advanced &#x3D;&#x3D;&#x3D; true;
+            const secret &#x3D; meta.secret &#x3D;&#x3D;&#x3D; true;
+            if (advanced &amp;&amp; !showAdvanced) continue;
+
+            const description &#x3D;
+                flags.description ||
+                (Array.isArray(keyDesc.notes) ? keyDesc.notes.join(&quot; &quot;) : &quot;&quot;) ||
+                &quot;&quot;;
+
+            const presence: Presence &#x3D;
+                flags.presence &#x3D;&#x3D;&#x3D; &quot;required&quot;
+                    ? &quot;required&quot;
+                    : flags.presence &#x3D;&#x3D;&#x3D; &quot;optional&quot;
+                      ? &quot;optional&quot;
+                      : &quot;&quot;;
+
+            const value &#x3D; this.cfg.get(key);
+            const shown &#x3D;
+                value &#x3D;&#x3D;&#x3D; undefined
+                    ? &quot;(unset)&quot;
+                    : secret
+                      ? &quot;***&quot;
+                      : typeof value &#x3D;&#x3D;&#x3D; &quot;string&quot;
+                        ? value
+                        : JSON.stringify(value);
+
+            const usedDefault &#x3D;
+                !(key in process.env) &amp;&amp; Object.hasOwn.call(flags, &quot;default&quot;);
+
+            const conditions &#x3D; extractConditionsFromKeyDesc(keyDesc);
+
+            items.push({
+                key,
+                value,
+                shown,
+                group,
+                order,
+                description,
+                presence,
+                usedDefault,
+                secret,
+                conditions,
+                meta,
+            });
         }
-    }
 
-    async handleClientCredentialsGrant(
-        request: TokenRequestDto,
-    ): Promise&lt;TokenResponseDto&gt; {
-        // Validate client credentials
-        if (
-            !this.validateClientCredentials(
-                request.client_id,
-                request.client_secret,
-            )
-        ) {
-            throw new UnauthorizedException(&quot;Invalid client credentials&quot;);
+        // Group and sort
+        const groupsMap &#x3D; new Map&lt;string, ConfigItem[]&gt;();
+        for (const i of items) {
+            const arr &#x3D; groupsMap.get(i.group) ?? [];
+            arr.push(i);
+            groupsMap.set(i.group, arr);
         }
 
-        // Generate access token
-        const accessToken &#x3D; await this.generateAccessToken(
-            request.client_id,
-            request.scope,
-        );
+        const groups: ConfigGroup[] &#x3D; Array.from(groupsMap.entries())
+            .map(([name, arr]) &#x3D;&gt; {
+                arr.sort(
+                    (a, b) &#x3D;&gt; a.order - b.order || a.key.localeCompare(b.key),
+                );
+                const order &#x3D; arr.reduce((m, r) &#x3D;&gt; Math.min(m, r.order), 999);
+                return { name, order, items: arr };
+            })
+            .sort((a, b) &#x3D;&gt; a.order - b.order || a.name.localeCompare(b.name));
 
         return {
-            access_token: accessToken,
-            token_type: &quot;Bearer&quot;,
-            expires_in: 3600, // 1 hour
-            scope: request.scope || &quot;openid&quot;,
+            createdAt: new Date().toISOString(),
+            groups,
+            all: items,
         };
     }
 
-    private validateClientCredentials(
-        clientId: string,
-        clientSecret: string,
-    ): boolean {
-        const storedSecret &#x3D; this.clients.get(clientId);
-        return storedSecret &#x3D;&#x3D;&#x3D; clientSecret;
+    /* ---------- renderers ---------- */
+
+    private itemNotes(i: ConfigItem): string {
+        const presence &#x3D; i.presence ? &#x60; [${i.presence}]&#x60; : &quot;&quot;;
+        const defTag &#x3D; i.usedDefault ? &quot; (default)&quot; : &quot;&quot;;
+        const conds &#x3D; i.conditions.map((c) &#x3D;&gt; &#x60;[${c}]&#x60;).join(&quot; &quot;);
+        const extra &#x3D; [
+            i.meta?.deprecated ? &#x60;(deprecated: ${i.meta.deprecated})&#x60; : &quot;&quot;,
+            i.meta?.restartRequired ? &quot;(restart required)&quot; : &quot;&quot;,
+            i.meta?.docUrl ? &#x60;(docs: ${i.meta.docUrl})&#x60; : &quot;&quot;,
+            i.meta?.example ? &#x60;(e.g. ${i.meta.example})&#x60; : &quot;&quot;,
+        ]
+            .filter(Boolean)
+            .join(&quot; &quot;);
+
+        return [i.description, presence, defTag, conds, extra]
+            .filter(Boolean)
+            .join(&quot; &quot;)
+            .trim();
     }
 
-    private async generateAccessToken(
-        clientId: string,
-        scope?: string,
-    ): Promise&lt;string&gt; {
-        const payload &#x3D; {
-            sub: clientId,
-            aud: this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;),
-            iss: this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;),
-            scope: scope || &quot;openid&quot;,
-            exp: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
-            iat: Math.floor(Date.now() / 1000),
-        };
-
-        // For now, we&#x27;ll use the root tenant for signing
-        // In a real implementation, you might want to use a dedicated OAuth signing key
-        const tenantId &#x3D; &quot;root&quot;;
-        return await this.cryptoService.signJwt(
-            payload,
-            { alg: &quot;RS256&quot; },
-            tenantId,
-        );
+    private renderText(model: ConfigModel): string {
+        const out: string[] &#x3D; [];
+        for (const g of model.groups) {
+            out.push(&#x60;\n&#x3D;&#x3D;&#x3D; ${g.name} &#x3D;&#x3D;&#x3D;&#x60;);
+            for (const i of g.items) {
+                out.push(
+                    &#x60;${i.key.padEnd(28)} &#x3D; ${String(i.shown).padEnd(24)}  # ${this.itemNotes(i)}&#x60;,
+                );
+            }
+        }
+        return &#x60;\n${out.join(&quot;\n&quot;)}\n&#x60;;
     }
 
-    // Methods to manage clients dynamically
-    addClient(clientId: string, clientSecret: string): void {
-        this.clients.set(clientId, clientSecret);
+    private renderMarkdown(model: ConfigModel): string {
+        const out: string[] &#x3D; [
+            &#x60;&lt;!-- generated: ${model.createdAt} --&gt;&#x60;,
+            &#x60;# Configuration&#x60;,
+            &#x60;This file gets auto-generated by the application. Do not edit it manually.&#x60;,
+        ];
+        for (const g of model.groups) {
+            out.push(&#x60;\n## ${g.name}\n&#x60;);
+            out.push(&#x60;| Key | Value | Notes |&#x60;);
+            out.push(&#x60;| --- | ----- | ----- |&#x60;);
+            for (const i of g.items) {
+                const notes &#x3D; this.itemNotes(i).replace(/\|/g, &quot;\\|&quot;);
+                const shown &#x3D; String(i.shown).replace(/\|/g, &quot;\\|&quot;);
+                out.push(&#x60;| \&#x60;${i.key}\&#x60; | \&#x60;${shown}\&#x60; | ${notes} |&#x60;);
+            }
+        }
+        return out.join(&quot;\n&quot;);
     }
 
-    removeClient(clientId: string): void {
-        this.clients.delete(clientId);
+    private renderJson(model: ConfigModel): string {
+        return JSON.stringify(model, null, 2);
     }
 
-    hasClient(clientId: string): boolean {
-        return this.clients.has(clientId);
+    private render(model: ConfigModel, format: string): string {
+        switch (format) {
+            case &quot;markdown&quot;:
+            case &quot;md&quot;:
+                return this.renderMarkdown(model);
+            case &quot;json&quot;:
+                return this.renderJson(model);
+            case &quot;text&quot;:
+            default:
+                return this.renderText(model);
+        }
+    }
+
+    private async writeFileSafely(
+        filePath: string,
+        content: string,
+    ): Promise&lt;void&gt; {
+        const dir &#x3D; path.dirname(filePath);
+        await fs.mkdir(dir, { recursive: true });
+        await fs.writeFile(filePath, content, &quot;utf8&quot;);
+    }
+
+    /* ---------- lifecycle ---------- */
+
+    async onModuleInit(): Promise&lt;void&gt; {
+        // Only print in non-prod by default (override with CONFIG_PRINT_IN_PROD&#x3D;true)
+        const inProd &#x3D; this.cfg.get(&quot;NODE_ENV&quot;) &#x3D;&#x3D;&#x3D; &quot;production&quot;;
+        if (inProd &amp;&amp; this.cfg.get(&quot;CONFIG_PRINT_IN_PROD&quot;) !&#x3D;&#x3D; &quot;true&quot;) return;
+
+        const model &#x3D; this.buildModel();
+        const format &#x3D; String(
+            this.cfg.get(&quot;CONFIG_PRINT_FORMAT&quot;) || &quot;text&quot;,
+        ).toLowerCase();
+        const out &#x3D; this.render(model, format);
+        if (process.env.DOC_GENERATE) {
+            const out &#x3D; this.render(model, &quot;markdown&quot;);
+            const file &#x3D; this.cfg.get(&quot;CONFIG_PRINT_FILE&quot;);
+            await this.writeFileSafely(String(file), out);
+            Logger.log(&#x60;Wrote config to ${file}&#x60;, &quot;Config&quot;);
+        } else {
+            Logger.log(out, &quot;Config&quot;);
+        }
     }
 }
 </code></pre>
@@ -925,7 +1031,7 @@ export class OAuthService {
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'injectable';
-            var COMPODOC_CURRENT_PAGE_URL = 'OAuthService.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'ConfigPrinterService.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

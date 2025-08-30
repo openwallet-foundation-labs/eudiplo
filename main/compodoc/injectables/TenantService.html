@@ -116,7 +116,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/auth/tenant.service.ts</code>
+            <code>src/auth/tenant/tenant.service.ts</code>
         </p>
 
 
@@ -212,7 +212,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">src/auth/tenant.service.ts:31</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">src/auth/tenant/tenant.service.ts:31</a></div>
                             </td>
                         </tr>
 
@@ -374,7 +374,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="149"
-                                    class="link-to-prism">src/auth/tenant.service.ts:149</a></div>
+                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:149</a></div>
                         </td>
                     </tr>
 
@@ -464,7 +464,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="127"
-                                    class="link-to-prism">src/auth/tenant.service.ts:127</a></div>
+                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:127</a></div>
                         </td>
                     </tr>
 
@@ -535,7 +535,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="88"
-                                    class="link-to-prism">src/auth/tenant.service.ts:88</a></div>
+                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:88</a></div>
                         </td>
                     </tr>
 
@@ -579,7 +579,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="76"
-                                    class="link-to-prism">src/auth/tenant.service.ts:76</a></div>
+                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:76</a></div>
                         </td>
                     </tr>
 
@@ -648,7 +648,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="71"
-                                    class="link-to-prism">src/auth/tenant.service.ts:71</a></div>
+                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:71</a></div>
                         </td>
                     </tr>
 
@@ -719,7 +719,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="98"
-                                    class="link-to-prism">src/auth/tenant.service.ts:98</a></div>
+                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:98</a></div>
                         </td>
                     </tr>
 
@@ -760,7 +760,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="61"
-                                    class="link-to-prism">src/auth/tenant.service.ts:61</a></div>
+                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:61</a></div>
                         </td>
                     </tr>
 
@@ -799,7 +799,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="47"
-                                    class="link-to-prism">src/auth/tenant.service.ts:47</a></div>
+                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:47</a></div>
                         </td>
                     </tr>
 
@@ -838,7 +838,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="135"
-                                    class="link-to-prism">src/auth/tenant.service.ts:135</a></div>
+                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:135</a></div>
                         </td>
                     </tr>
 
@@ -907,7 +907,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="114"
-                                    class="link-to-prism">src/auth/tenant.service.ts:114</a></div>
+                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:114</a></div>
                         </td>
                     </tr>
 
@@ -999,7 +999,7 @@ This is the primary authentication method for service integration</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">src/auth/tenant.service.ts:31</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">src/auth/tenant/tenant.service.ts:31</a></div>
                         </td>
                     </tr>
 
@@ -1025,14 +1025,14 @@ import { InjectMetric } from &quot;@willsoto/nestjs-prometheus&quot;;
 import { readdirSync } from &quot;fs&quot;;
 import { Gauge } from &quot;prom-client&quot;;
 import { Repository } from &quot;typeorm/repository/Repository&quot;;
-import { CryptoService } from &quot;../crypto/crypto.service&quot;;
-import { EncryptionService } from &quot;../crypto/encryption/encryption.service&quot;;
-import { Oid4vciService } from &quot;../issuer/oid4vci/oid4vci.service&quot;;
-import { StatusListService } from &quot;../issuer/status-list/status-list.service&quot;;
-import { RegistrarService } from &quot;../registrar/registrar.service&quot;;
-import { FilesService } from &quot;../storage/files.service&quot;;
-import { TenantEntity } from &quot;./entitites/tenant.entity&quot;;
-import { TokenPayload } from &quot;./token.decorator&quot;;
+import { CryptoService } from &quot;../../crypto/crypto.service&quot;;
+import { EncryptionService } from &quot;../../crypto/encryption/encryption.service&quot;;
+import { Oid4vciService } from &quot;../../issuer/oid4vci/oid4vci.service&quot;;
+import { StatusListService } from &quot;../../issuer/status-list/status-list.service&quot;;
+import { RegistrarService } from &quot;../../registrar/registrar.service&quot;;
+import { FilesService } from &quot;../../storage/files.service&quot;;
+import { TenantEntity } from &quot;../entitites/tenant.entity&quot;;
+import { TokenPayload } from &quot;../token.decorator&quot;;
 
 // Tenant interface for service integration
 export interface Tenants {

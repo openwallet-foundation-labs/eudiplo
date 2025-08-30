@@ -133,37 +133,7 @@
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &quot;@nestjs/common&quot;;
 import { ConfigModule, ConfigService } from &quot;@nestjs/config&quot;;
 import { TypeOrmModule, TypeOrmModuleOptions } from &quot;@nestjs/typeorm&quot;;
-import * as Joi from &quot;joi&quot;;
 import { join } from &quot;path&quot;;
-
-export const DB_VALIDATION_SCHEMA &#x3D; {
-    DB_TYPE: Joi.string().valid(&quot;sqlite&quot;, &quot;postgres&quot;).default(&quot;sqlite&quot;),
-    DB_HOST: Joi.string().when(&quot;DB_TYPE&quot;, {
-        is: &quot;sqlite&quot;,
-        then: Joi.optional(),
-        otherwise: Joi.required(),
-    }),
-    DB_PORT: Joi.number().when(&quot;DB_TYPE&quot;, {
-        is: &quot;sqlite&quot;,
-        then: Joi.optional(),
-        otherwise: Joi.required(),
-    }),
-    DB_USERNAME: Joi.string().when(&quot;DB_TYPE&quot;, {
-        is: &quot;sqlite&quot;,
-        then: Joi.optional(),
-        otherwise: Joi.required(),
-    }),
-    DB_PASSWORD: Joi.string().when(&quot;DB_TYPE&quot;, {
-        is: &quot;sqlite&quot;,
-        then: Joi.optional(),
-        otherwise: Joi.required(),
-    }),
-    DB_DATABASE: Joi.string().when(&quot;DB_TYPE&quot;, {
-        is: &quot;sqlite&quot;,
-        then: Joi.optional(),
-        otherwise: Joi.required(),
-    }),
-};
 
 @Module({
     imports: [
