@@ -3,11 +3,15 @@ import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { passportJwtSecret } from "jwks-rsa";
 import { ExtractJwt, Strategy } from "passport-jwt";
+import { TenantService } from "./tenant/tenant.service";
 import { TokenPayload } from "./token.decorator";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
-    constructor(private configService: ConfigService) {
+    constructor(
+        private configService: ConfigService,
+        private tenantService: TenantService,
+    ) {
         const useExternalOIDC = configService.get<boolean>("OIDC");
 
         const config = useExternalOIDC
@@ -85,6 +89,8 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
             sub = (payload as any)[key] as string;
         }
 
-        return { sub, admin: payload.admin || false };
+        const tenantEntity = this.tenantService.getTenant(sub);
+
+        return { sub, admin: payload.admin || false, entity: tenantEntity };
     }
 }

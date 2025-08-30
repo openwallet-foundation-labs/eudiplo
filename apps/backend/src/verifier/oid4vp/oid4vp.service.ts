@@ -132,8 +132,7 @@ export class Oid4vpService {
                         },
                         authorization_encrypted_response_alg: "ECDH-ES",
                         authorization_encrypted_response_enc: "A128GCM",
-                        client_name:
-                            this.configService.getOrThrow<string>("RP_NAME"),
+                        client_name: session.tenant.name,
                         response_types_supported: ["vp_token"],
                     },
                     state: session.id,

@@ -1,5 +1,5 @@
 import { promises as fs } from "node:fs";
-import * as path from "node:path";
+import { dirname } from "node:path";
 import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { VALIDATION_SCHEMA } from "./combined.schema";
@@ -33,11 +33,17 @@ export interface ConfigModel {
     all: ConfigItem[];
 }
 
+/**
+ * Service for printing configuration.
+ */
 @Injectable()
 export class ConfigPrinterService implements OnModuleInit {
     constructor(private readonly cfg: ConfigService) {}
 
-    /** Build a reusable model of your config (values + meta + conditions). */
+    /**
+     * Builds the configuration model.
+     * @returns The configuration model.
+     */
     public buildModel(): ConfigModel {
         const described = VALIDATION_SCHEMA.describe() as any;
         const descKeys: Record<string, any> = described.keys ?? {};
@@ -125,8 +131,11 @@ export class ConfigPrinterService implements OnModuleInit {
         };
     }
 
-    /* ---------- renderers ---------- */
-
+    /**
+     * Generates notes for a configuration item.
+     * @param i - The configuration item to generate notes for.
+     * @returns The generated notes as a string.
+     */
     private itemNotes(i: ConfigItem): string {
         const presence = i.presence ? ` [${i.presence}]` : "";
         const defTag = i.usedDefault ? " (default)" : "";
@@ -146,6 +155,11 @@ export class ConfigPrinterService implements OnModuleInit {
             .trim();
     }
 
+    /**
+     * Renders the configuration model as plain text.
+     * @param model - The configuration model to render.
+     * @returns The rendered configuration as a plain text string.
+     */
     private renderText(model: ConfigModel): string {
         const out: string[] = [];
         for (const g of model.groups) {
@@ -159,6 +173,11 @@ export class ConfigPrinterService implements OnModuleInit {
         return `\n${out.join("\n")}\n`;
     }
 
+    /**
+     * Renders the configuration model as Markdown.
+     * @param model - The configuration model to render.
+     * @returns The rendered configuration as a Markdown string.
+     */
     private renderMarkdown(model: ConfigModel): string {
         const out: string[] = [
             `<!-- generated: ${model.createdAt} -->`,
@@ -178,10 +197,21 @@ export class ConfigPrinterService implements OnModuleInit {
         return out.join("\n");
     }
 
+    /**
+     * Renders the configuration model as JSON.
+     * @param model - The configuration model to render.
+     * @returns The rendered configuration as a JSON string.
+     */
     private renderJson(model: ConfigModel): string {
         return JSON.stringify(model, null, 2);
     }
 
+    /**
+     * Renders the configuration model into the specified format.
+     * @param model - The configuration model to render.
+     * @param format - The format to render the model in.
+     * @returns The rendered configuration as a string.
+     */
     private render(model: ConfigModel, format: string): string {
         switch (format) {
             case "markdown":
@@ -195,22 +225,24 @@ export class ConfigPrinterService implements OnModuleInit {
         }
     }
 
+    /**
+     * Writes a file safely, creating directories as needed.
+     * @param filePath - The path to the file to write.
+     * @param content - The content to write to the file.
+     */
     private async writeFileSafely(
         filePath: string,
         content: string,
     ): Promise<void> {
-        const dir = path.dirname(filePath);
+        const dir = dirname(filePath);
         await fs.mkdir(dir, { recursive: true });
         await fs.writeFile(filePath, content, "utf8");
     }
 
-    /* ---------- lifecycle ---------- */
-
+    /**
+     * Lifecycle hook that is called when the module is initialized.
+     */
     async onModuleInit(): Promise<void> {
-        // Only print in non-prod by default (override with CONFIG_PRINT_IN_PROD=true)
-        const inProd = this.cfg.get("NODE_ENV") === "production";
-        if (inProd && this.cfg.get("CONFIG_PRINT_IN_PROD") !== "true") return;
-
         const model = this.buildModel();
         const format = String(
             this.cfg.get("CONFIG_PRINT_FORMAT") || "text",
@@ -221,7 +253,7 @@ export class ConfigPrinterService implements OnModuleInit {
             const file = this.cfg.get("CONFIG_PRINT_FILE");
             await this.writeFileSafely(String(file), out);
             Logger.log(`Wrote config to ${file}`, "Config");
-        } else {
+        } else if (this.cfg.get<boolean>("CONFIG_PRINT")) {
             Logger.log(out, "Config");
         }
     }

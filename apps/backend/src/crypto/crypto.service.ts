@@ -19,6 +19,7 @@ import { validate } from "class-validator";
 import { importJWK, type JWK, jwtVerify } from "jose";
 import { PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm/repository/Repository";
+import { TenantEntity } from "../auth/entitites/tenant.entity";
 import { EC_Public } from "../well-known/dto/jwks-response.dto";
 import { KeyImportDto } from "./key/dto/key-import.dto";
 import { UpdateKeyDto } from "./key/dto/key-update.dto";
@@ -53,15 +54,17 @@ export class CryptoService {
         @InjectRepository(CertEntity)
         private certRepository: Repository<CertEntity>,
         private logger: PinoLogger,
+        @InjectRepository(TenantEntity)
+        private tenantRepository: Repository<TenantEntity>,
     ) {}
 
     /**
      * Initializes the key service for a specific tenant.
      * @param tenantId
      */
-    async onTenantInit(tenantId: string) {
-        const keyId = await this.keyService.init(tenantId);
-        await this.hasCerts(tenantId, keyId);
+    async onTenantInit(tenant: TenantEntity) {
+        const keyId = await this.keyService.init(tenant.id);
+        await this.hasCerts(tenant, keyId);
     }
 
     /**
@@ -147,7 +150,12 @@ export class CryptoService {
                             );
                             continue; // Skip this invalid config
                         }
-                        await this.importKey(tenant.name, config);
+                        //TODO: temporary fix since importing tenantService results in circular dependency
+                        const tenantEntity =
+                            await this.tenantRepository.findOneByOrFail({
+                                id: tenant.name,
+                            });
+                        await this.importKey(tenantEntity, config);
                         counter++;
                     }
                     this.logger.info(
@@ -163,26 +171,26 @@ export class CryptoService {
 
     /**
      * Imports a key into the key service.
-     * @param tenantId
+     * @param tenant
      * @param body
      * @returns
      */
-    async importKey(tenantId: string, body: KeyImportDto): Promise<string> {
-        const id = await this.keyService.import(tenantId, body);
+    async importKey(tenant: TenantEntity, body: KeyImportDto): Promise<string> {
+        const id = await this.keyService.import(tenant.id, body);
         // If the private key has a certificate, write it to the certs folder
         if (body.crt) {
             await this.certRepository.save({
-                tenantId,
+                tenantId: tenant.id,
                 id,
                 crt: body.crt,
                 description: body.description,
             });
         } else {
             // If no certificate is provided, generate a self-signed certificate
-            await this.hasCerts(tenantId, id);
+            await this.hasCerts(tenant, id);
             if (body.description) {
                 await this.certRepository.update(
-                    { tenantId, id },
+                    { tenantId: tenant.id, id },
                     { description: body.description },
                 );
             }
@@ -193,14 +201,17 @@ export class CryptoService {
     /**
      * Ensures a signing certificate (and default access cert) exist for the given tenant/key id.
      */
-    async hasCerts(tenantId: string, id?: string) {
-        id = id ?? (await this.keyService.getKid(tenantId));
+    async hasCerts(tenant: TenantEntity, id?: string) {
+        id = id ?? (await this.keyService.getKid(tenant.id));
 
-        const existing = await this.certRepository.findOneBy({ tenantId, id });
+        const existing = await this.certRepository.findOneBy({
+            tenantId: tenant.id,
+            id,
+        });
         if (existing?.crt) return;
         //TODO: load CN from other source, e.g. config. Also required for access certificate
         // === Inputs/parameters (subject + SAN hostname) ===
-        const subjectCN = this.configService.getOrThrow<string>("RP_NAME");
+        const subjectCN = tenant.name;
         const hostname = new URL(
             this.configService.getOrThrow<string>("PUBLIC_URL"),
         ).hostname;
@@ -209,7 +220,7 @@ export class CryptoService {
         // Expecting PEM SPKI. If you have JWK, convert or import as CryptoKey first.
         const subjectSpkiPem = await this.keyService.getPublicKey(
             "pem",
-            tenantId,
+            tenant.id,
             id,
         );
         const subjectPublicKey = await new x509.PublicKey(
@@ -280,7 +291,7 @@ export class CryptoService {
 
         // Persist the signing certificate
         await this.certRepository.save({
-            tenantId,
+            tenantId: tenant.id,
             id,
             crt: crtPem,
             type: "signing",
@@ -288,12 +299,12 @@ export class CryptoService {
 
         // Mirror your logic: if no "access" cert yet, reuse the same PEM
         const accessCount = await this.certRepository.countBy({
-            tenantId,
+            tenantId: tenant.id,
             type: "access",
         });
         if (accessCount === 0) {
             await this.certRepository.save({
-                tenantId,
+                tenantId: tenant.id,
                 id,
                 crt: crtPem,
                 type: "access",

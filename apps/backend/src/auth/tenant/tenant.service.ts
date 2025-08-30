@@ -17,6 +17,7 @@ import { Oid4vciService } from "../../issuer/oid4vci/oid4vci.service";
 import { StatusListService } from "../../issuer/status-list/status-list.service";
 import { RegistrarService } from "../../registrar/registrar.service";
 import { FilesService } from "../../storage/files.service";
+import { ClientInitDto } from "../dto/client-init.dto";
 import { TenantEntity } from "../entitites/tenant.entity";
 import { TokenPayload } from "../token.decorator";
 
@@ -68,9 +69,13 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
      * Initialize a tenant for the given user.
      * @param user The user to initialize the tenant for
      */
-    async initTenant(id: string) {
-        await this.tenantRepository.save({ id });
-        return this.setUpTenant(id);
+    async initTenant(id: string, values: ClientInitDto) {
+        const tenant = await this.tenantRepository.save({ id, ...values });
+        return this.setUpTenant(tenant);
+    }
+
+    getTenant(id: string): Promise<TenantEntity> {
+        return this.tenantRepository.findOneByOrFail({ id });
     }
 
     async getTenantStatus(id: string) {
@@ -130,15 +135,18 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
 
     /**
      * Sends an event to set up a tenant, allowing all other services to listen and react accordingly.
-     * @param id
+     * @param tenant
      */
-    async setUpTenant(id: string) {
-        await this.cryptoService.onTenantInit(id);
-        await this.encryptionService.onTenantInit(id);
-        await this.statusListService.onTenantInit(id);
-        await this.registrarService.onTenantInit(id);
-        await this.oid4vciService.onTenantInit(id);
-        await this.tenantRepository.update({ id }, { status: "active" });
+    async setUpTenant(tenant: TenantEntity) {
+        await this.cryptoService.onTenantInit(tenant);
+        await this.encryptionService.onTenantInit(tenant.id);
+        await this.statusListService.onTenantInit(tenant.id);
+        await this.registrarService.onTenantInit(tenant);
+        await this.oid4vciService.onTenantInit(tenant.id);
+        await this.tenantRepository.update(
+            { id: tenant.id },
+            { status: "active" },
+        );
     }
 
     /**

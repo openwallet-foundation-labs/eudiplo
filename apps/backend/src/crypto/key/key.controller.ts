@@ -52,8 +52,7 @@ export class KeyController {
         @Token() token: TokenPayload,
         @Body() body: KeyImportDto,
     ): Promise<{ id: string }> {
-        const tenantId = token.sub;
-        const id = await this.cryptoService.importKey(tenantId, body);
+        const id = await this.cryptoService.importKey(token.entity!, body);
         return { id };
     }
 
