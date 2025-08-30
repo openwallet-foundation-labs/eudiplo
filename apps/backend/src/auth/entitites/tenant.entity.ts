@@ -12,6 +12,12 @@ export class TenantEntity {
     id: string;
 
     /**
+     * The name of the tenant.
+     */
+    @Column({ default: "EUDIPLO" })
+    name: string;
+
+    /**
      * The current status of the tenant.
      */
     @Column({ nullable: true })

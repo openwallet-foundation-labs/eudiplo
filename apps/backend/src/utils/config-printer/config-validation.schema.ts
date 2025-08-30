@@ -20,11 +20,6 @@ export const CONFIG_VALIDATION_SCHEMA = Joi.object({
         .description("Enable advanced config printing")
         .meta({ group: "config", order: 2 }),
 
-    CONFIG_PRINT_IN_PROD: Joi.boolean()
-        .default(false)
-        .description("Allow config printing in production environments")
-        .meta({ group: "config", order: 3 }),
-
     CONFIG_PRINT_FILE: Joi.string()
         .default("../../docs/architecture/environment-config.md")
         .description("Output file path for the documentation")

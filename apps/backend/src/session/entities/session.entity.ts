@@ -160,7 +160,11 @@ export class Session {
     /**
      * The tenant that owns this object.
      */
-    @ManyToOne(() => TenantEntity, { cascade: true, onDelete: "CASCADE" })
+    @ManyToOne(() => TenantEntity, {
+        cascade: true,
+        onDelete: "CASCADE",
+        eager: true,
+    })
     tenant: TenantEntity;
 
     /**

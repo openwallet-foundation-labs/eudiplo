@@ -7,6 +7,7 @@ import {
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { TenantEntity } from "../auth/entitites/tenant.entity";
 import { CryptoService } from "../crypto/crypto.service";
 import { RegistrationCertificateRequest } from "../verifier/presentations/dto/vp-request.dto";
 import { PresentationsService } from "../verifier/presentations/presentations.service";
@@ -106,21 +107,21 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
 
     /**
      * This function is called when a tenant is initialized.
-     * @param tenantId
+     * @param tenant
      */
-    async onTenantInit(tenantId: string) {
+    async onTenantInit(tenant: TenantEntity) {
         if (!this.isEnabled()) {
             return;
         }
         //TODO: pass name by call
-        const name = this.configService.getOrThrow<string>("RP_NAME");
+        const name = tenant.name;
         const relyingPartyId = await this.addRp(name);
         const accessCertificateId = await this.addAccessCertificate(
-            tenantId,
+            tenant.id,
             relyingPartyId,
         );
         await this.registrarRepository.save({
-            tenantId,
+            tenantId: tenant.id,
             relyingPartyId,
             accessCertificateId,
         });
