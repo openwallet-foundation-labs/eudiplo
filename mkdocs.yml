@@ -121,7 +121,7 @@ nav:
         - Registrar: getting-started/registrar.md
         - Monitor: getting-started/monitor.md        
   - Architecture:
-      - Overview: architecture/overview.md      
+      - Overview: architecture/index.md
       - Environment Variables: architecture/environment-config.md
       - Supported Protocols: architecture/supported-protocols.md
       - Tenant-Based: architecture/tenant.md

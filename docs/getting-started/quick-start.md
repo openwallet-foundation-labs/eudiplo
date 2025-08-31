@@ -7,7 +7,7 @@ your first credential.
 
     This is the fastest path to see EUDIPLO working. For
     production setup and advanced configuration, see the
-    [Architecture](../architecture/overview.md) and [API](../api/index.md) sections.
+    [Architecture](../architecture/index.md) and [API](../api/index.md) sections.
 
 ---
 
@@ -180,9 +180,9 @@ EUDIPLO is now running and ready for credential issuance and verification.
 
 ### Common Next Steps
 
-- ⚙️ **[Production Setup](../architecture/overview.md)** - Deploy for production use
+- ⚙️ **[Production Setup](../architecture/index.md)** - Deploy for production use
 - 🔐 **[Security Configuration](../api/authentication.md)** - Replace default credentials
-- 🏗️ **[Architecture Overview](../architecture/overview.md)** - Understand system design
+- 🏗️ **[Architecture Overview](../architecture/index.md)** - Understand system design
 
 ### Clean Up
 

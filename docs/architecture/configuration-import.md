@@ -279,4 +279,4 @@ the imported private key
 - [API Authentication](../api/authentication.md)
 - [Multi-tenant Architecture](./tenant.md)
 - [Database Architecture](./database.md)
-- [Production Deployment](./overview.md)
+- [Production Deployment](./index.md)
