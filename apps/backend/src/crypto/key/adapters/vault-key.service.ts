@@ -227,9 +227,14 @@ export class VaultKeyService extends KeyService {
                 },
                 this.headers,
             ),
-        ).then((res) =>
-            this.derToJwtSignature(res.data.data.signature.split(":")[2]),
-        );
+        ).then((res) => {
+            const {
+                data: { signature: wrappedSignature },
+            } = res.data;
+            const encodedSignature = wrappedSignature.split(":").at(2);
+            const signature = Buffer.from(encodedSignature, "base64");
+            return signature.toString("base64url");
+        });
     }
 
     /**
@@ -260,52 +265,5 @@ export class VaultKeyService extends KeyService {
             console.error("Error signing JWT with Vault:", error);
             throw error;
         }
-    }
-
-    /**
-     * Converts a DER signature to a JWT signature.
-     * @param derSignature
-     * @returns
-     */
-    derToJwtSignature(derSignature: string) {
-        // Step 1: Extract r and s from DER signature
-        const der = Buffer.from(derSignature, "base64");
-        const sequence = der.slice(2); // Skip the sequence tag and length
-        const rLength = sequence[1];
-        const r = sequence.slice(2, 2 + rLength);
-        const s = sequence.slice(2 + rLength + 2); // Skip r, its tag and length byte, and s's tag and length byte
-
-        // Step 2: Ensure r and s are 32 bytes each (pad with zeros if necessary)
-        // Ensure r and s are 32 bytes each
-        let rPadded: Buffer;
-        let sPadded: Buffer;
-        if (r.length > 32) {
-            if (r.length === 33 && r[0] === 0x00) {
-                rPadded = r.slice(1);
-            } else {
-                throw new Error("Invalid r length in DER signature");
-            }
-        } else {
-            rPadded = Buffer.concat([Buffer.alloc(32 - r.length), r]);
-        }
-        if (s.length > 32) {
-            if (s.length === 33 && s[0] === 0x00) {
-                sPadded = s.slice(1);
-            } else {
-                throw new Error("Invalid s length in DER signature");
-            }
-        } else {
-            sPadded = Buffer.concat([Buffer.alloc(32 - s.length), s]);
-        }
-
-        // Step 3: Concatenate r and s to form the raw signature
-        const rawSignature = Buffer.concat([rPadded, sPadded]);
-
-        // Step 4: Base64url encode the raw signature
-        return rawSignature
-            .toString("base64")
-            .replace(/\+/g, "-")
-            .replace(/\//g, "_")
-            .replace(/=/g, "");
     }
 }
