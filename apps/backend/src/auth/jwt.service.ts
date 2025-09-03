@@ -2,12 +2,12 @@ import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { jwtVerify, SignJWT } from "jose";
 import { DEFAULT_JWT_SECRET } from "./auth.module";
-import { TokenPayload } from "./token.decorator";
+import { InternalTokenPayload, TokenPayload } from "./token.decorator";
 
 export interface GenerateTokenOptions {
     expiresIn?: string;
     audience?: string;
-    subject?: string;
+    subject: string;
 }
 
 @Injectable()
@@ -26,8 +26,8 @@ export class JwtService {
      * Generate a JWT token for integrated OAuth2 server
      */
     async generateToken(
-        payload: TokenPayload,
-        options: GenerateTokenOptions = {},
+        payload: InternalTokenPayload,
+        options: GenerateTokenOptions,
     ): Promise<string> {
         if (this.isUsingExternalOIDC()) {
             throw new Error(
@@ -49,7 +49,7 @@ export class JwtService {
             .setProtectedHeader({ alg: "HS256" })
             .setIssuedAt()
             .setIssuer(issuer)
-            .setSubject(options.subject || payload.sub)
+            .setSubject(options.subject)
             .setExpirationTime(expiresIn);
 
         if (options.audience) {

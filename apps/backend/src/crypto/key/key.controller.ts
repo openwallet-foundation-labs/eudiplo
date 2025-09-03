@@ -35,8 +35,7 @@ export class KeyController {
      */
     @Get()
     getKeys(@Token() token: TokenPayload): Promise<CertEntity[]> {
-        const tenantId = token.sub;
-        return this.cryptoService.getCerts(tenantId);
+        return this.cryptoService.getCerts(token.entity!.id);
     }
 
     /**
@@ -66,8 +65,7 @@ export class KeyController {
         @Param("id") id: string,
         @Body() body: UpdateKeyDto,
     ): Promise<void> {
-        const tenantId = token.sub;
-        await this.cryptoService.updateCert(tenantId, id, body);
+        await this.cryptoService.updateCert(token.entity!.id, id, body);
     }
 
     /**
@@ -77,6 +75,6 @@ export class KeyController {
      */
     @Delete(":id")
     deleteKey(@Token() token: TokenPayload, @Param("id") id: string) {
-        return this.cryptoService.deleteKey(token.sub, id);
+        return this.cryptoService.deleteKey(token.entity!.id, id);
     }
 }

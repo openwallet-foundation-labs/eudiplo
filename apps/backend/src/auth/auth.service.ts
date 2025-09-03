@@ -6,7 +6,7 @@ import { OidcDiscoveryDto } from "./dto/oidc-discovery.dto";
 import { TokenResponse } from "./dto/token-response.dto";
 import { JwtService } from "./jwt.service";
 import { Role } from "./roles/role.enum";
-import { TokenPayload } from "./token.decorator";
+import { InternalTokenPayload } from "./token.decorator";
 
 /**
  * Authentication Service
@@ -87,9 +87,7 @@ export class AuthService {
         }
 
         //TODO: check if the access token should only include the session id or also e.g. the credentials that should be issued. I would think this is not required since we still need the claims for it.
-        const payload: TokenPayload = {
-            sub: client.tenantId,
-            admin: true,
+        const payload: InternalTokenPayload = {
             roles: [
                 Role.IssuanceOffer,
                 Role.PresentationOffer,
@@ -98,17 +96,21 @@ export class AuthService {
                 Role.Clients,
                 Role.Tenants,
             ],
+            tenant_id: client.tenantId!,
         };
 
         //TODO: make expiresIn configurable?
         const access_token = await this.jwtService.generateToken(payload, {
             expiresIn: "24h",
             audience: "eudiplo-service",
+            //TODO: check if the clientId should be saved here or somewhere else like in client_id
+            subject: clientId,
         });
 
         const refresh_token = await this.jwtService.generateToken(payload, {
             expiresIn: "30d",
             audience: "eudiplo-service",
+            subject: clientId,
         });
 
         return {
