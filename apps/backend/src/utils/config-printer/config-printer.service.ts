@@ -49,6 +49,7 @@ export class ConfigPrinterService implements OnModuleInit {
         const descKeys: Record<string, any> = described.keys ?? {};
         const allKeys = Object.keys(descKeys);
         const showAdvanced = this.cfg.get("CONFIG_PRINT_ADVANCED") === "true";
+        const docGenerate = !!process.env.DOC_GENERATE;
 
         const items: ConfigItem[] = [];
         for (const key of allKeys) {
@@ -77,14 +78,15 @@ export class ConfigPrinterService implements OnModuleInit {
                       : "";
 
             const value = this.cfg.get(key);
-            const shown =
-                value === undefined
-                    ? "(unset)"
-                    : secret
-                      ? "***"
-                      : typeof value === "string"
-                        ? value
-                        : JSON.stringify(value);
+            const shown = docGenerate
+                ? "" // Hide value when DOC_GENERATE is set
+                : value === undefined
+                  ? "(unset)"
+                  : secret
+                    ? "***"
+                    : typeof value === "string"
+                      ? value
+                      : JSON.stringify(value);
 
             const usedDefault =
                 !(key in process.env) && Object.hasOwn.call(flags, "default");
@@ -186,12 +188,21 @@ export class ConfigPrinterService implements OnModuleInit {
         ];
         for (const g of model.groups) {
             out.push(`\n## ${g.name}\n`);
-            out.push(`| Key | Value | Notes |`);
-            out.push(`| --- | ----- | ----- |`);
+            if (process.env.DOC_GENERATE) {
+                out.push(`| Key | Notes |`);
+                out.push(`| --- | ----- |`);
+            } else {
+                out.push(`| Key | Value | Notes |`);
+                out.push(`| --- | ----- | ----- |`);
+            }
             for (const i of g.items) {
                 const notes = this.itemNotes(i).replace(/\|/g, "\\|");
                 const shown = String(i.shown).replace(/\|/g, "\\|");
-                out.push(`| \`${i.key}\` | \`${shown}\` | ${notes} |`);
+                if (process.env.DOC_GENERATE) {
+                    out.push(`| \`${i.key}\` | ${notes} |`);
+                } else {
+                    out.push(`| \`${i.key}\` | \`${shown}\` | ${notes} |`);
+                }
             }
         }
         return out.join("\n");

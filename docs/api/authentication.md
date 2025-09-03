@@ -13,7 +13,7 @@ for service-to-service communication without user interaction.
 ### Design Principles
 
 - **Service-to-Service**: No user interaction required
-- **Tenant Isolation**: JWT `sub` claim identifies and isolates tenants
+- **Tenant Isolation**: JWTs are used to isolate tenant data
 - **Pluggable Identity**: Support for both built-in and external OIDC providers
 - **Stateless**: JWT tokens enable horizontal scaling
 
@@ -23,6 +23,7 @@ for service-to-service communication without user interaction.
 - Tenant data is isolated using JWT subject claims
 - Tokens are signed and validated for integrity
 - Support for token expiration and rotation
+- Endpoints are role based protected
 
 **Related Architecture:** For multi-tenant configuration and session management,
 see [Tenant-Based Architecture](../architecture/tenant.md) and
@@ -116,13 +117,15 @@ variables, see [Key Management](../architecture/key-management.md) and
 
 ## Protected Endpoints
 
-All administrative endpoints require OAuth2 authentication:
+All administrative endpoints require OAuth2 authentication and are protected by a role based access control approach.
 
-- **Issuer Management** (`/issuer-management/*`) - Credential issuance
-  management
-- **Presentation Management** (`/presentation-management/*`) - Presentation
-  verification management
-- **Session Management** (`/session/*`) - Session lifecycle management
+The following roles are available:
+
+```typescript
+--8<-- "apps/backend/src/auth/roles/role.enum.ts"
+```
+
+Each client can have multiple roles assigned, but each client can only be assigned to one tenant at maximum. The client with the tenant manage must not be assigned to any tenant since it is managing the service in general. There could be other roles in the future like limited access to the metrics endpoint.
 
 ## Troubleshooting
 
