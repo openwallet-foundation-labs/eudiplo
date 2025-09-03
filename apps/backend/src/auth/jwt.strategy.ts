@@ -93,6 +93,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
             .getTenant(sub)
             .catch(() => null);
 
-        return { sub, admin: payload.admin || false, entity: tenantEntity };
+        return {
+            sub,
+            admin: payload.admin || false,
+            entity: tenantEntity,
+            roles: payload.roles || (payload as any).realm_access?.roles || [],
+        };
     }
 }

@@ -264,7 +264,7 @@ export class Oid4vciService {
         const session = await this.sessionService.create({
             id: issuer_state,
             credentialPayload: body,
-            tenantId: user.sub,
+            tenantId: user.entity!.id,
             issuanceId: body.issuanceId,
             authorization_code,
             claimsWebhook: body.claimsWebhook ?? issuanceConfig.claimsWebhook,

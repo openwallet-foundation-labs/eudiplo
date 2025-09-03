@@ -2,7 +2,7 @@ import { ApiHideProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsString, ValidateNested } from "class-validator";
 import { Column, Entity, ManyToOne } from "typeorm";
-import { TenantEntity } from "../../../auth/entitites/tenant.entity";
+import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
 
 class DisplayLogo {
     @IsString()

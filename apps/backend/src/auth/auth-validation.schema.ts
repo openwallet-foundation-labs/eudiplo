@@ -14,15 +14,31 @@ export const AUTH_VALIDATION_SCHEMA: Joi.ObjectSchema = Joi.object({
         .uri()
         .when("OIDC", {
             is: Joi.exist(),
-            then: Joi.required(),
+            then: Joi.string().default((config) => config.OIDC),
             otherwise: Joi.optional(),
         })
         .description("Internal issuer URL in OIDC mode")
         .meta({ group: "auth", order: 20 }),
 
+    OIDC_CLIENT_ID: Joi.when("OIDC", {
+        is: Joi.exist(),
+        then: Joi.string().required(),
+        otherwise: Joi.optional(),
+    })
+        .description("Client ID for OIDC")
+        .meta({ group: "auth", order: 25 }),
+
+    OIDC_CLIENT_SECRET: Joi.when("OIDC", {
+        is: Joi.exist(),
+        then: Joi.string().required(),
+        otherwise: Joi.optional(),
+    })
+        .description("Client secret for OIDC")
+        .meta({ group: "auth", order: 26 }),
+
     OIDC_SUB: Joi.when("OIDC", {
         is: Joi.exist(),
-        then: Joi.string().default("azp"),
+        then: Joi.string().default("tenant_id"),
         otherwise: Joi.optional(),
     })
         .description("Claim to use as subject")

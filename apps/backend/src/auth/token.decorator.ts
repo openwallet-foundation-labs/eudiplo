@@ -1,5 +1,6 @@
 import { createParamDecorator, ExecutionContext } from "@nestjs/common";
-import { TenantEntity } from "./entitites/tenant.entity";
+import { Role } from "./roles/role.enum";
+import { TenantEntity } from "./tenant/entitites/tenant.entity";
 
 /**
  * Token decorator
@@ -27,4 +28,9 @@ export interface TokenPayload {
      * Tenant entity
      */
     entity?: TenantEntity;
+
+    /**
+     * Role for the user
+     */
+    roles: Role[];
 }

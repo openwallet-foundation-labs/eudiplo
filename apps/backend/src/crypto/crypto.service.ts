@@ -19,7 +19,7 @@ import { validate } from "class-validator";
 import { importJWK, type JWK, jwtVerify } from "jose";
 import { PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm/repository/Repository";
-import { TenantEntity } from "../auth/entitites/tenant.entity";
+import { TenantEntity } from "../auth/tenant/entitites/tenant.entity";
 import { EC_Public } from "../well-known/dto/jwks-response.dto";
 import { KeyImportDto } from "./key/dto/key-import.dto";
 import { UpdateKeyDto } from "./key/dto/key-update.dto";

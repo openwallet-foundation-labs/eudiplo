@@ -164,6 +164,45 @@ export const OfferRequestDtoSchema = {
     required: ['response_type', 'issuanceId']
 } as const;
 
+export const ClientEntitySchema = {
+    type: 'object',
+    properties: {
+        clientId: {
+            type: 'string',
+            description: 'The unique identifier for the client.'
+        },
+        secret: {
+            type: 'string',
+            description: 'The secret key for the client.'
+        },
+        tenantId: {
+            type: 'string',
+            description: 'The unique identifier for the tenant that the client belongs to.'
+        },
+        description: {
+            type: 'string',
+            description: 'The description of the client.'
+        },
+        roles: {
+            type: 'array',
+            description: 'The roles assigned to the client.',
+            items: {
+                type: 'string',
+                enum: ['presentation:manage', 'presentation:offer', 'issuance:manage', 'issuance:offer', 'clients:manage', 'tenants:manage']
+            }
+        },
+        tenant: {
+            description: 'The tenant that the client belongs to.',
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/TenantEntity'
+                }
+            ]
+        }
+    },
+    required: ['clientId', 'secret', 'tenantId', 'roles', 'tenant']
+} as const;
+
 export const TenantEntitySchema = {
     type: 'object',
     properties: {
@@ -171,12 +210,27 @@ export const TenantEntitySchema = {
             type: 'string',
             description: 'The unique identifier for the tenant.'
         },
+        name: {
+            type: 'string',
+            description: 'The name of the tenant.'
+        },
+        description: {
+            type: 'string',
+            description: 'The description of the tenant.'
+        },
         status: {
             type: 'string',
             description: 'The current status of the tenant.'
+        },
+        clients: {
+            description: 'The clients associated with the tenant.',
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/ClientEntity'
+            }
         }
     },
-    required: ['id', 'status']
+    required: ['id', 'name', 'status', 'clients']
 } as const;
 
 export const SessionSchema = {
@@ -387,6 +441,19 @@ export const JwksResponseDtoSchema = {
     required: ['keys']
 } as const;
 
+export const RoleDtoSchema = {
+    type: 'object',
+    properties: {
+        role: {
+            enum: ['presentation:manage', 'presentation:offer', 'issuance:manage', 'issuance:offer', 'clients:manage', 'tenants:manage'],
+            type: 'string',
+            description: 'OAuth2 roles',
+            example: 'issuance:manage'
+        }
+    },
+    required: ['role']
+} as const;
+
 export const ClientCredentialsDtoSchema = {
     type: 'object',
     properties: {
@@ -419,13 +486,61 @@ export const TokenResponseSchema = {
     required: ['access_token', 'token_type', 'expires_in']
 } as const;
 
-export const ClientInitDtoSchema = {
+export const CreateTenantDtoSchema = {
     type: 'object',
     properties: {
         id: {
+            type: 'string',
+            description: 'The unique identifier for the tenant.'
+        },
+        name: {
+            type: 'string',
+            description: 'The name of the tenant.'
+        },
+        description: {
+            type: 'string',
+            description: 'The description of the tenant.'
+        }
+    },
+    required: ['id', 'name']
+} as const;
+
+export const ClientViewSchema = {
+    type: 'object',
+    properties: {}
+} as const;
+
+export const ClientSecretResponseDtoSchema = {
+    type: 'object',
+    properties: {
+        secret: {
             type: 'string'
         }
-    }
+    },
+    required: ['secret']
+} as const;
+
+export const CreateClientDtoSchema = {
+    type: 'object',
+    properties: {
+        clientId: {
+            type: 'string',
+            description: 'The unique identifier for the client.'
+        },
+        description: {
+            type: 'string',
+            description: 'The description of the client.'
+        },
+        roles: {
+            type: 'array',
+            description: 'The roles assigned to the client.',
+            items: {
+                type: 'string',
+                enum: ['presentation:manage', 'presentation:offer', 'issuance:manage', 'issuance:offer', 'clients:manage', 'tenants:manage']
+            }
+        }
+    },
+    required: ['clientId', 'roles']
 } as const;
 
 export const CertEntitySchema = {

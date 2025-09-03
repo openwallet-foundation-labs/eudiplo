@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { INestApplication } from "@nestjs/common";
 import { CallbackContext, Jwk, SignJwtCallback } from "@openid4vc/oauth2";
 import { digest, ES256 } from "@sd-jwt/crypto-nodejs";
 import { SDJwtVcInstance } from "@sd-jwt/sd-jwt-vc";
@@ -12,6 +13,7 @@ import {
     jwtVerify,
     SignJWT,
 } from "jose";
+import request from "supertest";
 
 export async function preparePresentation(kb: Omit<kbPayload, "sd_hash">) {
     const credential = {
@@ -156,3 +158,60 @@ export const getSignJwtCallback = (privateJwks: Jwk[]): SignJwtCallback => {
         };
     };
 };
+
+/**
+ * Creates a root tenant and returns the access token for a client.
+ * @param app
+ * @param clientId
+ * @param clientSecret
+ * @returns
+ */
+export async function getToken(
+    app: INestApplication,
+    clientId: string,
+    clientSecret: string,
+) {
+    // Get JWT token using client credentials
+    const tokenResponse = await request(app.getHttpServer())
+        .post("/oauth2/token")
+        .trustLocalhost()
+        .send({
+            client_id: clientId,
+            client_secret: clientSecret,
+            grant_type: "client_credentials",
+        })
+        .expect(201);
+
+    const authToken = tokenResponse.body.access_token;
+    expect(authToken).toBeDefined();
+
+    // create tenant
+    await request(app.getHttpServer())
+        .post("/tenant")
+        .trustLocalhost()
+        .set("Authorization", `Bearer ${authToken}`)
+        .send({
+            id: "root",
+            name: "Root Tenant",
+        })
+        .expect(201);
+
+    // get the admin of the tenant
+    const client = await request(app.getHttpServer())
+        .get("/tenant/root")
+        .trustLocalhost()
+        .set("Authorization", `Bearer ${authToken}`)
+        .send()
+        .then((res) => res.body.clients[0]);
+
+    return request(app.getHttpServer())
+        .post("/oauth2/token")
+        .trustLocalhost()
+        .send({
+            client_id: client.clientId,
+            client_secret: client.secret,
+            grant_type: "client_credentials",
+        })
+        .expect(201)
+        .then((res) => res.body.access_token);
+}

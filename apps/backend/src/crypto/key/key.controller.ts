@@ -7,10 +7,9 @@ import {
     Param,
     Post,
     Put,
-    UseGuards,
 } from "@nestjs/common";
-import { ApiSecurity } from "@nestjs/swagger";
-import { JwtAuthGuard } from "../../auth/auth.guard";
+import { Role } from "../../auth/roles/role.enum";
+import { Secured } from "../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../auth/token.decorator";
 import { CryptoService } from "../crypto.service";
 import { KeyImportDto } from "./dto/key-import.dto";
@@ -21,8 +20,7 @@ import { KeyService } from "./key.service";
 /**
  * KeyController is responsible for managing keys in the system.
  */
-@UseGuards(JwtAuthGuard)
-@ApiSecurity("oauth2")
+@Secured([Role.Issuances, Role.Presentations])
 @Controller("key")
 export class KeyController {
     constructor(

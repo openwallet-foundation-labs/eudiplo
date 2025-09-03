@@ -1,9 +1,11 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { InternalClientsProvider } from "./client/adapters/internal-clients.service";
+import { CLIENTS_PROVIDER } from "./client/client.provider";
 import { OidcDiscoveryDto } from "./dto/oidc-discovery.dto";
 import { TokenResponse } from "./dto/token-response.dto";
 import { JwtService } from "./jwt.service";
-import { TenantService } from "./tenant/tenant.service";
+import { Role } from "./roles/role.enum";
 import { TokenPayload } from "./token.decorator";
 
 /**
@@ -19,7 +21,7 @@ export class AuthService {
      */
     constructor(
         private jwtService: JwtService,
-        private tenantService: TenantService,
+        @Inject(CLIENTS_PROVIDER) private clients: InternalClientsProvider,
         private configService: ConfigService,
     ) {}
 
@@ -75,18 +77,27 @@ export class AuthService {
             );
         }
 
-        const client = this.tenantService.validateTenant(
+        const client = await this.clients.validateClientCredentials(
             clientId,
             clientSecret,
         );
+
         if (!client) {
             throw new UnauthorizedException("Invalid client credentials");
         }
 
         //TODO: check if the access token should only include the session id or also e.g. the credentials that should be issued. I would think this is not required since we still need the claims for it.
         const payload: TokenPayload = {
-            sub: client.id,
+            sub: client.tenantId,
             admin: true,
+            roles: [
+                Role.IssuanceOffer,
+                Role.PresentationOffer,
+                Role.Issuances,
+                Role.Presentations,
+                Role.Clients,
+                Role.Tenants,
+            ],
         };
 
         //TODO: make expiresIn configurable?
@@ -114,9 +125,10 @@ export class AuthService {
      */
     getOidcDiscovery(): OidcDiscoveryDto {
         const publicUrl = this.configService.getOrThrow<string>("PUBLIC_URL");
+        const oidc = this.configService.get<string>("OIDC");
 
         return {
-            issuer: publicUrl,
+            issuer: oidc ?? publicUrl,
             token_endpoint: `${publicUrl}/oauth2/token`,
             jwks_uri: `${publicUrl}/.well-known/jwks.json`,
             response_types_supported: ["token"],
