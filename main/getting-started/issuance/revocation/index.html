@@ -1337,8 +1337,6 @@
       
         
       
-        
-      
     
     
     
@@ -1384,29 +1382,6 @@
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../architecture/environment-config/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Environment Variables
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
               
             
               
@@ -2311,9 +2286,11 @@ credential configuration:</p>
 <ul>
 <li><strong>Status List URL</strong>: Public endpoint where verifiers can check status</li>
 <li><strong>Status List Index</strong>: Unique position for each credential in the list</li>
-<li><strong>Status Values</strong>:</li>
+<li><strong>Status Values</strong>:<ul>
 <li><code>0</code> = Valid/Active</li>
 <li><code>1</code> = Revoked/Suspended</li>
+</ul>
+</li>
 </ul>
 <h3 id="credential-status-claim">Credential Status Claim<a class="headerlink" href="#credential-status-claim" title="Permanent link">¶</a></h3>
 <p>When a credential is issued with status management enabled, it includes a status

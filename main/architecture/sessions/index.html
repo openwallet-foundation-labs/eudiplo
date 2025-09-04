@@ -1063,8 +1063,6 @@
       
         
       
-        
-      
     
     
     
@@ -1111,29 +1109,6 @@
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../environment-config/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Environment Variables
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
               
             
               
@@ -1198,6 +1173,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Sessions
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -1209,6 +1197,34 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1741,6 +1757,23 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1779,13 +1812,31 @@ managed via the <code>/sessions</code> endpoint. You can retrieve a specific ses
 <code>/sessions/{id}</code>.</p>
 <p>To tidy up old sessions, an interval is set to delete older session. The default
 values can be configured.</p>
-<div class="admonition environment-variables">
-<p class="admonition-title">Environment-variables</p>
-<p>The list of environment variables is auto-generated from the implementation and published in <a href="../environment-config/#session">Environment Config</a>.
-Always refer there for the latest and complete configuration options.</p>
-</div>
 <p>Other elements as persisted status mapping (the binding between a session id and
 a status list reference) are not deleted with this process.</p>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">¶</a></h2>
+<!-- generated: 2025-09-04T19:14:14.605Z -->
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SESSION_TIDY_UP_INTERVAL</code></td>
+<td><code>number</code></td>
+<td>Interval in seconds to run session tidy up  (default: <code>3600</code>)</td>
+</tr>
+<tr>
+<td><code>SESSION_TTL</code></td>
+<td><code>number</code></td>
+<td>Time to live for sessions in seconds  (default: <code>86400</code>)</td>
+</tr>
+</tbody>
+</table>
 
 
 

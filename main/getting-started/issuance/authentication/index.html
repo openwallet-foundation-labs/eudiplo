@@ -1349,8 +1349,6 @@
       
         
       
-        
-      
     
     
     
@@ -1396,29 +1394,6 @@
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../architecture/environment-config/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Environment Variables
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
               
             
               
@@ -2403,9 +2378,11 @@ request is sent to the wallet to present specific credentials.</p>
 </code></pre></div>
 <h3 id="configuration-fields_1">Configuration Fields<a class="headerlink" href="#configuration-fields_1" title="Permanent link">¶</a></h3>
 <ul>
-<li><code>presentation</code>: <strong>REQUIRED</strong> - Presentation configuration</li>
+<li><code>presentation</code>: <strong>REQUIRED</strong> - Presentation configuration<ul>
 <li><code>type</code>: Type of credential to present (e.g., "pid", "oid4vp")</li>
 <li><code>webhook</code>: Webhook configuration for processing presented credentials</li>
+</ul>
+</li>
 </ul>
 <h3 id="use-cases_2">Use Cases<a class="headerlink" href="#use-cases_2" title="Permanent link">¶</a></h3>
 <ul>

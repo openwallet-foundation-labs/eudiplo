@@ -1037,6 +1037,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#accessing-the-registrar" class="md-nav__link">
     <span class="md-ellipsis">
       Accessing the Registrar
@@ -1139,8 +1148,6 @@
       
         
       
-        
-      
     
     
     
@@ -1186,29 +1193,6 @@
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../architecture/environment-config/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Environment Variables
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
               
             
               
@@ -1813,6 +1797,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#accessing-the-registrar" class="md-nav__link">
     <span class="md-ellipsis">
       Accessing the Registrar
@@ -1879,11 +1872,39 @@
 </ul>
 <p>You can still use EUDIPLO without these certificates, but it can end up into
 warnings when making requests to the EUDI Wallet.</p>
-<div class="admonition environment-variables">
-<p class="admonition-title">Environment-variables</p>
-<p>The list of environment variables is auto-generated from the implementation and published in <a href="../../architecture/environment-config/#registrar">Environment Config</a>.
-Always refer there for the latest and complete configuration options.</p>
-</div>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">¶</a></h2>
+<!-- generated: 2025-09-04T19:14:14.605Z -->
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>REGISTRAR_URL</code></td>
+<td><code>string</code></td>
+<td>The URL of the registrar</td>
+</tr>
+<tr>
+<td><code>REGISTRAR_OIDC_URL</code></td>
+<td><code>string</code></td>
+<td>The OIDC URL of the registrar [when REGISTRAR_URL is set → then required]</td>
+</tr>
+<tr>
+<td><code>REGISTRAR_OIDC_CLIENT_ID</code></td>
+<td><code>string</code></td>
+<td>The OIDC client ID of the registrar [when REGISTRAR_URL is set → then required]</td>
+</tr>
+<tr>
+<td><code>REGISTRAR_OIDC_CLIENT_SECRET</code></td>
+<td><code>string</code></td>
+<td>The OIDC client secret of the registrar [when REGISTRAR_URL is set → then required]</td>
+</tr>
+</tbody>
+</table>
 <h2 id="accessing-the-registrar">Accessing the Registrar<a class="headerlink" href="#accessing-the-registrar" title="Permanent link">¶</a></h2>
 <p>To enable EUDIPLO to communicate with the registrar, you must configure the
 necessary environment variables.</p>

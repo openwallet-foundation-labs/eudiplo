@@ -114,7 +114,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/auth/entitites/tenant.entity.ts</code>
+            <code>src/auth/tenant/entitites/tenant.entity.ts</code>
         </p>
 
 
@@ -141,9 +141,22 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier"></span>
+                                <a href="#clients" >clients</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
+                                <a href="#description" >description</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#id" >id</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                 <a href="#name" >name</a>
                             </li>
@@ -173,8 +186,96 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="clients"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                        <span ><b>clients</b></span>
+                        <a href="#clients"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../entitys/ClientEntity.html" target="_self" >ClientEntity[]</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @OneToMany(undefined, client &#x3D;&gt; client.tenant)<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">src/auth/tenant/entitites/tenant.entity.ts:47</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>The clients associated with the tenant.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="description"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
+                        <span ><b>description</b></span>
+                        <a href="#description"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @IsString()<br />@IsOptional()<br />@Column({nullable: true})<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="32" class="link-to-prism">src/auth/tenant/entitites/tenant.entity.ts:32</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>The description of the tenant.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="id"></a>
                     <span class="name">
+                            <span class="modifier"></span>
                             <span class="modifier"></span>
                         <span ><b>id</b></span>
                         <a href="#id"><span class="icon ion-ios-link"></span></a>
@@ -192,13 +293,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @PrimaryColumn()<br />
+                            @IsString()<br />@PrimaryColumn()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="12" class="link-to-prism">src/auth/entitites/tenant.entity.ts:12</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="17" class="link-to-prism">src/auth/tenant/entitites/tenant.entity.ts:17</a></div>
                         </td>
                     </tr>
 
@@ -218,6 +319,7 @@
                     <a name="name"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>name</b></span>
                         <a href="#name"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -234,13 +336,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @Column({default: &#x27;EUDIPLO&#x27;})<br />
+                            @IsString()<br />@Column({default: &#x27;EUDIPLO&#x27;})<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="18" class="link-to-prism">src/auth/entitites/tenant.entity.ts:18</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="24" class="link-to-prism">src/auth/tenant/entitites/tenant.entity.ts:24</a></div>
                         </td>
                     </tr>
 
@@ -267,7 +369,7 @@
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                        <i>Type : </i>        <code><a href="../miscellaneous/typealiases.html#TenantStatus" target="_self" >TenantStatus</a></code>
 
                     </td>
                 </tr>
@@ -276,13 +378,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @Column({nullable: true})<br />
+                            @Column(&#x27;varchar&#x27;, {nullable: true})<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="24" class="link-to-prism">src/auth/entitites/tenant.entity.ts:24</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="38" class="link-to-prism">src/auth/tenant/entitites/tenant.entity.ts:38</a></div>
                         </td>
                     </tr>
 
@@ -300,7 +402,11 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Column, Entity, PrimaryColumn } from &quot;typeorm&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { IsOptional, IsString } from &quot;class-validator&quot;;
+import { Column, Entity, OneToMany, PrimaryColumn } from &quot;typeorm&quot;;
+import { ClientEntity } from &quot;../../client/entities/client.entity&quot;;
+
+export type TenantStatus &#x3D; &quot;active&quot;;
 
 /**
  * Represents a tenant in the system.
@@ -310,20 +416,39 @@ export class TenantEntity {
     /**
      * The unique identifier for the tenant.
      */
+    @IsString()
     @PrimaryColumn()
     id: string;
 
     /**
      * The name of the tenant.
      */
+    @IsString()
     @Column({ default: &quot;EUDIPLO&quot; })
     name: string;
 
     /**
+     * The description of the tenant.
+     */
+    @IsString()
+    @IsOptional()
+    @Column({ nullable: true })
+    description?: string;
+
+    /**
      * The current status of the tenant.
      */
-    @Column({ nullable: true })
-    status: string;
+    @Column(&quot;varchar&quot;, { nullable: true })
+    status: TenantStatus;
+
+    /**
+     * The clients associated with the tenant.
+     */
+    @OneToMany(
+        () &#x3D;&gt; ClientEntity,
+        (client) &#x3D;&gt; client.tenant,
+    )
+    clients: ClientEntity[];
 }
 </code></pre>
     </div>

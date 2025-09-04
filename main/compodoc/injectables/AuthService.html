@@ -168,12 +168,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(jwtService: <a href="../injectables/JwtService.html" target="_self">JwtService</a>, tenantService: <a href="../injectables/TenantService.html" target="_self">TenantService</a>, configService: ConfigService)</code>
+<code>constructor(jwtService: <a href="../injectables/JwtService.html" target="_self">JwtService</a>, clients: <a href="../injectables/InternalClientsProvider.html" target="_self">InternalClientsProvider</a>, configService: ConfigService)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="13" class="link-to-prism">src/auth/auth.service.ts:13</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/auth/auth.service.ts:15</a></div>
                             </td>
                         </tr>
 
@@ -205,10 +205,10 @@
                                                     
                                                 </tr>
                                                 <tr>
-                                                        <td>tenantService</td>
+                                                        <td>clients</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../injectables/TenantService.html" target="_self" >TenantService</a></code>
+                                                                        <code><a href="../injectables/InternalClientsProvider.html" target="_self" >InternalClientsProvider</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -264,8 +264,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="32"
-                                    class="link-to-prism">src/auth/auth.service.ts:32</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="34"
+                                    class="link-to-prism">src/auth/auth.service.ts:34</a></div>
                         </td>
                     </tr>
 
@@ -345,8 +345,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="115"
-                                    class="link-to-prism">src/auth/auth.service.ts:115</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="128"
+                                    class="link-to-prism">src/auth/auth.service.ts:128</a></div>
                         </td>
                     </tr>
 
@@ -374,13 +374,15 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, UnauthorizedException } from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Inject, Injectable, UnauthorizedException } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
+import { InternalClientsProvider } from &quot;./client/adapters/internal-clients.service&quot;;
+import { CLIENTS_PROVIDER } from &quot;./client/client.provider&quot;;
 import { OidcDiscoveryDto } from &quot;./dto/oidc-discovery.dto&quot;;
 import { TokenResponse } from &quot;./dto/token-response.dto&quot;;
 import { JwtService } from &quot;./jwt.service&quot;;
-import { TenantService } from &quot;./tenant/tenant.service&quot;;
-import { TokenPayload } from &quot;./token.decorator&quot;;
+import { Role } from &quot;./roles/role.enum&quot;;
+import { InternalTokenPayload } from &quot;./token.decorator&quot;;
 
 /**
  * Authentication Service
@@ -395,7 +397,7 @@ export class AuthService {
      */
     constructor(
         private jwtService: JwtService,
-        private tenantService: TenantService,
+        @Inject(CLIENTS_PROVIDER) private clients: InternalClientsProvider,
         private configService: ConfigService,
     ) {}
 
@@ -451,29 +453,40 @@ export class AuthService {
             );
         }
 
-        const client &#x3D; this.tenantService.validateTenant(
+        const client &#x3D; await this.clients.validateClientCredentials(
             clientId,
             clientSecret,
         );
+
         if (!client) {
             throw new UnauthorizedException(&quot;Invalid client credentials&quot;);
         }
 
         //TODO: check if the access token should only include the session id or also e.g. the credentials that should be issued. I would think this is not required since we still need the claims for it.
-        const payload: TokenPayload &#x3D; {
-            sub: client.id,
-            admin: true,
+        const payload: InternalTokenPayload &#x3D; {
+            roles: [
+                Role.IssuanceOffer,
+                Role.PresentationOffer,
+                Role.Issuances,
+                Role.Presentations,
+                Role.Clients,
+                Role.Tenants,
+            ],
+            tenant_id: client.tenantId!,
         };
 
         //TODO: make expiresIn configurable?
         const access_token &#x3D; await this.jwtService.generateToken(payload, {
             expiresIn: &quot;24h&quot;,
             audience: &quot;eudiplo-service&quot;,
+            //TODO: check if the clientId should be saved here or somewhere else like in client_id
+            subject: clientId,
         });
 
         const refresh_token &#x3D; await this.jwtService.generateToken(payload, {
             expiresIn: &quot;30d&quot;,
             audience: &quot;eudiplo-service&quot;,
+            subject: clientId,
         });
 
         return {
@@ -490,9 +503,10 @@ export class AuthService {
      */
     getOidcDiscovery(): OidcDiscoveryDto {
         const publicUrl &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;);
+        const oidc &#x3D; this.configService.get&lt;string&gt;(&quot;OIDC&quot;);
 
         return {
-            issuer: publicUrl,
+            issuer: oidc ?? publicUrl,
             token_endpoint: &#x60;${publicUrl}/oauth2/token&#x60;,
             jwks_uri: &#x60;${publicUrl}/.well-known/jwks.json&#x60;,
             response_types_supported: [&quot;token&quot;],

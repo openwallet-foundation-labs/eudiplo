@@ -122,13 +122,13 @@
 <title>cluster_AuthModule_imports</title>
 <polygon fill="none" stroke="black" points="719,-78 719,-130 1328,-130 1328,-78 719,-78"/>
 </g>
-<g id="clust6" class="cluster">
-<title>cluster_AuthModule_providers</title>
-<polygon fill="none" stroke="black" points="16,-78 16,-130 711,-130 711,-78 16,-78"/>
-</g>
 <g id="clust4" class="cluster">
 <title>cluster_AuthModule_exports</title>
 <polygon fill="none" stroke="black" points="562,-208 562,-260 882,-260 882,-208 562,-208"/>
+</g>
+<g id="clust6" class="cluster">
+<title>cluster_AuthModule_providers</title>
+<polygon fill="none" stroke="black" points="16,-78 16,-130 711,-130 711,-78 16,-78"/>
 </g>
 <!-- CryptoModule -->
 <g id="node1" class="node">
@@ -369,6 +369,9 @@
                         <li class="list-group-item">
                             <a href="../controllers/TenantController.html">TenantController</a>
                         </li>
+                        <li class="list-group-item">
+                            <a href="../controllers/ClientController.html">ClientController</a>
+                        </li>
                     </ul>
                 </div>
                 <div class="col-sm-3">
@@ -418,10 +421,11 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &quot;@nestjs/common&quot;;
-import { ConfigModule } from &quot;@nestjs/config&quot;;
+import { ConfigModule, ConfigService } from &quot;@nestjs/config&quot;;
 import { PassportModule } from &quot;@nestjs/passport&quot;;
-import { TypeOrmModule } from &quot;@nestjs/typeorm&quot;;
+import { getRepositoryToken, TypeOrmModule } from &quot;@nestjs/typeorm&quot;;
 import { makeGaugeProvider } from &quot;@willsoto/nestjs-prometheus&quot;;
+import { Repository } from &quot;typeorm&quot;;
 import { CryptoModule } from &quot;../crypto/crypto.module&quot;;
 import { IssuerModule } from &quot;../issuer/issuer.module&quot;;
 import { StatusListModule } from &quot;../issuer/status-list/status-list.module&quot;;
@@ -430,16 +434,16 @@ import { SessionModule } from &quot;../session/session.module&quot;;
 import { AuthController } from &quot;./auth.controller&quot;;
 import { JwtAuthGuard } from &quot;./auth.guard&quot;;
 import { AuthService } from &quot;./auth.service&quot;;
-import { TenantEntity } from &quot;./entitites/tenant.entity&quot;;
+import { InternalClientsProvider } from &quot;./client/adapters/internal-clients.service&quot;;
+import { KeycloakClientsProvider } from &quot;./client/adapters/keycloak-clients.service&quot;;
+import { ClientController } from &quot;./client/client.controller&quot;;
+import { CLIENTS_PROVIDER, ClientsProvider } from &quot;./client/client.provider&quot;;
+import { ClientEntity } from &quot;./client/entities/client.entity&quot;;
 import { JwtService } from &quot;./jwt.service&quot;;
 import { JwtStrategy } from &quot;./jwt.strategy&quot;;
+import { TenantEntity } from &quot;./tenant/entitites/tenant.entity&quot;;
 import { TenantController } from &quot;./tenant/tenant.controller&quot;;
 import { TenantService } from &quot;./tenant/tenant.service&quot;;
-
-export const DEFAULT_JWT_SECRET &#x3D; &quot;supersecret&quot;;
-export const DEFAULT_AUTH_CLIENT_ID &#x3D; &quot;root&quot;;
-export const DEFAULT_AUTH_CLIENT_SECRET &#x3D; &quot;root&quot;;
-
 @Module({
     imports: [
         PassportModule,
@@ -449,21 +453,40 @@ export const DEFAULT_AUTH_CLIENT_SECRET &#x3D; &quot;root&quot;;
         RegistrarModule,
         SessionModule,
         IssuerModule,
-        TypeOrmModule.forFeature([TenantEntity]),
+        TypeOrmModule.forFeature([TenantEntity, ClientEntity]),
     ],
     providers: [
         JwtStrategy,
         JwtAuthGuard,
         JwtService,
         TenantService,
+        {
+            provide: CLIENTS_PROVIDER,
+            inject: [ConfigService, getRepositoryToken(ClientEntity)],
+            useFactory: (
+                cfg: ConfigService,
+                repo: Repository&lt;ClientEntity&gt;,
+            ): ClientsProvider &#x3D;&gt; {
+                const useKeycloak &#x3D; !!cfg.get&lt;string&gt;(&quot;OIDC&quot;); // if OIDC base/realm is configured, pick KC
+                return useKeycloak
+                    ? new KeycloakClientsProvider(cfg, repo)
+                    : new InternalClientsProvider(cfg, repo);
+            },
+        },
         makeGaugeProvider({
             name: &quot;tenant_total&quot;,
             help: &quot;Total number of tenants&quot;,
         }),
         AuthService,
     ],
-    controllers: [AuthController, TenantController],
-    exports: [PassportModule, JwtStrategy, JwtAuthGuard, JwtService],
+    controllers: [AuthController, TenantController, ClientController],
+    exports: [
+        CLIENTS_PROVIDER,
+        PassportModule,
+        JwtStrategy,
+        JwtAuthGuard,
+        JwtService,
+    ],
 })
 export class AuthModule {}
 </code></pre>

@@ -1063,8 +1063,6 @@
       
         
       
-        
-      
     
     
     
@@ -1111,29 +1109,6 @@
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../environment-config/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Environment Variables
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
               
             
               
@@ -1329,6 +1304,15 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#sqlite-default" class="md-nav__link">
@@ -1840,6 +1824,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#sqlite-default" class="md-nav__link">
     <span class="md-ellipsis">
       SQLite (Default)
@@ -1936,15 +1929,49 @@
 default, a local <strong>SQLite</strong> database is used, but the system also supports
 <strong>PostgreSQL</strong> and can be extended to work with other engines such as <strong>MySQL</strong>
 thanks to TypeORM’s flexible architecture.</p>
-<blockquote>
-<p>💡 Database configuration is fully dynamic and can be defined via environment
-variables.</p>
-</blockquote>
-<div class="admonition environment-variables">
-<p class="admonition-title">Environment-variables</p>
-<p>The list of environment variables is auto-generated from the implementation and published in <a href="../environment-config/#database">Environment Config</a>.
-Always refer there for the latest and complete configuration options.</p>
-</div>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">¶</a></h2>
+<!-- generated: 2025-09-04T19:14:14.605Z -->
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DB_TYPE</code></td>
+<td><code>string</code></td>
+<td>Database type  (default: <code>sqlite</code>)</td>
+</tr>
+<tr>
+<td><code>DB_HOST</code></td>
+<td><code>string</code></td>
+<td>Database host [when DB_TYPE is {"override":true} | "sqlite" → otherwise required]</td>
+</tr>
+<tr>
+<td><code>DB_PORT</code></td>
+<td><code>number</code></td>
+<td>Database port [when DB_TYPE is {"override":true} | "sqlite" → otherwise required]</td>
+</tr>
+<tr>
+<td><code>DB_USERNAME</code></td>
+<td><code>string</code></td>
+<td>Database username [when DB_TYPE is {"override":true} | "sqlite" → otherwise required]</td>
+</tr>
+<tr>
+<td><code>DB_PASSWORD</code></td>
+<td><code>string</code></td>
+<td>Database password [when DB_TYPE is {"override":true} | "sqlite" → otherwise required]</td>
+</tr>
+<tr>
+<td><code>DB_DATABASE</code></td>
+<td><code>string</code></td>
+<td>Database name [when DB_TYPE is {"override":true} | "sqlite" → otherwise required]</td>
+</tr>
+</tbody>
+</table>
 <hr>
 <h2 id="sqlite-default">SQLite (Default)<a class="headerlink" href="#sqlite-default" title="Permanent link">¶</a></h2>
 <p>When using <code>DB_TYPE=sqlite</code>, the service will store its data in a local

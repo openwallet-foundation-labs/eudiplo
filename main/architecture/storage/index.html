@@ -1063,8 +1063,6 @@
       
         
       
-        
-      
     
     
     
@@ -1111,29 +1109,6 @@
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../environment-config/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Environment Variables
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
               
             
               
@@ -1352,6 +1327,15 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#local-storage-default" class="md-nav__link">
@@ -1858,6 +1842,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#local-storage-default" class="md-nav__link">
     <span class="md-ellipsis">
       Local Storage (Default)
@@ -1972,11 +1965,64 @@
 <blockquote>
 <p>💡 Storage configuration is dynamic and can be switched between local and S3 by setting the appropriate environment variables.</p>
 </blockquote>
-<div class="admonition environment-variables">
-<p class="admonition-title">Environment-variables</p>
-<p>The list of environment variables is auto-generated from the implementation and published in <a href="../environment-config/#storage">Environment Config</a>.
-Always refer there for the latest and complete configuration options.</p>
-</div>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">¶</a></h2>
+<!-- generated: 2025-09-04T19:14:14.605Z -->
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>STORAGE_DRIVER</code></td>
+<td><code>string</code></td>
+<td>The storage driver to use  (default: <code>local</code>)</td>
+</tr>
+<tr>
+<td><code>LOCAL_STORAGE_DIR</code></td>
+<td><code>string</code></td>
+<td>The directory to store files in when using local storage [when STORAGE_DRIVER is {"override":true} | "local" → then default=undefined]</td>
+</tr>
+<tr>
+<td><code>S3_REGION</code></td>
+<td><code>string</code></td>
+<td>The AWS region for the S3 bucket [when STORAGE_DRIVER is {"override":true} | "s3" → then required]</td>
+</tr>
+<tr>
+<td><code>S3_BUCKET</code></td>
+<td><code>string</code></td>
+<td>The name of the S3 bucket [when STORAGE_DRIVER is {"override":true} | "s3" → then required]</td>
+</tr>
+<tr>
+<td><code>S3_ACCESS_KEY_ID</code></td>
+<td><code>string</code></td>
+<td>The access key ID for the S3 bucket [when STORAGE_DRIVER is {"override":true} | "s3" → then required]</td>
+</tr>
+<tr>
+<td><code>S3_SECRET_ACCESS_KEY</code></td>
+<td><code>string</code></td>
+<td>The secret access key for the S3 bucket [when STORAGE_DRIVER is {"override":true} | "s3" → then required]</td>
+</tr>
+<tr>
+<td><code>S3_ENDPOINT</code></td>
+<td><code>string</code></td>
+<td>The endpoint URL for the S3 service (for S3-compatible services) [when STORAGE_DRIVER is {"override":true} | "s3"]</td>
+</tr>
+<tr>
+<td><code>S3_FORCE_PATH_STYLE</code></td>
+<td><code>boolean</code></td>
+<td>Whether to force path-style URLs for S3 [when STORAGE_DRIVER is {"override":true} | "s3" → then default=false]</td>
+</tr>
+<tr>
+<td><code>S3_PUBLIC_BASE_URL</code></td>
+<td><code>string</code></td>
+<td>The public base URL for the S3 bucket [when STORAGE_DRIVER is {"override":true} | "s3" → then required]</td>
+</tr>
+</tbody>
+</table>
 <hr>
 <h2 id="local-storage-default">Local Storage (Default)<a class="headerlink" href="#local-storage-default" title="Permanent link">¶</a></h2>
 <p>When <code>STORAGE_DRIVER=local</code>, files are stored on the local filesystem in the directory specified by <code>LOCAL_STORAGE_DIR</code>. This is ideal for:</p>

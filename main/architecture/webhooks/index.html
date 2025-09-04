@@ -1063,8 +1063,6 @@
       
         
       
-        
-      
     
     
     
@@ -1111,29 +1109,6 @@
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../environment-config/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Environment Variables
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
               
             
               
@@ -2103,9 +2078,11 @@ directory. It can be run locally or deployed to a Cloudflare Worker, and is a go
 <p>It must include:</p>
 <ul>
 <li><code>url</code>: The endpoint URL. EUDIPLO sends an HTTP <code>POST</code> request with JSON data.</li>
-<li><code>auth</code>: (Optional) Authentication configuration.</li>
+<li><code>auth</code>: (Optional) Authentication configuration.<ul>
 <li><code>type</code>: Authentication type. Currently supported:<ul>
 <li><code>apiKey</code> – sends a key in a request header.</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -2177,13 +2154,15 @@ This confirms that the wallet has received and accepted the credential.</p>
 <h2 id="webhook-request-format">Webhook Request Format<a class="headerlink" href="#webhook-request-format" title="Permanent link">¶</a></h2>
 <p>EUDIPLO sends an HTTP <code>POST</code> request with the following structure:</p>
 <ul>
-<li><code>credentials</code>: Array of credential objects. Each includes:</li>
+<li><code>credentials</code>: Array of credential objects. Each includes:<ul>
 <li><code>id</code>: The ID of the DCQL query.</li>
 <li><code>values</code>: The claims presented by the wallet.<ul>
 <li>SD-JWT VC–specific fields (e.g., <code>cnf</code>, <code>status</code>) are removed for simplicity.</li>
 </ul>
 </li>
 <li><code>error</code>: Present instead of <code>values</code> if verification failed.</li>
+</ul>
+</li>
 <li><code>session</code>: The session ID identifying the request.</li>
 </ul>
 <h3 id="example-payload">Example Payload<a class="headerlink" href="#example-payload" title="Permanent link">¶</a></h3>

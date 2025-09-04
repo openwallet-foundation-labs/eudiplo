@@ -156,7 +156,6 @@
                                         </a>
                                 </li>
                                 <li>
-                                            <span class="modifier">Optional</span>
                                         <a href="#subject" 
 >
                                             subject
@@ -276,11 +275,6 @@
                                         </td>
                                     </tr>
 
-                                    <tr>
-                                        <td class="col-md-4">
-                                            <i>Optional</i>
-                                        </td>
-                                    </tr>
 
 
 
@@ -295,13 +289,13 @@
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { jwtVerify, SignJWT } from &quot;jose&quot;;
-import { DEFAULT_JWT_SECRET } from &quot;./auth.module&quot;;
-import { TokenPayload } from &quot;./token.decorator&quot;;
+import { DEFAULT_JWT_SECRET } from &quot;./auth-validation.schema&quot;;
+import { InternalTokenPayload, TokenPayload } from &quot;./token.decorator&quot;;
 
 export interface GenerateTokenOptions {
     expiresIn?: string;
     audience?: string;
-    subject?: string;
+    subject: string;
 }
 
 @Injectable()
@@ -320,8 +314,8 @@ export class JwtService {
      * Generate a JWT token for integrated OAuth2 server
      */
     async generateToken(
-        payload: TokenPayload,
-        options: GenerateTokenOptions &#x3D; {},
+        payload: InternalTokenPayload,
+        options: GenerateTokenOptions,
     ): Promise&lt;string&gt; {
         if (this.isUsingExternalOIDC()) {
             throw new Error(
@@ -343,7 +337,7 @@ export class JwtService {
             .setProtectedHeader({ alg: &quot;HS256&quot; })
             .setIssuedAt()
             .setIssuer(issuer)
-            .setSubject(options.subject || payload.sub)
+            .setSubject(options.subject)
             .setExpirationTime(expiresIn);
 
         if (options.audience) {

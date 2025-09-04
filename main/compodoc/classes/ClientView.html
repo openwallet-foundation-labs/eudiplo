@@ -80,7 +80,7 @@
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
-               <div class="content injectable">
+               <div class="content class">
                    <div class="content-data">
 
 
@@ -90,9 +90,13 @@
 
 
 
+
+
+
+
 <ol class="breadcrumb">
-  <li class="breadcrumb-item">Injectables</li>
-  <li class="breadcrumb-item" >AdminAuthGuard</li>
+  <li class="breadcrumb-item">Classes</li>
+  <li class="breadcrumb-item" >ClientView</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -116,34 +120,39 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/auth/admin.guard.ts</code>
+            <code>src/auth/client/client.provider.ts</code>
         </p>
 
 
 
-            <p class="comment">
-                <h3>Extends</h3>
-            </p>
-            <p class="comment">
-                        <code>AuthGuard(&quot;jwt&quot;)</code>
-            </p>
+
 
 
             <section data-compodoc="block-index">
     <h3 id="index">Index</h3>
     <table class="table table-sm table-bordered index-table">
         <tbody>
-
                 <tr>
                     <td class="col-md-4">
-                        <h6><b>Methods</b></h6>
+                        <h6><b>Properties</b></h6>
                     </td>
                 </tr>
                 <tr>
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
-                                <a href="#canActivate" >canActivate</a>
+                                <a href="#clientId" >clientId</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Optional</span>
+                                <a href="#description" >description</a>
+                            </li>
+                            <li>
+                                <a href="#roles" >roles</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Optional</span>
+                                <a href="#tenantId" >tenantId</a>
                             </li>
                         </ul>
                     </td>
@@ -153,106 +162,159 @@
 
 
 
+
         </tbody>
     </table>
 </section>
 
 
-            <section data-compodoc="block-methods">
+            <section data-compodoc="block-properties">
     
-    <h3 id="methods">
-        Methods
+    <h3 id="inputs">
+        Properties
     </h3>
     <table class="table table-sm table-bordered">
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="canActivate"></a>
+                    <a name="clientId"></a>
                     <span class="name">
-                        <span ><b>canActivate</b></span>
-                        <a href="#canActivate"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>clientId</b></span>
+                        <a href="#clientId"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
-            <tr>
-                <td class="col-md-4">
-<code>canActivate(context: ExecutionContext)</code>
-                </td>
-            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
 
-
+                    </td>
+                </tr>
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="6"
-                                    class="link-to-prism">src/auth/admin.guard.ts:6</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="17" class="link-to-prism">src/auth/client/client.provider.ts:17</a></div>
                         </td>
                     </tr>
 
 
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
             <tr>
                 <td class="col-md-4">
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>context</td>
-                                            <td>
-                                                        <code>ExecutionContext</code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
+                    <a name="description"></a>
+                    <span class="name">
+                            <span class="modifier">Optional</span>
+                        <span ><b>description</b></span>
+                        <a href="#description"><span class="icon ion-ios-link"></span></a>
+                    </span>
                 </td>
             </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="18" class="link-to-prism">src/auth/client/client.provider.ts:18</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="roles"></a>
+                    <span class="name">
+                        <span ><b>roles</b></span>
+                        <a href="#roles"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>string[]</code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="20" class="link-to-prism">src/auth/client/client.provider.ts:20</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="tenantId"></a>
+                    <span class="name">
+                            <span class="modifier">Optional</span>
+                        <span ><b>tenantId</b></span>
+                        <a href="#tenantId"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/auth/client/client.provider.ts:19</a></div>
+                        </td>
+                    </tr>
+
+
         </tbody>
     </table>
 </section>
+
+
+
+
+
+
 
     </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ExecutionContext, Injectable } from &quot;@nestjs/common&quot;;
-import { AuthGuard } from &quot;@nestjs/passport&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { CreateClientDto } from &quot;./dto/create-client.dto&quot;;
 
-@Injectable()
-export class AdminAuthGuard extends AuthGuard(&quot;jwt&quot;) {
-    canActivate(context: ExecutionContext) {
-        return super.canActivate(context);
-    }
+export const CLIENTS_PROVIDER &#x3D; &quot;CLIENTS_PROVIDER&quot;;
+
+export interface ClientsProvider {
+  getClientSecret(sub: string, id: string): Promise&lt;string&gt;;
+  getClients(tenantId: string): Promise&lt;ClientView[]&gt;;
+  getClient(tenantId: string, clientId: string): Promise&lt;ClientView | null&gt;;
+  addClient(tenantId: string, dto: CreateClientDto): Promise&lt;ClientView &amp; { clientSecret?: string }&gt;;
+  removeClient(tenantId: string, clientId: string): Promise&lt;void&gt;;
+
+  // Only for internal backend (not used with KC; you’ll validate JWTs instead)
+  validateClientCredentials?(clientId: string, clientSecret: string): Promise&lt;ClientView | null&gt;;
+}
+
+export class ClientView {
+  clientId: string;
+  description?: string;
+  tenantId?: string;
+  roles: string[];
 }
 </code></pre>
     </div>
-
 </div>
-
-
-
-
 
 
 
@@ -287,8 +349,8 @@ export class AdminAuthGuard extends AuthGuard(&quot;jwt&quot;) {
 
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'injectable';
-            var COMPODOC_CURRENT_PAGE_URL = 'AdminAuthGuard.html';
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
+            var COMPODOC_CURRENT_PAGE_URL = 'ClientView.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

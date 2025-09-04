@@ -1063,8 +1063,6 @@
       
         
       
-        
-      
     
     
     
@@ -1111,29 +1109,6 @@
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../environment-config/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Environment Variables
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
               
             
               
@@ -1976,39 +1951,38 @@ Future improvements may include <strong>per-tenant databases</strong> or <strong
 <li><strong>Enable:</strong> The tenant becomes active; sessions, keys, and credential templates can be used.</li>
 <li><strong>Suspend:</strong> A tenant can be disabled (e.g., revoking OIDC client access). Data remains in place but is inaccessible.</li>
 <li><strong>Re-Enable:</strong> Suspended tenants can be reactivated without data loss.</li>
-<li><strong>Delete:</strong> A full removal workflow, including key destruction and data wiping, will be added.</li>
+<li><strong>Delete:</strong> A full removal workflow, including key destruction and data wiping.</li>
 </ul>
 <hr>
 <h2 id="tenant-management">Tenant Management<a class="headerlink" href="#tenant-management" title="Permanent link">¶</a></h2>
-<p>When a protected endpoint is called, the system checks if the tenant exists. If not, EUDIPLO will automatically set it up. This may lead to longer latency on the first request, but subsequent requests are faster.</p>
+<p>When a protected endpoint is called, EUDIPLO enforces tenant isolation and role-based access control by extracting the tenant ID and user roles from the provided JWT access token. Each endpoint requires specific roles; see the <a href="../../api/authentication/#protected-endpoints">Protected Endpoints</a> section in the <a href="../../api/authentication/">Authentication</a> documentation for details.</p>
 <h3 id="client-management-via-web-client">Client Management via Web Client<a class="headerlink" href="#client-management-via-web-client" title="Permanent link">¶</a></h3>
 <ul>
-<li>Currently supported with <strong>Keycloak</strong> as external OIDC provider.</li>
-<li>Users with the <code>manage-account</code> role can manage tenants at <code>/clients</code>.</li>
-<li>The web client authenticates against Keycloak and interacts with EUDIPLO using the provided access token.</li>
+<li>Clients can be either managed by EUDIPLO by storing the clientSecrets in the database or by using an external OIDC provider like Keycloak.</li>
+<li>The web client authenticates against the OIDC provider and interacts with EUDIPLO using the provided access token.</li>
 </ul>
 <p>From the UI you can:</p>
 <ul>
-<li><strong>Create new clients</strong> (provision a tenant)</li>
-<li><strong>Enable/disable clients</strong> (toggle active state)</li>
-<li><strong>Remove clients</strong> (currently soft delete; no EUDIPLO wipe yet)</li>
-<li><strong>Share configurations</strong> via URL (clicking the share icon copies a tenant URL with parameters)</li>
+<li>Create and delete tenants</li>
+<li>Manage the tenants' clients</li>
+<li>Manage the issuance and presentation configs of the tenants.</li>
 </ul>
 <blockquote>
-<p>Even with management privileges, users will <strong>only see tenant-scoped data</strong>.<br>
-EUDIPLO enforces tenant context based on the <strong>subject claim</strong> of the access token.</p>
+<p>Even with tenant management privileges, users will <strong>only see tenant-scoped data</strong>.<br>
+EUDIPLO enforces tenant context based on the access token.</p>
 </blockquote>
 <h3 id="client-management-via-the-api">Client Management via the API<a class="headerlink" href="#client-management-via-the-api" title="Permanent link">¶</a></h3>
-<p>The <code>/tenant</code> endpoint allows programmatic management of tenants. Keep in mind when using an external OIDC provider, you still need to call the POST <code>/tenant</code> endpoint to create the default values.</p>
+<ul>
+<li><code>/tenant</code> endpoint allows programmatic management of tenants.</li>
+<li><code>/client</code> endpoint allows programmatic management of clients. Based on the access token the tenant context is extracted to perform actions on the specific tenant's clients.</li>
+</ul>
 <h3 id="authentication-methods">Authentication Methods<a class="headerlink" href="#authentication-methods" title="Permanent link">¶</a></h3>
-<p>Instead of client ID/secret, you may use any authentication method supported by your OIDC provider.<br>
-EUDIPLO only validates the <strong>access token</strong>; it does not care how authentication was performed.</p>
+<p>Instead of client secrets, you may use any authentication method supported by your OIDC provider.<br>
+EUDIPLO only validates the <strong>access token</strong>; it does not care how authentication was performed. When using EUDIPLO as the OIDC provider, only clientID + clientSecret is supported for now.</p>
 <hr>
 <h2 id="security-considerations">Security Considerations<a class="headerlink" href="#security-considerations" title="Permanent link">¶</a></h2>
 <ul>
-<li><strong>Access control:</strong> All API calls are validated against tenant context embedded in the access token.</li>
-<li><strong>Auditability:</strong> All operations are logged with <code>tenantId</code> for traceability.
-  1- <strong>Admin Role:</strong> Certain lifecycle actions (e.g., deletion) will require a <strong>super admin</strong> credential beyond tenant admins.</li>
+<li><strong>Access control:</strong> All API calls are validated against tenant context and roles embedded in the access token.</li>
 </ul>
 <p>See also:</p>
 <ul>

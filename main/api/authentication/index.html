@@ -1061,8 +1061,6 @@
       
         
       
-        
-      
     
     
     
@@ -1108,29 +1106,6 @@
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../architecture/environment-config/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Environment Variables
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
               
             
               
@@ -1448,6 +1423,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#authentication-architecture" class="md-nav__link">
     <span class="md-ellipsis">
       Authentication Architecture
@@ -1514,7 +1498,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#configuration" class="md-nav__link">
+  <a href="#configuration_1" class="md-nav__link">
     <span class="md-ellipsis">
       Configuration
     </span>
@@ -1972,6 +1956,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#authentication-architecture" class="md-nav__link">
     <span class="md-ellipsis">
       Authentication Architecture
@@ -2038,7 +2031,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#configuration" class="md-nav__link">
+  <a href="#configuration_1" class="md-nav__link">
     <span class="md-ellipsis">
       Configuration
     </span>
@@ -2198,16 +2191,79 @@
 <h1 id="api-authentication">API Authentication<a class="headerlink" href="#api-authentication" title="Permanent link">¶</a></h1>
 <p>EUDIPLO uses OAuth 2.0 Client Credentials flow for API authentication, designed
 for service-to-service communication without user interaction.</p>
-<div class="admonition environment-variables">
-<p class="admonition-title">Environment-variables</p>
-<p>The list of environment variables is auto-generated from the implementation and published in <a href="../../architecture/environment-config/#auth">Environment Config</a>.
-Always refer there for the latest and complete configuration options.</p>
-</div>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">¶</a></h2>
+<!-- generated: 2025-09-04T19:14:14.605Z -->
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OIDC</code></td>
+<td><code>string</code></td>
+<td>Enable OIDC mode</td>
+</tr>
+<tr>
+<td><code>OIDC_INTERNAL_ISSUER_URL</code></td>
+<td><code>string</code></td>
+<td>Internal issuer URL in OIDC mode [when OIDC is set → then default=undefined]</td>
+</tr>
+<tr>
+<td><code>OIDC_CLIENT_ID</code></td>
+<td><code>any</code></td>
+<td>Client ID for OIDC [when OIDC is set → then required]</td>
+</tr>
+<tr>
+<td><code>OIDC_CLIENT_SECRET</code></td>
+<td><code>any</code></td>
+<td>Client secret for OIDC [when OIDC is set → then required]</td>
+</tr>
+<tr>
+<td><code>OIDC_SUB</code></td>
+<td><code>any</code></td>
+<td>Claim to use as subject [when OIDC is set → then default="tenant_id"]</td>
+</tr>
+<tr>
+<td><code>OIDC_ALGORITHM</code></td>
+<td><code>any</code></td>
+<td>Expected JWT alg [when OIDC is set → then default="RS256"]</td>
+</tr>
+<tr>
+<td><code>JWT_SECRET</code></td>
+<td><code>any</code></td>
+<td>Local JWT secret (when OIDC is off) [when OIDC is set → otherwise default="supersecret"]</td>
+</tr>
+<tr>
+<td><code>JWT_ISSUER</code></td>
+<td><code>any</code></td>
+<td>Local JWT issuer [when OIDC is set → otherwise default="eudiplo-service"]</td>
+</tr>
+<tr>
+<td><code>JWT_EXPIRES_IN</code></td>
+<td><code>any</code></td>
+<td>Local JWT expiration [when OIDC is set → otherwise default="24h"]</td>
+</tr>
+<tr>
+<td><code>AUTH_CLIENT_SECRET</code></td>
+<td><code>any</code></td>
+<td>Client secret (local auth) [when OIDC is set → otherwise default="root"]</td>
+</tr>
+<tr>
+<td><code>AUTH_CLIENT_ID</code></td>
+<td><code>any</code></td>
+<td>Client ID (local auth) [when OIDC is set → otherwise default="root"]</td>
+</tr>
+</tbody>
+</table>
 <h2 id="authentication-architecture">Authentication Architecture<a class="headerlink" href="#authentication-architecture" title="Permanent link">¶</a></h2>
 <h3 id="design-principles">Design Principles<a class="headerlink" href="#design-principles" title="Permanent link">¶</a></h3>
 <ul>
 <li><strong>Service-to-Service</strong>: No user interaction required</li>
-<li><strong>Tenant Isolation</strong>: JWT <code>sub</code> claim identifies and isolates tenants</li>
+<li><strong>Tenant Isolation</strong>: JWTs are used to isolate tenant data</li>
 <li><strong>Pluggable Identity</strong>: Support for both built-in and external OIDC providers</li>
 <li><strong>Stateless</strong>: JWT tokens enable horizontal scaling</li>
 </ul>
@@ -2217,6 +2273,7 @@ Always refer there for the latest and complete configuration options.</p>
 <li>Tenant data is isolated using JWT subject claims</li>
 <li>Tokens are signed and validated for integrity</li>
 <li>Support for token expiration and rotation</li>
+<li>Endpoints are role based protected</li>
 </ul>
 <p><strong>Related Architecture:</strong> For multi-tenant configuration and session management,
 see <a href="../../architecture/tenant/">Tenant-Based Architecture</a> and
@@ -2273,7 +2330,7 @@ integrate with external OIDC providers like Keycloak, Auth0, or Azure AD.</p>
 <li>Use your OIDC provider's token endpoint with client credentials flow</li>
 <li>Include the access token in API requests: <code>Authorization: Bearer &lt;token&gt;</code></li>
 </ol>
-<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">¶</a></h2>
+<h2 id="configuration_1">Configuration<a class="headerlink" href="#configuration_1" title="Permanent link">¶</a></h2>
 <h3 id="external-oidc-provider_1">External OIDC Provider<a class="headerlink" href="#external-oidc-provider_1" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Enable external OIDC</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nv">OIDC</span><span class="o">=</span><span class="nb">true</span>
@@ -2291,14 +2348,24 @@ integrate with external OIDC providers like Keycloak, Auth0, or Azure AD.</p>
 variables, see <a href="../../architecture/key-management/">Key Management</a> and
 <a href="../../architecture/database/">Database Configuration</a>.</p>
 <h2 id="protected-endpoints">Protected Endpoints<a class="headerlink" href="#protected-endpoints" title="Permanent link">¶</a></h2>
-<p>All administrative endpoints require OAuth2 authentication:</p>
-<ul>
-<li><strong>Issuer Management</strong> (<code>/issuer-management/*</code>) - Credential issuance
-  management</li>
-<li><strong>Presentation Management</strong> (<code>/presentation-management/*</code>) - Presentation
-  verification management</li>
-<li><strong>Session Management</strong> (<code>/session/*</code>) - Session lifecycle management</li>
-</ul>
+<p>All administrative endpoints require OAuth2 authentication and are protected by a role based access control approach.</p>
+<p>The following roles are available:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">export</span><span class="w"> </span><span class="kd">enum</span><span class="w"> </span><span class="nx">Role</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="c1">//to manage presentation resources</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="nx">Presentations</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"presentation:manage"</span><span class="p">,</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="c1">// to create offers</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="nx">PresentationOffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"presentation:offer"</span><span class="p">,</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="c1">// to manage issuance resources</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="nx">Issuances</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"issuance:manage"</span><span class="p">,</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">    </span><span class="c1">// to create offers</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">    </span><span class="nx">IssuanceOffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"issuance:offer"</span><span class="p">,</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="c1">// to manage client resources</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="nx">Clients</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"clients:manage"</span><span class="p">,</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">    </span><span class="c1">// to manage tenant resources</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">    </span><span class="nx">Tenants</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"tenants:manage"</span><span class="p">,</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="p">}</span>
+</code></pre></div>
+<p>Each client can have multiple roles assigned, but each client can only be assigned to one tenant at maximum. The client with the tenant manage must not be assigned to any tenant since it is managing the service in general. There could be other roles in the future like limited access to the metrics endpoint.</p>
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">¶</a></h2>
 <h3 id="token-validation-errors">Token Validation Errors<a class="headerlink" href="#token-validation-errors" title="Permanent link">¶</a></h3>
 <ol>

@@ -1063,8 +1063,6 @@
       
         
       
-        
-      
     
     
     
@@ -1111,29 +1109,6 @@
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../environment-config/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Environment Variables
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
               
             
               
@@ -1288,6 +1263,15 @@
   <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
       Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration
     </span>
   </a>
   
@@ -2008,6 +1992,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#directory-structure" class="md-nav__link">
     <span class="md-ellipsis">
       Directory Structure
@@ -2266,11 +2259,34 @@ starts. This is particularly useful for:</p>
 <blockquote>
 <p>When running locally with nodejs, the default directory is <code>assets/config/</code>.</p>
 </blockquote>
-<div class="admonition environment-variables">
-<p class="admonition-title">Environment-variables</p>
-<p>The list of environment variables is auto-generated from the implementation and published in <a href="../environment-config/#config">Environment Config</a>.
-Always refer there for the latest and complete configuration options.</p>
-</div>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">¶</a></h2>
+<!-- generated: 2025-09-04T19:14:14.605Z -->
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CONFIG_IMPORT</code></td>
+<td><code>boolean</code></td>
+<td>Run one-off config import on startup  (default: <code>false</code>)</td>
+</tr>
+<tr>
+<td><code>CONFIG_IMPORT_FORCE</code></td>
+<td><code>boolean</code></td>
+<td>Force overwrite on config import  (default: <code>false</code>)</td>
+</tr>
+<tr>
+<td><code>CONFIG_FOLDER</code></td>
+<td><code>string</code></td>
+<td>Path to config import folder  (default: <code>../../assets/config</code>)</td>
+</tr>
+</tbody>
+</table>
 <h2 id="directory-structure">Directory Structure<a class="headerlink" href="#directory-structure" title="Permanent link">¶</a></h2>
 <p>The configuration import follows a specific directory structure:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>assets/

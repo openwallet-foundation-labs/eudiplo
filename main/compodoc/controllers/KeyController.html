@@ -213,8 +213,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="51"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:51</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="48"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:48</a></div>
                         </td>
                     </tr>
 
@@ -303,8 +303,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="81"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:81</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="77"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:77</a></div>
                         </td>
                     </tr>
 
@@ -393,8 +393,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="39"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:39</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="37"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:37</a></div>
                         </td>
                     </tr>
 
@@ -472,8 +472,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="66"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:66</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="63"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:63</a></div>
                         </td>
                     </tr>
 
@@ -558,10 +558,9 @@
     Param,
     Post,
     Put,
-    UseGuards,
 } from &quot;@nestjs/common&quot;;
-import { ApiSecurity } from &quot;@nestjs/swagger&quot;;
-import { JwtAuthGuard } from &quot;../../auth/auth.guard&quot;;
+import { Role } from &quot;../../auth/roles/role.enum&quot;;
+import { Secured } from &quot;../../auth/secure.decorator&quot;;
 import { Token, TokenPayload } from &quot;../../auth/token.decorator&quot;;
 import { CryptoService } from &quot;../crypto.service&quot;;
 import { KeyImportDto } from &quot;./dto/key-import.dto&quot;;
@@ -572,8 +571,7 @@ import { KeyService } from &quot;./key.service&quot;;
 /**
  * KeyController is responsible for managing keys in the system.
  */
-@UseGuards(JwtAuthGuard)
-@ApiSecurity(&quot;oauth2&quot;)
+@Secured([Role.Issuances, Role.Presentations])
 @Controller(&quot;key&quot;)
 export class KeyController {
     constructor(
@@ -588,8 +586,7 @@ export class KeyController {
      */
     @Get()
     getKeys(@Token() token: TokenPayload): Promise&lt;CertEntity[]&gt; {
-        const tenantId &#x3D; token.sub;
-        return this.cryptoService.getCerts(tenantId);
+        return this.cryptoService.getCerts(token.entity!.id);
     }
 
     /**
@@ -619,8 +616,7 @@ export class KeyController {
         @Param(&quot;id&quot;) id: string,
         @Body() body: UpdateKeyDto,
     ): Promise&lt;void&gt; {
-        const tenantId &#x3D; token.sub;
-        await this.cryptoService.updateCert(tenantId, id, body);
+        await this.cryptoService.updateCert(token.entity!.id, id, body);
     }
 
     /**
@@ -630,7 +626,7 @@ export class KeyController {
      */
     @Delete(&quot;:id&quot;)
     deleteKey(@Token() token: TokenPayload, @Param(&quot;id&quot;) id: string) {
-        return this.cryptoService.deleteKey(token.sub, id);
+        return this.cryptoService.deleteKey(token.entity!.id, id);
     }
 }
 </code></pre>

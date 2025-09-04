@@ -202,8 +202,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="38"
-                                    class="link-to-prism">src/issuer/display/display.controller.ts:38</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="37"
+                                    class="link-to-prism">src/issuer/display/display.controller.ts:37</a></div>
                         </td>
                     </tr>
 
@@ -302,8 +302,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="27"
-                                    class="link-to-prism">src/issuer/display/display.controller.ts:27</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="26"
+                                    class="link-to-prism">src/issuer/display/display.controller.ts:26</a></div>
                         </td>
                     </tr>
 
@@ -361,9 +361,9 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Body, Controller, Get, Post, UseGuards } from &quot;@nestjs/common&quot;;
-import { ApiSecurity } from &quot;@nestjs/swagger&quot;;
-import { JwtAuthGuard } from &quot;../../auth/auth.guard&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Body, Controller, Get, Post } from &quot;@nestjs/common&quot;;
+import { Role } from &quot;../../auth/roles/role.enum&quot;;
+import { Secured } from &quot;../../auth/secure.decorator&quot;;
 import { Token, TokenPayload } from &quot;../../auth/token.decorator&quot;;
 import { DisplayService } from &quot;./display.service&quot;;
 import { DisplayCreateDto } from &quot;./dto/display-create.dto&quot;;
@@ -371,8 +371,7 @@ import { DisplayCreateDto } from &quot;./dto/display-create.dto&quot;;
 /**
  * Display Controller
  */
-@UseGuards(JwtAuthGuard)
-@ApiSecurity(&quot;oauth2&quot;)
+@Secured([Role.Issuances])
 @Controller(&quot;display&quot;)
 export class DisplayController {
     /**
@@ -388,7 +387,7 @@ export class DisplayController {
      */
     @Get()
     getDisplay(@Token() user: TokenPayload) {
-        return this.displayService.get(user.sub);
+        return this.displayService.get(user.entity!.id);
     }
 
     /**
@@ -402,7 +401,7 @@ export class DisplayController {
         @Token() user: TokenPayload,
         @Body() displayData: DisplayCreateDto,
     ) {
-        return this.displayService.create(user.sub, displayData);
+        return this.displayService.create(user.entity!.id, displayData);
     }
 }
 </code></pre>

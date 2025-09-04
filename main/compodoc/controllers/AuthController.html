@@ -209,8 +209,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="103"
-                                    class="link-to-prism">src/auth/auth.controller.ts:103</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="106"
+                                    class="link-to-prism">src/auth/auth.controller.ts:106</a></div>
                         </td>
                     </tr>
 
@@ -261,8 +261,8 @@ This provides the JSON Web Key Set for verifying tokens issued by this server.</
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="64"
-                                    class="link-to-prism">src/auth/auth.controller.ts:64</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="67"
+                                    class="link-to-prism">src/auth/auth.controller.ts:67</a></div>
                         </td>
                     </tr>
 
@@ -354,8 +354,8 @@ Accepts client credentials either in Authorization header (Basic auth) or reques
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="86"
-                                    class="link-to-prism">src/auth/auth.controller.ts:86</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="89"
+                                    class="link-to-prism">src/auth/auth.controller.ts:89</a></div>
                         </td>
                     </tr>
 
@@ -383,6 +383,7 @@ that need to authenticate using client_id and client_secret.</p>
 import {
     ApiBody,
     ApiExcludeController,
+    ApiExtraModels,
     ApiOperation,
     ApiResponse,
     ApiTags,
@@ -391,11 +392,13 @@ import { KeyResponseDto } from &quot;../crypto/key/dto/key-response.dto&quot;;
 import { AuthService } from &quot;./auth.service&quot;;
 import { ClientCredentialsDto } from &quot;./dto/client-credentials.dto&quot;;
 import { OidcDiscoveryDto } from &quot;./dto/oidc-discovery.dto&quot;;
+import { RoleDto } from &quot;./dto/role.dto&quot;;
 import { TokenResponse } from &quot;./dto/token-response.dto&quot;;
 
 /**
  * Authentication Controller
  */
+@ApiExtraModels(RoleDto)
 @ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &quot;true&quot;)
 @ApiTags(&quot;Authentication&quot;)
 @Controller()

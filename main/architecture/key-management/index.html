@@ -1063,8 +1063,6 @@
       
         
       
-        
-      
     
     
     
@@ -1111,29 +1109,6 @@
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../environment-config/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Environment Variables
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
               
             
               
@@ -1306,6 +1281,15 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#database-based-key-management" class="md-nav__link">
@@ -1939,6 +1923,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#database-based-key-management" class="md-nav__link">
     <span class="md-ellipsis">
       Database based Key Management
@@ -2135,11 +2128,34 @@ ways, depending on the selected key management type (<code>KM_TYPE</code>).</p>
 <blockquote>
 <p>💡 <strong>Encryption operations</strong> are always proceed with database stored keys for not and independent from the used KeyManagement Module.</p>
 </blockquote>
-<div class="admonition environment-variables">
-<p class="admonition-title">Environment-variables</p>
-<p>The list of environment variables is auto-generated from the implementation and published in <a href="../environment-config/#key">Environment Config</a>.
-Always refer there for the latest and complete configuration options.</p>
-</div>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">¶</a></h2>
+<!-- generated: 2025-09-04T19:14:14.605Z -->
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>KM_TYPE</code></td>
+<td><code>string</code></td>
+<td>The key management type  (default: <code>db</code>)</td>
+</tr>
+<tr>
+<td><code>VAULT_URL</code></td>
+<td><code>string</code></td>
+<td>The URL of the Vault server [when KM_TYPE is {"override":true} | "vault" → then required]</td>
+</tr>
+<tr>
+<td><code>VAULT_TOKEN</code></td>
+<td><code>string</code></td>
+<td>The token for accessing the Vault [when KM_TYPE is {"override":true} | "vault" → then required]</td>
+</tr>
+</tbody>
+</table>
 <hr>
 <h2 id="database-based-key-management">Database based Key Management<a class="headerlink" href="#database-based-key-management" title="Permanent link">¶</a></h2>
 <p>When <code>KM_TYPE=db</code> (default), keys are stored unencrypted in the database. This mode is ideal for development or testing.</p>

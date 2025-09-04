@@ -1070,8 +1070,6 @@
       
         
       
-        
-      
     
     
     
@@ -1117,29 +1115,6 @@
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../architecture/environment-config/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Environment Variables
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
               
             
               
@@ -1946,8 +1921,9 @@ of credential types, their formats, claims, and display properties.</p>
 <p>To manage issuance flows (which credentials to issue together and authentication
 requirements), use the <code>/issuer-management/issuance</code> endpoint. This endpoint
 handles grouping credentials and defining authorizations or webhooks.</p>
-<p>Based on your passed JWT, both endpoints will be scoped to the tenant ID of the
-token. The configurations are internally stored in a database.</p>
+<p>Based on your passed access token, both endpoints will be scoped to the tenant ID of the
+token. You also need the <code>issuance:manage</code> role to access these endpoints.
+The configurations are internally stored in a database.</p>
 <h3 id="creating-credential-offers">Creating Credential Offers<a class="headerlink" href="#creating-credential-offers" title="Permanent link">¶</a></h3>
 <p>Via the <code>/issuer-management/offer</code> endpoint you can start the issuance flow for
 a specific issuance configuration. The credential offer process works as
@@ -1996,6 +1972,7 @@ with the wallet. It also shows the interactions with <a href="../../architecture
         EUDIPLO-&gt;&gt;Service: Notify status (accepted / denied)
         Service--&gt;&gt;EUDIPLO: 2xx ACK
     end</code></pre>
+<p>The response with the credential offer link will also provide the session ID. It is included in the requests from the optional webhooks to identify the specific issuance flow. You can also use the id to query the issuance status at the API.</p>
 <hr>
 <h2 id="documentation-structure">Documentation Structure<a class="headerlink" href="#documentation-structure" title="Permanent link">¶</a></h2>
 <p>This issuance documentation is organized into the following sections:</p>

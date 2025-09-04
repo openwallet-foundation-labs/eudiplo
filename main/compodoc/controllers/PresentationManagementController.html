@@ -154,8 +154,6 @@
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
                                     <span class="modifier">Async</span>
                                 <a href="#getOffer" >getOffer</a>
                             </li>
@@ -209,8 +207,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="111"
-                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:111</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="102"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:102</a></div>
                         </td>
                     </tr>
 
@@ -287,8 +285,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="137"
-                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:137</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="130"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:130</a></div>
                         </td>
                     </tr>
 
@@ -358,8 +356,6 @@
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
                             <span class="modifier">Async</span>
                         <span ><b>getOffer</b></span>
                         <a href="#getOffer"><span class="icon ion-ios-link"></span></a>
@@ -377,14 +373,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@ApiResponse({description: &#x27;JSON response&#x27;, status: 201, type: OfferResponse, content: undefined})<br />@ApiProduces(&#x27;application/json&#x27;, &#x27;image/png&#x27;)<br />@UseGuards(JwtAuthGuard)<br />@ApiSecurity(&#x27;oauth2&#x27;)<br />@ApiBody({type: PresentationRequest, examples: undefined})<br />@Post(&#x27;request&#x27;)<br /></code>
+                    <code>@ApiResponse({description: &#x27;JSON response&#x27;, status: 201, type: OfferResponse, content: undefined})<br />@ApiProduces(&#x27;application/json&#x27;, &#x27;image/png&#x27;)<br />@ApiBody({type: PresentationRequest, examples: undefined})<br />@Post(&#x27;request&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="79"
-                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:79</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="70"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:70</a></div>
                         </td>
                     </tr>
 
@@ -485,8 +481,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="121"
-                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:121</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="114"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:114</a></div>
                         </td>
                     </tr>
 
@@ -558,18 +554,12 @@
     Param,
     Post,
     Res,
-    UseGuards,
 } from &quot;@nestjs/common&quot;;
-import {
-    ApiBody,
-    ApiProduces,
-    ApiResponse,
-    ApiSecurity,
-    ApiTags,
-} from &quot;@nestjs/swagger&quot;;
+import { ApiBody, ApiProduces, ApiResponse, ApiTags } from &quot;@nestjs/swagger&quot;;
 import { Response } from &quot;express&quot;;
 import * as QRCode from &quot;qrcode&quot;;
-import { JwtAuthGuard } from &quot;../../auth/auth.guard&quot;;
+import { Role } from &quot;../../auth/roles/role.enum&quot;;
+import { Secured } from &quot;../../auth/secure.decorator&quot;;
 import { Token, TokenPayload } from &quot;../../auth/token.decorator&quot;;
 import { OfferResponse } from &quot;../../issuer/oid4vci/dto/offer-request.dto&quot;;
 import {
@@ -581,8 +571,7 @@ import { PresentationConfigCreateDto } from &quot;./dto/presentation-config-crea
 import { PresentationsService } from &quot;./presentations.service&quot;;
 
 @ApiTags(&quot;Presentation management&quot;)
-@UseGuards(JwtAuthGuard)
-@ApiSecurity(&quot;oauth2&quot;, [&quot;api:read&quot;, &quot;api:write&quot;])
+@Secured([Role.Presentations])
 @Controller(&quot;presentation-management&quot;)
 export class PresentationManagementController {
     constructor(
@@ -606,8 +595,6 @@ export class PresentationManagementController {
         },
     })
     @ApiProduces(&quot;application/json&quot;, &quot;image/png&quot;)
-    @UseGuards(JwtAuthGuard)
-    @ApiSecurity(&quot;oauth2&quot;)
     @ApiBody({
         type: PresentationRequest,
         examples: {
@@ -638,7 +625,7 @@ export class PresentationManagementController {
             {
                 webhook: body.webhook,
             },
-            user.sub,
+            user.entity!.id,
         );
         values.uri &#x3D; &#x60;openid4vp://?${values.uri}&#x60;;
         if (body.response_type &#x3D;&#x3D;&#x3D; ResponseType.QRCode) {
@@ -661,7 +648,9 @@ export class PresentationManagementController {
      */
     @Get()
     configuration(@Token() user: TokenPayload) {
-        return this.presentationsService.getPresentationConfigs(user.sub);
+        return this.presentationsService.getPresentationConfigs(
+            user.entity!.id,
+        );
     }
 
     /**
@@ -675,7 +664,7 @@ export class PresentationManagementController {
         @Token() user: TokenPayload,
     ) {
         return this.presentationsService.storePresentationConfig(
-            user.sub,
+            user.entity!.id,
             config,
         );
     }
@@ -687,7 +676,10 @@ export class PresentationManagementController {
      */
     @Delete(&quot;:id&quot;)
     deleteConfiguration(@Param(&quot;id&quot;) id: string, @Token() user: TokenPayload) {
-        return this.presentationsService.deletePresentationConfig(id, user.sub);
+        return this.presentationsService.deletePresentationConfig(
+            id,
+            user.entity!.id,
+        );
     }
 }
 </code></pre>

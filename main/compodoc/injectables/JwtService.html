@@ -228,7 +228,7 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>generateToken(payload: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>, options: <a href="../interfaces/GenerateTokenOptions.html" target="_self">GenerateTokenOptions</a>)</code>
+                    <code>generateToken(payload: <a href="../interfaces/InternalTokenPayload.html" target="_self">InternalTokenPayload</a>, options: <a href="../interfaces/GenerateTokenOptions.html" target="_self">GenerateTokenOptions</a>)</code>
                 </td>
             </tr>
 
@@ -255,22 +255,19 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
-                                                <td>Default value</td>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
                                                 <td>payload</td>
                                             <td>
-                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                                            <code><a href="../interfaces/InternalTokenPayload.html" target="_self" >InternalTokenPayload</a></code>
                                             </td>
 
                                             <td>
                                                     No
                                             </td>
 
-                                            <td>
-                                            </td>
 
                                         </tr>
                                         <tr>
@@ -283,9 +280,6 @@
                                                     No
                                             </td>
 
-                                            <td>
-                                                    <code>{}</code>
-                                            </td>
 
                                         </tr>
                                     </tbody>
@@ -421,13 +415,13 @@
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { jwtVerify, SignJWT } from &quot;jose&quot;;
-import { DEFAULT_JWT_SECRET } from &quot;./auth.module&quot;;
-import { TokenPayload } from &quot;./token.decorator&quot;;
+import { DEFAULT_JWT_SECRET } from &quot;./auth-validation.schema&quot;;
+import { InternalTokenPayload, TokenPayload } from &quot;./token.decorator&quot;;
 
 export interface GenerateTokenOptions {
     expiresIn?: string;
     audience?: string;
-    subject?: string;
+    subject: string;
 }
 
 @Injectable()
@@ -446,8 +440,8 @@ export class JwtService {
      * Generate a JWT token for integrated OAuth2 server
      */
     async generateToken(
-        payload: TokenPayload,
-        options: GenerateTokenOptions &#x3D; {},
+        payload: InternalTokenPayload,
+        options: GenerateTokenOptions,
     ): Promise&lt;string&gt; {
         if (this.isUsingExternalOIDC()) {
             throw new Error(
@@ -469,7 +463,7 @@ export class JwtService {
             .setProtectedHeader({ alg: &quot;HS256&quot; })
             .setIssuedAt()
             .setIssuer(issuer)
-            .setSubject(options.subject || payload.sub)
+            .setSubject(options.subject)
             .setExpirationTime(expiresIn);
 
         if (options.audience) {

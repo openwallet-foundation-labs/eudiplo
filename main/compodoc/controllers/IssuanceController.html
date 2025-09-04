@@ -199,8 +199,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="54"
-                                    class="link-to-prism">src/issuer/issuance/issuance.controller.ts:54</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="46"
+                                    class="link-to-prism">src/issuer/issuance/issuance.controller.ts:46</a></div>
                         </td>
                     </tr>
 
@@ -289,8 +289,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="28"
-                                    class="link-to-prism">src/issuer/issuance/issuance.controller.ts:28</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="20"
+                                    class="link-to-prism">src/issuer/issuance/issuance.controller.ts:20</a></div>
                         </td>
                     </tr>
 
@@ -367,8 +367,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="38"
-                                    class="link-to-prism">src/issuer/issuance/issuance.controller.ts:38</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="30"
+                                    class="link-to-prism">src/issuer/issuance/issuance.controller.ts:30</a></div>
                         </td>
                     </tr>
 
@@ -432,24 +432,16 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    Param,
-    Post,
-    UseGuards,
-} from &quot;@nestjs/common&quot;;
-import { ApiSecurity, ApiTags } from &quot;@nestjs/swagger&quot;;
-import { JwtAuthGuard } from &quot;../../auth/auth.guard&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Body, Controller, Delete, Get, Param, Post } from &quot;@nestjs/common&quot;;
+import { ApiTags } from &quot;@nestjs/swagger&quot;;
+import { Role } from &quot;../../auth/roles/role.enum&quot;;
+import { Secured } from &quot;../../auth/secure.decorator&quot;;
 import { Token, TokenPayload } from &quot;../../auth/token.decorator&quot;;
 import { IssuanceDto } from &quot;./dto/issuance.dto&quot;;
 import { IssuanceService } from &quot;./issuance.service&quot;;
 
 @ApiTags(&quot;Issuer management&quot;)
-@UseGuards(JwtAuthGuard)
-@ApiSecurity(&quot;oauth2&quot;)
+@Secured([Role.Issuances])
 @Controller(&quot;issuer-management/issuance&quot;)
 export class IssuanceController {
     constructor(private readonly issuanceService: IssuanceService) {}
@@ -460,7 +452,7 @@ export class IssuanceController {
      */
     @Get()
     getIssuanceConfigurations(@Token() user: TokenPayload) {
-        return this.issuanceService.getIssuanceConfiguration(user.sub);
+        return this.issuanceService.getIssuanceConfiguration(user.entity!.id);
     }
 
     /**
@@ -474,7 +466,7 @@ export class IssuanceController {
         @Token() user: TokenPayload,
     ) {
         return this.issuanceService.storeIssuanceConfiguration(
-            user.sub,
+            user.entity!.id,
             config,
         );
     }
@@ -489,7 +481,10 @@ export class IssuanceController {
         @Param(&quot;id&quot;) id: string,
         @Token() user: TokenPayload,
     ) {
-        return this.issuanceService.deleteIssuanceConfiguration(user.sub, id);
+        return this.issuanceService.deleteIssuanceConfiguration(
+            user.entity!.id,
+            id,
+        );
     }
 }
 </code></pre>
