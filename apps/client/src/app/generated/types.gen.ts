@@ -85,15 +85,54 @@ export type OfferRequestDto = {
     session?: string;
 };
 
+export type ClientEntity = {
+    /**
+     * The unique identifier for the client.
+     */
+    clientId: string;
+    /**
+     * The secret key for the client.
+     */
+    secret: string;
+    /**
+     * The unique identifier for the tenant that the client belongs to.
+     */
+    tenantId: string;
+    /**
+     * The description of the client.
+     */
+    description?: string;
+    /**
+     * The roles assigned to the client.
+     */
+    roles: Array<'presentation:manage' | 'presentation:offer' | 'issuance:manage' | 'issuance:offer' | 'clients:manage' | 'tenants:manage'>;
+    /**
+     * The tenant that the client belongs to.
+     */
+    tenant: TenantEntity;
+};
+
 export type TenantEntity = {
     /**
      * The unique identifier for the tenant.
      */
     id: string;
     /**
+     * The name of the tenant.
+     */
+    name: string;
+    /**
+     * The description of the tenant.
+     */
+    description?: string;
+    /**
      * The current status of the tenant.
      */
     status: string;
+    /**
+     * The clients associated with the tenant.
+     */
+    clients: Array<ClientEntity>;
 };
 
 export type Session = {
@@ -249,6 +288,13 @@ export type JwksResponseDto = {
     keys: Array<EcPublic>;
 };
 
+export type RoleDto = {
+    /**
+     * OAuth2 roles
+     */
+    role: 'presentation:manage' | 'presentation:offer' | 'issuance:manage' | 'issuance:offer' | 'clients:manage' | 'tenants:manage';
+};
+
 export type ClientCredentialsDto = {
     client_id: string;
     client_secret: string;
@@ -261,8 +307,42 @@ export type TokenResponse = {
     expires_in: number;
 };
 
-export type ClientInitDto = {
-    id?: string;
+export type CreateTenantDto = {
+    /**
+     * The unique identifier for the tenant.
+     */
+    id: string;
+    /**
+     * The name of the tenant.
+     */
+    name: string;
+    /**
+     * The description of the tenant.
+     */
+    description?: string;
+};
+
+export type ClientView = {
+    [key: string]: unknown;
+};
+
+export type ClientSecretResponseDto = {
+    secret: string;
+};
+
+export type CreateClientDto = {
+    /**
+     * The unique identifier for the client.
+     */
+    clientId: string;
+    /**
+     * The description of the client.
+     */
+    description?: string;
+    /**
+     * The roles assigned to the client.
+     */
+    roles: Array<'presentation:manage' | 'presentation:offer' | 'issuance:manage' | 'issuance:offer' | 'clients:manage' | 'tenants:manage'>;
 };
 
 export type CertEntity = {
@@ -905,8 +985,21 @@ export type AuthControllerGetGlobalJwksResponses = {
     200: unknown;
 };
 
+export type TenantControllerGetTenantsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/tenant';
+};
+
+export type TenantControllerGetTenantsResponses = {
+    200: Array<TenantEntity>;
+};
+
+export type TenantControllerGetTenantsResponse = TenantControllerGetTenantsResponses[keyof TenantControllerGetTenantsResponses];
+
 export type TenantControllerInitTenantData = {
-    body: ClientInitDto;
+    body: CreateTenantDto;
     path?: never;
     query?: never;
     url: '/tenant';
@@ -915,19 +1008,6 @@ export type TenantControllerInitTenantData = {
 export type TenantControllerInitTenantResponses = {
     201: unknown;
 };
-
-export type TenantControllerGetTenantStatusData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/tenant/status';
-};
-
-export type TenantControllerGetTenantStatusResponses = {
-    200: TenantEntity;
-};
-
-export type TenantControllerGetTenantStatusResponse = TenantControllerGetTenantStatusResponses[keyof TenantControllerGetTenantStatusResponses];
 
 export type TenantControllerDeleteTenantData = {
     body?: never;
@@ -941,6 +1021,94 @@ export type TenantControllerDeleteTenantData = {
 export type TenantControllerDeleteTenantResponses = {
     200: unknown;
 };
+
+export type TenantControllerGetTenantData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/tenant/{id}';
+};
+
+export type TenantControllerGetTenantResponses = {
+    200: TenantEntity;
+};
+
+export type TenantControllerGetTenantResponse = TenantControllerGetTenantResponses[keyof TenantControllerGetTenantResponses];
+
+export type ClientControllerGetClientsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/client';
+};
+
+export type ClientControllerGetClientsResponses = {
+    200: Array<ClientView>;
+};
+
+export type ClientControllerGetClientsResponse = ClientControllerGetClientsResponses[keyof ClientControllerGetClientsResponses];
+
+export type ClientControllerCreateClientData = {
+    body: CreateClientDto;
+    path?: never;
+    query?: never;
+    url: '/client';
+};
+
+export type ClientControllerCreateClientResponses = {
+    201: {
+        [key: string]: unknown;
+    };
+};
+
+export type ClientControllerCreateClientResponse = ClientControllerCreateClientResponses[keyof ClientControllerCreateClientResponses];
+
+export type ClientControllerDeleteClientData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/client/{id}';
+};
+
+export type ClientControllerDeleteClientResponses = {
+    200: unknown;
+};
+
+export type ClientControllerGetClientData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/client/{id}';
+};
+
+export type ClientControllerGetClientResponses = {
+    200: {
+        [key: string]: unknown;
+    };
+};
+
+export type ClientControllerGetClientResponse = ClientControllerGetClientResponses[keyof ClientControllerGetClientResponses];
+
+export type ClientControllerGetClientSecretData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/client/{id}/secret';
+};
+
+export type ClientControllerGetClientSecretResponses = {
+    200: ClientSecretResponseDto;
+};
+
+export type ClientControllerGetClientSecretResponse = ClientControllerGetClientSecretResponses[keyof ClientControllerGetClientSecretResponses];
 
 export type KeyControllerGetKeysData = {
     body?: never;

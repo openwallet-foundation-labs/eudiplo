@@ -7,10 +7,9 @@ import {
     Param,
     Post,
     Put,
-    UseGuards,
 } from "@nestjs/common";
-import { ApiSecurity } from "@nestjs/swagger";
-import { JwtAuthGuard } from "../../auth/auth.guard";
+import { Role } from "../../auth/roles/role.enum";
+import { Secured } from "../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../auth/token.decorator";
 import { CryptoService } from "../crypto.service";
 import { KeyImportDto } from "./dto/key-import.dto";
@@ -21,8 +20,7 @@ import { KeyService } from "./key.service";
 /**
  * KeyController is responsible for managing keys in the system.
  */
-@UseGuards(JwtAuthGuard)
-@ApiSecurity("oauth2")
+@Secured([Role.Issuances, Role.Presentations])
 @Controller("key")
 export class KeyController {
     constructor(
@@ -37,8 +35,7 @@ export class KeyController {
      */
     @Get()
     getKeys(@Token() token: TokenPayload): Promise<CertEntity[]> {
-        const tenantId = token.sub;
-        return this.cryptoService.getCerts(tenantId);
+        return this.cryptoService.getCerts(token.entity!.id);
     }
 
     /**
@@ -68,8 +65,7 @@ export class KeyController {
         @Param("id") id: string,
         @Body() body: UpdateKeyDto,
     ): Promise<void> {
-        const tenantId = token.sub;
-        await this.cryptoService.updateCert(tenantId, id, body);
+        await this.cryptoService.updateCert(token.entity!.id, id, body);
     }
 
     /**
@@ -79,6 +75,6 @@ export class KeyController {
      */
     @Delete(":id")
     deleteKey(@Token() token: TokenPayload, @Param("id") id: string) {
-        return this.cryptoService.deleteKey(token.sub, id);
+        return this.cryptoService.deleteKey(token.entity!.id, id);
     }
 }

@@ -4,27 +4,6 @@ import * as Joi from "joi";
  * Validation schema for configuration
  */
 export const CONFIG_VALIDATION_SCHEMA = Joi.object({
-    CONFIG_PRINT: Joi.boolean()
-        .default(false)
-        .description("Enable config printing")
-        .meta({ group: "config", order: 0 }),
-
-    CONFIG_PRINT_FORMAT: Joi.string()
-        .valid("text", "json", "markdown")
-        .default("text")
-        .description("Format for printing config")
-        .meta({ group: "config", order: 1 }),
-
-    CONFIG_PRINT_ADVANCED: Joi.boolean()
-        .default(true)
-        .description("Enable advanced config printing")
-        .meta({ group: "config", order: 2 }),
-
-    CONFIG_PRINT_FILE: Joi.string()
-        .default("../../docs/architecture/environment-config.md")
-        .description("Output file path for the documentation")
-        .meta({ group: "config", order: 5 }),
-
     CONFIG_IMPORT: Joi.boolean()
         .default(false)
         .description("Run one-off config import on startup")

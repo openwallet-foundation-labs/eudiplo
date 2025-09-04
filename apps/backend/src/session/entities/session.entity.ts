@@ -12,7 +12,7 @@ import {
     PrimaryColumn,
     UpdateDateColumn,
 } from "typeorm";
-import { TenantEntity } from "../../auth/entitites/tenant.entity";
+import { TenantEntity } from "../../auth/tenant/entitites/tenant.entity";
 import { AuthorizeQueries } from "../../issuer/authorize/dto/authorize-request.dto";
 import { OfferRequestDto } from "../../issuer/oid4vci/dto/offer-request.dto";
 import { WebhookConfig } from "../../utils/webhook/webhook.dto";

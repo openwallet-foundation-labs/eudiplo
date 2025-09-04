@@ -78,12 +78,17 @@ markdown_extensions:
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.tilde
+  - pymdownx.snippets:
+      base_path: .
 plugins:
     - search
     - glightbox
     - neoteroi.mkdocsoad:
         use_pymdownx: true
     - privacy
+    - exclude:
+        glob:
+          - generated/*.md
 
 extra:
   version:
@@ -121,8 +126,7 @@ nav:
         - Registrar: getting-started/registrar.md
         - Monitor: getting-started/monitor.md        
   - Architecture:
-      - Overview: architecture/index.md
-      - Environment Variables: architecture/environment-config.md
+      - Overview: architecture/index.md      
       - Supported Protocols: architecture/supported-protocols.md
       - Tenant-Based: architecture/tenant.md
       - Sessions: architecture/sessions.md

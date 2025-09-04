@@ -11,7 +11,7 @@ import request from "supertest";
 import { App } from "supertest/types";
 import { beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../src/app.module";
-import { callbacks, preparePresentation } from "./utils";
+import { callbacks, getToken, preparePresentation } from "./utils";
 
 describe("Presentation", () => {
     let app: INestApplication<App>;
@@ -37,27 +37,7 @@ describe("Presentation", () => {
         await app.init();
         await app.listen(3000);
 
-        // Get JWT token using client credentials
-        const tokenResponse = await request(app.getHttpServer())
-            .post("/oauth2/token")
-            .trustLocalhost()
-            .send({
-                client_id: clientId,
-                client_secret: clientSecret,
-                grant_type: "client_credentials",
-            });
-
-        authToken = tokenResponse.body.access_token;
-        expect(authToken).toBeDefined();
-
-        await request(app.getHttpServer())
-            .post("/tenant")
-            .trustLocalhost()
-            .set("Authorization", `Bearer ${authToken}`)
-            .send({
-                id: "root",
-            })
-            .expect(201);
+        authToken = await getToken(app, clientId, clientSecret);
 
         //import the pid credential configuration
         const pidCredentialConfiguration = JSON.parse(

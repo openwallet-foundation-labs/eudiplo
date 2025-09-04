@@ -21,6 +21,11 @@ import { PresentationOfferComponent } from './presentation/presentation-offer/pr
 import { SessionManagementListComponent } from './session-management/session-management-list/session-management-list.component';
 import { SessionManagementShowComponent } from './session-management/session-management-show/session-management-show.component';
 import { DisplayComponent } from './issuance/display/display.component';
+import { getRole } from './services/jwt.service';
+import { RoleGuard } from './guards/roles.guard';
+import { TenantCreateComponent } from './tenants/tenant-create/tenant-create.component';
+import { TenantListComponent } from './tenants/tenant-list/tenant-list.component';
+import { TenantShowComponent } from './tenants/tenant-show/tenant-show.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -41,7 +46,8 @@ export const routes: Routes = [
   },
   {
     path: 'clients',
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: getRole('clients:manage') },
     children: [
       {
         path: '',
@@ -54,24 +60,57 @@ export const routes: Routes = [
     ],
   },
   {
+    path: 'tenants',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: getRole('tenants:manage') },
+    children: [
+      {
+        path: '',
+        component: TenantListComponent,
+      },
+      {
+        path: 'create',
+        component: TenantCreateComponent,
+      },
+      {
+        path: ':id',
+        component: TenantShowComponent,
+      },
+    ],
+  },
+  {
     path: 'offer',
     canActivate: [AuthGuard],
     children: [
       {
         path: 'issuance',
-        component: IssuanceOfferComponent,
-      },
-      {
-        path: 'issuance/:id',
-        component: IssuanceOfferComponent,
+        canActivate: [RoleGuard],
+        data: { role: getRole('issuance:offer') },
+        children: [
+          {
+            path: '',
+            component: IssuanceOfferComponent,
+          },
+          {
+            path: ':id',
+            component: IssuanceOfferComponent,
+          },
+        ],
       },
       {
         path: 'presentation',
-        component: PresentationOfferComponent,
-      },
-      {
-        path: 'presentation/:id',
-        component: PresentationOfferComponent,
+        canActivate: [RoleGuard],
+        data: { role: getRole('presentation:offer') },
+        children: [
+          {
+            path: '',
+            component: PresentationOfferComponent,
+          },
+          {
+            path: ':id',
+            component: PresentationOfferComponent,
+          },
+        ],
       },
     ],
   },
