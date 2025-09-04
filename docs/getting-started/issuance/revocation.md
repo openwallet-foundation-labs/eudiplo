@@ -55,8 +55,8 @@ EUDIPLO maintains status lists that track the revocation state of credentials:
 - **Status List URL**: Public endpoint where verifiers can check status
 - **Status List Index**: Unique position for each credential in the list
 - **Status Values**:
-  - `0` = Valid/Active
-  - `1` = Revoked/Suspended
+    - `0` = Valid/Active
+    - `1` = Revoked/Suspended
 
 ### Credential Status Claim
 

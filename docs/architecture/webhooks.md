@@ -36,8 +36,8 @@ It must include:
 
 - `url`: The endpoint URL. EUDIPLO sends an HTTP `POST` request with JSON data.
 - `auth`: (Optional) Authentication configuration.
-  - `type`: Authentication type. Currently supported:
-    - `apiKey` – sends a key in a request header.
+    - `type`: Authentication type. Currently supported:
+        - `apiKey` – sends a key in a request header.
 
 ### Example
 
@@ -120,10 +120,10 @@ If no notification webhook is configured, you can fetch the session result by qu
 EUDIPLO sends an HTTP `POST` request with the following structure:
 
 - `credentials`: Array of credential objects. Each includes:
-  - `id`: The ID of the DCQL query.
-  - `values`: The claims presented by the wallet.
-    - SD-JWT VC–specific fields (e.g., `cnf`, `status`) are removed for simplicity.
-  - `error`: Present instead of `values` if verification failed.
+    - `id`: The ID of the DCQL query.
+    - `values`: The claims presented by the wallet.
+        - SD-JWT VC–specific fields (e.g., `cnf`, `status`) are removed for simplicity.
+    - `error`: Present instead of `values` if verification failed.
 - `session`: The session ID identifying the request.
 
 ### Example Payload

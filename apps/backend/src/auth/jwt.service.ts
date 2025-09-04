@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { jwtVerify, SignJWT } from "jose";
-import { DEFAULT_JWT_SECRET } from "./auth.module";
+import { DEFAULT_JWT_SECRET } from "./auth-validation.schema";
 import { InternalTokenPayload, TokenPayload } from "./token.decorator";
 
 export interface GenerateTokenOptions {

@@ -1,9 +1,8 @@
 import * as Joi from "joi";
-import {
-    DEFAULT_AUTH_CLIENT_ID,
-    DEFAULT_AUTH_CLIENT_SECRET,
-    DEFAULT_JWT_SECRET,
-} from "./auth.module";
+
+export const DEFAULT_JWT_SECRET = "supersecret";
+export const DEFAULT_AUTH_CLIENT_ID = "root";
+export const DEFAULT_AUTH_CLIENT_SECRET = "root";
 
 export const AUTH_VALIDATION_SCHEMA: Joi.ObjectSchema = Joi.object({
     OIDC: Joi.string()

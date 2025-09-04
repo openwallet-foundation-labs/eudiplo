@@ -22,11 +22,6 @@ import { JwtStrategy } from "./jwt.strategy";
 import { TenantEntity } from "./tenant/entitites/tenant.entity";
 import { TenantController } from "./tenant/tenant.controller";
 import { TenantService } from "./tenant/tenant.service";
-
-export const DEFAULT_JWT_SECRET = "supersecret";
-export const DEFAULT_AUTH_CLIENT_ID = "root";
-export const DEFAULT_AUTH_CLIENT_SECRET = "root";
-
 @Module({
     imports: [
         PassportModule,

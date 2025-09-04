@@ -9,10 +9,9 @@ managed via the `/sessions` endpoint. You can retrieve a specific session via
 To tidy up old sessions, an interval is set to delete older session. The default
 values can be configured.
 
-!!! Environment-Variables
-
-    The list of environment variables is auto-generated from the implementation and published in [Environment Config](./environment-config.md#session).
-    Always refer there for the latest and complete configuration options.
-
 Other elements as persisted status mapping (the binding between a session id and
 a status list reference) are not deleted with this process.
+
+## Configuration
+
+--8<-- "docs/generated/config-session.md"
