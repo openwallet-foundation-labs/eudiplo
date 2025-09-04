@@ -267,7 +267,7 @@ importers:
         version: 5.9.2
       undici:
         specifier: ^7.13.0
-        version: 7.13.0
+        version: 7.15.0
       unplugin-swc:
         specifier: ^1.5.5
         version: 1.5.5(@swc/core@1.13.3)(rollup@4.49.0)
@@ -9403,10 +9403,6 @@ packages:
   undici@5.29.0:
     resolution: {integrity: sha512-raqeBD6NQK4SkWhQzeYKd1KmIG6dllBOTt55Rmkt4HtI9mwdWtJljnrXjAFUBLTSN67HWrOIZ3EPF4kjUw80Bg==}
     engines: {node: '>=14.0'}
-
-  undici@7.13.0:
-    resolution: {integrity: sha512-l+zSMssRqrzDcb3fjMkjjLGmuiiK2pMIcV++mJaAc9vhjSGpvM7h43QgP+OAMb1GImHmbPyG2tBXeuyG5iY4gA==}
-    engines: {node: '>=20.18.1'}
 
   undici@7.15.0:
     resolution: {integrity: sha512-7oZJCPvvMvTd0OlqWsIxTuItTpJBpU1tcbVl24FMn3xt3+VSunwUasmfPJRE57oNO1KsZ4PgA1xTdAX4hq8NyQ==}
@@ -19890,7 +19886,7 @@ snapshots:
       ssh-remote-port-forward: 1.0.4
       tar-fs: 3.1.0
       tmp: 0.2.4
-      undici: 7.13.0
+      undici: 7.15.0
     transitivePeerDependencies:
       - bare-buffer
       - supports-color
@@ -20164,8 +20160,6 @@ snapshots:
   undici@5.29.0:
     dependencies:
       '@fastify/busboy': 2.1.1
-
-  undici@7.13.0: {}
 
   undici@7.15.0: {}
 
