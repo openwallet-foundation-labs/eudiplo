@@ -2,6 +2,7 @@ import { Body, Controller, Get, Headers, Post } from "@nestjs/common";
 import {
     ApiBody,
     ApiExcludeController,
+    ApiExtraModels,
     ApiOperation,
     ApiResponse,
     ApiTags,
@@ -10,11 +11,13 @@ import { KeyResponseDto } from "../crypto/key/dto/key-response.dto";
 import { AuthService } from "./auth.service";
 import { ClientCredentialsDto } from "./dto/client-credentials.dto";
 import { OidcDiscoveryDto } from "./dto/oidc-discovery.dto";
+import { RoleDto } from "./dto/role.dto";
 import { TokenResponse } from "./dto/token-response.dto";
 
 /**
  * Authentication Controller
  */
+@ApiExtraModels(RoleDto)
 @ApiExcludeController(process.env.SWAGGER_ALL !== "true")
 @ApiTags("Authentication")
 @Controller()

@@ -32,7 +32,12 @@ import { App } from "supertest/types";
 import { Agent, fetch, setGlobalDispatcher } from "undici";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../src/app.module";
-import { callbacks, getSignJwtCallback, preparePresentation } from "./utils";
+import {
+    callbacks,
+    getSignJwtCallback,
+    getToken,
+    preparePresentation,
+} from "./utils";
 
 setGlobalDispatcher(
     new Agent({
@@ -75,29 +80,7 @@ describe("Issuance", () => {
         await app.init();
         await app.listen(3000);
 
-        // Get JWT token using client credentials
-        const tokenResponse = await request(app.getHttpServer())
-            .post("/oauth2/token")
-            .trustLocalhost()
-            .send({
-                client_id: clientId,
-                client_secret: clientSecret,
-                grant_type: "client_credentials",
-            })
-            .expect(201);
-
-        authToken = tokenResponse.body.access_token;
-        expect(authToken).toBeDefined();
-
-        await request(app.getHttpServer())
-            .post("/tenant")
-            .trustLocalhost()
-            .set("Authorization", `Bearer ${authToken}`)
-            .send({
-                id: "root",
-            })
-            .expect(201);
-        //import key
+        authToken = await getToken(app, clientId, clientSecret);
 
         const privateKey = {
             kty: "EC",

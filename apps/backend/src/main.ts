@@ -75,16 +75,12 @@ async function bootstrap() {
     const documentFactory = () =>
         SwaggerModule.createDocument(app, documentConfig);
 
-    //we started, it will kill the application after 2 seconds
     if (process.env.DOC_GENERATE) {
         writeFileSync(
             "swagger.json",
             JSON.stringify(documentFactory(), null, 2),
         );
-        // we give it
-        setTimeout(() => {
-            process.exit();
-        }, 2000);
+        process.exit();
     } else {
         const swaggerOptions: any = {
             swaggerOptions: {
@@ -161,7 +157,8 @@ async function bootstrap() {
         if (!oidc) {
             warnSecurityDefaults();
         }
+
+        await app.listen(process.env.PORT ?? 3000);
     }
-    await app.listen(process.env.PORT ?? 3000);
 }
 void bootstrap();

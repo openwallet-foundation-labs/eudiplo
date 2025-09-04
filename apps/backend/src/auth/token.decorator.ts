@@ -1,5 +1,6 @@
 import { createParamDecorator, ExecutionContext } from "@nestjs/common";
-import { TenantEntity } from "./entitites/tenant.entity";
+import { Role } from "./roles/role.enum";
+import { TenantEntity } from "./tenant/entitites/tenant.entity";
 
 /**
  * Token decorator
@@ -16,15 +17,19 @@ export const Token = createParamDecorator(
  */
 export interface TokenPayload {
     /**
-     * Subject (client_id for client credentials)
-     */
-    sub: string;
-    /**
-     * Admin flag
-     */
-    admin: boolean;
-    /**
      * Tenant entity
      */
     entity?: TenantEntity;
+
+    /**
+     * Role for the user
+     */
+    roles: Role[];
+}
+
+export interface InternalTokenPayload extends TokenPayload {
+    /**
+     * Tenant ID
+     */
+    tenant_id: string;
 }

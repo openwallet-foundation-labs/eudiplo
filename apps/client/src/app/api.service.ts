@@ -2,6 +2,9 @@ import { Injectable } from '@angular/core';
 import { OAuth2Client } from '@badgateway/oauth2-client';
 import { ClientOptions, Config } from './generated/client';
 import { client } from './generated/client.gen';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs/internal/firstValueFrom';
+import { clientControllerGetClientSecret, ClientEntity } from './generated';
 
 @Injectable({
   providedIn: 'root',
@@ -14,12 +17,17 @@ export class ApiService {
   private baseUrl?: string;
   client!: Config<ClientOptions>;
 
-  constructor() {
+  constructor(private httpClient: HttpClient) {
     this.loadTokenFromStorage();
     this.setClient(this.baseUrl || 'http://localhost:3000'); // Default base URL
   }
 
-  login(oidcUrl: string, clientId: string, clientSecret: string, baseUrl: string) {
+  async login(clientId: string, clientSecret: string, baseUrl: string) {
+    //get oidc url
+    const oidcUrl = await firstValueFrom(
+      this.httpClient.get(`${baseUrl}/.well-known/oauth-authorization-server`)
+    ).then((res: any) => res.issuer as string);
+
     this.oauth2Client = new OAuth2Client({
       discoveryEndpoint: `${oidcUrl}/.well-known/oauth-authorization-server`,
       clientId,
@@ -356,5 +364,25 @@ export class ApiService {
 
       setTimeout(() => this.refreshAccessToken(), 1000);
     }
+  }
+
+  async createConfigUrl(client: ClientEntity, apiUrl: string) {
+    const currentUrl = `${window.location.protocol}//${window.location.host}/login`;
+    const url = new URL(currentUrl);
+
+    if (!client.secret) {
+      client.secret = await clientControllerGetClientSecret<true>({
+        path: { id: client.clientId },
+      }).then((res) => res.data.secret);
+    }
+
+    if (client.clientId) {
+      url.searchParams.append('clientId', client.clientId);
+    }
+    if (client.secret) {
+      url.searchParams.append('clientSecret', client.secret);
+    }
+    url.searchParams.append('apiUrl', apiUrl);
+    return url.toString();
   }
 }

@@ -32,8 +32,9 @@ To manage issuance flows (which credentials to issue together and authentication
 requirements), use the `/issuer-management/issuance` endpoint. This endpoint
 handles grouping credentials and defining authorizations or webhooks.
 
-Based on your passed JWT, both endpoints will be scoped to the tenant ID of the
-token. The configurations are internally stored in a database.
+Based on your passed access token, both endpoints will be scoped to the tenant ID of the
+token. You also need the `issuance:manage` role to access these endpoints.
+The configurations are internally stored in a database.
 
 ### Creating Credential Offers
 
@@ -90,6 +91,8 @@ sequenceDiagram
         Service-->>EUDIPLO: 2xx ACK
     end
 ```
+
+The response with the credential offer link will also provide the session ID. It is included in the requests from the optional webhooks to identify the specific issuance flow. You can also use the id to query the issuance status at the API.
 
 ---
 

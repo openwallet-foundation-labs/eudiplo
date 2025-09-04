@@ -1,7 +1,6 @@
 import {
-    ForbiddenException,
+    Inject,
     Injectable,
-    NotFoundException,
     OnApplicationBootstrap,
     OnModuleInit,
 } from "@nestjs/common";
@@ -17,9 +16,10 @@ import { Oid4vciService } from "../../issuer/oid4vci/oid4vci.service";
 import { StatusListService } from "../../issuer/status-list/status-list.service";
 import { RegistrarService } from "../../registrar/registrar.service";
 import { FilesService } from "../../storage/files.service";
-import { ClientInitDto } from "../dto/client-init.dto";
-import { TenantEntity } from "../entitites/tenant.entity";
-import { TokenPayload } from "../token.decorator";
+import { CLIENTS_PROVIDER, ClientsProvider } from "../client/client.provider";
+import { Role } from "../roles/role.enum";
+import { CreateTenantDto } from "./dto/create-tenant.dto";
+import { TenantEntity } from "./entitites/tenant.entity";
 
 // Tenant interface for service integration
 export interface Tenants {
@@ -29,9 +29,8 @@ export interface Tenants {
 
 @Injectable()
 export class TenantService implements OnApplicationBootstrap, OnModuleInit {
-    private tenants: Tenants[] | null = null;
-
     constructor(
+        @Inject(CLIENTS_PROVIDER) private clients: ClientsProvider,
         private configService: ConfigService,
         private cryptoService: CryptoService,
         private encryptionService: EncryptionService,
@@ -53,7 +52,16 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
                     withFileTypes: true,
                 }).filter((tenant) => tenant.isDirectory());
                 for (const tenant of tenantFolders) {
-                    await this.tenantRepository.save({ id: tenant.name });
+                    const setUp = await this.tenantRepository.findOneBy({
+                        id: tenant.name,
+                        status: "active",
+                    });
+                    if (!setUp) {
+                        await this.createTenant({
+                            id: tenant.name,
+                            name: "EUDIPLO",
+                        });
+                    }
                 }
             }
         }
@@ -66,71 +74,38 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
     }
 
     /**
-     * Initialize a tenant for the given user.
-     * @param user The user to initialize the tenant for
+     * Get all tenants
+     * @returns A list of all tenants
      */
-    async initTenant(id: string, values: ClientInitDto) {
-        const tenant = await this.tenantRepository.save({ id, ...values });
-        return this.setUpTenant(tenant);
-    }
-
-    getTenant(id: string): Promise<TenantEntity> {
-        return this.tenantRepository.findOneByOrFail({ id });
-    }
-
-    async getTenantStatus(id: string) {
-        const tenant = await this.tenantRepository.findOneBy({ id });
-        if (!tenant) {
-            throw new NotFoundException(`Tenant ${id} not found`);
-        }
-        return tenant;
+    getAll() {
+        return this.tenantRepository.find();
     }
 
     /**
-     * Get tenants from configuration
+     * Create a new tenant
+     * @param data
      * @returns
      */
-    private getTenants(): Tenants[] {
-        if (!this.tenants) {
-            this.tenants = this.loadTenants();
-        }
-        return this.tenants;
+    async createTenant(data: CreateTenantDto) {
+        const tenant = await this.tenantRepository.save(data);
+        await this.setUpTenant(tenant);
+        await this.clients.addClient(tenant.id, {
+            clientId: "admin",
+            description: tenant.name,
+            roles: [Role.Clients, ...(data.roles || [])],
+        });
     }
 
     /**
-     * Load tenants from configuration
+     * Get a tenant by ID
+     * @param id The ID of the tenant to retrieve
+     * @returns The tenant entity
      */
-    private loadTenants(): Tenants[] {
-        // Default tenants for development/testing
-        return [
-            {
-                id: this.configService.getOrThrow<string>("AUTH_CLIENT_ID"),
-                secret: this.configService.getOrThrow<string>(
-                    "AUTH_CLIENT_SECRET",
-                ),
-            },
-        ];
-    }
-
-    /**
-     * Validate tenant credentials (OAuth2 Tenant Credentials flow)
-     * This is the primary authentication method for service integration
-     */
-    validateTenant(tenantId: string, tenantSecret: string): Tenants | null {
-        const tenant = this.getTenants().find((c) => c.id === tenantId);
-
-        if (!tenant || tenant.secret !== tenantSecret) {
-            return null;
-        }
-
-        return tenant;
-    }
-
-    /**
-     * Find tenant by ID
-     */
-    findTenantById(tenantId: string): Tenants | null {
-        return this.getTenants().find((c) => c.id === tenantId) || null;
+    getTenant(id: string): Promise<TenantEntity> {
+        return this.tenantRepository.findOneOrFail({
+            where: { id },
+            relations: ["clients"],
+        });
     }
 
     /**
@@ -152,14 +127,8 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
     /**
      * Deletes a tenant by ID
      * @param tenantId The ID of the tenant to delete
-     * @param user The user requesting the deletion
      */
-    async deleteTenant(tenantId: string, user: TokenPayload) {
-        if (tenantId !== user.sub) {
-            throw new ForbiddenException(
-                `User ${user.sub} is not allowed to delete tenant ${tenantId}`,
-            );
-        }
+    async deleteTenant(tenantId: string) {
         //delete all files associated with the tenant
         await this.filesService.deleteByTenant(tenantId);
         //because of cascading, all related entities will be deleted.

@@ -4,7 +4,7 @@ import { PassportStrategy } from "@nestjs/passport";
 import { passportJwtSecret } from "jwks-rsa";
 import { ExtractJwt, Strategy } from "passport-jwt";
 import { TenantService } from "./tenant/tenant.service";
-import { TokenPayload } from "./token.decorator";
+import { InternalTokenPayload } from "./token.decorator";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
@@ -80,10 +80,10 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
      * @param payload The JWT payload
      * @returns The validated payload or an error
      */
-    async validate(payload: TokenPayload): Promise<any> {
+    async validate(payload: InternalTokenPayload): Promise<any> {
         const useExternalOIDC =
             this.configService.get<string>("OIDC") !== undefined;
-        let sub = payload.sub;
+        let sub = payload.tenant_id;
         if (useExternalOIDC) {
             const key = this.configService.getOrThrow<string>("OIDC_SUB");
             sub = (payload as any)[key] as string;
@@ -93,6 +93,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
             .getTenant(sub)
             .catch(() => null);
 
-        return { sub, admin: payload.admin || false, entity: tenantEntity };
+        return {
+            entity: tenantEntity,
+            roles: payload.roles || (payload as any).realm_access?.roles || [],
+        };
     }
 }

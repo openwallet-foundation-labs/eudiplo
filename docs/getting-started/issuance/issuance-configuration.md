@@ -9,16 +9,7 @@ Issuance configurations define the parameters and settings for the issuance of c
 **Example Issuance Configuration:**
 
 ```json
-{
-  "id": "pid",
-  "description": "PID issuance with pre auth flow",
-  "authenticationConfig": {
-    "method": "none"
-  },
-  "credentialConfigIds": ["pid"],
-  "batchSize": 10,
-  "dPopRequired": false
-}
+--8<-- "assets/config/root/issuance/issuance/pid.json"
 ```
 
 ## Configuration Fields

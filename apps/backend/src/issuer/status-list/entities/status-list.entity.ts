@@ -1,6 +1,6 @@
 import { BitsPerStatus } from "@sd-jwt/jwt-status-list";
 import { Column, Entity, ManyToOne } from "typeorm";
-import { TenantEntity } from "../../../auth/entitites/tenant.entity";
+import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
 
 /**
  * Entity representing the status list for a tenant.

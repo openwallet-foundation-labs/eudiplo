@@ -56,13 +56,13 @@ Choose how you want to run EUDIPLO:
 
 ## Step 2: Verify It's Working
 
-**Check health:**
+After starting the container, check that EUDIPLO is healthy by querying its health endpoint:
 
 ```bash
 curl http://localhost:3000/health
 ```
 
-**Expected response:**
+**Expected response from EUDIPLO:**
 
 ```json
 {
@@ -127,10 +127,7 @@ Choose your preferred approach:
         - **Client Secret**: `root`
     3. **Explore** the dashboard to see:
         - Available credential templates        
-        - Quick action buttons for common tasks
-
-    !!! success "You're ready!"
-        The web interface will guide you through issuing your first credential with step-by-step instructions.
+        - Quick action buttons for common tasks    
 
     !!! tip "Learn More"
         For detailed web client features and workflows, see the **[Web Client Guide](./web-client.md)**.

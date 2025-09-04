@@ -32,46 +32,43 @@ A tenant goes through several stages:
 - **Enable:** The tenant becomes active; sessions, keys, and credential templates can be used.
 - **Suspend:** A tenant can be disabled (e.g., revoking OIDC client access). Data remains in place but is inaccessible.
 - **Re-Enable:** Suspended tenants can be reactivated without data loss.
-- **Delete:** A full removal workflow, including key destruction and data wiping, will be added.
+- **Delete:** A full removal workflow, including key destruction and data wiping.
 
 ---
 
 ## Tenant Management
 
-When a protected endpoint is called, the system checks if the tenant exists. If not, EUDIPLO will automatically set it up. This may lead to longer latency on the first request, but subsequent requests are faster.
+When a protected endpoint is called, EUDIPLO enforces tenant isolation and role-based access control by extracting the tenant ID and user roles from the provided JWT access token. Each endpoint requires specific roles; see the [Protected Endpoints](../api/authentication.md#protected-endpoints) section in the [Authentication](../api/authentication.md) documentation for details.
 
 ### Client Management via Web Client
 
-- Currently supported with **Keycloak** as external OIDC provider.
-- Users with the `manage-account` role can manage tenants at `/clients`.
-- The web client authenticates against Keycloak and interacts with EUDIPLO using the provided access token.
+- Clients can be either managed by EUDIPLO by storing the clientSecrets in the database or by using an external OIDC provider like Keycloak.
+- The web client authenticates against the OIDC provider and interacts with EUDIPLO using the provided access token.
 
 From the UI you can:
 
-- **Create new clients** (provision a tenant)
-- **Enable/disable clients** (toggle active state)
-- **Remove clients** (currently soft delete; no EUDIPLO wipe yet)
-- **Share configurations** via URL (clicking the share icon copies a tenant URL with parameters)
+- Create and delete tenants
+- Manage the tenants' clients
+- Manage the issuance and presentation configs of the tenants.
 
-> Even with management privileges, users will **only see tenant-scoped data**.  
-> EUDIPLO enforces tenant context based on the **subject claim** of the access token.
+> Even with tenant management privileges, users will **only see tenant-scoped data**.  
+> EUDIPLO enforces tenant context based on the access token.
 
 ### Client Management via the API
 
-The `/tenant` endpoint allows programmatic management of tenants. Keep in mind when using an external OIDC provider, you still need to call the POST `/tenant` endpoint to create the default values.
+- `/tenant` endpoint allows programmatic management of tenants.
+- `/client` endpoint allows programmatic management of clients. Based on the access token the tenant context is extracted to perform actions on the specific tenant's clients.
 
 ### Authentication Methods
 
-Instead of client ID/secret, you may use any authentication method supported by your OIDC provider.  
-EUDIPLO only validates the **access token**; it does not care how authentication was performed.
+Instead of client secrets, you may use any authentication method supported by your OIDC provider.  
+EUDIPLO only validates the **access token**; it does not care how authentication was performed. When using EUDIPLO as the OIDC provider, only clientID + clientSecret is supported for now.
 
 ---
 
 ## Security Considerations
 
-- **Access control:** All API calls are validated against tenant context embedded in the access token.
-- **Auditability:** All operations are logged with `tenantId` for traceability.
-  1- **Admin Role:** Certain lifecycle actions (e.g., deletion) will require a **super admin** credential beyond tenant admins.
+- **Access control:** All API calls are validated against tenant context and roles embedded in the access token.
 
 See also:
 
