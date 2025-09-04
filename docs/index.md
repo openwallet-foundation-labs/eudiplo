@@ -67,15 +67,20 @@ EUDIPLO is distributed as a Docker container and can be configured in minutes.
 docker run -p 3000:3000 \
   -e PUBLIC_URL=https://example.com \
   -e JWT_SECRET=your-secret-key-here-minimum-32-characters \
-  -e AUTH_CLIENT_ID=your-tenant-id \
-  -e AUTH_CLIENT_SECRET=your-tenant-secret \
-  -v $(pwd)/config:/app/config \
   ghcr.io/openwallet-foundation-labs/eudiplo:latest
 ```
 
-➡️ Read the [Quickstart Guide](./getting-started/quick-start.md)  
-📘 Learn how to [configure credentials](./getting-started/issuance/index.md) or
-[verify them](./getting-started/presentation/index.md)
+- `-p 3000:3000` exposes EUDIPLO locally on port 3000.
+- `PUBLIC_URL` should be the public-facing URL where your instance is reachable (used for callbacks and wallet redirects).
+
+➡️ For step-by-step instructions, see the [Quickstart Guide](./getting-started/quick-start.md).  
+⚙️ For production deployment and advanced configuration, see [Production Setup](./architecture/index.md).
+
+---
+
+For more details on credential issuance and verification, check out:  
+📘 [Configure credentials](./getting-started/issuance/index.md)  
+📘 [Verify credentials](./getting-started/presentation/index.md)
 
 ---
 

@@ -8,10 +8,9 @@ To interact with an EUDI Wallet, two types of certificates are required:
 You can still use EUDIPLO without these certificates, but it can end up into
 warnings when making requests to the EUDI Wallet.
 
-!!! Environment-Variables
+## Configuration
 
-    The list of environment variables is auto-generated from the implementation and published in [Environment Config](../architecture/environment-config.md#registrar).
-    Always refer there for the latest and complete configuration options.
+--8<-- "docs/generated/config-registrar.md"
 
 ## Accessing the Registrar
 

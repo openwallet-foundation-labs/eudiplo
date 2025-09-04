@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
-import { ApiSecurity } from "@nestjs/swagger";
-import { JwtAuthGuard } from "../../auth/auth.guard";
+import { Body, Controller, Get, Post } from "@nestjs/common";
+import { Role } from "../../auth/roles/role.enum";
+import { Secured } from "../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../auth/token.decorator";
 import { DisplayService } from "./display.service";
 import { DisplayCreateDto } from "./dto/display-create.dto";
@@ -8,8 +8,7 @@ import { DisplayCreateDto } from "./dto/display-create.dto";
 /**
  * Display Controller
  */
-@UseGuards(JwtAuthGuard)
-@ApiSecurity("oauth2")
+@Secured([Role.Issuances])
 @Controller("display")
 export class DisplayController {
     /**
@@ -25,7 +24,7 @@ export class DisplayController {
      */
     @Get()
     getDisplay(@Token() user: TokenPayload) {
-        return this.displayService.get(user.sub);
+        return this.displayService.get(user.entity!.id);
     }
 
     /**
@@ -39,6 +38,6 @@ export class DisplayController {
         @Token() user: TokenPayload,
         @Body() displayData: DisplayCreateDto,
     ) {
-        return this.displayService.create(user.sub, displayData);
+        return this.displayService.create(user.entity!.id, displayData);
     }
 }

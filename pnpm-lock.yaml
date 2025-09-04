@@ -63,6 +63,9 @@ importers:
       '@badgateway/oauth2-client':
         specifier: ^3.3.0
         version: 3.3.0
+      '@keycloak/keycloak-admin-client':
+        specifier: ^26.3.2
+        version: 26.3.2
       '@nestjs/axios':
         specifier: ^4.0.1
         version: 4.0.1(@nestjs/common@11.1.6(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2))(axios@1.11.0)(rxjs@7.8.2)

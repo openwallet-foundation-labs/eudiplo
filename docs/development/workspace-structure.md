@@ -35,10 +35,10 @@ eudiplo/
 - **Purpose**: Core API server for EUDI Wallet integration
 - **Port**: 3000
 - **Key Features**:
-  - OID4VCI, OID4VP, SD-JWT VC support
-  - OAuth2 authentication
-  - Pluggable key management
-  - Database abstraction
+    - OID4VCI, OID4VP, SD-JWT VC support
+    - OAuth2 authentication
+    - Pluggable key management
+    - Database abstraction
 
 ### Client (`@eudiplo/client`)
 
@@ -46,19 +46,19 @@ eudiplo/
 - **Purpose**: Web interface for EUDIPLO management
 - **Port**: 4200
 - **Key Features**:
-  - Credential issuance configuration
-  - Presentation request management
-  - Real-time monitoring
-  - Admin dashboard
+    - Credential issuance configuration
+    - Presentation request management
+    - Real-time monitoring
+    - Admin dashboard
 
 ### Webhook (`test-rp`)
 
 - **Technology**: Cloudflare Worker
 - **Purpose**: Testing relying party implementation
 - **Key Features**:
-  - Webhook endpoints for testing
-  - Presentation verification
-  - Development utilities
+    - Webhook endpoints for testing
+    - Presentation verification
+    - Development utilities
 
 ## 🔧 Workspace Commands
 

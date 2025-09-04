@@ -18,7 +18,6 @@ import { RegistrarModule } from "./registrar/registrar.module";
 import { SessionModule } from "./session/session.module";
 import { StorageModule } from "./storage/storage.module";
 import { VALIDATION_SCHEMA } from "./utils/config-printer/combined.schema";
-import { ConfigPrinterService } from "./utils/config-printer/config-printer.service";
 import { VerifierModule } from "./verifier/verifier.module";
 import { WellKnownController } from "./well-known/well-known.controller";
 import { WellKnownService } from "./well-known/well-known.service";
@@ -107,6 +106,6 @@ import { WellKnownService } from "./well-known/well-known.service";
         StorageModule.forRoot(),
     ],
     controllers: [WellKnownController, AppController],
-    providers: [WellKnownService, ConfigPrinterService],
+    providers: [WellKnownService],
 })
 export class AppModule {}

@@ -6,18 +6,12 @@ import {
     Param,
     Post,
     Res,
-    UseGuards,
 } from "@nestjs/common";
-import {
-    ApiBody,
-    ApiProduces,
-    ApiResponse,
-    ApiSecurity,
-    ApiTags,
-} from "@nestjs/swagger";
+import { ApiBody, ApiProduces, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Response } from "express";
 import * as QRCode from "qrcode";
-import { JwtAuthGuard } from "../../auth/auth.guard";
+import { Role } from "../../auth/roles/role.enum";
+import { Secured } from "../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../auth/token.decorator";
 import { OfferResponse } from "../../issuer/oid4vci/dto/offer-request.dto";
 import {
@@ -29,8 +23,7 @@ import { PresentationConfigCreateDto } from "./dto/presentation-config-create.dt
 import { PresentationsService } from "./presentations.service";
 
 @ApiTags("Presentation management")
-@UseGuards(JwtAuthGuard)
-@ApiSecurity("oauth2", ["api:read", "api:write"])
+@Secured([Role.Presentations])
 @Controller("presentation-management")
 export class PresentationManagementController {
     constructor(
@@ -54,8 +47,6 @@ export class PresentationManagementController {
         },
     })
     @ApiProduces("application/json", "image/png")
-    @UseGuards(JwtAuthGuard)
-    @ApiSecurity("oauth2")
     @ApiBody({
         type: PresentationRequest,
         examples: {
@@ -86,7 +77,7 @@ export class PresentationManagementController {
             {
                 webhook: body.webhook,
             },
-            user.sub,
+            user.entity!.id,
         );
         values.uri = `openid4vp://?${values.uri}`;
         if (body.response_type === ResponseType.QRCode) {
@@ -109,7 +100,9 @@ export class PresentationManagementController {
      */
     @Get()
     configuration(@Token() user: TokenPayload) {
-        return this.presentationsService.getPresentationConfigs(user.sub);
+        return this.presentationsService.getPresentationConfigs(
+            user.entity!.id,
+        );
     }
 
     /**
@@ -123,7 +116,7 @@ export class PresentationManagementController {
         @Token() user: TokenPayload,
     ) {
         return this.presentationsService.storePresentationConfig(
-            user.sub,
+            user.entity!.id,
             config,
         );
     }
@@ -135,6 +128,9 @@ export class PresentationManagementController {
      */
     @Delete(":id")
     deleteConfiguration(@Param("id") id: string, @Token() user: TokenPayload) {
-        return this.presentationsService.deletePresentationConfig(id, user.sub);
+        return this.presentationsService.deletePresentationConfig(
+            id,
+            user.entity!.id,
+        );
     }
 }

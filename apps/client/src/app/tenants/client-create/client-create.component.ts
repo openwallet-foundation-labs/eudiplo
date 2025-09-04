@@ -6,10 +6,13 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { KeycloakService } from '../keycloak.service';
-import { tenantControllerInitTenant } from '../../generated';
+import { clientControllerCreateClient } from '../../generated';
+import { Role } from '../../services/jwt.service';
+import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-client-create',
@@ -20,7 +23,11 @@ import { tenantControllerInitTenant } from '../../generated';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    MatIconModule,
     FlexLayoutModule,
+    MatSelectModule,
+    RouterModule,
+    MatTooltipModule,
   ],
   templateUrl: './client-create.component.html',
   styleUrl: './client-create.component.scss',
@@ -30,30 +37,25 @@ export class ClientCreateComponent {
   isSubmitting = false;
   hasPermission = false;
 
+  roles: Role[] = [
+    'clients:manage',
+    'issuance:manage',
+    'issuance:offer',
+    'presentation:manage',
+    'presentation:offer',
+  ];
+
   constructor(
     private fb: FormBuilder,
-    private keycloakService: KeycloakService,
     private snackBar: MatSnackBar,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.clientForm = this.fb.group({
       clientId: ['', [Validators.required, Validators.minLength(1)]],
       description: [''],
+      roles: [[], [Validators.required]],
     });
-
-    this.checkPermissions();
-  }
-
-  private checkPermissions(): void {
-    this.hasPermission = this.keycloakService.hasClientManagementPermission();
-    if (!this.hasPermission) {
-      this.snackBar.open(
-        'You do not have permission to create Keycloak clients. Required role: admin or client-admin',
-        'Close',
-        { duration: 5000 }
-      );
-      this.router.navigate(['/clients']);
-    }
   }
 
   async onSubmit(): Promise<void> {
@@ -62,15 +64,15 @@ export class ClientCreateComponent {
     }
 
     this.isSubmitting = true;
-    const { clientId, description } = this.clientForm.value;
+    console.log('call');
 
     try {
-      await this.keycloakService.createClient(clientId, description);
+      await clientControllerCreateClient({
+        body: this.clientForm.value,
+      });
       this.snackBar.open('Client created successfully', 'Close', { duration: 3000 });
-      await tenantControllerInitTenant({ body: { id: clientId } });
-      await this.router.navigate(['/clients']);
+      await this.router.navigate(['..'], { relativeTo: this.route });
     } catch (error) {
-      console.error('Error creating client:', error);
       this.snackBar.open(
         error instanceof Error ? error.message : 'Failed to create client',
         'Close',
@@ -82,6 +84,6 @@ export class ClientCreateComponent {
   }
 
   onCancel(): void {
-    this.router.navigate(['/clients']);
+    this.router.navigate(['../'], { relativeTo: this.route });
   }
 }

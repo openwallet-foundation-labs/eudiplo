@@ -1,14 +1,7 @@
-import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    Param,
-    Post,
-    UseGuards,
-} from "@nestjs/common";
-import { ApiParam, ApiSecurity, ApiTags } from "@nestjs/swagger";
-import { JwtAuthGuard } from "../auth/auth.guard";
+import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
+import { ApiParam, ApiTags } from "@nestjs/swagger";
+import { Role } from "../auth/roles/role.enum";
+import { Secured } from "../auth/secure.decorator";
 import { Token, TokenPayload } from "../auth/token.decorator";
 import { StatusUpdateDto } from "../issuer/status-list/dto/status-update.dto";
 import { StatusListService } from "../issuer/status-list/status-list.service";
@@ -17,8 +10,7 @@ import { SessionPipe } from "./session.pipe";
 import { SessionService } from "./session.service";
 
 @ApiTags("Session management")
-@UseGuards(JwtAuthGuard)
-@ApiSecurity("oauth2")
+@Secured([Role.IssuanceOffer, Role.PresentationOffer])
 @Controller("session")
 export class SessionController {
     constructor(
@@ -55,7 +47,7 @@ export class SessionController {
         @Param("id") id: string,
         @Token() user: TokenPayload,
     ): Promise<void> {
-        return this.sessionService.delete(id, user.sub);
+        return this.sessionService.delete(id, user.entity!.id);
     }
 
     /**
@@ -65,6 +57,6 @@ export class SessionController {
      */
     @Post("revoke")
     revokeAll(@Body() value: StatusUpdateDto, @Token() user: TokenPayload) {
-        return this.statusListService.updateStatus(value, user.sub);
+        return this.statusListService.updateStatus(value, user.entity!.id);
     }
 }

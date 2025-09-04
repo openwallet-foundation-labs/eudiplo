@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { TenantEntity } from "../auth/entitites/tenant.entity";
+import { TenantEntity } from "../auth/tenant/entitites/tenant.entity";
 import { CryptoService } from "./crypto.service";
 import { EncryptionService } from "./encryption/encryption.service";
 import { CertEntity } from "./key/entities/cert.entity";

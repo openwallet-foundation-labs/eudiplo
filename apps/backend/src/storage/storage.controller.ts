@@ -5,12 +5,12 @@ import {
     Post,
     StreamableFile,
     UploadedFile,
-    UseGuards,
     UseInterceptors,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { ApiBody, ApiConsumes, ApiSecurity } from "@nestjs/swagger";
-import { JwtAuthGuard } from "../auth/auth.guard";
+import { ApiBody, ApiConsumes } from "@nestjs/swagger";
+import { Role } from "../auth/roles/role.enum";
+import { Secured } from "../auth/secure.decorator";
 import { Token, TokenPayload } from "../auth/token.decorator";
 import { FileUploadDto } from "./dto/file-upload.dto";
 import { FilesService } from "./files.service";
@@ -33,8 +33,7 @@ export class StorageController {
      * @returns
      */
     @UseInterceptors(FileInterceptor("file"))
-    @UseGuards(JwtAuthGuard)
-    @ApiSecurity("oauth2")
+    @Secured([Role.Issuances])
     @ApiConsumes("multipart/form-data")
     @ApiBody({
         description: "List of cats",
@@ -45,7 +44,7 @@ export class StorageController {
         @Token() user: TokenPayload,
         @UploadedFile() file: Express.Multer.File,
     ) {
-        return this.filesService.saveUserUpload(user.sub, file, true);
+        return this.filesService.saveUserUpload(user.entity!.id, file, true);
     }
 
     @Get(":key")

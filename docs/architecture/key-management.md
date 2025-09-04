@@ -5,10 +5,9 @@ ways, depending on the selected key management type (`KM_TYPE`).
 
 > 💡 **Encryption operations** are always proceed with database stored keys for not and independent from the used KeyManagement Module.
 
-!!! Environment-Variables
+## Configuration
 
-    The list of environment variables is auto-generated from the implementation and published in [Environment Config](./environment-config.md#key).
-    Always refer there for the latest and complete configuration options.
+--8<-- "docs/generated/config-key.md"
 
 ---
 

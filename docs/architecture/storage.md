@@ -4,10 +4,9 @@ This service supports flexible file storage options, allowing you to choose betw
 
 > 💡 Storage configuration is dynamic and can be switched between local and S3 by setting the appropriate environment variables.
 
-!!! Environment-Variables
+## Configuration
 
-    The list of environment variables is auto-generated from the implementation and published in [Environment Config](./environment-config.md#storage).
-    Always refer there for the latest and complete configuration options.
+--8<-- "docs/generated/config-storage.md"
 
 ---
 

@@ -1,14 +1,9 @@
-import { Body, Controller, Post, Res, UseGuards } from "@nestjs/common";
-import {
-    ApiBody,
-    ApiProduces,
-    ApiResponse,
-    ApiSecurity,
-    ApiTags,
-} from "@nestjs/swagger";
+import { Body, Controller, Post, Res } from "@nestjs/common";
+import { ApiBody, ApiProduces, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Response } from "express";
 import * as QRCode from "qrcode";
-import { JwtAuthGuard } from "../../auth/auth.guard";
+import { Role } from "../../auth/roles/role.enum";
+import { Secured } from "../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../auth/token.decorator";
 import { Oid4vciService } from "../../issuer/oid4vci/oid4vci.service";
 import { ResponseType } from "../../verifier/oid4vp/dto/presentation-request.dto";
@@ -18,8 +13,7 @@ import {
 } from "../oid4vci/dto/offer-request.dto";
 
 @ApiTags("Issuer management")
-@UseGuards(JwtAuthGuard)
-@ApiSecurity("oauth2")
+@Secured([Role.Issuances])
 @Controller("issuer-management")
 export class IssuerManagementController {
     constructor(private readonly oid4vciService: Oid4vciService) {}
@@ -90,7 +84,7 @@ export class IssuerManagementController {
         const values = await this.oid4vciService.createOffer(
             body,
             user,
-            user.sub,
+            user.entity!.id,
         );
 
         if (body.response_type === ResponseType.QRCode) {

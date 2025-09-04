@@ -17,10 +17,9 @@ starts. This is particularly useful for:
 
 > When running locally with nodejs, the default directory is `assets/config/`.
 
-!!! Environment-Variables
+## Configuration
 
-    The list of environment variables is auto-generated from the implementation and published in [Environment Config](./environment-config.md#config).
-    Always refer there for the latest and complete configuration options.
+--8<-- "docs/generated/config-config.md"
 
 ## Directory Structure
 

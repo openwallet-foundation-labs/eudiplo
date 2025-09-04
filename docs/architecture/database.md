@@ -5,13 +5,9 @@ default, a local **SQLite** database is used, but the system also supports
 **PostgreSQL** and can be extended to work with other engines such as **MySQL**
 thanks to TypeORM’s flexible architecture.
 
-> 💡 Database configuration is fully dynamic and can be defined via environment
-> variables.
+## Configuration
 
-!!! Environment-Variables
-
-    The list of environment variables is auto-generated from the implementation and published in [Environment Config](./environment-config.md#database).
-    Always refer there for the latest and complete configuration options.
+--8<-- "docs/generated/config-database.md"
 
 ---
 

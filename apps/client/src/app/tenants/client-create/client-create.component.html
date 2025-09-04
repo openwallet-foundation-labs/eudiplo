@@ -1,11 +1,14 @@
-<div fxLayout="column" fxLayoutAlign="start center" class="container">
-  <mat-card class="client-form-card">
-    <mat-card-header>
-      <mat-card-title>Create New Keycloak Client</mat-card-title>
-    </mat-card-header>
+<div fxLayout="column" fxFlex fxLayoutGap="24px">
+  <div fxLayout="row" fxLayoutAlign="space-between center">
+    <h2>Create client</h2>
+    <button mat-icon-button [routerLink]="['../']" matTooltip="Back to Client List">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+  </div>
 
-    <mat-card-content>
-      <form [formGroup]="clientForm" (ngSubmit)="onSubmit()" fxLayout="column" fxLayoutGap="16px">
+  <form [formGroup]="clientForm" (ngSubmit)="onSubmit()">
+    <mat-card>
+      <mat-card-content fxLayout="column" fxLayoutGap="16px">
         <mat-form-field appearance="outline">
           <mat-label>Client ID</mat-label>
           <input
@@ -30,22 +33,32 @@
             placeholder="Optional description for this client"
           />
         </mat-form-field>
-      </form>
-    </mat-card-content>
 
-    <mat-card-actions fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
-      <button mat-button type="button" (click)="onCancel()" [disabled]="isSubmitting">
-        Cancel
-      </button>
-      <button
-        mat-raised-button
-        color="primary"
-        type="submit"
-        (click)="onSubmit()"
-        [disabled]="clientForm.invalid || isSubmitting"
-      >
-        {{ isSubmitting ? 'Creating...' : 'Create Client' }}
-      </button>
-    </mat-card-actions>
-  </mat-card>
+        <mat-form-field>
+          <mat-label>Roles</mat-label>
+          <mat-select formControlName="roles" multiple>
+            @for (role of roles; track role) {
+              <mat-option [value]="role">
+                {{ role }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </mat-card-content>
+
+      <mat-card-actions fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
+        <button mat-button type="button" (click)="onCancel()" [disabled]="isSubmitting">
+          Cancel
+        </button>
+        <button
+          mat-flat-button
+          color="primary"
+          type="submit"
+          [disabled]="clientForm.invalid || isSubmitting"
+        >
+          {{ isSubmitting ? 'Creating...' : 'Create Client' }}
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </form>
 </div>

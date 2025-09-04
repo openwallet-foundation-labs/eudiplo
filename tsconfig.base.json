@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "lib": [
+            "ES2022",
+            "DOM"
+        ],
+        "strict": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
+        // Put workspace-wide path aliases here if you have shared libs:
+        // "baseUrl": ".",
+        // "paths": {
+        //   "@eudiplo/*": ["packages/*/src/index.ts"]
+        // }
+    }
+}

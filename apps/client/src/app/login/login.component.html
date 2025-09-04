@@ -31,23 +31,6 @@
             }
           </mat-form-field>
 
-          <!-- Server URL Field -->
-          <mat-form-field>
-            <mat-label>Authentication Server</mat-label>
-            <input
-              matInput
-              formControlName="oidcUrl"
-              placeholder="https://your-eudiplo-server.com"
-              type="url"
-            />
-            <mat-icon matSuffix>dns</mat-icon>
-            @if (loginForm.get('oidcUrl')?.invalid && loginForm.get('oidcUrl')?.touched) {
-              <mat-error>
-                {{ getErrorMessage('oidcUrl') }}
-              </mat-error>
-            }
-          </mat-form-field>
-
           <!-- Client ID Field -->
           <mat-form-field>
             <mat-label>Client ID</mat-label>

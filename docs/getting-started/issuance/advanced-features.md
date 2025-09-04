@@ -6,6 +6,20 @@ credential expiration.
 
 ---
 
+## Signing Key
+
+The signing key is used to create the digital signature for the credential. It is essential for ensuring the integrity and authenticity of the credential. If none is provided, the first key in the key set will be used.
+
+### Configuration
+
+```json
+{
+    "keyId": "signing-key-1",    
+}
+```
+
+> Keys can be managed through the `/keys` API endpoint.
+
 ## Cryptographic Key Binding
 
 Cryptographic key binding ensures that a credential can only be used by the
@@ -146,87 +160,93 @@ When `lifeTime` is specified:
 
 ---
 
-## Complete Example with All Features
+## Embedded Disclosure Policy
+
+The embedded disclosure policy defines rule to which the credential can be disclosed.
+
+There are four supported policy mechanisms:
+
+### None
+
+when policy is set to `none`, then there is no restriction on disclosure and claims can be revealed without any constraints.
 
 ```json
 {
-    "config": {
-        "format": "dc+sd-jwt",
-        "display": [
-            {
-                "name": "Enhanced PID",
-                "description": "Personal Identity Document with full security features",
-                "locale": "en-US",
-                "background_color": "#FFFFFF",
-                "text_color": "#000000",
-                "logo": {
-                    "uri": "<PUBLIC_URL>/issuer.png",
-                    "url": "<PUBLIC_URL>/issuer.png"
-                },
-                "background_image": {
-                    "uri": "<PUBLIC_URL>/bdr/credential.png",
-                    "url": "<PUBLIC_URL>/bdr/credential.png"
-                }
-            }
-        ]
-    },
-    "lifeTime": 86400,
-    "statusManagement": true,
-    "keyBinding": true,
-    "claims": {
-        "issuing_country": "DE",
-        "issuing_authority": "DE",
-        "given_name": "ERIKA",
-        "family_name": "MUSTERMANN",
-        "birth_family_name": "GABLER",
-        "birthdate": "1964-08-12",
-        "age_birth_year": 1964,
-        "age_in_years": 59,
-        "age_equal_or_over": {
-            "12": true,
-            "14": true,
-            "16": true,
-            "18": true,
-            "21": true,
-            "65": false
-        },
-        "place_of_birth": {
-            "locality": "BERLIN"
-        },
-        "address": {
-            "locality": "KÖLN",
-            "postal_code": "51147",
-            "street_address": "HEIDESTRAẞE 17"
-        },
-        "nationalities": ["DE"]
-    },
-    "disclosureFrame": {
-        "_sd": [
-            "issuing_country",
-            "issuing_authority",
-            "given_name",
-            "family_name",
-            "birth_family_name",
-            "birthdate",
-            "age_birth_year",
-            "age_in_years",
-            "age_equal_or_over",
-            "place_of_birth",
-            "address",
-            "nationalities"
-        ],
-        "address": {
-            "_sd": ["locality", "postal_code", "street_address"]
-        }
-    },
-    "vct": {}
+    "policy": "none"
 }
 ```
 
-This configuration enables:
+### Allow List
 
-- **Key binding**: Credential bound to holder's key
-- **Status management**: Revocation support via status lists
-- **Expiration**: 24-hour credential lifetime
-- **Selective disclosure**: Claims can be selectively revealed
-- **Rich claims**: Complex data types and nested objects
+When policy is set to `allow`, only relying parties explicitly listed in the credential can access the claims.
+
+```json
+{
+    "policy": "allowList",
+    "values": [
+        "https://relying-party-1.com",
+        "https://relying-party-2.com"
+    ]
+}
+```
+
+### Root of Trust
+
+When policy is set to `rootOfTrust`, only relying parties that have a valid trustchain to the explicitly listed root of trust can access the claims.
+
+```json
+{
+    "policy": "rootOfTrust",
+    "values": [
+        "https://root-of-trust.com"
+    ]
+}
+```
+
+### Attestation Based
+
+When policy is set to `attestationBased`, only relying parties that can present a valid attestation can access the claims.
+
+```json
+{
+    "policy": "attestationBased",
+    "values": [ 
+        {
+            "claims": [
+                {
+                    "id": "card",
+                    "path": [
+                        "given_name"
+                    ]
+                }
+            ],
+            "credentials": [
+                {
+                    "id": "card",
+                    "format": "sd-jwt-dc",
+                    "meta": {
+                        "vct_values": "https://example.com/member-card"
+                    },
+                    "trusted_authorities": [
+                        {
+                            "type": "aki",
+                            "values": [
+                                "s9tIpPmhxdiuNkHMEWNpYim8S8Y"
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "credential_sets": [
+                {
+                    "options": [
+                        [
+                            "card"
+                        ]
+                    ]
+                }
+            ]
+        }
+    ]
+}
+```

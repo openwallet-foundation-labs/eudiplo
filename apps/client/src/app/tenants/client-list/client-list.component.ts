@@ -1,16 +1,20 @@
 import { CommonModule } from '@angular/common';
-import { Component, type OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { KeycloakService, type ClientInfo } from '../keycloak.service';
 import { ApiService } from '../../api.service';
-import { tenantControllerDeleteTenant } from '../../generated';
+import {
+  clientControllerGetClients,
+  ClientEntity,
+  clientControllerDeleteClient,
+  ClientView,
+} from '../../generated';
+import { MatChipsModule } from '@angular/material/chips';
 
 @Component({
   selector: 'app-client-list',
@@ -22,51 +26,41 @@ import { tenantControllerDeleteTenant } from '../../generated';
     MatCardModule,
     RouterModule,
     FlexLayoutModule,
-    MatSlideToggleModule,
+    MatChipsModule,
   ],
   templateUrl: './client-list.component.html',
   styleUrl: './client-list.component.scss',
 })
 export class ClientListComponent implements OnInit {
-  clients: ClientInfo[] = [];
+  @Input() loadedClients?: ClientEntity[];
+
+  clients: ClientView[] = [];
   loading = false;
   hasPermission = false;
 
-  displayedColumns: (keyof ClientInfo | 'actions')[] = [
+  displayedColumns: (keyof ClientEntity | 'actions')[] = [
     'clientId',
     'description',
-    'enabled',
+    'roles',
     'actions',
   ];
 
   constructor(
-    private keycloakService: KeycloakService,
     private snackBar: MatSnackBar,
     private apiService: ApiService
   ) {}
-
   ngOnInit(): void {
-    this.checkPermissions();
-    if (this.hasPermission) {
+    if (this.loadedClients) {
+      this.clients = this.loadedClients;
+    } else {
       this.loadClients();
-    }
-  }
-
-  private checkPermissions(): void {
-    this.hasPermission = this.keycloakService.hasClientManagementPermission();
-    if (!this.hasPermission) {
-      this.snackBar.open(
-        'You do not have permission to manage Keycloak clients. Required role: admin or client-admin',
-        'Close',
-        { duration: 5000 }
-      );
     }
   }
 
   async loadClients(): Promise<void> {
     this.loading = true;
     try {
-      this.clients = await this.keycloakService.listClients();
+      this.clients = await clientControllerGetClients<true>().then((res) => res.data);
     } catch (error) {
       console.error('Error loading clients:', error);
       this.snackBar.open('Failed to load clients', 'Close', { duration: 3000 });
@@ -75,22 +69,7 @@ export class ClientListComponent implements OnInit {
     }
   }
 
-  async toggleClientStatus(client: ClientInfo): Promise<void> {
-    if (!client.id) return;
-
-    try {
-      await this.keycloakService.updateClientStatus(client.id, !client.enabled);
-      client.enabled = !client.enabled;
-      this.snackBar.open(`Client ${client.enabled ? 'enabled' : 'disabled'}`, 'Close', {
-        duration: 3000,
-      });
-    } catch (error) {
-      console.error('Error updating client status:', error);
-      this.snackBar.open('Failed to update client status', 'Close', { duration: 3000 });
-    }
-  }
-
-  async deleteClient(client: ClientInfo): Promise<void> {
+  async deleteClient(client: ClientEntity): Promise<void> {
     if (
       !client.clientId ||
       !confirm(`Are you sure you want to delete client "${client.clientId}"?`)
@@ -99,8 +78,7 @@ export class ClientListComponent implements OnInit {
     }
 
     try {
-      await this.keycloakService.deleteClient(client.clientId);
-      await tenantControllerDeleteTenant({ path: { id: client.clientId } });
+      await clientControllerDeleteClient({ path: { id: client.clientId } });
       await this.loadClients(); // Reload the list
       this.snackBar.open('Client deleted successfully', 'Close', { duration: 3000 });
     } catch (error) {
@@ -109,9 +87,10 @@ export class ClientListComponent implements OnInit {
     }
   }
 
-  async copyLoginUrl(client: ClientInfo) {
+  async copyLoginUrl(client: ClientEntity) {
+    //TODO: the secret is only included when managed by eudiplo. Because for keycloak it's stored externally
     const apiUrl = this.apiService.getBaseUrl() as string;
-    const loginUrl = await this.keycloakService.createConfigUrl(client.id as string, apiUrl);
+    const loginUrl = await this.apiService.createConfigUrl(client, apiUrl);
     navigator.clipboard.writeText(loginUrl).then(() => {
       this.snackBar.open('Login URL copied to clipboard', 'Close', { duration: 3000 });
     });

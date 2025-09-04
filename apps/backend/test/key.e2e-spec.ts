@@ -5,6 +5,7 @@ import request from "supertest";
 import { v4 } from "uuid";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../src/app.module";
+import { getToken } from "./utils";
 
 describe("Key (e2e)", () => {
     let app: INestApplication;
@@ -25,27 +26,7 @@ describe("Key (e2e)", () => {
         clientId = configService.getOrThrow<string>("AUTH_CLIENT_ID");
         clientSecret = configService.getOrThrow<string>("AUTH_CLIENT_SECRET");
 
-        // Get JWT token using client credentials
-        const tokenResponse = await request(app.getHttpServer())
-            .post("/oauth2/token")
-            .trustLocalhost()
-            .send({
-                client_id: clientId,
-                client_secret: clientSecret,
-                grant_type: "client_credentials",
-            })
-            .expect(201);
-        authToken = tokenResponse.body.access_token;
-        expect(authToken).toBeDefined();
-
-        await request(app.getHttpServer())
-            .post("/tenant")
-            .trustLocalhost()
-            .set("Authorization", `Bearer ${authToken}`)
-            .send({
-                id: "root",
-            })
-            .expect(201);
+        authToken = await getToken(app, clientId, clientSecret);
     });
 
     afterAll(async () => {

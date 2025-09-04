@@ -89,14 +89,12 @@ export class LoginComponent implements OnInit {
     };
 
     const defaultValues = {
-      oidcUrl: getParamValue('oidcUrl', env.oidc.oidcUrl),
       clientId: getParamValue('clientId', env.oidc.clientId),
       clientSecret: getParamValue('clientSecret', env.oidc.clientSecret),
       apiUrl: getParamValue('apiUrl', env.api.baseUrl),
     };
 
     this.loginForm = this.formBuilder.group({
-      oidcUrl: [defaultValues.oidcUrl, [Validators.required, Validators.pattern(/^https?:\/\/.+/)]],
       clientId: [defaultValues.clientId, [Validators.required, Validators.required]],
       clientSecret: [defaultValues.clientSecret, [Validators.required, Validators.required]],
       apiUrl: [defaultValues.apiUrl, [Validators.required, Validators.pattern(/^https?:\/\/.+/)]],
@@ -119,12 +117,7 @@ export class LoginComponent implements OnInit {
         const formValue = this.loginForm.value;
 
         // Initialize the API service with OIDC credentials and base URL
-        this.apiService.login(
-          formValue.oidcUrl,
-          formValue.clientId,
-          formValue.clientSecret,
-          formValue.apiUrl
-        );
+        await this.apiService.login(formValue.clientId, formValue.clientSecret, formValue.apiUrl);
 
         // Attempt to refresh/get access token
         await this.apiService.refreshAccessToken();

@@ -31,15 +31,15 @@ EUDIPLO supports multiple presentation scenarios:
 
 - Standard Presentation Flow
 
-  - Direct credential verification requests
-  - Used for access control and identity verification
-  - Returns verified claims to the requesting service
+    - Direct credential verification requests
+    - Used for access control and identity verification
+    - Returns verified claims to the requesting service
 
 - Presentation During Issuance
 
-  - Credentials presented as prerequisites for new credential issuance
-  - Enables qualification-based credential issuance
-  - Supports complex identity verification workflows
+    - Credentials presented as prerequisites for new credential issuance
+    - Enables qualification-based credential issuance
+    - Supports complex identity verification workflows
 
 ### DCQL (Digital Credentials Query Language)
 

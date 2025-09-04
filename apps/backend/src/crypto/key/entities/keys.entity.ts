@@ -1,6 +1,6 @@
 import { JWK } from "jose";
 import { Column, Entity, ManyToOne } from "typeorm";
-import { TenantEntity } from "../../../auth/entitites/tenant.entity";
+import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
 
 /**
  * Key usage types.

@@ -6,11 +6,14 @@ export const DB_VALIDATION_SCHEMA = Joi.object({
         .default("sqlite")
         .description("Database type")
         .meta({ group: "database", order: 10 }),
-    DB_HOST: Joi.string().when("DB_TYPE", {
-        is: "sqlite",
-        then: Joi.optional(),
-        otherwise: Joi.required(),
-    }),
+    DB_HOST: Joi.string()
+        .when("DB_TYPE", {
+            is: "sqlite",
+            then: Joi.optional(),
+            otherwise: Joi.required(),
+        })
+        .description("Database host")
+        .meta({ group: "database", order: 15 }),
     DB_PORT: Joi.number()
         .when("DB_TYPE", {
             is: "sqlite",

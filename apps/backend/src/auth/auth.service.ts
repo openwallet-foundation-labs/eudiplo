@@ -1,10 +1,12 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { InternalClientsProvider } from "./client/adapters/internal-clients.service";
+import { CLIENTS_PROVIDER } from "./client/client.provider";
 import { OidcDiscoveryDto } from "./dto/oidc-discovery.dto";
 import { TokenResponse } from "./dto/token-response.dto";
 import { JwtService } from "./jwt.service";
-import { TenantService } from "./tenant/tenant.service";
-import { TokenPayload } from "./token.decorator";
+import { Role } from "./roles/role.enum";
+import { InternalTokenPayload } from "./token.decorator";
 
 /**
  * Authentication Service
@@ -19,7 +21,7 @@ export class AuthService {
      */
     constructor(
         private jwtService: JwtService,
-        private tenantService: TenantService,
+        @Inject(CLIENTS_PROVIDER) private clients: InternalClientsProvider,
         private configService: ConfigService,
     ) {}
 
@@ -75,29 +77,40 @@ export class AuthService {
             );
         }
 
-        const client = this.tenantService.validateTenant(
+        const client = await this.clients.validateClientCredentials(
             clientId,
             clientSecret,
         );
+
         if (!client) {
             throw new UnauthorizedException("Invalid client credentials");
         }
 
         //TODO: check if the access token should only include the session id or also e.g. the credentials that should be issued. I would think this is not required since we still need the claims for it.
-        const payload: TokenPayload = {
-            sub: client.id,
-            admin: true,
+        const payload: InternalTokenPayload = {
+            roles: [
+                Role.IssuanceOffer,
+                Role.PresentationOffer,
+                Role.Issuances,
+                Role.Presentations,
+                Role.Clients,
+                Role.Tenants,
+            ],
+            tenant_id: client.tenantId!,
         };
 
         //TODO: make expiresIn configurable?
         const access_token = await this.jwtService.generateToken(payload, {
             expiresIn: "24h",
             audience: "eudiplo-service",
+            //TODO: check if the clientId should be saved here or somewhere else like in client_id
+            subject: clientId,
         });
 
         const refresh_token = await this.jwtService.generateToken(payload, {
             expiresIn: "30d",
             audience: "eudiplo-service",
+            subject: clientId,
         });
 
         return {
@@ -114,9 +127,10 @@ export class AuthService {
      */
     getOidcDiscovery(): OidcDiscoveryDto {
         const publicUrl = this.configService.getOrThrow<string>("PUBLIC_URL");
+        const oidc = this.configService.get<string>("OIDC");
 
         return {
-            issuer: publicUrl,
+            issuer: oidc ?? publicUrl,
             token_endpoint: `${publicUrl}/oauth2/token`,
             jwks_uri: `${publicUrl}/.well-known/jwks.json`,
             response_types_supported: ["token"],

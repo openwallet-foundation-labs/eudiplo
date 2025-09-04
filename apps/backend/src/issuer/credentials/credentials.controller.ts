@@ -1,14 +1,6 @@
-import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    Param,
-    Post,
-    UseGuards,
-} from "@nestjs/common";
-import { ApiSecurity, ApiTags } from "@nestjs/swagger";
-import { JwtAuthGuard } from "../../auth/auth.guard";
+import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
+import { Role } from "../../auth/roles/role.enum";
+import { Secured } from "../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../auth/token.decorator";
 import { CredentialConfigService } from "./credential-config/credential-config.service";
 import { CredentialConfigCreate } from "./dto/credential-config-create.dto";
@@ -16,9 +8,7 @@ import { CredentialConfigCreate } from "./dto/credential-config-create.dto";
 /**
  * Controller for managing credential configurations.
  */
-@ApiTags("Issuer management")
-@UseGuards(JwtAuthGuard)
-@ApiSecurity("oauth2")
+@Secured([Role.Issuances])
 @Controller("issuer-management/credentials")
 export class CredentialsController {
     /**
@@ -33,7 +23,7 @@ export class CredentialsController {
      */
     @Get()
     getConfigs(@Token() user: TokenPayload) {
-        return this.credentialsService.get(user.sub);
+        return this.credentialsService.get(user.entity!.id);
     }
 
     /**
@@ -46,7 +36,7 @@ export class CredentialsController {
         @Body() config: CredentialConfigCreate,
         @Token() user: TokenPayload,
     ) {
-        return this.credentialsService.store(user.sub, config);
+        return this.credentialsService.store(user.entity!.id, config);
     }
 
     /**
@@ -59,6 +49,6 @@ export class CredentialsController {
         @Param("id") id: string,
         @Token() user: TokenPayload,
     ) {
-        return this.credentialsService.delete(user.sub, id);
+        return this.credentialsService.delete(user.entity!.id, id);
     }
 }
