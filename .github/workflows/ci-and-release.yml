@@ -12,6 +12,8 @@ concurrency:
 
 jobs:
   lint:
+    permissions:
+      contents: read
     name: Lint Codebase
     runs-on: ubuntu-latest
     steps:
@@ -47,6 +49,8 @@ jobs:
 
   build-backend:
     name: Build Backend
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     needs: [lint]
     steps:
@@ -74,6 +78,8 @@ jobs:
 
   build-client:
     name: Build Client
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     needs: [lint]
     steps:
@@ -101,6 +107,8 @@ jobs:
 
   build-webhook:
     name: Build Webhook
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     needs: [lint]
     steps:
@@ -128,6 +136,8 @@ jobs:
 
   build-doc:
     name: Build Documentation
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     needs: [lint]
     steps:
@@ -168,6 +178,8 @@ jobs:
           path: site/
 
   test-e2e:
+    permissions:
+      contents: read
     name: E2E Tests
     runs-on: ubuntu-latest
     needs: [build-backend, build-client, build-webhook]
