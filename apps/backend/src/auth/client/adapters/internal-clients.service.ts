@@ -22,14 +22,14 @@ export class InternalClientsProvider
         const clientId = this.configService.getOrThrow("AUTH_CLIENT_ID");
         const clientSecret =
             this.configService.getOrThrow("AUTH_CLIENT_SECRET");
-        if (!(await this.getClient("root", clientId))) {
-            await this.repo.save({
+        await this.getClient("root", clientId).catch(() =>
+            this.repo.save({
                 clientId,
                 secret: clientSecret,
                 description: "Internal client",
                 roles: [Role.Tenants],
-            });
-        }
+            }),
+        );
     }
 
     getClients(tenantId: string) {

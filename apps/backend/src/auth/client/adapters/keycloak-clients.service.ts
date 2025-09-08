@@ -22,7 +22,7 @@ export class KeycloakClientsProvider implements ClientsProvider, OnModuleInit {
     ) {}
 
     async onModuleInit() {
-        const oidc = this.cfg.getOrThrow<string>("OIDC"); // e.g. https://kc/auth/realms/myrealm
+        const oidc = this.cfg.getOrThrow<string>("OIDC");
         const [baseUrl, realmName] = oidc.split("/realms/");
         this.kc = new KeycloakAdminClient({ baseUrl, realmName });
 
