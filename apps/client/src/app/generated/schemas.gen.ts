@@ -177,15 +177,15 @@ export const ClientEntitySchema = {
         },
         tenantId: {
             type: 'string',
-            description: 'The unique identifier for the tenant that the client belongs to.'
+            description: 'The unique identifier for the tenant that the client belongs to. Only null for accounts that manage tenants, that do not belong to a client.'
         },
         description: {
             type: 'string',
             description: 'The description of the client.'
         },
         roles: {
-            type: 'array',
             description: 'The roles assigned to the client.',
+            type: 'array',
             items: {
                 type: 'string',
                 enum: ['presentation:manage', 'presentation:offer', 'issuance:manage', 'issuance:offer', 'clients:manage', 'tenants:manage']
@@ -200,7 +200,7 @@ export const ClientEntitySchema = {
             ]
         }
     },
-    required: ['clientId', 'secret', 'tenantId', 'roles', 'tenant']
+    required: ['clientId', 'roles']
 } as const;
 
 export const TenantEntitySchema = {
@@ -489,6 +489,13 @@ export const TokenResponseSchema = {
 export const CreateTenantDtoSchema = {
     type: 'object',
     properties: {
+        roles: {
+            type: 'array',
+            items: {
+                type: 'string',
+                enum: ['presentation:manage', 'presentation:offer', 'issuance:manage', 'issuance:offer', 'clients:manage', 'tenants:manage']
+            }
+        },
         id: {
             type: 'string',
             description: 'The unique identifier for the tenant.'
@@ -505,11 +512,6 @@ export const CreateTenantDtoSchema = {
     required: ['id', 'name']
 } as const;
 
-export const ClientViewSchema = {
-    type: 'object',
-    properties: {}
-} as const;
-
 export const ClientSecretResponseDtoSchema = {
     type: 'object',
     properties: {
@@ -518,6 +520,25 @@ export const ClientSecretResponseDtoSchema = {
         }
     },
     required: ['secret']
+} as const;
+
+export const UpdateClientDtoSchema = {
+    type: 'object',
+    properties: {
+        description: {
+            type: 'string',
+            description: 'The description of the client.'
+        },
+        roles: {
+            type: 'array',
+            description: 'The roles assigned to the client.',
+            items: {
+                type: 'string',
+                enum: ['presentation:manage', 'presentation:offer', 'issuance:manage', 'issuance:offer', 'clients:manage', 'tenants:manage']
+            }
+        }
+    },
+    required: ['roles']
 } as const;
 
 export const CreateClientDtoSchema = {

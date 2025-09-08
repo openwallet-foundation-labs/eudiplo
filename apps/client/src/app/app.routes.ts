@@ -1,8 +1,8 @@
 import type { Routes } from '@angular/router';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { AuthGuard } from './guards/auth.guard';
-import { ClientListComponent } from './tenants/client-list/client-list.component';
-import { ClientCreateComponent } from './tenants/client-create/client-create.component';
+import { ClientListComponent } from './tenants/client/client-list/client-list.component';
+import { ClientCreateComponent } from './tenants/client/client-create/client-create.component';
 import { CredentialConfigCreateComponent } from './issuance/credential-config/credential-config-create/credential-config-create.component';
 import { CredentialConfigListComponent } from './issuance/credential-config/credential-config-list/credential-config-list.component';
 import { CredentialConfigShowComponent } from './issuance/credential-config/credential-config-show/credential-config-show.component';
@@ -26,6 +26,7 @@ import { RoleGuard } from './guards/roles.guard';
 import { TenantCreateComponent } from './tenants/tenant-create/tenant-create.component';
 import { TenantListComponent } from './tenants/tenant-list/tenant-list.component';
 import { TenantShowComponent } from './tenants/tenant-show/tenant-show.component';
+import { ClientShowComponent } from './tenants/client/client-show/client-show.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -55,6 +56,14 @@ export const routes: Routes = [
       },
       {
         path: 'create',
+        component: ClientCreateComponent,
+      },
+      {
+        path: ':id',
+        component: ClientShowComponent,
+      },
+      {
+        path: ':id/edit',
         component: ClientCreateComponent,
       },
     ],

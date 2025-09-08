@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators, type FormGroup } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -8,8 +8,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { clientControllerCreateClient } from '../../generated';
-import { Role } from '../../services/jwt.service';
+import {
+  clientControllerCreateClient,
+  clientControllerGetClient,
+  clientControllerUpdateClient,
+} from '../../../generated';
+import { Role } from '../../../services/jwt.service';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -32,7 +36,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   templateUrl: './client-create.component.html',
   styleUrl: './client-create.component.scss',
 })
-export class ClientCreateComponent {
+export class ClientCreateComponent implements OnInit {
   clientForm: FormGroup;
   isSubmitting = false;
   hasPermission = false;
@@ -44,6 +48,8 @@ export class ClientCreateComponent {
     'presentation:manage',
     'presentation:offer',
   ];
+  loaded = false;
+  id?: string | null;
 
   constructor(
     private fb: FormBuilder,
@@ -57,24 +63,45 @@ export class ClientCreateComponent {
       roles: [[], [Validators.required]],
     });
   }
+  ngOnInit(): void {
+    this.id = this.route.snapshot.paramMap.get('id');
+    if (this.id) {
+      this.loaded = true;
+      clientControllerGetClient({ path: { id: this.id } }).then((res) => {
+        if (!res.data) {
+          this.snackBar.open('Client not found', 'Close', { duration: 3000 });
+          this.router.navigate(['../..'], { relativeTo: this.route });
+          return;
+        }
+        this.clientForm.patchValue(res.data);
+        this.clientForm.get('clientId')?.disable();
+      });
+    }
+  }
 
   async onSubmit(): Promise<void> {
-    if (this.clientForm.invalid) {
-      return;
-    }
-
     this.isSubmitting = true;
-    console.log('call');
 
     try {
-      await clientControllerCreateClient({
-        body: this.clientForm.value,
+      if (this.loaded) {
+        await clientControllerUpdateClient({
+          path: { id: this.id! },
+          body: this.clientForm.value,
+        });
+      } else {
+        await clientControllerCreateClient({
+          body: this.clientForm.value,
+        });
+      }
+      this.snackBar.open(`Client ${this.loaded ? 'updated' : 'created'} successfully`, 'Close', {
+        duration: 3000,
       });
-      this.snackBar.open('Client created successfully', 'Close', { duration: 3000 });
       await this.router.navigate(['..'], { relativeTo: this.route });
     } catch (error) {
       this.snackBar.open(
-        error instanceof Error ? error.message : 'Failed to create client',
+        error instanceof Error
+          ? error.message
+          : `Failed to ${this.loaded ? 'update' : 'create'} client`,
         'Close',
         { duration: 5000 }
       );

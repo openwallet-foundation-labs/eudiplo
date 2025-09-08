@@ -38,22 +38,15 @@ export class VaultKeyService extends KeyService {
         };
     }
 
-    importFromFileSystem() {
-        throw new Error(
-            "VaultKeyService does not support importing from file system.",
-        );
-        return Promise.resolve();
-    }
-
     /**
      * Create a new transit for the tenant.
      * @param tenantId
      */
     async init(tenantId: string) {
-        //TODO: what to do when it throws an error e.g. when the transit already exists?
+        //TODO: what to do when it throws an error e.g. when the transit already exists
         await firstValueFrom(
             this.httpService.post(
-                `${this.vaultUrl}/v1/sys/mounts/keys/${tenantId}`,
+                `${this.vaultUrl}/v1/sys/mounts/${tenantId}`,
                 {
                     type: "transit",
                 },
@@ -67,7 +60,7 @@ export class VaultKeyService extends KeyService {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     import(tenantId: string, body: KeyImportDto): Promise<string> {
-        throw new Error("Method not implemented.");
+        throw new Error("Importing not supported by VaultKeyService");
     }
 
     getKeys(tenantId: string): Promise<KeyObj[]> {

@@ -155,7 +155,11 @@ export class CryptoService {
                             await this.tenantRepository.findOneByOrFail({
                                 id: tenant.name,
                             });
-                        await this.importKey(tenantEntity, config);
+                        await this.importKey(tenantEntity, config).catch(
+                            (err) => {
+                                this.logger.info(err.message);
+                            },
+                        );
                         counter++;
                     }
                     this.logger.info(

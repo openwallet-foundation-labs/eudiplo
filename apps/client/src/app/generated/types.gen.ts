@@ -93,11 +93,11 @@ export type ClientEntity = {
     /**
      * The secret key for the client.
      */
-    secret: string;
+    secret?: string;
     /**
-     * The unique identifier for the tenant that the client belongs to.
+     * The unique identifier for the tenant that the client belongs to. Only null for accounts that manage tenants, that do not belong to a client.
      */
-    tenantId: string;
+    tenantId?: string;
     /**
      * The description of the client.
      */
@@ -109,7 +109,7 @@ export type ClientEntity = {
     /**
      * The tenant that the client belongs to.
      */
-    tenant: TenantEntity;
+    tenant?: TenantEntity;
 };
 
 export type TenantEntity = {
@@ -308,6 +308,7 @@ export type TokenResponse = {
 };
 
 export type CreateTenantDto = {
+    roles?: Array<'presentation:manage' | 'presentation:offer' | 'issuance:manage' | 'issuance:offer' | 'clients:manage' | 'tenants:manage'>;
     /**
      * The unique identifier for the tenant.
      */
@@ -322,12 +323,19 @@ export type CreateTenantDto = {
     description?: string;
 };
 
-export type ClientView = {
-    [key: string]: unknown;
-};
-
 export type ClientSecretResponseDto = {
     secret: string;
+};
+
+export type UpdateClientDto = {
+    /**
+     * The description of the client.
+     */
+    description?: string;
+    /**
+     * The roles assigned to the client.
+     */
+    roles: Array<'presentation:manage' | 'presentation:offer' | 'issuance:manage' | 'issuance:offer' | 'clients:manage' | 'tenants:manage'>;
 };
 
 export type CreateClientDto = {
@@ -1045,7 +1053,7 @@ export type ClientControllerGetClientsData = {
 };
 
 export type ClientControllerGetClientsResponses = {
-    200: Array<ClientView>;
+    200: Array<ClientEntity>;
 };
 
 export type ClientControllerGetClientsResponse = ClientControllerGetClientsResponses[keyof ClientControllerGetClientsResponses];
@@ -1058,9 +1066,7 @@ export type ClientControllerCreateClientData = {
 };
 
 export type ClientControllerCreateClientResponses = {
-    201: {
-        [key: string]: unknown;
-    };
+    201: ClientEntity;
 };
 
 export type ClientControllerCreateClientResponse = ClientControllerCreateClientResponses[keyof ClientControllerCreateClientResponses];
@@ -1088,12 +1094,27 @@ export type ClientControllerGetClientData = {
 };
 
 export type ClientControllerGetClientResponses = {
+    200: ClientEntity;
+};
+
+export type ClientControllerGetClientResponse = ClientControllerGetClientResponses[keyof ClientControllerGetClientResponses];
+
+export type ClientControllerUpdateClientData = {
+    body: UpdateClientDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/client/{id}';
+};
+
+export type ClientControllerUpdateClientResponses = {
     200: {
         [key: string]: unknown;
     };
 };
 
-export type ClientControllerGetClientResponse = ClientControllerGetClientResponses[keyof ClientControllerGetClientResponses];
+export type ClientControllerUpdateClientResponse = ClientControllerUpdateClientResponses[keyof ClientControllerUpdateClientResponses];
 
 export type ClientControllerGetClientSecretData = {
     body?: never;
