@@ -5,7 +5,6 @@ import { CLIENTS_PROVIDER } from "./client/client.provider";
 import { OidcDiscoveryDto } from "./dto/oidc-discovery.dto";
 import { TokenResponse } from "./dto/token-response.dto";
 import { JwtService } from "./jwt.service";
-import { Role } from "./roles/role.enum";
 import { InternalTokenPayload } from "./token.decorator";
 
 /**
@@ -86,16 +85,8 @@ export class AuthService {
             throw new UnauthorizedException("Invalid client credentials");
         }
 
-        //TODO: check if the access token should only include the session id or also e.g. the credentials that should be issued. I would think this is not required since we still need the claims for it.
         const payload: InternalTokenPayload = {
-            roles: [
-                Role.IssuanceOffer,
-                Role.PresentationOffer,
-                Role.Issuances,
-                Role.Presentations,
-                Role.Clients,
-                Role.Tenants,
-            ],
+            roles: client.roles,
             tenant_id: client.tenantId!,
         };
 

@@ -1,7 +1,7 @@
+import { IsEnum, IsOptional, IsString } from "class-validator";
 import { Column, Entity, ManyToOne, PrimaryColumn } from "typeorm";
 import { Role } from "../../roles/role.enum";
 import { TenantEntity } from "../../tenant/entitites/tenant.entity";
-import { IsEnum, IsOptional, IsString } from "class-validator";
 
 /**
  * Represents a client in the system that belongs to a tenant.
@@ -20,7 +20,7 @@ export class ClientEntity {
      */
     @IsString()
     @Column({ nullable: true })
-    secret: string;
+    secret?: string;
 
     /**
      * The unique identifier for the tenant that the client belongs to. Only null for accounts that manage tenants, that do not belong to a client.
@@ -40,7 +40,7 @@ export class ClientEntity {
      * The roles assigned to the client.
      */
     @IsEnum(Role, { each: true })
-    @Column({ type: "json", })
+    @Column({ type: "json" })
     roles: Role[];
 
     /**
