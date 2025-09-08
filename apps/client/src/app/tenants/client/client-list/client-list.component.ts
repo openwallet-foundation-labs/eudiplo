@@ -7,14 +7,14 @@ import { MatTableModule } from '@angular/material/table';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { ApiService } from '../../api.service';
+import { ApiService } from '../../../api.service';
 import {
   clientControllerGetClients,
   ClientEntity,
   clientControllerDeleteClient,
-  ClientView,
-} from '../../generated';
+} from '../../../generated';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-client-list',
@@ -27,6 +27,7 @@ import { MatChipsModule } from '@angular/material/chips';
     RouterModule,
     FlexLayoutModule,
     MatChipsModule,
+    MatTooltipModule,
   ],
   templateUrl: './client-list.component.html',
   styleUrl: './client-list.component.scss',
@@ -34,7 +35,7 @@ import { MatChipsModule } from '@angular/material/chips';
 export class ClientListComponent implements OnInit {
   @Input() loadedClients?: ClientEntity[];
 
-  clients: ClientView[] = [];
+  clients: ClientEntity[] = [];
   loading = false;
   hasPermission = false;
 
