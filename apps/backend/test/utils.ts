@@ -14,6 +14,7 @@ import {
     SignJWT,
 } from "jose";
 import request from "supertest";
+import { Role } from "../src/auth/roles/role.enum";
 
 export async function preparePresentation(kb: Omit<kbPayload, "sd_hash">) {
     const credential = {
@@ -193,6 +194,13 @@ export async function getToken(
         .send({
             id: "root",
             name: "Root Tenant",
+            roles: [
+                Role.Clients,
+                Role.IssuanceOffer,
+                Role.Issuances,
+                Role.PresentationOffer,
+                Role.Presentations,
+            ],
         })
         .expect(201);
 
