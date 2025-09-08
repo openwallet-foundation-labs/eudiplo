@@ -56,7 +56,11 @@
           type="submit"
           [disabled]="clientForm.invalid || isSubmitting"
         >
-          {{ isSubmitting ? 'Creating...' : 'Create Client' }}
+          @if (loaded) {
+            {{ isSubmitting ? 'Updating...' : 'Update Client' }}
+          } @else {
+            {{ isSubmitting ? 'Creating...' : 'Create Client' }}
+          }
         </button>
       </mat-card-actions>
     </mat-card>
