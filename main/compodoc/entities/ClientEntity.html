@@ -159,6 +159,7 @@
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
                                 <a href="#secret" >secret</a>
                             </li>
                             <li>
@@ -328,6 +329,7 @@
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
                         <span ><b>secret</b></span>
                         <a href="#secret"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -454,10 +456,10 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Column, Entity, ManyToOne, PrimaryColumn } from &quot;typeorm&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { IsEnum, IsOptional, IsString } from &quot;class-validator&quot;;
+import { Column, Entity, ManyToOne, PrimaryColumn } from &quot;typeorm&quot;;
 import { Role } from &quot;../../roles/role.enum&quot;;
 import { TenantEntity } from &quot;../../tenant/entitites/tenant.entity&quot;;
-import { IsEnum, IsOptional, IsString } from &quot;class-validator&quot;;
 
 /**
  * Represents a client in the system that belongs to a tenant.
@@ -476,7 +478,7 @@ export class ClientEntity {
      */
     @IsString()
     @Column({ nullable: true })
-    secret: string;
+    secret?: string;
 
     /**
      * The unique identifier for the tenant that the client belongs to. Only null for accounts that manage tenants, that do not belong to a client.
@@ -496,7 +498,7 @@ export class ClientEntity {
      * The roles assigned to the client.
      */
     @IsEnum(Role, { each: true })
-    @Column({ type: &quot;json&quot;, })
+    @Column({ type: &quot;json&quot; })
     roles: Role[];
 
     /**

@@ -565,9 +565,6 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/ClientSecretResponseDto.html" data-type="entity-link" >ClientSecretResponseDto</a>
                             </li>
                             <li class="link">
-                                <a href="classes/ClientView.html" data-type="entity-link" >ClientView</a>
-                            </li>
-                            <li class="link">
                                 <a href="classes/CreateClientDto.html" data-type="entity-link" >CreateClientDto</a>
                             </li>
                             <li class="link">
@@ -707,6 +704,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             </li>
                             <li class="link">
                                 <a href="classes/TrustedAuthorityQuery.html" data-type="entity-link" >TrustedAuthorityQuery</a>
+                            </li>
+                            <li class="link">
+                                <a href="classes/UpdateClientDto.html" data-type="entity-link" >UpdateClientDto</a>
                             </li>
                             <li class="link">
                                 <a href="classes/UpdateKeyDto.html" data-type="entity-link" >UpdateKeyDto</a>

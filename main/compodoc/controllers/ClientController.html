@@ -168,6 +168,10 @@
                                     <span class="modifier"></span>
                                 <a href="#getClientSecret" >getClientSecret</a>
                             </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                <a href="#updateClient" >updateClient</a>
+                            </li>
                         </ul>
                     </td>
                 </tr>
@@ -214,8 +218,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="53"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:53</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="83"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:83</a></div>
                         </td>
                     </tr>
 
@@ -304,8 +308,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="64"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:64</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="97"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:97</a></div>
                         </td>
                     </tr>
 
@@ -394,8 +398,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="37"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:37</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="46"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:46</a></div>
                         </td>
                     </tr>
 
@@ -484,8 +488,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="26"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:26</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="35"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:35</a></div>
                         </td>
                     </tr>
 
@@ -562,8 +566,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="42"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:42</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="51"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:51</a></div>
                         </td>
                     </tr>
 
@@ -621,33 +625,144 @@
             </tr>
         </tbody>
     </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="updateClient"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                        <span ><b>updateClient</b></span>
+                        <a href="#updateClient"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>updateClient(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, updateClientDto: <a href="../classes/UpdateClientDto.html" target="_self">UpdateClientDto</a>, user: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Patch(&#x27;:id&#x27;)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="68"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:68</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Update a client by its id</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>updateClientDto</td>
+                                            <td>
+                                                            <code><a href="../classes/UpdateClientDto.html" target="_self" >UpdateClientDto</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>user</td>
+                                            <td>
+                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </section>    </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Body, Controller, Delete, Get, Inject, Param, Post } from &#x27;@nestjs/common&#x27;;
-import { ApiTags } from &#x27;@nestjs/swagger&#x27;;
-import { Secured } from &#x27;../secure.decorator&#x27;;
-import { Role } from &#x27;../roles/role.enum&#x27;;
-import { Token, TokenPayload } from &#x27;../token.decorator&#x27;;
-import { CreateClientDto } from &#x27;./dto/create-client.dto&#x27;;
-import { CLIENTS_PROVIDER, ClientsProvider } from &#x27;./client.provider&#x27;;
-import { ClientSecretResponseDto } from &#x27;./dto/client-secret-response.dto&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Inject,
+    Param,
+    Patch,
+    Post,
+} from &quot;@nestjs/common&quot;;
+import { ApiTags } from &quot;@nestjs/swagger&quot;;
+import { Role } from &quot;../roles/role.enum&quot;;
+import { Secured } from &quot;../secure.decorator&quot;;
+import { Token, TokenPayload } from &quot;../token.decorator&quot;;
+import { CLIENTS_PROVIDER, ClientsProvider } from &quot;./client.provider&quot;;
+import { ClientSecretResponseDto } from &quot;./dto/client-secret-response.dto&quot;;
+import { CreateClientDto } from &quot;./dto/create-client.dto&quot;;
+import { UpdateClientDto } from &quot;./dto/update-client.dto&quot;;
 
 /**
  * Controller to manage clients.
  */
-@ApiTags(&#x27;client&#x27;)
+@ApiTags(&quot;client&quot;)
 @Secured([Role.Clients, Role.Tenants])
-@Controller(&#x27;client&#x27;)
+@Controller(&quot;client&quot;)
 export class ClientController {
-    
     constructor(@Inject(CLIENTS_PROVIDER) private clients: ClientsProvider) {}
 
     /**
      * Get all clients for a user
-     * @param user 
-     * @returns 
+     * @param user
+     * @returns
      */
     @Get()
     getClients(@Token() user: TokenPayload) {
@@ -656,39 +771,63 @@ export class ClientController {
 
     /**
      * Get a client by its id
-     * @param id 
-     * @param user 
-     * @returns 
+     * @param id
+     * @param user
+     * @returns
      */
-    @Get(&#x27;:id&#x27;)
-    getClient(@Param(&#x27;id&#x27;) id: string, @Token() user: TokenPayload) {
+    @Get(&quot;:id&quot;)
+    getClient(@Param(&quot;id&quot;) id: string, @Token() user: TokenPayload) {
         return this.clients.getClient(user.entity!.id, id);
     }
 
-    @Get(&#x27;:id/secret&#x27;)
-    getClientSecret(@Param(&#x27;id&#x27;) id: string, @Token() user: TokenPayload): Promise&lt;ClientSecretResponseDto&gt; {
-        return this.clients.getClientSecret(user.entity!.id, id).then(secret &#x3D;&gt; ({ secret }));
+    @Get(&quot;:id/secret&quot;)
+    getClientSecret(
+        @Param(&quot;id&quot;) id: string,
+        @Token() user: TokenPayload,
+    ): Promise&lt;ClientSecretResponseDto&gt; {
+        return this.clients
+            .getClientSecret(user.entity!.id, id)
+            .then((secret) &#x3D;&gt; ({ secret }));
+    }
+
+    /**
+     * Update a client by its id
+     * @param id
+     * @param updateClientDto
+     * @param user
+     * @returns
+     */
+    @Patch(&quot;:id&quot;)
+    updateClient(
+        @Param(&quot;id&quot;) id: string,
+        @Body() updateClientDto: UpdateClientDto,
+        @Token() user: TokenPayload,
+    ) {
+        return this.clients.updateClient(user.entity!.id, id, updateClientDto);
     }
 
     /**
      * Create a new client
-     * @param createClientDto 
-     * @param user 
-     * @returns 
+     * @param createClientDto
+     * @param user
+     * @returns
      */
     @Post()
-    createClient(@Body() createClientDto: CreateClientDto, @Token() user: TokenPayload) {
+    createClient(
+        @Body() createClientDto: CreateClientDto,
+        @Token() user: TokenPayload,
+    ) {
         return this.clients.addClient(user.entity!.id, createClientDto);
     }
 
     /**
      * Get a client by its id
-     * @param id 
-     * @param user 
-     * @returns 
+     * @param id
+     * @param user
+     * @returns
      */
-    @Delete(&#x27;:id&#x27;)
-    deleteClient(@Param(&#x27;id&#x27;) id: string, @Token() user: TokenPayload) {
+    @Delete(&quot;:id&quot;)
+    deleteClient(@Param(&quot;id&quot;) id: string, @Token() user: TokenPayload) {
         return this.clients.removeClient(user.entity!.id, id);
     }
 }

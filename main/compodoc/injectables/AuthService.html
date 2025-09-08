@@ -173,7 +173,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/auth/auth.service.ts:15</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="14" class="link-to-prism">src/auth/auth.service.ts:14</a></div>
                             </td>
                         </tr>
 
@@ -264,8 +264,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="34"
-                                    class="link-to-prism">src/auth/auth.service.ts:34</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="33"
+                                    class="link-to-prism">src/auth/auth.service.ts:33</a></div>
                         </td>
                     </tr>
 
@@ -345,8 +345,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="128"
-                                    class="link-to-prism">src/auth/auth.service.ts:128</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="119"
+                                    class="link-to-prism">src/auth/auth.service.ts:119</a></div>
                         </td>
                     </tr>
 
@@ -381,7 +381,6 @@ import { CLIENTS_PROVIDER } from &quot;./client/client.provider&quot;;
 import { OidcDiscoveryDto } from &quot;./dto/oidc-discovery.dto&quot;;
 import { TokenResponse } from &quot;./dto/token-response.dto&quot;;
 import { JwtService } from &quot;./jwt.service&quot;;
-import { Role } from &quot;./roles/role.enum&quot;;
 import { InternalTokenPayload } from &quot;./token.decorator&quot;;
 
 /**
@@ -462,16 +461,8 @@ export class AuthService {
             throw new UnauthorizedException(&quot;Invalid client credentials&quot;);
         }
 
-        //TODO: check if the access token should only include the session id or also e.g. the credentials that should be issued. I would think this is not required since we still need the claims for it.
         const payload: InternalTokenPayload &#x3D; {
-            roles: [
-                Role.IssuanceOffer,
-                Role.PresentationOffer,
-                Role.Issuances,
-                Role.Presentations,
-                Role.Clients,
-                Role.Tenants,
-            ],
+            roles: client.roles,
             tenant_id: client.tenantId!,
         };
 
