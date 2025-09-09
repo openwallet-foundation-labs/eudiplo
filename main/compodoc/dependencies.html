@@ -62,20 +62,6 @@
                }
                toggleDarkMode(darkModeState);
           </script>
-          <script>
-              // --- Iframe navigation tracking for Template Playground ---
-              function sendCurrentUrlToParent() {
-                  if (window.parent && window.parent !== window) {
-                      window.parent.postMessage({
-                          type: 'compodoc-iframe-navigate',
-                          url: window.location.pathname + window.location.hash
-                      }, '*');
-                  }
-              }
-              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
-              window.addEventListener('popstate', sendCurrentUrlToParent, false);
-              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
-          </script>
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
@@ -96,10 +82,6 @@
                <!-- START CONTENT -->
                <div class="content package-dependencies">
                    <div class="content-data">
-
-
-
-
 
 
 
@@ -152,13 +134,13 @@
         <li>
             <b>@nestjs/typeorm</b> : ^11.0.0</li>
         <li>
-            <b>@openid4vc/oauth2</b> : 0.3.0-alpha-20250714110838</li>
+            <b>@openid4vc/oauth2</b> : 0.3.0-alpha-20250825150235</li>
         <li>
-            <b>@openid4vc/openid4vci</b> : 0.3.0-alpha-20250714110838</li>
+            <b>@openid4vc/openid4vci</b> : 0.3.0-alpha-20250825150235</li>
         <li>
-            <b>@openid4vc/openid4vp</b> : 0.3.0-alpha-20250714110838</li>
+            <b>@openid4vc/openid4vp</b> : 0.3.0-alpha-20250825150235</li>
         <li>
-            <b>@openid4vc/utils</b> : 0.3.0-alpha-20250714110838</li>
+            <b>@openid4vc/utils</b> : 0.3.0-alpha-20250825150235</li>
         <li>
             <b>@peculiar/x509</b> : ^1.13.0</li>
         <li>

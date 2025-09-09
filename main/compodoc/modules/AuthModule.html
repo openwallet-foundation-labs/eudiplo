@@ -62,20 +62,6 @@
                }
                toggleDarkMode(darkModeState);
           </script>
-          <script>
-              // --- Iframe navigation tracking for Template Playground ---
-              function sendCurrentUrlToParent() {
-                  if (window.parent && window.parent !== window) {
-                      window.parent.postMessage({
-                          type: 'compodoc-iframe-navigate',
-                          url: window.location.pathname + window.location.hash
-                      }, '*');
-                  }
-              }
-              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
-              window.addEventListener('popstate', sendCurrentUrlToParent, false);
-              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
-          </script>
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
@@ -96,10 +82,6 @@
                <!-- START CONTENT -->
                <div class="content module">
                    <div class="content-data">
-
-
-
-
 
 
 
@@ -136,13 +118,13 @@
 <title>cluster_AuthModule</title>
 <polygon fill="none" stroke="black" stroke-dasharray="1,5" points="8,-70 8,-268 1336,-268 1336,-70 8,-70"/>
 </g>
-<g id="clust4" class="cluster">
-<title>cluster_AuthModule_exports</title>
-<polygon fill="none" stroke="black" points="562,-208 562,-260 882,-260 882,-208 562,-208"/>
-</g>
 <g id="clust3" class="cluster">
 <title>cluster_AuthModule_imports</title>
 <polygon fill="none" stroke="black" points="719,-78 719,-130 1328,-130 1328,-78 719,-78"/>
+</g>
+<g id="clust4" class="cluster">
+<title>cluster_AuthModule_exports</title>
+<polygon fill="none" stroke="black" points="562,-208 562,-260 882,-260 882,-208 562,-208"/>
 </g>
 <g id="clust6" class="cluster">
 <title>cluster_AuthModule_providers</title>
