@@ -118,17 +118,17 @@ importers:
         specifier: ^1.13.0
         version: 1.13.0
       '@sd-jwt/crypto-nodejs':
-        specifier: ^0.14.0
-        version: 0.14.0
+        specifier: ^0.15.0
+        version: 0.15.0
       '@sd-jwt/jwt-status-list':
-        specifier: ^0.14.0
-        version: 0.14.0
+        specifier: ^0.15.0
+        version: 0.15.0
       '@sd-jwt/sd-jwt-vc':
         specifier: ^0.15.1
         version: 0.15.1
       '@sd-jwt/types':
-        specifier: ^0.14.0
-        version: 0.14.0
+        specifier: ^0.15.0
+        version: 0.15.0
       '@willsoto/nestjs-prometheus':
         specifier: ^6.0.2
         version: 6.0.2(@nestjs/common@11.1.6(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2))(prom-client@15.1.3)
@@ -3814,16 +3814,12 @@ packages:
     resolution: {integrity: sha512-H+I8OcZj8/f6GZxNSblJqJXi6Mo/W5sUcVNiW9K6kc0rEGt+na111zS1vpjbG6QEJT/YC9egIVUHXNJlNIlWxw==}
     engines: {node: '>=18'}
 
-  '@sd-jwt/crypto-nodejs@0.14.0':
-    resolution: {integrity: sha512-jYq2qGIJF9RggByMbCNJznUXPxQZZTUm7GDmPmoWT6VYDAp0ngJaX9Qjyjfw3yFXs+iG7TUvHCi2oV+TAzXM9A==}
+  '@sd-jwt/crypto-nodejs@0.15.0':
+    resolution: {integrity: sha512-qWoXeJL/knLUDYJ5s3elOwT5iakGz3gGpjdM3F9Xghq0lx6MdOUEBdLoJuGzhkyxCVg2eBNewLqsaeg7h2Ik/Q==}
     engines: {node: '>=18'}
 
   '@sd-jwt/decode@0.15.0':
     resolution: {integrity: sha512-c9PX4/Cnl1G0pSUXU236lkDx1AzkbgGKFnevBaVIPX8WlJl0nII345uDW/KWCV4rs5Ci8j4ZviWVOJm8TCt2fg==}
-    engines: {node: '>=18'}
-
-  '@sd-jwt/jwt-status-list@0.14.0':
-    resolution: {integrity: sha512-vgJkNoev7RtG8Yir7WShieb2vAqtEFYYrwJPYV3OsWRPnLdyt7Ul6lU8VgHIu1ha3hHjqAGLbKnfyDcD5EV44g==}
     engines: {node: '>=18'}
 
   '@sd-jwt/jwt-status-list@0.15.0':
@@ -3836,10 +3832,6 @@ packages:
 
   '@sd-jwt/sd-jwt-vc@0.15.1':
     resolution: {integrity: sha512-xgs611LuHwNU71sw1dcWluFB0C+20uqvsuQdpcPnLckKu0yyxmm9Sb2s01Ec0uBvC3HGdQAgmP/I/B0mHXYPUA==}
-    engines: {node: '>=18'}
-
-  '@sd-jwt/types@0.14.0':
-    resolution: {integrity: sha512-HFy2e1bYb3Uz6MEnGJI4Iula0F2NH0dD0bP8Lm7r9V+VXhiIVlUDscYdiibWkefV2cB/5Phplg3UOKppxSHqvA==}
     engines: {node: '>=18'}
 
   '@sd-jwt/types@0.15.0':
@@ -13815,18 +13807,12 @@ snapshots:
       '@sd-jwt/types': 0.15.0
       '@sd-jwt/utils': 0.15.0
 
-  '@sd-jwt/crypto-nodejs@0.14.0': {}
+  '@sd-jwt/crypto-nodejs@0.15.0': {}
 
   '@sd-jwt/decode@0.15.0':
     dependencies:
       '@sd-jwt/types': 0.15.0
       '@sd-jwt/utils': 0.15.0
-
-  '@sd-jwt/jwt-status-list@0.14.0':
-    dependencies:
-      '@sd-jwt/types': 0.14.0
-      base64url: 3.0.1
-      pako: 2.1.0
 
   '@sd-jwt/jwt-status-list@0.15.0':
     dependencies:
@@ -13847,8 +13833,6 @@ snapshots:
       '@sd-jwt/utils': 0.15.0
       ajv: 8.17.1
       ajv-formats: 3.0.1(ajv@8.17.1)
-
-  '@sd-jwt/types@0.14.0': {}
 
   '@sd-jwt/types@0.15.0': {}
 
