@@ -82,7 +82,7 @@
         "uuid": "^11.1.0"
     },
     "devDependencies": {
-        "@biomejs/biome": "2.1.4",
+        "@biomejs/biome": "2.2.3",
         "@codecov/vite-plugin": "^1.9.1",
         "@compodoc/compodoc": "^1.1.26",
         "@hey-api/openapi-ts": "^0.80.5",
