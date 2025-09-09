@@ -62,6 +62,20 @@
                }
                toggleDarkMode(darkModeState);
           </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
@@ -82,6 +96,10 @@
                <!-- START CONTENT -->
                <div class="content coverage">
                    <div class="content-data">
+
+
+
+
 
 
 
@@ -122,7 +140,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./controllers/AppController.html">src/app/app.controller.ts</a>
+                        <a href="./controllers/AppController.html">src/app/app.controller.ts</a>
             </td>
             <td>controller</td>
             <td>AppController</td>
@@ -134,7 +152,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./interfaces/OidcDiscoveryDto.html">src/app/dto/oidc-discovery.dto.ts</a>
+                        <a href="./interfaces/OidcDiscoveryDto.html">src/app/dto/oidc-discovery.dto.ts</a>
             </td>
             <td>interface</td>
             <td>OidcDiscoveryDto</td>
@@ -194,7 +212,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./controllers/AuthController.html">src/auth/auth.controller.ts</a>
+                        <a href="./controllers/AuthController.html">src/auth/auth.controller.ts</a>
             </td>
             <td>controller</td>
             <td>AuthController</td>
@@ -206,7 +224,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/JwtAuthGuard.html">src/auth/auth.guard.ts</a>
+                        <a href="./injectables/JwtAuthGuard.html">src/auth/auth.guard.ts</a>
             </td>
             <td>injectable</td>
             <td>JwtAuthGuard</td>
@@ -218,7 +236,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/AuthService.html">src/auth/auth.service.ts</a>
+                        <a href="./injectables/AuthService.html">src/auth/auth.service.ts</a>
             </td>
             <td>injectable</td>
             <td>AuthService</td>
@@ -230,7 +248,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/InternalClientsProvider.html">src/auth/client/adapters/internal-clients.service.ts</a>
+                        <a href="./injectables/InternalClientsProvider.html">src/auth/client/adapters/internal-clients.service.ts</a>
             </td>
             <td>injectable</td>
             <td>InternalClientsProvider</td>
@@ -242,7 +260,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/KeycloakClientsProvider.html">src/auth/client/adapters/keycloak-clients.service.ts</a>
+                        <a href="./injectables/KeycloakClientsProvider.html">src/auth/client/adapters/keycloak-clients.service.ts</a>
             </td>
             <td>injectable</td>
             <td>KeycloakClientsProvider</td>
@@ -254,7 +272,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./controllers/ClientController.html">src/auth/client/client.controller.ts</a>
+                        <a href="./controllers/ClientController.html">src/auth/client/client.controller.ts</a>
             </td>
             <td>controller</td>
             <td>ClientController</td>
@@ -266,7 +284,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./interfaces/ClientsProvider.html">src/auth/client/client.provider.ts</a>
+                        <a href="./interfaces/ClientsProvider.html">src/auth/client/client.provider.ts</a>
             </td>
             <td>interface</td>
             <td>ClientsProvider</td>
@@ -290,7 +308,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/ClientSecretResponseDto.html">src/auth/client/dto/client-secret-response.dto.ts</a>
+                        <a href="./classes/ClientSecretResponseDto.html">src/auth/client/dto/client-secret-response.dto.ts</a>
             </td>
             <td>class</td>
             <td>ClientSecretResponseDto</td>
@@ -302,7 +320,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/CreateClientDto.html">src/auth/client/dto/create-client.dto.ts</a>
+                        <a href="./classes/CreateClientDto.html">src/auth/client/dto/create-client.dto.ts</a>
             </td>
             <td>class</td>
             <td>CreateClientDto</td>
@@ -314,7 +332,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/UpdateClientDto.html">src/auth/client/dto/update-client.dto.ts</a>
+                        <a href="./classes/UpdateClientDto.html">src/auth/client/dto/update-client.dto.ts</a>
             </td>
             <td>class</td>
             <td>UpdateClientDto</td>
@@ -326,7 +344,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./entitys/ClientEntity.html">src/auth/client/entities/client.entity.ts</a>
+                        <a href="./entities/ClientEntity.html">src/auth/client/entities/client.entity.ts</a>
             </td>
             <td>entity</td>
             <td>ClientEntity</td>
@@ -338,7 +356,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/ClientCredentialsDto.html">src/auth/dto/client-credentials.dto.ts</a>
+                        <a href="./classes/ClientCredentialsDto.html">src/auth/dto/client-credentials.dto.ts</a>
             </td>
             <td>class</td>
             <td>ClientCredentialsDto</td>
@@ -350,7 +368,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./interfaces/OidcDiscoveryDto.html">src/auth/dto/oidc-discovery.dto.ts</a>
+                        <a href="./interfaces/OidcDiscoveryDto.html">src/auth/dto/oidc-discovery.dto.ts</a>
             </td>
             <td>interface</td>
             <td>OidcDiscoveryDto</td>
@@ -362,7 +380,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/RoleDto.html">src/auth/dto/role.dto.ts</a>
+                        <a href="./classes/RoleDto.html">src/auth/dto/role.dto.ts</a>
             </td>
             <td>class</td>
             <td>RoleDto</td>
@@ -374,7 +392,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/TokenResponse.html">src/auth/dto/token-response.dto.ts</a>
+                        <a href="./classes/TokenResponse.html">src/auth/dto/token-response.dto.ts</a>
             </td>
             <td>class</td>
             <td>TokenResponse</td>
@@ -386,7 +404,7 @@
         <tr class="good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/JwtService.html">src/auth/jwt.service.ts</a>
+                        <a href="./injectables/JwtService.html">src/auth/jwt.service.ts</a>
             </td>
             <td>injectable</td>
             <td>JwtService</td>
@@ -398,7 +416,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./interfaces/GenerateTokenOptions.html">src/auth/jwt.service.ts</a>
+                        <a href="./interfaces/GenerateTokenOptions.html">src/auth/jwt.service.ts</a>
             </td>
             <td>interface</td>
             <td>GenerateTokenOptions</td>
@@ -410,7 +428,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/JwtStrategy.html">src/auth/jwt.strategy.ts</a>
+                        <a href="./injectables/JwtStrategy.html">src/auth/jwt.strategy.ts</a>
             </td>
             <td>injectable</td>
             <td>JwtStrategy</td>
@@ -470,7 +488,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./guards/RolesGuard.html">src/auth/roles/roles.guard.ts</a>
+                        <a href="./guards/RolesGuard.html">src/auth/roles/roles.guard.ts</a>
             </td>
             <td>guard</td>
             <td>RolesGuard</td>
@@ -494,7 +512,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/CreateTenantDto.html">src/auth/tenant/dto/create-tenant.dto.ts</a>
+                        <a href="./classes/CreateTenantDto.html">src/auth/tenant/dto/create-tenant.dto.ts</a>
             </td>
             <td>class</td>
             <td>CreateTenantDto</td>
@@ -506,7 +524,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./entitys/TenantEntity.html">src/auth/tenant/entitites/tenant.entity.ts</a>
+                        <a href="./entities/TenantEntity.html">src/auth/tenant/entitites/tenant.entity.ts</a>
             </td>
             <td>entity</td>
             <td>TenantEntity</td>
@@ -530,7 +548,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./controllers/TenantController.html">src/auth/tenant/tenant.controller.ts</a>
+                        <a href="./controllers/TenantController.html">src/auth/tenant/tenant.controller.ts</a>
             </td>
             <td>controller</td>
             <td>TenantController</td>
@@ -542,7 +560,7 @@
         <tr class="good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/TenantService.html">src/auth/tenant/tenant.service.ts</a>
+                        <a href="./injectables/TenantService.html">src/auth/tenant/tenant.service.ts</a>
             </td>
             <td>injectable</td>
             <td>TenantService</td>
@@ -554,7 +572,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./interfaces/Tenants.html">src/auth/tenant/tenant.service.ts</a>
+                        <a href="./interfaces/Tenants.html">src/auth/tenant/tenant.service.ts</a>
             </td>
             <td>interface</td>
             <td>Tenants</td>
@@ -566,7 +584,7 @@
         <tr class="medium">
             <td>
                 <!-- miscellaneous -->
-                <a href="./interfaces/InternalTokenPayload.html">src/auth/token.decorator.ts</a>
+                        <a href="./interfaces/InternalTokenPayload.html">src/auth/token.decorator.ts</a>
             </td>
             <td>interface</td>
             <td>InternalTokenPayload</td>
@@ -578,7 +596,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./interfaces/TokenPayload.html">src/auth/token.decorator.ts</a>
+                        <a href="./interfaces/TokenPayload.html">src/auth/token.decorator.ts</a>
             </td>
             <td>interface</td>
             <td>TokenPayload</td>
@@ -602,7 +620,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/CryptoService.html">src/crypto/crypto.service.ts</a>
+                        <a href="./injectables/CryptoService.html">src/crypto/crypto.service.ts</a>
             </td>
             <td>injectable</td>
             <td>CryptoService</td>
@@ -626,7 +644,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/EncryptionService.html">src/crypto/encryption/encryption.service.ts</a>
+                        <a href="./injectables/EncryptionService.html">src/crypto/encryption/encryption.service.ts</a>
             </td>
             <td>injectable</td>
             <td>EncryptionService</td>
@@ -638,7 +656,7 @@
         <tr class="good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/DBKeyService.html">src/crypto/key/adapters/db-key.service.ts</a>
+                        <a href="./classes/DBKeyService.html">src/crypto/key/adapters/db-key.service.ts</a>
             </td>
             <td>class</td>
             <td>DBKeyService</td>
@@ -650,7 +668,7 @@
         <tr class="medium">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/VaultKeyService.html">src/crypto/key/adapters/vault-key.service.ts</a>
+                        <a href="./classes/VaultKeyService.html">src/crypto/key/adapters/vault-key.service.ts</a>
             </td>
             <td>class</td>
             <td>VaultKeyService</td>
@@ -662,7 +680,7 @@
         <tr class="medium">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/CryptoImplementationService.html">src/crypto/key/crypto-implementation/crypto-implementation.service.ts</a>
+                        <a href="./injectables/CryptoImplementationService.html">src/crypto/key/crypto-implementation/crypto-implementation.service.ts</a>
             </td>
             <td>injectable</td>
             <td>CryptoImplementationService</td>
@@ -686,7 +704,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./interfaces/CryptoImplementation.html">src/crypto/key/crypto-implementation/crypto-implementation.ts</a>
+                        <a href="./interfaces/CryptoImplementation.html">src/crypto/key/crypto-implementation/crypto-implementation.ts</a>
             </td>
             <td>interface</td>
             <td>CryptoImplementation</td>
@@ -758,7 +776,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/Key.html">src/crypto/key/dto/key-import.dto.ts</a>
+                        <a href="./classes/Key.html">src/crypto/key/dto/key-import.dto.ts</a>
             </td>
             <td>class</td>
             <td>Key</td>
@@ -770,7 +788,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/KeyImportDto.html">src/crypto/key/dto/key-import.dto.ts</a>
+                        <a href="./classes/KeyImportDto.html">src/crypto/key/dto/key-import.dto.ts</a>
             </td>
             <td>class</td>
             <td>KeyImportDto</td>
@@ -782,7 +800,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/KeyObj.html">src/crypto/key/dto/key-object.dto.ts</a>
+                        <a href="./classes/KeyObj.html">src/crypto/key/dto/key-object.dto.ts</a>
             </td>
             <td>class</td>
             <td>KeyObj</td>
@@ -794,7 +812,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/KeyResponseDto.html">src/crypto/key/dto/key-response.dto.ts</a>
+                        <a href="./classes/KeyResponseDto.html">src/crypto/key/dto/key-response.dto.ts</a>
             </td>
             <td>class</td>
             <td>KeyResponseDto</td>
@@ -806,7 +824,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/UpdateKeyDto.html">src/crypto/key/dto/key-update.dto.ts</a>
+                        <a href="./classes/UpdateKeyDto.html">src/crypto/key/dto/key-update.dto.ts</a>
             </td>
             <td>class</td>
             <td>UpdateKeyDto</td>
@@ -818,7 +836,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./entitys/CertEntity.html">src/crypto/key/entities/cert.entity.ts</a>
+                        <a href="./entities/CertEntity.html">src/crypto/key/entities/cert.entity.ts</a>
             </td>
             <td>entity</td>
             <td>CertEntity</td>
@@ -842,7 +860,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./entitys/KeyEntity.html">src/crypto/key/entities/keys.entity.ts</a>
+                        <a href="./entities/KeyEntity.html">src/crypto/key/entities/keys.entity.ts</a>
             </td>
             <td>entity</td>
             <td>KeyEntity</td>
@@ -878,7 +896,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./controllers/KeyController.html">src/crypto/key/key.controller.ts</a>
+                        <a href="./controllers/KeyController.html">src/crypto/key/key.controller.ts</a>
             </td>
             <td>controller</td>
             <td>KeyController</td>
@@ -890,7 +908,7 @@
         <tr class="good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/KeyService.html">src/crypto/key/key.service.ts</a>
+                        <a href="./classes/KeyService.html">src/crypto/key/key.service.ts</a>
             </td>
             <td>class</td>
             <td>KeyService</td>
@@ -914,7 +932,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./controllers/HealthController.html">src/health/health.controller.ts</a>
+                        <a href="./controllers/HealthController.html">src/health/health.controller.ts</a>
             </td>
             <td>controller</td>
             <td>HealthController</td>
@@ -926,7 +944,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./controllers/AuthorizeController.html">src/issuer/authorize/authorize.controller.ts</a>
+                        <a href="./controllers/AuthorizeController.html">src/issuer/authorize/authorize.controller.ts</a>
             </td>
             <td>controller</td>
             <td>AuthorizeController</td>
@@ -938,7 +956,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/AuthorizeService.html">src/issuer/authorize/authorize.service.ts</a>
+                        <a href="./injectables/AuthorizeService.html">src/issuer/authorize/authorize.service.ts</a>
             </td>
             <td>injectable</td>
             <td>AuthorizeService</td>
@@ -950,7 +968,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./interfaces/ParsedAccessTokenAuthorizationCodeRequestGrant.html">src/issuer/authorize/authorize.service.ts</a>
+                        <a href="./interfaces/ParsedAccessTokenAuthorizationCodeRequestGrant.html">src/issuer/authorize/authorize.service.ts</a>
             </td>
             <td>interface</td>
             <td>ParsedAccessTokenAuthorizationCodeRequestGrant</td>
@@ -962,7 +980,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./interfaces/ParsedAccessTokenPreAuthorizedCodeRequestGrant.html">src/issuer/authorize/authorize.service.ts</a>
+                        <a href="./interfaces/ParsedAccessTokenPreAuthorizedCodeRequestGrant.html">src/issuer/authorize/authorize.service.ts</a>
             </td>
             <td>interface</td>
             <td>ParsedAccessTokenPreAuthorizedCodeRequestGrant</td>
@@ -974,7 +992,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/AuthorizeQueries.html">src/issuer/authorize/dto/authorize-request.dto.ts</a>
+                        <a href="./classes/AuthorizeQueries.html">src/issuer/authorize/dto/authorize-request.dto.ts</a>
             </td>
             <td>class</td>
             <td>AuthorizeQueries</td>
@@ -986,7 +1004,7 @@
         <tr class="good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/ParResponseDto.html">src/issuer/authorize/dto/par-response.dto.ts</a>
+                        <a href="./classes/ParResponseDto.html">src/issuer/authorize/dto/par-response.dto.ts</a>
             </td>
             <td>class</td>
             <td>ParResponseDto</td>
@@ -998,7 +1016,7 @@
         <tr class="good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./controllers/CredentialsMetadataController.html">src/issuer/credentials-metadata/credentials-metadata.controller.ts</a>
+                        <a href="./controllers/CredentialsMetadataController.html">src/issuer/credentials-metadata/credentials-metadata.controller.ts</a>
             </td>
             <td>controller</td>
             <td>CredentialsMetadataController</td>
@@ -1010,7 +1028,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/SchemaResponse.html">src/issuer/credentials-metadata/dto/schema-response.dto.ts</a>
+                        <a href="./classes/SchemaResponse.html">src/issuer/credentials-metadata/dto/schema-response.dto.ts</a>
             </td>
             <td>class</td>
             <td>SchemaResponse</td>
@@ -1022,7 +1040,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/VCT.html">src/issuer/credentials-metadata/dto/vct.dto.ts</a>
+                        <a href="./classes/VCT.html">src/issuer/credentials-metadata/dto/vct.dto.ts</a>
             </td>
             <td>class</td>
             <td>VCT</td>
@@ -1034,7 +1052,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/CredentialConfigService.html">src/issuer/credentials/credential-config/credential-config.service.ts</a>
+                        <a href="./injectables/CredentialConfigService.html">src/issuer/credentials/credential-config/credential-config.service.ts</a>
             </td>
             <td>injectable</td>
             <td>CredentialConfigService</td>
@@ -1046,7 +1064,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./controllers/CredentialsController.html">src/issuer/credentials/credentials.controller.ts</a>
+                        <a href="./controllers/CredentialsController.html">src/issuer/credentials/credentials.controller.ts</a>
             </td>
             <td>controller</td>
             <td>CredentialsController</td>
@@ -1058,7 +1076,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/CredentialsService.html">src/issuer/credentials/credentials.service.ts</a>
+                        <a href="./injectables/CredentialsService.html">src/issuer/credentials/credentials.service.ts</a>
             </td>
             <td>injectable</td>
             <td>CredentialsService</td>
@@ -1070,7 +1088,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/CredentialConfigCreate.html">src/issuer/credentials/dto/credential-config-create.dto.ts</a>
+                        <a href="./classes/CredentialConfigCreate.html">src/issuer/credentials/dto/credential-config-create.dto.ts</a>
             </td>
             <td>class</td>
             <td>CredentialConfigCreate</td>
@@ -1082,7 +1100,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./entitys/CredentialConfig.html">src/issuer/credentials/entities/credential.entity.ts</a>
+                        <a href="./entities/CredentialConfig.html">src/issuer/credentials/entities/credential.entity.ts</a>
             </td>
             <td>entity</td>
             <td>CredentialConfig</td>
@@ -1094,7 +1112,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/CredentialConfig.html">src/issuer/credentials/entities/credential.entity.ts</a>
+                        <a href="./classes/CredentialConfig.html">src/issuer/credentials/entities/credential.entity.ts</a>
             </td>
             <td>class</td>
             <td>CredentialConfig</td>
@@ -1106,7 +1124,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/Display.html">src/issuer/credentials/entities/credential.entity.ts</a>
+                        <a href="./classes/Display.html">src/issuer/credentials/entities/credential.entity.ts</a>
             </td>
             <td>class</td>
             <td>Display</td>
@@ -1118,7 +1136,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/DisplayImage.html">src/issuer/credentials/entities/credential.entity.ts</a>
+                        <a href="./classes/DisplayImage.html">src/issuer/credentials/entities/credential.entity.ts</a>
             </td>
             <td>class</td>
             <td>DisplayImage</td>
@@ -1130,7 +1148,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/IssuerMetadataCredentialConfig.html">src/issuer/credentials/entities/credential.entity.ts</a>
+                        <a href="./classes/IssuerMetadataCredentialConfig.html">src/issuer/credentials/entities/credential.entity.ts</a>
             </td>
             <td>class</td>
             <td>IssuerMetadataCredentialConfig</td>
@@ -1142,7 +1160,7 @@
         <tr class="medium">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/AllowListPolicy.html">src/issuer/credentials/entities/policies.dto.ts</a>
+                        <a href="./classes/AllowListPolicy.html">src/issuer/credentials/entities/policies.dto.ts</a>
             </td>
             <td>class</td>
             <td>AllowListPolicy</td>
@@ -1154,7 +1172,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/AttestationBasedPolicy.html">src/issuer/credentials/entities/policies.dto.ts</a>
+                        <a href="./classes/AttestationBasedPolicy.html">src/issuer/credentials/entities/policies.dto.ts</a>
             </td>
             <td>class</td>
             <td>AttestationBasedPolicy</td>
@@ -1166,7 +1184,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/EmbeddedDisclosurePolicy.html">src/issuer/credentials/entities/policies.dto.ts</a>
+                        <a href="./classes/EmbeddedDisclosurePolicy.html">src/issuer/credentials/entities/policies.dto.ts</a>
             </td>
             <td>class</td>
             <td>EmbeddedDisclosurePolicy</td>
@@ -1178,7 +1196,7 @@
         <tr class="medium">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/NoneTrustPolicy.html">src/issuer/credentials/entities/policies.dto.ts</a>
+                        <a href="./classes/NoneTrustPolicy.html">src/issuer/credentials/entities/policies.dto.ts</a>
             </td>
             <td>class</td>
             <td>NoneTrustPolicy</td>
@@ -1190,7 +1208,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/PolicyCredential.html">src/issuer/credentials/entities/policies.dto.ts</a>
+                        <a href="./classes/PolicyCredential.html">src/issuer/credentials/entities/policies.dto.ts</a>
             </td>
             <td>class</td>
             <td>PolicyCredential</td>
@@ -1202,7 +1220,7 @@
         <tr class="medium">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/RootOfTrustPolicy.html">src/issuer/credentials/entities/policies.dto.ts</a>
+                        <a href="./classes/RootOfTrustPolicy.html">src/issuer/credentials/entities/policies.dto.ts</a>
             </td>
             <td>class</td>
             <td>RootOfTrustPolicy</td>
@@ -1226,7 +1244,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./controllers/DisplayController.html">src/issuer/display/display.controller.ts</a>
+                        <a href="./controllers/DisplayController.html">src/issuer/display/display.controller.ts</a>
             </td>
             <td>controller</td>
             <td>DisplayController</td>
@@ -1238,7 +1256,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/DisplayService.html">src/issuer/display/display.service.ts</a>
+                        <a href="./injectables/DisplayService.html">src/issuer/display/display.service.ts</a>
             </td>
             <td>injectable</td>
             <td>DisplayService</td>
@@ -1250,7 +1268,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/DisplayCreateDto.html">src/issuer/display/dto/display-create.dto.ts</a>
+                        <a href="./classes/DisplayCreateDto.html">src/issuer/display/dto/display-create.dto.ts</a>
             </td>
             <td>class</td>
             <td>DisplayCreateDto</td>
@@ -1262,7 +1280,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./entitys/DisplayEntity.html">src/issuer/display/entities/display.entity.ts</a>
+                        <a href="./entities/DisplayEntity.html">src/issuer/display/entities/display.entity.ts</a>
             </td>
             <td>entity</td>
             <td>DisplayEntity</td>
@@ -1274,7 +1292,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/DisplayInfo.html">src/issuer/display/entities/display.entity.ts</a>
+                        <a href="./classes/DisplayInfo.html">src/issuer/display/entities/display.entity.ts</a>
             </td>
             <td>class</td>
             <td>DisplayInfo</td>
@@ -1286,7 +1304,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/DisplayLogo.html">src/issuer/display/entities/display.entity.ts</a>
+                        <a href="./classes/DisplayLogo.html">src/issuer/display/entities/display.entity.ts</a>
             </td>
             <td>class</td>
             <td>DisplayLogo</td>
@@ -1298,7 +1316,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/AuthenticationMethodAuth.html">src/issuer/issuance/dto/authentication-config.dto.ts</a>
+                        <a href="./classes/AuthenticationMethodAuth.html">src/issuer/issuance/dto/authentication-config.dto.ts</a>
             </td>
             <td>class</td>
             <td>AuthenticationMethodAuth</td>
@@ -1310,7 +1328,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/AuthenticationMethodNone.html">src/issuer/issuance/dto/authentication-config.dto.ts</a>
+                        <a href="./classes/AuthenticationMethodNone.html">src/issuer/issuance/dto/authentication-config.dto.ts</a>
             </td>
             <td>class</td>
             <td>AuthenticationMethodNone</td>
@@ -1322,7 +1340,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/AuthenticationMethodPresentation.html">src/issuer/issuance/dto/authentication-config.dto.ts</a>
+                        <a href="./classes/AuthenticationMethodPresentation.html">src/issuer/issuance/dto/authentication-config.dto.ts</a>
             </td>
             <td>class</td>
             <td>AuthenticationMethodPresentation</td>
@@ -1334,7 +1352,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/AuthenticationUrlConfig.html">src/issuer/issuance/dto/authentication-config.dto.ts</a>
+                        <a href="./classes/AuthenticationUrlConfig.html">src/issuer/issuance/dto/authentication-config.dto.ts</a>
             </td>
             <td>class</td>
             <td>AuthenticationUrlConfig</td>
@@ -1346,7 +1364,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/PresentationDuringIssuanceConfig.html">src/issuer/issuance/dto/authentication-config.dto.ts</a>
+                        <a href="./classes/PresentationDuringIssuanceConfig.html">src/issuer/issuance/dto/authentication-config.dto.ts</a>
             </td>
             <td>class</td>
             <td>PresentationDuringIssuanceConfig</td>
@@ -1358,7 +1376,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./interfaces/AuthenticationMethodInterface.html">src/issuer/issuance/dto/authentication-config.dto.ts</a>
+                        <a href="./interfaces/AuthenticationMethodInterface.html">src/issuer/issuance/dto/authentication-config.dto.ts</a>
             </td>
             <td>interface</td>
             <td>AuthenticationMethodInterface</td>
@@ -1370,7 +1388,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/CredentialConfigMapping.html">src/issuer/issuance/dto/issuance.dto.ts</a>
+                        <a href="./classes/CredentialConfigMapping.html">src/issuer/issuance/dto/issuance.dto.ts</a>
             </td>
             <td>class</td>
             <td>CredentialConfigMapping</td>
@@ -1382,7 +1400,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/IssuanceDto.html">src/issuer/issuance/dto/issuance.dto.ts</a>
+                        <a href="./classes/IssuanceDto.html">src/issuer/issuance/dto/issuance.dto.ts</a>
             </td>
             <td>class</td>
             <td>IssuanceDto</td>
@@ -1394,7 +1412,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./entitys/IssuanceConfig.html">src/issuer/issuance/entities/issuance-config.entity.ts</a>
+                        <a href="./entities/IssuanceConfig.html">src/issuer/issuance/entities/issuance-config.entity.ts</a>
             </td>
             <td>entity</td>
             <td>IssuanceConfig</td>
@@ -1406,7 +1424,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/IssuanceConfig.html">src/issuer/issuance/entities/issuance-config.entity.ts</a>
+                        <a href="./classes/IssuanceConfig.html">src/issuer/issuance/entities/issuance-config.entity.ts</a>
             </td>
             <td>class</td>
             <td>IssuanceConfig</td>
@@ -1418,7 +1436,7 @@
         <tr class="good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./controllers/IssuanceController.html">src/issuer/issuance/issuance.controller.ts</a>
+                        <a href="./controllers/IssuanceController.html">src/issuer/issuance/issuance.controller.ts</a>
             </td>
             <td>controller</td>
             <td>IssuanceController</td>
@@ -1430,7 +1448,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/IssuanceService.html">src/issuer/issuance/issuance.service.ts</a>
+                        <a href="./injectables/IssuanceService.html">src/issuer/issuance/issuance.service.ts</a>
             </td>
             <td>injectable</td>
             <td>IssuanceService</td>
@@ -1442,7 +1460,7 @@
         <tr class="medium">
             <td>
                 <!-- miscellaneous -->
-                <a href="./controllers/IssuerManagementController.html">src/issuer/issuer-management/issuer-management.controller.ts</a>
+                        <a href="./controllers/IssuerManagementController.html">src/issuer/issuer-management/issuer-management.controller.ts</a>
             </td>
             <td>controller</td>
             <td>IssuerManagementController</td>
@@ -1466,7 +1484,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/NotificationRequestDto.html">src/issuer/oid4vci/dto/notification-request.dto.ts</a>
+                        <a href="./classes/NotificationRequestDto.html">src/issuer/oid4vci/dto/notification-request.dto.ts</a>
             </td>
             <td>class</td>
             <td>NotificationRequestDto</td>
@@ -1478,7 +1496,7 @@
         <tr class="good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/OfferRequestDto.html">src/issuer/oid4vci/dto/offer-request.dto.ts</a>
+                        <a href="./classes/OfferRequestDto.html">src/issuer/oid4vci/dto/offer-request.dto.ts</a>
             </td>
             <td>class</td>
             <td>OfferRequestDto</td>
@@ -1490,7 +1508,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/OfferResponse.html">src/issuer/oid4vci/dto/offer-request.dto.ts</a>
+                        <a href="./classes/OfferResponse.html">src/issuer/oid4vci/dto/offer-request.dto.ts</a>
             </td>
             <td>class</td>
             <td>OfferResponse</td>
@@ -1502,7 +1520,7 @@
         <tr class="good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./controllers/Oid4vciController.html">src/issuer/oid4vci/oid4vci.controller.ts</a>
+                        <a href="./controllers/Oid4vciController.html">src/issuer/oid4vci/oid4vci.controller.ts</a>
             </td>
             <td>controller</td>
             <td>Oid4vciController</td>
@@ -1514,7 +1532,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/Oid4vciService.html">src/issuer/oid4vci/oid4vci.service.ts</a>
+                        <a href="./injectables/Oid4vciService.html">src/issuer/oid4vci/oid4vci.service.ts</a>
             </td>
             <td>injectable</td>
             <td>Oid4vciService</td>
@@ -1538,7 +1556,7 @@
         <tr class="good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/StatusUpdateDto.html">src/issuer/status-list/dto/status-update.dto.ts</a>
+                        <a href="./classes/StatusUpdateDto.html">src/issuer/status-list/dto/status-update.dto.ts</a>
             </td>
             <td>class</td>
             <td>StatusUpdateDto</td>
@@ -1550,7 +1568,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./entitys/StatusListEntity.html">src/issuer/status-list/entities/status-list.entity.ts</a>
+                        <a href="./entities/StatusListEntity.html">src/issuer/status-list/entities/status-list.entity.ts</a>
             </td>
             <td>entity</td>
             <td>StatusListEntity</td>
@@ -1562,7 +1580,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./entitys/StatusMapping.html">src/issuer/status-list/entities/status-mapping.entity.ts</a>
+                        <a href="./entities/StatusMapping.html">src/issuer/status-list/entities/status-mapping.entity.ts</a>
             </td>
             <td>entity</td>
             <td>StatusMapping</td>
@@ -1574,7 +1592,7 @@
         <tr class="medium">
             <td>
                 <!-- miscellaneous -->
-                <a href="./controllers/StatusListController.html">src/issuer/status-list/status-list.controller.ts</a>
+                        <a href="./controllers/StatusListController.html">src/issuer/status-list/status-list.controller.ts</a>
             </td>
             <td>controller</td>
             <td>StatusListController</td>
@@ -1586,7 +1604,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/StatusListService.html">src/issuer/status-list/status-list.service.ts</a>
+                        <a href="./injectables/StatusListService.html">src/issuer/status-list/status-list.service.ts</a>
             </td>
             <td>injectable</td>
             <td>StatusListService</td>
@@ -1610,7 +1628,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./interfaces/AccessCertificateResponse.html">src/registrar/dto/access-certificate-response.ts</a>
+                        <a href="./interfaces/AccessCertificateResponse.html">src/registrar/dto/access-certificate-response.ts</a>
             </td>
             <td>interface</td>
             <td>AccessCertificateResponse</td>
@@ -1622,7 +1640,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./entitys/RegistrarEntity.html">src/registrar/entities/registrar.entity.ts</a>
+                        <a href="./entities/RegistrarEntity.html">src/registrar/entities/registrar.entity.ts</a>
             </td>
             <td>entity</td>
             <td>RegistrarEntity</td>
@@ -1646,7 +1664,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/RegistrarService.html">src/registrar/registrar.service.ts</a>
+                        <a href="./injectables/RegistrarService.html">src/registrar/registrar.service.ts</a>
             </td>
             <td>injectable</td>
             <td>RegistrarService</td>
@@ -1658,7 +1676,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./entitys/Session.html">src/session/entities/session.entity.ts</a>
+                        <a href="./entities/Session.html">src/session/entities/session.entity.ts</a>
             </td>
             <td>entity</td>
             <td>Session</td>
@@ -1694,7 +1712,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./controllers/SessionController.html">src/session/session.controller.ts</a>
+                        <a href="./controllers/SessionController.html">src/session/session.controller.ts</a>
             </td>
             <td>controller</td>
             <td>SessionController</td>
@@ -1718,7 +1736,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/SessionPipe.html">src/session/session.pipe.ts</a>
+                        <a href="./injectables/SessionPipe.html">src/session/session.pipe.ts</a>
             </td>
             <td>injectable</td>
             <td>SessionPipe</td>
@@ -1730,7 +1748,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/SessionService.html">src/session/session.service.ts</a>
+                        <a href="./injectables/SessionService.html">src/session/session.service.ts</a>
             </td>
             <td>injectable</td>
             <td>SessionService</td>
@@ -1742,7 +1760,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/LocalFileStorage.html">src/storage/adapters/local.storage.ts</a>
+                        <a href="./classes/LocalFileStorage.html">src/storage/adapters/local.storage.ts</a>
             </td>
             <td>class</td>
             <td>LocalFileStorage</td>
@@ -1754,7 +1772,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/S3FileStorage.html">src/storage/adapters/s3.storage.ts</a>
+                        <a href="./classes/S3FileStorage.html">src/storage/adapters/s3.storage.ts</a>
             </td>
             <td>class</td>
             <td>S3FileStorage</td>
@@ -1766,7 +1784,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/FileUploadDto.html">src/storage/dto/file-upload.dto.ts</a>
+                        <a href="./classes/FileUploadDto.html">src/storage/dto/file-upload.dto.ts</a>
             </td>
             <td>class</td>
             <td>FileUploadDto</td>
@@ -1778,7 +1796,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./entitys/FileEntity.html">src/storage/entities/files.entity.ts</a>
+                        <a href="./entities/FileEntity.html">src/storage/entities/files.entity.ts</a>
             </td>
             <td>entity</td>
             <td>FileEntity</td>
@@ -1790,7 +1808,7 @@
         <tr class="good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/FilesService.html">src/storage/files.service.ts</a>
+                        <a href="./injectables/FilesService.html">src/storage/files.service.ts</a>
             </td>
             <td>injectable</td>
             <td>FilesService</td>
@@ -1814,7 +1832,7 @@
         <tr class="good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./controllers/StorageController.html">src/storage/storage.controller.ts</a>
+                        <a href="./controllers/StorageController.html">src/storage/storage.controller.ts</a>
             </td>
             <td>controller</td>
             <td>StorageController</td>
@@ -1838,7 +1856,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./interfaces/FileStorage.html">src/storage/storage.types.ts</a>
+                        <a href="./interfaces/FileStorage.html">src/storage/storage.types.ts</a>
             </td>
             <td>interface</td>
             <td>FileStorage</td>
@@ -2006,7 +2024,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/LoggerConfigService.html">src/utils/logger/logger-config.service.ts</a>
+                        <a href="./injectables/LoggerConfigService.html">src/utils/logger/logger-config.service.ts</a>
             </td>
             <td>injectable</td>
             <td>LoggerConfigService</td>
@@ -2018,7 +2036,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./interfaces/LoggerConfiguration.html">src/utils/logger/logger-config.service.ts</a>
+                        <a href="./interfaces/LoggerConfiguration.html">src/utils/logger/logger-config.service.ts</a>
             </td>
             <td>interface</td>
             <td>LoggerConfiguration</td>
@@ -2030,7 +2048,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./interfaces/SessionLogContext.html">src/utils/logger/session-logger-context.ts</a>
+                        <a href="./interfaces/SessionLogContext.html">src/utils/logger/session-logger-context.ts</a>
             </td>
             <td>interface</td>
             <td>SessionLogContext</td>
@@ -2066,7 +2084,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/SessionLoggerInterceptor.html">src/utils/logger/session-logger.interceptor.ts</a>
+                        <a href="./injectables/SessionLoggerInterceptor.html">src/utils/logger/session-logger.interceptor.ts</a>
             </td>
             <td>injectable</td>
             <td>SessionLoggerInterceptor</td>
@@ -2078,7 +2096,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/SessionLoggerService.html">src/utils/logger/session-logger.service.ts</a>
+                        <a href="./injectables/SessionLoggerService.html">src/utils/logger/session-logger.service.ts</a>
             </td>
             <td>injectable</td>
             <td>SessionLoggerService</td>
@@ -2102,7 +2120,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/ApiKeyConfig.html">src/utils/webhook/webhook.dto.ts</a>
+                        <a href="./classes/ApiKeyConfig.html">src/utils/webhook/webhook.dto.ts</a>
             </td>
             <td>class</td>
             <td>ApiKeyConfig</td>
@@ -2114,7 +2132,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/WebHookAuthConfig.html">src/utils/webhook/webhook.dto.ts</a>
+                        <a href="./classes/WebHookAuthConfig.html">src/utils/webhook/webhook.dto.ts</a>
             </td>
             <td>class</td>
             <td>WebHookAuthConfig</td>
@@ -2126,7 +2144,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/WebHookAuthConfigHeader.html">src/utils/webhook/webhook.dto.ts</a>
+                        <a href="./classes/WebHookAuthConfigHeader.html">src/utils/webhook/webhook.dto.ts</a>
             </td>
             <td>class</td>
             <td>WebHookAuthConfigHeader</td>
@@ -2138,7 +2156,7 @@
         <tr class="medium">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/WebHookAuthConfigNone.html">src/utils/webhook/webhook.dto.ts</a>
+                        <a href="./classes/WebHookAuthConfigNone.html">src/utils/webhook/webhook.dto.ts</a>
             </td>
             <td>class</td>
             <td>WebHookAuthConfigNone</td>
@@ -2150,7 +2168,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/WebhookConfig.html">src/utils/webhook/webhook.dto.ts</a>
+                        <a href="./classes/WebhookConfig.html">src/utils/webhook/webhook.dto.ts</a>
             </td>
             <td>class</td>
             <td>WebhookConfig</td>
@@ -2162,7 +2180,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/WebhookResponse.html">src/utils/webhook/webhook.service.ts</a>
+                        <a href="./classes/WebhookResponse.html">src/utils/webhook/webhook.service.ts</a>
             </td>
             <td>class</td>
             <td>WebhookResponse</td>
@@ -2174,7 +2192,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/WebhookService.html">src/utils/webhook/webhook.service.ts</a>
+                        <a href="./injectables/WebhookService.html">src/utils/webhook/webhook.service.ts</a>
             </td>
             <td>injectable</td>
             <td>WebhookService</td>
@@ -2186,7 +2204,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/AuthorizationResponse.html">src/verifier/oid4vp/dto/authorization-response.dto.ts</a>
+                        <a href="./classes/AuthorizationResponse.html">src/verifier/oid4vp/dto/authorization-response.dto.ts</a>
             </td>
             <td>class</td>
             <td>AuthorizationResponse</td>
@@ -2198,7 +2216,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./interfaces/PresentationRequestOptions.html">src/verifier/oid4vp/dto/presentation-request-options.dto.ts</a>
+                        <a href="./interfaces/PresentationRequestOptions.html">src/verifier/oid4vp/dto/presentation-request-options.dto.ts</a>
             </td>
             <td>interface</td>
             <td>PresentationRequestOptions</td>
@@ -2210,7 +2228,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/PresentationRequest.html">src/verifier/oid4vp/dto/presentation-request.dto.ts</a>
+                        <a href="./classes/PresentationRequest.html">src/verifier/oid4vp/dto/presentation-request.dto.ts</a>
             </td>
             <td>class</td>
             <td>PresentationRequest</td>
@@ -2222,7 +2240,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./controllers/Oid4vpController.html">src/verifier/oid4vp/oid4vp.controller.ts</a>
+                        <a href="./controllers/Oid4vpController.html">src/verifier/oid4vp/oid4vp.controller.ts</a>
             </td>
             <td>controller</td>
             <td>Oid4vpController</td>
@@ -2234,7 +2252,7 @@
         <tr class="good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/Oid4vpService.html">src/verifier/oid4vp/oid4vp.service.ts</a>
+                        <a href="./injectables/Oid4vpService.html">src/verifier/oid4vp/oid4vp.service.ts</a>
             </td>
             <td>injectable</td>
             <td>Oid4vpService</td>
@@ -2246,7 +2264,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./interfaces/AuthResponse.html">src/verifier/presentations/dto/auth-response.dto.ts</a>
+                        <a href="./interfaces/AuthResponse.html">src/verifier/presentations/dto/auth-response.dto.ts</a>
             </td>
             <td>interface</td>
             <td>AuthResponse</td>
@@ -2258,7 +2276,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/PresentationConfigCreateDto.html">src/verifier/presentations/dto/presentation-config-create.dto.ts</a>
+                        <a href="./classes/PresentationConfigCreateDto.html">src/verifier/presentations/dto/presentation-config-create.dto.ts</a>
             </td>
             <td>class</td>
             <td>PresentationConfigCreateDto</td>
@@ -2270,7 +2288,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/RegistrationCertificateRequest.html">src/verifier/presentations/dto/vp-request.dto.ts</a>
+                        <a href="./classes/RegistrationCertificateRequest.html">src/verifier/presentations/dto/vp-request.dto.ts</a>
             </td>
             <td>class</td>
             <td>RegistrationCertificateRequest</td>
@@ -2282,7 +2300,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./entitys/PresentationConfig.html">src/verifier/presentations/entities/presentation-config.entity.ts</a>
+                        <a href="./entities/PresentationConfig.html">src/verifier/presentations/entities/presentation-config.entity.ts</a>
             </td>
             <td>entity</td>
             <td>PresentationConfig</td>
@@ -2294,7 +2312,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/ClaimsQuery.html">src/verifier/presentations/entities/presentation-config.entity.ts</a>
+                        <a href="./classes/ClaimsQuery.html">src/verifier/presentations/entities/presentation-config.entity.ts</a>
             </td>
             <td>class</td>
             <td>ClaimsQuery</td>
@@ -2306,7 +2324,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/CredentialQuery.html">src/verifier/presentations/entities/presentation-config.entity.ts</a>
+                        <a href="./classes/CredentialQuery.html">src/verifier/presentations/entities/presentation-config.entity.ts</a>
             </td>
             <td>class</td>
             <td>CredentialQuery</td>
@@ -2318,7 +2336,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/CredentialSetQuery.html">src/verifier/presentations/entities/presentation-config.entity.ts</a>
+                        <a href="./classes/CredentialSetQuery.html">src/verifier/presentations/entities/presentation-config.entity.ts</a>
             </td>
             <td>class</td>
             <td>CredentialSetQuery</td>
@@ -2330,7 +2348,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/DCQL.html">src/verifier/presentations/entities/presentation-config.entity.ts</a>
+                        <a href="./classes/DCQL.html">src/verifier/presentations/entities/presentation-config.entity.ts</a>
             </td>
             <td>class</td>
             <td>DCQL</td>
@@ -2342,7 +2360,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/PresentationAttachment.html">src/verifier/presentations/entities/presentation-config.entity.ts</a>
+                        <a href="./classes/PresentationAttachment.html">src/verifier/presentations/entities/presentation-config.entity.ts</a>
             </td>
             <td>class</td>
             <td>PresentationAttachment</td>
@@ -2354,7 +2372,7 @@
         <tr class="low">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/TrustedAuthorityQuery.html">src/verifier/presentations/entities/presentation-config.entity.ts</a>
+                        <a href="./classes/TrustedAuthorityQuery.html">src/verifier/presentations/entities/presentation-config.entity.ts</a>
             </td>
             <td>class</td>
             <td>TrustedAuthorityQuery</td>
@@ -2366,7 +2384,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./controllers/PresentationManagementController.html">src/verifier/presentations/presentations.controller.ts</a>
+                        <a href="./controllers/PresentationManagementController.html">src/verifier/presentations/presentations.controller.ts</a>
             </td>
             <td>controller</td>
             <td>PresentationManagementController</td>
@@ -2378,7 +2396,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/PresentationsService.html">src/verifier/presentations/presentations.service.ts</a>
+                        <a href="./injectables/PresentationsService.html">src/verifier/presentations/presentations.service.ts</a>
             </td>
             <td>injectable</td>
             <td>PresentationsService</td>
@@ -2390,7 +2408,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./interfaces/IssuerMetadata.html">src/verifier/resolver/dto/issuer-metadata.dto.ts</a>
+                        <a href="./interfaces/IssuerMetadata.html">src/verifier/resolver/dto/issuer-metadata.dto.ts</a>
             </td>
             <td>interface</td>
             <td>IssuerMetadata</td>
@@ -2402,7 +2420,7 @@
         <tr class="good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/ResolverService.html">src/verifier/resolver/resolver.service.ts</a>
+                        <a href="./injectables/ResolverService.html">src/verifier/resolver/resolver.service.ts</a>
             </td>
             <td>injectable</td>
             <td>ResolverService</td>
@@ -2414,7 +2432,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/CredentialIssuerMetadataDto.html">src/well-known/dto/credential-issuer-metadata.dto.ts</a>
+                        <a href="./classes/CredentialIssuerMetadataDto.html">src/well-known/dto/credential-issuer-metadata.dto.ts</a>
             </td>
             <td>class</td>
             <td>CredentialIssuerMetadataDto</td>
@@ -2426,7 +2444,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/EC_Public.html">src/well-known/dto/jwks-response.dto.ts</a>
+                        <a href="./classes/EC_Public.html">src/well-known/dto/jwks-response.dto.ts</a>
             </td>
             <td>class</td>
             <td>EC_Public</td>
@@ -2438,7 +2456,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/JwksResponseDto.html">src/well-known/dto/jwks-response.dto.ts</a>
+                        <a href="./classes/JwksResponseDto.html">src/well-known/dto/jwks-response.dto.ts</a>
             </td>
             <td>class</td>
             <td>JwksResponseDto</td>
@@ -2450,7 +2468,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./classes/Oauth2AuthorizationServerResponse.html">src/well-known/dto/oauth-authorization-server-response.dto.ts</a>
+                        <a href="./classes/Oauth2AuthorizationServerResponse.html">src/well-known/dto/oauth-authorization-server-response.dto.ts</a>
             </td>
             <td>class</td>
             <td>Oauth2AuthorizationServerResponse</td>
@@ -2462,7 +2480,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./controllers/WellKnownController.html">src/well-known/well-known.controller.ts</a>
+                        <a href="./controllers/WellKnownController.html">src/well-known/well-known.controller.ts</a>
             </td>
             <td>controller</td>
             <td>WellKnownController</td>
@@ -2474,7 +2492,7 @@
         <tr class="very-good">
             <td>
                 <!-- miscellaneous -->
-                <a href="./injectables/WellKnownService.html">src/well-known/well-known.service.ts</a>
+                        <a href="./injectables/WellKnownService.html">src/well-known/well-known.service.ts</a>
             </td>
             <td>injectable</td>
             <td>WellKnownService</td>
