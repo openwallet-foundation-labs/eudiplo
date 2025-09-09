@@ -118,8 +118,8 @@ importers:
         specifier: ^1.13.0
         version: 1.13.0
       '@sd-jwt/crypto-nodejs':
-        specifier: ^0.14.0
-        version: 0.14.0
+        specifier: ^0.15.0
+        version: 0.15.0
       '@sd-jwt/jwt-status-list':
         specifier: ^0.14.0
         version: 0.14.0
@@ -3804,8 +3804,8 @@ packages:
     resolution: {integrity: sha512-H+I8OcZj8/f6GZxNSblJqJXi6Mo/W5sUcVNiW9K6kc0rEGt+na111zS1vpjbG6QEJT/YC9egIVUHXNJlNIlWxw==}
     engines: {node: '>=18'}
 
-  '@sd-jwt/crypto-nodejs@0.14.0':
-    resolution: {integrity: sha512-jYq2qGIJF9RggByMbCNJznUXPxQZZTUm7GDmPmoWT6VYDAp0ngJaX9Qjyjfw3yFXs+iG7TUvHCi2oV+TAzXM9A==}
+  '@sd-jwt/crypto-nodejs@0.15.0':
+    resolution: {integrity: sha512-qWoXeJL/knLUDYJ5s3elOwT5iakGz3gGpjdM3F9Xghq0lx6MdOUEBdLoJuGzhkyxCVg2eBNewLqsaeg7h2Ik/Q==}
     engines: {node: '>=18'}
 
   '@sd-jwt/decode@0.15.0':
@@ -13740,7 +13740,7 @@ snapshots:
       '@sd-jwt/types': 0.15.0
       '@sd-jwt/utils': 0.15.0
 
-  '@sd-jwt/crypto-nodejs@0.14.0': {}
+  '@sd-jwt/crypto-nodejs@0.15.0': {}
 
   '@sd-jwt/decode@0.15.0':
     dependencies:
