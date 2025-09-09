@@ -62,6 +62,20 @@
                }
                toggleDarkMode(darkModeState);
           </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
@@ -97,18 +111,22 @@
 
 
 
+
+
+
+
     <ol class="breadcrumb">
         <li class="breadcrumb-item">Dependencies</li>
     </ol>
     <ul class="dependencies-list">
         <li>
-            <b>@aws-sdk/client-s3</b> : ^3.864.0</li>
+            <b>@aws-sdk/client-s3</b> : ^3.884.0</li>
         <li>
-            <b>@aws-sdk/s3-request-presigner</b> : ^3.864.0</li>
+            <b>@aws-sdk/s3-request-presigner</b> : ^3.884.0</li>
         <li>
-            <b>@badgateway/oauth2-client</b> : ^3.3.0</li>
+            <b>@badgateway/oauth2-client</b> : ^3.3.1</li>
         <li>
-            <b>@keycloak/keycloak-admin-client</b> : ^26.3.2</li>
+            <b>@keycloak/keycloak-admin-client</b> : ^26.3.3</li>
         <li>
             <b>@nestjs/axios</b> : ^4.0.1</li>
         <li>
@@ -142,15 +160,15 @@
         <li>
             <b>@openid4vc/utils</b> : 0.3.0-alpha-20250825150235</li>
         <li>
-            <b>@peculiar/x509</b> : ^1.13.0</li>
+            <b>@peculiar/x509</b> : ^1.14.0</li>
         <li>
-            <b>@sd-jwt/crypto-nodejs</b> : ^0.14.0</li>
+            <b>@sd-jwt/crypto-nodejs</b> : ^0.15.0</li>
         <li>
-            <b>@sd-jwt/jwt-status-list</b> : ^0.14.0</li>
+            <b>@sd-jwt/jwt-status-list</b> : ^0.15.0</li>
         <li>
             <b>@sd-jwt/sd-jwt-vc</b> : ^0.15.1</li>
         <li>
-            <b>@sd-jwt/types</b> : ^0.14.0</li>
+            <b>@sd-jwt/types</b> : ^0.15.0</li>
         <li>
             <b>@willsoto/nestjs-prometheus</b> : ^6.0.2</li>
         <li>
@@ -160,15 +178,15 @@
         <li>
             <b>class-validator</b> : ^0.14.2</li>
         <li>
-            <b>joi</b> : ^18.0.0</li>
+            <b>joi</b> : ^18.0.1</li>
         <li>
-            <b>jose</b> : ^6.0.12</li>
+            <b>jose</b> : ^6.1.0</li>
         <li>
             <b>jwks-rsa</b> : ^3.2.0</li>
         <li>
             <b>multer</b> : ^2.0.2</li>
         <li>
-            <b>mysql2</b> : ^3.14.3</li>
+            <b>mysql2</b> : ^3.14.5</li>
         <li>
             <b>nestjs-pino</b> : ^4.4.0</li>
         <li>
@@ -190,7 +208,7 @@
         <li>
             <b>sqlite3</b> : ^5.1.7</li>
         <li>
-            <b>typeorm</b> : ^0.3.25</li>
+            <b>typeorm</b> : ^0.3.26</li>
         <li>
             <b>uuid</b> : ^13.0.0</li>
     </ul>
