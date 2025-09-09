@@ -57,6 +57,10 @@ updates:
         patterns: ["openid4vc/*"]
         update-types: ["major", "minor", "patch"]
 
+      sd-jwt:
+        patterns: ["@sd-jwt/*"]
+        update-types: ["major", "minor", "patch"]
+
   # --- GitHub Actions versions in .github/workflows ---
   - package-ecosystem: github-actions
     directory: "/"
