@@ -51,7 +51,7 @@
         "@nestjs/terminus": "^11.0.0",
         "@nestjs/typeorm": "^11.0.0",
         "@openid4vc/oauth2": "0.3.0-alpha-20250714110838",
-        "@openid4vc/openid4vci": "0.3.0-alpha-20250714110838",
+        "@openid4vc/openid4vci": "0.3.0-alpha-20250825150235",
         "@openid4vc/openid4vp": "0.3.0-alpha-20250714110838",
         "@openid4vc/utils": "0.3.0-alpha-20250714110838",
         "@peculiar/x509": "^1.13.0",
