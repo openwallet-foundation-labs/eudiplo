@@ -54,7 +54,7 @@
     "@hey-api/openapi-ts": "^0.82.5",
     "@playwright/test": "1.55.0",
     "@types/jasmine": "~5.1.0",
-    "angular-eslint": "20.1.1",
+    "angular-eslint": "20.2.0",
     "eslint": "^9.29.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
