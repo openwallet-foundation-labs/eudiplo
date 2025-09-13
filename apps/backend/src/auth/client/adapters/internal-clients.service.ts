@@ -3,7 +3,8 @@ import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { randomBytes } from "crypto";
 import { Repository } from "typeorm";
-import { Role } from "../../roles/role.enum";
+import { ad } from "vitest/dist/chunks/reporters.d.BFLkQcL6";
+import { getRoles, Role } from "../../roles/role.enum";
 import { ClientsProvider } from "../client.provider";
 import { CreateClientDto } from "../dto/create-client.dto";
 import { UpdateClientDto } from "../dto/update-client.dto";
@@ -22,14 +23,27 @@ export class InternalClientsProvider
         const clientId = this.configService.getOrThrow("AUTH_CLIENT_ID");
         const clientSecret =
             this.configService.getOrThrow("AUTH_CLIENT_SECRET");
-        await this.getClient("root", clientId).catch(() =>
-            this.repo.save({
+        await this.getClient("root", clientId).catch(() => {
+            //check if auth user should be added to a tenant
+            const addToTenant =
+                this.configService.get<string>("AUTH_CLIENT_TENANT");
+            let roles: Role[] = [];
+            //check if the list of roles is defined
+            if (addToTenant) {
+                const addRoles = this.configService.get("AUTH_CLIENT_ROLES");
+                roles = getRoles(addRoles);
+            } else {
+                roles.push(Role.Tenants);
+            }
+
+            return this.repo.save({
                 clientId,
                 secret: clientSecret,
                 description: "Internal client",
-                roles: [Role.Tenants],
-            }),
-        );
+                roles,
+                tenant: addToTenant ? { id: addToTenant } : undefined,
+            });
+        });
     }
 
     getClients(tenantId: string) {

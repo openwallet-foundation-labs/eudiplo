@@ -7,7 +7,10 @@ import {
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
-import { readdirSync } from "fs";
+import { plainToClass } from "class-transformer";
+import { validate } from "class-validator";
+import { readdirSync, readFileSync } from "fs";
+import { PinoLogger } from "nestjs-pino";
 import { Gauge } from "prom-client";
 import { Repository } from "typeorm/repository/Repository";
 import { CryptoService } from "../../crypto/crypto.service";
@@ -42,6 +45,7 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
         @InjectMetric("tenant_total")
         private tenantTotal: Gauge<string>,
         private filesService: FilesService,
+        private logger: PinoLogger,
     ) {}
 
     async onModuleInit() {
@@ -57,10 +61,40 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
                         status: "active",
                     });
                     if (!setUp) {
-                        await this.createTenant({
-                            id: tenant.name,
-                            name: "EUDIPLO",
+                        const file = `${configPath}/${tenant.name}/info.json`;
+                        //TODO: validate file
+                        const configFile = readFileSync(file, "utf-8");
+                        const payload = JSON.parse(configFile);
+                        payload.id = tenant.name;
+
+                        // Validate the payload against CreateTenantDto
+                        const issuanceDto = plainToClass(
+                            CreateTenantDto,
+                            payload,
+                        );
+                        const validationErrors = await validate(issuanceDto, {
+                            whitelist: true,
+                            forbidUnknownValues: false, // avoid false positives on plain objects
+                            forbidNonWhitelisted: false,
+                            stopAtFirstError: false,
                         });
+                        if (validationErrors.length > 0) {
+                            this.logger.error(
+                                {
+                                    event: "ValidationError",
+                                    file,
+                                    tenant: tenant.name,
+                                    errors: validationErrors.map((error) => ({
+                                        property: error.property,
+                                        constraints: error.constraints,
+                                        value: error.value,
+                                    })),
+                                },
+                                `Validation failed for tenant config ${file} in tenant ${tenant.name}: ${JSON.stringify(validationErrors, null, 2)}`,
+                            );
+                        } else {
+                            await this.createTenant(issuanceDto);
+                        }
                     }
                 }
             }
@@ -82,18 +116,22 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
     }
 
     /**
-     * Create a new tenant
+     * Create a new tenant.
      * @param data
      * @returns
      */
     async createTenant(data: CreateTenantDto) {
         const tenant = await this.tenantRepository.save(data);
         await this.setUpTenant(tenant);
-        await this.clients.addClient(tenant.id, {
-            clientId: "admin",
-            description: tenant.name,
-            roles: [Role.Clients, ...(data.roles || [])],
-        });
+        // only add the tenant when the auth user is not assigned to this tenant.
+        const authTenant = this.configService.get<string>("AUTH_CLIENT_TENANT");
+        if (authTenant !== tenant.id) {
+            await this.clients.addClient(tenant.id, {
+                clientId: "admin",
+                description: "auto generated admin client",
+                roles: [Role.Clients, ...(data.roles || [])],
+            });
+        }
     }
 
     /**

@@ -12,3 +12,10 @@ export enum Role {
     // to manage tenant resources
     Tenants = "tenants:manage",
 }
+
+export function getRoles(type: "all") {
+    if (type === "all") {
+        return Object.values(Role);
+    }
+    return [];
+}
