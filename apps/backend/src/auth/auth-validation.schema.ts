@@ -90,11 +90,9 @@ export const AUTH_VALIDATION_SCHEMA: Joi.ObjectSchema = Joi.object({
     })
         .description("Client ID (local auth)")
         .meta({ group: "auth", order: 90 }),
-    AUTH_CLIENT_TENANT: Joi.when("OIDC", {
-        is: Joi.exist(),
-        then: Joi.string().optional(),
-        otherwise: Joi.string().default("root"),
-    })
+    //TODO: logic has to be challenged
+    AUTH_CLIENT_TENANT: Joi.string()
+        .optional()
         .description("Tenant to which this client should be added")
         .meta({ group: "auth", order: 100 }),
     AUTH_CLIENT_ROLES: Joi.when("OIDC", {

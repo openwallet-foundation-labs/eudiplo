@@ -3,7 +3,6 @@ import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { randomBytes } from "crypto";
 import { Repository } from "typeorm";
-import { ad } from "vitest/dist/chunks/reporters.d.BFLkQcL6";
 import { getRoles, Role } from "../../roles/role.enum";
 import { ClientsProvider } from "../client.provider";
 import { CreateClientDto } from "../dto/create-client.dto";
