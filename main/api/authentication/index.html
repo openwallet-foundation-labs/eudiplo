@@ -2192,7 +2192,7 @@
 <p>EUDIPLO uses OAuth 2.0 Client Credentials flow for API authentication, designed
 for service-to-service communication without user interaction.</p>
 <h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">¶</a></h2>
-<!-- generated: 2025-09-09T17:52:48.486Z -->
+<!-- generated: 2025-09-13T11:28:27.723Z -->
 <table>
 <thead>
 <tr>
@@ -2256,6 +2256,16 @@ for service-to-service communication without user interaction.</p>
 <td><code>AUTH_CLIENT_ID</code></td>
 <td><code>any</code></td>
 <td>Client ID (local auth) [when OIDC is set → otherwise default="root"]</td>
+</tr>
+<tr>
+<td><code>AUTH_CLIENT_TENANT</code></td>
+<td><code>string</code></td>
+<td>Tenant to which this client should be added  [optional]</td>
+</tr>
+<tr>
+<td><code>AUTH_CLIENT_ROLES</code></td>
+<td><code>any</code></td>
+<td>Roles assigned to this client [when OIDC is set → otherwise default="all"]</td>
 </tr>
 </tbody>
 </table>
@@ -2364,6 +2374,13 @@ variables, see <a href="../../architecture/key-management/">Key Management</a> a
 <a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">    </span><span class="c1">// to manage tenant resources</span>
 <a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">    </span><span class="nx">Tenants</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"tenants:manage"</span><span class="p">,</span>
 <a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="p">}</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">getRoles</span><span class="p">(</span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s2">"all"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="kr">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">"all"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">Object</span><span class="p">.</span><span class="nx">values</span><span class="p">(</span><span class="nx">Role</span><span class="p">);</span>
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">[];</span>
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="p">}</span>
 </code></pre></div>
 <p>Each client can have multiple roles assigned, but each client can only be assigned to one tenant at maximum. The client with the tenant manage must not be assigned to any tenant since it is managing the service in general. There could be other roles in the future like limited access to the metrics endpoint.</p>
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">¶</a></h2>

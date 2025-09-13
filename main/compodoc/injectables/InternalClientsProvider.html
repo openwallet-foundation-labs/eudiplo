@@ -281,8 +281,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="65"
-                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:65</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="78"
+                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:78</a></div>
                         </td>
                     </tr>
 
@@ -360,8 +360,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="48"
-                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:48</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="61"
+                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:61</a></div>
                         </td>
                     </tr>
 
@@ -439,8 +439,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="35"
-                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:35</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="48"
+                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:48</a></div>
                         </td>
                     </tr>
 
@@ -506,8 +506,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="59"
-                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:59</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="72"
+                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:72</a></div>
                         </td>
                     </tr>
 
@@ -626,8 +626,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="93"
-                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:93</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="106"
+                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:106</a></div>
                         </td>
                     </tr>
 
@@ -705,8 +705,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="82"
-                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:82</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="95"
+                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:95</a></div>
                         </td>
                     </tr>
 
@@ -796,8 +796,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="97"
-                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:97</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="110"
+                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:110</a></div>
                         </td>
                     </tr>
 
@@ -866,7 +866,7 @@ import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { randomBytes } from &quot;crypto&quot;;
 import { Repository } from &quot;typeorm&quot;;
-import { Role } from &quot;../../roles/role.enum&quot;;
+import { getRoles, Role } from &quot;../../roles/role.enum&quot;;
 import { ClientsProvider } from &quot;../client.provider&quot;;
 import { CreateClientDto } from &quot;../dto/create-client.dto&quot;;
 import { UpdateClientDto } from &quot;../dto/update-client.dto&quot;;
@@ -885,14 +885,27 @@ export class InternalClientsProvider
         const clientId &#x3D; this.configService.getOrThrow(&quot;AUTH_CLIENT_ID&quot;);
         const clientSecret &#x3D;
             this.configService.getOrThrow(&quot;AUTH_CLIENT_SECRET&quot;);
-        await this.getClient(&quot;root&quot;, clientId).catch(() &#x3D;&gt;
-            this.repo.save({
+        await this.getClient(&quot;root&quot;, clientId).catch(() &#x3D;&gt; {
+            //check if auth user should be added to a tenant
+            const addToTenant &#x3D;
+                this.configService.get&lt;string&gt;(&quot;AUTH_CLIENT_TENANT&quot;);
+            let roles: Role[] &#x3D; [];
+            //check if the list of roles is defined
+            if (addToTenant) {
+                const addRoles &#x3D; this.configService.get(&quot;AUTH_CLIENT_ROLES&quot;);
+                roles &#x3D; getRoles(addRoles);
+            } else {
+                roles.push(Role.Tenants);
+            }
+
+            return this.repo.save({
                 clientId,
                 secret: clientSecret,
                 description: &quot;Internal client&quot;,
-                roles: [Role.Tenants],
-            }),
-        );
+                roles,
+                tenant: addToTenant ? { id: addToTenant } : undefined,
+            });
+        });
     }
 
     getClients(tenantId: string) {
