@@ -8,6 +8,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@sd-jwt/jwt-status-list':
+        specifier: ^0.15.0
+        version: 0.15.0
     devDependencies:
       '@apidevtools/json-schema-ref-parser':
         specifier: ^14.2.0
