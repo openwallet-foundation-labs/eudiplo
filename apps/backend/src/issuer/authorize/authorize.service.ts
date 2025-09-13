@@ -18,6 +18,7 @@ import { Session } from "../../session/entities/session.entity";
 import { SessionService } from "../../session/session.service";
 import { WebhookConfig } from "../../utils/webhook/webhook.dto";
 import { Oid4vpService } from "../../verifier/oid4vp/oid4vp.service";
+import { AuthenticationMethodPresentation } from "../issuance/dto/authentication-config.dto";
 import { IssuanceService } from "../issuance/issuance.service";
 import { getHeadersFromRequest } from "../oid4vci/util";
 import { AuthorizeQueries } from "./dto/authorize-request.dto";
@@ -205,12 +206,21 @@ export class AuthorizeService {
 
     async parseChallengeRequest(
         body: AuthorizeQueries,
-        tenantId: string,
+        session: Session,
         webhook?: WebhookConfig,
     ) {
         // re using the issuer state as auth session
         const auth_session = body.issuer_state;
-        const presentation = `openid4vp://?${(await this.oid4vpService.createRequest("pid", { session: auth_session, webhook }, tenantId)).uri}`;
+        //use the issuanceId to get the presentationId.
+        const issuanceConfig =
+            await this.issuanceService.getIssuanceConfigurationById(
+                session.issuanceId!,
+                session.tenantId,
+            );
+        const presentationConfig = (
+            issuanceConfig.authenticationConfig as AuthenticationMethodPresentation
+        ).config.type;
+        const presentation = `openid4vp://?${(await this.oid4vpService.createRequest(presentationConfig, { session: auth_session, webhook }, session.tenantId, session.useDcApi)).uri}`;
         const res = {
             error: "insufficient_authorization",
             auth_session,
@@ -274,7 +284,7 @@ export class AuthorizeService {
                 const webhook = issuanceConfig.claimsWebhook;
                 const response = await this.parseChallengeRequest(
                     body,
-                    session.tenantId,
+                    session,
                     webhook,
                 );
                 res.status(400).send(response);

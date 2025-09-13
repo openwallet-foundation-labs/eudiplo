@@ -1,5 +1,13 @@
-import { Body, Controller, Get, Post, UseInterceptors } from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    Get,
+    Post,
+    Req,
+    UseInterceptors,
+} from "@nestjs/common";
 import { ApiExcludeController, ApiParam } from "@nestjs/swagger";
+import { Request } from "express";
 import { Session } from "../../session/entities/session.entity";
 import { SessionEntity } from "../../session/session.decorator";
 import { SessionLogger } from "../../utils/logger/session-logger.decorator";
@@ -23,14 +31,18 @@ export class Oid4vpController {
 
     /**
      * Returns the authorization request for a given requestId and session.
-     * @param requestId
      * @param session
+     * @param req
      * @returns
      */
     @Get()
     @SessionLogger("session", "OID4VP")
-    getRequestWithSession(@SessionEntity() session: Session) {
-        return this.oid4vpService.createAuthorizationRequest(session);
+    getRequestWithSession(
+        @SessionEntity() session: Session,
+        @Req() req: Request,
+    ) {
+        const origin = req.get("origin") as string;
+        return this.oid4vpService.createAuthorizationRequest(session, origin);
     }
 
     /**

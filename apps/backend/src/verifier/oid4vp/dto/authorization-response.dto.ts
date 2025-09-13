@@ -1,4 +1,4 @@
-import { IsString } from "class-validator";
+import { IsBoolean, IsOptional, IsString } from "class-validator";
 
 /**
  * DTO for the authorization response containing the VP token.
@@ -9,4 +9,11 @@ export class AuthorizationResponse {
      */
     @IsString()
     response: string;
+
+    /**
+     * When set to true, the authorization response will be sent to the client.
+     */
+    @IsBoolean()
+    @IsOptional()
+    sendResponse?: boolean;
 }

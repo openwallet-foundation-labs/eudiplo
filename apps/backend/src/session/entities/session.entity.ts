@@ -105,6 +105,12 @@ export class Session {
     nonce?: string;
 
     /**
+     * Flag indicating whether to use the DC API for the presentation request.
+     */
+    @Column("boolean", { nullable: true })
+    useDcApi: boolean;
+
+    /**
      * The timestamp when the VP request was created.
      */
     @CreateDateColumn()

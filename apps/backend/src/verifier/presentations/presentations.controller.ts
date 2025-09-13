@@ -64,6 +64,13 @@ export class PresentationManagementController {
                     requestId: "pid",
                 },
             },
+            "dc-api": {
+                summary: "DC API",
+                value: {
+                    response_type: ResponseType.DC_API,
+                    requestId: "pid",
+                },
+            },
         },
     })
     @Post("request")
@@ -78,10 +85,11 @@ export class PresentationManagementController {
                 webhook: body.webhook,
             },
             user.entity!.id,
+            body.response_type === ResponseType.DC_API,
         );
         values.uri = `openid4vp://?${values.uri}`;
         if (body.response_type === ResponseType.QRCode) {
-            // Generate QR code as a PNG buffer
+            // Generate QR code as a PNG buffer.
             const qrCodeBuffer = await QRCode.toBuffer(values.uri);
 
             // Set the response content type to image/png
