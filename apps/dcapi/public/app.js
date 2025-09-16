@@ -18,7 +18,7 @@ function writeLine(level, ...args){
   const ts = document.createElement('span'); ts.className = 'ts'; ts.textContent = now();
   const tag = document.createElement('span'); tag.className = 'tag'; tag.textContent = level.toUpperCase();
   const msg = document.createElement('span');
-  msg.innerHTML = ' ' + args.map(fmtArg).join(' ');
+  msg.textContent = ' ' + args.map(fmtArg).join(' ');
   p.appendChild(ts); p.appendChild(tag); p.appendChild(msg);
   c.appendChild(p);
   if (autoScroll) c.scrollTop = c.scrollHeight;
