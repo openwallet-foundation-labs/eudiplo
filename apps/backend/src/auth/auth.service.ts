@@ -57,8 +57,8 @@ export class AuthService {
                     "base64",
                 ).toString("ascii");
                 const [id, secret] = credentials.split(":");
-                clientId = id;
-                clientSecret = secret;
+                clientId = decodeURI(id);
+                clientSecret = decodeURI(secret);
             } catch {
                 throw new UnauthorizedException(
                     "Invalid Authorization header format",

@@ -1,12 +1,12 @@
 import { randomUUID } from "node:crypto";
-import { ConflictException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { v4 } from "uuid";
 import { CryptoService } from "../../crypto/crypto.service";
 import { EncryptionService } from "../../crypto/encryption/encryption.service";
 import { OfferResponse } from "../../issuer/oid4vci/dto/offer-request.dto";
 import { RegistrarService } from "../../registrar/registrar.service";
-import { Session } from "../../session/entities/session.entity";
+import { Session, SessionStatus } from "../../session/entities/session.entity";
 import { SessionService } from "../../session/session.service";
 import { SessionLoggerService } from "../../utils/logger/session-logger.service";
 import { SessionLogContext } from "../../utils/logger/session-logger-context";
@@ -33,12 +33,14 @@ export class Oid4vpService {
      * Creates an authorization request for the OID4VP flow.
      * This method generates a JWT that includes the necessary parameters for the authorization request.
      * It initializes the session logging context and logs the start of the flow.
-     * @param requestId
-     * @param tenantId
-     * @param auth_session
+     * @param session
+     * @param origin
      * @returns
      */
-    async createAuthorizationRequest(session: Session): Promise<string> {
+    async createAuthorizationRequest(
+        session: Session,
+        origin: string,
+    ): Promise<string> {
         // Create session logging context
         const logContext: SessionLogContext = {
             sessionId: session.id,
@@ -109,9 +111,14 @@ export class Oid4vpService {
                 payload: {
                     response_type: "vp_token",
                     client_id: "x509_san_dns:" + hostname,
-                    response_uri: `${host}/${session.id}/oid4vp`,
-                    response_mode: "direct_post.jwt",
+                    response_uri: !session.useDcApi
+                        ? `${host}/${session.id}/oid4vp`
+                        : undefined,
+                    response_mode: !session.useDcApi
+                        ? "direct_post.jwt"
+                        : "dc_api.jwt",
                     nonce,
+                    expected_origins: session.useDcApi ? [origin] : undefined,
                     dcql_query,
                     client_metadata: {
                         jwks: {
@@ -135,8 +142,9 @@ export class Oid4vpService {
                         client_name: session.tenant.name,
                         response_types_supported: ["vp_token"],
                     },
-                    state: session.id,
-                    aud: host,
+                    state: !session.useDcApi ? session.id : undefined,
+                    //TODO: check if this value is correct accroding to https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-aud-of-a-request-object
+                    aud: "https://self-issued.me/v2",
                     exp: Math.floor(Date.now() / 1000) + lifeTime,
                     iat: Math.floor(new Date().getTime() / 1000),
                     verifier_attestations: regCert
@@ -205,6 +213,7 @@ export class Oid4vpService {
         requestId: string,
         values: PresentationRequestOptions,
         tenantId: string,
+        useDcApi: boolean,
     ): Promise<OfferResponse> {
         const presentationConfig =
             await this.presentationsService.getPresentationConfig(
@@ -240,12 +249,14 @@ export class Oid4vpService {
                 requestId,
                 requestUrl: `openid4vp://?${queryString}`,
                 expiresAt,
+                useDcApi,
             });
         } else {
             await this.sessionService.add(values.session, {
                 claimsWebhook: values.webhook ?? presentationConfig.webhook,
                 requestUrl: `openid4vp://?${queryString}`,
                 expiresAt,
+                useDcApi,
             });
         }
 
@@ -265,13 +276,12 @@ export class Oid4vpService {
             body.response,
             session.tenantId,
         );
-        if (!res.state) {
-            throw new ConflictException("No state found in the response");
-        }
+
+        //for dc api the state is no longer included in the res, see: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-request
 
         // Create session logging context
         const logContext: SessionLogContext = {
-            sessionId: res.state,
+            sessionId: session.id,
             tenantId: session.tenantId,
             flowType: "OID4VP",
             stage: "response_processing",
@@ -303,6 +313,7 @@ export class Oid4vpService {
             await this.sessionService.add(res.state, {
                 //TODO: not clear why it has to be any
                 credentials: credentials as any,
+                status: SessionStatus.Completed,
             });
             // if there a a webook URL, send the response there
             //TODO: move to dedicated service to reuse it also in the oid4vci flow.
@@ -319,11 +330,15 @@ export class Oid4vpService {
                 credentialCount: credentials?.length || 0,
                 webhookSent: !!session.claimsWebhook,
             });
+
+            if (body.sendResponse) {
+                return credentials;
+            }
         } catch (error) {
             this.sessionLogger.logFlowError(logContext, error as Error, {
                 action: "process_presentation_response",
             });
-            throw error;
+            throw new BadRequestException(error.message);
         }
     }
 }
