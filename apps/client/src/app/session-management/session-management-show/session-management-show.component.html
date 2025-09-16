@@ -187,6 +187,8 @@
       </mat-card-content>
       @if (getOfferUri() && qrCodeDataUrl) {
         <mat-card-actions>
+          <button mat-flat-button (click)="getDcApiCall()">DC API</button>
+
           <button mat-raised-button color="accent" (click)="copyToClipboard(getOfferUri()!)">
             <mat-icon>content_copy</mat-icon>
             Copy URI
