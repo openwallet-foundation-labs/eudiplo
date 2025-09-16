@@ -37,7 +37,7 @@
     "ajv-formats": "^3.0.1",
     "jose": "^6.1.0",
     "json-schema": "link:@ngx-formly/core/json-schema",
-    "monaco-editor": "^0.52.2",
+    "monaco-editor": "^0.53.0",
     "ngx-flexible-layout": "^20.0.0",
     "ngx-monaco-editor-v2": "^20.0.0",
     "qrcode": "^1.5.4",
