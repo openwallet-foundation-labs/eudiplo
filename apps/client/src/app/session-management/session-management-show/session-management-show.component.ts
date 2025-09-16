@@ -125,7 +125,7 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
   }
 
   getDcApiCall() {
-  if (!this.session?.requestUrl) return;
+    if (!this.session?.requestUrl) return;
     const parsed = new URL(this.session.requestUrl.replace('openid4vp://', 'https://example.com')); // Replace scheme for parsing
     const requestUriEncoded = parsed.searchParams.get('request_uri');
     const requestUri = decodeURIComponent(requestUriEncoded!);
