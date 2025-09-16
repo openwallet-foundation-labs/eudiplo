@@ -124,6 +124,18 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
     return JSON.stringify(status);
   }
 
+  getDcApiCall() {
+  if (!this.session?.requestUrl) return;
+    const parsed = new URL(this.session.requestUrl.replace('openid4vp://', 'https://example.com')); // Replace scheme for parsing
+    const requestUriEncoded = parsed.searchParams.get('request_uri');
+    const requestUri = decodeURIComponent(requestUriEncoded!);
+    //TODO: pass a parameter so the service knows it needs to return a dc api compliant JWT. We can generate it on demand, can't we? It would not be good because of ddos
+    firstValueFrom(this.httpClient.get(requestUri, { responseType: 'text' })).then((res) => {
+      const jwt = decodeJwt(res.toString());
+      this.presentationRequest = jwt;
+    });
+  }
+
   getStatusClass(status: any): string {
     const statusStr = this.getStatusDisplayText(status).toLowerCase();
     if (statusStr.includes('completed') || statusStr.includes('success')) return 'status-success';
