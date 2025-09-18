@@ -59,6 +59,16 @@ Here’s how EUDIPLO fits into your infrastructure:
 
 ---
 
+## 📺 Watch the Webinar
+
+Learn more about EUDIPLO in our recorded webinar (September 17, 2025), featuring a deep dive into features, architecture, and live Q&A:
+
+[![EUDIPLO Webinar](https://img.youtube.com/vi/GQlvHK-EFlU/0.jpg)](https://www.youtube.com/watch?v=GQlvHK-EFlU)
+
+[Watch on YouTube](https://www.youtube.com/watch?v=GQlvHK-EFlU)
+
+---
+
 ## How Do I Use It?
 
 EUDIPLO is distributed as a Docker container and can be configured in minutes.

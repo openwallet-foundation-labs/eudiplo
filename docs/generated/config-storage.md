@@ -1,4 +1,3 @@
-<!-- generated: 2025-09-04T19:02:23.496Z -->
 | Key | Type | Notes |
 | --- | ---- | ----- |
 | `STORAGE_DRIVER` | `string` | The storage driver to use  (default: `local`) |
