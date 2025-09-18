@@ -17,7 +17,7 @@ async function main() {
         const slug = slugify(g.name);
         const rel = `generated/config-${slug}.md`;
         const abs = resolve("docs", rel);
-        await writeFileSafely(abs, renderGroupPage(model, g));
+        await writeFileSafely(abs, renderGroupPage(g));
         groupFiles.push({ file: rel, title: g.name });
     }            
 

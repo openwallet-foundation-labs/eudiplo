@@ -1,4 +1,3 @@
-<!-- generated: 2025-09-04T19:02:23.496Z -->
 | Key | Type | Notes |
 | --- | ---- | ----- |
 | `CONFIG_IMPORT` | `boolean` | Run one-off config import on startup  (default: `false`) |

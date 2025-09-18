@@ -42,10 +42,9 @@ function renderGroupTable(g: ConfigGroup) {
   return lines.join("\n");
 }
 
-export function renderGroupPage(model: ConfigModel, g: ConfigGroup) {
-  const lines: string[] = [];
-  lines.push(`<!-- generated: ${model.createdAt} -->`);    
-  lines.push(renderGroupTable(g));  
+export function renderGroupPage(g: ConfigGroup) {
+  const lines: string[] = [];  
+  lines.push(renderGroupTable(g));
   return lines.join("\n");
 }
 
