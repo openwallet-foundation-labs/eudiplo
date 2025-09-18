@@ -204,11 +204,17 @@ export class PresentationsService implements OnApplicationBootstrap {
      * @param tenantId - The ID of the tenant for which to store the registration certificate.
      * @returns
      */
-    public storeRCID(registrationCertId: string, id: string, tenantId: string) {
-        return this.vpRequestRepository.update(
-            { id, tenantId },
-            { registrationCert: { id: registrationCertId } },
-        );
+    public async storeRCID(
+        registrationCertId: string,
+        id: string,
+        tenantId: string,
+    ) {
+        const element = await this.vpRequestRepository.findOneByOrFail({
+            id,
+            tenantId,
+        });
+        element.registrationCert!.id = registrationCertId;
+        await this.vpRequestRepository.save(element);
     }
 
     /**

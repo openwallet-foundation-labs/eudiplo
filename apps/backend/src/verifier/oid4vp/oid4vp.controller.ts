@@ -35,11 +35,28 @@ export class Oid4vpController {
      * @param req
      * @returns
      */
-    @Get()
+    @Get("request")
     @SessionLogger("session", "OID4VP")
     getRequestWithSession(
         @SessionEntity() session: Session,
         @Req() req: Request,
+    ) {
+        const origin = req.get("origin") as string;
+        return this.oid4vpService.createAuthorizationRequest(session, origin);
+    }
+
+    /**
+     * Returns the authorization request for a given requestId and session.
+     * @param session
+     * @param req
+     * @returns
+     */
+    @Post("request")
+    @SessionLogger("session", "OID4VP")
+    getPostRequestWithSession(
+        @SessionEntity() session: Session,
+        @Req() req: Request,
+        @Body() body: AuthorizationResponse,
     ) {
         const origin = req.get("origin") as string;
         return this.oid4vpService.createAuthorizationRequest(session, origin);

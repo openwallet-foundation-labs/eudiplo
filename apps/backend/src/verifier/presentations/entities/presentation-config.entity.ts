@@ -48,6 +48,11 @@ export class TrustedAuthorityQuery {
     values: string[];
 }
 
+export class Claim {
+    @IsArray()
+    path: string[];
+}
+
 //TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-credential-query
 
 export class CredentialQuery {
@@ -60,6 +65,11 @@ export class CredentialQuery {
     @IsOptional()
     @IsBoolean()
     multiple?: boolean;
+
+    @IsOptional()
+    @ValidateNested({ each: true })
+    @Type(() => Claim)
+    claims?: Claim[];
 
     @IsObject()
     meta: any;
