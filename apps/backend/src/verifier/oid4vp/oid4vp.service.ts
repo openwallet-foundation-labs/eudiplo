@@ -226,9 +226,13 @@ export class Oid4vpService {
         const hostname = new URL(
             this.configService.getOrThrow<string>("PUBLIC_URL"),
         ).hostname;
+
+        const request_uri_method: "get" | "post" = "get";
+
         const params = {
             client_id: `x509_san_dns:${hostname}`,
-            request_uri: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${values.session}/oid4vp`,
+            request_uri: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${values.session}/oid4vp/request`,
+            request_uri_method,
         };
         const queryString = Object.entries(params)
             .map(
@@ -322,7 +326,8 @@ export class Oid4vpService {
                     session,
                     logContext,
                     credentials,
-                    false,
+                    //when issuance id is defined, we expect a claim response that needs to be saved
+                    !!session.issuanceId,
                 );
             }
 

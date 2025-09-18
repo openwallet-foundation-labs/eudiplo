@@ -43,7 +43,7 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
 
   // Status polling properties
   pollingInterval: any = null;
-  readonly POLLING_INTERVAL_MS = 10000; // Poll every 3 seconds
+  readonly POLLING_INTERVAL_MS = 3000; // Poll every 3 seconds
   readonly MAX_POLLING_DURATION_MS = 300000; // Stop polling after 5 minutes
   pollingStartTime: number | null = null;
   offerUri: string | null = null;
