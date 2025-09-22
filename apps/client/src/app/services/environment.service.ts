@@ -22,7 +22,6 @@ export interface AppEnvironment {
 export class EnvironmentService {
   private readonly env: AppEnvironment = environment;
 
-
   /**
    * Gets the complete environment configuration
    */
