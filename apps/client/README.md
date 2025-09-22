@@ -23,16 +23,19 @@ A web interface for interacting with an **eudiplo instance** to manage digital c
 ### Development Setup
 
 #### 1. Install Dependencies
+
 ```bash
 pnpm install
 ```
 
 #### 2. Start Development Server
+
 ```bash
 pnpm start
 ```
 
 Navigate to `http://localhost:4200/` and enter your eudiplo instance details in the login form:
+
 - **API URL**: Your eudiplo server URL (e.g., `https://your-eudiplo-instance.com/api`)
 - **OIDC Provider URL**: Your eudiplo OIDC provider URL (e.g., `https://your-oidc-provider.com/auth/realms/your-realm`)
 - **Client ID**: Your eudiplo client ID
@@ -41,6 +44,7 @@ Navigate to `http://localhost:4200/` and enter your eudiplo instance details in 
 ### Docker Deployment
 
 #### Using Docker Compose (Recommended)
+
 ```bash
 # Build and run the application
 make run
@@ -52,6 +56,7 @@ docker-compose up --build
 The application will be available at `http://localhost:8080`
 
 #### Using Docker directly
+
 ```bash
 # Build the image
 docker build -t eudiplo-client:latest .
@@ -61,6 +66,7 @@ docker run -p 8080:80 eudiplo-client:latest
 ```
 
 #### Using Make Commands
+
 ```bash
 make help          # Show all available commands
 make build         # Build Docker image
@@ -75,6 +81,7 @@ make health        # Check application health
 ## Available Scripts
 
 ### Local Development
+
 ```bash
 pnpm start         # Start development server
 pnpm build         # Build for production
@@ -83,6 +90,7 @@ pnpm run lint      # Run linter
 ```
 
 ### Docker Operations
+
 ```bash
 make build         # Build Docker image
 make run           # Run with docker-compose
@@ -96,11 +104,13 @@ make health        # Health check
 ### Automated CI/CD
 
 This project includes a GitHub Actions workflow that automatically:
+
 - Builds the Docker image on push to main branch
 - Publishes to GitHub Container Registry
 - Supports multi-platform builds (AMD64, ARM64)
 
 The workflow is triggered on:
+
 - Push to `main` branch
 - Manual workflow dispatch
 - Release creation
@@ -129,6 +139,7 @@ docker push ghcr.io/your-username/eudiplo-client:latest
 ## Health Monitoring
 
 The application includes a health check endpoint at `/health` that returns:
+
 - Status: `200 OK` with "healthy" response when running
 - Used by Docker health checks and load balancers
 
@@ -147,12 +158,49 @@ The application includes a health check endpoint at `/health` that returns:
 The application can be configured using environment variables:
 
 - `API_BASE_URL`: Default API base URL
-- `OIDC_PROVIDER_URL`: Default OIDC provider URL
-- `CLIENT_ID`: Default client ID
+
+#### URL Query Parameters
+
+The application supports configuration via URL query parameters, which is useful for sharing links with preconfigured settings:
+
+```
+https://your-app-domain.com/?apiUrl=https://api-server.example.com
+```
+
+Supported query parameters:
+
+- `apiUrl`: Override the API base URL for the current session
+- `clientId`: Set the client ID for the current session
+
+This allows you to create shareable links that point to specific backend instances without changing the container configuration.
+
+#### Docker Environment Configuration
+
+When running the application in Docker, you can dynamically set the API URL without rebuilding the image:
+
+```bash
+# Run with a custom API URL
+docker run -p 8080:80 -e API_BASE_URL=https://your-api-url.com eudiplo-client:latest
+```
+
+With docker-compose:
+
+```yaml
+services:
+  client:
+    image: eudiplo-client:latest
+    environment:
+      - API_BASE_URL=https://your-api-url.com
+    ports:
+      - '8080:80'
+```
+
+The container uses an entrypoint script that updates the `env.js` file at startup with the provided environment variables.
 
 ### Nginx Configuration
 
 The production build uses an optimized Nginx configuration with:
+
 - SPA routing support
 - Asset caching (1 year for static assets)
 - Gzip compression
