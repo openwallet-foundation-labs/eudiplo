@@ -49,7 +49,14 @@ COPY --from=build /usr/src/app/apps/client/dist/apps/client/browser /usr/share/n
 # Copy nginx configuration
 COPY apps/client/nginx.conf /etc/nginx/nginx.conf
 
-# Expose port 80 and start nginx
+# Copy entrypoint script
+COPY apps/client/docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+# Environment variables with defaults
+ENV API_BASE_URL=http://localhost:3000
+
+# Expose port 80
 EXPOSE 80
 
 # --- Healthcheck dependencies ---
@@ -59,4 +66,6 @@ RUN apk add --no-cache curl
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
   CMD curl -f http://localhost/ || exit 
 
+# Use our custom entrypoint script
+ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]

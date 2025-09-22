@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import { environment } from '../../environments/environment';
+import { environment as defaultEnvironment } from '../../environments/environment';
 
 export interface OidcConfig {
-  oidcUrl: string;
   clientId: string;
   clientSecret: string;
 }
@@ -21,20 +20,25 @@ export interface AppEnvironment {
   providedIn: 'root',
 })
 export class EnvironmentService {
-  private readonly env: AppEnvironment = environment;
+  private readonly env: AppEnvironment;
 
-  constructor() {}
+  constructor() {
+    // Merge default environment with runtime environment from window['env']
+    const runtimeEnvironment = (window as any)['env'] || {};
 
-  get production(): boolean {
-    return this.env.production;
-  }
-
-  get oidcConfig(): OidcConfig {
-    return this.env.oidc;
-  }
-
-  get apiConfig(): ApiConfig {
-    return this.env.api;
+    this.env = {
+      ...defaultEnvironment,
+      api: {
+        ...defaultEnvironment.api,
+        // Use runtime apiUrl if available
+        baseUrl: runtimeEnvironment.apiUrl || defaultEnvironment.api.baseUrl,
+      },
+      oidc: {
+        ...defaultEnvironment.oidc,
+        // Use runtime clientId if available
+        clientId: runtimeEnvironment.clientId || defaultEnvironment.oidc.clientId,
+      },
+    };
   }
 
   /**
