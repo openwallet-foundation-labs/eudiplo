@@ -57,26 +57,58 @@ export class Session {
     @PrimaryColumn("uuid")
     id: string;
 
+    /**
+     * The timestamp when the request was created.
+     */
+    @CreateDateColumn()
+    createdAt: Date;
+
+    /**
+     * The timestamp when the request was last updated.
+     */
+    @UpdateDateColumn()
+    updatedAt: Date;
+
+    /**
+     * The timestamp when the request is set to expire.
+     */
+    @Column("date", { nullable: true })
+    expiresAt?: Date;
+
+    /**
+     * Flag indicating whether to use the DC API for the presentation request.
+     */
+    @Column("boolean", { nullable: true })
+    useDcApi: boolean;
+
+    /**
+     * Tenant ID for multi-tenancy support.
+     */
+    @Column("varchar")
+    tenantId: string;
+
+    /**
+     * The tenant that owns this object.
+     */
+    @ManyToOne(() => TenantEntity, {
+        cascade: true,
+        onDelete: "CASCADE",
+        eager: true,
+    })
+    tenant: TenantEntity;
+
+    /**
+     * Status of the session.
+     */
+    @ApiProperty({ enum: SessionStatus })
+    @Column("varchar", { nullable: true, default: "active" })
+    status: SessionStatus;
+
+    // issuance specific fields
+
     @Column("varchar", { nullable: true })
     issuanceId?: string;
 
-    /**
-     * The ID of the presentation configuration associated with the session.
-     */
-    @Column("varchar", { nullable: true })
-    requestId?: string;
-
-    /**
-     * The URL of the presentation auth request.
-     */
-    @Column("varchar", { nullable: true })
-    requestUrl?: string;
-
-    /**
-     * Verified credentials from the verification process.
-     */
-    @Column("json", { nullable: true })
-    credentials?: VerificationResult[];
     /**
      * Authorization code for the session.
      */
@@ -92,38 +124,12 @@ export class Session {
      */
     @Column("json", { nullable: true })
     auth_queries?: AuthorizeQueries;
-    /**
-     * Noncce from the Verifiable Presentation request.
-     */
-    @Column("varchar", { nullable: true })
-    vp_nonce?: string;
 
     /**
      * Nonce used for the OID4VCI flow.
      */
     @Column("varchar", { nullable: true })
     nonce?: string;
-
-    /**
-     * Flag indicating whether to use the DC API for the presentation request.
-     */
-    @Column("boolean", { nullable: true })
-    useDcApi: boolean;
-
-    /**
-     * The timestamp when the VP request was created.
-     */
-    @CreateDateColumn()
-    createdAt: Date;
-
-    /**
-     * The timestamp when the VP request was last updated.
-     */
-    @UpdateDateColumn()
-    updatedAt: Date;
-
-    @Column("date", { nullable: true })
-    expiresAt?: Date;
 
     /**
      * Credential offer object containing details about the credential offer or presentation request.
@@ -157,26 +163,36 @@ export class Session {
      */
     @Column("json", { default: JSON.stringify([]) })
     notifications: Notification[];
-    /**
-     * Tenant ID for multi-tenancy support.
-     */
-    @Column("varchar")
-    tenantId: string;
+
+    // presentation specific fields
 
     /**
-     * The tenant that owns this object.
+     * The ID of the presentation configuration associated with the session.
      */
-    @ManyToOne(() => TenantEntity, {
-        cascade: true,
-        onDelete: "CASCADE",
-        eager: true,
-    })
-    tenant: TenantEntity;
+    @Column("varchar", { nullable: true })
+    requestId?: string;
 
     /**
-     * Status of the session.
+     * The URL of the presentation auth request.
      */
-    @ApiProperty({ enum: SessionStatus })
-    @Column("varchar", { nullable: true, default: "active" })
-    status: SessionStatus;
+    @Column("varchar", { nullable: true })
+    requestUrl?: string;
+
+    /**
+     * Signed presentation auth request.
+     */
+    @Column("varchar", { nullable: true })
+    requestObject?: string;
+
+    /**
+     * Verified credentials from the presentation process.
+     */
+    @Column("json", { nullable: true })
+    credentials?: VerificationResult[];
+
+    /**
+     * Noncce from the Verifiable Presentation request.
+     */
+    @Column("varchar", { nullable: true })
+    vp_nonce?: string;
 }

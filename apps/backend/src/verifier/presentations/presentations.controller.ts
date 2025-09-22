@@ -5,10 +5,11 @@ import {
     Get,
     Param,
     Post,
+    Req,
     Res,
 } from "@nestjs/common";
 import { ApiBody, ApiProduces, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { Response } from "express";
+import { Request, Response } from "express";
 import * as QRCode from "qrcode";
 import { Role } from "../../auth/roles/role.enum";
 import { Secured } from "../../auth/secure.decorator";
@@ -75,6 +76,7 @@ export class PresentationManagementController {
     })
     @Post("request")
     async getOffer(
+        @Req() req: Request,
         @Res() res: Response,
         @Body() body: PresentationRequest,
         @Token() user: TokenPayload,
@@ -86,6 +88,7 @@ export class PresentationManagementController {
             },
             user.entity!.id,
             body.response_type === ResponseType.DC_API,
+            req.get("origin") || req.get("host") || "",
         );
         values.uri = `openid4vp://?${values.uri}`;
         if (body.response_type === ResponseType.QRCode) {

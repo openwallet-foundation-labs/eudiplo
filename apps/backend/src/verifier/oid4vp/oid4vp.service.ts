@@ -214,6 +214,7 @@ export class Oid4vpService {
         values: PresentationRequestOptions,
         tenantId: string,
         useDcApi: boolean,
+        origin: string,
     ): Promise<OfferResponse> {
         const presentationConfig =
             await this.presentationsService.getPresentationConfig(
@@ -246,7 +247,7 @@ export class Oid4vpService {
         );
 
         if (fresh) {
-            await this.sessionService.create({
+            const session = await this.sessionService.create({
                 id: values.session,
                 claimsWebhook: values.webhook ?? presentationConfig.webhook,
                 tenantId,
@@ -255,6 +256,16 @@ export class Oid4vpService {
                 expiresAt,
                 useDcApi,
             });
+
+            if (request_uri_method === "get") {
+                const signedJwt = await this.createAuthorizationRequest(
+                    session,
+                    origin,
+                );
+                this.sessionService.add(values.session, {
+                    requestObject: signedJwt,
+                });
+            }
         } else {
             await this.sessionService.add(values.session, {
                 claimsWebhook: values.webhook ?? presentationConfig.webhook,
