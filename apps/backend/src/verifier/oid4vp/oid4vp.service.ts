@@ -258,8 +258,11 @@ export class Oid4vpService {
             });
 
             if (request_uri_method === "get") {
+                // load the session to get nested object like tenant
+                const loadedSession = await this.sessionService.get(session.id);
+
                 const signedJwt = await this.createAuthorizationRequest(
-                    session,
+                    loadedSession,
                     origin,
                 );
                 this.sessionService.add(values.session, {

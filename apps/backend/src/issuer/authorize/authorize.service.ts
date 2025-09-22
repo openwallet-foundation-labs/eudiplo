@@ -207,6 +207,7 @@ export class AuthorizeService {
     async parseChallengeRequest(
         body: AuthorizeQueries,
         session: Session,
+        origin: string,
         webhook?: WebhookConfig,
     ) {
         // re using the issuer state as auth session
@@ -220,7 +221,7 @@ export class AuthorizeService {
         const presentationConfig = (
             issuanceConfig.authenticationConfig as AuthenticationMethodPresentation
         ).config.type;
-        const presentation = `openid4vp://?${(await this.oid4vpService.createRequest(presentationConfig, { session: auth_session, webhook }, session.tenantId, session.useDcApi)).uri}`;
+        const presentation = `openid4vp://?${(await this.oid4vpService.createRequest(presentationConfig, { session: auth_session, webhook }, session.tenantId, session.useDcApi, origin)).uri}`;
         const res = {
             error: "insufficient_authorization",
             auth_session,
@@ -235,6 +236,7 @@ export class AuthorizeService {
         res: Response<any, Record<string, any>>,
         body: AuthorizeQueries,
         session: Session,
+        origin: string,
     ) {
         // auth session and issuer state have the same value
         if (body.auth_session) {
@@ -285,6 +287,7 @@ export class AuthorizeService {
                 const response = await this.parseChallengeRequest(
                     body,
                     session,
+                    origin,
                     webhook,
                 );
                 res.status(400).send(response);

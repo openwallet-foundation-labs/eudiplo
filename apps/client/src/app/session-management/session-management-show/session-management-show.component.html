@@ -186,17 +186,8 @@
         }
       </mat-card-content>
       @if (getOfferUri() && qrCodeDataUrl) {
-        <mat-card-actions>
+        <mat-card-actions fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
           <button mat-flat-button (click)="getDcApiCall()">DC API</button>
-
-          <button mat-raised-button color="accent" (click)="copyToClipboard(getOfferUri()!)">
-            <mat-icon>content_copy</mat-icon>
-            Copy URI
-          </button>
-          <button mat-button (click)="downloadQRCode()">
-            <mat-icon>download</mat-icon>
-            Download QR Code
-          </button>
         </mat-card-actions>
       }
     </mat-card>
@@ -274,7 +265,7 @@
         </mat-tab>
       }
 
-      @if (presentationRequest) {
+      @if (session.requestObject) {
         <mat-tab label="Presentation Request">
           <div class="tab-content">
             <mat-card>
@@ -283,14 +274,14 @@
                 <div class="spacer"></div>
                 <button
                   mat-icon-button
-                  (click)="copyToClipboard(formatJson(presentationRequest))"
+                  (click)="copyToClipboard(formatJson(session.requestObject))"
                   matTooltip="Copy presentation request"
                 >
                   <mat-icon>content_copy</mat-icon>
                 </button>
               </mat-card-header>
               <mat-card-content>
-                <pre class="json-display">{{ formatJson(presentationRequest) }}</pre>
+                <pre class="json-display">{{ printJWT(session.requestObject) }}</pre>
               </mat-card-content>
             </mat-card>
           </div>

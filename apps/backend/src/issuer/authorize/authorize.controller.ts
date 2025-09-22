@@ -79,14 +79,17 @@ export class AuthorizeController {
      */
     @Post("challenge")
     authorizationChallengeEndpoint(
+        @Req() req: Request,
         @Res() res: Response,
         @Body() body: AuthorizeQueries,
         @SessionEntity() session: Session,
     ) {
+        const origin = req.headers.origin || `https://${req.headers.host}`;
         return this.authorizeService.authorizationChallengeEndpoint(
             res,
             body,
             session,
+            origin,
         );
     }
 }
