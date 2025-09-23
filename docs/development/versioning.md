@@ -57,7 +57,6 @@ Releases are managed using
 
 - Analyzes commit messages
 - Determines the next version
-- Updates the changelog
 - Publishes a GitHub release
 - Pushes Docker images
 
