@@ -62,6 +62,20 @@
                }
                toggleDarkMode(darkModeState);
           </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
@@ -82,6 +96,10 @@
                <!-- START CONTENT -->
                <div class="content injectable">
                    <div class="content-data">
+
+
+
+
 
 
 
@@ -156,6 +174,7 @@
                                 <a href="#getIntegratedOAuth2Config" >getIntegratedOAuth2Config</a>
                             </li>
                             <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#validate" >validate</a>
                             </li>
                         </ul>
@@ -176,12 +195,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(configService: ConfigService)</code>
+<code>constructor(configService: ConfigService, tenantService: <a href="../injectables/TenantService.html" target="_self">TenantService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="9" class="link-to-prism">src/auth/jwt.strategy.ts:9</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="10" class="link-to-prism">src/auth/jwt.strategy.ts:10</a></div>
                             </td>
                         </tr>
 
@@ -203,6 +222,18 @@
                                                   
                                                         <td>
                                                                     <code>ConfigService</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>tenantService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/TenantService.html" target="_self" >TenantService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -244,8 +275,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="20"
-                                    class="link-to-prism">src/auth/jwt.strategy.ts:20</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="24"
+                                    class="link-to-prism">src/auth/jwt.strategy.ts:24</a></div>
                         </td>
                     </tr>
 
@@ -326,8 +357,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="27"
-                                    class="link-to-prism">src/auth/jwt.strategy.ts:27</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="31"
+                                    class="link-to-prism">src/auth/jwt.strategy.ts:31</a></div>
                         </td>
                     </tr>
 
@@ -396,8 +427,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="55"
-                                    class="link-to-prism">src/auth/jwt.strategy.ts:55</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="59"
+                                    class="link-to-prism">src/auth/jwt.strategy.ts:59</a></div>
                         </td>
                     </tr>
 
@@ -449,6 +480,7 @@
                 <td class="col-md-4">
                     <a name="validate"></a>
                     <span class="name">
+                            <span class="modifier">Async</span>
                         <span ><b>validate</b></span>
                         <a href="#validate"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -456,15 +488,16 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>validate(payload: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>validate(payload: <a href="../interfaces/InternalTokenPayload.html" target="_self">InternalTokenPayload</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="79"
-                                    class="link-to-prism">src/auth/jwt.strategy.ts:79</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="83"
+                                    class="link-to-prism">src/auth/jwt.strategy.ts:83</a></div>
                         </td>
                     </tr>
 
@@ -490,7 +523,7 @@
                                         <tr>
                                                 <td>payload</td>
                                             <td>
-                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                                            <code><a href="../interfaces/InternalTokenPayload.html" target="_self" >InternalTokenPayload</a></code>
                                             </td>
 
                                             <td>
@@ -507,7 +540,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>    <code>Promise&lt;any&gt;</code>
 
                         </div>
                             <div class="io-description">
@@ -529,11 +562,15 @@ import { ConfigService } from &quot;@nestjs/config&quot;;
 import { PassportStrategy } from &quot;@nestjs/passport&quot;;
 import { passportJwtSecret } from &quot;jwks-rsa&quot;;
 import { ExtractJwt, Strategy } from &quot;passport-jwt&quot;;
-import { TokenPayload } from &quot;./token.decorator&quot;;
+import { TenantService } from &quot;./tenant/tenant.service&quot;;
+import { InternalTokenPayload } from &quot;./token.decorator&quot;;
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, &quot;jwt&quot;) {
-    constructor(private configService: ConfigService) {
+    constructor(
+        private configService: ConfigService,
+        private tenantService: TenantService,
+    ) {
         const useExternalOIDC &#x3D; configService.get&lt;boolean&gt;(&quot;OIDC&quot;);
 
         const config &#x3D; useExternalOIDC
@@ -602,16 +639,23 @@ export class JwtStrategy extends PassportStrategy(Strategy, &quot;jwt&quot;) {
      * @param payload The JWT payload
      * @returns The validated payload or an error
      */
-    validate(payload: TokenPayload): any {
+    async validate(payload: InternalTokenPayload): Promise&lt;any&gt; {
         const useExternalOIDC &#x3D;
             this.configService.get&lt;string&gt;(&quot;OIDC&quot;) !&#x3D;&#x3D; undefined;
-        let sub &#x3D; payload.sub;
+        let sub &#x3D; payload.tenant_id;
         if (useExternalOIDC) {
             const key &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;OIDC_SUB&quot;);
             sub &#x3D; (payload as any)[key] as string;
         }
 
-        return { sub, admin: payload.admin || false };
+        const tenantEntity &#x3D; await this.tenantService
+            .getTenant(sub)
+            .catch(() &#x3D;&gt; null);
+
+        return {
+            entity: tenantEntity,
+            roles: payload.roles || (payload as any).realm_access?.roles || [],
+        };
     }
 }
 </code></pre>

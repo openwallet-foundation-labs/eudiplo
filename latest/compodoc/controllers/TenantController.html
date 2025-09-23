@@ -62,6 +62,20 @@
                }
                toggleDarkMode(darkModeState);
           </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
@@ -82,6 +96,10 @@
                <!-- START CONTENT -->
                <div class="content controller">
                    <div class="content-data">
+
+
+
+
 
 
 
@@ -115,7 +133,6 @@
         <p class="comment">
             <code>src/auth/tenant/tenant.controller.ts</code>
         </p>
-
             <p class="comment">
                 <h3>Prefix</h3>
             </p>
@@ -154,6 +171,14 @@
                             </li>
                             <li>
                                     <span class="modifier"></span>
+                                <a href="#getTenant" >getTenant</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                <a href="#getTenants" >getTenants</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
                                 <a href="#initTenant" >initTenant</a>
                             </li>
                         </ul>
@@ -188,7 +213,7 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>deleteTenant(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, user: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
+                    <code>deleteTenant(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
@@ -202,8 +227,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="44"
-                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:44</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="49"
+                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:49</a></div>
                         </td>
                     </tr>
 
@@ -242,10 +267,77 @@
 
                                             </td>
                                         </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getTenant"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                        <span ><b>getTenant</b></span>
+                        <a href="#getTenant"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getTenant(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;:id&#x27;)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="40"
+                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:40</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get a tenant by ID</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
                                         <tr>
-                                                <td>user</td>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
                                             <td>
-                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
 
                                             <td>
@@ -254,11 +346,65 @@
 
 
                                             <td>
+                                                    <p>The ID of the tenant</p>
+
                                             </td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>The tenant</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getTenants"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                        <span ><b>getTenants</b></span>
+                        <a href="#getTenants"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getTenants()</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get()<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="20"
+                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:20</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get all tenants</p>
+</div>
+
                         <div class="io-description">
                             <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
 
@@ -285,7 +431,7 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>initTenant(user: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>, values: <a href="../classes/ClientInitDto.html" target="_self">ClientInitDto</a>)</code>
+                    <code>initTenant(data: <a href="../classes/CreateTenantDto.html" target="_self">CreateTenantDto</a>)</code>
                 </td>
             </tr>
 
@@ -299,15 +445,15 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="31"
-                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:31</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="30"
+                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:30</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Initialize a tenant for the given user.</p>
+                        <div class="io-description"><p>Initialize a tenant</p>
 </div>
 
                             <div class="io-description">
@@ -319,14 +465,13 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
-                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>user</td>
+                                                <td>data</td>
                                             <td>
-                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                                            <code><a href="../classes/CreateTenantDto.html" target="_self" >CreateTenantDto</a></code>
                                             </td>
 
                                             <td>
@@ -334,24 +479,6 @@
                                             </td>
 
 
-                                            <td>
-                                                    <p>The user to initialize the tenant for</p>
-
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>values</td>
-                                            <td>
-                                                            <code><a href="../classes/ClientInitDto.html" target="_self" >ClientInitDto</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -371,42 +498,47 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
-    Body,
-    ConflictException,
-    Controller,
-    Delete,
-    Param,
-    Post,
-    UseGuards,
-} from &quot;@nestjs/common&quot;;
-import { ApiSecurity } from &quot;@nestjs/swagger&quot;;
-import { AdminAuthGuard } from &quot;../admin.guard&quot;;
-import { ClientInitDto } from &quot;../dto/client-init.dto&quot;;
-import { TenantService } from &quot;../tenant.service&quot;;
-import { Token, TokenPayload } from &quot;../token.decorator&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Body, Controller, Delete, Get, Param, Post } from &quot;@nestjs/common&quot;;
+import { Role } from &quot;../roles/role.enum&quot;;
+import { Secured } from &quot;../secure.decorator&quot;;
+import { CreateTenantDto } from &quot;./dto/create-tenant.dto&quot;;
+import { TenantService } from &quot;./tenant.service&quot;;
 
 /**
  * Tenant management controller
  */
-@UseGuards(AdminAuthGuard)
-@ApiSecurity(&quot;oauth2&quot;)
+@Secured([Role.Tenants])
 @Controller(&quot;tenant&quot;)
 export class TenantController {
     constructor(private readonly tenantService: TenantService) {}
 
     /**
-     * Initialize a tenant for the given user.
-     * @param user The user to initialize the tenant for
+     * Get all tenants
+     * @returns
+     */
+    @Get()
+    getTenants() {
+        return this.tenantService.getAll();
+    }
+
+    /**
+     * Initialize a tenant
+     * @param data
      * @returns
      */
     @Post()
-    initTenant(@Token() user: TokenPayload, @Body() values: ClientInitDto) {
-        //only the admin is allowed to init new users. Or the user by itself.
-        if (values.id &amp;&amp; !user.admin) {
-            throw new ConflictException(&quot;User is not an admin&quot;);
-        }
-        return this.tenantService.initTenant(values.id || user.sub);
+    initTenant(@Body() data: CreateTenantDto) {
+        return this.tenantService.createTenant(data);
+    }
+
+    /**
+     * Get a tenant by ID
+     * @param id The ID of the tenant
+     * @returns The tenant
+     */
+    @Get(&quot;:id&quot;)
+    getTenant(@Param(&quot;id&quot;) id: string) {
+        return this.tenantService.getTenant(id);
     }
 
     /**
@@ -414,15 +546,8 @@ export class TenantController {
      * @param id The ID of the tenant to delete
      */
     @Delete(&quot;:id&quot;)
-    deleteTenant(@Param(&quot;id&quot;) id: string, @Token() user: TokenPayload) {
-        // either self delete or the user needs to be an admin.
-        if (id !&#x3D;&#x3D; user.sub &amp;&amp; !user.admin) {
-            throw new ConflictException(
-                &quot;User is not allowed to delete this tenant&quot;,
-            );
-        }
-
-        return this.tenantService.deleteTenant(id, user);
+    deleteTenant(@Param(&quot;id&quot;) id: string) {
+        return this.tenantService.deleteTenant(id);
     }
 }
 </code></pre>

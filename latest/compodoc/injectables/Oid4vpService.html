@@ -62,6 +62,20 @@
                }
                toggleDarkMode(darkModeState);
           </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
@@ -82,6 +96,10 @@
                <!-- START CONTENT -->
                <div class="content injectable">
                    <div class="content-data">
+
+
+
+
 
 
 
@@ -313,15 +331,15 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>createAuthorizationRequest(session: <a href="../entitys/Session.html" target="_self">Session</a>)</code>
+                    <code>createAuthorizationRequest(session: <a href="../entitys/Session.html" target="_self">Session</a>, origin: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="41"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:41</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="40"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:40</a></div>
                         </td>
                     </tr>
 
@@ -349,6 +367,18 @@ It initializes the session logging context and logs the start of the flow.</p>
                                                 <td>session</td>
                                             <td>
                                                             <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>origin</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
 
                                             <td>
@@ -386,15 +416,15 @@ It initializes the session logging context and logs the start of the flow.</p>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>createRequest(requestId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, values: <a href="../interfaces/PresentationRequestOptions.html" target="_self">PresentationRequestOptions</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>createRequest(requestId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, values: <a href="../interfaces/PresentationRequestOptions.html" target="_self">PresentationRequestOptions</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, useDcApi: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank">boolean</a>, origin: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="205"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:205</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="212"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:212</a></div>
                         </td>
                     </tr>
 
@@ -452,6 +482,30 @@ It initializes the session logging context and logs the start of the flow.</p>
 
 
                                         </tr>
+                                        <tr>
+                                                <td>useDcApi</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>origin</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -488,8 +542,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="264"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:264</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="292"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:292</a></div>
                         </td>
                     </tr>
 
@@ -539,7 +593,7 @@ It initializes the session logging context and logs the start of the flow.</p>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>    <code>unknown</code>
 
                         </div>
                             <div class="io-description">
@@ -556,14 +610,14 @@ It initializes the session logging context and logs the start of the flow.</p>
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { randomUUID } from &quot;node:crypto&quot;;
-import { ConflictException, Injectable } from &quot;@nestjs/common&quot;;
+import { BadRequestException, Injectable } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { v4 } from &quot;uuid&quot;;
 import { CryptoService } from &quot;../../crypto/crypto.service&quot;;
 import { EncryptionService } from &quot;../../crypto/encryption/encryption.service&quot;;
 import { OfferResponse } from &quot;../../issuer/oid4vci/dto/offer-request.dto&quot;;
 import { RegistrarService } from &quot;../../registrar/registrar.service&quot;;
-import { Session } from &quot;../../session/entities/session.entity&quot;;
+import { Session, SessionStatus } from &quot;../../session/entities/session.entity&quot;;
 import { SessionService } from &quot;../../session/session.service&quot;;
 import { SessionLoggerService } from &quot;../../utils/logger/session-logger.service&quot;;
 import { SessionLogContext } from &quot;../../utils/logger/session-logger-context&quot;;
@@ -590,12 +644,14 @@ export class Oid4vpService {
      * Creates an authorization request for the OID4VP flow.
      * This method generates a JWT that includes the necessary parameters for the authorization request.
      * It initializes the session logging context and logs the start of the flow.
-     * @param requestId
-     * @param tenantId
-     * @param auth_session
+     * @param session
+     * @param origin
      * @returns
      */
-    async createAuthorizationRequest(session: Session): Promise&lt;string&gt; {
+    async createAuthorizationRequest(
+        session: Session,
+        origin: string,
+    ): Promise&lt;string&gt; {
         // Create session logging context
         const logContext: SessionLogContext &#x3D; {
             sessionId: session.id,
@@ -666,9 +722,14 @@ export class Oid4vpService {
                 payload: {
                     response_type: &quot;vp_token&quot;,
                     client_id: &quot;x509_san_dns:&quot; + hostname,
-                    response_uri: &#x60;${host}/${session.id}/oid4vp&#x60;,
-                    response_mode: &quot;direct_post.jwt&quot;,
+                    response_uri: !session.useDcApi
+                        ? &#x60;${host}/${session.id}/oid4vp&#x60;
+                        : undefined,
+                    response_mode: !session.useDcApi
+                        ? &quot;direct_post.jwt&quot;
+                        : &quot;dc_api.jwt&quot;,
                     nonce,
+                    expected_origins: session.useDcApi ? [origin] : undefined,
                     dcql_query,
                     client_metadata: {
                         jwks: {
@@ -689,12 +750,12 @@ export class Oid4vpService {
                         },
                         authorization_encrypted_response_alg: &quot;ECDH-ES&quot;,
                         authorization_encrypted_response_enc: &quot;A128GCM&quot;,
-                        client_name:
-                            this.configService.getOrThrow&lt;string&gt;(&quot;RP_NAME&quot;),
+                        client_name: session.tenant.name,
                         response_types_supported: [&quot;vp_token&quot;],
                     },
-                    state: session.id,
-                    aud: host,
+                    state: !session.useDcApi ? session.id : undefined,
+                    //TODO: check if this value is correct accroding to https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-aud-of-a-request-object
+                    aud: &quot;https://self-issued.me/v2&quot;,
                     exp: Math.floor(Date.now() / 1000) + lifeTime,
                     iat: Math.floor(new Date().getTime() / 1000),
                     verifier_attestations: regCert
@@ -763,6 +824,8 @@ export class Oid4vpService {
         requestId: string,
         values: PresentationRequestOptions,
         tenantId: string,
+        useDcApi: boolean,
+        origin: string,
     ): Promise&lt;OfferResponse&gt; {
         const presentationConfig &#x3D;
             await this.presentationsService.getPresentationConfig(
@@ -775,9 +838,13 @@ export class Oid4vpService {
         const hostname &#x3D; new URL(
             this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;),
         ).hostname;
+
+        const request_uri_method: &quot;get&quot; | &quot;post&quot; &#x3D; &quot;get&quot;;
+
         const params &#x3D; {
             client_id: &#x60;x509_san_dns:${hostname}&#x60;,
-            request_uri: &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/${values.session}/oid4vp&#x60;,
+            request_uri: &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/${values.session}/oid4vp/request&#x60;,
+            request_uri_method,
         };
         const queryString &#x3D; Object.entries(params)
             .map(
@@ -791,19 +858,34 @@ export class Oid4vpService {
         );
 
         if (fresh) {
-            await this.sessionService.create({
+            const session &#x3D; await this.sessionService.create({
                 id: values.session,
                 claimsWebhook: values.webhook ?? presentationConfig.webhook,
                 tenantId,
                 requestId,
                 requestUrl: &#x60;openid4vp://?${queryString}&#x60;,
                 expiresAt,
+                useDcApi,
             });
+
+            if (request_uri_method &#x3D;&#x3D;&#x3D; &quot;get&quot;) {
+                // load the session to get nested object like tenant
+                const loadedSession &#x3D; await this.sessionService.get(session.id);
+
+                const signedJwt &#x3D; await this.createAuthorizationRequest(
+                    loadedSession,
+                    origin,
+                );
+                this.sessionService.add(values.session, {
+                    requestObject: signedJwt,
+                });
+            }
         } else {
             await this.sessionService.add(values.session, {
                 claimsWebhook: values.webhook ?? presentationConfig.webhook,
                 requestUrl: &#x60;openid4vp://?${queryString}&#x60;,
                 expiresAt,
+                useDcApi,
             });
         }
 
@@ -823,13 +905,12 @@ export class Oid4vpService {
             body.response,
             session.tenantId,
         );
-        if (!res.state) {
-            throw new ConflictException(&quot;No state found in the response&quot;);
-        }
+
+        //for dc api the state is no longer included in the res, see: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-request
 
         // Create session logging context
         const logContext: SessionLogContext &#x3D; {
-            sessionId: res.state,
+            sessionId: session.id,
             tenantId: session.tenantId,
             flowType: &quot;OID4VP&quot;,
             stage: &quot;response_processing&quot;,
@@ -861,6 +942,7 @@ export class Oid4vpService {
             await this.sessionService.add(res.state, {
                 //TODO: not clear why it has to be any
                 credentials: credentials as any,
+                status: SessionStatus.Completed,
             });
             // if there a a webook URL, send the response there
             //TODO: move to dedicated service to reuse it also in the oid4vci flow.
@@ -869,7 +951,8 @@ export class Oid4vpService {
                     session,
                     logContext,
                     credentials,
-                    false,
+                    //when issuance id is defined, we expect a claim response that needs to be saved
+                    !!session.issuanceId,
                 );
             }
 
@@ -877,11 +960,15 @@ export class Oid4vpService {
                 credentialCount: credentials?.length || 0,
                 webhookSent: !!session.claimsWebhook,
             });
+
+            if (body.sendResponse) {
+                return credentials;
+            }
         } catch (error) {
             this.sessionLogger.logFlowError(logContext, error as Error, {
                 action: &quot;process_presentation_response&quot;,
             });
-            throw error;
+            throw new BadRequestException(error.message);
         }
     }
 }

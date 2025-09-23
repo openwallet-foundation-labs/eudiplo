@@ -62,6 +62,20 @@
                }
                toggleDarkMode(darkModeState);
           </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
@@ -82,6 +96,10 @@
                <!-- START CONTENT -->
                <div class="content controller">
                    <div class="content-data">
+
+
+
+
 
 
 
@@ -115,7 +133,6 @@
         <p class="comment">
             <code>src/issuer/authorize/authorize.controller.ts</code>
         </p>
-
             <p class="comment">
                 <h3>Prefix</h3>
             </p>
@@ -199,7 +216,7 @@ This controller handles the authorization requests, token requests.</p>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>authorizationChallengeEndpoint(res: Response, body: <a href="../classes/AuthorizeQueries.html" target="_self">AuthorizeQueries</a>, session: <a href="../entitys/Session.html" target="_self">Session</a>)</code>
+                    <code>authorizationChallengeEndpoint(req: Request, res: Response, body: <a href="../classes/AuthorizeQueries.html" target="_self">AuthorizeQueries</a>, session: <a href="../entitys/Session.html" target="_self">Session</a>)</code>
                 </td>
             </tr>
 
@@ -236,6 +253,18 @@ This controller handles the authorization requests, token requests.</p>
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        <tr>
+                                                <td>req</td>
+                                            <td>
+                                                        <code>Request</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
                                         <tr>
                                                 <td>res</td>
                                             <td>
@@ -644,14 +673,17 @@ export class AuthorizeController {
      */
     @Post(&quot;challenge&quot;)
     authorizationChallengeEndpoint(
+        @Req() req: Request,
         @Res() res: Response,
         @Body() body: AuthorizeQueries,
         @SessionEntity() session: Session,
     ) {
+        const origin &#x3D; req.headers.origin || &#x60;https://${req.headers.host}&#x60;;
         return this.authorizeService.authorizationChallengeEndpoint(
             res,
             body,
             session,
+            origin,
         );
     }
 }

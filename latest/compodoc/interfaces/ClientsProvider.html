@@ -62,6 +62,20 @@
                }
                toggleDarkMode(darkModeState);
           </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
@@ -80,7 +94,7 @@
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
-               <div class="content injectable">
+               <div class="content interface">
                    <div class="content-data">
 
 
@@ -90,9 +104,20 @@
 
 
 
+
+
+
+
+
+
+
+
+
 <ol class="breadcrumb">
-  <li class="breadcrumb-item">Injectables</li>
-  <li class="breadcrumb-item" >OAuthService</li>
+  <li class="breadcrumb-item">Interfaces</li>
+  <li class="breadcrumb-item"
+  >
+  ClientsProvider</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -116,140 +141,73 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/oauth/oauth.service.ts</code>
+            <code>src/auth/client/client.provider.ts</code>
         </p>
 
 
 
 
-
-            <section data-compodoc="block-index">
-    <h3 id="index">Index</h3>
-    <table class="table table-sm table-bordered index-table">
-        <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <h6><b>Properties</b></h6>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <ul class="index-list">
-                            <li>
-                                    <span class="modifier">Private</span>
-                                    <span class="modifier">Readonly</span>
-                                <a href="#clients" >clients</a>
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td class="col-md-4">
-                        <h6><b>Methods</b></h6>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <ul class="index-list">
-                            <li>
-                                <a href="#addClient" >addClient</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Private</span>
-                                    <span class="modifier">Async</span>
-                                <a href="#generateAccessToken" >generateAccessToken</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Async</span>
-                                <a href="#handleClientCredentialsGrant" >handleClientCredentialsGrant</a>
-                            </li>
-                            <li>
-                                <a href="#hasClient" >hasClient</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Private</span>
-                                <a href="#initializeClients" >initializeClients</a>
-                            </li>
-                            <li>
-                                <a href="#removeClient" >removeClient</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Private</span>
-                                <a href="#validateClientCredentials" >validateClientCredentials</a>
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
-
-
-
-
-
-        </tbody>
-    </table>
-</section>
-
-            <section data-compodoc="block-constructor">
-    <h3 id="constructor">Constructor</h3>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-<code>constructor(configService: ConfigService, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>)</code>
-                    </td>
-                </tr>
-                        <tr>
-                            <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="10" class="link-to-prism">src/oauth/oauth.service.ts:10</a></div>
-                            </td>
-                        </tr>
-
-                <tr>
-                    <td class="col-md-4">
-                            <div>
-                                    <b>Parameters :</b>
-                                    <table class="params">
-                                        <thead>
-                                            <tr>
-                                                <td>Name</td>
-                                                    <td>Type</td>
-                                                <td>Optional</td>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                                <tr>
-                                                        <td>configService</td>
-                                                  
-                                                        <td>
-                                                                    <code>ConfigService</code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
-                                                        <td>cryptoService</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../injectables/CryptoService.html" target="_self" >CryptoService</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                        </tbody>
-                                    </table>
-                            </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-</section>
+        <section data-compodoc="block-index">
+            <h3 id="index">Index</h3>
+            <table class="table table-sm table-bordered index-table">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <h6><b>Methods</b></h6>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <ul class="index-list">
+                                <li>
+                                    <a href="#addClient" 
+>
+                                        addClient
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#getClient" 
+>
+                                        getClient
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#getClients" 
+>
+                                        getClients
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#getClientSecret" 
+>
+                                        getClientSecret
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#removeClient" 
+>
+                                        removeClient
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#updateClient" 
+>
+                                        updateClient
+                                    </a>
+                                </li>
+                                <li>
+                                        <span class="modifier">Optional</span>
+                                    <a href="#validateClientCredentials" 
+>
+                                        validateClientCredentials
+                                    </a>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
 
             <section data-compodoc="block-methods">
     
@@ -269,15 +227,15 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>addClient(clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientSecret: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+<code>addClient(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, dto: <a href="../classes/CreateClientDto.html" target="_self">CreateClientDto</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="92"
-                                    class="link-to-prism">src/oauth/oauth.service.ts:92</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="16"
+                                    class="link-to-prism">src/auth/client/client.provider.ts:16</a></div>
                         </td>
                     </tr>
 
@@ -298,7 +256,7 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>clientId</td>
+                                                <td>tenantId</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -310,7 +268,86 @@
 
                                         </tr>
                                         <tr>
-                                                <td>clientSecret</td>
+                                                <td>dto</td>
+                                            <td>
+                                                            <code><a href="../classes/CreateClientDto.html" target="_self" >CreateClientDto</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../entitys/ClientEntity.html" target="_self" >Promise&lt;ClientEntity&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getClient"></a>
+                    <span class="name">
+                        <span ><b>getClient</b></span>
+                        <a href="#getClient"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getClient(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="15"
+                                    class="link-to-prism">src/auth/client/client.provider.ts:15</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>clientId</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -325,7 +362,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+                            <b>Returns : </b>        <code><a href="../entitys/ClientEntity.html" target="_self" >Promise&lt;ClientEntity&gt;</a></code>
 
                         </div>
                             <div class="io-description">
@@ -339,27 +376,24 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="generateAccessToken"></a>
+                    <a name="getClients"></a>
                     <span class="name">
-                            <span class="modifier">Private</span>
-                            <span class="modifier">Async</span>
-                        <span ><b>generateAccessToken</b></span>
-                        <a href="#generateAccessToken"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>getClients</b></span>
+                        <a href="#getClients"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>generateAccessToken(clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, scope?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+<code>getClients(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="68"
-                                    class="link-to-prism">src/oauth/oauth.service.ts:68</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="14"
+                                    class="link-to-prism">src/auth/client/client.provider.ts:14</a></div>
                         </td>
                     </tr>
 
@@ -380,7 +414,74 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>clientId</td>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../entitys/ClientEntity.html" target="_self" >Promise&lt;ClientEntity[]&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getClientSecret"></a>
+                    <span class="name">
+                        <span ><b>getClientSecret</b></span>
+                        <a href="#getClientSecret"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getClientSecret(sub: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="13"
+                                    class="link-to-prism">src/auth/client/client.provider.ts:13</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>sub</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -392,13 +493,13 @@
 
                                         </tr>
                                         <tr>
-                                                <td>scope</td>
+                                                <td>id</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
 
                                             <td>
-                                                    Yes
+                                                    No
                                             </td>
 
 
@@ -421,181 +522,6 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="handleClientCredentialsGrant"></a>
-                    <span class="name">
-                            <span class="modifier">Async</span>
-                        <span ><b>handleClientCredentialsGrant</b></span>
-                        <a href="#handleClientCredentialsGrant"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>handleClientCredentialsGrant(request: <a href="../classes/TokenRequestDto.html" target="_self">TokenRequestDto</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="33"
-                                    class="link-to-prism">src/oauth/oauth.service.ts:33</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>request</td>
-                                            <td>
-                                                            <code><a href="../classes/TokenRequestDto.html" target="_self" >TokenRequestDto</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../miscellaneous/variables.html#Token" target="_self" >Promise&lt;TokenResponseDto&gt;</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="hasClient"></a>
-                    <span class="name">
-                        <span ><b>hasClient</b></span>
-                        <a href="#hasClient"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>hasClient(clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="100"
-                                    class="link-to-prism">src/oauth/oauth.service.ts:100</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>clientId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="initializeClients"></a>
-                    <span class="name">
-                            <span class="modifier">Private</span>
-                        <span ><b>initializeClients</b></span>
-                        <a href="#initializeClients"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>initializeClients()</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="20"
-                                    class="link-to-prism">src/oauth/oauth.service.ts:20</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                        </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
                     <a name="removeClient"></a>
                     <span class="name">
                         <span ><b>removeClient</b></span>
@@ -605,15 +531,15 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>removeClient(clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+<code>removeClient(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="96"
-                                    class="link-to-prism">src/oauth/oauth.service.ts:96</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="17"
+                                    class="link-to-prism">src/auth/client/client.provider.ts:17</a></div>
                         </td>
                     </tr>
 
@@ -634,6 +560,18 @@
                                     </thead>
                                     <tbody>
                                         <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
                                                 <td>clientId</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
@@ -649,11 +587,95 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
 
                         </div>
                             <div class="io-description">
                                 
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="updateClient"></a>
+                    <span class="name">
+                        <span ><b>updateClient</b></span>
+                        <a href="#updateClient"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>updateClient(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, updateClientDto: <a href="../classes/UpdateClientDto.html" target="_self">UpdateClientDto</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="8"
+                                    class="link-to-prism">src/auth/client/client.provider.ts:8</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>clientId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>updateClientDto</td>
+                                            <td>
+                                                            <code><a href="../classes/UpdateClientDto.html" target="_self" >UpdateClientDto</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                 </td>
             </tr>
@@ -665,7 +687,7 @@
                 <td class="col-md-4">
                     <a name="validateClientCredentials"></a>
                     <span class="name">
-                            <span class="modifier">Private</span>
+                            <span class="modifier">Optional</span>
                         <span ><b>validateClientCredentials</b></span>
                         <a href="#validateClientCredentials"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -673,16 +695,15 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>validateClientCredentials(clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientSecret: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+<code>validateClientCredentials(clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientSecret: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="60"
-                                    class="link-to-prism">src/oauth/oauth.service.ts:60</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="20"
+                                    class="link-to-prism">src/auth/client/client.provider.ts:20</a></div>
                         </td>
                     </tr>
 
@@ -730,7 +751,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+                            <b>Returns : </b>        <code><a href="../entitys/ClientEntity.html" target="_self" >Promise&lt;ClientEntity | null&gt;</a></code>
 
                         </div>
                             <div class="io-description">
@@ -741,156 +762,38 @@
         </tbody>
     </table>
 </section>
-            <section data-compodoc="block-properties">
-    
-    <h3 id="inputs">
-        Properties
-    </h3>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="clients"></a>
-                    <span class="name">
-                            <span class="modifier">Private</span>
-                            <span class="modifier">Readonly</span>
-                        <span ><b>clients</b></span>
-                        <a href="#clients"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Default value : </i><code>new Map&lt;string, string&gt;()</code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="10" class="link-to-prism">src/oauth/oauth.service.ts:10</a></div>
-                        </td>
-                    </tr>
-
-
-        </tbody>
-    </table>
-</section>
 
     </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, UnauthorizedException } from &quot;@nestjs/common&quot;;
-import { ConfigService } from &quot;@nestjs/config&quot;;
-import { CryptoService } from &quot;../crypto/crypto.service&quot;;
-import { TokenRequestDto } from &quot;./dto/token-request.dto&quot;;
-import { TokenResponseDto } from &quot;./dto/token-response.dto&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { CreateClientDto } from &quot;./dto/create-client.dto&quot;;
+import { UpdateClientDto } from &quot;./dto/update-client.dto&quot;;
+import { ClientEntity } from &quot;./entities/client.entity&quot;;
 
-@Injectable()
-export class OAuthService {
-    // In a real implementation, you&#x27;d store these securely in a database
-    private readonly clients &#x3D; new Map&lt;string, string&gt;();
+export const CLIENTS_PROVIDER &#x3D; &quot;CLIENTS_PROVIDER&quot;;
 
-    constructor(
-        private readonly configService: ConfigService,
-        private readonly cryptoService: CryptoService,
-    ) {
-        // Initialize with some default clients - you can move this to configuration
-        this.initializeClients();
-    }
+export interface ClientsProvider {
+    updateClient(
+        tenantId: string,
+        clientId: string,
+        updateClientDto: UpdateClientDto,
+    ): unknown;
+    getClientSecret(sub: string, id: string): Promise&lt;string&gt;;
+    getClients(tenantId: string): Promise&lt;ClientEntity[]&gt;;
+    getClient(tenantId: string, clientId: string): Promise&lt;ClientEntity&gt;;
+    addClient(tenantId: string, dto: CreateClientDto): Promise&lt;ClientEntity&gt;;
+    removeClient(tenantId: string, clientId: string): Promise&lt;void&gt;;
 
-    private initializeClients() {
-        // Add default client from environment variables if available
-        const defaultClientId &#x3D;
-            this.configService.get&lt;string&gt;(&quot;OAUTH_CLIENT_ID&quot;);
-        const defaultClientSecret &#x3D; this.configService.get&lt;string&gt;(
-            &quot;OAUTH_CLIENT_SECRET&quot;,
-        );
-
-        if (defaultClientId &amp;&amp; defaultClientSecret) {
-            this.clients.set(defaultClientId, defaultClientSecret);
-        }
-    }
-
-    async handleClientCredentialsGrant(
-        request: TokenRequestDto,
-    ): Promise&lt;TokenResponseDto&gt; {
-        // Validate client credentials
-        if (
-            !this.validateClientCredentials(
-                request.client_id,
-                request.client_secret,
-            )
-        ) {
-            throw new UnauthorizedException(&quot;Invalid client credentials&quot;);
-        }
-
-        // Generate access token
-        const accessToken &#x3D; await this.generateAccessToken(
-            request.client_id,
-            request.scope,
-        );
-
-        return {
-            access_token: accessToken,
-            token_type: &quot;Bearer&quot;,
-            expires_in: 3600, // 1 hour
-            scope: request.scope || &quot;openid&quot;,
-        };
-    }
-
-    private validateClientCredentials(
+    // Only for internal backend (not used with KC; you’ll validate JWTs instead)
+    validateClientCredentials?(
         clientId: string,
         clientSecret: string,
-    ): boolean {
-        const storedSecret &#x3D; this.clients.get(clientId);
-        return storedSecret &#x3D;&#x3D;&#x3D; clientSecret;
-    }
-
-    private async generateAccessToken(
-        clientId: string,
-        scope?: string,
-    ): Promise&lt;string&gt; {
-        const payload &#x3D; {
-            sub: clientId,
-            aud: this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;),
-            iss: this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;),
-            scope: scope || &quot;openid&quot;,
-            exp: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
-            iat: Math.floor(Date.now() / 1000),
-        };
-
-        // For now, we&#x27;ll use the root tenant for signing
-        // In a real implementation, you might want to use a dedicated OAuth signing key
-        const tenantId &#x3D; &quot;root&quot;;
-        return await this.cryptoService.signJwt(
-            payload,
-            { alg: &quot;RS256&quot; },
-            tenantId,
-        );
-    }
-
-    // Methods to manage clients dynamically
-    addClient(clientId: string, clientSecret: string): void {
-        this.clients.set(clientId, clientSecret);
-    }
-
-    removeClient(clientId: string): void {
-        this.clients.delete(clientId);
-    }
-
-    hasClient(clientId: string): boolean {
-        return this.clients.has(clientId);
-    }
+    ): Promise&lt;ClientEntity | null&gt;;
 }
 </code></pre>
     </div>
-
 </div>
-
-
-
-
-
 
 
 
@@ -924,8 +827,8 @@ export class OAuthService {
 
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'injectable';
-            var COMPODOC_CURRENT_PAGE_URL = 'OAuthService.html';
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'interface';
+            var COMPODOC_CURRENT_PAGE_URL = 'ClientsProvider.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

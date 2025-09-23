@@ -62,6 +62,20 @@
                }
                toggleDarkMode(darkModeState);
           </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
@@ -82,6 +96,10 @@
                <!-- START CONTENT -->
                <div class="content interface">
                    <div class="content-data">
+
+
+
+
 
 
 
@@ -123,7 +141,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/auth/tenant.service.ts</code>
+            <code>src/auth/tenant/tenant.service.ts</code>
         </p>
 
 
@@ -236,7 +254,7 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
-    ForbiddenException,
+    Inject,
     Injectable,
     OnApplicationBootstrap,
     OnModuleInit,
@@ -244,17 +262,22 @@
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { InjectMetric } from &quot;@willsoto/nestjs-prometheus&quot;;
-import { readdirSync } from &quot;fs&quot;;
+import { plainToClass } from &quot;class-transformer&quot;;
+import { validate } from &quot;class-validator&quot;;
+import { readdirSync, readFileSync } from &quot;fs&quot;;
+import { PinoLogger } from &quot;nestjs-pino&quot;;
 import { Gauge } from &quot;prom-client&quot;;
 import { Repository } from &quot;typeorm/repository/Repository&quot;;
-import { CryptoService } from &quot;../crypto/crypto.service&quot;;
-import { EncryptionService } from &quot;../crypto/encryption/encryption.service&quot;;
-import { Oid4vciService } from &quot;../issuer/oid4vci/oid4vci.service&quot;;
-import { StatusListService } from &quot;../issuer/status-list/status-list.service&quot;;
-import { RegistrarService } from &quot;../registrar/registrar.service&quot;;
-import { FilesService } from &quot;../storage/files.service&quot;;
+import { CryptoService } from &quot;../../crypto/crypto.service&quot;;
+import { EncryptionService } from &quot;../../crypto/encryption/encryption.service&quot;;
+import { Oid4vciService } from &quot;../../issuer/oid4vci/oid4vci.service&quot;;
+import { StatusListService } from &quot;../../issuer/status-list/status-list.service&quot;;
+import { RegistrarService } from &quot;../../registrar/registrar.service&quot;;
+import { FilesService } from &quot;../../storage/files.service&quot;;
+import { CLIENTS_PROVIDER, ClientsProvider } from &quot;../client/client.provider&quot;;
+import { Role } from &quot;../roles/role.enum&quot;;
+import { CreateTenantDto } from &quot;./dto/create-tenant.dto&quot;;
 import { TenantEntity } from &quot;./entitites/tenant.entity&quot;;
-import { TokenPayload } from &quot;./token.decorator&quot;;
 
 // Tenant interface for service integration
 export interface Tenants {
@@ -264,9 +287,8 @@ export interface Tenants {
 
 @Injectable()
 export class TenantService implements OnApplicationBootstrap, OnModuleInit {
-    private tenants: Tenants[] | null &#x3D; null;
-
     constructor(
+        @Inject(CLIENTS_PROVIDER) private clients: ClientsProvider,
         private configService: ConfigService,
         private cryptoService: CryptoService,
         private encryptionService: EncryptionService,
@@ -278,6 +300,7 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
         @InjectMetric(&quot;tenant_total&quot;)
         private tenantTotal: Gauge&lt;string&gt;,
         private filesService: FilesService,
+        private logger: PinoLogger,
     ) {}
 
     async onModuleInit() {
@@ -288,7 +311,46 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
                     withFileTypes: true,
                 }).filter((tenant) &#x3D;&gt; tenant.isDirectory());
                 for (const tenant of tenantFolders) {
-                    await this.tenantRepository.save({ id: tenant.name });
+                    const setUp &#x3D; await this.tenantRepository.findOneBy({
+                        id: tenant.name,
+                        status: &quot;active&quot;,
+                    });
+                    if (!setUp) {
+                        const file &#x3D; &#x60;${configPath}/${tenant.name}/info.json&#x60;;
+                        //TODO: validate file
+                        const configFile &#x3D; readFileSync(file, &quot;utf-8&quot;);
+                        const payload &#x3D; JSON.parse(configFile);
+                        payload.id &#x3D; tenant.name;
+
+                        // Validate the payload against CreateTenantDto
+                        const issuanceDto &#x3D; plainToClass(
+                            CreateTenantDto,
+                            payload,
+                        );
+                        const validationErrors &#x3D; await validate(issuanceDto, {
+                            whitelist: true,
+                            forbidUnknownValues: false, // avoid false positives on plain objects
+                            forbidNonWhitelisted: false,
+                            stopAtFirstError: false,
+                        });
+                        if (validationErrors.length &gt; 0) {
+                            this.logger.error(
+                                {
+                                    event: &quot;ValidationError&quot;,
+                                    file,
+                                    tenant: tenant.name,
+                                    errors: validationErrors.map((error) &#x3D;&gt; ({
+                                        property: error.property,
+                                        constraints: error.constraints,
+                                        value: error.value,
+                                    })),
+                                },
+                                &#x60;Validation failed for tenant config ${file} in tenant ${tenant.name}: ${JSON.stringify(validationErrors, null, 2)}&#x60;,
+                            );
+                        } else {
+                            await this.createTenant(issuanceDto);
+                        }
+                    }
                 }
             }
         }
@@ -301,84 +363,65 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
     }
 
     /**
-     * Initialize a tenant for the given user.
-     * @param user The user to initialize the tenant for
+     * Get all tenants
+     * @returns A list of all tenants
      */
-    async initTenant(id: string) {
-        await this.tenantRepository.save({ id });
-        return this.setUpTenant(id);
+    getAll() {
+        return this.tenantRepository.find();
     }
 
     /**
-     * Get tenants from configuration
+     * Create a new tenant.
+     * @param data
      * @returns
      */
-    private getTenants(): Tenants[] {
-        if (!this.tenants) {
-            this.tenants &#x3D; this.loadTenants();
+    async createTenant(data: CreateTenantDto) {
+        const tenant &#x3D; await this.tenantRepository.save(data);
+        await this.setUpTenant(tenant);
+        // only add the tenant when the auth user is not assigned to this tenant.
+        const authTenant &#x3D; this.configService.get&lt;string&gt;(&quot;AUTH_CLIENT_TENANT&quot;);
+        if (authTenant !&#x3D;&#x3D; tenant.id) {
+            await this.clients.addClient(tenant.id, {
+                clientId: &quot;admin&quot;,
+                description: &quot;auto generated admin client&quot;,
+                roles: [Role.Clients, ...(data.roles || [])],
+            });
         }
-        return this.tenants;
     }
 
     /**
-     * Load tenants from configuration
+     * Get a tenant by ID
+     * @param id The ID of the tenant to retrieve
+     * @returns The tenant entity
      */
-    private loadTenants(): Tenants[] {
-        // Default tenants for development/testing
-        return [
-            {
-                id: this.configService.getOrThrow&lt;string&gt;(&quot;AUTH_CLIENT_ID&quot;),
-                secret: this.configService.getOrThrow&lt;string&gt;(
-                    &quot;AUTH_CLIENT_SECRET&quot;,
-                ),
-            },
-        ];
-    }
-
-    /**
-     * Validate tenant credentials (OAuth2 Tenant Credentials flow)
-     * This is the primary authentication method for service integration
-     */
-    validateTenant(tenantId: string, tenantSecret: string): Tenants | null {
-        const tenant &#x3D; this.getTenants().find((c) &#x3D;&gt; c.id &#x3D;&#x3D;&#x3D; tenantId);
-
-        if (!tenant || tenant.secret !&#x3D;&#x3D; tenantSecret) {
-            return null;
-        }
-
-        return tenant;
-    }
-
-    /**
-     * Find tenant by ID
-     */
-    findTenantById(tenantId: string): Tenants | null {
-        return this.getTenants().find((c) &#x3D;&gt; c.id &#x3D;&#x3D;&#x3D; tenantId) || null;
+    getTenant(id: string): Promise&lt;TenantEntity&gt; {
+        return this.tenantRepository.findOneOrFail({
+            where: { id },
+            relations: [&quot;clients&quot;],
+        });
     }
 
     /**
      * Sends an event to set up a tenant, allowing all other services to listen and react accordingly.
-     * @param id
+     * @param tenant
      */
-    async setUpTenant(id: string) {
-        await this.cryptoService.onTenantInit(id);
-        await this.encryptionService.onTenantInit(id);
-        await this.statusListService.onTenantInit(id);
-        await this.registrarService.onTenantInit(id);
-        await this.oid4vciService.onTenantInit(id);
+    async setUpTenant(tenant: TenantEntity) {
+        await this.cryptoService.onTenantInit(tenant);
+        await this.encryptionService.onTenantInit(tenant.id);
+        await this.statusListService.onTenantInit(tenant.id);
+        await this.registrarService.onTenantInit(tenant);
+        await this.oid4vciService.onTenantInit(tenant.id);
+        await this.tenantRepository.update(
+            { id: tenant.id },
+            { status: &quot;active&quot; },
+        );
     }
 
     /**
      * Deletes a tenant by ID
      * @param tenantId The ID of the tenant to delete
-     * @param user The user requesting the deletion
      */
-    async deleteTenant(tenantId: string, user: TokenPayload) {
-        if (tenantId !&#x3D;&#x3D; user.sub) {
-            throw new ForbiddenException(
-                &#x60;User ${user.sub} is not allowed to delete tenant ${tenantId}&#x60;,
-            );
-        }
+    async deleteTenant(tenantId: string) {
         //delete all files associated with the tenant
         await this.filesService.deleteByTenant(tenantId);
         //because of cascading, all related entities will be deleted.

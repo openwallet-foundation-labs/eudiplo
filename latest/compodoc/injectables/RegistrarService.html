@@ -62,6 +62,20 @@
                }
                toggleDarkMode(darkModeState);
           </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
@@ -82,6 +96,10 @@
                <!-- START CONTENT -->
                <div class="content injectable">
                    <div class="content-data">
+
+
+
+
 
 
 
@@ -188,9 +206,6 @@ including adding relying parties, access certificates, and registration certific
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#onApplicationBootstrap" >onApplicationBootstrap</a>
-                            </li>
-                            <li>
                                 <a href="#onModuleInit" >onModuleInit</a>
                             </li>
                             <li>
@@ -228,7 +243,7 @@ including adding relying parties, access certificates, and registration certific
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="40" class="link-to-prism">src/registrar/registrar.service.ts:40</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="37" class="link-to-prism">src/registrar/registrar.service.ts:37</a></div>
                             </td>
                         </tr>
 
@@ -353,8 +368,8 @@ including adding relying parties, access certificates, and registration certific
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="198"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:198</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="189"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:189</a></div>
                         </td>
                     </tr>
 
@@ -438,8 +453,8 @@ If the access certificate already exists, it will be returned.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="240"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:240</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="231"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:231</a></div>
                         </td>
                     </tr>
 
@@ -545,8 +560,8 @@ If the registration certificate already exists, it will be returned.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="158"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:158</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="149"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:149</a></div>
                         </td>
                     </tr>
 
@@ -617,8 +632,8 @@ This is only needed once, when the relying party is created.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="181"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:181</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="172"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:172</a></div>
                         </td>
                     </tr>
 
@@ -695,8 +710,8 @@ This is used when the relying party already exists in the registrar.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="92"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:92</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="94"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:94</a></div>
                         </td>
                     </tr>
 
@@ -722,50 +737,9 @@ This is used when the relying party already exists in the registrar.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="onApplicationBootstrap"></a>
-                    <span class="name">
-                            <span class="modifier">Async</span>
-                        <span ><b>onApplicationBootstrap</b></span>
-                        <a href="#onApplicationBootstrap"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>onApplicationBootstrap()</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="100"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:100</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>This function is called when the application starts.
-It will refresh the access token for the registrar.</p>
-</div>
-
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
-                        </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
                     <a name="onModuleInit"></a>
                     <span class="name">
+                            <span class="modifier">Async</span>
                         <span ><b>onModuleInit</b></span>
                         <a href="#onModuleInit"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -773,15 +747,16 @@ It will refresh the access token for the registrar.</p>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>onModuleInit()</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>onModuleInit()</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="59"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:59</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="56"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:56</a></div>
                         </td>
                     </tr>
 
@@ -792,7 +767,7 @@ It will refresh the access token for the registrar.</p>
 </div>
 
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
 
                         </div>
                 </td>
@@ -821,8 +796,8 @@ It will refresh the access token for the registrar.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="133"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:133</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="124"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:124</a></div>
                         </td>
                     </tr>
 
@@ -885,15 +860,15 @@ It will refresh the access token for the registrar.</p>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>onTenantInit(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>onTenantInit(tenant: <a href="../entitys/TenantEntity.html" target="_self">TenantEntity</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="111"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:111</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="102"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:102</a></div>
                         </td>
                     </tr>
 
@@ -916,9 +891,9 @@ It will refresh the access token for the registrar.</p>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>tenantId</td>
+                                                <td>tenant</td>
                                             <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                                            <code><a href="../entitys/TenantEntity.html" target="_self" >TenantEntity</a></code>
                                             </td>
 
                                             <td>
@@ -963,8 +938,8 @@ It will refresh the access token for the registrar.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="141"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:141</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="132"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:132</a></div>
                         </td>
                     </tr>
 
@@ -1009,7 +984,7 @@ This method is called periodically to ensure the access token is valid.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="40" class="link-to-prism">src/registrar/registrar.service.ts:40</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="37" class="link-to-prism">src/registrar/registrar.service.ts:37</a></div>
                         </td>
                     </tr>
 
@@ -1036,7 +1011,7 @@ This method is called periodically to ensure the access token is valid.</p>
             </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/registrar/registrar.service.ts:36</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="33" class="link-to-prism">src/registrar/registrar.service.ts:33</a></div>
                         </td>
                     </tr>
 
@@ -1069,7 +1044,7 @@ This method is called periodically to ensure the access token is valid.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="32" class="link-to-prism">src/registrar/registrar.service.ts:32</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="29" class="link-to-prism">src/registrar/registrar.service.ts:29</a></div>
                         </td>
                     </tr>
 
@@ -1089,14 +1064,11 @@ This method is called periodically to ensure the access token is valid.</p>
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { OAuth2Client } from &quot;@badgateway/oauth2-client&quot;;
-import {
-    Injectable,
-    OnApplicationBootstrap,
-    OnModuleInit,
-} from &quot;@nestjs/common&quot;;
+import { Injectable, OnModuleInit } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { Repository } from &quot;typeorm&quot;;
+import { TenantEntity } from &quot;../auth/tenant/entitites/tenant.entity&quot;;
 import { CryptoService } from &quot;../crypto/crypto.service&quot;;
 import { RegistrationCertificateRequest } from &quot;../verifier/presentations/dto/vp-request.dto&quot;;
 import { PresentationsService } from &quot;../verifier/presentations/presentations.service&quot;;
@@ -1115,7 +1087,7 @@ import { client } from &quot;./generated/client.gen&quot;;
  * including adding relying parties, access certificates, and registration certificates.
  */
 @Injectable()
-export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
+export class RegistrarService implements OnModuleInit {
     /**
      * OAuth2 client for interacting with the OIDC provider.
      */
@@ -1146,7 +1118,7 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
     /**
      * Initializes the OAuth2 client and registrar client with the necessary configurations.
      */
-    onModuleInit() {
+    async onModuleInit() {
         //when not set, we will not use the registrar
         if (!this.isEnabled()) {
             return;
@@ -1173,6 +1145,11 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
             baseUrl: this.configService.getOrThrow&lt;string&gt;(&quot;REGISTRAR_URL&quot;),
             auth: () &#x3D;&gt; this.accessToken,
         });
+
+        if (!this.configService.get&lt;string&gt;(&quot;REGISTRAR_URL&quot;)) {
+            return;
+        }
+        await this.refreshAccessToken();
     }
 
     /**
@@ -1184,33 +1161,22 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
     }
 
     /**
-     * This function is called when the application starts.
-     * It will refresh the access token for the registrar.
-     */
-    async onApplicationBootstrap() {
-        if (!this.configService.get&lt;string&gt;(&quot;REGISTRAR_URL&quot;)) {
-            return;
-        }
-        await this.refreshAccessToken();
-    }
-
-    /**
      * This function is called when a tenant is initialized.
-     * @param tenantId
+     * @param tenant
      */
-    async onTenantInit(tenantId: string) {
+    async onTenantInit(tenant: TenantEntity) {
         if (!this.isEnabled()) {
             return;
         }
         //TODO: pass name by call
-        const name &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;RP_NAME&quot;);
+        const name &#x3D; tenant.name;
         const relyingPartyId &#x3D; await this.addRp(name);
         const accessCertificateId &#x3D; await this.addAccessCertificate(
-            tenantId,
+            tenant.id,
             relyingPartyId,
         );
         await this.registrarRepository.save({
-            tenantId,
+            tenantId: tenant.id,
             relyingPartyId,
             accessCertificateId,
         });

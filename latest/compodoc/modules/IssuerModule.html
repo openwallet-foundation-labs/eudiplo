@@ -62,6 +62,20 @@
                }
                toggleDarkMode(darkModeState);
           </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
@@ -82,6 +96,10 @@
                <!-- START CONTENT -->
                <div class="content module">
                    <div class="content-data">
+
+
+
+
 
 
 
@@ -118,10 +136,6 @@
 <title>cluster_IssuerModule</title>
 <polygon fill="none" stroke="black" stroke-dasharray="1,5" points="8,-70 8,-268 2220,-268 2220,-70 8,-70"/>
 </g>
-<g id="clust4" class="cluster">
-<title>cluster_IssuerModule_exports</title>
-<polygon fill="none" stroke="black" points="953,-208 953,-260 1515,-260 1515,-208 953,-208"/>
-</g>
 <g id="clust3" class="cluster">
 <title>cluster_IssuerModule_imports</title>
 <polygon fill="none" stroke="black" points="1724,-78 1724,-130 2212,-130 2212,-78 1724,-78"/>
@@ -129,6 +143,10 @@
 <g id="clust6" class="cluster">
 <title>cluster_IssuerModule_providers</title>
 <polygon fill="none" stroke="black" points="16,-78 16,-130 1716,-130 1716,-78 16,-78"/>
+</g>
+<g id="clust4" class="cluster">
+<title>cluster_IssuerModule_exports</title>
+<polygon fill="none" stroke="black" points="953,-208 953,-260 1515,-260 1515,-208 953,-208"/>
 </g>
 <!-- CryptoModule -->
 <g id="node1" class="node">
@@ -497,7 +515,6 @@ import { Module } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { TypeOrmModule } from &quot;@nestjs/typeorm&quot;;
 import { setGlobalConfig } from &quot;@openid4vc/openid4vci&quot;;
-import * as Joi from &quot;joi&quot;;
 import { CryptoModule } from &quot;../crypto/crypto.module&quot;;
 import { SessionModule } from &quot;../session/session.module&quot;;
 import { SessionLoggerInterceptor } from &quot;../utils/logger/session-logger.interceptor&quot;;
@@ -512,6 +529,7 @@ import { CredentialsService } from &quot;./credentials/credentials.service&quot;
 import { CredentialConfig } from &quot;./credentials/entities/credential.entity&quot;;
 import { CredentialsMetadataController } from &quot;./credentials-metadata/credentials-metadata.controller&quot;;
 import { DisplayController } from &quot;./display/display.controller&quot;;
+import { DisplayService } from &quot;./display/display.service&quot;;
 import { DisplayEntity } from &quot;./display/entities/display.entity&quot;;
 import { IssuanceConfig } from &quot;./issuance/entities/issuance-config.entity&quot;;
 import { IssuanceController } from &quot;./issuance/issuance.controller&quot;;
@@ -520,11 +538,6 @@ import { IssuerManagementController } from &quot;./issuer-management/issuer-mana
 import { Oid4vciController } from &quot;./oid4vci/oid4vci.controller&quot;;
 import { Oid4vciService } from &quot;./oid4vci/oid4vci.service&quot;;
 import { StatusListModule } from &quot;./status-list/status-list.module&quot;;
-import { DisplayService } from &quot;./display/display.service&quot;;
-
-export const ISSUER_VALIDATION_SCHEMA &#x3D; {
-    PUBLIC_URL: Joi.string().default(&quot;http://localhost:3000&quot;),
-};
 
 @Module({
     imports: [

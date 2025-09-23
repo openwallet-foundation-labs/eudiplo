@@ -62,6 +62,20 @@
                }
                toggleDarkMode(darkModeState);
           </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
@@ -82,6 +96,10 @@
                <!-- START CONTENT -->
                <div class="content class">
                    <div class="content-data">
+
+
+
+
 
 
 
@@ -202,7 +220,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="77" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:77</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="87" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:87</a></div>
                         </td>
                     </tr>
 
@@ -238,7 +256,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="80" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:80</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="90" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:90</a></div>
                         </td>
                     </tr>
 
@@ -276,7 +294,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="84" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:84</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="94" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:94</a></div>
                         </td>
                     </tr>
 
@@ -316,7 +334,7 @@ import {
     ManyToOne,
     UpdateDateColumn,
 } from &quot;typeorm&quot;;
-import { TenantEntity } from &quot;../../../auth/entitites/tenant.entity&quot;;
+import { TenantEntity } from &quot;../../../auth/tenant/entitites/tenant.entity&quot;;
 import { WebhookConfig } from &quot;../../../utils/webhook/webhook.dto&quot;;
 import { RegistrationCertificateRequest } from &quot;../dto/vp-request.dto&quot;;
 
@@ -330,7 +348,7 @@ export class PresentationAttachment {
     @IsNotEmpty()
     data: any;
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsString({ each: true })
     credential_ids?: string[];
 }
@@ -343,6 +361,11 @@ export class TrustedAuthorityQuery {
     @IsArray()
     @IsString({ each: true })
     values: string[];
+}
+
+export class Claim {
+    @IsArray()
+    path: string[];
 }
 
 //TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-credential-query
@@ -358,6 +381,11 @@ export class CredentialQuery {
     @IsBoolean()
     multiple?: boolean;
 
+    @IsOptional()
+    @ValidateNested({ each: true })
+    @Type(() &#x3D;&gt; Claim)
+    claims?: Claim[];
+
     @IsObject()
     meta: any;
 
@@ -365,7 +393,7 @@ export class CredentialQuery {
     @IsOptional()
     @ValidateNested({ each: true })
     @Type(() &#x3D;&gt; TrustedAuthorityQuery)
-    trusted_authorities: TrustedAuthorityQuery[];
+    trusted_authorities?: TrustedAuthorityQuery[];
 }
 
 //TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#claims_query

@@ -62,6 +62,20 @@
                }
                toggleDarkMode(darkModeState);
           </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
@@ -82,6 +96,10 @@
                <!-- START CONTENT -->
                <div class="content controller">
                    <div class="content-data">
+
+
+
+
 
 
 
@@ -115,7 +133,6 @@
         <p class="comment">
             <code>src/storage/storage.controller.ts</code>
         </p>
-
             <p class="comment">
                 <h3>Prefix</h3>
             </p>
@@ -153,7 +170,6 @@
                                 <a href="#download" >download</a>
                             </li>
                             <li>
-                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
@@ -207,8 +223,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="52"
-                                    class="link-to-prism">src/storage/storage.controller.ts:52</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="51"
+                                    class="link-to-prism">src/storage/storage.controller.ts:51</a></div>
                         </td>
                     </tr>
 
@@ -265,7 +281,6 @@
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
-                            <span class="modifier"></span>
                         <span ><b>upload</b></span>
                         <a href="#upload"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -282,14 +297,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@UseInterceptors(undefined)<br />@UseGuards(JwtAuthGuard)<br />@ApiSecurity(&#x27;oauth2&#x27;)<br />@ApiConsumes(&#x27;multipart/form-data&#x27;)<br />@ApiBody({description: &#x27;List of cats&#x27;, type: FileUploadDto})<br />@Post()<br /></code>
+                    <code>@UseInterceptors(undefined)<br />@Secured([&#x27;undefined&#x27;])<br />@ApiConsumes(&#x27;multipart/form-data&#x27;)<br />@ApiBody({description: &#x27;List of cats&#x27;, type: FileUploadDto})<br />@Post()<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="44"
-                                    class="link-to-prism">src/storage/storage.controller.ts:44</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="43"
+                                    class="link-to-prism">src/storage/storage.controller.ts:43</a></div>
                         </td>
                     </tr>
 
@@ -360,12 +375,12 @@
     Post,
     StreamableFile,
     UploadedFile,
-    UseGuards,
     UseInterceptors,
 } from &quot;@nestjs/common&quot;;
 import { FileInterceptor } from &quot;@nestjs/platform-express&quot;;
-import { ApiBody, ApiConsumes, ApiSecurity } from &quot;@nestjs/swagger&quot;;
-import { JwtAuthGuard } from &quot;../auth/auth.guard&quot;;
+import { ApiBody, ApiConsumes } from &quot;@nestjs/swagger&quot;;
+import { Role } from &quot;../auth/roles/role.enum&quot;;
+import { Secured } from &quot;../auth/secure.decorator&quot;;
 import { Token, TokenPayload } from &quot;../auth/token.decorator&quot;;
 import { FileUploadDto } from &quot;./dto/file-upload.dto&quot;;
 import { FilesService } from &quot;./files.service&quot;;
@@ -388,8 +403,7 @@ export class StorageController {
      * @returns
      */
     @UseInterceptors(FileInterceptor(&quot;file&quot;))
-    @UseGuards(JwtAuthGuard)
-    @ApiSecurity(&quot;oauth2&quot;)
+    @Secured([Role.Issuances])
     @ApiConsumes(&quot;multipart/form-data&quot;)
     @ApiBody({
         description: &quot;List of cats&quot;,
@@ -400,7 +414,7 @@ export class StorageController {
         @Token() user: TokenPayload,
         @UploadedFile() file: Express.Multer.File,
     ) {
-        return this.filesService.saveUserUpload(user.sub, file, true);
+        return this.filesService.saveUserUpload(user.entity!.id, file, true);
     }
 
     @Get(&quot;:key&quot;)

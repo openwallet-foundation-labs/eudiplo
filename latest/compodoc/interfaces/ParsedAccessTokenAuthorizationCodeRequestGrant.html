@@ -62,6 +62,20 @@
                }
                toggleDarkMode(darkModeState);
           </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
@@ -82,6 +96,10 @@
                <!-- START CONTENT -->
                <div class="content interface">
                    <div class="content-data">
+
+
+
+
 
 
 
@@ -255,6 +273,7 @@ import { Session } from &quot;../../session/entities/session.entity&quot;;
 import { SessionService } from &quot;../../session/session.service&quot;;
 import { WebhookConfig } from &quot;../../utils/webhook/webhook.dto&quot;;
 import { Oid4vpService } from &quot;../../verifier/oid4vp/oid4vp.service&quot;;
+import { AuthenticationMethodPresentation } from &quot;../issuance/dto/authentication-config.dto&quot;;
 import { IssuanceService } from &quot;../issuance/issuance.service&quot;;
 import { getHeadersFromRequest } from &quot;../oid4vci/util&quot;;
 import { AuthorizeQueries } from &quot;./dto/authorize-request.dto&quot;;
@@ -442,12 +461,22 @@ export class AuthorizeService {
 
     async parseChallengeRequest(
         body: AuthorizeQueries,
-        tenantId: string,
+        session: Session,
+        origin: string,
         webhook?: WebhookConfig,
     ) {
         // re using the issuer state as auth session
         const auth_session &#x3D; body.issuer_state;
-        const presentation &#x3D; &#x60;openid4vp://?${(await this.oid4vpService.createRequest(&quot;pid&quot;, { session: auth_session, webhook }, tenantId)).uri}&#x60;;
+        //use the issuanceId to get the presentationId.
+        const issuanceConfig &#x3D;
+            await this.issuanceService.getIssuanceConfigurationById(
+                session.issuanceId!,
+                session.tenantId,
+            );
+        const presentationConfig &#x3D; (
+            issuanceConfig.authenticationConfig as AuthenticationMethodPresentation
+        ).config.type;
+        const presentation &#x3D; &#x60;openid4vp://?${(await this.oid4vpService.createRequest(presentationConfig, { session: auth_session, webhook }, session.tenantId, session.useDcApi, origin)).uri}&#x60;;
         const res &#x3D; {
             error: &quot;insufficient_authorization&quot;,
             auth_session,
@@ -462,6 +491,7 @@ export class AuthorizeService {
         res: Response&lt;any, Record&lt;string, any&gt;&gt;,
         body: AuthorizeQueries,
         session: Session,
+        origin: string,
     ) {
         // auth session and issuer state have the same value
         if (body.auth_session) {
@@ -511,7 +541,8 @@ export class AuthorizeService {
                 const webhook &#x3D; issuanceConfig.claimsWebhook;
                 const response &#x3D; await this.parseChallengeRequest(
                     body,
-                    session.tenantId,
+                    session,
+                    origin,
                     webhook,
                 );
                 res.status(400).send(response);

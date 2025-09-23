@@ -62,6 +62,20 @@
                }
                toggleDarkMode(darkModeState);
           </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
@@ -82,6 +96,10 @@
                <!-- START CONTENT -->
                <div class="content injectable">
                    <div class="content-data">
+
+
+
+
 
 
 
@@ -307,8 +325,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="215"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:215</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="221"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:221</a></div>
                         </td>
                     </tr>
 
@@ -390,8 +408,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="162"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:162</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="168"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:168</a></div>
                         </td>
                     </tr>
 
@@ -459,8 +477,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="175"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:175</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="181"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:181</a></div>
                         </td>
                     </tr>
 
@@ -625,8 +643,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="153"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:153</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="159"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:159</a></div>
                         </td>
                     </tr>
 
@@ -694,8 +712,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="191"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:191</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="197"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:197</a></div>
                         </td>
                     </tr>
 
@@ -833,6 +851,12 @@ export class IssuanceService implements OnApplicationBootstrap {
                     ).catch(() &#x3D;&gt; false);
                     if (exists &amp;&amp; !force) {
                         continue; // Skip if config already exists and force is not set.
+                    } else if (exists &amp;&amp; force) {
+                        //delete old element so removed elements are not present
+                        await this.issuanceConfigRepo.delete({
+                            id: payload.id,
+                            tenantId: tenant.name,
+                        });
                     }
 
                     // Validate the payload against IssuanceDto

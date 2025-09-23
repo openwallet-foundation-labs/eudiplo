@@ -62,6 +62,20 @@
                }
                toggleDarkMode(darkModeState);
           </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
@@ -82,6 +96,10 @@
                <!-- START CONTENT -->
                <div class="content injectable">
                    <div class="content-data">
+
+
+
+
 
 
 
@@ -209,7 +227,7 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(authzService: <a href="../injectables/AuthorizeService.html" target="_self">AuthorizeService</a>, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, credentialsService: <a href="../injectables/CredentialsService.html" target="_self">CredentialsService</a>, configService: ConfigService, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, sessionLogger: <a href="../injectables/SessionLoggerService.html" target="_self">SessionLoggerService</a>, issuanceService: <a href="../injectables/IssuanceService.html" target="_self">IssuanceService</a>, webhookService: <a href="../injectables/WebhookService.html" target="_self">WebhookService</a>, httpService: HttpService, displayRepository: <a href="../entitys/DisplayEntity.html" target="_self">Repository&lt;DisplayEntity&gt;</a>)</code>
+<code>constructor(authzService: <a href="../injectables/AuthorizeService.html" target="_self">AuthorizeService</a>, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, credentialsService: <a href="../injectables/CredentialsService.html" target="_self">CredentialsService</a>, configService: ConfigService, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, sessionLogger: <a href="../injectables/SessionLoggerService.html" target="_self">SessionLoggerService</a>, issuanceService: <a href="../injectables/IssuanceService.html" target="_self">IssuanceService</a>, webhookService: <a href="../injectables/WebhookService.html" target="_self">WebhookService</a>, httpService: HttpService, displayRepository: <a href="../classes/Display.html" target="_self">Repository&lt;DisplayEntity&gt;</a>)</code>
                     </td>
                 </tr>
                         <tr>
@@ -343,7 +361,7 @@
                                                         <td>displayRepository</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../entitys/DisplayEntity.html" target="_self" >Repository&lt;DisplayEntity&gt;</a></code>
+                                                                        <code><a href="../classes/Display.html" target="_self" >Repository&lt;DisplayEntity&gt;</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -729,8 +747,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="479"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:479</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="478"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:478</a></div>
                         </td>
                     </tr>
 
@@ -1420,7 +1438,7 @@ export class Oid4vciService {
         const session &#x3D; await this.sessionService.create({
             id: issuer_state,
             credentialPayload: body,
-            tenantId: user.sub,
+            tenantId: user.entity!.id,
             issuanceId: body.issuanceId,
             authorization_code,
             claimsWebhook: body.claimsWebhook ?? issuanceConfig.claimsWebhook,
@@ -1503,12 +1521,12 @@ export class Oid4vciService {
         const headers &#x3D; getHeadersFromRequest(req);
 
         const allowedAuthenticationSchemes &#x3D; [
-            SupportedAuthenticationScheme.Bearer,
+            SupportedAuthenticationScheme.DPoP,
         ];
 
-        if (issuanceConfig.dPopRequired) {
+        if (!issuanceConfig.dPopRequired) {
             allowedAuthenticationSchemes.push(
-                SupportedAuthenticationScheme.DPoP,
+                SupportedAuthenticationScheme.Bearer,
             );
         }
         //TODO: check how the nonce for the dpop has to be passed
@@ -1574,7 +1592,6 @@ export class Oid4vciService {
                         jwt,
                     });
                 const cnf &#x3D; verifiedProof.signer.publicJwk;
-
                 const cred &#x3D; await this.credentialsService.getCredential(
                     parsedCredentialRequest.credentialConfigurationId as string,
                     cnf as any,
@@ -1651,11 +1668,11 @@ export class Oid4vciService {
         ).protocol;
 
         const allowedAuthenticationSchemes: SupportedAuthenticationScheme[] &#x3D; [
-            SupportedAuthenticationScheme.Bearer,
+            SupportedAuthenticationScheme.DPoP,
         ];
-        if (issuanceConfig.dPopRequired) {
+        if (!issuanceConfig.dPopRequired) {
             allowedAuthenticationSchemes.push(
-                SupportedAuthenticationScheme.DPoP,
+                SupportedAuthenticationScheme.Bearer,
             );
         }
 

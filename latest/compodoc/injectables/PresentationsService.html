@@ -62,6 +62,20 @@
                }
                toggleDarkMode(darkModeState);
           </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
@@ -82,6 +96,10 @@
                <!-- START CONTENT -->
                <div class="content injectable">
                    <div class="content-data">
+
+
+
+
 
 
 
@@ -194,6 +212,7 @@
                             </li>
                             <li>
                                     <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
                                 <a href="#storeRCID" >storeRCID</a>
                             </li>
                         </ul>
@@ -355,8 +374,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="170"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:170</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="176"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:176</a></div>
                         </td>
                     </tr>
 
@@ -450,8 +469,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="180"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:180</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="186"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:186</a></div>
                         </td>
                     </tr>
 
@@ -545,8 +564,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="141"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:141</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="147"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:147</a></div>
                         </td>
                     </tr>
 
@@ -705,8 +724,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="269"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:269</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="281"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:281</a></div>
                         </td>
                     </tr>
 
@@ -798,8 +817,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="154"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:154</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="160"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:160</a></div>
                         </td>
                     </tr>
 
@@ -880,6 +899,7 @@
                     <a name="storeRCID"></a>
                     <span class="name">
                             <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
                         <span ><b>storeRCID</b></span>
                         <a href="#storeRCID"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -895,8 +915,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="201"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:201</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="207"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:207</a></div>
                         </td>
                     </tr>
 
@@ -1018,7 +1038,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="252" class="link-to-prism">src/verifier/presentations/presentations.service.ts:252</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="264" class="link-to-prism">src/verifier/presentations/presentations.service.ts:264</a></div>
                         </td>
                     </tr>
 
@@ -1113,7 +1133,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="237" class="link-to-prism">src/verifier/presentations/presentations.service.ts:237</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="249" class="link-to-prism">src/verifier/presentations/presentations.service.ts:249</a></div>
                         </td>
                     </tr>
 
@@ -1169,7 +1189,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="214" class="link-to-prism">src/verifier/presentations/presentations.service.ts:214</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="226" class="link-to-prism">src/verifier/presentations/presentations.service.ts:226</a></div>
                         </td>
                     </tr>
 
@@ -1314,6 +1334,12 @@ export class PresentationsService implements OnApplicationBootstrap {
                     ).catch(() &#x3D;&gt; false);
                     if (presentationExists &amp;&amp; !force) {
                         continue; // Skip if config already exists and force is not set
+                    } else if (presentationExists &amp;&amp; force) {
+                        //delete old element so removed elements are not present
+                        await this.vpRequestRepository.delete({
+                            id,
+                            tenantId: tenant.name,
+                        });
                     }
 
                     // Validate the payload against PresentationConfig
@@ -1423,11 +1449,17 @@ export class PresentationsService implements OnApplicationBootstrap {
      * @param tenantId - The ID of the tenant for which to store the registration certificate.
      * @returns
      */
-    public storeRCID(registrationCertId: string, id: string, tenantId: string) {
-        return this.vpRequestRepository.update(
-            { id, tenantId },
-            { registrationCert: { id: registrationCertId } },
-        );
+    public async storeRCID(
+        registrationCertId: string,
+        id: string,
+        tenantId: string,
+    ) {
+        const element &#x3D; await this.vpRequestRepository.findOneByOrFail({
+            id,
+            tenantId,
+        });
+        element.registrationCert!.id &#x3D; registrationCertId;
+        await this.vpRequestRepository.save(element);
     }
 
     /**

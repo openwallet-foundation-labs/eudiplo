@@ -62,6 +62,20 @@
                }
                toggleDarkMode(darkModeState);
           </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
 
         <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
                <div class="d-flex">
@@ -82,6 +96,10 @@
                <!-- START CONTENT -->
                <div class="content module">
                    <div class="content-data">
+
+
+
+
 
 
 
@@ -118,13 +136,13 @@
 <title>cluster_ResolverModule</title>
 <polygon fill="none" stroke="black" stroke-dasharray="1,5" points="158,-70 158,-268 338,-268 338,-70 158,-70"/>
 </g>
-<g id="clust6" class="cluster">
-<title>cluster_ResolverModule_providers</title>
-<polygon fill="none" stroke="black" points="166,-78 166,-130 330,-130 330,-78 166,-78"/>
-</g>
 <g id="clust4" class="cluster">
 <title>cluster_ResolverModule_exports</title>
 <polygon fill="none" stroke="black" points="184,-208 184,-260 312,-260 312,-208 184,-208"/>
+</g>
+<g id="clust6" class="cluster">
+<title>cluster_ResolverModule_providers</title>
+<polygon fill="none" stroke="black" points="166,-78 166,-130 330,-130 330,-78 166,-78"/>
 </g>
 <!-- ResolverService  -->
 <g id="node1" class="node">
