@@ -111,7 +111,7 @@ export class CryptoService {
                             readFileSync(join(path, file), "utf8"),
                         );
 
-                        const id = payload.kid;
+                        const id = payload.privateKey.kid;
                         const exists = await this.keyService
                             .getPublicKey("jwk", tenant.name, id)
                             .catch(() => false);
