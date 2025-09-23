@@ -251,13 +251,12 @@ export class IssuanceConfigCreateComponent implements OnInit {
     const currentConfig = this.form.value;
     currentConfig.id = this.route.snapshot.params['id'];
     currentConfig.credentialConfigs = undefined;
-    if(currentConfig.claimsWebhook?.url === '') {
+    if (currentConfig.claimsWebhook?.url === '') {
       currentConfig.claimsWebhook = undefined;
     }
-    if(currentConfig.notifyWebhook?.url === '') {
+    if (currentConfig.notifyWebhook?.url === '') {
       currentConfig.notifyWebhook = undefined;
     }
-
 
     const dialogRef = this.dialog.open(JsonViewDialogComponent, {
       data: {

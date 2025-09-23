@@ -33,7 +33,14 @@ export function extractSchema(obj: any) {
 @Component({
   selector: 'app-editor',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MonacoEditorModule, MatInputModule, FlexLayoutModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MonacoEditorModule,
+    MatInputModule,
+    FlexLayoutModule,
+  ],
   templateUrl: './editor.component.html',
   styleUrls: ['./editor.component.scss'],
   providers: [

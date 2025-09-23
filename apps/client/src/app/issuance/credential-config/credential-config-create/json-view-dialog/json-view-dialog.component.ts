@@ -76,7 +76,7 @@ export class JsonViewDialogComponent {
   save(): void {
     if (this.jsonControl.valid && this.jsonControl.value) {
       try {
-        if(typeof this.jsonControl.value !== 'string') {
+        if (typeof this.jsonControl.value !== 'string') {
           this.dialogRef.close(this.jsonControl.value);
           return;
         }
