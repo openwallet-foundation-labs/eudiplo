@@ -15,6 +15,7 @@ import { Component, forwardRef, OnChanges, Input, SimpleChanges } from '@angular
 import { MatInputModule } from '@angular/material/input';
 import { SchemaValidation } from '../schemas';
 import schemas from '../schemas.json';
+import { FlexLayoutModule } from 'ngx-flexible-layout';
 
 /**
  * extact the schema that got added by the editor
@@ -32,7 +33,7 @@ export function extractSchema(obj: any) {
 @Component({
   selector: 'app-editor',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MonacoEditorModule, MatInputModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MonacoEditorModule, MatInputModule, FlexLayoutModule],
   templateUrl: './editor.component.html',
   styleUrls: ['./editor.component.scss'],
   providers: [
