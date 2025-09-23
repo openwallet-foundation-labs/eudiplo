@@ -98,20 +98,6 @@
             <mat-error>At least one credential configuration must be selected</mat-error>
           }
         </mat-form-field>
-
-        <!-- Selected Configurations Preview -->
-        @if (form.get('credentialConfigIds')?.value?.length > 0) {
-          <div>
-            <div><strong>Selected Configurations:</strong></div>
-            <div fxLayout="row wrap" fxLayoutGap="8px" class="selected-configs">
-              @for (configDisplay of getSelectedCredentialConfigsDisplay(); track configDisplay) {
-                <mat-chip-set>
-                  <mat-chip>{{ configDisplay }}</mat-chip>
-                </mat-chip-set>
-              }
-            </div>
-          </div>
-        }
       </mat-card-content>
     </mat-card>
 

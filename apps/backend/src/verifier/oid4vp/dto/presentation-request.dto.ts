@@ -13,6 +13,10 @@ export enum ResponseType {
      * Response type indicating a URI will be returned.
      */
     URI = "uri",
+    /**
+     * Response type indicating a DC API response will be used.
+     */
+    DC_API = "dc-api",
 }
 
 /**

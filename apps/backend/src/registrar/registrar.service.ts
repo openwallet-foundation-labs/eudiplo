@@ -194,7 +194,6 @@ export class RegistrarService implements OnModuleInit {
         const host = this.configService
             .getOrThrow<string>("PUBLIC_URL")
             .replace("https://", "");
-        console.log(tenantId);
         return accessCertificateControllerRegister({
             client: this.client,
             body: {

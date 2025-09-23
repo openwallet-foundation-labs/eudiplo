@@ -5,10 +5,11 @@ import {
     Get,
     Param,
     Post,
+    Req,
     Res,
 } from "@nestjs/common";
 import { ApiBody, ApiProduces, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { Response } from "express";
+import { Request, Response } from "express";
 import * as QRCode from "qrcode";
 import { Role } from "../../auth/roles/role.enum";
 import { Secured } from "../../auth/secure.decorator";
@@ -64,10 +65,18 @@ export class PresentationManagementController {
                     requestId: "pid",
                 },
             },
+            "dc-api": {
+                summary: "DC API",
+                value: {
+                    response_type: ResponseType.DC_API,
+                    requestId: "pid",
+                },
+            },
         },
     })
     @Post("request")
     async getOffer(
+        @Req() req: Request,
         @Res() res: Response,
         @Body() body: PresentationRequest,
         @Token() user: TokenPayload,
@@ -78,10 +87,12 @@ export class PresentationManagementController {
                 webhook: body.webhook,
             },
             user.entity!.id,
+            body.response_type === ResponseType.DC_API,
+            req.get("origin") || req.get("host") || "",
         );
         values.uri = `openid4vp://?${values.uri}`;
         if (body.response_type === ResponseType.QRCode) {
-            // Generate QR code as a PNG buffer
+            // Generate QR code as a PNG buffer.
             const qrCodeBuffer = await QRCode.toBuffer(values.uri);
 
             // Set the response content type to image/png

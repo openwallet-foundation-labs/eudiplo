@@ -418,7 +418,6 @@ export class Oid4vciService {
                         jwt,
                     });
                 const cnf = verifiedProof.signer.publicJwk;
-
                 const cred = await this.credentialsService.getCredential(
                     parsedCredentialRequest.credentialConfigurationId as string,
                     cnf as any,

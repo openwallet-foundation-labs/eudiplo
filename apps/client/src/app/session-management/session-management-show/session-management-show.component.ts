@@ -43,12 +43,11 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
 
   // Status polling properties
   pollingInterval: any = null;
-  readonly POLLING_INTERVAL_MS = 10000; // Poll every 3 seconds
+  readonly POLLING_INTERVAL_MS = 3000; // Poll every 3 seconds
   readonly MAX_POLLING_DURATION_MS = 300000; // Stop polling after 5 minutes
   pollingStartTime: number | null = null;
   offerUri: string | null = null;
   metadata?: any;
-  presentationRequest?: any;
 
   constructor(
     private sessionManagementService: SessionManagementService,
@@ -77,10 +76,6 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
       if (this.session.issuanceId) {
         this.getIssuerMetadata();
       }
-
-      if (this.session.requestId) {
-        this.getPresentationRequest();
-      }
     } catch (error) {
       console.error('Error loading session:', error);
       this.snackBar.open('Failed to load session', 'Close', {
@@ -92,15 +87,17 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
     }
   }
 
-  getPresentationRequest() {
-    if (!this.session?.requestUrl) return;
-    const parsed = new URL(this.session.requestUrl.replace('openid4vp://', 'https://example.com')); // Replace scheme for parsing
-    const requestUriEncoded = parsed.searchParams.get('request_uri');
-    const requestUri = decodeURIComponent(requestUriEncoded!);
-    firstValueFrom(this.httpClient.get(requestUri, { responseType: 'text' })).then((res) => {
-      const jwt = decodeJwt(res.toString());
-      this.presentationRequest = jwt;
-    });
+  printJWT(jwt: string) {
+    if (!jwt) return 'No JWT data available';
+
+    try {
+      // Decode and pretty-print the JWT payload
+      const decodedPayload = decodeJwt(jwt);
+      return JSON.stringify(decodedPayload, null, 2);
+    } catch (error) {
+      console.error('Error decoding JWT:', error);
+      return `Error decoding JWT: ${error instanceof Error ? error.message : 'Unknown error'}`;
+    }
   }
 
   getIssuerMetadata(): void {
@@ -122,6 +119,40 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
         .join(', ');
     }
     return JSON.stringify(status);
+  }
+
+  async getDcApiCall() {
+    if (!this.session?.requestUrl) return;
+
+    if (
+      !('credentials' in navigator) ||
+      !('get' in navigator.credentials) ||
+      !('DigitalCredential' in window)
+    ) {
+      console.warn('Digital Credentials API not available — handing off via deep link.');
+      return;
+    }
+
+    console.log('Calling Digital Credentials API (signed)…');
+    const dcResponse = await navigator.credentials.get({
+      mediation: 'required',
+      digital: {
+        requests: [
+          { protocol: 'openid4vp-v1-signed', data: { request: this.session.requestObject } },
+        ],
+      },
+    } as CredentialRequestOptions);
+
+    if (dcResponse?.data?.error) {
+      console.error('Wallet protocol error:', dcResponse.data.error, dcResponse.data);
+      throw new Error(dcResponse.data.error);
+    }
+
+    const responseUri = decodeJwt<any>(this.session.requestObject!).response_uri;
+    const submitRes = await firstValueFrom(
+      this.httpClient.post(responseUri, { ...dcResponse!.data, sendResponse: true })
+    );
+    console.log('Verifier response:', submitRes);
   }
 
   getStatusClass(status: any): string {
@@ -187,15 +218,6 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
     } finally {
       this.generatingQR = false;
     }
-  }
-
-  downloadQRCode(): void {
-    if (!this.qrCodeDataUrl) return;
-
-    const link = document.createElement('a');
-    link.download = `qr-code-${this.session?.id || 'session'}.png`;
-    link.href = this.qrCodeDataUrl;
-    link.click();
   }
 
   // Status polling functionality
@@ -299,7 +321,6 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
   // Get the offer URI if available in session data
   getOfferUri(): string | null {
     if (!this.session || this.session.status !== 'active') return null;
-
     return this.offerUri;
   }
 }
