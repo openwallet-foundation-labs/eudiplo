@@ -451,8 +451,8 @@ export class AuthService {
                     &quot;base64&quot;,
                 ).toString(&quot;ascii&quot;);
                 const [id, secret] &#x3D; credentials.split(&quot;:&quot;);
-                clientId &#x3D; id;
-                clientSecret &#x3D; secret;
+                clientId &#x3D; decodeURI(id);
+                clientSecret &#x3D; decodeURI(secret);
             } catch {
                 throw new UnauthorizedException(
                     &quot;Invalid Authorization header format&quot;,

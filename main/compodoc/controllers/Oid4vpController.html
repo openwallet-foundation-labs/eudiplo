@@ -168,6 +168,11 @@
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                <a href="#getPostRequestWithSession" >getPostRequestWithSession</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#getRequestWithSession" >getRequestWithSession</a>
                             </li>
                             <li>
@@ -196,19 +201,19 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getRequestWithSession"></a>
+                    <a name="getPostRequestWithSession"></a>
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
-                        <span ><b>getRequestWithSession</b></span>
-                        <a href="#getRequestWithSession"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>getPostRequestWithSession</b></span>
+                        <a href="#getPostRequestWithSession"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getRequestWithSession(session: <a href="../entitys/Session.html" target="_self">Session</a>)</code>
+                    <code>getPostRequestWithSession(session: <a href="../entitys/Session.html" target="_self">Session</a>, req: Request, body: <a href="../classes/AuthorizationResponse.html" target="_self">AuthorizationResponse</a>)</code>
                 </td>
             </tr>
 
@@ -216,14 +221,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Get()<br />@SessionLogger(&#x27;session&#x27;, &#x27;OID4VP&#x27;)<br /></code>
+                    <code>@Post(&#x27;request&#x27;)<br />@SessionLogger(&#x27;session&#x27;, &#x27;OID4VP&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="32"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:32</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="56"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:56</a></div>
                         </td>
                     </tr>
 
@@ -249,6 +254,121 @@
                                                 <td>session</td>
                                             <td>
                                                             <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>req</td>
+                                            <td>
+                                                        <code>Request</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>body</td>
+                                            <td>
+                                                            <code><a href="../classes/AuthorizationResponse.html" target="_self" >AuthorizationResponse</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getRequestWithSession"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                        <span ><b>getRequestWithSession</b></span>
+                        <a href="#getRequestWithSession"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getRequestWithSession(session: <a href="../entitys/Session.html" target="_self">Session</a>, req: Request)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;request&#x27;)<br />@SessionLogger(&#x27;session&#x27;, &#x27;OID4VP&#x27;)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="40"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:40</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Returns the authorization request for a given requestId and session.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>session</td>
+                                            <td>
+                                                            <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>req</td>
+                                            <td>
+                                                        <code>Request</code>
                                             </td>
 
                                             <td>
@@ -301,8 +421,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="43"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:43</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="72"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:72</a></div>
                         </td>
                     </tr>
 
@@ -366,8 +486,16 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Body, Controller, Get, Post, UseInterceptors } from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+    Body,
+    Controller,
+    Get,
+    Post,
+    Req,
+    UseInterceptors,
+} from &quot;@nestjs/common&quot;;
 import { ApiExcludeController, ApiParam } from &quot;@nestjs/swagger&quot;;
+import { Request } from &quot;express&quot;;
 import { Session } from &quot;../../session/entities/session.entity&quot;;
 import { SessionEntity } from &quot;../../session/session.decorator&quot;;
 import { SessionLogger } from &quot;../../utils/logger/session-logger.decorator&quot;;
@@ -391,14 +519,35 @@ export class Oid4vpController {
 
     /**
      * Returns the authorization request for a given requestId and session.
-     * @param requestId
      * @param session
+     * @param req
      * @returns
      */
-    @Get()
+    @Get(&quot;request&quot;)
     @SessionLogger(&quot;session&quot;, &quot;OID4VP&quot;)
-    getRequestWithSession(@SessionEntity() session: Session) {
-        return this.oid4vpService.createAuthorizationRequest(session);
+    getRequestWithSession(
+        @SessionEntity() session: Session,
+        @Req() req: Request,
+    ) {
+        const origin &#x3D; req.get(&quot;origin&quot;) as string;
+        return this.oid4vpService.createAuthorizationRequest(session, origin);
+    }
+
+    /**
+     * Returns the authorization request for a given requestId and session.
+     * @param session
+     * @param req
+     * @returns
+     */
+    @Post(&quot;request&quot;)
+    @SessionLogger(&quot;session&quot;, &quot;OID4VP&quot;)
+    getPostRequestWithSession(
+        @SessionEntity() session: Session,
+        @Req() req: Request,
+        @Body() body: AuthorizationResponse,
+    ) {
+        const origin &#x3D; req.get(&quot;origin&quot;) as string;
+        return this.oid4vpService.createAuthorizationRequest(session, origin);
     }
 
     /**

@@ -224,7 +224,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="111" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:111</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="121" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:121</a></div>
                         </td>
                     </tr>
 
@@ -262,7 +262,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="105" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:105</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="115" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:115</a></div>
                         </td>
                     </tr>
 
@@ -331,6 +331,11 @@ export class TrustedAuthorityQuery {
     values: string[];
 }
 
+export class Claim {
+    @IsArray()
+    path: string[];
+}
+
 //TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-credential-query
 
 export class CredentialQuery {
@@ -343,6 +348,11 @@ export class CredentialQuery {
     @IsOptional()
     @IsBoolean()
     multiple?: boolean;
+
+    @IsOptional()
+    @ValidateNested({ each: true })
+    @Type(() &#x3D;&gt; Claim)
+    claims?: Claim[];
 
     @IsObject()
     meta: any;

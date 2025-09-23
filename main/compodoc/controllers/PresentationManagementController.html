@@ -224,8 +224,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="102"
-                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:102</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="113"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:113</a></div>
                         </td>
                     </tr>
 
@@ -302,8 +302,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="130"
-                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:130</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="141"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:141</a></div>
                         </td>
                     </tr>
 
@@ -382,7 +382,7 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getOffer(res: Response, body: <a href="../classes/PresentationRequest.html" target="_self">PresentationRequest</a>, user: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
+                    <code>getOffer(req: Request, res: Response, body: <a href="../classes/PresentationRequest.html" target="_self">PresentationRequest</a>, user: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
                 </td>
             </tr>
 
@@ -396,8 +396,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="70"
-                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:70</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="78"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:78</a></div>
                         </td>
                     </tr>
 
@@ -419,6 +419,18 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        <tr>
+                                                <td>req</td>
+                                            <td>
+                                                        <code>Request</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
                                         <tr>
                                                 <td>res</td>
                                             <td>
@@ -498,8 +510,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="114"
-                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:114</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="125"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:125</a></div>
                         </td>
                     </tr>
 
@@ -570,10 +582,11 @@
     Get,
     Param,
     Post,
+    Req,
     Res,
 } from &quot;@nestjs/common&quot;;
 import { ApiBody, ApiProduces, ApiResponse, ApiTags } from &quot;@nestjs/swagger&quot;;
-import { Response } from &quot;express&quot;;
+import { Request, Response } from &quot;express&quot;;
 import * as QRCode from &quot;qrcode&quot;;
 import { Role } from &quot;../../auth/roles/role.enum&quot;;
 import { Secured } from &quot;../../auth/secure.decorator&quot;;
@@ -629,10 +642,18 @@ export class PresentationManagementController {
                     requestId: &quot;pid&quot;,
                 },
             },
+            &quot;dc-api&quot;: {
+                summary: &quot;DC API&quot;,
+                value: {
+                    response_type: ResponseType.DC_API,
+                    requestId: &quot;pid&quot;,
+                },
+            },
         },
     })
     @Post(&quot;request&quot;)
     async getOffer(
+        @Req() req: Request,
         @Res() res: Response,
         @Body() body: PresentationRequest,
         @Token() user: TokenPayload,
@@ -643,10 +664,12 @@ export class PresentationManagementController {
                 webhook: body.webhook,
             },
             user.entity!.id,
+            body.response_type &#x3D;&#x3D;&#x3D; ResponseType.DC_API,
+            req.get(&quot;origin&quot;) || req.get(&quot;host&quot;) || &quot;&quot;,
         );
         values.uri &#x3D; &#x60;openid4vp://?${values.uri}&#x60;;
         if (body.response_type &#x3D;&#x3D;&#x3D; ResponseType.QRCode) {
-            // Generate QR code as a PNG buffer
+            // Generate QR code as a PNG buffer.
             const qrCodeBuffer &#x3D; await QRCode.toBuffer(values.uri);
 
             // Set the response content type to image/png

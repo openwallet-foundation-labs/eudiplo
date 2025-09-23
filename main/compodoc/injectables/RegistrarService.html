@@ -453,8 +453,8 @@ If the access certificate already exists, it will be returned.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="232"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:232</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="231"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:231</a></div>
                         </td>
                     </tr>
 
@@ -1259,7 +1259,6 @@ export class RegistrarService implements OnModuleInit {
         const host &#x3D; this.configService
             .getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)
             .replace(&quot;https://&quot;, &quot;&quot;);
-        console.log(tenantId);
         return accessCertificateControllerRegister({
             client: this.client,
             body: {

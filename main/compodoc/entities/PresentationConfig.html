@@ -276,7 +276,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="199" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:199</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="209" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:209</a></div>
                         </td>
                     </tr>
 
@@ -318,7 +318,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="183" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:183</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="193" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:193</a></div>
                         </td>
                     </tr>
 
@@ -362,7 +362,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="161" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:161</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="171" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:171</a></div>
                         </td>
                     </tr>
 
@@ -407,7 +407,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="145" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:145</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="155" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:155</a></div>
                         </td>
                     </tr>
 
@@ -450,7 +450,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="124" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:124</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="134" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:134</a></div>
                         </td>
                     </tr>
 
@@ -495,7 +495,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="153" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:153</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="163" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:163</a></div>
                         </td>
                     </tr>
 
@@ -541,7 +541,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="169" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:169</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="179" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:179</a></div>
                         </td>
                     </tr>
 
@@ -583,7 +583,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="137" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:137</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="147" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:147</a></div>
                         </td>
                     </tr>
 
@@ -626,7 +626,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="131" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:131</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="141" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:141</a></div>
                         </td>
                     </tr>
 
@@ -668,7 +668,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="189" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:189</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="199" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:199</a></div>
                         </td>
                     </tr>
 
@@ -714,7 +714,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="177" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:177</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="187" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:187</a></div>
                         </td>
                     </tr>
 
@@ -782,6 +782,11 @@ export class TrustedAuthorityQuery {
     values: string[];
 }
 
+export class Claim {
+    @IsArray()
+    path: string[];
+}
+
 //TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-credential-query
 
 export class CredentialQuery {
@@ -794,6 +799,11 @@ export class CredentialQuery {
     @IsOptional()
     @IsBoolean()
     multiple?: boolean;
+
+    @IsOptional()
+    @ValidateNested({ each: true })
+    @Type(() &#x3D;&gt; Claim)
+    claims?: Claim[];
 
     @IsObject()
     meta: any;

@@ -555,7 +555,13 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/AuthorizationResponse.html" data-type="entity-link" >AuthorizationResponse</a>
                             </li>
                             <li class="link">
+                                <a href="classes/AuthorizationResponse-1.html" data-type="entity-link" >AuthorizationResponse</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/AuthorizeQueries.html" data-type="entity-link" >AuthorizeQueries</a>
+                            </li>
+                            <li class="link">
+                                <a href="classes/Claim.html" data-type="entity-link" >Claim</a>
                             </li>
                             <li class="link">
                                 <a href="classes/ClaimsQuery.html" data-type="entity-link" >ClaimsQuery</a>
