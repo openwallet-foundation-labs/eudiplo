@@ -1999,7 +1999,7 @@ export class CryptoService {
                             readFileSync(join(path, file), &quot;utf8&quot;),
                         );
 
-                        const id &#x3D; payload.kid;
+                        const id &#x3D; payload.privateKey.kid;
                         const exists &#x3D; await this.keyService
                             .getPublicKey(&quot;jwk&quot;, tenant.name, id)
                             .catch(() &#x3D;&gt; false);
