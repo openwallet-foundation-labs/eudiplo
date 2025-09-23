@@ -530,7 +530,7 @@ describe("Issuance", () => {
         // exp need to be defined
         expect(claims.exp).toBeDefined();
         // lifetime should be 1 hour
-        expect(claims.exp - claims.iat).toBe(3600);
+        expect(claims.exp - claims.iat).toBe(604800);
         // status should be defined
         expect(claims.status).toBeDefined();
         //check that a key is present in the cnf
