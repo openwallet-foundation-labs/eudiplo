@@ -4,36 +4,27 @@ import {
     Injectable,
     NestInterceptor,
 } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import { Reflector } from "@nestjs/core";
-import { PinoLogger } from "nestjs-pino";
 import { Observable } from "rxjs";
 import { catchError, tap } from "rxjs/operators";
 import { SESSION_LOGGER_KEY } from "./session-logger.decorator";
+import { SessionLoggerService } from "./session-logger.service";
+import { SessionLogContext } from "./session-logger-context";
 
 /**
  * Interceptor for logging session-related requests and responses.
  */
 @Injectable()
 export class SessionLoggerInterceptor implements NestInterceptor {
-    private readonly isEnabled: boolean;
-
     /**
      * Constructor for SessionLoggerInterceptor.
      * @param reflector - Reflector instance for accessing metadata.
-     * @param logger - PinoLogger instance for logging.
-     * @param configService - ConfigService for accessing configuration.
+     * @param sessionLoggerService - Session Logger service for consistent logging behavior.
      */
     constructor(
         private readonly reflector: Reflector,
-        private readonly logger: PinoLogger,
-        private readonly configService: ConfigService,
-    ) {
-        this.isEnabled = this.configService.get<boolean>(
-            "LOG_ENABLE_SESSION_LOGGER",
-            false,
-        );
-    }
+        private readonly sessionLoggerService: SessionLoggerService,
+    ) {}
 
     /**
      * Intercepts the request and logs session-related information.
@@ -47,7 +38,8 @@ export class SessionLoggerInterceptor implements NestInterceptor {
             context.getHandler(),
         );
 
-        if (!metadata || !this.isEnabled) {
+        // Skip if no metadata or logger is disabled (the service will check enablement)
+        if (!metadata) {
             return next.handle();
         }
 
@@ -56,26 +48,23 @@ export class SessionLoggerInterceptor implements NestInterceptor {
         const response = context.switchToHttp().getResponse();
 
         const sessionId = request.params[sessionIdParam];
-
         const tenantId = request.params?.tenantId;
         const method = request.method;
         const url = request.url;
 
-        // Set context for this logger instance
-        this.logger.setContext("SessionLogger");
-
-        // Create log context
-        const logContext = {
+        // Create log context for consistent logging
+        const logContext: SessionLogContext = {
             sessionId,
             tenantId,
             flowType,
             endpoint: `${method} ${url}`,
         };
 
-        // Log the start of the request
-        this.logger.info(
+        // Log the start of the request using SessionLoggerService
+        this.sessionLoggerService.logSession(
+            logContext,
+            `Starting ${method} ${url}`,
             {
-                ...logContext,
                 event: "request_start",
                 method,
                 url,
@@ -85,7 +74,6 @@ export class SessionLoggerInterceptor implements NestInterceptor {
                 },
                 body: this.sanitizeBody(request.body),
             },
-            `[${flowType}] Starting ${method} ${url} for session ${sessionId}`,
         );
 
         const startTime = Date.now();
@@ -93,9 +81,11 @@ export class SessionLoggerInterceptor implements NestInterceptor {
         return next.handle().pipe(
             tap((data) => {
                 const duration = Date.now() - startTime;
-                this.logger.info(
+                // Log successful request completion
+                this.sessionLoggerService.logSession(
+                    logContext,
+                    `Completed ${method} ${url} in ${duration}ms`,
                     {
-                        ...logContext,
                         event: "request_success",
                         method,
                         url,
@@ -103,25 +93,21 @@ export class SessionLoggerInterceptor implements NestInterceptor {
                         duration,
                         responseSize: JSON.stringify(data || {}).length,
                     },
-                    `[${flowType}] Completed ${method} ${url} for session ${sessionId} in ${duration}ms`,
                 );
             }),
             catchError((error) => {
                 const duration = Date.now() - startTime;
-                this.logger.error(
+                // Log request error
+                this.sessionLoggerService.logSessionError(
+                    logContext,
+                    error,
+                    `Error in ${method} ${url}`,
                     {
-                        ...logContext,
                         event: "request_error",
                         method,
                         url,
-                        error: {
-                            name: error.name,
-                            message: error.message,
-                            stack: error.stack,
-                        },
                         duration,
                     },
-                    `[${flowType}] Error in ${method} ${url} for session ${sessionId}: ${error.message}`,
                 );
                 throw error;
             }),

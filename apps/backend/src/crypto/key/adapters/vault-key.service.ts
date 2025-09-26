@@ -217,7 +217,7 @@ export class VaultKeyService extends KeyService {
                 `${this.vaultUrl}/v1/${tenantId}/sign/${keyId}`,
                 {
                     input: Buffer.from(value).toString("base64"),
-                    marshaling_algorithm: 'jws',
+                    marshaling_algorithm: "jws",
                 },
                 this.headers,
             ),

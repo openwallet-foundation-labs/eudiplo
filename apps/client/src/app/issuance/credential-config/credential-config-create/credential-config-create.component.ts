@@ -296,7 +296,8 @@ export class CredentialConfigCreateComponent implements OnInit {
         readonly: false,
         schema: credentialConfigSchema,
       },
-      disableClose: false,
+      disableClose: true,
+      minWidth: '60vw',
       maxWidth: '95vw',
       maxHeight: '95vh',
     });
@@ -351,7 +352,7 @@ export class CredentialConfigCreateComponent implements OnInit {
       this.form.patchValue({
         id: config.id || '',
         keyId: config.keyId || '',
-        scope: config.config.scope || [''],
+        scope: config.config.scope || '',
         description: config.description || '',
         lifeTime: config.lifeTime || 3600,
         keyBinding: config.keyBinding ?? true,

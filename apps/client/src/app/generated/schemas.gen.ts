@@ -176,7 +176,7 @@ If not provided, no authentication will be used.`,
             description: 'The URL to which the webhook will send notifications.'
         }
     },
-    required: ['url']
+    required: ['auth', 'url']
 } as const;
 
 export const OfferRequestDtoSchema = {

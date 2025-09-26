@@ -7,6 +7,8 @@ export interface LoggerConfiguration {
     enableHttpLogger: boolean;
     enableDebugMode: boolean;
     logFormat: "json" | "pretty";
+    logToFile: boolean;
+    logFilePath: string;
 }
 
 /**
@@ -40,6 +42,11 @@ export class LoggerConfigService {
             logFormat: this.configService.get<"json" | "pretty">(
                 "LOG_FORMAT",
                 "pretty",
+            ),
+            logToFile: this.configService.get<boolean>("LOG_TO_FILE", false),
+            logFilePath: this.configService.get<string>(
+                "LOG_FILE_PATH",
+                "./logs/session.log",
             ),
         };
     }
@@ -78,6 +85,20 @@ export class LoggerConfigService {
 
     getLogFormat(): "json" | "pretty" {
         return this.config.logFormat;
+    }
+
+    /**
+     * Check if logging to file is enabled
+     */
+    isFileLoggingEnabled(): boolean {
+        return this.config.logToFile;
+    }
+
+    /**
+     * Get the configured file path for logging
+     */
+    getLogFilePath(): string {
+        return this.config.logFilePath;
     }
 
     /**

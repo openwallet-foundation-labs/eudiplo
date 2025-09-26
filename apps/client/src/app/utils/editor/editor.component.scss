@@ -1,7 +1,14 @@
 .editor {
   min-height: 500px;
+  width: 100%;
+  overflow-x: hidden;
 
   ngx-monaco-editor {
-    height: 100%;
+    width: 100%;
+    min-height: 500px;
+  }
+
+  ::ng-deep .monaco-editor {
+    max-width: 100%;
   }
 }

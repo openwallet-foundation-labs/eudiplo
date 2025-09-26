@@ -231,7 +231,8 @@ export class PresentationCreateComponent {
         jsonData: currentConfig,
         readonly: false,
       },
-      disableClose: false,
+      disableClose: true,
+      minWidth: '60vw',
       maxWidth: '95vw',
       maxHeight: '95vh',
     });
