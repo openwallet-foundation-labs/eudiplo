@@ -146,6 +146,12 @@
                             <a href="#ContentType" title="src/utils/mediaType/media-type.decorator.ts" ><b>ContentType</b>&nbsp;&nbsp;&nbsp;(src/.../media-type.decorator.ts)</a>
                         </li>
                         <li>
+                            <a href="#createLoggerOptions" title="src/utils/logger/logger.factory.ts" ><b>createLoggerOptions</b>&nbsp;&nbsp;&nbsp;(src/.../logger.factory.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#createServeStaticOptions" title="src/utils/serve-static.factory.ts" ><b>createServeStaticOptions</b>&nbsp;&nbsp;&nbsp;(src/.../serve-static.factory.ts)</a>
+                        </li>
+                        <li>
                             <a href="#CRYPTO_VALIDATION_SCHEMA" title="src/crypto/key/crypto-implementation/crypto-validation.schema.ts" ><b>CRYPTO_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../crypto-validation.schema.ts)</a>
                         </li>
                         <li>
@@ -558,6 +564,159 @@
                 <td class="col-md-4">
                     <div class="io-description"><p>Decorator to extract the content type from the request headers.
 This decorator can be used to determine the media type of the request.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/utils/logger/logger.factory.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="createLoggerOptions"></a>
+                    <span class="name">
+                        <span ><b>createLoggerOptions</b></span>
+                        <a href="#createLoggerOptions"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>(configService: ConfigService) &#x3D;&gt; {
+    const enableHttpLogger &#x3D; configService.get&lt;boolean&gt;(
+        &quot;LOG_ENABLE_HTTP_LOGGER&quot;,
+        false,
+    );
+
+    // Check if file logging is enabled
+    const logToFile &#x3D; configService.get&lt;boolean&gt;(&quot;LOG_TO_FILE&quot;);
+    const logFilePath &#x3D; configService.get&lt;string&gt;(&quot;LOG_FILE_PATH&quot;);
+
+    let transportConfig;
+
+    if (logToFile) {
+        // Configure both console and file logging
+        transportConfig &#x3D; {
+            targets: [
+                // Console pretty logging
+                {
+                    target: &quot;pino-pretty&quot;,
+                    level: configService.get(&quot;LOG_LEVEL&quot;, &quot;info&quot;),
+                    options: {
+                        colorize: true,
+                        singleLine: false,
+                        translateTime: &quot;yyyy-mm-dd HH:MM:ss&quot;,
+                        ignore: &quot;pid,hostname&quot;,
+                    },
+                },
+                // File logging - ensure order is maintained with sync: true
+                {
+                    target: &quot;pino/file&quot;,
+                    level: configService.get(&quot;LOG_LEVEL&quot;, &quot;info&quot;),
+                    options: {
+                        destination: logFilePath,
+                        mkdir: true,
+                        sync: true, // Use synchronous writes to ensure message order
+                    },
+                },
+            ],
+        };
+    } else {
+        // Console logging only
+        transportConfig &#x3D; {
+            target: &quot;pino-pretty&quot;,
+            options: {
+                colorize: true,
+                singleLine: false,
+                translateTime: &quot;yyyy-mm-dd HH:MM:ss&quot;,
+                ignore: &quot;pid,hostname&quot;,
+            },
+        };
+    }
+
+    return {
+        pinoHttp: {
+            level: configService.get(&quot;LOG_LEVEL&quot;, &quot;info&quot;),
+            autoLogging: enableHttpLogger,
+            transport: transportConfig,
+            formatters: {
+                log: (object) &#x3D;&gt; {
+                    object.hostname &#x3D; undefined;
+                    return object;
+                },
+            },
+            customProps: (req: any) &#x3D;&gt; ({
+                sessionId: req.params?.session,
+            }),
+            serializers: {
+                req: (req: any) &#x3D;&gt; ({
+                    method: req.method,
+                    url: req.url,
+                    headers: {
+                        &quot;user-agent&quot;: req.headers[&quot;user-agent&quot;],
+                        &quot;content-type&quot;: req.headers[&quot;content-type&quot;],
+                    },
+                    sessionId: req.params?.session,
+                    tenantId: req.params?.tenantId,
+                }),
+                res: (res: any) &#x3D;&gt; ({
+                    statusCode: res.statusCode,
+                }),
+            },
+        },
+    };
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Factory function for configuring the logger module</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/utils/serve-static.factory.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="createServeStaticOptions"></a>
+                    <span class="name">
+                        <span ><b>createServeStaticOptions</b></span>
+                        <a href="#createServeStaticOptions"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>(
+    configService: ConfigService,
+): ServeStaticModuleOptions[] &#x3D;&gt; {
+    const folder &#x3D; configService.getOrThrow&lt;string&gt;(&quot;FOLDER&quot;);
+    const rootPath &#x3D; isAbsolute(folder)
+        ? join(folder, &quot;public&quot;)
+        : join(__dirname, &quot;../&quot;, folder, &quot;public&quot;);
+    return [
+        {
+            rootPath,
+        },
+    ];
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Factory function for configuring the serve static module</p>
 </div>
                 </td>
             </tr>
@@ -980,6 +1139,14 @@ This decorator can be used to determine the media type of the request.</p>
         .default(process.env.NODE_ENV &#x3D;&#x3D;&#x3D; &quot;production&quot; ? &quot;json&quot; : &quot;pretty&quot;)
         .description(&quot;Log output format&quot;)
         .meta({ group: &quot;log&quot;, order: 50 }),
+    LOG_TO_FILE: Joi.boolean()
+        .default(false)
+        .description(&quot;Enable logging to file in addition to console&quot;)
+        .meta({ group: &quot;log&quot;, order: 60 }),
+    LOG_FILE_PATH: Joi.string()
+        .default(&quot;./logs/session.log&quot;)
+        .description(&quot;File path for log output when LOG_TO_FILE is enabled&quot;)
+        .meta({ group: &quot;log&quot;, order: 70 }),
 })</code>
                     </td>
                 </tr>

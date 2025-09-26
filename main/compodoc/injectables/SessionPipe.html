@@ -155,7 +155,6 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
-                                    <span class="modifier">Async</span>
                                 <a href="#transform" >transform</a>
                             </li>
                         </ul>
@@ -230,7 +229,6 @@
                 <td class="col-md-4">
                     <a name="transform"></a>
                     <span class="name">
-                            <span class="modifier">Async</span>
                         <span ><b>transform</b></span>
                         <a href="#transform"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -238,8 +236,7 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>transform(sessionId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+<code>transform(sessionId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
@@ -307,22 +304,18 @@ import { SessionService } from &quot;./session.service&quot;;
 export class SessionPipe implements PipeTransform&lt;string, Promise&lt;Session&gt;&gt; {
     constructor(private readonly sessionService: SessionService) {}
 
-    async transform(sessionId: string): Promise&lt;Session&gt; {
+    transform(sessionId: string): Promise&lt;Session&gt; {
         if (!sessionId) {
             throw new NotFoundException(
                 &quot;Session ID not found in request parameters&quot;,
             );
         }
 
-        const session &#x3D; await this.sessionService.get(sessionId);
-        if (!session) {
+        return this.sessionService.get(sessionId).catch(() &#x3D;&gt; {
             throw new NotFoundException(
                 &#x60;Session with ID ${sessionId} not found&#x60;,
             );
-        }
-
-        // Return the entity so the controller parameter receives it
-        return session;
+        });
     }
 }
 </code></pre>

@@ -1743,7 +1743,7 @@ export class VaultKeyService extends KeyService {
                 &#x60;${this.vaultUrl}/v1/${tenantId}/sign/${keyId}&#x60;,
                 {
                     input: Buffer.from(value).toString(&quot;base64&quot;),
-                    marshaling_algorithm: &#x27;jws&#x27;,
+                    marshaling_algorithm: &quot;jws&quot;,
                 },
                 this.headers,
             ),
