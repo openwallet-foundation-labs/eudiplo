@@ -265,8 +265,8 @@ export class IssuanceConfigCreateComponent implements OnInit {
         readonly: false,
         schema: issuanceConfigSchema,
       },
-      disableClose: false,
-      height: '80vh',
+      disableClose: true,
+      minWidth: '60vw',
       maxWidth: '95vw',
       maxHeight: '95vh',
     });

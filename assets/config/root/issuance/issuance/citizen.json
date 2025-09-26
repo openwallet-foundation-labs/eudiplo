@@ -11,7 +11,10 @@
         "citizen"
     ],
     "claimsWebhook": {
-        "url": "http://localhost:8787/process"
+        "url": "http://localhost:8787/process",
+        "auth": {
+            "type": "none"
+        }
     },
     "notifyWebhook": {
         "url": "http://localhost:8787/notify",

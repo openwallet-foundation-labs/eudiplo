@@ -5,8 +5,6 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { setGlobalConfig } from "@openid4vc/openid4vci";
 import { CryptoModule } from "../crypto/crypto.module";
 import { SessionModule } from "../session/session.module";
-import { SessionLoggerInterceptor } from "../utils/logger/session-logger.interceptor";
-import { SessionLoggerService } from "../utils/logger/session-logger.service";
 import { WebhookService } from "../utils/webhook/webhook.service";
 import { Oid4vpModule } from "../verifier/oid4vp/oid4vp.module";
 import { AuthorizeController } from "./authorize/authorize.controller";
@@ -53,8 +51,6 @@ import { StatusListModule } from "./status-list/status-list.module";
         AuthorizeService,
         CredentialsService,
         Oid4vciService,
-        SessionLoggerService,
-        SessionLoggerInterceptor,
         IssuanceService,
         CredentialConfigService,
         WebhookService,

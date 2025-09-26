@@ -102,5 +102,6 @@ export class WebhookConfig {
         },
         keepDiscriminatorProperty: true,
     })
-    auth?: WebHookAuthConfigNone | WebHookAuthConfigHeader;
+    @IsObject()
+    auth: WebHookAuthConfigNone | WebHookAuthConfigHeader;
 }

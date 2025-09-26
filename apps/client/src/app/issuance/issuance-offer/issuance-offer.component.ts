@@ -212,7 +212,8 @@ export class IssuanceOfferComponent implements OnInit {
         jsonData: Object.values(currentConfig)[0],
         readonly: false,
       },
-      disableClose: false,
+      disableClose: true,
+      minWidth: '60vw',
       maxWidth: '95vw',
       maxHeight: '95vh',
     });

@@ -26,4 +26,12 @@ export const LOG_VALIDATION_SCHEMA = Joi.object({
         .default(process.env.NODE_ENV === "production" ? "json" : "pretty")
         .description("Log output format")
         .meta({ group: "log", order: 50 }),
+    LOG_TO_FILE: Joi.boolean()
+        .default(false)
+        .description("Enable logging to file in addition to console")
+        .meta({ group: "log", order: 60 }),
+    LOG_FILE_PATH: Joi.string()
+        .default("./logs/session.log")
+        .description("File path for log output when LOG_TO_FILE is enabled")
+        .meta({ group: "log", order: 70 }),
 });

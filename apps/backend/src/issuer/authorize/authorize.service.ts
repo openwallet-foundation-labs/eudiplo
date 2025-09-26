@@ -199,7 +199,7 @@ export class AuthorizeService {
             authorizationServer: authorizationServerMetadata.issuer,
             /* cNonce,
             cNonceExpiresIn: 100, */
-            clientId: "wallet", // must be same as the client attestation
+            clientId: req.body.client_id,
             dpop: dpopValue,
         });
     }

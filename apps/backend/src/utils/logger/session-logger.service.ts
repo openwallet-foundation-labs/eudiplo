@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import { PinoLogger } from "nestjs-pino";
+import { LoggerConfigService } from "./logger-config.service";
 import { SessionLogContext } from "./session-logger-context";
 
 /**
@@ -18,13 +18,10 @@ export class SessionLoggerService {
      */
     constructor(
         private readonly logger: PinoLogger,
-        private readonly configService: ConfigService,
+        private readonly loggerConfigService: LoggerConfigService,
     ) {
         this.logger.setContext("SessionLoggerService");
-        this.isEnabled = this.configService.get<boolean>(
-            "LOG_ENABLE_SESSION_LOGGER",
-            false,
-        );
+        this.isEnabled = this.loggerConfigService.isSessionLoggerEnabled();
     }
 
     private shouldLog(): boolean {

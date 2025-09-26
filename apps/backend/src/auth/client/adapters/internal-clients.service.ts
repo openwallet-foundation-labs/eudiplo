@@ -35,13 +35,20 @@ export class InternalClientsProvider
                 roles.push(Role.Tenants);
             }
 
-            return this.repo.save({
-                clientId,
-                secret: clientSecret,
-                description: "Internal client",
-                roles,
-                tenant: addToTenant ? { id: addToTenant } : undefined,
-            });
+            return this.repo
+                .save({
+                    clientId,
+                    secret: clientSecret,
+                    description: "Internal client",
+                    roles,
+                    tenant: addToTenant ? { id: addToTenant } : undefined,
+                })
+                .then(() => {
+                    // eslint-disable-next-line no-console
+                    console.log(
+                        `Added internal auth client ${clientId} to database`,
+                    );
+                });
         });
     }
 
