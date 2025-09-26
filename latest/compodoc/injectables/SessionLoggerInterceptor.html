@@ -152,22 +152,6 @@
     <h3 id="index">Index</h3>
     <table class="table table-sm table-bordered index-table">
         <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <h6><b>Properties</b></h6>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <ul class="index-list">
-                            <li>
-                                    <span class="modifier">Private</span>
-                                    <span class="modifier">Readonly</span>
-                                <a href="#isEnabled" >isEnabled</a>
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
 
                 <tr>
                     <td class="col-md-4">
@@ -202,12 +186,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(reflector: Reflector, logger: PinoLogger, configService: ConfigService)</code>
+<code>constructor(reflector: Reflector, sessionLoggerService: <a href="../injectables/SessionLoggerService.html" target="_self">SessionLoggerService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/utils/logger/session-logger.interceptor.ts:19</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="18" class="link-to-prism">src/utils/logger/session-logger.interceptor.ts:18</a></div>
                             </td>
                         </tr>
 
@@ -246,10 +230,10 @@
                                                         </td>
                                                 </tr>
                                                 <tr>
-                                                        <td>logger</td>
+                                                        <td>sessionLoggerService</td>
                                                   
                                                         <td>
-                                                                    <code>PinoLogger</code>
+                                                                        <code><a href="../injectables/SessionLoggerService.html" target="_self" >SessionLoggerService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -258,25 +242,7 @@
                                                     
                                                         <td>
                                                                 <ul>
-<li>PinoLogger instance for logging.</li>
-</ul>
-
-                                                        </td>
-                                                </tr>
-                                                <tr>
-                                                        <td>configService</td>
-                                                  
-                                                        <td>
-                                                                    <code>ConfigService</code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                        <td>
-                                                                <ul>
-<li>ConfigService for accessing configuration.</li>
+<li>Session Logger service for consistent logging behavior.</li>
 </ul>
 
                                                         </td>
@@ -315,8 +281,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="44"
-                                    class="link-to-prism">src/utils/logger/session-logger.interceptor.ts:44</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="35"
+                                    class="link-to-prism">src/utils/logger/session-logger.interceptor.ts:35</a></div>
                         </td>
                     </tr>
 
@@ -412,8 +378,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="136"
-                                    class="link-to-prism">src/utils/logger/session-logger.interceptor.ts:136</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="122"
+                                    class="link-to-prism">src/utils/logger/session-logger.interceptor.ts:122</a></div>
                         </td>
                     </tr>
 
@@ -470,40 +436,6 @@
         </tbody>
     </table>
 </section>
-            <section data-compodoc="block-properties">
-    
-    <h3 id="inputs">
-        Properties
-    </h3>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="isEnabled"></a>
-                    <span class="name">
-                            <span class="modifier">Private</span>
-                            <span class="modifier">Readonly</span>
-                        <span ><b>isEnabled</b></span>
-                        <a href="#isEnabled"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/utils/logger/session-logger.interceptor.ts:19</a></div>
-                        </td>
-                    </tr>
-
-
-        </tbody>
-    </table>
-</section>
 
     </div>
 
@@ -515,36 +447,27 @@
     Injectable,
     NestInterceptor,
 } from &quot;@nestjs/common&quot;;
-import { ConfigService } from &quot;@nestjs/config&quot;;
 import { Reflector } from &quot;@nestjs/core&quot;;
-import { PinoLogger } from &quot;nestjs-pino&quot;;
 import { Observable } from &quot;rxjs&quot;;
 import { catchError, tap } from &quot;rxjs/operators&quot;;
 import { SESSION_LOGGER_KEY } from &quot;./session-logger.decorator&quot;;
+import { SessionLoggerService } from &quot;./session-logger.service&quot;;
+import { SessionLogContext } from &quot;./session-logger-context&quot;;
 
 /**
  * Interceptor for logging session-related requests and responses.
  */
 @Injectable()
 export class SessionLoggerInterceptor implements NestInterceptor {
-    private readonly isEnabled: boolean;
-
     /**
      * Constructor for SessionLoggerInterceptor.
      * @param reflector - Reflector instance for accessing metadata.
-     * @param logger - PinoLogger instance for logging.
-     * @param configService - ConfigService for accessing configuration.
+     * @param sessionLoggerService - Session Logger service for consistent logging behavior.
      */
     constructor(
         private readonly reflector: Reflector,
-        private readonly logger: PinoLogger,
-        private readonly configService: ConfigService,
-    ) {
-        this.isEnabled &#x3D; this.configService.get&lt;boolean&gt;(
-            &quot;LOG_ENABLE_SESSION_LOGGER&quot;,
-            false,
-        );
-    }
+        private readonly sessionLoggerService: SessionLoggerService,
+    ) {}
 
     /**
      * Intercepts the request and logs session-related information.
@@ -558,7 +481,8 @@ export class SessionLoggerInterceptor implements NestInterceptor {
             context.getHandler(),
         );
 
-        if (!metadata || !this.isEnabled) {
+        // Skip if no metadata or logger is disabled (the service will check enablement)
+        if (!metadata) {
             return next.handle();
         }
 
@@ -567,26 +491,23 @@ export class SessionLoggerInterceptor implements NestInterceptor {
         const response &#x3D; context.switchToHttp().getResponse();
 
         const sessionId &#x3D; request.params[sessionIdParam];
-
         const tenantId &#x3D; request.params?.tenantId;
         const method &#x3D; request.method;
         const url &#x3D; request.url;
 
-        // Set context for this logger instance
-        this.logger.setContext(&quot;SessionLogger&quot;);
-
-        // Create log context
-        const logContext &#x3D; {
+        // Create log context for consistent logging
+        const logContext: SessionLogContext &#x3D; {
             sessionId,
             tenantId,
             flowType,
             endpoint: &#x60;${method} ${url}&#x60;,
         };
 
-        // Log the start of the request
-        this.logger.info(
+        // Log the start of the request using SessionLoggerService
+        this.sessionLoggerService.logSession(
+            logContext,
+            &#x60;Starting ${method} ${url}&#x60;,
             {
-                ...logContext,
                 event: &quot;request_start&quot;,
                 method,
                 url,
@@ -596,7 +517,6 @@ export class SessionLoggerInterceptor implements NestInterceptor {
                 },
                 body: this.sanitizeBody(request.body),
             },
-            &#x60;[${flowType}] Starting ${method} ${url} for session ${sessionId}&#x60;,
         );
 
         const startTime &#x3D; Date.now();
@@ -604,9 +524,11 @@ export class SessionLoggerInterceptor implements NestInterceptor {
         return next.handle().pipe(
             tap((data) &#x3D;&gt; {
                 const duration &#x3D; Date.now() - startTime;
-                this.logger.info(
+                // Log successful request completion
+                this.sessionLoggerService.logSession(
+                    logContext,
+                    &#x60;Completed ${method} ${url} in ${duration}ms&#x60;,
                     {
-                        ...logContext,
                         event: &quot;request_success&quot;,
                         method,
                         url,
@@ -614,25 +536,21 @@ export class SessionLoggerInterceptor implements NestInterceptor {
                         duration,
                         responseSize: JSON.stringify(data || {}).length,
                     },
-                    &#x60;[${flowType}] Completed ${method} ${url} for session ${sessionId} in ${duration}ms&#x60;,
                 );
             }),
             catchError((error) &#x3D;&gt; {
                 const duration &#x3D; Date.now() - startTime;
-                this.logger.error(
+                // Log request error
+                this.sessionLoggerService.logSessionError(
+                    logContext,
+                    error,
+                    &#x60;Error in ${method} ${url}&#x60;,
                     {
-                        ...logContext,
                         event: &quot;request_error&quot;,
                         method,
                         url,
-                        error: {
-                            name: error.name,
-                            message: error.message,
-                            stack: error.stack,
-                        },
                         duration,
                     },
-                    &#x60;[${flowType}] Error in ${method} ${url} for session ${sessionId}: ${error.message}&#x60;,
                 );
                 throw error;
             }),

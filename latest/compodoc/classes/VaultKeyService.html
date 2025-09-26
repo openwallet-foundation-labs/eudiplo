@@ -189,9 +189,6 @@
                                 <a href="#create" >create</a>
                             </li>
                             <li>
-                                <a href="#derToJwtSignature" >derToJwtSignature</a>
-                            </li>
-                            <li>
                                     <span class="modifier">Private</span>
                                 <a href="#getJWK" >getJWK</a>
                             </li>
@@ -466,75 +463,6 @@
                             </div>
                         <div class="io-description">
                             <b>Returns : </b>    <code>unknown</code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="derToJwtSignature"></a>
-                    <span class="name">
-                        <span ><b>derToJwtSignature</b></span>
-                        <a href="#derToJwtSignature"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>derToJwtSignature(derSignature: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="263"
-                                    class="link-to-prism">src/crypto/key/adapters/vault-key.service.ts:263</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Converts a DER signature to a JWT signature.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>derSignature</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
 
                         </div>
                             <div class="io-description">
@@ -1412,7 +1340,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:233</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:232</a></code>
 </div>
                         </td>
                     </tr>
@@ -1815,12 +1743,11 @@ export class VaultKeyService extends KeyService {
                 &#x60;${this.vaultUrl}/v1/${tenantId}/sign/${keyId}&#x60;,
                 {
                     input: Buffer.from(value).toString(&quot;base64&quot;),
+                    marshaling_algorithm: &quot;jws&quot;,
                 },
                 this.headers,
             ),
-        ).then((res) &#x3D;&gt;
-            this.derToJwtSignature(res.data.data.signature.split(&quot;:&quot;)[2]),
-        );
+        ).then((res) &#x3D;&gt; res.data.data.signature.split(&quot;:&quot;)[2]);
     }
 
     /**
@@ -1851,53 +1778,6 @@ export class VaultKeyService extends KeyService {
             console.error(&quot;Error signing JWT with Vault:&quot;, error);
             throw error;
         }
-    }
-
-    /**
-     * Converts a DER signature to a JWT signature.
-     * @param derSignature
-     * @returns
-     */
-    derToJwtSignature(derSignature: string) {
-        // Step 1: Extract r and s from DER signature
-        const der &#x3D; Buffer.from(derSignature, &quot;base64&quot;);
-        const sequence &#x3D; der.slice(2); // Skip the sequence tag and length
-        const rLength &#x3D; sequence[1];
-        const r &#x3D; sequence.slice(2, 2 + rLength);
-        const s &#x3D; sequence.slice(2 + rLength + 2); // Skip r, its tag and length byte, and s&#x27;s tag and length byte
-
-        // Step 2: Ensure r and s are 32 bytes each (pad with zeros if necessary)
-        // Ensure r and s are 32 bytes each
-        let rPadded: Buffer;
-        let sPadded: Buffer;
-        if (r.length &gt; 32) {
-            if (r.length &#x3D;&#x3D;&#x3D; 33 &amp;&amp; r[0] &#x3D;&#x3D;&#x3D; 0x00) {
-                rPadded &#x3D; r.slice(1);
-            } else {
-                throw new Error(&quot;Invalid r length in DER signature&quot;);
-            }
-        } else {
-            rPadded &#x3D; Buffer.concat([Buffer.alloc(32 - r.length), r]);
-        }
-        if (s.length &gt; 32) {
-            if (s.length &#x3D;&#x3D;&#x3D; 33 &amp;&amp; s[0] &#x3D;&#x3D;&#x3D; 0x00) {
-                sPadded &#x3D; s.slice(1);
-            } else {
-                throw new Error(&quot;Invalid s length in DER signature&quot;);
-            }
-        } else {
-            sPadded &#x3D; Buffer.concat([Buffer.alloc(32 - s.length), s]);
-        }
-
-        // Step 3: Concatenate r and s to form the raw signature
-        const rawSignature &#x3D; Buffer.concat([rPadded, sPadded]);
-
-        // Step 4: Base64url encode the raw signature
-        return rawSignature
-            .toString(&quot;base64&quot;)
-            .replace(/\+/g, &quot;-&quot;)
-            .replace(/\//g, &quot;_&quot;)
-            .replace(/&#x3D;/g, &quot;&quot;);
     }
 }
 </code></pre>

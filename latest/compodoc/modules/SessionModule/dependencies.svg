@@ -22,61 +22,85 @@
 <text text-anchor="start" x="429.73" y="-15.4" font-family="Times-12" font-size="14.00"> &#160;Exports</text>
 <g id="clust1" class="cluster">
 <title>cluster_SessionModule</title>
-<polygon fill="none" stroke="black" stroke-dasharray="1,5" points="93,-70 93,-268 403,-268 403,-70 93,-70"/>
-</g>
-<g id="clust3" class="cluster">
-<title>cluster_SessionModule_imports</title>
-<polygon fill="none" stroke="black" points="263,-78 263,-130 395,-130 395,-78 263,-78"/>
-</g>
-<g id="clust4" class="cluster">
-<title>cluster_SessionModule_exports</title>
-<polygon fill="none" stroke="black" points="193,-208 193,-260 313,-260 313,-208 193,-208"/>
+<polygon fill="none" stroke="black" stroke-dasharray="1,5" points="34,-70 34,-268 462,-268 462,-70 34,-70"/>
 </g>
 <g id="clust6" class="cluster">
 <title>cluster_SessionModule_providers</title>
-<polygon fill="none" stroke="black" points="101,-78 101,-130 255,-130 255,-78 101,-78"/>
+<polygon fill="none" stroke="black" points="300,-78 300,-130 454,-130 454,-78 300,-78"/>
 </g>
-<!-- StatusListModule -->
+<g id="clust4" class="cluster">
+<title>cluster_SessionModule_exports</title>
+<polygon fill="none" stroke="black" points="113,-208 113,-260 355,-260 355,-208 113,-208"/>
+</g>
+<g id="clust3" class="cluster">
+<title>cluster_SessionModule_imports</title>
+<polygon fill="none" stroke="black" points="42,-78 42,-130 292,-130 292,-78 42,-78"/>
+</g>
+<!-- LoggerModule -->
 <g id="node1" class="node">
-<title>StatusListModule</title>
-<polygon fill="#8dd3c7" stroke="black" points="386.55,-122 383.55,-126 362.55,-126 359.55,-122 271.45,-122 271.45,-86 386.55,-86 386.55,-122"/>
-<text text-anchor="middle" x="329" y="-99.8" font-family="Times,serif" font-size="14.00">StatusListModule</text>
+<title>LoggerModule</title>
+<polygon fill="#8dd3c7" stroke="black" points="283.98,-122 280.98,-126 259.98,-126 256.98,-122 184.02,-122 184.02,-86 283.98,-86 283.98,-122"/>
+<text text-anchor="middle" x="234" y="-99.8" font-family="Times,serif" font-size="14.00">LoggerModule</text>
 </g>
 <!-- SessionModule -->
-<g id="node2" class="node">
+<g id="node3" class="node">
 <title>SessionModule</title>
-<polygon fill="#8dd3c7" stroke="black" points="304.33,-187 301.33,-191 280.33,-191 277.33,-187 201.67,-187 201.67,-151 304.33,-151 304.33,-187"/>
-<text text-anchor="middle" x="253" y="-164.8" font-family="Times,serif" font-size="14.00">SessionModule</text>
+<polygon fill="#8dd3c7" stroke="black" points="285.33,-187 282.33,-191 261.33,-191 258.33,-187 182.67,-187 182.67,-151 285.33,-151 285.33,-187"/>
+<text text-anchor="middle" x="234" y="-164.8" font-family="Times,serif" font-size="14.00">SessionModule</text>
+</g>
+<!-- LoggerModule&#45;&gt;SessionModule -->
+<g id="edge1" class="edge">
+<title>LoggerModule&#45;&gt;SessionModule</title>
+<path fill="none" stroke="black" d="M234,-122.11C234,-122.11 234,-140.99 234,-140.99"/>
+<polygon fill="black" stroke="black" points="230.5,-140.99 234,-150.99 237.5,-140.99 230.5,-140.99"/>
+</g>
+<!-- StatusListModule -->
+<g id="node2" class="node">
+<title>StatusListModule</title>
+<polygon fill="#8dd3c7" stroke="black" points="165.55,-122 162.55,-126 141.55,-126 138.55,-122 50.45,-122 50.45,-86 165.55,-86 165.55,-122"/>
+<text text-anchor="middle" x="108" y="-99.8" font-family="Times,serif" font-size="14.00">StatusListModule</text>
 </g>
 <!-- StatusListModule&#45;&gt;SessionModule -->
-<g id="edge1" class="edge">
+<g id="edge2" class="edge">
 <title>StatusListModule&#45;&gt;SessionModule</title>
-<path fill="none" stroke="black" d="M287.69,-122.11C287.69,-122.11 287.69,-140.99 287.69,-140.99"/>
-<polygon fill="black" stroke="black" points="284.19,-140.99 287.69,-150.99 291.19,-140.99 284.19,-140.99"/>
+<path fill="none" stroke="black" d="M143.32,-122.11C143.32,-141.34 143.32,-169 143.32,-169 143.32,-169 172.83,-169 172.83,-169"/>
+<polygon fill="black" stroke="black" points="172.83,-172.5 182.83,-169 172.83,-165.5 172.83,-172.5"/>
+</g>
+<!-- LoggerModule  -->
+<g id="node4" class="node">
+<title>LoggerModule </title>
+<polygon fill="#fb8072" stroke="black" points="346.98,-252 243.02,-252 243.02,-216 346.98,-216 346.98,-252"/>
+<text text-anchor="middle" x="295" y="-229.8" font-family="Times,serif" font-size="14.00">LoggerModule </text>
+</g>
+<!-- SessionModule&#45;&gt;LoggerModule  -->
+<g id="edge3" class="edge">
+<title>SessionModule&#45;&gt;LoggerModule </title>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M264.21,-187.11C264.21,-187.11 264.21,-205.99 264.21,-205.99"/>
+<polygon fill="black" stroke="black" points="260.71,-205.99 264.21,-215.99 267.71,-205.99 260.71,-205.99"/>
 </g>
 <!-- SessionService  -->
-<g id="node3" class="node">
+<g id="node5" class="node">
 <title>SessionService </title>
-<polygon fill="#fb8072" stroke="black" points="305.25,-252 200.75,-252 200.75,-216 305.25,-216 305.25,-252"/>
-<text text-anchor="middle" x="253" y="-229.8" font-family="Times,serif" font-size="14.00">SessionService </text>
+<polygon fill="#fb8072" stroke="black" points="225.25,-252 120.75,-252 120.75,-216 225.25,-216 225.25,-252"/>
+<text text-anchor="middle" x="173" y="-229.8" font-family="Times,serif" font-size="14.00">SessionService </text>
 </g>
 <!-- SessionModule&#45;&gt;SessionService  -->
-<g id="edge2" class="edge">
+<g id="edge4" class="edge">
 <title>SessionModule&#45;&gt;SessionService </title>
-<path fill="none" stroke="black" stroke-dasharray="5,2" d="M253,-187.11C253,-187.11 253,-205.99 253,-205.99"/>
-<polygon fill="black" stroke="black" points="249.5,-205.99 253,-215.99 256.5,-205.99 249.5,-205.99"/>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M203.98,-187.11C203.98,-187.11 203.98,-205.99 203.98,-205.99"/>
+<polygon fill="black" stroke="black" points="200.48,-205.99 203.98,-215.99 207.48,-205.99 200.48,-205.99"/>
 </g>
 <!-- SessionService -->
-<g id="node4" class="node">
+<g id="node6" class="node">
 <title>SessionService</title>
-<ellipse fill="#fdb462" stroke="black" cx="178" cy="-104" rx="69.5" ry="18"/>
-<text text-anchor="middle" x="178" y="-99.8" font-family="Times,serif" font-size="14.00">SessionService</text>
+<ellipse fill="#fdb462" stroke="black" cx="377" cy="-104" rx="69.5" ry="18"/>
+<text text-anchor="middle" x="377" y="-99.8" font-family="Times,serif" font-size="14.00">SessionService</text>
 </g>
 <!-- SessionService&#45;&gt;SessionModule -->
-<g id="edge3" class="edge">
+<g id="edge5" class="edge">
 <title>SessionService&#45;&gt;SessionModule</title>
-<path fill="none" stroke="black" d="M224.67,-117.47C224.67,-117.47 224.67,-140.86 224.67,-140.86"/>
-<polygon fill="black" stroke="black" points="221.17,-140.86 224.67,-150.86 228.17,-140.86 221.17,-140.86"/>
+<path fill="none" stroke="black" d="M327.12,-116.84C327.12,-135.78 327.12,-169 327.12,-169 327.12,-169 295.19,-169 295.19,-169"/>
+<polygon fill="black" stroke="black" points="295.19,-165.5 285.19,-169 295.19,-172.5 295.19,-165.5"/>
 </g>
 </g>
 </svg>

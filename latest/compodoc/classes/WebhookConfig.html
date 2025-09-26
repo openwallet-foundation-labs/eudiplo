@@ -169,7 +169,7 @@
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
-                                    <span class="modifier">Optional</span>
+                                    <span class="modifier"></span>
                                 <a href="#auth" >auth</a>
                             </li>
                             <li>
@@ -204,7 +204,7 @@
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
-                            <span class="modifier">Optional</span>
+                            <span class="modifier"></span>
                         <span ><b>auth</b></span>
                         <a href="#auth"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -221,13 +221,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ValidateNested()<br />@ApiProperty({oneOf: undefined})<br />@Type(undefined, {discriminator: undefined, keepDiscriminatorProperty: true})<br />
+                            @ValidateNested()<br />@ApiProperty({oneOf: undefined})<br />@Type(undefined, {discriminator: undefined, keepDiscriminatorProperty: true})<br />@IsObject()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="105" class="link-to-prism">src/utils/webhook/webhook.dto.ts:105</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="106" class="link-to-prism">src/utils/webhook/webhook.dto.ts:106</a></div>
                         </td>
                     </tr>
 
@@ -399,7 +399,8 @@ export class WebhookConfig {
         },
         keepDiscriminatorProperty: true,
     })
-    auth?: WebHookAuthConfigNone | WebHookAuthConfigHeader;
+    @IsObject()
+    auth: WebHookAuthConfigNone | WebHookAuthConfigHeader;
 }
 </code></pre>
     </div>

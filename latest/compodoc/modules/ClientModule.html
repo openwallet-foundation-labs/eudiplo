@@ -94,7 +94,7 @@
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
-               <div class="content class">
+               <div class="content module">
                    <div class="content-data">
 
 
@@ -103,242 +103,108 @@
 
 
 
-
-
-
-
-
-
-
-
-
 <ol class="breadcrumb">
-  <li class="breadcrumb-item">Classes</li>
-  <li class="breadcrumb-item" >WebHookAuthConfig</li>
+    <li class="breadcrumb-item">Modules</li>
+    <li class="breadcrumb-item" >ClientModule</li>
 </ol>
 
+
 <ul class="nav nav-tabs" role="tablist">
-        <li class="nav-item">
-            <a href="#info" 
-                class="nav-link"
-                class="nav-link active"
-                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
-        </li>
-        <li class="nav-item">
-            <a href="#source" 
-                class="nav-link"
-                
-                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
-        </li>
+    <li class="nav-item">
+        <a href="#info" 
+            class="nav-link"
+            class="nav-link active"
+            role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+    </li>
+    <li class="nav-item">
+        <a href="#source" 
+            class="nav-link"
+            
+            role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+    </li>
 </ul>
 
 <div class="tab-content">
     <div class="tab-pane fade active in" id="info">
+
         <p class="comment">
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/utils/webhook/webhook.dto.ts</code>
+            <code>src/auth/client/client.module.ts</code>
         </p>
 
 
 
 
 
-
-            <section data-compodoc="block-index">
-    <h3 id="index">Index</h3>
-    <table class="table table-sm table-bordered index-table">
-        <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <h6><b>Properties</b></h6>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <ul class="index-list">
-                            <li>
-                                    <span class="modifier"></span>
-                                <a href="#type" >type</a>
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
-
-
-
-
-
-
-        </tbody>
-    </table>
-</section>
-
-
-            <section data-compodoc="block-properties">
-    
-    <h3 id="inputs">
-        Properties
-    </h3>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="type"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                        <span ><b>type</b></span>
-                        <a href="#type"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../miscellaneous/enumerations.html#AuthConfig" target="_self" >AuthConfig</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @IsEnum(AuthConfig)<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="65" class="link-to-prism">src/utils/webhook/webhook.dto.ts:65</a></div>
-                        </td>
-                    </tr>
-
-
-        </tbody>
-    </table>
-</section>
-
-
-
-
-
+        <div class="container-fluid module">
+            <div class="row">
+                <div class="col-sm-3">
+                    <h3>Controllers<a href="https://docs.nestjs.com/controllers" target="_blank" rel="noopener noreferrer"
+                            title="Official documentation about module controllers"><span
+                                class="icon ion-ios-information-circle-outline"></a></h3>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <a href="../controllers/ClientController.html">ClientController</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
 
 
     </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiExtraModels, ApiProperty, getSchemaPath } from &quot;@nestjs/swagger&quot;;
-import { Type } from &quot;class-transformer&quot;;
-import {
-    IsEnum,
-    IsIn,
-    IsObject,
-    IsString,
-    ValidateNested,
-} from &quot;class-validator&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &quot;@nestjs/common&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
+import { getRepositoryToken, TypeOrmModule } from &quot;@nestjs/typeorm&quot;;
+import { makeGaugeProvider } from &quot;@willsoto/nestjs-prometheus&quot;;
+import { Repository } from &quot;typeorm&quot;;
+import { InternalClientsProvider } from &quot;./adapters/internal-clients.service&quot;;
+import { KeycloakClientsProvider } from &quot;./adapters/keycloak-clients.service&quot;;
+import { ClientController } from &quot;./client.controller&quot;;
+import { CLIENTS_PROVIDER, ClientsProvider } from &quot;./client.provider&quot;;
+import { ClientEntity } from &quot;./entities/client.entity&quot;;
 
-/**
- * Configuration for API key authentication in webhooks.
- */
-export class ApiKeyConfig {
-    /**
-     * The name of the header where the API key will be sent.
-     */
-    @IsString()
-    headerName: string;
-    /**
-     * The value of the API key to be sent in the header.
-     */
-    @IsString()
-    value: string;
-}
-
-/**
- * Enum for the type of authentication used in webhooks.
- */
-export enum AuthConfig {
-    API_KEY &#x3D; &quot;apiKey&quot;,
-    NONE &#x3D; &quot;none&quot;,
-}
-
-/**
- * Configuration for webhook authentication.
- */
-export class WebHookAuthConfigHeader implements WebHookAuthConfig {
-    /**
-     * The type of authentication used for the webhook.
-     */
-    @IsIn([AuthConfig.API_KEY])
-    @IsString()
-    type: AuthConfig.API_KEY;
-    /**
-     * Configuration for API key authentication.
-     * This is required if the type is &#x27;apiKey&#x27;.
-     */
-    @Type(() &#x3D;&gt; ApiKeyConfig)
-    @IsObject()
-    config: ApiKeyConfig;
-}
-
-export class WebHookAuthConfigNone implements WebHookAuthConfig {
-    /**
-     * The type of authentication used for the webhook.
-     */
-    @IsIn([AuthConfig.NONE])
-    @IsString()
-    type: AuthConfig.NONE;
-}
-
-export class WebHookAuthConfig {
-    @IsEnum(AuthConfig)
-    type: AuthConfig;
-}
-
-/**
- * Configuration for webhooks used in various services.
- */
-@ApiExtraModels(WebHookAuthConfigNone, WebHookAuthConfigHeader)
-export class WebhookConfig {
-    /**
-     * The URL to which the webhook will send notifications.
-     */
-    @IsString()
-    url: string;
-    /**
-     * Optional authentication configuration for the webhook.
-     * If not provided, no authentication will be used.
-     */
-    @ValidateNested()
-    @ApiProperty({
-        oneOf: [
-            { $ref: getSchemaPath(WebHookAuthConfigNone) },
-            { $ref: getSchemaPath(WebHookAuthConfigHeader) },
-        ],
-    })
-    @Type(() &#x3D;&gt; WebHookAuthConfig, {
-        discriminator: {
-            property: &quot;type&quot;,
-            subTypes: [
-                {
-                    name: AuthConfig.NONE,
-                    value: WebHookAuthConfigNone,
-                },
-                {
-                    name: AuthConfig.API_KEY,
-                    value: WebHookAuthConfigHeader,
-                },
-            ],
+@Module({
+    imports: [TypeOrmModule.forFeature([ClientEntity])],
+    providers: [
+        {
+            provide: CLIENTS_PROVIDER,
+            inject: [ConfigService, getRepositoryToken(ClientEntity)],
+            useFactory: (
+                cfg: ConfigService,
+                repo: Repository&lt;ClientEntity&gt;,
+            ): ClientsProvider &#x3D;&gt; {
+                const useKeycloak &#x3D; !!cfg.get&lt;string&gt;(&quot;OIDC&quot;); // if OIDC base/realm is configured, pick KC
+                return useKeycloak
+                    ? new KeycloakClientsProvider(cfg, repo)
+                    : new InternalClientsProvider(cfg, repo);
+            },
         },
-        keepDiscriminatorProperty: true,
-    })
-    @IsObject()
-    auth: WebHookAuthConfigNone | WebHookAuthConfigHeader;
-}
+        makeGaugeProvider({
+            name: &quot;tenant_total&quot;,
+            help: &quot;Total number of tenants&quot;,
+        }),
+    ],
+    exports: [CLIENTS_PROVIDER],
+    controllers: [ClientController],
+})
+export class ClientModule {}
 </code></pre>
     </div>
 </div>
+
+
+
+
+
+
+
+
 
 
 
@@ -373,8 +239,8 @@ export class WebhookConfig {
 
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
-            var COMPODOC_CURRENT_PAGE_URL = 'WebHookAuthConfig.html';
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'module';
+            var COMPODOC_CURRENT_PAGE_URL = 'ClientModule.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 
