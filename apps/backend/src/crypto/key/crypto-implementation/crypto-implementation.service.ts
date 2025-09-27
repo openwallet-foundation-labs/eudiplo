@@ -19,6 +19,33 @@ export class CryptoImplementationService {
     }
 
     /**
+     * Returns the crypto implementation directly based on the JWK properties.
+     * Currently supports Ed25519 and ES256 (P-256 curve).
+     * @param jwk - JSON Web Key
+     * @returns The appropriate crypto implementation
+     * @throws Error if the crypto implementation cannot be determined from the JWK
+     */
+    getCryptoFromJwk(jwk: JsonWebKey): CryptoImplementation {
+        if (!jwk || typeof jwk !== "object") {
+            throw new Error("Invalid JWK provided");
+        }
+
+        // Check for Ed25519 curve
+        if (jwk.crv === "Ed25519") {
+            return ED25519;
+        }
+
+        // Check for ES256 (P-256 curve)
+        if (jwk.kty === "EC" && jwk.crv === "P-256") {
+            return ES256;
+        }
+
+        throw new Error(
+            `Unable to determine crypto implementation from JWK: unsupported key type or curve`,
+        );
+    }
+
+    /**
      * Returns the crypto implementation based on the configured algorithm.
      * @param alg
      * @returns

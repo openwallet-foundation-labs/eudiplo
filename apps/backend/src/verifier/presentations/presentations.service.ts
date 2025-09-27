@@ -6,17 +6,18 @@ import {
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
-import { digest, ES256 } from "@sd-jwt/crypto-nodejs";
+import { digest } from "@sd-jwt/crypto-nodejs";
 import { SDJwtVcInstance } from "@sd-jwt/sd-jwt-vc";
 import { KbVerifier, Verifier } from "@sd-jwt/types";
 import { plainToClass } from "class-transformer";
 import { validate } from "class-validator";
 import { readdirSync, readFileSync } from "fs";
-import { importJWK, JWK, JWTPayload, jwtVerify } from "jose";
+import { JWK, JWTPayload } from "jose";
 import { PinoLogger } from "nestjs-pino";
 import { join } from "path";
 import { firstValueFrom } from "rxjs";
 import { Repository } from "typeorm/repository/Repository";
+import { CryptoImplementationService } from "../../crypto/key/crypto-implementation/crypto-implementation.service";
 import { ResolverService } from "../resolver/resolver.service";
 import { AuthResponse } from "./dto/auth-response.dto";
 import { PresentationConfigCreateDto } from "./dto/presentation-config-create.dto";
@@ -45,6 +46,7 @@ export class PresentationsService implements OnApplicationBootstrap {
         private vpRequestRepository: Repository<PresentationConfig>,
         private configService: ConfigService,
         private logger: PinoLogger,
+        private cryptoService: CryptoImplementationService,
     ) {}
 
     /**
@@ -234,7 +236,8 @@ export class PresentationsService implements OnApplicationBootstrap {
             payload,
             header,
         );
-        const verify = await ES256.getVerifier(publicKey);
+        const crypto = this.cryptoService.getCryptoFromJwk(publicKey); // just to check if we support the key
+        const verify = await crypto.getVerifier(publicKey);
         return verify(data, signature).catch((err) => {
             console.log(err);
             return false;
@@ -265,11 +268,10 @@ export class PresentationsService implements OnApplicationBootstrap {
         if (!payload.cnf) {
             throw new Error("No cnf found in the payload");
         }
-        const key = await importJWK(payload.cnf.jwk as JWK, "ES256");
-        return jwtVerify(`${data}.${signature}`, key).then(
-            () => true,
-            () => false,
-        );
+        const jwk: JWK = (payload.cnf as any).jwk;
+        const crypto = this.cryptoService.getCryptoFromJwk(jwk);
+        const verifier = await crypto.getVerifier(jwk);
+        return verifier(data, signature);
     };
 
     /**
