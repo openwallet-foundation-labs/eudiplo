@@ -4,6 +4,7 @@ import { ConfigService } from "@nestjs/config";
 import { v4 } from "uuid";
 import { CryptoService } from "../../crypto/crypto.service";
 import { EncryptionService } from "../../crypto/encryption/encryption.service";
+import { CryptoImplementationService } from "../../crypto/key/crypto-implementation/crypto-implementation.service";
 import { OfferResponse } from "../../issuer/oid4vci/dto/offer-request.dto";
 import { RegistrarService } from "../../registrar/registrar.service";
 import { Session, SessionStatus } from "../../session/entities/session.entity";
@@ -27,6 +28,7 @@ export class Oid4vpService {
         private sessionService: SessionService,
         private sessionLogger: SessionLoggerService,
         private webhookService: WebhookService,
+        private cryptoImplementationService: CryptoImplementationService,
     ) {}
 
     /**
@@ -129,12 +131,15 @@ export class Oid4vpService {
                             ],
                         },
                         vp_formats: {
-                            mso_mdoc: {
-                                alg: ["ES256"],
-                            },
+                            //MDOC not supported yet
+                            /* mso_mdoc: {
+                                alg: ["ES256", "Ed25519"],
+                            }, */
                             "dc+sd-jwt": {
-                                "kb-jwt_alg_values": ["ES256"],
-                                "sd-jwt_alg_values": ["ES256"],
+                                "kb-jwt_alg_values":
+                                    this.cryptoImplementationService.getSupportedAlgorithms(),
+                                "sd-jwt_alg_values":
+                                    this.cryptoImplementationService.getSupportedAlgorithms(),
                             },
                         },
                         authorization_encrypted_response_alg: "ECDH-ES",
