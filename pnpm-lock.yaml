@@ -352,7 +352,7 @@ importers:
         version: 20.0.0(@angular/cdk@20.2.5(@angular/common@20.3.2(@angular/core@20.3.2(@angular/compiler@20.3.2)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@20.3.2(@angular/compiler@20.3.2)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/common@20.3.2(@angular/core@20.3.2(@angular/compiler@20.3.2)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@20.3.2(@angular/compiler@20.3.2)(rxjs@7.8.2)(zone.js@0.15.1))(@angular/platform-browser@20.3.2(@angular/animations@20.3.2(@angular/core@20.3.2(@angular/compiler@20.3.2)(rxjs@7.8.2)(zone.js@0.15.1)))(@angular/common@20.3.2(@angular/core@20.3.2(@angular/compiler@20.3.2)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@20.3.2(@angular/compiler@20.3.2)(rxjs@7.8.2)(zone.js@0.15.1)))(rxjs@7.8.2)
       ngx-monaco-editor-v2:
         specifier: ^20.0.0
-        version: 20.0.0(@angular/common@20.3.2(@angular/core@20.3.2(@angular/compiler@20.3.2)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@20.3.2(@angular/compiler@20.3.2)(rxjs@7.8.2)(zone.js@0.15.1))(monaco-editor@0.53.0)
+        version: 20.3.0(@angular/common@20.3.2(@angular/core@20.3.2(@angular/compiler@20.3.2)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@20.3.2(@angular/compiler@20.3.2)(rxjs@7.8.2)(zone.js@0.15.1))(monaco-editor@0.53.0)
       qrcode:
         specifier: ^1.5.4
         version: 1.5.4
@@ -7520,11 +7520,11 @@ packages:
       '@angular/platform-browser': ^20.0.0
       rxjs: ^6.5.3 || ^7.4.0
 
-  ngx-monaco-editor-v2@20.0.0:
-    resolution: {integrity: sha512-h0gWxuXKWqEReklnOrLzfa6KQ2aYkOB5f3TJurOxgJPztZKKE8kNKtsa2Zpjs+vQw8IgE9UIl79lueUuhys5aw==}
+  ngx-monaco-editor-v2@20.3.0:
+    resolution: {integrity: sha512-j6zZIOYdSSUnbo58RWox2ZMEzIlA3lN/QchJREb1j734kUeJM1aW9RMz6FpkKt/UW1okdCTGZCnAavtKGou/2Q==}
     peerDependencies:
-      '@angular/common': 20.1.2
-      '@angular/core': 20.1.2
+      '@angular/common': ^20.3.2
+      '@angular/core': ^20.3.2
       monaco-editor: ^0.52.2
 
   node-abi@3.77.0:
@@ -17995,7 +17995,7 @@ snapshots:
       rxjs: 7.8.2
       tslib: 2.8.1
 
-  ngx-monaco-editor-v2@20.0.0(@angular/common@20.3.2(@angular/core@20.3.2(@angular/compiler@20.3.2)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@20.3.2(@angular/compiler@20.3.2)(rxjs@7.8.2)(zone.js@0.15.1))(monaco-editor@0.53.0):
+  ngx-monaco-editor-v2@20.3.0(@angular/common@20.3.2(@angular/core@20.3.2(@angular/compiler@20.3.2)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@20.3.2(@angular/compiler@20.3.2)(rxjs@7.8.2)(zone.js@0.15.1))(monaco-editor@0.53.0):
     dependencies:
       '@angular/common': 20.3.2(@angular/core@20.3.2(@angular/compiler@20.3.2)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2)
       '@angular/core': 20.3.2(@angular/compiler@20.3.2)(rxjs@7.8.2)(zone.js@0.15.1)
