@@ -403,8 +403,8 @@ importers:
         specifier: ^5.5.4
         version: 5.5.4(@types/eslint@9.6.1)(eslint-config-prettier@10.1.8(eslint@9.36.0(jiti@2.6.0)))(eslint@9.36.0(jiti@2.6.0))(prettier@3.6.2)
       jasmine-core:
-        specifier: ~5.10.0
-        version: 5.10.0
+        specifier: ~5.12.0
+        version: 5.12.0
       karma:
         specifier: ~6.4.4
         version: 6.4.4
@@ -419,7 +419,7 @@ importers:
         version: 5.1.0(karma@6.4.4)
       karma-jasmine-html-reporter:
         specifier: ~2.1.0
-        version: 2.1.0(jasmine-core@5.10.0)(karma-jasmine@5.1.0(karma@6.4.4))(karma@6.4.4)
+        version: 2.1.0(jasmine-core@5.12.0)(karma-jasmine@5.1.0(karma@6.4.4))(karma@6.4.4)
       playwright-ng-schematics:
         specifier: 2.1.1
         version: 2.1.1(@angular-devkit/architect@0.2003.3(chokidar@4.0.3))(@angular-devkit/core@20.3.3(chokidar@4.0.3))(@angular-devkit/schematics@20.3.3(chokidar@4.0.3))
@@ -6771,8 +6771,8 @@ packages:
   jasmine-core@4.6.1:
     resolution: {integrity: sha512-VYz/BjjmC3klLJlLwA4Kw8ytk0zDSmbbDLNs794VnWmkcCB7I9aAL/D48VNQtmITyPvea2C3jdUMfc3kAoy0PQ==}
 
-  jasmine-core@5.10.0:
-    resolution: {integrity: sha512-MrChbWV5LBo+EaeKwTM1eZ6oYSz1brvFExnRafraEkJkbJ9evbUxABhnIgGQimhpMxhg+BD6QmOvb/e3NXsNdg==}
+  jasmine-core@5.12.0:
+    resolution: {integrity: sha512-QqO4pX33GEML5JoGQU6BM5NHKPgEsg+TXp3jCIDek9MbfEp2JUYEFBo9EF1+hegWy/bCHS1m5nP0BOp18G6rVA==}
 
   java-properties@1.0.2:
     resolution: {integrity: sha512-qjdpeo2yKlYTH7nFdK0vbZWuTCesk4o63v5iVOlhMQPfuIZQfW/HI35SjfhA+4qpg36rnFSvUK5b1m+ckIblQQ==}
@@ -17056,7 +17056,7 @@ snapshots:
 
   jasmine-core@4.6.1: {}
 
-  jasmine-core@5.10.0: {}
+  jasmine-core@5.12.0: {}
 
   java-properties@1.0.2: {}
 
@@ -17178,9 +17178,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  karma-jasmine-html-reporter@2.1.0(jasmine-core@5.10.0)(karma-jasmine@5.1.0(karma@6.4.4))(karma@6.4.4):
+  karma-jasmine-html-reporter@2.1.0(jasmine-core@5.12.0)(karma-jasmine@5.1.0(karma@6.4.4))(karma@6.4.4):
     dependencies:
-      jasmine-core: 5.10.0
+      jasmine-core: 5.12.0
       karma: 6.4.4
       karma-jasmine: 5.1.0(karma@6.4.4)
 
