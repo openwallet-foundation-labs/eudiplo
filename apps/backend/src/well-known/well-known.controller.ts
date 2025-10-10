@@ -56,8 +56,8 @@ export class WellKnownController {
     @Get("oauth-authorization-server")
     authzMetadata(
         @SessionEntity() session: Session,
-    ): Oauth2AuthorizationServerResponse {
-        return this.wellKnownService.getAuthzMetadata(session); //d
+    ): Promise<Oauth2AuthorizationServerResponse> {
+        return this.wellKnownService.getAuthzMetadata(session);
     }
 
     /**

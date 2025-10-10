@@ -21,7 +21,11 @@ import { configs } from './pre-config';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { EditorComponent, extractSchema } from '../../../utils/editor/editor.component';
 import { WebhookConfigComponent } from '../../../utils/webhook-config/webhook-config.component';
-import { DCQLSchema, registrationCertificateRequestSchema } from '../../../utils/schemas';
+import {
+  DCQLSchema,
+  presentationConfigSchema,
+  registrationCertificateRequestSchema,
+} from '../../../utils/schemas';
 import { CredentialIdsComponent } from '../../credential-ids/credential-ids.component';
 
 @Component({
@@ -69,7 +73,7 @@ export class PresentationCreateComponent {
     this.form = new FormGroup({
       id: new FormControl(undefined, [Validators.required]),
       description: new FormControl(undefined, [Validators.required]),
-      dcql_query: new FormControl(undefined, [Validators.required, this.jsonValidator]),
+      dcql_query: new FormControl(undefined, [Validators.required]),
       lifeTime: new FormControl(300, [Validators.required, Validators.min(1)]),
       registrationCert: new FormControl(undefined), // Optional field
       attached: new FormArray([]),
@@ -142,24 +146,7 @@ export class PresentationCreateComponent {
     return value as FormGroup;
   }
 
-  // Custom validator for JSON format
-  jsonValidator(control: any) {
-    if (!control.value) return null; // Allow empty value
-
-    try {
-      JSON.parse(control.value);
-      return null; // Valid JSON
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      return { invalidJson: true }; // Invalid JSON
-    }
-  }
-
   createOrUpdatePresentation(): void {
-    Object.entries(this.form.controls).forEach(([key, control]) => {
-      console.log(key, control.invalid, control.errors);
-    });
-
     if (this.form.valid) {
       // Parse the JSON string to an object for dcql_query
       const formValue = { ...this.form.value };
@@ -230,6 +217,7 @@ export class PresentationCreateComponent {
         title: 'Presentation Configuration JSON',
         jsonData: currentConfig,
         readonly: false,
+        schema: presentationConfigSchema,
       },
       disableClose: true,
       minWidth: '60vw',
@@ -257,6 +245,17 @@ export class PresentationCreateComponent {
       } catch {
         // Ignore JSON parse errors
       }
+    }
+    if (!formValue.webhook?.url) {
+      formValue.webhook = undefined;
+    }
+    if (!formValue.registrationCert) {
+      formValue.registrationCert = undefined; // Remove registrationCert if not provided
+    }
+
+    // Clean up empty optional fields
+    if (formValue.attached && formValue.attached.length === 0) {
+      formValue.attached = undefined;
     }
     return formValue;
   }

@@ -3,6 +3,7 @@ import { PresentationConfig } from "../entities/presentation-config.entity";
 
 export class PresentationConfigCreateDto extends OmitType(PresentationConfig, [
     "tenantId",
+    "tenant",
     "createdAt",
     "updatedAt",
 ] as const) {

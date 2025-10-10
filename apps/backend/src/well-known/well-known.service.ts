@@ -74,10 +74,12 @@ export class WellKnownService {
      * Returns the OAuth 2.0 Authorization Server metadata for a given tenant.
      * @returns
      */
-    getAuthzMetadata(session: Session): Oauth2AuthorizationServerResponse {
+    getAuthzMetadata(
+        session: Session,
+    ): Promise<Oauth2AuthorizationServerResponse> {
         return this.authorizeService.authzMetadata(
             session,
-        ) as Oauth2AuthorizationServerResponse;
+        ) as Promise<Oauth2AuthorizationServerResponse>;
     }
 
     /**

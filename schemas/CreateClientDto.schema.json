@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CreateClientDto.schema.json",
+  "title": "CreateClientDto",
+  "type": "object",
+  "properties": {
+    "clientId": {
+      "type": "string",
+      "description": "The unique identifier for the client."
+    },
+    "description": {
+      "type": "string",
+      "description": "The description of the client."
+    },
+    "roles": {
+      "type": "array",
+      "description": "The roles assigned to the client.",
+      "items": {
+        "type": "string",
+        "enum": [
+          "presentation:manage",
+          "presentation:offer",
+          "issuance:manage",
+          "issuance:offer",
+          "clients:manage",
+          "tenants:manage"
+        ]
+      }
+    }
+  },
+  "required": [
+    "clientId",
+    "roles"
+  ]
+}

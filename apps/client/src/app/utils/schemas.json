@@ -1,5 +1,93 @@
 [
   {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ClientEntity.schema.json",
+    "fileMatch": ["a://b/ClientEntity.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ClientEntity.schema.json",
+      "title": "ClientEntity",
+      "type": "object",
+      "properties": {
+        "clientId": {
+          "type": "string",
+          "description": "The unique identifier for the client."
+        },
+        "secret": {
+          "type": "string",
+          "description": "The secret key for the client."
+        },
+        "tenantId": {
+          "type": "string",
+          "description": "The unique identifier for the tenant that the client belongs to. Only null for accounts that manage tenants, that do not belong to a client."
+        },
+        "description": {
+          "type": "string",
+          "description": "The description of the client."
+        },
+        "roles": {
+          "description": "The roles assigned to the client.",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "presentation:manage",
+              "presentation:offer",
+              "issuance:manage",
+              "issuance:offer",
+              "clients:manage",
+              "tenants:manage"
+            ]
+          }
+        },
+        "tenant": {
+          "description": "The tenant that the client belongs to.",
+          "allOf": [
+            {
+              "$ref": "./TenantEntity.schema.json"
+            }
+          ]
+        }
+      },
+      "required": ["clientId", "roles"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TenantEntity.schema.json",
+    "fileMatch": ["a://b/TenantEntity.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TenantEntity.schema.json",
+      "title": "TenantEntity",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The unique identifier for the tenant."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the tenant."
+        },
+        "description": {
+          "type": "string",
+          "description": "The description of the tenant."
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the tenant."
+        },
+        "clients": {
+          "description": "The clients associated with the tenant.",
+          "type": "array",
+          "items": {
+            "$ref": "./ClientEntity.schema.json"
+          }
+        }
+      },
+      "required": ["id", "name", "status", "clients"]
+    }
+  },
+  {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AuthorizeQueries.schema.json",
     "fileMatch": ["a://b/AuthorizeQueries.schema.json"],
     "schema": {
@@ -134,7 +222,7 @@
           "description": "The URL to which the webhook will send notifications."
         }
       },
-      "required": ["url"]
+      "required": ["auth", "url"]
     }
   },
   {
@@ -147,7 +235,7 @@
       "type": "object",
       "properties": {
         "response_type": {
-          "enum": ["qrcode", "uri"],
+          "enum": ["qrcode", "uri", "dc-api"],
           "type": "string",
           "examples": [
             {
@@ -198,23 +286,6 @@
     }
   },
   {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TenantEntity.schema.json",
-    "fileMatch": ["a://b/TenantEntity.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TenantEntity.schema.json",
-      "title": "TenantEntity",
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "The unique identifier for the tenant."
-        }
-      },
-      "required": ["id"]
-    }
-  },
-  {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/Session.schema.json",
     "fileMatch": ["a://b/Session.schema.json"],
     "schema": {
@@ -232,23 +303,39 @@
           "type": "string",
           "description": "Unique identifier for the session."
         },
+        "createdAt": {
+          "format": "date-time",
+          "type": "string",
+          "description": "The timestamp when the request was created."
+        },
+        "updatedAt": {
+          "format": "date-time",
+          "type": "string",
+          "description": "The timestamp when the request was last updated."
+        },
+        "expiresAt": {
+          "format": "date-time",
+          "type": "string",
+          "description": "The timestamp when the request is set to expire."
+        },
+        "useDcApi": {
+          "type": "boolean",
+          "description": "Flag indicating whether to use the DC API for the presentation request."
+        },
+        "tenantId": {
+          "type": "string",
+          "description": "Tenant ID for multi-tenancy support."
+        },
+        "tenant": {
+          "description": "The tenant that owns this object.",
+          "allOf": [
+            {
+              "$ref": "./TenantEntity.schema.json"
+            }
+          ]
+        },
         "issuanceId": {
           "type": "string"
-        },
-        "requestId": {
-          "type": "string",
-          "description": "The ID of the presentation configuration associated with the session."
-        },
-        "requestUrl": {
-          "type": "string",
-          "description": "The URL of the presentation auth request."
-        },
-        "credentials": {
-          "description": "Verified credentials from the verification process.",
-          "type": "array",
-          "items": {
-            "type": "object"
-          }
         },
         "authorization_code": {
           "type": "string",
@@ -266,27 +353,9 @@
             }
           ]
         },
-        "vp_nonce": {
-          "type": "string",
-          "description": "Noncce from the Verifiable Presentation request."
-        },
         "nonce": {
           "type": "string",
           "description": "Nonce used for the OID4VCI flow."
-        },
-        "createdAt": {
-          "format": "date-time",
-          "type": "string",
-          "description": "The timestamp when the VP request was created."
-        },
-        "updatedAt": {
-          "format": "date-time",
-          "type": "string",
-          "description": "The timestamp when the VP request was last updated."
-        },
-        "expiresAt": {
-          "format": "date-time",
-          "type": "string"
         },
         "offer": {
           "type": "object",
@@ -327,20 +396,39 @@
             "type": "object"
           }
         },
-        "tenantId": {
-          "type": "string",
-          "description": "Tenant ID for multi-tenancy support."
+        "requestId": {
+          "type": "string"
         },
-        "tenant": {
-          "description": "The tenant that owns this object.",
-          "allOf": [
-            {
-              "$ref": "./TenantEntity.schema.json"
-            }
-          ]
+        "requestUrl": {
+          "type": "string",
+          "description": "The URL of the presentation auth request."
+        },
+        "requestObject": {
+          "type": "string",
+          "description": "Signed presentation auth request."
+        },
+        "credentials": {
+          "description": "Verified credentials from the presentation process.",
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "vp_nonce": {
+          "type": "string",
+          "description": "Noncce from the Verifiable Presentation request."
         }
       },
-      "required": ["status", "id", "createdAt", "updatedAt", "notifications", "tenantId", "tenant"]
+      "required": [
+        "status",
+        "id",
+        "createdAt",
+        "updatedAt",
+        "useDcApi",
+        "tenantId",
+        "tenant",
+        "notifications"
+      ]
     }
   },
   {
@@ -457,6 +545,32 @@
     }
   },
   {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/RoleDto.schema.json",
+    "fileMatch": ["a://b/RoleDto.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/RoleDto.schema.json",
+      "title": "RoleDto",
+      "type": "object",
+      "properties": {
+        "role": {
+          "enum": [
+            "presentation:manage",
+            "presentation:offer",
+            "issuance:manage",
+            "issuance:offer",
+            "clients:manage",
+            "tenants:manage"
+          ],
+          "type": "string",
+          "description": "OAuth2 roles",
+          "example": "issuance:manage"
+        }
+      },
+      "required": ["role"]
+    }
+  },
+  {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ClientCredentialsDto.schema.json",
     "fileMatch": ["a://b/ClientCredentialsDto.schema.json"],
     "schema": {
@@ -501,18 +615,126 @@
     }
   },
   {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ClientInitDto.schema.json",
-    "fileMatch": ["a://b/ClientInitDto.schema.json"],
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CreateTenantDto.schema.json",
+    "fileMatch": ["a://b/CreateTenantDto.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ClientInitDto.schema.json",
-      "title": "ClientInitDto",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CreateTenantDto.schema.json",
+      "title": "CreateTenantDto",
       "type": "object",
       "properties": {
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "presentation:manage",
+              "presentation:offer",
+              "issuance:manage",
+              "issuance:offer",
+              "clients:manage",
+              "tenants:manage"
+            ]
+          }
+        },
         "id": {
+          "type": "string",
+          "description": "The unique identifier for the tenant."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the tenant."
+        },
+        "description": {
+          "type": "string",
+          "description": "The description of the tenant."
+        }
+      },
+      "required": ["id", "name"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ClientSecretResponseDto.schema.json",
+    "fileMatch": ["a://b/ClientSecretResponseDto.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ClientSecretResponseDto.schema.json",
+      "title": "ClientSecretResponseDto",
+      "type": "object",
+      "properties": {
+        "secret": {
           "type": "string"
         }
-      }
+      },
+      "required": ["secret"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpdateClientDto.schema.json",
+    "fileMatch": ["a://b/UpdateClientDto.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpdateClientDto.schema.json",
+      "title": "UpdateClientDto",
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "The description of the client."
+        },
+        "roles": {
+          "type": "array",
+          "description": "The roles assigned to the client.",
+          "items": {
+            "type": "string",
+            "enum": [
+              "presentation:manage",
+              "presentation:offer",
+              "issuance:manage",
+              "issuance:offer",
+              "clients:manage",
+              "tenants:manage"
+            ]
+          }
+        }
+      },
+      "required": ["roles"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CreateClientDto.schema.json",
+    "fileMatch": ["a://b/CreateClientDto.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CreateClientDto.schema.json",
+      "title": "CreateClientDto",
+      "type": "object",
+      "properties": {
+        "clientId": {
+          "type": "string",
+          "description": "The unique identifier for the client."
+        },
+        "description": {
+          "type": "string",
+          "description": "The description of the client."
+        },
+        "roles": {
+          "type": "array",
+          "description": "The roles assigned to the client.",
+          "items": {
+            "type": "string",
+            "enum": [
+              "presentation:manage",
+              "presentation:offer",
+              "issuance:manage",
+              "issuance:offer",
+              "clients:manage",
+              "tenants:manage"
+            ]
+          }
+        }
+      },
+      "required": ["clientId", "roles"]
     }
   },
   {
@@ -661,7 +883,7 @@
         "response_type": {
           "type": "string",
           "description": "The type of response expected from the presentation request.",
-          "enum": ["qrcode", "uri"]
+          "enum": ["qrcode", "uri", "dc-api"]
         },
         "requestId": {
           "type": "string",
@@ -696,6 +918,25 @@
         }
       },
       "required": ["uri", "session"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/Claim.schema.json",
+    "fileMatch": ["a://b/Claim.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/Claim.schema.json",
+      "title": "Claim",
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["path"]
     }
   },
   {
@@ -738,6 +979,12 @@
         },
         "multiple": {
           "type": "boolean"
+        },
+        "claims": {
+          "type": "array",
+          "items": {
+            "$ref": "./Claim.schema.json"
+          }
         },
         "meta": {
           "type": "object"
@@ -935,14 +1182,6 @@
           "type": "string",
           "description": "Unique identifier for the VP request."
         },
-        "tenant": {
-          "description": "The tenant that owns this object.",
-          "allOf": [
-            {
-              "$ref": "./TenantEntity.schema.json"
-            }
-          ]
-        },
         "description": {
           "type": "string",
           "description": "Description of the presentation configuration."
@@ -983,7 +1222,7 @@
           }
         }
       },
-      "required": ["id", "tenant", "dcql_query"]
+      "required": ["id", "dcql_query"]
     }
   },
   {
@@ -998,6 +1237,10 @@
         "response": {
           "type": "string",
           "description": "The response string containing the authorization details."
+        },
+        "sendResponse": {
+          "type": "boolean",
+          "description": "When set to true, the authorization response will be sent to the client."
         }
       },
       "required": ["response"]

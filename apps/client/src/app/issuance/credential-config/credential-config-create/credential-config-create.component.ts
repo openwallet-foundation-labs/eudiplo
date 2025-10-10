@@ -175,12 +175,16 @@ export class CredentialConfigCreateComponent implements OnInit {
       if (formValue.claims) {
         formValue.claims =
           typeof formValue.claims === 'string' ? JSON.parse(formValue.claims) : formValue.claims;
+      } else {
+        delete formValue.claims;
       }
       if (formValue.disclosureFrame) {
         formValue.disclosureFrame =
           typeof formValue.disclosureFrame === 'string'
             ? JSON.parse(formValue.disclosureFrame)
             : formValue.disclosureFrame;
+      } else {
+        delete formValue.disclosureFrame;
       }
 
       if (formValue.vct === '') {

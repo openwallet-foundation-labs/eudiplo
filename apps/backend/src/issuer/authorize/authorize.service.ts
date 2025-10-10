@@ -53,10 +53,17 @@ export class AuthorizeService {
         });
     }
 
-    authzMetadata(session: Session): AuthorizationServerMetadata {
+    async authzMetadata(
+        session: Session,
+    ): Promise<AuthorizationServerMetadata> {
         const authServer =
             this.configService.getOrThrow<string>("PUBLIC_URL") +
             `/${session.id}`;
+        const issuanceConfig =
+            await this.issuanceService.getIssuanceConfigurationById(
+                session.issuanceId!,
+                session.tenantId,
+            );
         return this.getAuthorizationServer(
             session.tenantId,
         ).createAuthorizationServerMetadata({
@@ -64,7 +71,9 @@ export class AuthorizeService {
             token_endpoint: `${authServer}/authorize/token`,
             authorization_endpoint: `${authServer}/authorize`,
             jwks_uri: `${authServer}/.well-known/jwks.json`,
-            dpop_signing_alg_values_supported: ["ES256"],
+            dpop_signing_alg_values_supported: issuanceConfig.dPopRequired
+                ? ["ES256"]
+                : undefined,
             // TODO: verify this on the server
             require_pushed_authorization_requests: true,
             pushed_authorization_request_endpoint: `${authServer}/authorize/par`,
@@ -125,7 +134,7 @@ export class AuthorizeService {
                 session.tenantId,
             );
 
-        const authorizationServerMetadata = this.authzMetadata(session);
+        const authorizationServerMetadata = await this.authzMetadata(session);
         let dpopValue;
         if (
             parsedAccessTokenRequest.grant.grantType ===

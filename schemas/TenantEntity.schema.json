@@ -7,9 +7,31 @@
     "id": {
       "type": "string",
       "description": "The unique identifier for the tenant."
+    },
+    "name": {
+      "type": "string",
+      "description": "The name of the tenant."
+    },
+    "description": {
+      "type": "string",
+      "description": "The description of the tenant."
+    },
+    "status": {
+      "type": "string",
+      "description": "The current status of the tenant."
+    },
+    "clients": {
+      "description": "The clients associated with the tenant.",
+      "type": "array",
+      "items": {
+        "$ref": "./ClientEntity.schema.json"
+      }
     }
   },
   "required": [
-    "id"
+    "id",
+    "name",
+    "status",
+    "clients"
   ]
 }
