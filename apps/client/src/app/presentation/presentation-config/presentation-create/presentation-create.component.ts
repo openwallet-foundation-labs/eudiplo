@@ -21,7 +21,11 @@ import { configs } from './pre-config';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { EditorComponent, extractSchema } from '../../../utils/editor/editor.component';
 import { WebhookConfigComponent } from '../../../utils/webhook-config/webhook-config.component';
-import { DCQLSchema, presentationConfigSchema, registrationCertificateRequestSchema } from '../../../utils/schemas';
+import {
+  DCQLSchema,
+  presentationConfigSchema,
+  registrationCertificateRequestSchema,
+} from '../../../utils/schemas';
 import { CredentialIdsComponent } from '../../credential-ids/credential-ids.component';
 
 @Component({
@@ -242,7 +246,7 @@ export class PresentationCreateComponent {
         // Ignore JSON parse errors
       }
     }
-    if(!formValue.webhook?.url) {
+    if (!formValue.webhook?.url) {
       formValue.webhook = undefined;
     }
     if (!formValue.registrationCert) {
