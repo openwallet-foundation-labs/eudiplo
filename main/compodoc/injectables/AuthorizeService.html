@@ -159,6 +159,7 @@
                                 <a href="#authorizationChallengeEndpoint" >authorizationChallengeEndpoint</a>
                             </li>
                             <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#authzMetadata" >authzMetadata</a>
                             </li>
                             <li>
@@ -321,8 +322,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="235"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:235</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="244"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:244</a></div>
                         </td>
                     </tr>
 
@@ -410,6 +411,7 @@
                 <td class="col-md-4">
                     <a name="authzMetadata"></a>
                     <span class="name">
+                            <span class="modifier">Async</span>
                         <span ><b>authzMetadata</b></span>
                         <a href="#authzMetadata"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -417,7 +419,8 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>authzMetadata(session: <a href="../entitys/Session.html" target="_self">Session</a>)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>authzMetadata(session: <a href="../entitys/Session.html" target="_self">Session</a>)</code>
                 </td>
             </tr>
 
@@ -461,7 +464,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>AuthorizationServerMetadata</code>
+                            <b>Returns : </b>    <code>Promise&lt;AuthorizationServerMetadata&gt;</code>
 
                         </div>
                             <div class="io-description">
@@ -560,8 +563,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="207"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:207</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="216"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:216</a></div>
                         </td>
                     </tr>
 
@@ -666,8 +669,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="309"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:309</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="318"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:318</a></div>
                         </td>
                     </tr>
 
@@ -747,8 +750,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="79"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:79</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="88"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:88</a></div>
                         </td>
                     </tr>
 
@@ -828,8 +831,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="316"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:316</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="325"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:325</a></div>
                         </td>
                     </tr>
 
@@ -897,8 +900,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="104"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:104</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="113"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:113</a></div>
                         </td>
                     </tr>
 
@@ -1029,10 +1032,17 @@ export class AuthorizeService {
         });
     }
 
-    authzMetadata(session: Session): AuthorizationServerMetadata {
+    async authzMetadata(
+        session: Session,
+    ): Promise&lt;AuthorizationServerMetadata&gt; {
         const authServer &#x3D;
             this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;) +
             &#x60;/${session.id}&#x60;;
+        const issuanceConfig &#x3D;
+            await this.issuanceService.getIssuanceConfigurationById(
+                session.issuanceId!,
+                session.tenantId,
+            );
         return this.getAuthorizationServer(
             session.tenantId,
         ).createAuthorizationServerMetadata({
@@ -1040,7 +1050,9 @@ export class AuthorizeService {
             token_endpoint: &#x60;${authServer}/authorize/token&#x60;,
             authorization_endpoint: &#x60;${authServer}/authorize&#x60;,
             jwks_uri: &#x60;${authServer}/.well-known/jwks.json&#x60;,
-            dpop_signing_alg_values_supported: [&quot;ES256&quot;],
+            dpop_signing_alg_values_supported: issuanceConfig.dPopRequired
+                ? [&quot;ES256&quot;]
+                : undefined,
             // TODO: verify this on the server
             require_pushed_authorization_requests: true,
             pushed_authorization_request_endpoint: &#x60;${authServer}/authorize/par&#x60;,
@@ -1101,7 +1113,7 @@ export class AuthorizeService {
                 session.tenantId,
             );
 
-        const authorizationServerMetadata &#x3D; this.authzMetadata(session);
+        const authorizationServerMetadata &#x3D; await this.authzMetadata(session);
         let dpopValue;
         if (
             parsedAccessTokenRequest.grant.grantType &#x3D;&#x3D;&#x3D;

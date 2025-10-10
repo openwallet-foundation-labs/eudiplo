@@ -668,6 +668,7 @@ This decorator can be used to determine the media type of the request.</p>
                 }),
             },
         },
+        exclude: [{ path: &quot;/session/:sessionId&quot;, method: RequestMethod.ALL }],
     };
 }</code>
                     </td>

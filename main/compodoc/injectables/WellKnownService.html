@@ -334,7 +334,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../classes/Oauth2AuthorizationServerResponse.html" target="_self" >Oauth2AuthorizationServerResponse</a></code>
+                            <b>Returns : </b>        <code><a href="../classes/Oauth2AuthorizationServerResponse.html" target="_self" >Promise&lt;Oauth2AuthorizationServerResponse&gt;</a></code>
 
                         </div>
                             <div class="io-description">
@@ -452,8 +452,8 @@ The metadata can be returned in two formats:</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="87"
-                                    class="link-to-prism">src/well-known/well-known.service.ts:87</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="89"
+                                    class="link-to-prism">src/well-known/well-known.service.ts:89</a></div>
                         </td>
                     </tr>
 
@@ -583,10 +583,12 @@ export class WellKnownService {
      * Returns the OAuth 2.0 Authorization Server metadata for a given tenant.
      * @returns
      */
-    getAuthzMetadata(session: Session): Oauth2AuthorizationServerResponse {
+    getAuthzMetadata(
+        session: Session,
+    ): Promise&lt;Oauth2AuthorizationServerResponse&gt; {
         return this.authorizeService.authzMetadata(
             session,
-        ) as Oauth2AuthorizationServerResponse;
+        ) as Promise&lt;Oauth2AuthorizationServerResponse&gt;;
     }
 
     /**
