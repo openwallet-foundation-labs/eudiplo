@@ -559,10 +559,6 @@ export type PresentationConfigCreateDto = {
      */
     id: string;
     /**
-     * The tenant that owns this object.
-     */
-    tenant: TenantEntity;
-    /**
      * Description of the presentation configuration.
      */
     description?: string;

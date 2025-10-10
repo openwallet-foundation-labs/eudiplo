@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ClientEntity.schema.json",
+  "title": "ClientEntity",
+  "type": "object",
+  "properties": {
+    "clientId": {
+      "type": "string",
+      "description": "The unique identifier for the client."
+    },
+    "secret": {
+      "type": "string",
+      "description": "The secret key for the client."
+    },
+    "tenantId": {
+      "type": "string",
+      "description": "The unique identifier for the tenant that the client belongs to. Only null for accounts that manage tenants, that do not belong to a client."
+    },
+    "description": {
+      "type": "string",
+      "description": "The description of the client."
+    },
+    "roles": {
+      "description": "The roles assigned to the client.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "presentation:manage",
+          "presentation:offer",
+          "issuance:manage",
+          "issuance:offer",
+          "clients:manage",
+          "tenants:manage"
+        ]
+      }
+    },
+    "tenant": {
+      "description": "The tenant that the client belongs to.",
+      "allOf": [
+        {
+          "$ref": "./TenantEntity.schema.json"
+        }
+      ]
+    }
+  },
+  "required": [
+    "clientId",
+    "roles"
+  ]
+}

@@ -171,27 +171,28 @@ export class CredentialsService {
             };
         }
 
-        return sdjwt.issue(
-            {
-                iss: this.configService.getOrThrow<string>("PUBLIC_URL"),
-                iat,
-                exp,
-                vct: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${session.tenantId}/credentials-metadata/vct/${credentialConfigurationId}`,
-                cnf,
-                ...usedClaims,
-                ...status,
-            },
-            disclosureFrame,
-            {
-                header: {
-                    x5c: await this.cryptoService.getCertChain(
-                        "signing",
-                        session.tenantId,
-                    ),
-                    alg: this.cryptoImplementationService.getAlg(),
+        return sdjwt
+            .issue(
+                {
+                    iss: this.configService.getOrThrow<string>("PUBLIC_URL"),
+                    iat,
+                    exp,
+                    vct: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${session.tenantId}/credentials-metadata/vct/${credentialConfigurationId}`,
+                    cnf,
+                    ...usedClaims,
+                    ...status,
                 },
-            },
-        );
+                disclosureFrame,
+                {
+                    header: {
+                        x5c: await this.cryptoService.getCertChain(
+                            "signing",
+                            session.tenantId,
+                        ),
+                        alg: this.cryptoImplementationService.getAlg(),
+                    },
+                },
+            );
     }
 
     /**

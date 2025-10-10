@@ -1,3 +1,4 @@
+import { RequestMethod } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 
 /**
@@ -87,5 +88,6 @@ export const createLoggerOptions = (configService: ConfigService) => {
                 }),
             },
         },
+        exclude: [{ path: "/session/:sessionId", method: RequestMethod.ALL }],
     };
 };

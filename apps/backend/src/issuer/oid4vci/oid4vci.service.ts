@@ -181,7 +181,7 @@ export class Oid4vciService {
                 this.configService.getOrThrow<string>("PUBLIC_URL") +
                 `/${session.id}`;
             authorizationServerMetadata =
-                this.authzService.authzMetadata(session);
+                await this.authzService.authzMetadata(session);
         }
 
         let credentialIssuer = issuer.createCredentialIssuerMetadata({

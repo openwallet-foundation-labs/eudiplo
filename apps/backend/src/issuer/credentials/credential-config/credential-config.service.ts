@@ -80,8 +80,6 @@ export class CredentialConfigService {
 
                         // Check if keyId is provided and if the certificate exists
                         if (config.keyId) {
-                            console.log(config.keyId);
-                            console.log(tenant.name);
                             const cert = await this.cryptoService.getCertEntry(
                                 tenant.name,
                                 config.keyId,

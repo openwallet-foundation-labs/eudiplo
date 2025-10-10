@@ -19,23 +19,39 @@
       "type": "string",
       "description": "Unique identifier for the session."
     },
+    "createdAt": {
+      "format": "date-time",
+      "type": "string",
+      "description": "The timestamp when the request was created."
+    },
+    "updatedAt": {
+      "format": "date-time",
+      "type": "string",
+      "description": "The timestamp when the request was last updated."
+    },
+    "expiresAt": {
+      "format": "date-time",
+      "type": "string",
+      "description": "The timestamp when the request is set to expire."
+    },
+    "useDcApi": {
+      "type": "boolean",
+      "description": "Flag indicating whether to use the DC API for the presentation request."
+    },
+    "tenantId": {
+      "type": "string",
+      "description": "Tenant ID for multi-tenancy support."
+    },
+    "tenant": {
+      "description": "The tenant that owns this object.",
+      "allOf": [
+        {
+          "$ref": "./TenantEntity.schema.json"
+        }
+      ]
+    },
     "issuanceId": {
       "type": "string"
-    },
-    "requestId": {
-      "type": "string",
-      "description": "The ID of the presentation configuration associated with the session."
-    },
-    "requestUrl": {
-      "type": "string",
-      "description": "The URL of the presentation auth request."
-    },
-    "credentials": {
-      "description": "Verified credentials from the verification process.",
-      "type": "array",
-      "items": {
-        "type": "object"
-      }
     },
     "authorization_code": {
       "type": "string",
@@ -53,27 +69,9 @@
         }
       ]
     },
-    "vp_nonce": {
-      "type": "string",
-      "description": "Noncce from the Verifiable Presentation request."
-    },
     "nonce": {
       "type": "string",
       "description": "Nonce used for the OID4VCI flow."
-    },
-    "createdAt": {
-      "format": "date-time",
-      "type": "string",
-      "description": "The timestamp when the VP request was created."
-    },
-    "updatedAt": {
-      "format": "date-time",
-      "type": "string",
-      "description": "The timestamp when the VP request was last updated."
-    },
-    "expiresAt": {
-      "format": "date-time",
-      "type": "string"
     },
     "offer": {
       "type": "object",
@@ -114,17 +112,27 @@
         "type": "object"
       }
     },
-    "tenantId": {
-      "type": "string",
-      "description": "Tenant ID for multi-tenancy support."
+    "requestId": {
+      "type": "string"
     },
-    "tenant": {
-      "description": "The tenant that owns this object.",
-      "allOf": [
-        {
-          "$ref": "./TenantEntity.schema.json"
-        }
-      ]
+    "requestUrl": {
+      "type": "string",
+      "description": "The URL of the presentation auth request."
+    },
+    "requestObject": {
+      "type": "string",
+      "description": "Signed presentation auth request."
+    },
+    "credentials": {
+      "description": "Verified credentials from the presentation process.",
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "vp_nonce": {
+      "type": "string",
+      "description": "Noncce from the Verifiable Presentation request."
     }
   },
   "required": [
@@ -132,8 +140,9 @@
     "id",
     "createdAt",
     "updatedAt",
-    "notifications",
+    "useDcApi",
     "tenantId",
-    "tenant"
+    "tenant",
+    "notifications"
   ]
 }

@@ -928,14 +928,6 @@ export const PresentationConfigCreateDtoSchema = {
             type: 'string',
             description: 'Unique identifier for the VP request.'
         },
-        tenant: {
-            description: 'The tenant that owns this object.',
-            allOf: [
-                {
-                    '$ref': '#/components/schemas/TenantEntity'
-                }
-            ]
-        },
         description: {
             type: 'string',
             description: 'Description of the presentation configuration.'
@@ -976,7 +968,7 @@ export const PresentationConfigCreateDtoSchema = {
             }
         }
     },
-    required: ['id', 'tenant', 'dcql_query']
+    required: ['id', 'dcql_query']
 } as const;
 
 export const AuthorizationResponseSchema = {

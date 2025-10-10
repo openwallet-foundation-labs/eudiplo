@@ -4,9 +4,9 @@ import jwkSchemaObj from '../../../../../schemas/Key.schema.json';
 import webhookSchemaObj from '../../../../../schemas/WebhookConfig.schema.json';
 import credentialConfigSchemaObj from '../../../../../schemas/CredentialConfigCreate.schema.json';
 import issuanceConfigSchemaObj from '../../../../../schemas/IssuanceDto.schema.json';
-import presentationAttachementObj from '../../../../../schemas/PresentationAttachment.schema.json';
 import registrationCertificateRequestObj from '../../../../../schemas/RegistrationCertificateRequest.schema.json';
 import DCQLObj from '../../../../../schemas/DCQL.schema.json';
+import presnetationConfigCreateSchemaObj from '../../../../../schemas/PresentationConfigCreateDto.schema.json';
 
 export class SchemaValidation {
   constructor(private schema: any) {}
@@ -25,7 +25,7 @@ export const webhookSchema = new SchemaValidation(webhookSchemaObj);
 export const credentialConfigSchema = new SchemaValidation(credentialConfigSchemaObj);
 export const issuanceConfigSchema = new SchemaValidation(issuanceConfigSchemaObj);
 
-export const presentationAttachmentSchema = new SchemaValidation(presentationAttachementObj);
+export const presentationConfigSchema = new SchemaValidation(presnetationConfigCreateSchemaObj);
 
 export const registrationCertificateRequestSchema = new SchemaValidation(
   registrationCertificateRequestObj
