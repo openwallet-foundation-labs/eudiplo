@@ -185,6 +185,9 @@
                                 <a href="#getClientSecret" >getClientSecret</a>
                             </li>
                             <li>
+                                <a href="#import" >import</a>
+                            </li>
+                            <li>
                                     <span class="modifier">Private</span>
                                 <a href="#init" >init</a>
                             </li>
@@ -300,8 +303,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="103"
-                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:103</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="107"
+                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:107</a></div>
                         </td>
                     </tr>
 
@@ -381,8 +384,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="90"
-                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:90</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="94"
+                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:94</a></div>
                         </td>
                     </tr>
 
@@ -462,8 +465,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="84"
-                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:84</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="88"
+                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:88</a></div>
                         </td>
                     </tr>
 
@@ -529,8 +532,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="97"
-                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:97</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="101"
+                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:101</a></div>
                         </td>
                     </tr>
 
@@ -592,6 +595,43 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="import"></a>
+                    <span class="name">
+                        <span ><b>import</b></span>
+                        <a href="#import"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>import()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="51"
+                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:51</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="init"></a>
                     <span class="name">
                             <span class="modifier">Private</span>
@@ -610,8 +650,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="54"
-                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:54</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="58"
+                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:58</a></div>
                         </td>
                     </tr>
 
@@ -690,8 +730,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="247"
-                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:247</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="251"
+                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:251</a></div>
                         </td>
                     </tr>
 
@@ -771,8 +811,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="182"
-                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:182</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="186"
+                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:186</a></div>
                         </td>
                     </tr>
 
@@ -929,6 +969,10 @@ export class KeycloakClientsProvider implements ClientsProvider, OnModuleInit {
             }
         }, refreshMs);
         await this.init();
+    }
+
+    import(): Promise&lt;void&gt; {
+        return Promise.resolve();
     }
 
     /**

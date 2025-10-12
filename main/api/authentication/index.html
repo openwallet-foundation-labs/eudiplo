@@ -1459,6 +1459,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#import" class="md-nav__link">
+    <span class="md-ellipsis">
+      Import
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1992,6 +2001,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#import" class="md-nav__link">
+    <span class="md-ellipsis">
+      Import
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2256,16 +2274,6 @@ for service-to-service communication without user interaction.</p>
 <td><code>any</code></td>
 <td>Client ID (local auth) [when OIDC is set → otherwise default="root"]</td>
 </tr>
-<tr>
-<td><code>AUTH_CLIENT_TENANT</code></td>
-<td><code>string</code></td>
-<td>Tenant to which this client should be added  [optional]</td>
-</tr>
-<tr>
-<td><code>AUTH_CLIENT_ROLES</code></td>
-<td><code>any</code></td>
-<td>Roles assigned to this client [when OIDC is set → otherwise default="all"]</td>
-</tr>
 </tbody>
 </table>
 <h2 id="authentication-architecture">Authentication Architecture<a class="headerlink" href="#authentication-architecture" title="Permanent link">¶</a></h2>
@@ -2287,6 +2295,9 @@ for service-to-service communication without user interaction.</p>
 <p><strong>Related Architecture:</strong> For multi-tenant configuration and session management,
 see <a href="../../architecture/tenant/">Tenant-Based Architecture</a> and
 <a href="../../architecture/sessions/">Sessions</a>.</p>
+<h3 id="import">Import<a class="headerlink" href="#import" title="Permanent link">¶</a></h3>
+<p>Clients can be imported via configuration files. See <a href="../../architecture/configuration-import/#client-configurations">Configuration Import</a>
+for details.</p>
 <hr>
 <h2 id="oauth2-client-credentials-authentication">OAuth2 Client Credentials Authentication<a class="headerlink" href="#oauth2-client-credentials-authentication" title="Permanent link">¶</a></h2>
 <p>This API exclusively uses the OAuth2 client credentials flow, which is designed
@@ -2296,20 +2307,16 @@ for service-to-service authentication where no user interaction is required.</p>
 <ol>
 <li>
 <p><strong>Swagger UI Authentication:</strong></p>
-</li>
-<li>
-<p>Navigate to the Swagger UI at <code>/api</code></p>
-</li>
+<ul>
+<li>Navigate to the Swagger UI at <code>/api</code></li>
 <li>Click the "Authorize" button</li>
 <li>Select "oauth2"</li>
 <li>Enter client ID and secret (configured via environment variables)</li>
-<li>
-<p>Click "Authorize"</p>
+<li>Click "Authorize"</li>
+</ul>
 </li>
 <li>
 <p><strong>Programmatic Access:</strong></p>
-</li>
-</ol>
 <p><strong>Option 1: Credentials in Authorization Header (OAuth2 Standard):</strong></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3000/oauth2/token<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
@@ -2327,6 +2334,8 @@ for service-to-service authentication where no user interaction is required.</p>
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="s1">    "client_secret": "your-client-secret"</span>
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="s1">  }'</span>
 </code></pre></div>
+</li>
+</ol>
 <h3 id="external-oidc-provider">External OIDC Provider<a class="headerlink" href="#external-oidc-provider" title="Permanent link">¶</a></h3>
 <p>For enterprise deployments with existing identity infrastructure, EUDIPLO can
 integrate with external OIDC providers like Keycloak, Auth0, or Azure AD.</p>
@@ -2373,13 +2382,6 @@ variables, see <a href="../../architecture/key-management/">Key Management</a> a
 <a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">    </span><span class="c1">// to manage tenant resources</span>
 <a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">    </span><span class="nx">Tenants</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"tenants:manage"</span><span class="p">,</span>
 <a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="p">}</span>
-<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>
-<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">getRoles</span><span class="p">(</span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s2">"all"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="kr">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">"all"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">Object</span><span class="p">.</span><span class="nx">values</span><span class="p">(</span><span class="nx">Role</span><span class="p">);</span>
-<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">[];</span>
-<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="p">}</span>
 </code></pre></div>
 <p>Each client can have multiple roles assigned, but each client can only be assigned to one tenant at maximum. The client with the tenant manage must not be assigned to any tenant since it is managing the service in general. There could be other roles in the future like limited access to the metrics endpoint.</p>
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">¶</a></h2>

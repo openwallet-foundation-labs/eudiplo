@@ -331,18 +331,6 @@
     })
         .description(&quot;Client ID (local auth)&quot;)
         .meta({ group: &quot;auth&quot;, order: 90 }),
-    //TODO: logic has to be challenged
-    AUTH_CLIENT_TENANT: Joi.string()
-        .optional()
-        .description(&quot;Tenant to which this client should be added&quot;)
-        .meta({ group: &quot;auth&quot;, order: 100 }),
-    AUTH_CLIENT_ROLES: Joi.when(&quot;OIDC&quot;, {
-        is: Joi.exist(),
-        then: Joi.string(),
-        otherwise: Joi.string().default(&quot;all&quot;),
-    })
-        .description(&quot;Roles assigned to this client&quot;)
-        .meta({ group: &quot;auth&quot;, order: 110 }),
 }).unknown(true)</code>
                     </td>
                 </tr>
