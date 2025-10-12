@@ -1,4 +1,5 @@
 import {
+    Inject,
     Injectable,
     OnApplicationBootstrap,
     OnModuleInit,
@@ -18,6 +19,8 @@ import { Oid4vciService } from "../../issuer/oid4vci/oid4vci.service";
 import { StatusListService } from "../../issuer/status-list/status-list.service";
 import { RegistrarService } from "../../registrar/registrar.service";
 import { FilesService } from "../../storage/files.service";
+import { CLIENTS_PROVIDER, ClientsProvider } from "../client/client.provider";
+import { Role } from "../roles/role.enum";
 import { CreateTenantDto } from "./dto/create-tenant.dto";
 import { TenantEntity } from "./entitites/tenant.entity";
 
@@ -30,6 +33,7 @@ export interface Tenants {
 @Injectable()
 export class TenantService implements OnApplicationBootstrap, OnModuleInit {
     constructor(
+        @Inject(CLIENTS_PROVIDER) private clients: ClientsProvider,
         private configService: ConfigService,
         private cryptoService: CryptoService,
         private encryptionService: EncryptionService,
@@ -119,6 +123,15 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
     async createTenant(data: CreateTenantDto) {
         const tenant = await this.tenantRepository.save(data);
         await this.setUpTenant(tenant);
+        // only add the tenant when the auth user is not assigned to this tenant.
+        const authTenant = this.configService.get<string>("AUTH_CLIENT_TENANT");
+        if (authTenant !== tenant.id) {
+            await this.clients.addClient(tenant.id, {
+                clientId: "admin",
+                description: "auto generated admin client",
+                roles: [Role.Clients, ...(data.roles || [])],
+            });
+        }
     }
 
     /**

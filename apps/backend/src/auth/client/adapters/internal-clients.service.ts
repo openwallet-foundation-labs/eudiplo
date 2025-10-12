@@ -8,6 +8,7 @@ import { readdirSync, readFileSync } from "fs";
 import { PinoLogger } from "nestjs-pino";
 import { join } from "path";
 import { Repository } from "typeorm";
+import { Role } from "../../roles/role.enum";
 import { ClientsProvider } from "../client.provider";
 import { CreateClientDto } from "../dto/create-client.dto";
 import { UpdateClientDto } from "../dto/update-client.dto";
@@ -23,7 +24,21 @@ export class InternalClientsProvider
         @InjectRepository(ClientEntity) private repo: Repository<ClientEntity>,
     ) {}
 
-    onApplicationBootstrap() {
+    async onApplicationBootstrap() {
+        //add the root user
+
+        const clientId = this.configService.getOrThrow("AUTH_CLIENT_ID");
+        const clientSecret =
+            this.configService.getOrThrow("AUTH_CLIENT_SECRET");
+        await this.getClient("root", clientId).catch(() => {
+            return this.repo.save({
+                clientId,
+                secret: clientSecret,
+                description: "Internal client",
+                roles: [Role.Tenants],
+            });
+        });
+
         return this.import();
     }
 
