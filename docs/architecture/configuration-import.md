@@ -64,20 +64,18 @@ assets/
 
 - **Tenant isolation**: Each tenant has its own folder (e.g., `tenant1`,
   `company-xyz`)
-- **Configuration types**: Four types of configurations are supported
-- **File naming**: JSON file names become the configuration ID (without `.json`
-  extension)
-- **Key ID mapping**: For keys, the id is based on the `kid` field in the JSON
+- **Configuration types**: types of configurations are supported
+- **File naming**: Not relevant since the `id` is taken from the content of the file. For keys, the id is based on the `kid` field in the JSON
   file and not based on the filename.
 - **Nested structure**: Credentials and issuance configs are grouped under
   `issuance/`
 - **Key management**: Cryptographic keys are stored in the `keys/` directory and
   will be imported automatically. After the import, the keys can be removed from
-  the import folder.
+  the import folder. Some implementations like HashiCorp Vault do not support the import feature.
 
 ## Configuration Types
 
-### 1. Cryptographic Keys
+### Cryptographic Keys
 
 **Location**: `config/config/{tenant}/keys/*.json`
 
@@ -87,16 +85,16 @@ Import cryptographic keys for signing and certificate operations.
 
 ```json
 {
-  "privateKey": {
-    "kty": "EC",
-    "x": "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
-    "y": "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
-    "crv": "P-256",
-    "d": "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
-    "kid": "039af178-3ca0-48f4-a2e4-7b1209f30376",
-    "alg": "ES256"
-  },
-  "crt": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
+    "privateKey": {
+        "kty": "EC",
+        "x": "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
+        "y": "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
+        "crv": "P-256",
+        "d": "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
+        "kid": "039af178-3ca0-48f4-a2e4-7b1209f30376",
+        "alg": "ES256"
+    },
+    "crt": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
 }
 ```
 
@@ -110,54 +108,63 @@ Import cryptographic keys for signing and certificate operations.
 - **Algorithm support**: ES256 (ECDSA P-256)
 - **Validation**: Full schema validation during import
 
-### 2. Credential Configurations
+### Credential Configurations
 
 **Location**: `config/config/{tenant}/issuance/credentials/*.json`
 
 Define credential templates and schemas.
 
 **Schema Reference**:
-[Credential Config API](https://openwallet-foundation-labs.github.io/eudiplo/main/api/index.html#credentialconfig)
+[Credential Config API](../api/openapi.md#credentialconfig)
 
-### 3. Issuance Configurations
+### Issuance Configurations
 
 **Location**: `config/config/{tenant}/issuance/issuance/*.json`
 
 Define issuance workflows and authentication requirements.
 
 **Schema Reference**:
-[Issuance Config API](https://openwallet-foundation-labs.github.io/eudiplo/main/api/index.html#issuanceconfig)
+[Issuance Config API](../api/openapi.md#issuanceconfig)
 
-### 4. Presentation Configurations
+### Presentation Configurations
 
 **Location**: `config/config/{tenant}/presentation/*.json`
 
 Define verification requirements for credential presentations.
 
 **Schema Reference**:
-[Presentation Config API](https://openwallet-foundation-labs.github.io/eudiplo/main/api/index.html#presentationconfig)
+[Presentation Config API](../api/openapi.md#presentationconfig)
+
+### Client Configurations
+
+**Location**: `config/config/{tenant}/clients/*.json`
+
+Define client-specific configurations, including client IDs, secrets, and permissions.
+
+**Schema Reference**:
+[Client Config API](../api/openapi.md#clientconfig)
 
 ## Import Process
 
-### 1. Startup Validation
+### Startup Validation
 
 During application startup, EUDIPLO:
 
-1. **Checks environment variables** - Only imports if `CONFIG_IMPORT=true`
-2. **Scans tenant directories** - Processes each tenant folder independently
-3. **Validates file structure** - Ensures required subdirectories exist
-4. **Reads JSON files** - Parses each configuration file
+- **Checks environment variables** - Only imports if `CONFIG_IMPORT=true`
+- **Scans tenant directories** - Processes each tenant folder independently
+- **Validates file structure** - Ensures required subdirectories exist
+- **Reads JSON files** - Parses each configuration file
 
-### 2. Validation and Processing
+### Validation and Processing
 
 For each configuration file:
 
-1. **JSON parsing** - Validates file syntax
-2. **Schema validation** - Uses the same validators as the API endpoints
-3. **Dependency checking** - Verifies referenced configurations exist
-4. **Duplicate handling** - Respects `CONFIG_IMPORT_FORCE` setting
+- **JSON parsing** - Validates file syntax
+- **Schema validation** - Uses the same validators as the API endpoints
+- **Dependency checking** - Verifies referenced configurations exist
+- **Duplicate handling** - Respects `CONFIG_IMPORT_FORCE` setting
 
-### 3. Error Handling
+### Error Handling
 
 Invalid configurations are handled gracefully:
 
@@ -172,10 +179,10 @@ Import activities are logged with structured information:
 
 ```json
 {
-  "event": "Import",
-  "tenant": "company-xyz",
-  "files": 5,
-  "message": "5 credential configs imported for company-xyz"
+    "event": "Import",
+    "tenant": "company-xyz",
+    "files": 5,
+    "message": "5 credential configs imported for company-xyz"
 }
 ```
 
@@ -183,9 +190,9 @@ Import activities are logged with structured information:
 
 ```json
 {
-  "event": "Import",
-  "tenant": "company-xyz",
-  "message": "3 keys imported for company-xyz"
+    "event": "Import",
+    "tenant": "company-xyz",
+    "message": "3 keys imported for company-xyz"
 }
 ```
 
@@ -193,35 +200,35 @@ Import activities are logged with structured information:
 
 ```json
 {
-  "event": "ValidationError",
-  "file": "invalid-config.json",
-  "tenant": "company-xyz",
-  "errors": [
-    {
-      "property": "credentialConfigs",
-      "constraints": { "isArray": "credentialConfigs must be an array" },
-      "value": "not-an-array"
-    }
-  ]
+    "event": "ValidationError",
+    "file": "invalid-config.json",
+    "tenant": "company-xyz",
+    "errors": [
+        {
+            "property": "credentialConfigs",
+            "constraints": { "isArray": "credentialConfigs must be an array" },
+            "value": "not-an-array"
+        }
+    ]
 }
 ```
 
 ## Best Practices
 
-### 1. Configuration Management
+### Configuration Management
 
 - **Use descriptive filenames** that reflect the configuration purpose
 - **Test configurations** in development before deploying
 - **Document tenant-specific configurations**
 
-### 2. Production Deployment
+### Production Deployment
 
 - **Set `CONFIG_IMPORT=true`** only for initial deployment
 - **Use `CONFIG_IMPORT_FORCE=false`** to prevent accidental overwrites
 - **Monitor logs** for validation errors during startup
 - **Manage configurations via API** after initial import
 
-### 3. Multi-Tenant Setup
+### Multi-Tenant Setup
 
 ```bash
 # Organize by tenant/organization

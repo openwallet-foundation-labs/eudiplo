@@ -11,5 +11,3 @@
 | `JWT_EXPIRES_IN` | `any` | Local JWT expiration [when OIDC is set → otherwise default="24h"] |
 | `AUTH_CLIENT_SECRET` | `any` | Client secret (local auth) [when OIDC is set → otherwise default="root"] |
 | `AUTH_CLIENT_ID` | `any` | Client ID (local auth) [when OIDC is set → otherwise default="root"] |
-| `AUTH_CLIENT_TENANT` | `string` | Tenant to which this client should be added  [optional] |
-| `AUTH_CLIENT_ROLES` | `any` | Roles assigned to this client [when OIDC is set → otherwise default="all"] |

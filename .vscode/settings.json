@@ -55,6 +55,12 @@
         "/assets/config/*/presentation/*.json"
       ],
       "url": "./schemas/PresentationConfigCreateDto.schema.json"
+    },
+    {
+      "fileMatch": [
+        "/assets/config/*/clients/*.json"
+      ],
+      "url": "./schemas/ClientEntity.schema.json"
     }
   ]
 }

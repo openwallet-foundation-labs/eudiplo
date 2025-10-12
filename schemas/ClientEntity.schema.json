@@ -14,7 +14,7 @@
     },
     "tenantId": {
       "type": "string",
-      "description": "The unique identifier for the tenant that the client belongs to. Only null for accounts that manage tenants, that do not belong to a client."
+      "description": "The unique identifier for the tenant that the client belongs to. Only null for accounts that manage tenants, that do not belong to a client"
     },
     "description": {
       "type": "string",

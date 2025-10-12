@@ -15,6 +15,7 @@ export interface ClientsProvider {
     getClient(tenantId: string, clientId: string): Promise<ClientEntity>;
     addClient(tenantId: string, dto: CreateClientDto): Promise<ClientEntity>;
     removeClient(tenantId: string, clientId: string): Promise<void>;
+    import(): Promise<void>;
 
     // Only for internal backend (not used with KC; you’ll validate JWTs instead)
     validateClientCredentials?(
