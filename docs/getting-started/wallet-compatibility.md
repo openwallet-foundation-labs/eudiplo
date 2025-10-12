@@ -12,74 +12,47 @@ guidance for testing new wallets with EUDIPLO.
 
 ---
 
-## Officially Tested Wallets
+## Tested Wallets
 
-The following wallets have been officially tested and verified to work with
+The following wallets have been tested and verified to work with
 EUDIPLO:
 
-| Wallet              | Reported Version | Status | Contributor | Last Updated |
-| ------------------- | ---------------- | ------ | ----------- | ------------ |
-| _None reported yet_ | -                | -      | -           | -            |
+| Wallet       | Provider                    | Download                                                                                                                                          | Features                 |
+| ------------ | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| Heidi Wallet | [Ubique](https://ubique.ch) | [Android](https://play.google.com/store/apps/details?id=ch.ubique.heidi.android) / [iOS](https://apps.apple.com/ch/app/heidi-wallet/id6741428702) | [Details](#heidi-wallet) |
 
----
+### Feature Support Details
 
-## Community-Verified Wallets
+#### Feature Legend
 
-These wallets have been reported as compatible by community members:
+- **Issuance (OID4VCI)**
+    - **Auth**: Authorization Code Flow
+    - **Pre**: Pre-authorized Code Flow
+    - **PDI**: Presentation during issuance
+    - **DPoP**: DPoP proof of possession
+    - **Att**: Client attestation
+- **Presentation (OID4VP)**
+    - **DC API**: Digital Credentials API support
+- **Credential Format**
+    - **SD-JWT**: SD-JWT VC support
 
-| Wallet              | Reported Version | Status | Contributor | Last Updated |
-| ------------------- | ---------------- | ------ | ----------- | ------------ |
-| _None reported yet_ | -                | -      | -           | -            |
+#### Feature Matrix
+
+|              | Auth | Pre | PDI | DPoP | Att | DC API | SD-JWT |
+| ------------ | ---- | --- | --- | ---- | --- | ------ | ------ |
+| Heidi Wallet | ✅   | ✅  | n/a | ✅   | n/a | ✅     | ✅     |
+
+#### Individual Wallet Details
+
+##### Heidi Wallet
+
+- **Version tested**: 1.0.4
+- **Last verified**: October 11, 2025
+- **Notes**: Got stuck in the presentation during issuance during the issuance process (credential got issued, but got not stored)
 
 !!! note "Help us expand this list!"
 
     If you have successfully tested EUDIPLO with a wallet not listed here, please [reach out to us](https://github.com/openwallet-foundation-labs/eudiplo/issues/new?template=wallet-compatibility.md) so we can add it to this list.
-
----
-
-## Compatibility Requirements
-
-For a wallet to be compatible with EUDIPLO, it must support:
-
-### **Issuance Flow (OID4VCI)**
-
-- ✅ Authorization Code Flow
-- ✅ Pre-authorized Code Flow
-- ✅ SD-JWT VC format
-- ✅ Proof of possession (DPoP or client attestation)
-
-### **Presentation Flow (OID4VP)**
-
-- ✅ Authorization Request via deep link or QR code
-- ✅ VP Token submission
-- ✅ Selective disclosure of SD-JWT VC claims
-- ✅ Response mode `direct_post`
-
-### **General Requirements**
-
-- ✅ HTTPS endpoints support
-- ✅ JSON Web Token (JWT) handling
-- ✅ Cryptographic key management (ES256, EdDSA)
-
----
-
-## Known Compatibility Issues
-
-### **Common Issues**
-
-- **Deep Link Handling**: Some wallets may have different URL scheme
-  requirements
-- **Certificate Validation**: Strict certificate chain validation may require
-  proper CA setup
-- **Timeout Handling**: Different wallets may have varying timeout expectations
-
-### **Workarounds**
-
-Most compatibility issues can be resolved through:
-
-- Proper SSL certificate configuration
-- Adjusting timeout values in EUDIPLO configuration
-- Using appropriate redirect URIs for the wallet's URL scheme
 
 ---
 
@@ -93,7 +66,6 @@ If you want to test EUDIPLO with a new wallet, follow these steps:
 # Run EUDIPLO with proper HTTPS endpoint
 docker run -p 3000:3000 \
   -e PUBLIC_URL=https://your-domain.com \
-  -e JWT_SECRET=your-secret-key-here-minimum-32-characters \
   ghcr.io/openwallet-foundation-labs/eudiplo:latest
 ```
 
@@ -151,10 +123,10 @@ If you encounter compatibility problems:
 
 ## Version Compatibility Matrix
 
-| EUDIPLO Version | Protocol Versions                                     | Notes               |
-| --------------- | ----------------------------------------------------- | ------------------- |
-| 1.x.x           | OID4VCI draft-15, OID4VP draft-24, SD-JWT VC draft-08 | Current stable      |
-| Latest (main)   | Latest draft versions                                 | Development version |
+| EUDIPLO Version | Protocol Versions                       | Notes               |
+| --------------- | --------------------------------------- | ------------------- |
+| 1.x.x           | OID4VCI 1, OID4VP 1, SD-JWT VC draft-11 | Current stable      |
+| Latest (main)   | Latest draft versions                   | Development version |
 
 !!! warning "Protocol Evolution"
 
