@@ -48,6 +48,10 @@ export class KeycloakClientsProvider implements ClientsProvider, OnModuleInit {
         await this.init();
     }
 
+    import(): Promise<void> {
+        return Promise.resolve();
+    }
+
     /**
      * Checks if all the roles are available in the realm. If not they will be created.
      */

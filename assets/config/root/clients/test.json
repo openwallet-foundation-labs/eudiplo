@@ -1,0 +1,9 @@
+{
+    "clientId": "test-client",
+    "secret": "test-secret",
+    "description": "Test client",
+    "roles": [
+        "issuance:offer",
+        "presentation:offer"
+    ]
+}

@@ -210,7 +210,11 @@ export async function getToken(
         .trustLocalhost()
         .set("Authorization", `Bearer ${authToken}`)
         .send()
-        .then((res) => res.body.clients[0]);
+        .then((res) =>
+            res.body.clients.find((client) =>
+                client.clientId.includes("admin"),
+            ),
+        );
 
     return request(app.getHttpServer())
         .post("/oauth2/token")

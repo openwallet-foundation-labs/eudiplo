@@ -119,7 +119,7 @@ export class CredentialConfig {
     @IsString()
     keyId?: string;
 
-    @ManyToOne(() => CertEntity)
+    @ManyToOne(() => CertEntity, { onDelete: "SET NULL" })
     key!: CertEntity;
 
     @IsOptional()

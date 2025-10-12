@@ -68,11 +68,11 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
                         payload.id = tenant.name;
 
                         // Validate the payload against CreateTenantDto
-                        const issuanceDto = plainToClass(
+                        const tenantDto = plainToClass(
                             CreateTenantDto,
                             payload,
                         );
-                        const validationErrors = await validate(issuanceDto, {
+                        const validationErrors = await validate(tenantDto, {
                             whitelist: true,
                             forbidUnknownValues: false, // avoid false positives on plain objects
                             forbidNonWhitelisted: false,
@@ -93,7 +93,7 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
                                 `Validation failed for tenant config ${file} in tenant ${tenant.name}: ${JSON.stringify(validationErrors, null, 2)}`,
                             );
                         } else {
-                            await this.createTenant(issuanceDto);
+                            await this.createTenant(tenantDto);
                         }
                     }
                 }

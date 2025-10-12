@@ -23,9 +23,9 @@ export class ClientEntity {
     secret?: string;
 
     /**
-     * The unique identifier for the tenant that the client belongs to. Only null for accounts that manage tenants, that do not belong to a client.
+     * The unique identifier for the tenant that the client belongs to. Only null for accounts that manage tenants, that do not belong to a client
      */
-    @Column({ nullable: true })
+    @Column({ nullable: true, primary: true })
     tenantId?: string;
 
     /**
