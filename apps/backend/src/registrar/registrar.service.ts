@@ -85,6 +85,8 @@ export class RegistrarService implements OnModuleInit {
             return;
         }
         await this.refreshAccessToken();
+
+        //TODO: there may be the case that the registrar is activated after the tenant was created. For this action, the registrar would need to include the tenantservice, causing a circular dependency.
     }
 
     /**
@@ -103,7 +105,6 @@ export class RegistrarService implements OnModuleInit {
         if (!this.isEnabled()) {
             return;
         }
-        //TODO: pass name by call
         const name = tenant.name;
         const relyingPartyId = await this.addRp(name);
         const accessCertificateId = await this.addAccessCertificate(
