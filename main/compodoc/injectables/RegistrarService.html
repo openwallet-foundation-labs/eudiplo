@@ -368,8 +368,8 @@ including adding relying parties, access certificates, and registration certific
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="189"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:189</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="190"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:190</a></div>
                         </td>
                     </tr>
 
@@ -453,8 +453,8 @@ If the access certificate already exists, it will be returned.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="231"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:231</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="232"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:232</a></div>
                         </td>
                     </tr>
 
@@ -560,8 +560,8 @@ If the registration certificate already exists, it will be returned.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="149"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:149</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="150"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:150</a></div>
                         </td>
                     </tr>
 
@@ -632,8 +632,8 @@ This is only needed once, when the relying party is created.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="172"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:172</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="173"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:173</a></div>
                         </td>
                     </tr>
 
@@ -710,8 +710,8 @@ This is used when the relying party already exists in the registrar.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="94"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:94</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="96"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:96</a></div>
                         </td>
                     </tr>
 
@@ -796,8 +796,8 @@ This is used when the relying party already exists in the registrar.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="124"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:124</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="125"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:125</a></div>
                         </td>
                     </tr>
 
@@ -867,8 +867,8 @@ This is used when the relying party already exists in the registrar.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="102"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:102</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="104"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:104</a></div>
                         </td>
                     </tr>
 
@@ -938,8 +938,8 @@ This is used when the relying party already exists in the registrar.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="132"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:132</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="133"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:133</a></div>
                         </td>
                     </tr>
 
@@ -1150,6 +1150,8 @@ export class RegistrarService implements OnModuleInit {
             return;
         }
         await this.refreshAccessToken();
+
+        //TODO: there may be the case that the registrar is activated after the tenant was created. For this action, the registrar would need to include the tenantservice, causing a circular dependency.
     }
 
     /**
@@ -1168,7 +1170,6 @@ export class RegistrarService implements OnModuleInit {
         if (!this.isEnabled()) {
             return;
         }
-        //TODO: pass name by call
         const name &#x3D; tenant.name;
         const relyingPartyId &#x3D; await this.addRp(name);
         const accessCertificateId &#x3D; await this.addAccessCertificate(
