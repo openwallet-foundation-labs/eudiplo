@@ -76,6 +76,7 @@ export class InternalClientsProvider
 
                     // Validate the payload against ClientEntity
                     const config = plainToClass(ClientEntity, payload);
+
                     const validationErrors = await validate(config, {
                         whitelist: true,
                         forbidUnknownValues: false, // avoid false positives on plain objects

@@ -46,6 +46,12 @@
     },
     {
       "fileMatch": [
+        "/assets/config/*/issuance/display.json"
+      ],
+      "url": "./schemas/DisplayCreateDto.schema.json"
+    },
+    {
+      "fileMatch": [
         "/assets/config/*/keys/*.json"
       ],
       "url": "./schemas/KeyImportDto.schema.json"

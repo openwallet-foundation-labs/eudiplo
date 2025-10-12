@@ -8,6 +8,7 @@ import { PinoLogger } from "nestjs-pino";
 import { join } from "path";
 import { Repository } from "typeorm";
 import { CryptoService } from "../../../crypto/crypto.service";
+import { FilesService } from "../../../storage/files.service";
 import { CredentialConfigCreate } from "../dto/credential-config-create.dto";
 import { CredentialConfig } from "../entities/credential.entity";
 
@@ -26,6 +27,7 @@ export class CredentialConfigService {
         private configService: ConfigService,
         private logger: PinoLogger,
         private cryptoService: CryptoService,
+        private filesService: FilesService,
     ) {}
 
     /**
@@ -77,6 +79,55 @@ export class CredentialConfigService {
                             forbidNonWhitelisted: false,
                             stopAtFirstError: false,
                         });
+
+                        //check for image references and replace them with the actual urls
+                        config.config.display = await Promise.all(
+                            config.config.display.map(async (display) => {
+                                if (display.background_image?.uri) {
+                                    const url =
+                                        await this.filesService.replaceUriWithPublicUrl(
+                                            tenant.name,
+                                            display.background_image.uri,
+                                        );
+                                    if (url) {
+                                        display.background_image.uri = url;
+                                    } else {
+                                        this.logger.warn(
+                                            {
+                                                event: "ImportWarning",
+                                                file,
+                                                tenant: tenant.name,
+                                                uri: display.background_image
+                                                    .uri,
+                                            },
+                                            `Could not find image ${display.background_image.uri} for credentials config ${file} in tenant ${tenant.name}`,
+                                        );
+                                    }
+                                }
+                                if (display.logo?.uri) {
+                                    const url =
+                                        await this.filesService.replaceUriWithPublicUrl(
+                                            tenant.name,
+                                            display.logo.uri,
+                                        );
+                                    if (url) {
+                                        display.logo.uri = url;
+                                    } else {
+                                        this.logger.warn(
+                                            {
+                                                event: "ImportWarning",
+                                                file,
+                                                tenant: tenant.name,
+                                                uri: display.logo.uri,
+                                            },
+                                            `Could not find image ${display.logo.uri} for credentials config ${file} in tenant ${tenant.name}`,
+                                        );
+                                    }
+                                }
+
+                                return display;
+                            }),
+                        );
 
                         // Check if keyId is provided and if the certificate exists
                         if (config.keyId) {

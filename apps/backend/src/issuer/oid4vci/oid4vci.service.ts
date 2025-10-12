@@ -68,20 +68,7 @@ export class Oid4vciService {
      * @returns The initialized OID4VCI issuer and resource server.
      */
     onTenantInit(tenantId: string) {
-        return this.displayRepository.save({
-            tenantId,
-            value: [
-                {
-                    name: "EUDI Wallet dev",
-                    locale: "de-DE",
-                    //TODO: use some default urls
-                    logo: {
-                        uri: "<PUBLIC_URL>/issuer.png",
-                        url: "<PUBLIC_URL>/issuer.png",
-                    },
-                },
-            ],
-        });
+        //TODO: define what to do here
     }
 
     /**
