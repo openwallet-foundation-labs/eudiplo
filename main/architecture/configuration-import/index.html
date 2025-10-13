@@ -1356,6 +1356,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#image-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Image Configuration
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2088,6 +2097,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#image-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Image Configuration
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2266,7 +2284,7 @@ startup. This feature allows you to pre-configure credentials, issuance
 workflows, and presentation verification rules without using the API.</p>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">¶</a></h2>
 <p>The configuration import system automatically loads and validates JSON
-configuration files from the <code>config/config/</code> directory when the application
+configuration files from the <code>config/</code> directory when the application
 starts. This is particularly useful for:</p>
 <ul>
 <li><strong>Development environments</strong> - Pre-load test configurations</li>
@@ -2354,7 +2372,7 @@ starts. This is particularly useful for:</p>
 </ul>
 <h2 id="configuration-types">Configuration Types<a class="headerlink" href="#configuration-types" title="Permanent link">¶</a></h2>
 <h3 id="cryptographic-keys">Cryptographic Keys<a class="headerlink" href="#cryptographic-keys" title="Permanent link">¶</a></h3>
-<p><strong>Location</strong>: <code>config/config/{tenant}/keys/*.json</code></p>
+<p><strong>Location</strong>: <code>config/{tenant}/keys/*.json</code></p>
 <p>Import cryptographic keys for signing and certificate operations.</p>
 <p><strong>Example Structure</strong>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
@@ -2381,25 +2399,48 @@ starts. This is particularly useful for:</p>
 <li><strong>Validation</strong>: Full schema validation during import</li>
 </ul>
 <h3 id="credential-configurations">Credential Configurations<a class="headerlink" href="#credential-configurations" title="Permanent link">¶</a></h3>
-<p><strong>Location</strong>: <code>config/config/{tenant}/issuance/credentials/*.json</code></p>
+<p><strong>Location</strong>: <code>config/{tenant}/issuance/credentials/*.json</code></p>
 <p>Define credential templates and schemas.</p>
 <p><strong>Schema Reference</strong>:
 <a href="../../api/openapi/#credentialconfig">Credential Config API</a></p>
 <h3 id="issuance-configurations">Issuance Configurations<a class="headerlink" href="#issuance-configurations" title="Permanent link">¶</a></h3>
-<p><strong>Location</strong>: <code>config/config/{tenant}/issuance/issuance/*.json</code></p>
+<p><strong>Location</strong>: <code>config/{tenant}/issuance/issuance/*.json</code></p>
 <p>Define issuance workflows and authentication requirements.</p>
 <p><strong>Schema Reference</strong>:
 <a href="../../api/openapi/#issuanceconfig">Issuance Config API</a></p>
 <h3 id="presentation-configurations">Presentation Configurations<a class="headerlink" href="#presentation-configurations" title="Permanent link">¶</a></h3>
-<p><strong>Location</strong>: <code>config/config/{tenant}/presentation/*.json</code></p>
+<p><strong>Location</strong>: <code>config/{tenant}/presentation/*.json</code></p>
 <p>Define verification requirements for credential presentations.</p>
 <p><strong>Schema Reference</strong>:
 <a href="../../api/openapi/#presentationconfig">Presentation Config API</a></p>
 <h3 id="client-configurations">Client Configurations<a class="headerlink" href="#client-configurations" title="Permanent link">¶</a></h3>
-<p><strong>Location</strong>: <code>config/config/{tenant}/clients/*.json</code></p>
+<p><strong>Location</strong>: <code>config/{tenant}/clients/*.json</code></p>
 <p>Define client-specific configurations, including client IDs, secrets, and permissions.</p>
 <p><strong>Schema Reference</strong>:
 <a href="../../api/openapi/#clientconfig">Client Config API</a></p>
+<h3 id="image-configuration">Image Configuration<a class="headerlink" href="#image-configuration" title="Permanent link">¶</a></h3>
+<p><strong>Location</strong>: <code>config/{tenant}/images/*</code></p>
+<p>Uploads the images to be used in in the issuer display information or for credential configs.
+The reference to the image is done via the filename, e.g. <code>logo.png</code> instead of a full URL like:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="nt">"display"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">        </span><span class="p">{</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">            </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PID"</span><span class="p">,</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PID Credential"</span><span class="p">,</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">            </span><span class="nt">"locale"</span><span class="p">:</span><span class="w"> </span><span class="s2">"en-US"</span><span class="p">,</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">            </span><span class="nt">"background_color"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#FFFFFF"</span><span class="p">,</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">            </span><span class="nt">"text_color"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#000000"</span><span class="p">,</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">            </span><span class="nt">"background_image"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">                </span><span class="nt">"uri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"identity-card.jpg"</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">            </span><span class="p">},</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">            </span><span class="nt">"logo"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">                </span><span class="nt">"uri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"logo.jpg"</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">            </span><span class="p">}</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">    </span><span class="p">]</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="p">}</span>
+</code></pre></div>
+<p>When the image can not be found, the image reference is ignored.</p>
 <h2 id="import-process">Import Process<a class="headerlink" href="#import-process" title="Permanent link">¶</a></h2>
 <h3 id="startup-validation">Startup Validation<a class="headerlink" href="#startup-validation" title="Permanent link">¶</a></h3>
 <p>During application startup, EUDIPLO:</p>
@@ -2427,33 +2468,33 @@ starts. This is particularly useful for:</p>
 </ul>
 <h2 id="logging">Logging<a class="headerlink" href="#logging" title="Permanent link">¶</a></h2>
 <p>Import activities are logged with structured information:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Import"</span><span class="p">,</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="nt">"tenant"</span><span class="p">:</span><span class="w"> </span><span class="s2">"company-xyz"</span><span class="p">,</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="nt">"files"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5 credential configs imported for company-xyz"</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="p">}</span>
-</code></pre></div>
-<p><strong>Key import logging</strong>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Import"</span><span class="p">,</span>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="nt">"tenant"</span><span class="p">:</span><span class="w"> </span><span class="s2">"company-xyz"</span><span class="p">,</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3 keys imported for company-xyz"</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">}</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="nt">"files"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5 credential configs imported for company-xyz"</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="p">}</span>
+</code></pre></div>
+<p><strong>Key import logging</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Import"</span><span class="p">,</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="nt">"tenant"</span><span class="p">:</span><span class="w"> </span><span class="s2">"company-xyz"</span><span class="p">,</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3 keys imported for company-xyz"</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="p">}</span>
 </code></pre></div>
 <p><strong>Error logging</strong> includes detailed validation information:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ValidationError"</span><span class="p">,</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="nt">"file"</span><span class="p">:</span><span class="w"> </span><span class="s2">"invalid-config.json"</span><span class="p">,</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="nt">"tenant"</span><span class="p">:</span><span class="w"> </span><span class="s2">"company-xyz"</span><span class="p">,</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="nt">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">        </span><span class="p">{</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">            </span><span class="nt">"property"</span><span class="p">:</span><span class="w"> </span><span class="s2">"credentialConfigs"</span><span class="p">,</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">            </span><span class="nt">"constraints"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"isArray"</span><span class="p">:</span><span class="w"> </span><span class="s2">"credentialConfigs must be an array"</span><span class="w"> </span><span class="p">},</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">            </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"not-an-array"</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="p">]</span>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ValidationError"</span><span class="p">,</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="nt">"file"</span><span class="p">:</span><span class="w"> </span><span class="s2">"invalid-config.json"</span><span class="p">,</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="nt">"tenant"</span><span class="p">:</span><span class="w"> </span><span class="s2">"company-xyz"</span><span class="p">,</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="nt">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">        </span><span class="p">{</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">            </span><span class="nt">"property"</span><span class="p">:</span><span class="w"> </span><span class="s2">"credentialConfigs"</span><span class="p">,</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">            </span><span class="nt">"constraints"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"isArray"</span><span class="p">:</span><span class="w"> </span><span class="s2">"credentialConfigs must be an array"</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">            </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"not-an-array"</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="p">]</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="p">}</span>
 </code></pre></div>
 <h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">¶</a></h2>
 <h3 id="configuration-management">Configuration Management<a class="headerlink" href="#configuration-management" title="Permanent link">¶</a></h3>
@@ -2470,20 +2511,20 @@ starts. This is particularly useful for:</p>
 <li><strong>Manage configurations via API</strong> after initial import</li>
 </ul>
 <h3 id="multi-tenant-setup">Multi-Tenant Setup<a class="headerlink" href="#multi-tenant-setup" title="Permanent link">¶</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Organize by tenant/organization</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>assets/config/
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>├──<span class="w"> </span>acme-corp/
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>│<span class="w">   </span>├──<span class="w"> </span>keys/
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>│<span class="w">   </span>├──<span class="w"> </span>issuance/
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>│<span class="w">   </span>└──<span class="w"> </span>presentation/
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>├──<span class="w"> </span>university-x/
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>│<span class="w">   </span>├──<span class="w"> </span>keys/
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>│<span class="w">   </span>├──<span class="w"> </span>issuance/
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>│<span class="w">   </span>└──<span class="w"> </span>presentation/
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>└──<span class="w"> </span>government-agency/
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">    </span>├──<span class="w"> </span>keys/
-<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">    </span>├──<span class="w"> </span>issuance/
-<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">    </span>└──<span class="w"> </span>presentation/
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Organize by tenant/organization</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>assets/config/
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>├──<span class="w"> </span>acme-corp/
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>│<span class="w">   </span>├──<span class="w"> </span>keys/
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>│<span class="w">   </span>├──<span class="w"> </span>issuance/
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>│<span class="w">   </span>└──<span class="w"> </span>presentation/
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>├──<span class="w"> </span>university-x/
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>│<span class="w">   </span>├──<span class="w"> </span>keys/
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>│<span class="w">   </span>├──<span class="w"> </span>issuance/
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>│<span class="w">   </span>└──<span class="w"> </span>presentation/
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>└──<span class="w"> </span>government-agency/
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">    </span>├──<span class="w"> </span>keys/
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">    </span>├──<span class="w"> </span>issuance/
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">    </span>└──<span class="w"> </span>presentation/
 </code></pre></div>
 <p>Even when you just have one tenant, use a folder structure to prepare for future
 multi-tenancy.</p>

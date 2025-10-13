@@ -24,6 +24,10 @@
 <title>cluster_IssuerModule</title>
 <polygon fill="none" stroke="black" stroke-dasharray="1,5" points="8,-70 8,-268 1768,-268 1768,-70 8,-70"/>
 </g>
+<g id="clust4" class="cluster">
+<title>cluster_IssuerModule_exports</title>
+<polygon fill="none" stroke="black" points="453,-208 453,-260 1138,-260 1138,-208 453,-208"/>
+</g>
 <g id="clust6" class="cluster">
 <title>cluster_IssuerModule_providers</title>
 <polygon fill="none" stroke="black" points="512,-78 512,-130 1760,-130 1760,-78 512,-78"/>
@@ -31,10 +35,6 @@
 <g id="clust3" class="cluster">
 <title>cluster_IssuerModule_imports</title>
 <polygon fill="none" stroke="black" points="16,-78 16,-130 504,-130 504,-78 16,-78"/>
-</g>
-<g id="clust4" class="cluster">
-<title>cluster_IssuerModule_exports</title>
-<polygon fill="none" stroke="black" points="502,-208 502,-260 1064,-260 1064,-208 502,-208"/>
 </g>
 <!-- CryptoModule -->
 <g id="node1" class="node">
@@ -51,8 +51,8 @@
 <!-- CryptoModule&#45;&gt;IssuerModule -->
 <g id="edge1" class="edge">
 <title>CryptoModule&#45;&gt;IssuerModule</title>
-<path fill="none" stroke="black" d="M447,-122.03C447,-139.06 447,-162 447,-162 447,-162 708.42,-162 708.42,-162"/>
-<polygon fill="black" stroke="black" points="708.42,-165.5 718.42,-162 708.42,-158.5 708.42,-165.5"/>
+<path fill="none" stroke="black" d="M478.46,-122.03C478.46,-138.4 478.46,-160 478.46,-160 478.46,-160 708.33,-160 708.33,-160"/>
+<polygon fill="black" stroke="black" points="708.33,-163.5 718.33,-160 708.33,-156.5 708.33,-163.5"/>
 </g>
 <!-- Oid4vpModule -->
 <g id="node2" class="node">
@@ -63,8 +63,8 @@
 <!-- Oid4vpModule&#45;&gt;IssuerModule -->
 <g id="edge2" class="edge">
 <title>Oid4vpModule&#45;&gt;IssuerModule</title>
-<path fill="none" stroke="black" d="M329,-122.22C329,-140.83 329,-167 329,-167 329,-167 708.34,-167 708.34,-167"/>
-<polygon fill="black" stroke="black" points="708.34,-170.5 718.34,-167 708.34,-163.5 708.34,-170.5"/>
+<path fill="none" stroke="black" d="M329,-122.3C329,-140.27 329,-165 329,-165 329,-165 708.34,-165 708.34,-165"/>
+<polygon fill="black" stroke="black" points="708.34,-168.5 718.34,-165 708.34,-161.5 708.34,-168.5"/>
 </g>
 <!-- SessionModule -->
 <g id="node3" class="node">
@@ -75,8 +75,8 @@
 <!-- SessionModule&#45;&gt;IssuerModule -->
 <g id="edge3" class="edge">
 <title>SessionModule&#45;&gt;IssuerModule</title>
-<path fill="none" stroke="black" d="M209,-122.22C209,-142.37 209,-172 209,-172 209,-172 708.07,-172 708.07,-172"/>
-<polygon fill="black" stroke="black" points="708.07,-175.5 718.07,-172 708.07,-168.5 708.07,-175.5"/>
+<path fill="none" stroke="black" d="M209,-122.11C209,-141.34 209,-169 209,-169 209,-169 708.07,-169 708.07,-169"/>
+<polygon fill="black" stroke="black" points="708.07,-172.5 718.07,-169 708.07,-165.5 708.07,-172.5"/>
 </g>
 <!-- StatusListModule -->
 <g id="node4" class="node">
@@ -87,140 +87,152 @@
 <!-- StatusListModule&#45;&gt;IssuerModule -->
 <g id="edge4" class="edge">
 <title>StatusListModule&#45;&gt;IssuerModule</title>
-<path fill="none" stroke="black" d="M82,-122.04C82,-143.66 82,-177 82,-177 82,-177 708.32,-177 708.32,-177"/>
-<polygon fill="black" stroke="black" points="708.32,-180.5 718.32,-177 708.32,-173.5 708.32,-180.5"/>
+<path fill="none" stroke="black" d="M82,-122.03C82,-142.77 82,-174 82,-174 82,-174 708.32,-174 708.32,-174"/>
+<polygon fill="black" stroke="black" points="708.32,-177.5 718.32,-174 708.32,-170.5 708.32,-177.5"/>
 </g>
 <!-- AuthorizeService  -->
 <g id="node6" class="node">
 <title>AuthorizeService </title>
-<polygon fill="#fb8072" stroke="black" points="1055.96,-252 938.04,-252 938.04,-216 1055.96,-216 1055.96,-252"/>
-<text text-anchor="middle" x="997" y="-229.8" font-family="Times,serif" font-size="14.00">AuthorizeService </text>
+<polygon fill="#fb8072" stroke="black" points="1129.96,-252 1012.04,-252 1012.04,-216 1129.96,-216 1129.96,-252"/>
+<text text-anchor="middle" x="1071" y="-229.8" font-family="Times,serif" font-size="14.00">AuthorizeService </text>
 </g>
 <!-- IssuerModule&#45;&gt;AuthorizeService  -->
 <g id="edge5" class="edge">
 <title>IssuerModule&#45;&gt;AuthorizeService </title>
-<path fill="none" stroke="black" stroke-dasharray="5,2" d="M811.6,-182C871.89,-182 969.25,-182 969.25,-182 969.25,-182 969.25,-205.81 969.25,-205.81"/>
-<polygon fill="black" stroke="black" points="965.75,-205.81 969.25,-215.81 972.75,-205.81 965.75,-205.81"/>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M811.57,-178C901.98,-178 1092.48,-178 1092.48,-178 1092.48,-178 1092.48,-205.97 1092.48,-205.97"/>
+<polygon fill="black" stroke="black" points="1088.98,-205.97 1092.48,-215.97 1095.98,-205.97 1088.98,-205.97"/>
 </g>
 <!-- CredentialConfigService  -->
 <g id="node7" class="node">
 <title>CredentialConfigService </title>
-<polygon fill="#fb8072" stroke="black" points="920.18,-252 761.82,-252 761.82,-216 920.18,-216 920.18,-252"/>
-<text text-anchor="middle" x="841" y="-229.8" font-family="Times,serif" font-size="14.00">CredentialConfigService </text>
+<polygon fill="#fb8072" stroke="black" points="994.18,-252 835.82,-252 835.82,-216 994.18,-216 994.18,-252"/>
+<text text-anchor="middle" x="915" y="-229.8" font-family="Times,serif" font-size="14.00">CredentialConfigService </text>
 </g>
 <!-- IssuerModule&#45;&gt;CredentialConfigService  -->
 <g id="edge6" class="edge">
 <title>IssuerModule&#45;&gt;CredentialConfigService </title>
-<path fill="none" stroke="black" stroke-dasharray="5,2" d="M786.57,-187.11C786.57,-187.11 786.57,-205.99 786.57,-205.99"/>
-<polygon fill="black" stroke="black" points="783.07,-205.99 786.57,-215.99 790.07,-205.99 783.07,-205.99"/>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M811.5,-183C829.08,-183 844.93,-183 844.93,-183 844.93,-183 844.93,-205.88 844.93,-205.88"/>
+<polygon fill="black" stroke="black" points="841.43,-205.88 844.93,-215.88 848.43,-205.88 841.43,-205.88"/>
+</g>
+<!-- DisplayService  -->
+<g id="node8" class="node">
+<title>DisplayService </title>
+<polygon fill="#fb8072" stroke="black" points="817.52,-252 712.48,-252 712.48,-216 817.52,-216 817.52,-252"/>
+<text text-anchor="middle" x="765" y="-229.8" font-family="Times,serif" font-size="14.00">DisplayService </text>
+</g>
+<!-- IssuerModule&#45;&gt;DisplayService  -->
+<g id="edge7" class="edge">
+<title>IssuerModule&#45;&gt;DisplayService </title>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M765,-187.11C765,-187.11 765,-205.99 765,-205.99"/>
+<polygon fill="black" stroke="black" points="761.5,-205.99 765,-215.99 768.5,-205.99 761.5,-205.99"/>
 </g>
 <!-- IssuanceService  -->
-<g id="node8" class="node">
+<g id="node9" class="node">
 <title>IssuanceService </title>
-<polygon fill="#fb8072" stroke="black" points="743.67,-252 634.33,-252 634.33,-216 743.67,-216 743.67,-252"/>
-<text text-anchor="middle" x="689" y="-229.8" font-family="Times,serif" font-size="14.00">IssuanceService </text>
+<polygon fill="#fb8072" stroke="black" points="694.67,-252 585.33,-252 585.33,-216 694.67,-216 694.67,-252"/>
+<text text-anchor="middle" x="640" y="-229.8" font-family="Times,serif" font-size="14.00">IssuanceService </text>
 </g>
 <!-- IssuerModule&#45;&gt;IssuanceService  -->
-<g id="edge7" class="edge">
+<g id="edge8" class="edge">
 <title>IssuerModule&#45;&gt;IssuanceService </title>
-<path fill="none" stroke="black" stroke-dasharray="5,2" d="M731.17,-187.11C731.17,-187.11 731.17,-205.99 731.17,-205.99"/>
-<polygon fill="black" stroke="black" points="727.67,-205.99 731.17,-215.99 734.67,-205.99 727.67,-205.99"/>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M718.3,-183C700.64,-183 684.72,-183 684.72,-183 684.72,-183 684.72,-205.88 684.72,-205.88"/>
+<polygon fill="black" stroke="black" points="681.22,-205.88 684.72,-215.88 688.22,-205.88 681.22,-205.88"/>
 </g>
 <!-- Oid4vciService  -->
-<g id="node9" class="node">
+<g id="node10" class="node">
 <title>Oid4vciService </title>
-<polygon fill="#fb8072" stroke="black" points="616.08,-252 509.92,-252 509.92,-216 616.08,-216 616.08,-252"/>
-<text text-anchor="middle" x="563" y="-229.8" font-family="Times,serif" font-size="14.00">Oid4vciService </text>
+<polygon fill="#fb8072" stroke="black" points="567.08,-252 460.92,-252 460.92,-216 567.08,-216 567.08,-252"/>
+<text text-anchor="middle" x="514" y="-229.8" font-family="Times,serif" font-size="14.00">Oid4vciService </text>
 </g>
 <!-- IssuerModule&#45;&gt;Oid4vciService  -->
-<g id="edge8" class="edge">
+<g id="edge9" class="edge">
 <title>IssuerModule&#45;&gt;Oid4vciService </title>
-<path fill="none" stroke="black" stroke-dasharray="5,2" d="M718.4,-182C660.26,-182 568.38,-182 568.38,-182 568.38,-182 568.38,-205.81 568.38,-205.81"/>
-<polygon fill="black" stroke="black" points="564.88,-205.81 568.38,-215.81 571.88,-205.81 564.88,-205.81"/>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M718.38,-178C653.5,-178 543.88,-178 543.88,-178 543.88,-178 543.88,-205.97 543.88,-205.97"/>
+<polygon fill="black" stroke="black" points="540.38,-205.97 543.88,-215.97 547.38,-205.97 540.38,-205.97"/>
 </g>
 <!-- AuthorizeService -->
-<g id="node10" class="node">
+<g id="node11" class="node">
 <title>AuthorizeService</title>
 <ellipse fill="#fdb462" stroke="black" cx="1673" cy="-104" rx="78.71" ry="18"/>
 <text text-anchor="middle" x="1673" y="-99.8" font-family="Times,serif" font-size="14.00">AuthorizeService</text>
 </g>
 <!-- AuthorizeService&#45;&gt;IssuerModule -->
-<g id="edge9" class="edge">
+<g id="edge10" class="edge">
 <title>AuthorizeService&#45;&gt;IssuerModule</title>
-<path fill="none" stroke="black" d="M1673,-122.04C1673,-143.66 1673,-177 1673,-177 1673,-177 821.59,-177 821.59,-177"/>
-<polygon fill="black" stroke="black" points="821.59,-173.5 811.59,-177 821.59,-180.5 821.59,-173.5"/>
+<path fill="none" stroke="black" d="M1673,-122.03C1673,-142.77 1673,-174 1673,-174 1673,-174 821.59,-174 821.59,-174"/>
+<polygon fill="black" stroke="black" points="821.59,-170.5 811.59,-174 821.59,-177.5 821.59,-170.5"/>
 </g>
 <!-- CredentialConfigService -->
-<g id="node11" class="node">
+<g id="node12" class="node">
 <title>CredentialConfigService</title>
 <ellipse fill="#fdb462" stroke="black" cx="1469" cy="-104" rx="107.08" ry="18"/>
 <text text-anchor="middle" x="1469" y="-99.8" font-family="Times,serif" font-size="14.00">CredentialConfigService</text>
 </g>
 <!-- CredentialConfigService&#45;&gt;IssuerModule -->
-<g id="edge10" class="edge">
+<g id="edge11" class="edge">
 <title>CredentialConfigService&#45;&gt;IssuerModule</title>
-<path fill="none" stroke="black" d="M1469,-122.22C1469,-142.37 1469,-172 1469,-172 1469,-172 821.74,-172 821.74,-172"/>
-<polygon fill="black" stroke="black" points="821.74,-168.5 811.74,-172 821.74,-175.5 821.74,-168.5"/>
+<path fill="none" stroke="black" d="M1469,-122.11C1469,-141.34 1469,-169 1469,-169 1469,-169 821.74,-169 821.74,-169"/>
+<polygon fill="black" stroke="black" points="821.74,-165.5 811.74,-169 821.74,-172.5 821.74,-165.5"/>
 </g>
 <!-- CredentialsService -->
-<g id="node12" class="node">
+<g id="node13" class="node">
 <title>CredentialsService</title>
 <ellipse fill="#fdb462" stroke="black" cx="1260" cy="-104" rx="83.94" ry="18"/>
 <text text-anchor="middle" x="1260" y="-99.8" font-family="Times,serif" font-size="14.00">CredentialsService</text>
 </g>
 <!-- CredentialsService&#45;&gt;IssuerModule -->
-<g id="edge11" class="edge">
+<g id="edge12" class="edge">
 <title>CredentialsService&#45;&gt;IssuerModule</title>
-<path fill="none" stroke="black" d="M1260,-122.22C1260,-140.83 1260,-167 1260,-167 1260,-167 821.57,-167 821.57,-167"/>
-<polygon fill="black" stroke="black" points="821.57,-163.5 811.57,-167 821.57,-170.5 821.57,-163.5"/>
+<path fill="none" stroke="black" d="M1260,-122.3C1260,-140.27 1260,-165 1260,-165 1260,-165 821.57,-165 821.57,-165"/>
+<polygon fill="black" stroke="black" points="821.57,-161.5 811.57,-165 821.57,-168.5 821.57,-161.5"/>
 </g>
 <!-- DisplayService -->
-<g id="node13" class="node">
+<g id="node14" class="node">
 <title>DisplayService</title>
 <ellipse fill="#fdb462" stroke="black" cx="1088" cy="-104" rx="70.06" ry="18"/>
 <text text-anchor="middle" x="1088" y="-99.8" font-family="Times,serif" font-size="14.00">DisplayService</text>
 </g>
 <!-- DisplayService&#45;&gt;IssuerModule -->
-<g id="edge12" class="edge">
+<g id="edge13" class="edge">
 <title>DisplayService&#45;&gt;IssuerModule</title>
-<path fill="none" stroke="black" d="M1036.85,-116.3C1036.85,-133.33 1036.85,-162 1036.85,-162 1036.85,-162 821.73,-162 821.73,-162"/>
-<polygon fill="black" stroke="black" points="821.73,-158.5 811.73,-162 821.73,-165.5 821.73,-158.5"/>
+<path fill="none" stroke="black" d="M1055.22,-120.2C1055.22,-136.74 1055.22,-160 1055.22,-160 1055.22,-160 821.63,-160 821.63,-160"/>
+<polygon fill="black" stroke="black" points="821.63,-156.5 811.63,-160 821.63,-163.5 821.63,-156.5"/>
 </g>
 <!-- IssuanceService -->
-<g id="node14" class="node">
+<g id="node15" class="node">
 <title>IssuanceService</title>
 <ellipse fill="#fdb462" stroke="black" cx="927" cy="-104" rx="73.47" ry="18"/>
 <text text-anchor="middle" x="927" y="-99.8" font-family="Times,serif" font-size="14.00">IssuanceService</text>
 </g>
 <!-- IssuanceService&#45;&gt;IssuerModule -->
-<g id="edge13" class="edge">
+<g id="edge14" class="edge">
 <title>IssuanceService&#45;&gt;IssuerModule</title>
-<path fill="none" stroke="black" d="M887.05,-119.33C887.05,-134.98 887.05,-157 887.05,-157 887.05,-157 821.49,-157 821.49,-157"/>
-<polygon fill="black" stroke="black" points="821.49,-153.5 811.49,-157 821.49,-160.5 821.49,-153.5"/>
+<path fill="none" stroke="black" d="M924.05,-122.19C924.05,-137.18 924.05,-156 924.05,-156 924.05,-156 821.86,-156 821.86,-156"/>
+<polygon fill="black" stroke="black" points="821.86,-152.5 811.86,-156 821.86,-159.5 821.86,-152.5"/>
 </g>
 <!-- Oid4vciService -->
-<g id="node15" class="node">
+<g id="node16" class="node">
 <title>Oid4vciService</title>
 <ellipse fill="#fdb462" stroke="black" cx="765" cy="-104" rx="71.21" ry="18"/>
 <text text-anchor="middle" x="765" y="-99.8" font-family="Times,serif" font-size="14.00">Oid4vciService</text>
 </g>
 <!-- Oid4vciService&#45;&gt;IssuerModule -->
-<g id="edge14" class="edge">
+<g id="edge15" class="edge">
 <title>Oid4vciService&#45;&gt;IssuerModule</title>
 <path fill="none" stroke="black" d="M765,-122.11C765,-122.11 765,-140.99 765,-140.99"/>
 <polygon fill="black" stroke="black" points="761.5,-140.99 765,-150.99 768.5,-140.99 761.5,-140.99"/>
 </g>
 <!-- WebhookService -->
-<g id="node16" class="node">
+<g id="node17" class="node">
 <title>WebhookService</title>
 <ellipse fill="#fdb462" stroke="black" cx="598" cy="-104" rx="77.57" ry="18"/>
 <text text-anchor="middle" x="598" y="-99.8" font-family="Times,serif" font-size="14.00">WebhookService</text>
 </g>
 <!-- WebhookService&#45;&gt;IssuerModule -->
-<g id="edge15" class="edge">
+<g id="edge16" class="edge">
 <title>WebhookService&#45;&gt;IssuerModule</title>
-<path fill="none" stroke="black" d="M654.85,-116.29C654.85,-131.95 654.85,-157 654.85,-157 654.85,-157 708.29,-157 708.29,-157"/>
-<polygon fill="black" stroke="black" points="708.29,-160.5 718.29,-157 708.29,-153.5 708.29,-160.5"/>
+<path fill="none" stroke="black" d="M630.35,-120.45C630.35,-135.69 630.35,-156 630.35,-156 630.35,-156 708.28,-156 708.28,-156"/>
+<polygon fill="black" stroke="black" points="708.28,-159.5 718.28,-156 708.28,-152.5 708.28,-159.5"/>
 </g>
 </g>
 </svg>
