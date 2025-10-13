@@ -15,7 +15,7 @@ import { Gauge } from "prom-client";
 import { Repository } from "typeorm/repository/Repository";
 import { CryptoService } from "../../crypto/crypto.service";
 import { EncryptionService } from "../../crypto/encryption/encryption.service";
-import { Oid4vciService } from "../../issuer/oid4vci/oid4vci.service";
+import { DisplayService } from "../../issuer/display/display.service";
 import { StatusListService } from "../../issuer/status-list/status-list.service";
 import { RegistrarService } from "../../registrar/registrar.service";
 import { FilesService } from "../../storage/files.service";
@@ -39,7 +39,7 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
         private encryptionService: EncryptionService,
         private statusListService: StatusListService,
         private registrarService: RegistrarService,
-        private oid4vciService: Oid4vciService,
+        private displayService: DisplayService,
         @InjectRepository(TenantEntity)
         private tenantRepository: Repository<TenantEntity>,
         @InjectMetric("tenant_total")
@@ -155,7 +155,7 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
         await this.encryptionService.onTenantInit(tenant.id);
         await this.statusListService.onTenantInit(tenant.id);
         await this.registrarService.onTenantInit(tenant);
-        await this.oid4vciService.onTenantInit(tenant.id);
+        await this.displayService.onTenantInit(tenant);
         await this.tenantRepository.update(
             { id: tenant.id },
             { status: "active" },

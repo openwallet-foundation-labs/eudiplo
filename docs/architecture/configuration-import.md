@@ -7,7 +7,7 @@ workflows, and presentation verification rules without using the API.
 ## Overview
 
 The configuration import system automatically loads and validates JSON
-configuration files from the `config/config/` directory when the application
+configuration files from the `config/` directory when the application
 starts. This is particularly useful for:
 
 - **Development environments** - Pre-load test configurations
@@ -77,7 +77,7 @@ assets/
 
 ### Cryptographic Keys
 
-**Location**: `config/config/{tenant}/keys/*.json`
+**Location**: `config/{tenant}/keys/*.json`
 
 Import cryptographic keys for signing and certificate operations.
 
@@ -110,7 +110,7 @@ Import cryptographic keys for signing and certificate operations.
 
 ### Credential Configurations
 
-**Location**: `config/config/{tenant}/issuance/credentials/*.json`
+**Location**: `config/{tenant}/issuance/credentials/*.json`
 
 Define credential templates and schemas.
 
@@ -119,7 +119,7 @@ Define credential templates and schemas.
 
 ### Issuance Configurations
 
-**Location**: `config/config/{tenant}/issuance/issuance/*.json`
+**Location**: `config/{tenant}/issuance/issuance/*.json`
 
 Define issuance workflows and authentication requirements.
 
@@ -128,7 +128,7 @@ Define issuance workflows and authentication requirements.
 
 ### Presentation Configurations
 
-**Location**: `config/config/{tenant}/presentation/*.json`
+**Location**: `config/{tenant}/presentation/*.json`
 
 Define verification requirements for credential presentations.
 
@@ -137,12 +137,41 @@ Define verification requirements for credential presentations.
 
 ### Client Configurations
 
-**Location**: `config/config/{tenant}/clients/*.json`
+**Location**: `config/{tenant}/clients/*.json`
 
 Define client-specific configurations, including client IDs, secrets, and permissions.
 
 **Schema Reference**:
 [Client Config API](../api/openapi.md#clientconfig)
+
+### Image Configuration
+
+**Location**: `config/{tenant}/images/*`
+
+Uploads the images to be used in in the issuer display information or for credential configs.
+The reference to the image is done via the filename, e.g. `logo.png` instead of a full URL like:
+
+```json
+{
+    "display": [
+        {
+            "name": "PID",
+            "description": "PID Credential",
+            "locale": "en-US",
+            "background_color": "#FFFFFF",
+            "text_color": "#000000",
+            "background_image": {
+                "uri": "identity-card.jpg"
+            },
+            "logo": {
+                "uri": "logo.jpg"
+            }
+        }
+    ]
+}
+```
+
+When the image can not be found, the image reference is ignored.
 
 ## Import Process
 
