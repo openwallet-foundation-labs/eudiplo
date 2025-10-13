@@ -2,7 +2,6 @@ import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { MulterModule } from "@nestjs/platform-express";
 import { ScheduleModule } from "@nestjs/schedule";
-import { ServeStaticModule } from "@nestjs/serve-static";
 import { memoryStorage } from "multer";
 import { LoggerModule } from "nestjs-pino";
 import { AppController } from "./app/app.controller";
@@ -18,7 +17,6 @@ import { SessionModule } from "./session/session.module";
 import { StorageModule } from "./storage/storage.module";
 import { VALIDATION_SCHEMA } from "./utils/config-printer/combined.schema";
 import { createLoggerOptions } from "./utils/logger/logger.factory";
-import { createServeStaticOptions } from "./utils/serve-static.factory";
 import { VerifierModule } from "./verifier/verifier.module";
 import { WellKnownController } from "./well-known/well-known.controller";
 import { WellKnownService } from "./well-known/well-known.service";
@@ -45,11 +43,6 @@ import { WellKnownService } from "./well-known/well-known.service";
         VerifierModule,
         RegistrarModule,
         ScheduleModule.forRoot(),
-        ServeStaticModule.forRootAsync({
-            imports: [ConfigModule],
-            inject: [ConfigService],
-            useFactory: createServeStaticOptions,
-        }),
         DatabaseModule,
         SessionModule,
         DatabaseModule,

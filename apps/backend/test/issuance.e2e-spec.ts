@@ -189,6 +189,20 @@ describe("Issuance", () => {
             .trustLocalhost()
             .set("Authorization", `Bearer ${authToken}`)
             .expect(200);
+
+        //import display information
+        const displayConfiguration = JSON.parse(
+            readFileSync(
+                "../../assets/config/root/issuance/display.json",
+                "utf-8",
+            ),
+        );
+        await request(app.getHttpServer())
+            .post("/display")
+            .trustLocalhost()
+            .set("Authorization", `Bearer ${authToken}`)
+            .send(displayConfiguration)
+            .expect(201);
     });
 
     afterAll(async () => {

@@ -3,8 +3,14 @@ import { TenantEntity } from "../../auth/tenant/entitites/tenant.entity";
 
 @Entity()
 export class FileEntity {
+    /**
+     * The ID of the object.
+     */
     @PrimaryColumn()
     id: string;
+
+    @Column()
+    filename: string;
 
     /**
      * Tenant ID for the key.

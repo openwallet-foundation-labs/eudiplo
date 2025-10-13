@@ -465,6 +465,7 @@ export class CryptoService {
             clientAuthentication: clientAuthenticationNone({
                 clientId: "some-random",
             }),
+            fetch: this.fetchFunction(tenantId).bind(this),
             //clientId: 'some-random-client-id', // TODO: Replace with your real clientId if necessary
             signJwt: this.getSignJwtCallback(tenantId),
             verifyJwt: async (signer, { compact, payload }) => {
@@ -487,6 +488,25 @@ export class CryptoService {
                     return { verified: false };
                 }
             },
+        };
+    }
+
+    /**
+     * Override the fetch function since key can be passed
+     * @param tenantId
+     * @returns
+     */
+    fetchFunction(tenantId: string) {
+        return (): Promise<Response> => {
+            return Promise.resolve({
+                json: async () => {
+                    return {
+                        keys: [await this.getJwks(tenantId)],
+                    };
+                },
+                ok: true,
+                headers: new Headers({ "Content-Type": "application/json" }),
+            }) as Promise<Response>;
         };
     }
 
