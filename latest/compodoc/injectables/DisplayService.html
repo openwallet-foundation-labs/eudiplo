@@ -167,6 +167,13 @@
                             <li>
                                 <a href="#get" >get</a>
                             </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#import" >import</a>
+                            </li>
+                            <li>
+                                <a href="#onApplicationBootstrap" >onApplicationBootstrap</a>
+                            </li>
                         </ul>
                     </td>
                 </tr>
@@ -185,12 +192,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(displayRepository: <a href="../classes/Display.html" target="_self">Repository&lt;DisplayEntity&gt;</a>)</code>
+<code>constructor(displayRepository: <a href="../classes/Display.html" target="_self">Repository&lt;DisplayEntity&gt;</a>, configService: ConfigService, logger: PinoLogger, filesService: <a href="../injectables/FilesService.html" target="_self">FilesService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="11" class="link-to-prism">src/issuer/display/display.service.ts:11</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="18" class="link-to-prism">src/issuer/display/display.service.ts:18</a></div>
                             </td>
                         </tr>
 
@@ -214,6 +221,42 @@
                                                   
                                                         <td>
                                                                         <code><a href="../classes/Display.html" target="_self" >Repository&lt;DisplayEntity&gt;</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>configService</td>
+                                                  
+                                                        <td>
+                                                                    <code>ConfigService</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>logger</td>
+                                                  
+                                                        <td>
+                                                                    <code>PinoLogger</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>filesService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/FilesService.html" target="_self" >FilesService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -255,8 +298,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="38"
-                                    class="link-to-prism">src/issuer/display/display.service.ts:38</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="139"
+                                    class="link-to-prism">src/issuer/display/display.service.ts:139</a></div>
                         </td>
                     </tr>
 
@@ -346,8 +389,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="26"
-                                    class="link-to-prism">src/issuer/display/display.service.ts:26</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="127"
+                                    class="link-to-prism">src/issuer/display/display.service.ts:127</a></div>
                         </td>
                     </tr>
 
@@ -401,15 +444,102 @@
             </tr>
         </tbody>
     </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="import"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>import</b></span>
+                        <a href="#import"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>import()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="41"
+                                    class="link-to-prism">src/issuer/display/display.service.ts:41</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Import display information from the config folder</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onApplicationBootstrap"></a>
+                    <span class="name">
+                        <span ><b>onApplicationBootstrap</b></span>
+                        <a href="#onApplicationBootstrap"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>onApplicationBootstrap()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="34"
+                                    class="link-to-prism">src/issuer/display/display.service.ts:34</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>On application bootstrap, import display information</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </section>
 
     </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, OnApplicationBootstrap } from &quot;@nestjs/common&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
+import { plainToClass } from &quot;class-transformer&quot;;
+import { validate } from &quot;class-validator&quot;;
+import { readdirSync, readFileSync } from &quot;fs&quot;;
+import { PinoLogger } from &quot;nestjs-pino&quot;;
+import { join } from &quot;path&quot;;
 import { Repository } from &quot;typeorm&quot;;
+import { FilesService } from &quot;../../storage/files.service&quot;;
 import { DisplayCreateDto } from &quot;./dto/display-create.dto&quot;;
 import { DisplayEntity } from &quot;./entities/display.entity&quot;;
 
@@ -417,7 +547,7 @@ import { DisplayEntity } from &quot;./entities/display.entity&quot;;
  * Display Service
  */
 @Injectable()
-export class DisplayService {
+export class DisplayService implements OnApplicationBootstrap {
     /**
      * Display Service
      * @param displayRepository
@@ -425,7 +555,101 @@ export class DisplayService {
     constructor(
         @InjectRepository(DisplayEntity)
         private readonly displayRepository: Repository&lt;DisplayEntity&gt;,
+        private readonly configService: ConfigService,
+        private logger: PinoLogger,
+        private filesService: FilesService,
     ) {}
+
+    /**
+     * On application bootstrap, import display information
+     */
+    onApplicationBootstrap() {
+        this.import();
+    }
+
+    /**
+     * Import display information from the config folder
+     */
+    async import() {
+        const configPath &#x3D; this.configService.getOrThrow(&quot;CONFIG_FOLDER&quot;);
+        const subfolder &#x3D; &quot;issuance/display.json&quot;;
+        const force &#x3D; this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT_FORCE&quot;);
+        if (this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT&quot;)) {
+            const tenantFolders &#x3D; readdirSync(configPath, {
+                withFileTypes: true,
+            }).filter((tenant) &#x3D;&gt; tenant.isDirectory());
+            for (const tenant of tenantFolders) {
+                //iterate over all elements in the folder and import them
+                const path &#x3D; join(configPath, tenant.name, subfolder);
+                const file &#x3D; readFileSync(path);
+                if (!file) {
+                    continue;
+                }
+                const payload &#x3D; JSON.parse(file.toString());
+
+                // Validate the payload against DisplayCreateDto
+                const config &#x3D; plainToClass(DisplayCreateDto, payload);
+                const validationErrors &#x3D; await validate(config, {
+                    whitelist: true,
+                    forbidUnknownValues: false, // avoid false positives on plain objects
+                    forbidNonWhitelisted: false,
+                    stopAtFirstError: false,
+                });
+                if (validationErrors.length &gt; 0) {
+                    this.logger.error(
+                        {
+                            event: &quot;Import&quot;,
+                            errors: validationErrors,
+                        },
+                        &#x60;Invalid display configuration for ${tenant.name}, skipping import&#x60;,
+                    );
+                    continue;
+                }
+
+                //replace relative uris with public urls
+                config.value &#x3D; await Promise.all(
+                    config.value.map(async (display) &#x3D;&gt; {
+                        if (display.logo?.url) {
+                            const url &#x3D;
+                                await this.filesService.replaceUriWithPublicUrl(
+                                    tenant.name,
+                                    display.logo.url.trim(),
+                                );
+                            if (!url) {
+                                this.logger.error(
+                                    {
+                                        event: &quot;Import&quot;,
+                                    },
+                                    &#x60;Could not find logo ${display.logo.url} for ${tenant.name}, skipping import&#x60;,
+                                );
+                            } else {
+                                display.logo.url &#x3D; url;
+                            }
+                        }
+                        return display;
+                    }),
+                );
+
+                //check if already exists
+                const exists &#x3D; await this.displayRepository.findOneBy({
+                    tenantId: tenant.name,
+                });
+                if (exists &amp;&amp; !force) continue;
+
+                await this.displayRepository.save({
+                    ...config,
+                    tenantId: tenant.name,
+                });
+
+                this.logger.info(
+                    {
+                        event: &quot;Import&quot;,
+                    },
+                    &#x60;imported display info for ${tenant.name}&#x60;,
+                );
+            }
+        }
+    }
 
     /**
      * Get display information for a user

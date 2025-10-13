@@ -265,7 +265,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../classes/Oauth2AuthorizationServerResponse.html" target="_self" >Oauth2AuthorizationServerResponse</a></code>
+                            <b>Returns : </b>        <code><a href="../classes/Oauth2AuthorizationServerResponse.html" target="_self" >Promise&lt;Oauth2AuthorizationServerResponse&gt;</a></code>
 
                         </div>
                             <div class="io-description">
@@ -508,8 +508,8 @@ export class WellKnownController {
     @Get(&quot;oauth-authorization-server&quot;)
     authzMetadata(
         @SessionEntity() session: Session,
-    ): Oauth2AuthorizationServerResponse {
-        return this.wellKnownService.getAuthzMetadata(session); //d
+    ): Promise&lt;Oauth2AuthorizationServerResponse&gt; {
+        return this.wellKnownService.getAuthzMetadata(session);
     }
 
     /**

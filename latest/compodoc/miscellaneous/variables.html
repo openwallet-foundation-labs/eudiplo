@@ -149,9 +149,6 @@
                             <a href="#createLoggerOptions" title="src/utils/logger/logger.factory.ts" ><b>createLoggerOptions</b>&nbsp;&nbsp;&nbsp;(src/.../logger.factory.ts)</a>
                         </li>
                         <li>
-                            <a href="#createServeStaticOptions" title="src/utils/serve-static.factory.ts" ><b>createServeStaticOptions</b>&nbsp;&nbsp;&nbsp;(src/.../serve-static.factory.ts)</a>
-                        </li>
-                        <li>
                             <a href="#CRYPTO_VALIDATION_SCHEMA" title="src/crypto/key/crypto-implementation/crypto-validation.schema.ts" ><b>CRYPTO_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../crypto-validation.schema.ts)</a>
                         </li>
                         <li>
@@ -331,18 +328,6 @@
     })
         .description(&quot;Client ID (local auth)&quot;)
         .meta({ group: &quot;auth&quot;, order: 90 }),
-    //TODO: logic has to be challenged
-    AUTH_CLIENT_TENANT: Joi.string()
-        .optional()
-        .description(&quot;Tenant to which this client should be added&quot;)
-        .meta({ group: &quot;auth&quot;, order: 100 }),
-    AUTH_CLIENT_ROLES: Joi.when(&quot;OIDC&quot;, {
-        is: Joi.exist(),
-        then: Joi.string(),
-        otherwise: Joi.string().default(&quot;all&quot;),
-    })
-        .description(&quot;Roles assigned to this client&quot;)
-        .meta({ group: &quot;auth&quot;, order: 110 }),
 }).unknown(true)</code>
                     </td>
                 </tr>
@@ -668,6 +653,7 @@ This decorator can be used to determine the media type of the request.</p>
                 }),
             },
         },
+        exclude: [{ path: &quot;/session/:sessionId&quot;, method: RequestMethod.ALL }],
     };
 }</code>
                     </td>
@@ -676,47 +662,6 @@ This decorator can be used to determine the media type of the request.</p>
             <tr>
                 <td class="col-md-4">
                     <div class="io-description"><p>Factory function for configuring the logger module</p>
-</div>
-                </td>
-            </tr>
-
-        </tbody>
-    </table>
-</section>
-    <h3>src/utils/serve-static.factory.ts</h3>
-    <section data-compodoc="block-properties">
-    <h3></h3>    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="createServeStaticOptions"></a>
-                    <span class="name">
-                        <span ><b>createServeStaticOptions</b></span>
-                        <a href="#createServeStaticOptions"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Default value : </i><code>(
-    configService: ConfigService,
-): ServeStaticModuleOptions[] &#x3D;&gt; {
-    const folder &#x3D; configService.getOrThrow&lt;string&gt;(&quot;FOLDER&quot;);
-    const rootPath &#x3D; isAbsolute(folder)
-        ? join(folder, &quot;public&quot;)
-        : join(__dirname, &quot;../&quot;, folder, &quot;public&quot;);
-    return [
-        {
-            rootPath,
-        },
-    ];
-}</code>
-                    </td>
-                </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Factory function for configuring the serve static module</p>
 </div>
                 </td>
             </tr>

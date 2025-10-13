@@ -184,6 +184,12 @@
                                     </a>
                                 </li>
                                 <li>
+                                    <a href="#import" 
+>
+                                        import
+                                    </a>
+                                </li>
+                                <li>
                                     <a href="#removeClient" 
 >
                                         removeClient
@@ -522,6 +528,43 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="import"></a>
+                    <span class="name">
+                        <span ><b>import</b></span>
+                        <a href="#import"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>import()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="18"
+                                    class="link-to-prism">src/auth/client/client.provider.ts:18</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="removeClient"></a>
                     <span class="name">
                         <span ><b>removeClient</b></span>
@@ -702,8 +745,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="20"
-                                    class="link-to-prism">src/auth/client/client.provider.ts:20</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="21"
+                                    class="link-to-prism">src/auth/client/client.provider.ts:21</a></div>
                         </td>
                     </tr>
 
@@ -784,6 +827,7 @@ export interface ClientsProvider {
     getClient(tenantId: string, clientId: string): Promise&lt;ClientEntity&gt;;
     addClient(tenantId: string, dto: CreateClientDto): Promise&lt;ClientEntity&gt;;
     removeClient(tenantId: string, clientId: string): Promise&lt;void&gt;;
+    import(): Promise&lt;void&gt;;
 
     // Only for internal backend (not used with KC; you’ll validate JWTs instead)
     validateClientCredentials?(

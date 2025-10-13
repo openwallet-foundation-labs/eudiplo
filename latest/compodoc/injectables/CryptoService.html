@@ -185,6 +185,9 @@
                                 <a href="#deleteKey" >deleteKey</a>
                             </li>
                             <li>
+                                <a href="#fetchFunction" >fetchFunction</a>
+                            </li>
+                            <li>
                                 <a href="#getCallbackContext" >getCallbackContext</a>
                             </li>
                             <li>
@@ -379,8 +382,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="548"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:548</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="568"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:568</a></div>
                         </td>
                     </tr>
 
@@ -431,6 +434,75 @@
                             </div>
                         <div class="io-description">
                             <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="fetchFunction"></a>
+                    <span class="name">
+                        <span ><b>fetchFunction</b></span>
+                        <a href="#fetchFunction"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>fetchFunction(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="499"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:499</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Override the fetch function since key can be passed</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>() &#x3D;&gt; Promise&lt;Response&gt;</code>
 
                         </div>
                             <div class="io-description">
@@ -863,8 +935,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="535"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:535</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="555"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:555</a></div>
                         </td>
                     </tr>
 
@@ -932,8 +1004,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="494"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:494</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="514"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:514</a></div>
                         </td>
                     </tr>
 
@@ -2353,6 +2425,7 @@ export class CryptoService {
             clientAuthentication: clientAuthenticationNone({
                 clientId: &quot;some-random&quot;,
             }),
+            fetch: this.fetchFunction(tenantId).bind(this),
             //clientId: &#x27;some-random-client-id&#x27;, // TODO: Replace with your real clientId if necessary
             signJwt: this.getSignJwtCallback(tenantId),
             verifyJwt: async (signer, { compact, payload }) &#x3D;&gt; {
@@ -2375,6 +2448,25 @@ export class CryptoService {
                     return { verified: false };
                 }
             },
+        };
+    }
+
+    /**
+     * Override the fetch function since key can be passed
+     * @param tenantId
+     * @returns
+     */
+    fetchFunction(tenantId: string) {
+        return (): Promise&lt;Response&gt; &#x3D;&gt; {
+            return Promise.resolve({
+                json: async () &#x3D;&gt; {
+                    return {
+                        keys: [await this.getJwks(tenantId)],
+                    };
+                },
+                ok: true,
+                headers: new Headers({ &quot;Content-Type&quot;: &quot;application/json&quot; }),
+            }) as Promise&lt;Response&gt;;
         };
     }
 

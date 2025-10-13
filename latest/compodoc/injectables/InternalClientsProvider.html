@@ -169,6 +169,10 @@
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
+                                <a href="#import" >import</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#onApplicationBootstrap" >onApplicationBootstrap</a>
                             </li>
                             <li>
@@ -199,12 +203,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(configService: ConfigService, repo: <a href="../entitys/ClientEntity.html" target="_self">Repository&lt;ClientEntity&gt;</a>)</code>
+<code>constructor(configService: ConfigService, logger: PinoLogger, repo: <a href="../entitys/ClientEntity.html" target="_self">Repository&lt;ClientEntity&gt;</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:15</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="20" class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:20</a></div>
                             </td>
                         </tr>
 
@@ -226,6 +230,18 @@
                                                   
                                                         <td>
                                                                     <code>ConfigService</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>logger</td>
+                                                  
+                                                        <td>
+                                                                    <code>PinoLogger</code>
                                                         </td>
                                                   
                                                     <td>
@@ -274,15 +290,15 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>addClient(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, dto: <a href="../classes/CreateClientDto.html" target="_self">CreateClientDto</a>)</code>
+                    <code>addClient(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, dto: <a href="../classes/CreateClientDto.html" target="_self">CreateClientDto</a>, secret)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="85"
-                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:85</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="146"
+                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:146</a></div>
                         </td>
                     </tr>
 
@@ -299,6 +315,7 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
+                                                <td>Default value</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -312,6 +329,8 @@
                                                     No
                                             </td>
 
+                                            <td>
+                                            </td>
 
                                         </tr>
                                         <tr>
@@ -324,6 +343,22 @@
                                                     No
                                             </td>
 
+                                            <td>
+                                            </td>
+
+                                        </tr>
+                                        <tr>
+                                                <td>secret</td>
+                                            <td>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+                                            <td>
+                                                    <code>randomBytes(32).toString(&quot;hex&quot;)</code>
+                                            </td>
 
                                         </tr>
                                     </tbody>
@@ -360,8 +395,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="68"
-                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:68</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="129"
+                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:129</a></div>
                         </td>
                     </tr>
 
@@ -439,8 +474,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="55"
-                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:55</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="116"
+                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:116</a></div>
                         </td>
                     </tr>
 
@@ -506,8 +541,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="79"
-                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:79</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="140"
+                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:140</a></div>
                         </td>
                     </tr>
 
@@ -569,6 +604,45 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="import"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>import</b></span>
+                        <a href="#import"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>import()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="45"
+                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:45</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="onApplicationBootstrap"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
@@ -587,8 +661,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="21"
-                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:21</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="27"
+                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:27</a></div>
                         </td>
                     </tr>
 
@@ -597,7 +671,7 @@
                 <td class="col-md-4">
 
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>    <code>unknown</code>
 
                         </div>
                 </td>
@@ -626,8 +700,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="113"
-                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:113</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="179"
+                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:179</a></div>
                         </td>
                     </tr>
 
@@ -705,8 +779,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="102"
-                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:102</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="168"
+                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:168</a></div>
                         </td>
                     </tr>
 
@@ -796,8 +870,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="117"
-                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:117</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="183"
+                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:183</a></div>
                         </td>
                     </tr>
 
@@ -864,9 +938,14 @@
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, OnApplicationBootstrap } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
+import { plainToClass } from &quot;class-transformer&quot;;
+import { validate } from &quot;class-validator&quot;;
 import { randomBytes } from &quot;crypto&quot;;
+import { readdirSync, readFileSync } from &quot;fs&quot;;
+import { PinoLogger } from &quot;nestjs-pino&quot;;
+import { join } from &quot;path&quot;;
 import { Repository } from &quot;typeorm&quot;;
-import { getRoles, Role } from &quot;../../roles/role.enum&quot;;
+import { Role } from &quot;../../roles/role.enum&quot;;
 import { ClientsProvider } from &quot;../client.provider&quot;;
 import { CreateClientDto } from &quot;../dto/create-client.dto&quot;;
 import { UpdateClientDto } from &quot;../dto/update-client.dto&quot;;
@@ -878,41 +957,97 @@ export class InternalClientsProvider
 {
     constructor(
         private configService: ConfigService,
+        private logger: PinoLogger,
         @InjectRepository(ClientEntity) private repo: Repository&lt;ClientEntity&gt;,
     ) {}
 
     async onApplicationBootstrap() {
+        //add the root user
+
         const clientId &#x3D; this.configService.getOrThrow(&quot;AUTH_CLIENT_ID&quot;);
         const clientSecret &#x3D;
             this.configService.getOrThrow(&quot;AUTH_CLIENT_SECRET&quot;);
         await this.getClient(&quot;root&quot;, clientId).catch(() &#x3D;&gt; {
-            //check if auth user should be added to a tenant
-            const addToTenant &#x3D;
-                this.configService.get&lt;string&gt;(&quot;AUTH_CLIENT_TENANT&quot;);
-            let roles: Role[] &#x3D; [];
-            //check if the list of roles is defined
-            if (addToTenant) {
-                const addRoles &#x3D; this.configService.get(&quot;AUTH_CLIENT_ROLES&quot;);
-                roles &#x3D; getRoles(addRoles);
-            } else {
-                roles.push(Role.Tenants);
-            }
-
-            return this.repo
-                .save({
-                    clientId,
-                    secret: clientSecret,
-                    description: &quot;Internal client&quot;,
-                    roles,
-                    tenant: addToTenant ? { id: addToTenant } : undefined,
-                })
-                .then(() &#x3D;&gt; {
-                    // eslint-disable-next-line no-console
-                    console.log(
-                        &#x60;Added internal auth client ${clientId} to database&#x60;,
-                    );
-                });
+            return this.repo.save({
+                clientId,
+                secret: clientSecret,
+                description: &quot;Internal client&quot;,
+                roles: [Role.Tenants],
+            });
         });
+
+        return this.import();
+    }
+
+    async import() {
+        const configPath &#x3D; this.configService.getOrThrow(&quot;CONFIG_FOLDER&quot;);
+        const subfolder &#x3D; &quot;clients&quot;;
+        const force &#x3D; this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT_FORCE&quot;);
+        if (this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT&quot;)) {
+            const tenantFolders &#x3D; readdirSync(configPath, {
+                withFileTypes: true,
+            }).filter((tenant) &#x3D;&gt; tenant.isDirectory());
+            for (const tenant of tenantFolders) {
+                let counter &#x3D; 0;
+                //iterate over all elements in the folder and import them
+                const path &#x3D; join(configPath, tenant.name, subfolder);
+                const files &#x3D; readdirSync(path);
+                for (const file of files) {
+                    const payload &#x3D; JSON.parse(
+                        readFileSync(join(path, file), &quot;utf8&quot;),
+                    );
+
+                    const clientExists &#x3D; await this.getClient(
+                        tenant.name,
+                        &#x60;${tenant.name}-${payload.clientId}&#x60;,
+                    ).catch(() &#x3D;&gt; false);
+                    if (clientExists &amp;&amp; !force) {
+                        continue; // Skip if config already exists and force is not set
+                    } else if (clientExists &amp;&amp; force) {
+                        //delete old element so removed elements are not present
+                        await this.repo.delete({
+                            clientId: payload.clientId,
+                            tenant: { id: tenant.name },
+                        });
+                    }
+
+                    // Validate the payload against ClientEntity
+                    const config &#x3D; plainToClass(ClientEntity, payload);
+
+                    const validationErrors &#x3D; await validate(config, {
+                        whitelist: true,
+                        forbidUnknownValues: false, // avoid false positives on plain objects
+                        forbidNonWhitelisted: false,
+                        stopAtFirstError: false,
+                    });
+
+                    if (validationErrors.length &gt; 0) {
+                        this.logger.error(
+                            {
+                                event: &quot;ValidationError&quot;,
+                                file,
+                                tenant: tenant.name,
+                                errors: validationErrors.map((error) &#x3D;&gt; ({
+                                    property: error.property,
+                                    constraints: error.constraints,
+                                    value: error.value,
+                                })),
+                            },
+                            &#x60;Validation failed for client config ${file} in tenant ${tenant.name}&#x60;,
+                        );
+                        continue; // Skip this invalid config
+                    }
+                    await this.addClient(tenant.name, config, payload.secret);
+                    counter++;
+                }
+                this.logger.info(
+                    {
+                        event: &quot;Import&quot;,
+                    },
+                    &#x60;${counter} client configs imported for ${tenant.name}&#x60;,
+                );
+            }
+        }
     }
 
     getClients(tenantId: string) {
@@ -945,9 +1080,14 @@ export class InternalClientsProvider
             .then((e) &#x3D;&gt; e.secret!);
     }
 
-    async addClient(tenantId: string, dto: CreateClientDto) {
-        const secret &#x3D; randomBytes(32).toString(&quot;hex&quot;);
+    async addClient(
+        tenantId: string,
+        dto: CreateClientDto,
+        secret &#x3D; randomBytes(32).toString(&quot;hex&quot;),
+    ) {
+        // we are adding the prefix because the clientId is not bound to tenant during login. This is relevant since not every tenant has it&#x27;s own client database/iam system.
         dto.clientId &#x3D; &#x60;${tenantId}-${dto.clientId}&#x60;;
+
         const entity &#x3D; await this.repo.save({
             ...dto,
             secret,

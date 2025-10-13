@@ -450,7 +450,7 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @Column({nullable: true})<br />
+                            @Column({nullable: true, primary: true})<br />
                         </code>
                     </td>
                 </tr>
@@ -462,7 +462,7 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><p>The unique identifier for the tenant that the client belongs to. Only null for accounts that manage tenants, that do not belong to a client.</p>
+                    <div class="io-description"><p>The unique identifier for the tenant that the client belongs to. Only null for accounts that manage tenants, that do not belong to a client</p>
 </div>
                 </td>
             </tr>
@@ -499,9 +499,9 @@ export class ClientEntity {
     secret?: string;
 
     /**
-     * The unique identifier for the tenant that the client belongs to. Only null for accounts that manage tenants, that do not belong to a client.
+     * The unique identifier for the tenant that the client belongs to. Only null for accounts that manage tenants, that do not belong to a client
      */
-    @Column({ nullable: true })
+    @Column({ nullable: true, primary: true })
     tenantId?: string;
 
     /**
