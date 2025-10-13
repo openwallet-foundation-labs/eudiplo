@@ -99,6 +99,7 @@ export class CredentialConfig {
     @IsObject()
     claims?: Record<string, any>;
 
+    // has to be optional since there may be credentials that are disclosed without a frame
     @Column("json", { nullable: true })
     @IsOptional()
     @IsObject()

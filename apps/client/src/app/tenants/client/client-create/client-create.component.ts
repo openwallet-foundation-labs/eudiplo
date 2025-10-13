@@ -13,10 +13,11 @@ import {
   clientControllerGetClient,
   clientControllerUpdateClient,
 } from '../../../generated';
-import { Role } from '../../../services/jwt.service';
+import { roles } from '../../../services/jwt.service';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { ApiService } from '../../../api.service';
 
 @Component({
   selector: 'app-client-create',
@@ -41,13 +42,7 @@ export class ClientCreateComponent implements OnInit {
   isSubmitting = false;
   hasPermission = false;
 
-  roles: Role[] = [
-    'clients:manage',
-    'issuance:manage',
-    'issuance:offer',
-    'presentation:manage',
-    'presentation:offer',
-  ];
+  roles = roles;
   loaded = false;
   id?: string | null;
 
@@ -55,7 +50,8 @@ export class ClientCreateComponent implements OnInit {
     private fb: FormBuilder,
     private snackBar: MatSnackBar,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private apiService: ApiService
   ) {
     this.clientForm = this.fb.group({
       clientId: ['', [Validators.required, Validators.minLength(1)]],
@@ -97,6 +93,11 @@ export class ClientCreateComponent implements OnInit {
         duration: 3000,
       });
       await this.router.navigate(['..'], { relativeTo: this.route });
+
+      //in case user updated its own client, refresh the token
+      if (this.apiService.getClientId() === this.id) {
+        this.apiService.refreshAccessToken();
+      }
     } catch (error) {
       this.snackBar.open(
         error instanceof Error

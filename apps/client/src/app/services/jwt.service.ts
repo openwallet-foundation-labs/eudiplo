@@ -4,6 +4,14 @@ import { RoleDto } from '../generated';
 
 export type Role = RoleDto['role'];
 
+export const roles: Role[] = [
+  'clients:manage',
+  'issuance:manage',
+  'issuance:offer',
+  'presentation:manage',
+  'presentation:offer',
+];
+
 export function getRole(role: Role) {
   return role;
 }

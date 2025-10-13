@@ -7,6 +7,7 @@ import { readdirSync, readFileSync } from "fs";
 import { PinoLogger } from "nestjs-pino";
 import { join } from "path";
 import { Repository } from "typeorm";
+import { TenantEntity } from "../../auth/tenant/entitites/tenant.entity";
 import { FilesService } from "../../storage/files.service";
 import { DisplayCreateDto } from "./dto/display-create.dto";
 import { DisplayEntity } from "./entities/display.entity";
@@ -33,6 +34,25 @@ export class DisplayService implements OnApplicationBootstrap {
      */
     onApplicationBootstrap() {
         this.import();
+    }
+
+    /**
+     * Initialize the OID4VCI issuer and resource server.
+     * @param tenantId The ID of the tenant.
+     * @returns The initialized OID4VCI issuer and resource server.
+     */
+    onTenantInit(tenant: TenantEntity) {
+        const entry = this.displayRepository.create({
+            tenant,
+            value: [
+                {
+                    name: tenant.name,
+                    //TODO: should another default locale be used?
+                    locale: "en-US",
+                },
+            ],
+        });
+        return this.displayRepository.save(entry);
     }
 
     /**

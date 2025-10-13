@@ -5,7 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { ApiService } from '../../../api.service';
 import {
@@ -48,7 +48,8 @@ export class ClientListComponent implements OnInit {
 
   constructor(
     private snackBar: MatSnackBar,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private router: Router
   ) {}
   ngOnInit(): void {
     if (this.loadedClients) {

@@ -1,6 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,6 +18,7 @@ import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { tenantControllerInitTenant } from '../../generated';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { Role, roles } from '../../services/jwt.service';
 
 @Component({
   selector: 'app-tenant-create',
@@ -35,6 +42,8 @@ export class TenantCreateComponent {
   tenantForm: FormGroup;
   isSubmitting = false;
 
+  roles = roles;
+
   constructor(
     private fb: FormBuilder,
     private snackBar: MatSnackBar,
@@ -45,6 +54,7 @@ export class TenantCreateComponent {
       id: ['', [Validators.required]],
       name: ['', [Validators.required]],
       description: [''],
+      roles: new FormControl<Role[]>(['clients:manage'], [Validators.required]),
     });
   }
 

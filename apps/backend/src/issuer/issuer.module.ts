@@ -59,6 +59,7 @@ import { StatusListModule } from "./status-list/status-list.module";
     exports: [
         AuthorizeService,
         Oid4vciService,
+        DisplayService,
         IssuanceService,
         CredentialConfigService,
     ],

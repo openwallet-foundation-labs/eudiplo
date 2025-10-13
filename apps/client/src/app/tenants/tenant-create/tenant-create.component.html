@@ -17,6 +17,7 @@
             placeholder="Enter unique tenant identifier"
             required
           />
+          <mat-hint> Must be unique, lowercase, no spaces or special characters</mat-hint>
           @if (tenantForm.get('id')?.hasError('required')) {
             <mat-error> tenant ID is required </mat-error>
           }
@@ -25,6 +26,7 @@
         <mat-form-field appearance="outline">
           <mat-label>Name</mat-label>
           <input matInput formControlName="name" placeholder="Enter tenant name" required />
+          <mat-hint> Friendly name for the tenant, used as default display name</mat-hint>
           @if (tenantForm.get('name')?.hasError('required')) {
             <mat-error> tenant name is required </mat-error>
           }
@@ -37,6 +39,19 @@
             formControlName="description"
             placeholder="Optional description for this tenant"
           />
+          <mat-hint>Optional description for this tenant, not visible to the public</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Roles</mat-label>
+          <mat-select formControlName="roles" multiple>
+            @for (role of roles; track role) {
+              <mat-option [value]="role">
+                {{ role }}
+              </mat-option>
+            }
+          </mat-select>
+          <mat-hint>Select one or more roles for this tenant</mat-hint>
         </mat-form-field>
       </mat-card-content>
 
