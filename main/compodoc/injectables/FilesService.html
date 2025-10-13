@@ -169,6 +169,16 @@
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
+                                <a href="#import" >import</a>
+                            </li>
+                            <li>
+                                <a href="#onApplicationBootstrap" >onApplicationBootstrap</a>
+                            </li>
+                            <li>
+                                <a href="#replaceUriWithPublicUrl" >replaceUriWithPublicUrl</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#saveUserUpload" >saveUserUpload</a>
                             </li>
                         </ul>
@@ -189,12 +199,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(storage: <a href="../interfaces/FileStorage.html" target="_self">FileStorage</a>, fileRepository: <a href="../entitys/FileEntity.html" target="_self">Repository&lt;FileEntity&gt;</a>, configService: ConfigService)</code>
+<code>constructor(storage: <a href="../interfaces/FileStorage.html" target="_self">FileStorage</a>, fileRepository: <a href="../entitys/FileEntity.html" target="_self">Repository&lt;FileEntity&gt;</a>, configService: ConfigService, logger: PinoLogger)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/storage/files.service.ts:15</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="17" class="link-to-prism">src/storage/files.service.ts:17</a></div>
                             </td>
                         </tr>
 
@@ -247,6 +257,18 @@
                                                     </td>
                                                     
                                                 </tr>
+                                                <tr>
+                                                        <td>logger</td>
+                                                  
+                                                        <td>
+                                                                    <code>PinoLogger</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
                                         </tbody>
                                     </table>
                             </div>
@@ -281,8 +303,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="73"
-                                    class="link-to-prism">src/storage/files.service.ts:73</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="154"
+                                    class="link-to-prism">src/storage/files.service.ts:154</a></div>
                         </td>
                     </tr>
 
@@ -358,8 +380,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="88"
-                                    class="link-to-prism">src/storage/files.service.ts:88</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="169"
+                                    class="link-to-prism">src/storage/files.service.ts:169</a></div>
                         </td>
                     </tr>
 
@@ -432,8 +454,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="77"
-                                    class="link-to-prism">src/storage/files.service.ts:77</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="158"
+                                    class="link-to-prism">src/storage/files.service.ts:158</a></div>
                         </td>
                     </tr>
 
@@ -499,8 +521,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="64"
-                                    class="link-to-prism">src/storage/files.service.ts:64</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="145"
+                                    class="link-to-prism">src/storage/files.service.ts:145</a></div>
                         </td>
                     </tr>
 
@@ -558,6 +580,170 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="import"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>import</b></span>
+                        <a href="#import"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>import()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="37"
+                                    class="link-to-prism">src/storage/files.service.ts:37</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Import images from the config folder</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onApplicationBootstrap"></a>
+                    <span class="name">
+                        <span ><b>onApplicationBootstrap</b></span>
+                        <a href="#onApplicationBootstrap"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>onApplicationBootstrap()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="30"
+                                    class="link-to-prism">src/storage/files.service.ts:30</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>On application bootstrap, import images from the config folder</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="replaceUriWithPublicUrl"></a>
+                    <span class="name">
+                        <span ><b>replaceUriWithPublicUrl</b></span>
+                        <a href="#replaceUriWithPublicUrl"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>replaceUriWithPublicUrl(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, fileName: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="99"
+                                    class="link-to-prism">src/storage/files.service.ts:99</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Replaces a file name with the actual public URL if it is not already a URL</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>fileName</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="saveUserUpload"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
@@ -576,8 +762,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="30"
-                                    class="link-to-prism">src/storage/files.service.ts:30</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="117"
+                                    class="link-to-prism">src/storage/files.service.ts:117</a></div>
                         </td>
                     </tr>
 
@@ -676,11 +862,13 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Inject, Injectable } from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Inject, Injectable, OnApplicationBootstrap } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { randomUUID } from &quot;crypto&quot;;
-import { extname } from &quot;path&quot;;
+import { readdirSync, readFileSync } from &quot;fs&quot;;
+import { PinoLogger } from &quot;nestjs-pino&quot;;
+import { join } from &quot;path&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import {
     FILE_STORAGE,
@@ -690,13 +878,98 @@ import {
 import { FileEntity } from &quot;./entities/files.entity&quot;;
 
 @Injectable()
-export class FilesService {
+export class FilesService implements OnApplicationBootstrap {
     constructor(
         @Inject(FILE_STORAGE) private storage: FileStorage,
         @InjectRepository(FileEntity)
         private fileRepository: Repository&lt;FileEntity&gt;,
         private configService: ConfigService,
+        private logger: PinoLogger,
     ) {}
+
+    /**
+     * On application bootstrap, import images from the config folder
+     * @returns
+     */
+    onApplicationBootstrap() {
+        return this.import();
+    }
+
+    /**
+     * Import images from the config folder
+     */
+    async import() {
+        const configPath &#x3D; this.configService.getOrThrow(&quot;CONFIG_FOLDER&quot;);
+        const subfolder &#x3D; &quot;images&quot;;
+        const force &#x3D; this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT_FORCE&quot;);
+        if (this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT&quot;)) {
+            const tenantFolders &#x3D; readdirSync(configPath, {
+                withFileTypes: true,
+            }).filter((tenant) &#x3D;&gt; tenant.isDirectory());
+            for (const tenant of tenantFolders) {
+                let counter &#x3D; 0;
+                //iterate over all elements in the folder and import them
+                const path &#x3D; join(configPath, tenant.name, subfolder);
+                const files &#x3D; readdirSync(path);
+                for (const file of files) {
+                    //check if already exists
+                    const exists &#x3D; await this.fileRepository.findOneBy({
+                        filename: file,
+                        tenantId: tenant.name,
+                    });
+                    if (exists &amp;&amp; !force) {
+                        this.logger.info(
+                            {
+                                event: &quot;Import&quot;,
+                            },
+                            &#x60;Image ${file} already exists for ${tenant.name}, skipping&#x60;,
+                        );
+                        continue;
+                    }
+
+                    const key &#x3D; randomUUID();
+                    await this.storage.put(
+                        key,
+                        readFileSync(join(path, file)),
+                        {
+                            contentType: &quot;application/octet-stream&quot;,
+                            acl: &quot;public&quot;,
+                            metadata: { originalName: file },
+                        },
+                    );
+                    await this.fileRepository.save({
+                        id: key,
+                        filename: file,
+                        tenantId: tenant.name,
+                    });
+                    counter++;
+                }
+                this.logger.info(
+                    {
+                        event: &quot;Import&quot;,
+                    },
+                    &#x60;${counter} images imported for ${tenant.name}&#x60;,
+                );
+            }
+        }
+    }
+
+    /**
+     * Replaces a file name with the actual public URL if it is not already a URL
+     * @param tenantId
+     * @param fileName
+     * @returns
+     */
+    replaceUriWithPublicUrl(tenantId: string, fileName: string) {
+        if (fileName.startsWith(&quot;http&quot;)) return fileName;
+        return this.fileRepository
+            .findOneBy({ tenantId, filename: fileName })
+            .then((file) &#x3D;&gt;
+                file
+                    ? &#x60;${this.configService.get&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/storage/${file.id}&#x60;
+                    : undefined,
+            );
+    }
 
     /**
      * Saves a user-uploaded file to the storage.
@@ -710,14 +983,7 @@ export class FilesService {
         file: Express.Multer.File,
         isPublic &#x3D; false,
     ): Promise&lt;StoredObject&gt; {
-        const safeExt &#x3D; extname(file.originalname || &quot;&quot;)
-            .toLowerCase()
-            .slice(1);
-        const key &#x3D; &#x60;${new Date().toISOString().slice(0, 10)}-${randomUUID()}${safeExt ? &quot;.&quot; + safeExt : &quot;&quot;}&#x60;;
-
-        // TODO: add checksum if you want tamper detection:
-        // const checksum &#x3D; createHash(&#x27;sha256&#x27;).update(bufferOrStreamToBuffer(body)).digest(&#x27;base64&#x27;);
-
+        const key &#x3D; randomUUID();
         const response &#x3D; await this.storage.put(key, file.buffer, {
             contentType: file.mimetype,
             acl: isPublic ? &quot;public&quot; : &quot;private&quot;,
@@ -725,6 +991,7 @@ export class FilesService {
         });
         await this.fileRepository.save({
             id: key,
+            filename: file.originalname,
             tenantId,
         });
         const url &#x3D; await this.getDownloadUrl(response.key);
