@@ -174,6 +174,9 @@
                             <li>
                                 <a href="#onApplicationBootstrap" >onApplicationBootstrap</a>
                             </li>
+                            <li>
+                                <a href="#onTenantInit" >onTenantInit</a>
+                            </li>
                         </ul>
                     </td>
                 </tr>
@@ -197,7 +200,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="18" class="link-to-prism">src/issuer/display/display.service.ts:18</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/issuer/display/display.service.ts:19</a></div>
                             </td>
                         </tr>
 
@@ -298,8 +301,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="139"
-                                    class="link-to-prism">src/issuer/display/display.service.ts:139</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="159"
+                                    class="link-to-prism">src/issuer/display/display.service.ts:159</a></div>
                         </td>
                     </tr>
 
@@ -389,8 +392,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="127"
-                                    class="link-to-prism">src/issuer/display/display.service.ts:127</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="147"
+                                    class="link-to-prism">src/issuer/display/display.service.ts:147</a></div>
                         </td>
                     </tr>
 
@@ -466,8 +469,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="41"
-                                    class="link-to-prism">src/issuer/display/display.service.ts:41</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="61"
+                                    class="link-to-prism">src/issuer/display/display.service.ts:61</a></div>
                         </td>
                     </tr>
 
@@ -505,8 +508,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="34"
-                                    class="link-to-prism">src/issuer/display/display.service.ts:34</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="35"
+                                    class="link-to-prism">src/issuer/display/display.service.ts:35</a></div>
                         </td>
                     </tr>
 
@@ -520,6 +523,76 @@
                             <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
 
                         </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onTenantInit"></a>
+                    <span class="name">
+                        <span ><b>onTenantInit</b></span>
+                        <a href="#onTenantInit"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>onTenantInit(tenant: <a href="../entitys/TenantEntity.html" target="_self">TenantEntity</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="44"
+                                    class="link-to-prism">src/issuer/display/display.service.ts:44</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Initialize the OID4VCI issuer and resource server.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenant</td>
+                                            <td>
+                                                            <code><a href="../entitys/TenantEntity.html" target="_self" >TenantEntity</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>The initialized OID4VCI issuer and resource server.</p>
+
+                            </div>
                 </td>
             </tr>
         </tbody>
@@ -539,6 +612,7 @@ import { readdirSync, readFileSync } from &quot;fs&quot;;
 import { PinoLogger } from &quot;nestjs-pino&quot;;
 import { join } from &quot;path&quot;;
 import { Repository } from &quot;typeorm&quot;;
+import { TenantEntity } from &quot;../../auth/tenant/entitites/tenant.entity&quot;;
 import { FilesService } from &quot;../../storage/files.service&quot;;
 import { DisplayCreateDto } from &quot;./dto/display-create.dto&quot;;
 import { DisplayEntity } from &quot;./entities/display.entity&quot;;
@@ -565,6 +639,25 @@ export class DisplayService implements OnApplicationBootstrap {
      */
     onApplicationBootstrap() {
         this.import();
+    }
+
+    /**
+     * Initialize the OID4VCI issuer and resource server.
+     * @param tenantId The ID of the tenant.
+     * @returns The initialized OID4VCI issuer and resource server.
+     */
+    onTenantInit(tenant: TenantEntity) {
+        const entry &#x3D; this.displayRepository.create({
+            tenant,
+            value: [
+                {
+                    name: tenant.name,
+                    //TODO: should another default locale be used?
+                    locale: &quot;en-US&quot;,
+                },
+            ],
+        });
+        return this.displayRepository.save(entry);
     }
 
     /**
