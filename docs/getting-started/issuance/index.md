@@ -109,8 +109,6 @@ This issuance documentation is organized into the following sections:
   authentication methods for issuance flows
 - **[API Guide](api-guide.md)** - Step-by-step API usage with examples and curl
   commands
-- **[Revocation](revocation.md)** - Manage credential revocation and status
-  lists
 
 ---
 
@@ -170,12 +168,12 @@ Webhooks allow you to dynamically generate claims based on authentication contex
 
 ```json
 {
-  "pid": {
-    "given_name": "Max",
-    "family_name": "Mustermann",
-    "birthdate": "1990-01-01",
-    "issuing_country": "DE"
-  }
+    "pid": {
+        "given_name": "Max",
+        "family_name": "Mustermann",
+        "birthdate": "1990-01-01",
+        "issuing_country": "DE"
+    }
 }
 ```
 
@@ -224,13 +222,13 @@ Define default claims directly in the credential configuration. These serve as f
 
 ```json
 {
-  "id": "pid",
-  "format": "vc+sd-jwt",
-  "claims": {
-    "issuing_country": "DE",
-    "issuing_authority": "Federal Government",
-    "credential_type": "PersonalID"
-  }
+    "id": "pid",
+    "format": "vc+sd-jwt",
+    "claims": {
+        "issuing_country": "DE",
+        "issuing_authority": "Federal Government",
+        "credential_type": "PersonalID"
+    }
 }
 ```
 
