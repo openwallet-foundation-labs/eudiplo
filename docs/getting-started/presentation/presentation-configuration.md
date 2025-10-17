@@ -21,45 +21,10 @@ be requested from users.
 - `id`: **REQUIRED** - Unique identifier for the presentation configuration.
 - `description`: **REQUIRED** - Human-readable description of the presentation. Will not be displayed to the end user.
 - `dcql_query`: **REQUIRED** - DCQL query defining the requested credentials and claims following the [DCQL specification](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-digital-credentials-query-l)
-- `registrationCert`: **OPTIONAL** - Registration certificate containing legal and privacy information about the verifier. See [Registration Certificate](#registration-certificate) for details.
+- `registrationCert`: **OPTIONAL** - Registration certificate containing legal and privacy information about the verifier. See [Registration Certificate](../registrar.md#registration-certificate) for details.
 - `webhook`: **OPTIONAL** - Webhook configuration for receiving verified presentations asynchronously. See [Webhook Integration](../../architecture/webhooks.md#presentation-webhook) for details.
+- `redirectUri`: **OPTIONAL** - URI to redirect the user to after completing the presentation. This is useful for web applications that need to return the user to a specific page after verification.
 
 !!! Info
 
     If no webhook is configured, the presentation result can be fetched by querying the `/session` endpoint with the `sessionId`.
-
----
-
-## Registration Certificate
-
-The registration certificate provides legal and privacy information required for
-GDPR compliance following the [ETSI TS 119 475 V1.1.1](https://www.etsi.org/deliver/etsi_ts/119400_119499/119475/01.01.01_60/ts_119475v010101p.pdf).
-
-It is not required to have one to interact with wallets or to run EUDIPLO, but you will need it in the future to be compliant with regulations when requesting presentations from users. More information how to interact with the registrar can be found in the [Registrar Documentation](../registrar.md).
-
-### Purpose and Legal Basis
-
-```json
-{
-    "registrationCert": {
-        "body": {
-            "privacy_policy": "https://your-domain.com/privacy-policy",
-            "purpose": [
-                {
-                    "locale": "en-US",
-                    "name": "Employee identity verification for building access"
-                },
-                {
-                    "locale": "de-DE",
-                    "name": "Mitarbeiteridentitätsverifikation für Gebäudezugang"
-                }
-            ],
-            "contact": {
-                "website": "https://your-domain.com/contact",
-                "email": "privacy@your-domain.com",
-                "phone": "+49 123 456 7890"
-            }
-        }
-    }
-}
-```

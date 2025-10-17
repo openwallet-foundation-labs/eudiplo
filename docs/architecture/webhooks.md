@@ -142,8 +142,6 @@ EUDIPLO sends an HTTP `POST` request with the following structure:
     - `error`: Present instead of `values` if verification failed.
 - `session`: The session ID identifying the request.
 
-**Example Payload**
-
 ```json
 {
     "credentials": [
