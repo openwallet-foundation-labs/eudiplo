@@ -223,7 +223,7 @@ describe("Issuance", () => {
         const sessionId = offerResponse.body.session;
 
         const res = await request(app.getHttpServer())
-            .get(`/${sessionId}/.well-known/openid-credential-issuer`)
+            .get(`/.well-known/openid-credential-issuer/${sessionId}`)
             .trustLocalhost()
             .set("Accept", "application/json")
             .expect(200);
@@ -248,7 +248,7 @@ describe("Issuance", () => {
         const sessionId = offerResponse.body.session;
 
         const res = await request(app.getHttpServer())
-            .get(`/${sessionId}/.well-known/openid-credential-issuer`)
+            .get(`/.well-known/openid-credential-issuer/${sessionId}`)
             .trustLocalhost()
             .set("Accept", "application/jwt")
             .expect(200);
