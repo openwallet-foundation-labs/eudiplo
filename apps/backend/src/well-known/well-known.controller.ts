@@ -21,7 +21,7 @@ import { WellKnownService } from "./well-known.service";
     name: "session",
     required: true,
 })
-@Controller(":session/.well-known")
+@Controller()
 export class WellKnownController {
     /**
      * Constructor for WellKnownController.
@@ -41,7 +41,10 @@ export class WellKnownController {
     })
     //we can not set the accept in the apiheader via swagger.
     @ApiProduces(MediaType.APPLICATION_JSON, MediaType.APPLICATION_JWT)
-    @Get("openid-credential-issuer")
+    @Get([
+        ".well-known/openid-credential-issuer/:session",
+        ":session/.well-known/openid-credential-issuer",
+    ])
     issuerMetadata(
         @SessionEntity() session: Session,
         @ContentType() contentType: MediaType,
@@ -53,7 +56,10 @@ export class WellKnownController {
      * Authorization Server Metadata
      * @returns
      */
-    @Get("oauth-authorization-server")
+    @Get([
+        ".well-known/oauth-authorization-server/:session",
+        ":session/.well-known/oauth-authorization-server",
+    ])
     authzMetadata(
         @SessionEntity() session: Session,
     ): Promise<Oauth2AuthorizationServerResponse> {
@@ -65,7 +71,7 @@ export class WellKnownController {
      * @returns
      */
     @Header("Content-Type", "application/jwk-set+json")
-    @Get("jwks.json")
+    @Get(":session/.well-known/jwks.json")
     getJwks(@SessionEntity() session: Session): Promise<JwksResponseDto> {
         return this.wellKnownService.getJwks(session.tenantId);
     }
