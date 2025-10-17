@@ -238,95 +238,8 @@ curl -X 'GET' \
 
 ## Webhook Integration
 
-When using webhooks in your issuance configurations (especially for presentation-during-issuance flows), you need to implement endpoints that can handle EUDIPLO's webhook requests and provide appropriate responses.
-
-### Webhook Request Format
-
-EUDIPLO sends HTTP `POST` requests to your configured webhook endpoints with the following payload structure:
-
-```json
-{
-  "credentials": [
-    {
-      "id": "pid",
-      "values": {
-        "iss": "https://service.eudi-wallet.dev",
-        "iat": 1751884150,
-        "vct": "https://service.eudi-wallet.dev/credentials/vct/pid",
-        "given_name": "ERIKA",
-        "family_name": "MUSTERMANN",
-        "birthdate": "1964-08-12",
-        "address": {
-          "locality": "KÖLN",
-          "postal_code": "51147",
-          "street_address": "HEIDESTRAẞE 17"
-        }
-      }
-    }
-  ],
-  "session": "a6318799-dff4-4b60-9d1d-58703611bd23"
-}
-```
-
-**Important Notes:**
-
-- `credentials`: Array of credential objects containing the presented claims
-- `id`: The ID of the DCQL query that identifies which credential was requested
-- `values`: The actual claims from the presented credential (simplified, with SD-JWT specific fields like `cnf` and `status` removed)
-- `session`: Session ID for tracking the request
-- If credential verification fails, an `error` field will be included instead of `values`
-
-### Webhook Response Format
-
-**For presentation-during-issuance webhooks only**, your webhook must respond with a JSON object containing the claims to issue for each credential configuration:
-
-```json
-{
-  "citizen": {
-    "town": "Berlin",
-    "verified_age": true,
-    "status": "active"
-  }
-}
-```
-
-**Key Points:**
-
-- The response object is keyed by the credential configuration ID (e.g., `"citizen"`)
-- Each entry contains the claims that will be issued in the new credential
-- This response is used to populate the claims in the issuance flow
-
-### Example Webhook Implementation
-
-Here's a simple webhook endpoint example:
-
-```javascript
-app.post('/process', (req, res) => {
-  const { credentials, session } = req.body;
-
-  // Process the presented credentials
-  const pidCredential = credentials.find((c) => c.id === 'pid');
-
-  if (pidCredential && pidCredential.values) {
-    const { given_name, family_name, birthdate } = pidCredential.values;
-
-    // Generate claims for the new credential
-    const response = {
-      citizen: {
-        name: `${given_name} ${family_name}`,
-        age_verified:
-          new Date().getFullYear() - new Date(birthdate).getFullYear() >= 18,
-        verification_date: new Date().toISOString(),
-        status: 'verified',
-      },
-    };
-
-    res.json(response);
-  } else {
-    res.status(400).json({ error: 'Invalid credential presentation' });
-  }
-});
-```
+When using webhooks in your issuance configurations (especially for presentation-during-issuance flows), you need to implement endpoints that can handle EUDIPLO's webhook requests and provide appropriate responses, see
+[Webhook Integration](../../architecture/webhooks.md) for details.
 
 ---
 
@@ -386,8 +299,8 @@ curl -X 'POST' \
 
 ```json
 {
-  "credential_offer_uri": "openid-credential-offer://...",
-  "session": "59d22466-b403-4b37-b1d0-20163696ade7"
+    "credential_offer_uri": "openid-credential-offer://...",
+    "session": "59d22466-b403-4b37-b1d0-20163696ade7"
 }
 ```
 
@@ -449,89 +362,3 @@ curl -X 'POST' \
 configuration. The `credentialConfigurationIds` parameter allows you to override
 which specific credentials are issued, while the `values` parameter allows you
 to override claims.
-
----
-
-## Session Management
-
-### Retrieving Session Information
-
-```bash
-curl -X 'GET' \
-  'http://localhost:3000/session/59d22466-b403-4b37-b1d0-20163696ade7' \
-  -H 'accept: application/json' \
-  -H 'Authorization: Bearer eyJhb...npoNk'
-```
-
-#### Response
-
-```json
-{
-  "id": "59d22466-b403-4b37-b1d0-20163696ade7",
-  "status": "completed",
-  "tenantId": "your-tenant-id",
-  "issuanceId": "citizen-with-pid-verification",
-  "createdAt": "2024-08-08T10:30:00Z",
-  "updatedAt": "2024-08-08T10:35:00Z",
-  "notifications": [
-    {
-      "id": "notif-123",
-      "event": "credential_accepted",
-      "timestamp": "2024-08-08T10:35:00Z"
-    }
-  ]
-}
-```
-
-### Session Status Values
-
-- `active`: Session is in progress
-- `completed`: Credential successfully issued
-- `expired`: Session timed out
-- `failed`: Issuance failed
-
----
-
-## Error Handling
-
-### Common Error Responses
-
-#### Configuration Not Found
-
-```json
-{
-  "statusCode": 404,
-  "message": "Issuance configuration with id 'invalid-config' not found",
-  "error": "Not Found"
-}
-```
-
-#### Invalid Configuration
-
-```json
-{
-  "statusCode": 400,
-  "message": ["config must be an object", "keyBinding must be a boolean value"],
-  "error": "Bad Request"
-}
-```
-
-#### Authentication Error
-
-```json
-{
-  "statusCode": 401,
-  "message": "Unauthorized",
-  "error": "Unauthorized"
-}
-```
-
-### HTTP Status Codes
-
-- `200`: Success
-- `201`: Created successfully
-- `400`: Bad request (validation error)
-- `401`: Unauthorized
-- `404`: Resource not found
-- `409`: Conflict (e.g., ID already exists)
-- `500`: Internal server error

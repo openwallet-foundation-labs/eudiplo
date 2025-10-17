@@ -207,4 +207,12 @@ export class PresentationConfig {
     @Type(() => PresentationAttachment)
     @Column("json", { nullable: true })
     attached?: PresentationAttachment[];
+
+    /**
+     * Redirect URI to which the user-agent should be redirected after the presentation is completed.
+     */
+    @IsOptional()
+    @IsString()
+    @Column("varchar", { nullable: true })
+    redirectUri?: string;
 }

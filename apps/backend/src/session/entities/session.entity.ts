@@ -195,4 +195,10 @@ export class Session {
      */
     @Column("varchar", { nullable: true })
     vp_nonce?: string;
+
+    /**
+     * Redirect URI to which the user-agent should be redirected after the presentation is completed.
+     */
+    @Column("varchar", { nullable: true })
+    redirectUri?: string;
 }

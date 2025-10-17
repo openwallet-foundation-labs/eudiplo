@@ -133,6 +133,10 @@
     "vp_nonce": {
       "type": "string",
       "description": "Noncce from the Verifiable Presentation request."
+    },
+    "redirectUri": {
+      "type": "string",
+      "description": "Redirect URI to which the user-agent should be redirected after the presentation is completed."
     }
   },
   "required": [

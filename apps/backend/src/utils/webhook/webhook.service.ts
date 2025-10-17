@@ -69,15 +69,6 @@ export class WebhookService {
             ),
         ).then(
             async (webhookResponse) => {
-                //TODO: better: just store it when it's a presentation during issuance
-                if (webhookResponse.data && expectResponse) {
-                    session.credentialPayload!.claims = webhookResponse.data;
-                    //store received webhook response
-                    await this.sessionService.add(session.id, {
-                        credentialPayload: session.credentialPayload,
-                    });
-                }
-
                 this.sessionLogger.logSession(
                     logContext,
                     "Webhook sent successfully",
@@ -86,6 +77,18 @@ export class WebhookService {
                         hasResponseData: !!webhookResponse.data,
                     },
                 );
+
+                //check if a redirect URI is passed, we either expect a redirect or claims, but never both.
+                if (webhookResponse.data?.redirectUri) {
+                    //TODO: do we need to do something with it?
+                } else if (webhookResponse.data && expectResponse) {
+                    session.credentialPayload!.claims = webhookResponse.data;
+                    //store received webhook response
+                    await this.sessionService.add(session.id, {
+                        credentialPayload: session.credentialPayload,
+                    });
+                }
+
                 return webhookResponse.data;
             },
             (err) => {

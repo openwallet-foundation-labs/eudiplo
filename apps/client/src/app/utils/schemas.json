@@ -417,6 +417,10 @@
         "vp_nonce": {
           "type": "string",
           "description": "Noncce from the Verifiable Presentation request."
+        },
+        "redirectUri": {
+          "type": "string",
+          "description": "Redirect URI to which the user-agent should be redirected after the presentation is completed."
         }
       },
       "required": [
@@ -896,6 +900,10 @@
               "$ref": "./WebhookConfig.schema.json"
             }
           ]
+        },
+        "redirectUri": {
+          "type": "string",
+          "description": "Optional redirect URI to which the user-agent should be redirected after the presentation is completed."
         }
       },
       "required": ["response_type", "requestId"]
@@ -1164,6 +1172,10 @@
           "items": {
             "$ref": "./PresentationAttachment.schema.json"
           }
+        },
+        "redirectUri": {
+          "type": "string",
+          "description": "Redirect URI to which the user-agent should be redirected after the presentation is completed."
         }
       },
       "required": ["id", "tenant", "dcql_query", "createdAt", "updatedAt"]
@@ -1220,6 +1232,10 @@
           "items": {
             "$ref": "./PresentationAttachment.schema.json"
           }
+        },
+        "redirectUri": {
+          "type": "string",
+          "description": "Redirect URI to which the user-agent should be redirected after the presentation is completed."
         }
       },
       "required": ["id", "dcql_query"]

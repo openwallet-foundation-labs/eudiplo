@@ -99,6 +99,14 @@
           }
           <mat-hint> Lifetime is in seconds </mat-hint>
         </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Redirect URI (optional)</mat-label>
+          <input matInput formControlName="redirectUri" placeholder="Enter redirect URI" />
+          <mat-hint>
+            If provided, the user will be redirected to this URI after completing the presentation.
+          </mat-hint>
+        </mat-form-field>
       </mat-card-content>
     </mat-card>
 

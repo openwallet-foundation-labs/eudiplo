@@ -115,12 +115,10 @@ nav:
           - Issuance Configuration: getting-started/issuance/issuance-configuration.md
           - Advanced Features: getting-started/issuance/advanced-features.md
           - Authentication: getting-started/issuance/authentication.md
-          - API Guide: getting-started/issuance/api-guide.md
-          - Revocation: getting-started/issuance/revocation.md          
+          - API Guide: getting-started/issuance/api-guide.md          
         - Presentation:
           - Overview: getting-started/presentation/index.md
           - Presentation Configuration: getting-started/presentation/presentation-configuration.md
-          - Authentication: getting-started/presentation/authentication.md
           - API Guide: getting-started/presentation/api-guide.md          
       - Advanced:
         - Registrar: getting-started/registrar.md
