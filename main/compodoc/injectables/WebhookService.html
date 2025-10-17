@@ -407,8 +407,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="111"
-                                    class="link-to-prism">src/utils/webhook/webhook.service.ts:111</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="114"
+                                    class="link-to-prism">src/utils/webhook/webhook.service.ts:114</a></div>
                         </td>
                     </tr>
 
@@ -557,15 +557,6 @@ export class WebhookService {
             ),
         ).then(
             async (webhookResponse) &#x3D;&gt; {
-                //TODO: better: just store it when it&#x27;s a presentation during issuance
-                if (webhookResponse.data &amp;&amp; expectResponse) {
-                    session.credentialPayload!.claims &#x3D; webhookResponse.data;
-                    //store received webhook response
-                    await this.sessionService.add(session.id, {
-                        credentialPayload: session.credentialPayload,
-                    });
-                }
-
                 this.sessionLogger.logSession(
                     logContext,
                     &quot;Webhook sent successfully&quot;,
@@ -574,6 +565,18 @@ export class WebhookService {
                         hasResponseData: !!webhookResponse.data,
                     },
                 );
+
+                //check if a redirect URI is passed, we either expect a redirect or claims, but never both.
+                if (webhookResponse.data?.redirectUri) {
+                    //TODO: do we need to do something with it?
+                } else if (webhookResponse.data &amp;&amp; expectResponse) {
+                    session.credentialPayload!.claims &#x3D; webhookResponse.data;
+                    //store received webhook response
+                    await this.sessionService.add(session.id, {
+                        credentialPayload: session.credentialPayload,
+                    });
+                }
+
                 return webhookResponse.data;
             },
             (err) &#x3D;&gt; {
