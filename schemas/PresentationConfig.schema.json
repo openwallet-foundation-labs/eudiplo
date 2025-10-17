@@ -64,6 +64,10 @@
       "items": {
         "$ref": "./PresentationAttachment.schema.json"
       }
+    },
+    "redirectUri": {
+      "type": "string",
+      "description": "Redirect URI to which the user-agent should be redirected after the presentation is completed."
     }
   },
   "required": [

@@ -255,6 +255,8 @@ export class Oid4vpService {
             const session = await this.sessionService.create({
                 id: values.session,
                 claimsWebhook: values.webhook ?? presentationConfig.webhook,
+                redirectUri:
+                    values.redirectUri ?? presentationConfig.redirectUri,
                 tenantId,
                 requestId,
                 requestUrl: `openid4vp://?${queryString}`,
@@ -341,19 +343,30 @@ export class Oid4vpService {
             // if there a a webook URL, send the response there
             //TODO: move to dedicated service to reuse it also in the oid4vci flow.
             if (session.claimsWebhook) {
-                await this.webhookService.sendWebhook(
+                const response = await this.webhookService.sendWebhook(
                     session,
                     logContext,
                     credentials,
-                    //when issuance id is defined, we expect a claim response that needs to be saved
+                    //when issuance id we expect the caller to handle the response
                     !!session.issuanceId,
                 );
+                //override it when a redirect URI is returned by the webhook
+                if (response?.redirectUri) {
+                    session.redirectUri = response.redirectUri;
+                }
             }
 
             this.sessionLogger.logFlowComplete(logContext, {
                 credentialCount: credentials?.length || 0,
                 webhookSent: !!session.claimsWebhook,
             });
+
+            //check if a redirect URI is defined and return it to the caller. If so, sendResponse is ignored
+            if (session.redirectUri) {
+                return {
+                    redirect_uri: session.redirectUri,
+                };
+            }
 
             if (body.sendResponse) {
                 return credentials;

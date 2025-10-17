@@ -85,6 +85,7 @@ export class PresentationManagementController {
             body.requestId,
             {
                 webhook: body.webhook,
+                redirectUri: body.redirectUri,
             },
             user.entity!.id,
             body.response_type === ResponseType.DC_API,

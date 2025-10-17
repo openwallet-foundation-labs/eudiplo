@@ -13,7 +13,7 @@ export const ClientEntitySchema = {
         },
         tenantId: {
             type: 'string',
-            description: 'The unique identifier for the tenant that the client belongs to. Only null for accounts that manage tenants, that do not belong to a client.'
+            description: 'The unique identifier for the tenant that the client belongs to. Only null for accounts that manage tenants, that do not belong to a client'
         },
         description: {
             type: 'string',
@@ -359,6 +359,10 @@ export const SessionSchema = {
         vp_nonce: {
             type: 'string',
             description: 'Noncce from the Verifiable Presentation request.'
+        },
+        redirectUri: {
+            type: 'string',
+            description: 'Redirect URI to which the user-agent should be redirected after the presentation is completed.'
         }
     },
     required: ['status', 'id', 'createdAt', 'updatedAt', 'useDcApi', 'tenantId', 'tenant', 'notifications']
@@ -702,6 +706,10 @@ If not provided, the configured webhook from the configuration will be used.`,
                     '$ref': '#/components/schemas/WebhookConfig'
                 }
             ]
+        },
+        redirectUri: {
+            type: 'string',
+            description: 'Optional redirect URI to which the user-agent should be redirected after the presentation is completed.'
         }
     },
     required: ['response_type', 'requestId']
@@ -916,6 +924,10 @@ export const PresentationConfigSchema = {
             items: {
                 '$ref': '#/components/schemas/PresentationAttachment'
             }
+        },
+        redirectUri: {
+            type: 'string',
+            description: 'Redirect URI to which the user-agent should be redirected after the presentation is completed.'
         }
     },
     required: ['id', 'tenant', 'dcql_query', 'createdAt', 'updatedAt']
@@ -966,6 +978,10 @@ export const PresentationConfigCreateDtoSchema = {
             items: {
                 '$ref': '#/components/schemas/PresentationAttachment'
             }
+        },
+        redirectUri: {
+            type: 'string',
+            description: 'Redirect URI to which the user-agent should be redirected after the presentation is completed.'
         }
     },
     required: ['id', 'dcql_query']

@@ -42,4 +42,11 @@ export class PresentationRequest {
     @IsObject()
     @IsOptional()
     webhook?: WebhookConfig;
+
+    /**
+     * Optional redirect URI to which the user-agent should be redirected after the presentation is completed.
+     */
+    @IsOptional()
+    @IsString()
+    redirectUri?: string;
 }

@@ -12,4 +12,9 @@ export interface PresentationRequestOptions {
      * Optional webhook configuration to receive the response.
      */
     webhook?: WebhookConfig;
+
+    /**
+     * Optional redirect URI to which the user-agent should be redirected after the presentation is completed.
+     */
+    redirectUri?: string;
 }

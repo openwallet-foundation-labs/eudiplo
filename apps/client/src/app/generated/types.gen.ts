@@ -14,7 +14,7 @@ export type ClientEntity = {
      */
     secret?: string;
     /**
-     * The unique identifier for the tenant that the client belongs to. Only null for accounts that manage tenants, that do not belong to a client.
+     * The unique identifier for the tenant that the client belongs to. Only null for accounts that manage tenants, that do not belong to a client
      */
     tenantId?: string;
     /**
@@ -236,6 +236,10 @@ export type Session = {
      * Noncce from the Verifiable Presentation request.
      */
     vp_nonce?: string;
+    /**
+     * Redirect URI to which the user-agent should be redirected after the presentation is completed.
+     */
+    redirectUri?: string;
 };
 
 export type Oauth2AuthorizationServerResponse = {
@@ -452,6 +456,10 @@ export type PresentationRequest = {
      * If not provided, the configured webhook from the configuration will be used.
      */
     webhook?: WebhookConfig;
+    /**
+     * Optional redirect URI to which the user-agent should be redirected after the presentation is completed.
+     */
+    redirectUri?: string;
 };
 
 export type OfferResponse = {
@@ -551,6 +559,10 @@ export type PresentationConfig = {
      * Attestation that should be attached
      */
     attached?: Array<PresentationAttachment>;
+    /**
+     * Redirect URI to which the user-agent should be redirected after the presentation is completed.
+     */
+    redirectUri?: string;
 };
 
 export type PresentationConfigCreateDto = {
@@ -582,6 +594,10 @@ export type PresentationConfigCreateDto = {
      * Attestation that should be attached
      */
     attached?: Array<PresentationAttachment>;
+    /**
+     * Redirect URI to which the user-agent should be redirected after the presentation is completed.
+     */
+    redirectUri?: string;
 };
 
 export type AuthorizationResponse = {
@@ -1310,8 +1326,12 @@ export type Oid4VpControllerGetResponseData = {
 };
 
 export type Oid4VpControllerGetResponseResponses = {
-    201: unknown;
+    201: {
+        [key: string]: unknown;
+    };
 };
+
+export type Oid4VpControllerGetResponseResponse = Oid4VpControllerGetResponseResponses[keyof Oid4VpControllerGetResponseResponses];
 
 export type SessionControllerGetAllSessionsData = {
     body?: never;
