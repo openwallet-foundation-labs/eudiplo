@@ -133,12 +133,6 @@
         <p class="comment">
             <code>src/well-known/well-known.controller.ts</code>
         </p>
-            <p class="comment">
-                <h3>Prefix</h3>
-            </p>
-            <p class="comment">
-                <code>:session/.well-known</code>
-            </p>
 
 
             <p class="comment">
@@ -220,14 +214,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Get(&#x27;oauth-authorization-server&#x27;)<br /></code>
+                    <code>@Get([&#x27;.well-known/oauth-authorization-server/:session&#x27;, &#x27;:session/.well-known/oauth-authorization-server&#x27;])<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="57"
-                                    class="link-to-prism">src/well-known/well-known.controller.ts:57</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="63"
+                                    class="link-to-prism">src/well-known/well-known.controller.ts:63</a></div>
                         </td>
                     </tr>
 
@@ -299,14 +293,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Header(&#x27;Content-Type&#x27;, &#x27;application/jwk-set+json&#x27;)<br />@Get(&#x27;jwks.json&#x27;)<br /></code>
+                    <code>@Header(&#x27;Content-Type&#x27;, &#x27;application/jwk-set+json&#x27;)<br />@Get(&#x27;:session/.well-known/jwks.json&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="69"
-                                    class="link-to-prism">src/well-known/well-known.controller.ts:69</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="75"
+                                    class="link-to-prism">src/well-known/well-known.controller.ts:75</a></div>
                         </td>
                     </tr>
 
@@ -379,14 +373,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@ApiOperation({summary: &#x27;Get OpenID4VCI issuer metadata&#x27;, description: &#x27;Returns the OpenID4VCI issuer metadata.&#x27;})<br />@ApiProduces(MediaType.APPLICATION_JSON, MediaType.APPLICATION_JWT)<br />@Get(&#x27;openid-credential-issuer&#x27;)<br /></code>
+                    <code>@ApiOperation({summary: &#x27;Get OpenID4VCI issuer metadata&#x27;, description: &#x27;Returns the OpenID4VCI issuer metadata.&#x27;})<br />@ApiProduces(MediaType.APPLICATION_JSON, MediaType.APPLICATION_JWT)<br />@Get([&#x27;.well-known/openid-credential-issuer/:session&#x27;, &#x27;:session/.well-known/openid-credential-issuer&#x27;])<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="45"
-                                    class="link-to-prism">src/well-known/well-known.controller.ts:45</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="48"
+                                    class="link-to-prism">src/well-known/well-known.controller.ts:48</a></div>
                         </td>
                     </tr>
 
@@ -473,7 +467,7 @@ import { WellKnownService } from &quot;./well-known.service&quot;;
     name: &quot;session&quot;,
     required: true,
 })
-@Controller(&quot;:session/.well-known&quot;)
+@Controller()
 export class WellKnownController {
     /**
      * Constructor for WellKnownController.
@@ -493,7 +487,10 @@ export class WellKnownController {
     })
     //we can not set the accept in the apiheader via swagger.
     @ApiProduces(MediaType.APPLICATION_JSON, MediaType.APPLICATION_JWT)
-    @Get(&quot;openid-credential-issuer&quot;)
+    @Get([
+        &quot;.well-known/openid-credential-issuer/:session&quot;,
+        &quot;:session/.well-known/openid-credential-issuer&quot;,
+    ])
     issuerMetadata(
         @SessionEntity() session: Session,
         @ContentType() contentType: MediaType,
@@ -505,7 +502,10 @@ export class WellKnownController {
      * Authorization Server Metadata
      * @returns
      */
-    @Get(&quot;oauth-authorization-server&quot;)
+    @Get([
+        &quot;.well-known/oauth-authorization-server/:session&quot;,
+        &quot;:session/.well-known/oauth-authorization-server&quot;,
+    ])
     authzMetadata(
         @SessionEntity() session: Session,
     ): Promise&lt;Oauth2AuthorizationServerResponse&gt; {
@@ -517,7 +517,7 @@ export class WellKnownController {
      * @returns
      */
     @Header(&quot;Content-Type&quot;, &quot;application/jwk-set+json&quot;)
-    @Get(&quot;jwks.json&quot;)
+    @Get(&quot;:session/.well-known/jwks.json&quot;)
     getJwks(@SessionEntity() session: Session): Promise&lt;JwksResponseDto&gt; {
         return this.wellKnownService.getJwks(session.tenantId);
     }

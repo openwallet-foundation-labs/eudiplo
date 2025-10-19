@@ -554,8 +554,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="297"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:297</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="299"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:299</a></div>
                         </td>
                     </tr>
 
@@ -878,6 +878,8 @@ export class Oid4vpService {
             const session &#x3D; await this.sessionService.create({
                 id: values.session,
                 claimsWebhook: values.webhook ?? presentationConfig.webhook,
+                redirectUri:
+                    values.redirectUri ?? presentationConfig.redirectUri,
                 tenantId,
                 requestId,
                 requestUrl: &#x60;openid4vp://?${queryString}&#x60;,
@@ -964,19 +966,30 @@ export class Oid4vpService {
             // if there a a webook URL, send the response there
             //TODO: move to dedicated service to reuse it also in the oid4vci flow.
             if (session.claimsWebhook) {
-                await this.webhookService.sendWebhook(
+                const response &#x3D; await this.webhookService.sendWebhook(
                     session,
                     logContext,
                     credentials,
-                    //when issuance id is defined, we expect a claim response that needs to be saved
+                    //when issuance id we expect the caller to handle the response
                     !!session.issuanceId,
                 );
+                //override it when a redirect URI is returned by the webhook
+                if (response?.redirectUri) {
+                    session.redirectUri &#x3D; response.redirectUri;
+                }
             }
 
             this.sessionLogger.logFlowComplete(logContext, {
                 credentialCount: credentials?.length || 0,
                 webhookSent: !!session.claimsWebhook,
             });
+
+            //check if a redirect URI is defined and return it to the caller. If so, sendResponse is ignored
+            if (session.redirectUri) {
+                return {
+                    redirect_uri: session.redirectUri,
+                };
+            }
 
             if (body.sendResponse) {
                 return credentials;
