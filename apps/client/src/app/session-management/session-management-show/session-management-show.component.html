@@ -143,7 +143,9 @@
             <div class="info-item">
               <strong>Offer URI:</strong>
               <div class="value-with-copy">
-                <span class="uri-value">{{ getOfferUri() }}</span>
+                <span class="uri-value">
+                  <a href="{{ getOfferUri() }}">{{ getOfferUri() }}</a>
+                </span>
                 <button
                   mat-icon-button
                   (click)="copyToClipboard(getOfferUri()!)"
