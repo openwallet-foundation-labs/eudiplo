@@ -97,21 +97,21 @@ export class DisplayService implements OnApplicationBootstrap {
                 //replace relative uris with public urls
                 config.value = await Promise.all(
                     config.value.map(async (display) => {
-                        if (display.logo?.url) {
+                        if (display.logo?.uri) {
                             const url =
                                 await this.filesService.replaceUriWithPublicUrl(
                                     tenant.name,
-                                    display.logo.url.trim(),
+                                    display.logo.uri.trim(),
                                 );
                             if (!url) {
                                 this.logger.error(
                                     {
                                         event: "Import",
                                     },
-                                    `Could not find logo ${display.logo.url} for ${tenant.name}, skipping import`,
+                                    `Could not find logo ${display.logo.uri} for ${tenant.name}, skipping import`,
                                 );
                             } else {
-                                display.logo.url = url;
+                                display.logo.uri = url;
                             }
                         }
                         return display;
