@@ -17,7 +17,7 @@ describe("Postgres", () => {
     let postgresClient!: Client;
 
     beforeAll(async () => {
-        postgresContainer = await new PostgreSqlContainer("postgres:latest")
+        postgresContainer = await new PostgreSqlContainer("postgres:alpine")
             .withUsername("test_user")
             .withPassword("test_password")
             .withDatabase("test_db")
@@ -57,7 +57,7 @@ describe("Postgres", () => {
         app.useGlobalPipes(new ValidationPipe());
 
         await app.init();
-    });
+    }, 60000);
 
     test("db tables exist", async () => {
         const res = await postgresClient.query(`
