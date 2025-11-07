@@ -132,19 +132,29 @@ export class Oid4vciService {
                 ),
             ).then(
                 (response) => response.data,
-                (err) => {
-                    const logContext: SessionLogContext = {
-                        sessionId: session.id,
-                        tenantId: session.tenantId,
-                        flowType: "OID4VCI",
-                        stage: "credential_request",
-                    };
-                    this.sessionLogger.logFlowError(logContext, err);
-                    throw new BadRequestException(
-                        "Failed to fetch authorization server metadata",
-                    );
-                },
-            );
+                async (err) => {
+                    // Retry fetching from OIDC metadata endpoint
+                    return await firstValueFrom(
+                        this.httpService.get(
+                            `${authServer}/.well-known/openid-configuration`,
+                        ),
+                    )
+                    .then(
+                        (response) => response.data,
+                        (err) => {
+                            const logContext: SessionLogContext = {
+                                sessionId: session.id,
+                                tenantId: session.tenantId,
+                                flowType: "OID4VCI",
+                                stage: "credential_request",
+                            };
+                            this.sessionLogger.logFlowError(logContext, err);
+                            throw new BadRequestException(
+                                "Failed to fetch authorization server metadata",
+                            );
+                    },
+                );
+            });
         } else {
             authServer =
                 this.configService.getOrThrow<string>("PUBLIC_URL") +
