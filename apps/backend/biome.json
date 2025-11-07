@@ -128,9 +128,7 @@
             "attributePosition": "auto",
             "bracketSpacing": true
         },
-        "globals": [
-            "exports"
-        ],
+        "globals": ["exports"],
         "parser": {
             "unsafeParameterDecoratorsEnabled": true
         }
@@ -142,12 +140,7 @@
     },
     "overrides": [
         {
-            "includes": [
-                "**/*.ts",
-                "**/*.tsx",
-                "**/*.mts",
-                "**/*.cts"
-            ],
+            "includes": ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts"],
             "linter": {
                 "rules": {
                     "complexity": {
