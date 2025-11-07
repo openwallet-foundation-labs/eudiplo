@@ -217,6 +217,9 @@ importers:
       '@swc/core':
         specifier: ^1.15.0
         version: 1.15.0
+      '@testcontainers/postgresql':
+        specifier: ^11.8.0
+        version: 11.8.0
       '@types/express':
         specifier: ^5.0.5
         version: 5.0.5
@@ -4241,6 +4244,9 @@ packages:
   '@szmarczak/http-timer@5.0.1':
     resolution: {integrity: sha512-+PmQX0PiAYPMeVYe237LJAYvOMYW1j2rH5YROyS3b4CTVJum34HfRvKvAzozHAQG0TnHNdUfY9nCeUyRAs//cw==}
     engines: {node: '>=14.16'}
+
+  '@testcontainers/postgresql@11.8.0':
+    resolution: {integrity: sha512-JTMBEoLbi1eYvbsQTqbQlPVED07EB4xhB1tAkmvmirmLsjT0IH6YPKZdZD5y91KKR/FDvSbhPsYmDtByGyGqwg==}
 
   '@thednp/event-listener@2.0.10':
     resolution: {integrity: sha512-TH7YVKmoKg6GBLqZB+ETXObofcqJ/Tp5ycheolvYZMjLbMpzYf6MmOWTcBtx8+zrhWy8deV0hYkPvDFioDXdVQ==}
@@ -14545,6 +14551,15 @@ snapshots:
   '@szmarczak/http-timer@5.0.1':
     dependencies:
       defer-to-connect: 2.0.1
+
+  '@testcontainers/postgresql@11.8.0':
+    dependencies:
+      testcontainers: 11.8.0
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - react-native-b4a
+      - supports-color
 
   '@thednp/event-listener@2.0.10': {}
 
