@@ -399,8 +399,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="199"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:199</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="209"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:209</a></div>
                         </td>
                     </tr>
 
@@ -508,8 +508,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="290"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:290</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="300"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:300</a></div>
                         </td>
                     </tr>
 
@@ -741,8 +741,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="447"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:447</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="457"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:457</a></div>
                         </td>
                     </tr>
 
@@ -927,8 +927,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="275"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:275</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="285"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:285</a></div>
                         </td>
                     </tr>
 
@@ -1150,19 +1150,29 @@ export class Oid4vciService {
                 ),
             ).then(
                 (response) &#x3D;&gt; response.data,
-                (err) &#x3D;&gt; {
-                    const logContext: SessionLogContext &#x3D; {
-                        sessionId: session.id,
-                        tenantId: session.tenantId,
-                        flowType: &quot;OID4VCI&quot;,
-                        stage: &quot;credential_request&quot;,
-                    };
-                    this.sessionLogger.logFlowError(logContext, err);
-                    throw new BadRequestException(
-                        &quot;Failed to fetch authorization server metadata&quot;,
-                    );
-                },
-            );
+                async (err) &#x3D;&gt; {
+                    // Retry fetching from OIDC metadata endpoint
+                    return await firstValueFrom(
+                        this.httpService.get(
+                            &#x60;${authServer}/.well-known/openid-configuration&#x60;,
+                        ),
+                    )
+                    .then(
+                        (response) &#x3D;&gt; response.data,
+                        (err) &#x3D;&gt; {
+                            const logContext: SessionLogContext &#x3D; {
+                                sessionId: session.id,
+                                tenantId: session.tenantId,
+                                flowType: &quot;OID4VCI&quot;,
+                                stage: &quot;credential_request&quot;,
+                            };
+                            this.sessionLogger.logFlowError(logContext, err);
+                            throw new BadRequestException(
+                                &quot;Failed to fetch authorization server metadata&quot;,
+                            );
+                    },
+                );
+            });
         } else {
             authServer &#x3D;
                 this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;) +
