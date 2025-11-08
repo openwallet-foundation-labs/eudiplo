@@ -251,10 +251,10 @@ To start the issuance flow, you need to create a credential offer using an
 
 ### Request Parameters
 
--   **`issuanceId`** (required): The ID of the issuance configuration to use
--   **`credentialConfigurationIds`** (optional): Override the credential
-    configurations defined in the issuance config
--   **`values`** (optional): Override claims for specific credentials
+- **`issuanceId`** (required): The ID of the issuance configuration to use
+- **`credentialConfigurationIds`** (optional): Override the credential
+  configurations defined in the issuance config
+- **`values`** (optional): Override claims for specific credentials
 
 ### How It Works
 
@@ -270,10 +270,10 @@ To start the issuance flow, you need to create a credential offer using an
 Via the `response_type` parameter, you can specify how the response should be
 formatted:
 
--   `uri`: Returns a URI that the user can open in their wallet to start the
-    issuance flow
--   `qrcode`: Returns a QR code that the user can scan with their wallet to start
-    the issuance flow
+- `uri`: Returns a URI that the user can open in their wallet to start the
+  issuance flow
+- `qrcode`: Returns a QR code that the user can scan with their wallet to start
+  the issuance flow
 
 While the `qrcode` is good for easy testing with the Swagger UI, the `uri` is
 recommended to also receive the session ID in the response that is needed to
