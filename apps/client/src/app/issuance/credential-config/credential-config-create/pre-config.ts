@@ -15,13 +15,11 @@ export const configs = [
             background_color: '#FFFF00',
             background_image: {
               uri: '<PUBLIC_URL>/bdr/credential.png',
-              url: '<PUBLIC_URL>/bdr/credential.png',
             },
             description: 'PID Credential',
             locale: 'en-US',
             logo: {
               uri: '<PUBLIC_URL>/issuer.png',
-              url: '<PUBLIC_URL>/issuer.png',
             },
             text_color: '#000000',
           },

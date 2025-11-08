@@ -98,12 +98,12 @@ export class DisplayService implements OnApplicationBootstrap {
                 config.value = await Promise.all(
                     config.value.map(async (display) => {
                         if (display.logo?.uri) {
-                            const url =
+                            const uri =
                                 await this.filesService.replaceUriWithPublicUrl(
                                     tenant.name,
                                     display.logo.uri.trim(),
                                 );
-                            if (!url) {
+                            if (!uri) {
                                 this.logger.error(
                                     {
                                         event: "Import",
@@ -111,7 +111,7 @@ export class DisplayService implements OnApplicationBootstrap {
                                     `Could not find logo ${display.logo.uri} for ${tenant.name}, skipping import`,
                                 );
                             } else {
-                                display.logo.uri = url;
+                                display.logo.uri = uri;
                             }
                         }
                         return display;
