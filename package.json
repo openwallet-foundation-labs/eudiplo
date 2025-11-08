@@ -32,17 +32,14 @@
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/exec": "^7.1.0",
     "@semantic-release/git": "^10.0.1",
-    "@semantic-release/github": "^11.0.6",
-    "@types/node": "^24.5.2",
+    "@semantic-release/github": "^12.0.1",
+    "@types/node": "^24.10.0",
     "cross-fetch": "^4.1.0",
     "husky": "^9.1.7",
     "markdownlint-cli": "^0.45.0",
-    "semantic-release": "^24.2.9",
+    "semantic-release": "^25.0.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.3"
   },
-  "packageManager": "pnpm@10.13.1+sha512.37ebf1a5c7a30d5fabe0c5df44ee8da4c965ca0c5af3dbab28c3a1681b70a256218d05c81c9c0dcf767ef6b8551eb5b960042b9ed4300c59242336377e01cfad",
-  "dependencies": {
-    "@sd-jwt/jwt-status-list": "^0.16.0"
-  }
+  "packageManager": "pnpm@10.13.1+sha512.37ebf1a5c7a30d5fabe0c5df44ee8da4c965ca0c5af3dbab28c3a1681b70a256218d05c81c9c0dcf767ef6b8551eb5b960042b9ed4300c59242336377e01cfad"
 }
