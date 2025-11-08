@@ -299,7 +299,7 @@ curl -X 'POST' \
 
 ```json
 {
-    "credential_offer_uri": "openid-credential-offer://...",
+    "uri": "openid-credential-offer://...",
     "session": "59d22466-b403-4b37-b1d0-20163696ade7"
 }
 ```
