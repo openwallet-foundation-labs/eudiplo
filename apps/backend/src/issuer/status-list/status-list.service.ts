@@ -2,6 +2,7 @@ import { ConflictException, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import {
+    BitsPerStatus,
     createHeaderAndPayload,
     JWTwithStatusListPayload,
     StatusList,
@@ -34,7 +35,7 @@ export class StatusListService {
      * entries. The status list is stored in the file system as a JSON file.
      */
     async onTenantInit(tenantId: string) {
-        const size = 10000;
+        const size = this.configService.getOrThrow<number>("STATUS_LENGTH");
         // create an empty array with the size of 1000
         const elements = new Array(size).fill(0).map(() => 0);
         // create a list of 1000 indexes and shuffel them
@@ -43,11 +44,14 @@ export class StatusListService {
             .map((_, i) => i)
             .sort(() => 0.5 - Math.random());
 
+        const bits =
+            this.configService.getOrThrow<BitsPerStatus>("STATUS_BITS");
+
         const entry = await this.statusListRepository.save({
             tenantId,
             elements,
             stack,
-            bits: 1,
+            bits,
         });
 
         await this.createList(entry);
