@@ -4,11 +4,11 @@
   "title": "DisplayLogo",
   "type": "object",
   "properties": {
-    "url": {
+    "uri": {
       "type": "string"
     }
   },
   "required": [
-    "url"
+    "uri"
   ]
 }

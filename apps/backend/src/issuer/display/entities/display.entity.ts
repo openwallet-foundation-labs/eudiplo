@@ -6,7 +6,7 @@ import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
 
 class DisplayLogo {
     @IsString()
-    url: string;
+    uri: string;
 }
 export class DisplayInfo {
     @IsString()

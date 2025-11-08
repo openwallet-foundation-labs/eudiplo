@@ -58,7 +58,7 @@ export class DisplayComponent implements OnInit {
             name: [entry.name, Validators.required],
             locale: [entry.locale, Validators.required],
             logo: this.fb.group({
-              url: [entry.logo?.url || '', Validators.required],
+              uri: [entry.logo?.uri || '', Validators.required],
               alt: [entry.logo?.alt || ''],
             }),
           })
@@ -80,7 +80,7 @@ export class DisplayComponent implements OnInit {
       name: ['', Validators.required],
       locale: ['', Validators.required],
       logo: this.fb.group({
-        url: ['', Validators.required],
+        uri: ['', Validators.required],
         alt: [''],
       }),
     });

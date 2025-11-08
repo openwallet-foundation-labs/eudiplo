@@ -4,7 +4,7 @@
             "locale": "en-US",
             "name": "EUDI Wallet dev",
             "logo": {
-                "url": "company.png"
+                "uri": "company.png"
             }
         }
     ]
