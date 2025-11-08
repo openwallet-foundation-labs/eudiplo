@@ -138,8 +138,7 @@ export class Oid4vciService {
                         this.httpService.get(
                             `${authServer}/.well-known/openid-configuration`,
                         ),
-                    )
-                    .then(
+                    ).then(
                         (response) => response.data,
                         (err) => {
                             const logContext: SessionLogContext = {
@@ -152,9 +151,10 @@ export class Oid4vciService {
                             throw new BadRequestException(
                                 "Failed to fetch authorization server metadata",
                             );
-                    },
-                );
-            });
+                        },
+                    );
+                },
+            );
         } else {
             authServer =
                 this.configService.getOrThrow<string>("PUBLIC_URL") +

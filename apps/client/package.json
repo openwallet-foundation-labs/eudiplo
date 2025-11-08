@@ -18,12 +18,12 @@
   },
   "dependencies": {
     "@angular/animations": "^20.3.1",
-    "@angular/cdk": "20.2.5",
+    "@angular/cdk": "20.2.12",
     "@angular/common": "^20.3.1",
     "@angular/compiler": "^20.3.1",
     "@angular/core": "^20.3.1",
     "@angular/forms": "^20.3.1",
-    "@angular/material": "20.2.5",
+    "@angular/material": "20.2.12",
     "@angular/platform-browser": "^20.3.1",
     "@angular/platform-browser-dynamic": "^20.3.1",
     "@angular/router": "^20.3.1",
@@ -37,7 +37,7 @@
     "ajv-formats": "^3.0.1",
     "jose": "^6.1.0",
     "json-schema": "link:@ngx-formly/core/json-schema",
-    "monaco-editor": "^0.53.0",
+    "monaco-editor": "^0.54.0",
     "ngx-flexible-layout": "^20.0.0",
     "ngx-monaco-editor-v2": "^20.0.0",
     "qrcode": "^1.5.4",
@@ -52,7 +52,7 @@
     "@angular/compiler-cli": "^20.3.1",
     "@eslint/js": "^9.36.0",
     "@hey-api/openapi-ts": "^0.84.1",
-    "@playwright/test": "1.56.0",
+    "@playwright/test": "1.56.1",
     "@types/jasmine": "~5.1.9",
     "angular-eslint": "20.1.1",
     "eslint": "^9.36.0",
@@ -67,7 +67,7 @@
     "playwright-ng-schematics": "2.1.1",
     "prettier": "^3.6.2",
     "typescript": "~5.9.2",
-    "typescript-eslint": "8.46.1"
+    "typescript-eslint": "8.46.3"
   },
   "packageManager": "pnpm@10.13.1+sha512.37ebf1a5c7a30d5fabe0c5df44ee8da4c965ca0c5af3dbab28c3a1681b70a256218d05c81c9c0dcf767ef6b8551eb5b960042b9ed4300c59242336377e01cfad"
 }
