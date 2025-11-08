@@ -14,7 +14,7 @@ The signing key is used to create the digital signature for the credential. It i
 
 ```json
 {
-    "keyId": "signing-key-1",    
+    "keyId": "signing-key-1"
 }
 ```
 
@@ -68,8 +68,8 @@ When `keyBinding` is enabled:
 
 ## Status Management and Revocation
 
-Status management allows credentials to be revoked or suspended using OAuth
-Token Status Lists. This is controlled by the `statusManagement` configuration
+Status management allows credentials to be revoked or suspended using [OAuth
+Token Status List](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/). This is controlled by the `statusManagement` configuration
 option.
 
 ### Configuration
@@ -104,12 +104,25 @@ When `statusManagement` is enabled:
 - Credentials can be revoked using the `/session/revoke` endpoint
 - The status list is updated immediately upon revocation
 
+!!! note
+
+    When a session is deleted, the relationship between the sessionId and the issued credentials is still stored to be able to revoke the credentials. Only the sessionId and the index is stored, no other personal data.
+
 ### Benefits
 
 - Real-time revocation capability
 - Standards-compliant status tracking
 - Verifiers can check credential validity
 - Granular control over credential lifecycle
+
+### Configuration
+
+By default EUDIPLO will create a status list where each credential is managed with one bit. This means only Valid and Revoked status is possible. To support suspension or other states like defined [specification](https://www.ietf.org/archive/id/draft-ietf-oauth-status-list-13.html#name-status-types-values), you need to update the configuration options by setting the `STATUS_BITS` options at least to `2`.
+
+--8<-- "docs/generated/config-status.md"
+
+> More granular configuration is planned for the future.
+> When a tenant is created, it will use the same status list for all credentials. Automatic creation of new lists or dedicated lists per credential configuration is planned for the future.
 
 ---
 
@@ -183,10 +196,7 @@ When policy is set to `allow`, only relying parties explicitly listed in the cre
 ```json
 {
     "policy": "allowList",
-    "values": [
-        "https://relying-party-1.com",
-        "https://relying-party-2.com"
-    ]
+    "values": ["https://relying-party-1.com", "https://relying-party-2.com"]
 }
 ```
 
@@ -197,9 +207,7 @@ When policy is set to `rootOfTrust`, only relying parties that have a valid trus
 ```json
 {
     "policy": "rootOfTrust",
-    "values": [
-        "https://root-of-trust.com"
-    ]
+    "values": ["https://root-of-trust.com"]
 }
 ```
 
@@ -210,14 +218,12 @@ When policy is set to `attestationBased`, only relying parties that can present 
 ```json
 {
     "policy": "attestationBased",
-    "values": [ 
+    "values": [
         {
             "claims": [
                 {
                     "id": "card",
-                    "path": [
-                        "given_name"
-                    ]
+                    "path": ["given_name"]
                 }
             ],
             "credentials": [
@@ -230,20 +236,14 @@ When policy is set to `attestationBased`, only relying parties that can present 
                     "trusted_authorities": [
                         {
                             "type": "aki",
-                            "values": [
-                                "s9tIpPmhxdiuNkHMEWNpYim8S8Y"
-                            ]
+                            "values": ["s9tIpPmhxdiuNkHMEWNpYim8S8Y"]
                         }
                     ]
                 }
             ],
             "credential_sets": [
                 {
-                    "options": [
-                        [
-                            "card"
-                        ]
-                    ]
+                    "options": [["card"]]
                 }
             ]
         }
