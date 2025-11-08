@@ -170,7 +170,6 @@
                             </li>
                             <li>
                                     <span class="modifier"></span>
-                                    <span class="modifier"></span>
                                 <a href="#status" >status</a>
                             </li>
                         </ul>
@@ -286,7 +285,6 @@ This is optional, if not provided, all credentials will be revoked of the sessio
                     <a name="status"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                            <span class="modifier"></span>
                         <span ><b>status</b></span>
                         <a href="#status"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -303,20 +301,20 @@ This is optional, if not provided, all credentials will be revoked of the sessio
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsNumber()<br />@IsIn([&#x27;0&#x27;, &#x27;1&#x27;])<br />
+                            @IsNumber()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="24" class="link-to-prism">src/issuer/status-list/dto/status-update.dto.ts:24</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="23" class="link-to-prism">src/issuer/status-list/dto/status-update.dto.ts:23</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
                     <div class="io-description"><p>The status of the credential
-0 = valid, 1 = revoked</p>
+0 = valid, 1 = revoked, 2 = suspended</p>
 </div>
                 </td>
             </tr>
@@ -335,7 +333,7 @@ This is optional, if not provided, all credentials will be revoked of the sessio
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { IsIn, IsNumber, IsOptional, IsString } from &quot;class-validator&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { IsNumber, IsOptional, IsString } from &quot;class-validator&quot;;
 
 export class StatusUpdateDto {
     /**
@@ -354,10 +352,9 @@ export class StatusUpdateDto {
 
     /**
      * The status of the credential
-     * 0 &#x3D; valid, 1 &#x3D; revoked
+     * 0 &#x3D; valid, 1 &#x3D; revoked, 2 &#x3D; suspended
      */
     @IsNumber()
-    @IsIn([0, 1])
     status: number;
 }
 </code></pre>
