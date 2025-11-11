@@ -7,7 +7,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { X509Certificate, SubjectAlternativeNameExtension } from '@peculiar/x509';
-import { id_ce_subjectAltName } from '@peculiar/asn1-x509';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { CertEntity } from '../../generated';
 import { KeyManagementService } from '../key-management.service';
@@ -113,7 +112,7 @@ export class KeyManagementShowComponent implements OnInit {
         fingerprint = 'Unable to compute';
       }
 
-      const sanExt = cert.getExtension<SubjectAlternativeNameExtension>(id_ce_subjectAltName);
+      const sanExt = cert.getExtension<SubjectAlternativeNameExtension>("2.5.29.17");
 
       let sans: string[] = [];
       if (sanExt) {
