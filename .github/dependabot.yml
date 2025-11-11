@@ -61,6 +61,10 @@ updates:
         patterns: ["@sd-jwt/*"]
         update-types: ["major", "minor", "patch"]
 
+      aws-sdk:
+        patterns: ["@aws-sdk/*"]
+        update-types: ["major", "minor", "patch"]
+
   # --- GitHub Actions versions in .github/workflows ---
   - package-ecosystem: github-actions
     directory: "/"
