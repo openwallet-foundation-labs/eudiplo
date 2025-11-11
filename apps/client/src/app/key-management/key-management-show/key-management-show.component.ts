@@ -112,7 +112,7 @@ export class KeyManagementShowComponent implements OnInit {
         fingerprint = 'Unable to compute';
       }
 
-      const sanExt = cert.getExtension<SubjectAlternativeNameExtension>("2.5.29.17");
+      const sanExt = cert.getExtension<SubjectAlternativeNameExtension>('2.5.29.17');
 
       let sans: string[] = [];
       if (sanExt) {
