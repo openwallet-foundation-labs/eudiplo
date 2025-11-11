@@ -1017,8 +1017,7 @@ This is optional, if not provided, all credentials will be revoked of the sessio
         status: {
             type: 'number',
             description: `The status of the credential
-0 = valid, 1 = revoked`,
-            enum: [0, 1]
+0 = valid, 1 = revoked, 2 = suspended`
         }
     },
     required: ['sessionId', 'status']
@@ -1638,11 +1637,11 @@ Default is 1.`
 export const DisplayLogoSchema = {
     type: 'object',
     properties: {
-        url: {
+        uri: {
             type: 'string'
         }
     },
-    required: ['url']
+    required: ['uri']
 } as const;
 
 export const DisplayInfoSchema = {

@@ -2,7 +2,7 @@
 
 import { type Client, formDataBodySerializer, type Options as Options2, type TDataShape } from './client';
 import { client } from './client.gen';
-import type { AuthControllerGetGlobalJwksData, AuthControllerGetGlobalJwksResponses, AuthControllerGetOAuth2TokenData, AuthControllerGetOAuth2TokenErrors, AuthControllerGetOAuth2TokenResponses, AuthControllerGetOidcDiscoveryData, AuthControllerGetOidcDiscoveryResponses, AuthorizeControllerAuthorizationChallengeEndpointData, AuthorizeControllerAuthorizationChallengeEndpointResponses, AuthorizeControllerAuthorizeData, AuthorizeControllerAuthorizeResponses, AuthorizeControllerParData, AuthorizeControllerParResponses, AuthorizeControllerTokenData, AuthorizeControllerTokenResponses, ClientControllerCreateClientData, ClientControllerCreateClientResponses, ClientControllerDeleteClientData, ClientControllerDeleteClientResponses, ClientControllerGetClientData, ClientControllerGetClientResponses, ClientControllerGetClientsData, ClientControllerGetClientSecretData, ClientControllerGetClientSecretResponses, ClientControllerGetClientsResponses, ClientControllerUpdateClientData, ClientControllerUpdateClientResponses, CredentialsControllerDeleteIssuanceConfigurationData, CredentialsControllerDeleteIssuanceConfigurationResponses, CredentialsControllerGetConfigsData, CredentialsControllerGetConfigsResponses, CredentialsControllerStoreCredentialConfigurationData, CredentialsControllerStoreCredentialConfigurationResponses, CredentialsMetadataControllerSchemaData, CredentialsMetadataControllerSchemaResponses, CredentialsMetadataControllerVctData, CredentialsMetadataControllerVctResponses, DisplayControllerCreateDisplayData, DisplayControllerCreateDisplayResponses, DisplayControllerGetDisplayData, DisplayControllerGetDisplayResponses, HealthControllerCheckData, HealthControllerCheckErrors, HealthControllerCheckResponses, IssuanceControllerDeleteIssuanceConfigurationData, IssuanceControllerDeleteIssuanceConfigurationResponses, IssuanceControllerGetIssuanceConfigurationsData, IssuanceControllerGetIssuanceConfigurationsResponses, IssuanceControllerStoreIssuanceConfigurationData, IssuanceControllerStoreIssuanceConfigurationResponses, IssuerManagementControllerGetOfferData, IssuerManagementControllerGetOfferResponses, KeyControllerAddKeyData, KeyControllerAddKeyResponses, KeyControllerDeleteKeyData, KeyControllerDeleteKeyResponses, KeyControllerGetKeysData, KeyControllerGetKeysResponses, KeyControllerUpdateKeyData, KeyControllerUpdateKeyResponses, Oid4VciControllerCredentialData, Oid4VciControllerCredentialResponses, Oid4VciControllerNonceData, Oid4VciControllerNonceResponses, Oid4VciControllerNotificationsData, Oid4VciControllerNotificationsResponses, Oid4VpControllerGetPostRequestWithSessionData, Oid4VpControllerGetPostRequestWithSessionResponses, Oid4VpControllerGetRequestWithSessionData, Oid4VpControllerGetRequestWithSessionResponses, Oid4VpControllerGetResponseData, Oid4VpControllerGetResponseResponses, PresentationManagementControllerConfigurationData, PresentationManagementControllerConfigurationResponses, PresentationManagementControllerDeleteConfigurationData, PresentationManagementControllerDeleteConfigurationResponses, PresentationManagementControllerGetOfferData, PresentationManagementControllerGetOfferResponses, PresentationManagementControllerStorePresentationConfigData, PresentationManagementControllerStorePresentationConfigResponses, PrometheusControllerIndexData, PrometheusControllerIndexResponses, SessionControllerDeleteSessionData, SessionControllerDeleteSessionResponses, SessionControllerGetAllSessionsData, SessionControllerGetAllSessionsResponses, SessionControllerGetSessionData, SessionControllerGetSessionResponses, SessionControllerRevokeAllData, SessionControllerRevokeAllResponses, StatusListControllerGetListData, StatusListControllerGetListResponses, StorageControllerDownloadData, StorageControllerDownloadResponses, StorageControllerUploadData, StorageControllerUploadResponses, TenantControllerDeleteTenantData, TenantControllerDeleteTenantResponses, TenantControllerGetTenantData, TenantControllerGetTenantResponses, TenantControllerGetTenantsData, TenantControllerGetTenantsResponses, TenantControllerInitTenantData, TenantControllerInitTenantResponses, WellKnownControllerAuthzMetadataData, WellKnownControllerAuthzMetadataResponses, WellKnownControllerGetJwksData, WellKnownControllerGetJwksResponses, WellKnownControllerIssuerMetadataData, WellKnownControllerIssuerMetadataResponses } from './types.gen';
+import type { AuthControllerGetGlobalJwksData, AuthControllerGetGlobalJwksResponses, AuthControllerGetOAuth2TokenData, AuthControllerGetOAuth2TokenErrors, AuthControllerGetOAuth2TokenResponses, AuthControllerGetOidcDiscoveryData, AuthControllerGetOidcDiscoveryResponses, AuthorizeControllerAuthorizationChallengeEndpointData, AuthorizeControllerAuthorizationChallengeEndpointResponses, AuthorizeControllerAuthorizeData, AuthorizeControllerAuthorizeResponses, AuthorizeControllerParData, AuthorizeControllerParResponses, AuthorizeControllerTokenData, AuthorizeControllerTokenResponses, ClientControllerCreateClientData, ClientControllerCreateClientResponses, ClientControllerDeleteClientData, ClientControllerDeleteClientResponses, ClientControllerGetClientData, ClientControllerGetClientResponses, ClientControllerGetClientsData, ClientControllerGetClientSecretData, ClientControllerGetClientSecretResponses, ClientControllerGetClientsResponses, ClientControllerUpdateClientData, ClientControllerUpdateClientResponses, CredentialsControllerDeleteIssuanceConfigurationData, CredentialsControllerDeleteIssuanceConfigurationResponses, CredentialsControllerGetConfigsData, CredentialsControllerGetConfigsResponses, CredentialsControllerStoreCredentialConfigurationData, CredentialsControllerStoreCredentialConfigurationResponses, CredentialsMetadataControllerSchemaData, CredentialsMetadataControllerSchemaResponses, CredentialsMetadataControllerVctData, CredentialsMetadataControllerVctResponses, DisplayControllerCreateDisplayData, DisplayControllerCreateDisplayResponses, DisplayControllerGetDisplayData, DisplayControllerGetDisplayResponses, HealthControllerCheckData, HealthControllerCheckErrors, HealthControllerCheckResponses, IssuanceControllerDeleteIssuanceConfigurationData, IssuanceControllerDeleteIssuanceConfigurationResponses, IssuanceControllerGetIssuanceConfigurationsData, IssuanceControllerGetIssuanceConfigurationsResponses, IssuanceControllerStoreIssuanceConfigurationData, IssuanceControllerStoreIssuanceConfigurationResponses, IssuerManagementControllerGetOfferData, IssuerManagementControllerGetOfferResponses, KeyControllerAddKeyData, KeyControllerAddKeyResponses, KeyControllerDeleteKeyData, KeyControllerDeleteKeyResponses, KeyControllerGetKeyData, KeyControllerGetKeyResponses, KeyControllerGetKeysData, KeyControllerGetKeysResponses, KeyControllerUpdateKeyData, KeyControllerUpdateKeyResponses, Oid4VciControllerCredentialData, Oid4VciControllerCredentialResponses, Oid4VciControllerNonceData, Oid4VciControllerNonceResponses, Oid4VciControllerNotificationsData, Oid4VciControllerNotificationsResponses, Oid4VpControllerGetPostRequestWithSessionData, Oid4VpControllerGetPostRequestWithSessionResponses, Oid4VpControllerGetRequestWithSessionData, Oid4VpControllerGetRequestWithSessionResponses, Oid4VpControllerGetResponseData, Oid4VpControllerGetResponseResponses, PresentationManagementControllerConfigurationData, PresentationManagementControllerConfigurationResponses, PresentationManagementControllerDeleteConfigurationData, PresentationManagementControllerDeleteConfigurationResponses, PresentationManagementControllerGetOfferData, PresentationManagementControllerGetOfferResponses, PresentationManagementControllerStorePresentationConfigData, PresentationManagementControllerStorePresentationConfigResponses, PrometheusControllerIndexData, PrometheusControllerIndexResponses, SessionControllerDeleteSessionData, SessionControllerDeleteSessionResponses, SessionControllerGetAllSessionsData, SessionControllerGetAllSessionsResponses, SessionControllerGetSessionData, SessionControllerGetSessionResponses, SessionControllerRevokeAllData, SessionControllerRevokeAllResponses, StatusListControllerGetListData, StatusListControllerGetListResponses, StorageControllerDownloadData, StorageControllerDownloadResponses, StorageControllerUploadData, StorageControllerUploadResponses, TenantControllerDeleteTenantData, TenantControllerDeleteTenantResponses, TenantControllerGetTenantData, TenantControllerGetTenantResponses, TenantControllerGetTenantsData, TenantControllerGetTenantsResponses, TenantControllerInitTenantData, TenantControllerInitTenantResponses, WellKnownControllerAuthzMetadata0Data, WellKnownControllerAuthzMetadata0Responses, WellKnownControllerAuthzMetadata1Data, WellKnownControllerAuthzMetadata1Responses, WellKnownControllerGetJwksData, WellKnownControllerGetJwksResponses, WellKnownControllerIssuerMetadata0Data, WellKnownControllerIssuerMetadata0Responses, WellKnownControllerIssuerMetadata1Data, WellKnownControllerIssuerMetadata1Responses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -22,8 +22,19 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
  * Get OpenID4VCI issuer metadata
  * Returns the OpenID4VCI issuer metadata.
  */
-export const wellKnownControllerIssuerMetadata = <ThrowOnError extends boolean = false>(options: Options<WellKnownControllerIssuerMetadataData, ThrowOnError>) => {
-    return (options.client ?? client).get<WellKnownControllerIssuerMetadataResponses, unknown, ThrowOnError>({
+export const wellKnownControllerIssuerMetadata0 = <ThrowOnError extends boolean = false>(options: Options<WellKnownControllerIssuerMetadata0Data, ThrowOnError>) => {
+    return (options.client ?? client).get<WellKnownControllerIssuerMetadata0Responses, unknown, ThrowOnError>({
+        url: '/.well-known/openid-credential-issuer/{session}',
+        ...options
+    });
+};
+
+/**
+ * Get OpenID4VCI issuer metadata
+ * Returns the OpenID4VCI issuer metadata.
+ */
+export const wellKnownControllerIssuerMetadata1 = <ThrowOnError extends boolean = false>(options: Options<WellKnownControllerIssuerMetadata1Data, ThrowOnError>) => {
+    return (options.client ?? client).get<WellKnownControllerIssuerMetadata1Responses, unknown, ThrowOnError>({
         url: '/{session}/.well-known/openid-credential-issuer',
         ...options
     });
@@ -32,8 +43,18 @@ export const wellKnownControllerIssuerMetadata = <ThrowOnError extends boolean =
 /**
  * Authorization Server Metadata
  */
-export const wellKnownControllerAuthzMetadata = <ThrowOnError extends boolean = false>(options: Options<WellKnownControllerAuthzMetadataData, ThrowOnError>) => {
-    return (options.client ?? client).get<WellKnownControllerAuthzMetadataResponses, unknown, ThrowOnError>({
+export const wellKnownControllerAuthzMetadata0 = <ThrowOnError extends boolean = false>(options: Options<WellKnownControllerAuthzMetadata0Data, ThrowOnError>) => {
+    return (options.client ?? client).get<WellKnownControllerAuthzMetadata0Responses, unknown, ThrowOnError>({
+        url: '/.well-known/oauth-authorization-server/{session}',
+        ...options
+    });
+};
+
+/**
+ * Authorization Server Metadata
+ */
+export const wellKnownControllerAuthzMetadata1 = <ThrowOnError extends boolean = false>(options: Options<WellKnownControllerAuthzMetadata1Data, ThrowOnError>) => {
+    return (options.client ?? client).get<WellKnownControllerAuthzMetadata1Responses, unknown, ThrowOnError>({
         url: '/{session}/.well-known/oauth-authorization-server',
         ...options
     });
@@ -296,6 +317,22 @@ export const keyControllerAddKey = <ThrowOnError extends boolean = false>(option
  */
 export const keyControllerDeleteKey = <ThrowOnError extends boolean = false>(options: Options<KeyControllerDeleteKeyData, ThrowOnError>) => {
     return (options.client ?? client).delete<KeyControllerDeleteKeyResponses, unknown, ThrowOnError>({
+        security: [
+            {
+                scheme: 'bearer',
+                type: 'http'
+            }
+        ],
+        url: '/key/{id}',
+        ...options
+    });
+};
+
+/**
+ * Get a specific key by ID
+ */
+export const keyControllerGetKey = <ThrowOnError extends boolean = false>(options: Options<KeyControllerGetKeyData, ThrowOnError>) => {
+    return (options.client ?? client).get<KeyControllerGetKeyResponses, unknown, ThrowOnError>({
         security: [
             {
                 scheme: 'bearer',

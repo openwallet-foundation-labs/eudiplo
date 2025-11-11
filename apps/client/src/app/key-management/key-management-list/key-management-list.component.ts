@@ -27,6 +27,7 @@ export class KeyManagementListComponent implements OnInit {
   displayedColumns: (keyof CertEntity | 'actions')[] = [
     'id',
     'description',
+    'type',
     'createdAt',
     'actions',
   ];

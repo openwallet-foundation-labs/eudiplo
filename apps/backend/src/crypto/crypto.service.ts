@@ -83,7 +83,6 @@ export class CryptoService {
     getCerts(tenantId: string): Promise<CertEntity[]> {
         return this.certRepository.findBy({
             tenantId,
-            type: "signing",
         });
     }
 
@@ -334,8 +333,8 @@ export class CryptoService {
      * @param keyId
      * @returns
      */
-    getCertEntry(tenantId: string, keyId: string): Promise<CertEntity | null> {
-        return this.certRepository.findOneBy({ tenantId, id: keyId });
+    getCertEntry(tenantId: string, keyId: string): Promise<CertEntity> {
+        return this.certRepository.findOneByOrFail({ tenantId, id: keyId });
     }
 
     /**

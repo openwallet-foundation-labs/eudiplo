@@ -254,6 +254,10 @@ export class PresentationCreateComponent {
       formValue.registrationCert = undefined; // Remove registrationCert if not provided
     }
 
+    if (!formValue.redirectUri) {
+      formValue.redirectUri = undefined;
+    }
+
     // Clean up empty optional fields
     if (formValue.attached && formValue.attached.length === 0) {
       formValue.attached = undefined;

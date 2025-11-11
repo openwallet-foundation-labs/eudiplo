@@ -39,6 +39,20 @@ export class KeyController {
     }
 
     /**
+     * Get a specific key by ID
+     * @param token
+     * @param id
+     * @returns
+     */
+    @Get(":id")
+    getKey(
+        @Token() token: TokenPayload,
+        @Param("id") id: string,
+    ): Promise<CertEntity> {
+        return this.cryptoService.getCertEntry(token.entity!.id, id);
+    }
+
+    /**
      * Add a new key to the key service.
      * @param token
      * @param body
