@@ -143,7 +143,7 @@ importers:
         version: 18.0.1
       jose:
         specifier: ^6.1.0
-        version: 6.1.0
+        version: 6.1.1
       jwks-rsa:
         specifier: ^3.2.0
         version: 3.2.0
@@ -336,7 +336,7 @@ importers:
         version: 3.0.1(ajv@8.17.1)
       jose:
         specifier: ^6.1.0
-        version: 6.1.0
+        version: 6.1.1
       json-schema:
         specifier: link:@ngx-formly/core/json-schema
         version: link:@ngx-formly/core/json-schema
@@ -6787,8 +6787,8 @@ packages:
   jose@4.15.9:
     resolution: {integrity: sha512-1vUQX+IdDMVPj4k8kOxgUqlcK518yluMuGZwqlr44FS1ppZB/5GWh4rZG89erpOBOJjU/OBsnCVFfapsRz6nEA==}
 
-  jose@6.1.0:
-    resolution: {integrity: sha512-TTQJyoEoKcC1lscpVDCSsVgYzUDg/0Bt3WE//WiTPK6uOCQC2KZS4MpugbMWt/zyjkopgZoXhZuCi00gLudfUA==}
+  jose@6.1.1:
+    resolution: {integrity: sha512-GWSqjfOPf4cWOkBzw5THBjtGPhXKqYnfRBzh4Ni+ArTrQQ9unvmsA3oFLqaYKoKe5sjWmGu5wVKg9Ft1i+LQfg==}
 
   joycon@3.1.1:
     resolution: {integrity: sha512-34wB/Y7MW7bzjKRjUKTa46I2Z7eV62Rkhva+KkopW7Qvv/OSWBqvkSY7vusOPrNuZcUG3tApvdVgNB8POj3SPw==}
@@ -17317,7 +17317,7 @@ snapshots:
 
   jose@4.15.9: {}
 
-  jose@6.1.0: {}
+  jose@6.1.1: {}
 
   joycon@3.1.1: {}
 
