@@ -62,6 +62,18 @@
                   </td>
                 </tr>
                 <tr>
+                  <td><strong>Subject Alternative Names (SANs):</strong></td>
+                  <td>
+                    @if (certificateInfo.sans && certificateInfo.sans.length > 0) {
+                      @for (san of certificateInfo.sans; track san) {
+                        <span class="san-tag">{{ san }}</span>
+                      }
+                    } @else {
+                      <span>No SANs present</span>
+                    }
+                  </td>
+                </tr>
+                <tr>
                   <td><strong>Serial Number:</strong></td>
                   <td>{{ certificateInfo.serialNumber }}</td>
                 </tr>

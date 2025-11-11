@@ -623,9 +623,9 @@ export type StatusUpdateDto = {
     credentialConfigurationId?: string;
     /**
      * The status of the credential
-     * 0 = valid, 1 = revoked
+     * 0 = valid, 1 = revoked, 2 = suspended
      */
-    status: 0 | 1;
+    status: number;
 };
 
 export type NotificationRequestDto = {
@@ -896,7 +896,7 @@ export type IssuanceDto = {
 };
 
 export type DisplayLogo = {
-    url: string;
+    uri: string;
 };
 
 export type DisplayInfo = {
@@ -927,7 +927,24 @@ export type FileUploadDto = {
     file: Blob | File;
 };
 
-export type WellKnownControllerIssuerMetadataData = {
+export type WellKnownControllerIssuerMetadata0Data = {
+    body?: never;
+    path: {
+        session: Session;
+    };
+    query?: never;
+    url: '/.well-known/openid-credential-issuer/{session}';
+};
+
+export type WellKnownControllerIssuerMetadata0Responses = {
+    200: {
+        [key: string]: unknown;
+    };
+};
+
+export type WellKnownControllerIssuerMetadata0Response = WellKnownControllerIssuerMetadata0Responses[keyof WellKnownControllerIssuerMetadata0Responses];
+
+export type WellKnownControllerIssuerMetadata1Data = {
     body?: never;
     path: {
         session: Session;
@@ -936,15 +953,30 @@ export type WellKnownControllerIssuerMetadataData = {
     url: '/{session}/.well-known/openid-credential-issuer';
 };
 
-export type WellKnownControllerIssuerMetadataResponses = {
+export type WellKnownControllerIssuerMetadata1Responses = {
     200: {
         [key: string]: unknown;
     };
 };
 
-export type WellKnownControllerIssuerMetadataResponse = WellKnownControllerIssuerMetadataResponses[keyof WellKnownControllerIssuerMetadataResponses];
+export type WellKnownControllerIssuerMetadata1Response = WellKnownControllerIssuerMetadata1Responses[keyof WellKnownControllerIssuerMetadata1Responses];
 
-export type WellKnownControllerAuthzMetadataData = {
+export type WellKnownControllerAuthzMetadata0Data = {
+    body?: never;
+    path: {
+        session: Session;
+    };
+    query?: never;
+    url: '/.well-known/oauth-authorization-server/{session}';
+};
+
+export type WellKnownControllerAuthzMetadata0Responses = {
+    200: Oauth2AuthorizationServerResponse;
+};
+
+export type WellKnownControllerAuthzMetadata0Response = WellKnownControllerAuthzMetadata0Responses[keyof WellKnownControllerAuthzMetadata0Responses];
+
+export type WellKnownControllerAuthzMetadata1Data = {
     body?: never;
     path: {
         session: Session;
@@ -953,11 +985,11 @@ export type WellKnownControllerAuthzMetadataData = {
     url: '/{session}/.well-known/oauth-authorization-server';
 };
 
-export type WellKnownControllerAuthzMetadataResponses = {
+export type WellKnownControllerAuthzMetadata1Responses = {
     200: Oauth2AuthorizationServerResponse;
 };
 
-export type WellKnownControllerAuthzMetadataResponse = WellKnownControllerAuthzMetadataResponses[keyof WellKnownControllerAuthzMetadataResponses];
+export type WellKnownControllerAuthzMetadata1Response = WellKnownControllerAuthzMetadata1Responses[keyof WellKnownControllerAuthzMetadata1Responses];
 
 export type WellKnownControllerGetJwksData = {
     body?: never;
@@ -1200,6 +1232,21 @@ export type KeyControllerDeleteKeyData = {
 export type KeyControllerDeleteKeyResponses = {
     200: unknown;
 };
+
+export type KeyControllerGetKeyData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/key/{id}';
+};
+
+export type KeyControllerGetKeyResponses = {
+    200: CertEntity;
+};
+
+export type KeyControllerGetKeyResponse = KeyControllerGetKeyResponses[keyof KeyControllerGetKeyResponses];
 
 export type KeyControllerUpdateKeyData = {
     body: UpdateKeyDto;

@@ -5,6 +5,7 @@ import {
   UpdateKeyDto,
   keyControllerAddKey,
   keyControllerDeleteKey,
+  keyControllerGetKey,
   keyControllerGetKeys,
   keyControllerUpdateKey,
 } from '../generated';
@@ -19,7 +20,7 @@ export class KeyManagementService {
   }
 
   getKey(id: string) {
-    return this.loadKeys().then((keys) => keys.find((key) => key.id === id));
+    return keyControllerGetKey({ client, path: { id } }).then((response) => response.data);
   }
 
   importKey(keyData: KeyImportDto): Promise<void> {
