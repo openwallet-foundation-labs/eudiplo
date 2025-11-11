@@ -254,7 +254,7 @@ export class PresentationCreateComponent {
       formValue.registrationCert = undefined; // Remove registrationCert if not provided
     }
 
-    if(!formValue.redirectUri) {
+    if (!formValue.redirectUri) {
       formValue.redirectUri = undefined;
     }
 

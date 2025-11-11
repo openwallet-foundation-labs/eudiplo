@@ -7,7 +7,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { X509Certificate, SubjectAlternativeNameExtension } from '@peculiar/x509';
-import { id_ce_subjectAltName } from "@peculiar/asn1-x509";
+import { id_ce_subjectAltName } from '@peculiar/asn1-x509';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { CertEntity } from '../../generated';
 import { KeyManagementService } from '../key-management.service';
@@ -115,13 +115,11 @@ export class KeyManagementShowComponent implements OnInit {
 
       const sanExt = cert.getExtension<SubjectAlternativeNameExtension>(id_ce_subjectAltName);
 
-
       let sans: string[] = [];
-      if(sanExt) {
-      const names = sanExt.names;
-      sans = names.items.filter(name => name.type === 'dns').map(name => name.value);
+      if (sanExt) {
+        const names = sanExt.names;
+        sans = names.items.filter((name) => name.type === 'dns').map((name) => name.value);
       }
-
 
       this.certificateInfo = {
         subject: cert.subject,
@@ -134,7 +132,7 @@ export class KeyManagementShowComponent implements OnInit {
         keyUsage: keyUsage.length > 0 ? keyUsage : ['Not specified'],
         isExpired: isExpired,
         fingerprint: fingerprint || 'Computing...',
-        sans
+        sans,
       };
     } catch (error) {
       console.warn('Could not parse certificate:', error);
