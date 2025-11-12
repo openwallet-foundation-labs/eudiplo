@@ -62,7 +62,7 @@ export class InternalClientsProvider
 
                     const clientExists = await this.getClient(
                         tenant.name,
-                        `${tenant.name}-${payload.clientId}`,
+                        payload.clientId,
                     ).catch(() => false);
                     if (clientExists && !force) {
                         continue; // Skip if config already exists and force is not set
@@ -148,9 +148,6 @@ export class InternalClientsProvider
         dto: CreateClientDto,
         secret = randomBytes(32).toString("hex"),
     ) {
-        // we are adding the prefix because the clientId is not bound to tenant during login. This is relevant since not every tenant has it's own client database/iam system.
-        dto.clientId = `${tenantId}-${dto.clientId}`;
-
         const entity = await this.repo.save({
             ...dto,
             secret,

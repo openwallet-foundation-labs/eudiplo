@@ -2,6 +2,8 @@ import {
     Body,
     Controller,
     Get,
+    HttpCode,
+    HttpStatus,
     Post,
     Req,
     UseInterceptors,
@@ -68,11 +70,21 @@ export class Oid4vpController {
      * @returns
      */
     @Post()
+    @HttpCode(HttpStatus.OK)
     @SessionLogger("session", "OID4VP")
     getResponse(
         @Body() body: AuthorizationResponse,
         @SessionEntity() session: Session,
     ) {
-        return this.oid4vpService.getResponse(body, session);
+        return this.oid4vpService.getResponse(body, session).then(
+            (res) => {
+                console.log(res);
+                return res;
+            },
+            (err) => {
+                console.error(err);
+                throw err;
+            },
+        );
     }
 }

@@ -24,7 +24,6 @@ import { PresentationConfigCreateDto } from "./dto/presentation-config-create.dt
 import { PresentationsService } from "./presentations.service";
 
 @ApiTags("Presentation management")
-@Secured([Role.Presentations])
 @Controller("presentation-management")
 export class PresentationManagementController {
     constructor(
@@ -74,6 +73,7 @@ export class PresentationManagementController {
             },
         },
     })
+    @Secured([Role.PresentationOffer, Role.Presentations])
     @Post("request")
     async getOffer(
         @Req() req: Request,
@@ -110,6 +110,7 @@ export class PresentationManagementController {
      * Returns the presentation request configurations.
      * @returns
      */
+    @Secured([Role.Presentations])
     @Get()
     configuration(@Token() user: TokenPayload) {
         return this.presentationsService.getPresentationConfigs(
@@ -122,6 +123,7 @@ export class PresentationManagementController {
      * @param config
      * @returns
      */
+    @Secured([Role.Presentations])
     @Post()
     storePresentationConfig(
         @Body() config: PresentationConfigCreateDto,
@@ -138,6 +140,7 @@ export class PresentationManagementController {
      * @param id
      * @returns
      */
+    @Secured([Role.Presentations])
     @Delete(":id")
     deleteConfiguration(@Param("id") id: string, @Token() user: TokenPayload) {
         return this.presentationsService.deletePresentationConfig(

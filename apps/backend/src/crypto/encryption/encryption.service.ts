@@ -29,6 +29,7 @@ export class EncryptionService {
             extractable: true,
         }).then(async (secret) => exportJWK(secret.privateKey));
 
+        privateKey.alg = "ECDH-ES";
         this.keyRepository.save({
             id: v4(),
             tenantId,

@@ -8,7 +8,7 @@ interface PresentedData {
             address: {
                 locality: string;
             };
-        };
+        }[];
     }[];
 }
 
@@ -31,7 +31,7 @@ async function handleRequest(request: Request): Promise<Response> {
         try {
             presented = await request.json();
         } catch (err) {
-			console.log(err);
+            console.log(err);
             return Response.json({ error: "Invalid JSON" }, { status: 400 });
         }
     }
@@ -43,7 +43,7 @@ async function handleRequest(request: Request): Promise<Response> {
             return Response.json({ status: "ok" }, { status: 200 });
         }
         case "/process": {
-            if (!presented?.credentials?.[0]?.values?.address?.locality) {
+            if (!presented?.credentials?.[0]?.values?.[0]?.address?.locality) {
                 return Response.json(
                     { error: "Missing locality" },
                     { status: 400 },
@@ -51,7 +51,7 @@ async function handleRequest(request: Request): Promise<Response> {
             }
             const res: ProcessResponse = {
                 citizen: {
-                    town: `You live in ${presented.credentials[0].values.address.locality}`,
+                    town: `You live in ${presented.credentials[0].values[0].address.locality}`,
                 },
             };
             return Response.json(res, { status: 200 });

@@ -25,7 +25,6 @@ export default defineConfig({
                 "**/main.ts",
             ],
             include: ["**/src/**/*.ts"],
-            all: true,
         },
         fileParallelism: false,
     },

@@ -286,23 +286,21 @@ export class PresentationsService implements OnApplicationBootstrap {
         keyBindingNonce: string,
     ) {
         const attestations = Object.keys(res.vp_token);
-        const att = attestations.map((att) =>
-            this.sdjwtInstance
-                .verify(res.vp_token[att], {
-                    requiredClaimKeys: requiredFields,
-                    keyBindingNonce,
-                })
-                .then(
-                    (result) => {
-                        return {
-                            id: att,
-                            values: {
+        const att = attestations.map(async (att) => ({
+            id: att,
+            values: await Promise.all(
+                (res.vp_token[att] as unknown as string[]).map(
+                    (cred) =>
+                        this.sdjwtInstance
+                            .verify(cred, {
+                                requiredClaimKeys: requiredFields,
+                                keyBindingNonce,
+                            })
+                            .then((result) => ({
                                 ...result.payload,
                                 cnf: undefined, // remove cnf for simplicity
                                 status: undefined, // remove status for simplicity
-                            },
-                        };
-                    },
+                            })),
                     /* (err) => {
                         throw new Error
                         //(console.log(err);
@@ -312,7 +310,8 @@ export class PresentationsService implements OnApplicationBootstrap {
                         };
                     }, */
                 ),
-        );
+            ),
+        }));
         return Promise.all(att);
     }
 }
