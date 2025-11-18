@@ -144,7 +144,7 @@ export class Oid4vciService {
                 await this.authzService.authzMetadata(tenantId);
         }
 
-        let credentialIssuer = issuer.createCredentialIssuerMetadata({
+        const credentialIssuer = issuer.createCredentialIssuerMetadata({
             credential_issuer,
             credential_configurations_supported:
                 await this.credentialsService.getCredentialConfigurationSupported(
