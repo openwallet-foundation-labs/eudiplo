@@ -14,14 +14,14 @@ export class TenantEntity {
      */
     @IsString()
     @PrimaryColumn()
-    id: string;
+    id!: string;
 
     /**
      * The name of the tenant.
      */
     @IsString()
     @Column({ default: "EUDIPLO" })
-    name: string;
+    name!: string;
 
     /**
      * The description of the tenant.
@@ -35,7 +35,7 @@ export class TenantEntity {
      * The current status of the tenant.
      */
     @Column("varchar", { nullable: true })
-    status: TenantStatus;
+    status!: TenantStatus;
 
     /**
      * The clients associated with the tenant.
@@ -44,5 +44,5 @@ export class TenantEntity {
         () => ClientEntity,
         (client) => client.tenant,
     )
-    clients: ClientEntity[];
+    clients!: ClientEntity[];
 }

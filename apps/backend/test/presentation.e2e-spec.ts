@@ -157,7 +157,7 @@ describe("Presentation", () => {
         )) as CryptoKey;
 
         const jwt = await new EncryptJWT({
-            vp_token: { pid: vp_token },
+            vp_token: { pid: [vp_token] },
             state: resolved.authorizationRequestPayload.state!,
         })
             .setProtectedHeader({
@@ -184,6 +184,6 @@ describe("Presentation", () => {
                 resolved.authorizationRequestPayload as Openid4vpAuthorizationRequest,
         });
         expect(submitRes).toBeDefined();
-        expect(submitRes.response.status).toBe(201);
+        expect(submitRes.response.status).toBe(200);
     });
 });

@@ -13,29 +13,29 @@ export class KeyEntity {
      * Unique identifier for the key.
      */
     @Column("varchar", { primary: true })
-    id: string;
+    id!: string;
 
     /**
      * Tenant ID for the key.
      */
     @Column("varchar", { primary: true })
-    tenantId: string;
+    tenantId!: string;
 
     /**
      * The tenant that owns this object.
      */
     @ManyToOne(() => TenantEntity, { cascade: true, onDelete: "CASCADE" })
-    tenant: TenantEntity;
+    tenant!: TenantEntity;
 
     /**
      * The key material.
      */
     @Column("json")
-    key: JWK;
+    key!: JWK;
 
     /**
      * The usage type of the key.
      */
     @Column("varchar", { default: "sign" })
-    usage: KeyUsage;
+    usage!: KeyUsage;
 }

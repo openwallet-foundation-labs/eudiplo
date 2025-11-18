@@ -1,5 +1,5 @@
 import { OmitType } from "@nestjs/swagger";
-import { IsArray, IsString } from "class-validator";
+import { IsString } from "class-validator";
 import { IssuanceConfig } from "../entities/issuance-config.entity";
 
 /**
@@ -10,7 +10,7 @@ export class CredentialConfigMapping {
      * Unique identifier for the credential configuration.
      */
     @IsString()
-    id: string;
+    id!: string;
 }
 
 /**
@@ -21,11 +21,4 @@ export class IssuanceDto extends OmitType(IssuanceConfig, [
     "tenant",
     "createdAt",
     "updatedAt",
-    "credentialConfigs",
-] as const) {
-    /**
-     * Ids of the credential configurations associated with this issuance configuration.
-     */
-    @IsArray()
-    credentialConfigIds: string[];
-}
+] as const) {}

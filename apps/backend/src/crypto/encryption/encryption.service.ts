@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { exportJWK, generateKeyPair, importJWK, JWK, jwtDecrypt } from "jose";
-import { Repository } from "typeorm/repository/Repository";
+import { Repository } from "typeorm";
 import { v4 } from "uuid";
 import { KeyEntity } from "../key/entities/keys.entity";
 

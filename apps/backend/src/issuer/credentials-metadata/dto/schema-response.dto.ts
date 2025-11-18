@@ -11,11 +11,11 @@ import {
  */
 export class SchemaResponse {
     @Equals("https://json-schema.org/draft/2020-12/schema")
-    $schema: "https://json-schema.org/draft/2020-12/schema";
+    $schema!: "https://json-schema.org/draft/2020-12/schema";
     @Equals("object")
-    type: "object";
+    type!: "object";
     @IsObject()
-    properties: Record<string, any>;
+    properties!: Record<string, any>;
     @IsArray()
     required?: string[];
     @IsOptional()

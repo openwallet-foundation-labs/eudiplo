@@ -1,8 +1,8 @@
 packages:
-  - 'apps/*'
-syncInjectedDepsAfterScripts:
-- build
-injectWorkspacePackages: true  
+  - apps/*
+
+injectWorkspacePackages: true
+
 onlyBuiltDependencies:
   - '@compodoc/compodoc'
   - '@nestjs/core'
@@ -10,3 +10,10 @@ onlyBuiltDependencies:
   - '@swc/core'
   - esbuild
   - sqlite3
+
+patchedDependencies:
+  '@openid4vc/oauth2': patches/@openid4vc__oauth2.patch
+  '@openid4vc/openid4vci': patches/@openid4vc__openid4vci.patch
+
+syncInjectedDepsAfterScripts:
+  - build

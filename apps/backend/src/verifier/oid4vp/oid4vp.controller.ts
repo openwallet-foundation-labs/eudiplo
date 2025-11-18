@@ -76,15 +76,9 @@ export class Oid4vpController {
         @Body() body: AuthorizationResponse,
         @SessionEntity() session: Session,
     ) {
-        return this.oid4vpService.getResponse(body, session).then(
-            (res) => {
-                console.log(res);
-                return res;
-            },
-            (err) => {
-                console.error(err);
-                throw err;
-            },
-        );
+        return this.oid4vpService.getResponse(body, session).catch((err) => {
+            console.error(err);
+            throw err;
+        });
     }
 }

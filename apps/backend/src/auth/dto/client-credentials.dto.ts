@@ -2,7 +2,7 @@ import { IsString } from "class-validator";
 
 export class ClientCredentialsDto {
     @IsString()
-    client_id: string;
+    client_id!: string;
     @IsString()
-    client_secret: string;
+    client_secret!: string;
 }

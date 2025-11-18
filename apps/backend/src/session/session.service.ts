@@ -12,7 +12,7 @@ import {
     Not,
     Repository,
 } from "typeorm";
-import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
+import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity.js";
 import { Session, SessionStatus } from "./entities/session.entity";
 
 @Injectable()

@@ -15,5 +15,5 @@ export class RegistrationCertificateRequest {
      * The body of the registration certificate request containing the necessary details.
      */
     @IsObject()
-    body: RegistrationCertificateCreation;
+    body!: RegistrationCertificateCreation;
 }
