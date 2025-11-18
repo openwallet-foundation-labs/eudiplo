@@ -24,6 +24,7 @@ async function handleRequest(request: Request): Promise<Response> {
     }
 
     let presented: PresentedData | undefined;
+
     // Only parse JSON for endpoints that expect it
     if (
         ["/notify", "/process", "/consume", "/request"].includes(url.pathname)

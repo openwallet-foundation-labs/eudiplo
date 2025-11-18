@@ -7,5 +7,5 @@ export class RoleDto {
         enum: Role,
         example: Role.Issuances,
     })
-    role: Role;
+    role!: Role;
 }

@@ -371,7 +371,7 @@ export class Oid4vpService {
             }
 
             return {};
-        } catch (error) {
+        } catch (error: any) {
             console.log(error);
             this.sessionLogger.logFlowError(logContext, error as Error, {
                 action: "process_presentation_response",

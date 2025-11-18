@@ -8,13 +8,13 @@ export class KeyObj {
     /**
      * Unique identifier for the key.
      */
-    id: string;
+    id!: string;
     /**
      * Public key in JWK format.
      */
-    publicKey: EC_Public;
+    publicKey!: EC_Public;
     /**
      * Certificate in PEM format.
      */
-    crt: string;
+    crt!: string;
 }

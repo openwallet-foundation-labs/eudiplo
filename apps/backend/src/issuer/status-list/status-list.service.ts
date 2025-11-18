@@ -147,12 +147,7 @@ export class StatusListService {
         if (idx === undefined) {
             throw new Error("Stack for status list is empty!!!");
         }
-        const sub = join(
-            this.configService.getOrThrow<string>("PUBLIC_URL"),
-            session.tenantId,
-            "status-management",
-            "status-list",
-        );
+        const sub = `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${session.tenantId}/status-management/status-list`;
         // store the index in the status mapping
         await this.statusMappingRepository.save({
             tenantId: session.tenantId,

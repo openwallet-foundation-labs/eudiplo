@@ -99,9 +99,6 @@ describe("OIDF", () => {
         console.log(
             `https://demo.certification.openid.net/log-detail.html?log=${testInstance.id}`,
         );
-
-        // Small delay to give the runner time to fully initialize.
-        await sleep(3000);
     }, 30000);
 
     test("oidf conformance suite presentation", async () => {

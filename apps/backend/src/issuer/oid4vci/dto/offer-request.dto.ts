@@ -5,12 +5,15 @@ import {
     IsEnum,
     IsObject,
     IsOptional,
-    IsString,
-    IsUUID,
     ValidateNested,
 } from "class-validator";
 import { WebhookConfig } from "../../../utils/webhook/webhook.dto";
 import { ResponseType } from "../../../verifier/oid4vp/dto/presentation-request.dto";
+
+export enum FlowType {
+    AUTH_CODE = "authorization_code",
+    PRE_AUTH_CODE = "pre_authorized_code",
+}
 
 export class OfferRequestDto {
     @ApiProperty({
@@ -22,20 +25,16 @@ export class OfferRequestDto {
         description: "The type of response expected for the offer request.",
     })
     @IsEnum(ResponseType)
-    response_type: ResponseType;
+    response_type!: ResponseType;
+
+    @IsEnum(FlowType)
+    flow!: FlowType;
 
     /**
-     * Issuance config id to reference the issuance configuration.
-     */
-    @IsString()
-    issuanceId: string;
-
-    /**
-     * Overrides the default values for the credential ids.
+     * List of credential configuration ids to be included in the offer.
      */
     @IsArray()
-    @IsOptional()
-    credentialConfigurationIds?: string[];
+    credentialConfigurationIds!: string[];
 
     /**
      * Override the default values for the credential claims.
@@ -58,22 +57,25 @@ export class OfferRequestDto {
     claims?: Record<string, Record<string, any>>;
 
     /**
-     * Webhook configuration for claims
+     * Webhooks to fetch the claims dynamically.
      */
+    @IsObject()
+    @IsOptional()
     @ValidateNested()
     @Type(() => WebhookConfig)
-    @IsOptional()
-    claimsWebhook?: WebhookConfig;
+    claimWebhook?: WebhookConfig;
 
     /**
-     * Pre defined session id
+     * Webhook to notify about the status of the issuance process.
      */
-    @IsUUID()
+    @IsObject()
     @IsOptional()
-    session?: string;
+    @ValidateNested()
+    @Type(() => WebhookConfig)
+    notifyWebhook?: WebhookConfig;
 }
 
 export class OfferResponse {
-    uri: string;
-    session: string;
+    uri!: string;
+    session!: string;
 }

@@ -8,12 +8,13 @@ import { Token, TokenPayload } from "../../auth/token.decorator";
 import { Oid4vciService } from "../../issuer/oid4vci/oid4vci.service";
 import { ResponseType } from "../../verifier/oid4vp/dto/presentation-request.dto";
 import {
+    FlowType,
     OfferRequestDto,
     OfferResponse,
 } from "../oid4vci/dto/offer-request.dto";
 
 @ApiTags("Issuer management")
-@Secured([Role.Issuances])
+@Secured([Role.IssuanceOffer])
 @Controller("issuer-management")
 export class IssuerManagementController {
     constructor(private readonly oid4vciService: Oid4vciService) {}
@@ -41,34 +42,16 @@ export class IssuerManagementController {
                 summary: "QR-Code Example",
                 value: {
                     response_type: ResponseType.QRCode,
-                    issuanceId: "pid",
+                    credentialConfigurationIds: ["pid"],
+                    flow: FlowType.PRE_AUTH_CODE,
                 } as OfferRequestDto,
             },
             uri: {
                 summary: "URI",
                 value: {
                     response_type: ResponseType.URI,
-                    issuanceId: "pid",
-                } as OfferRequestDto,
-            },
-            authfixed: {
-                summary: "Auth flow with fixed session",
-                value: {
-                    response_type: ResponseType.QRCode,
-                    issuanceId: "pid",
-                    session: "fd3ebf28-8ad6-4909-8a7a-a739c2c412c0",
-                } as OfferRequestDto,
-            },
-            override: {
-                summary: "Override",
-                value: {
-                    response_type: ResponseType.QRCode,
-                    issuanceId: "pid-none",
-                    claims: {
-                        pid: {
-                            given_name: "Max",
-                        },
-                    },
+                    credentialConfigurationIds: ["pid"],
+                    flow: FlowType.PRE_AUTH_CODE,
                 } as OfferRequestDto,
             },
         },

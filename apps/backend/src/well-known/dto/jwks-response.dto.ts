@@ -8,19 +8,19 @@ export class EC_Public implements JWK_EC_Public {
     /**
      * The key type, which is always 'EC' for Elliptic Curve keys.
      */
-    kty: "EC";
+    kty!: "EC";
     /**
      * The algorithm intended for use with the key, such as 'ES256'.
      */
-    crv: string;
+    crv!: string;
     /**
      * The x coordinate of the EC public key.
      */
-    x: string;
+    x!: string;
     /**
      * The y coordinate of the EC public key.
      */
-    y: string;
+    y!: string;
 }
 
 /**
@@ -30,5 +30,5 @@ export class JwksResponseDto {
     /**
      * An array of EC public keys in JWK format.
      */
-    keys: Array<EC_Public>;
+    keys!: Array<EC_Public>;
 }

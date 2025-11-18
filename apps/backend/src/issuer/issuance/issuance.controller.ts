@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, Post } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { Role } from "../../auth/roles/role.enum";
 import { Secured } from "../../auth/secure.decorator";
@@ -34,22 +34,6 @@ export class IssuanceController {
         return this.issuanceService.storeIssuanceConfiguration(
             user.entity!.id,
             config,
-        );
-    }
-
-    /**
-     * Deletes an issuance configuration.
-     * @param id
-     * @returns
-     */
-    @Delete(":id")
-    deleteIssuanceConfiguration(
-        @Param("id") id: string,
-        @Token() user: TokenPayload,
-    ) {
-        return this.issuanceService.deleteIssuanceConfiguration(
-            user.entity!.id,
-            id,
         );
     }
 }

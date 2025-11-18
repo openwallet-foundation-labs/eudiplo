@@ -16,12 +16,12 @@ export class ApiKeyConfig {
      * The name of the header where the API key will be sent.
      */
     @IsString()
-    headerName: string;
+    headerName!: string;
     /**
      * The value of the API key to be sent in the header.
      */
     @IsString()
-    value: string;
+    value!: string;
 }
 
 /**
@@ -41,14 +41,14 @@ export class WebHookAuthConfigHeader implements WebHookAuthConfig {
      */
     @IsIn([AuthConfig.API_KEY])
     @IsString()
-    type: AuthConfig.API_KEY;
+    type!: AuthConfig.API_KEY;
     /**
      * Configuration for API key authentication.
      * This is required if the type is 'apiKey'.
      */
     @Type(() => ApiKeyConfig)
     @IsObject()
-    config: ApiKeyConfig;
+    config!: ApiKeyConfig;
 }
 
 export class WebHookAuthConfigNone implements WebHookAuthConfig {
@@ -57,12 +57,12 @@ export class WebHookAuthConfigNone implements WebHookAuthConfig {
      */
     @IsIn([AuthConfig.NONE])
     @IsString()
-    type: AuthConfig.NONE;
+    type!: AuthConfig.NONE;
 }
 
 export class WebHookAuthConfig {
     @IsEnum(AuthConfig)
-    type: AuthConfig;
+    type!: AuthConfig;
 }
 
 /**
@@ -74,7 +74,7 @@ export class WebhookConfig {
      * The URL to which the webhook will send notifications.
      */
     @IsString()
-    url: string;
+    url!: string;
     /**
      * Optional authentication configuration for the webhook.
      * If not provided, no authentication will be used.
@@ -103,5 +103,5 @@ export class WebhookConfig {
         keepDiscriminatorProperty: true,
     })
     @IsObject()
-    auth: WebHookAuthConfigNone | WebHookAuthConfigHeader;
+    auth!: WebHookAuthConfigNone | WebHookAuthConfigHeader;
 }

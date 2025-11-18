@@ -175,13 +175,13 @@ export class CredentialConfigService {
 
                         await this.store(tenant.name, config);
                         counter++;
-                    } catch (e) {
+                    } catch (error: any) {
                         this.logger.error(
                             {
                                 event: "ImportError",
                                 file,
                                 tenant: tenant.name,
-                                error: e.message,
+                                error: error.message,
                             },
                             `Failed to import credentials config ${file} in tenant ${tenant.name}`,
                         );

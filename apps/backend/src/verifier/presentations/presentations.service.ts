@@ -16,7 +16,7 @@ import { JWK, JWTPayload } from "jose";
 import { PinoLogger } from "nestjs-pino";
 import { join } from "path";
 import { firstValueFrom } from "rxjs";
-import { Repository } from "typeorm/repository/Repository";
+import { Repository } from "typeorm";
 import { CryptoImplementationService } from "../../crypto/key/crypto-implementation/crypto-implementation.service";
 import { ResolverService } from "../resolver/resolver.service";
 import { AuthResponse } from "./dto/auth-response.dto";
@@ -31,7 +31,7 @@ export class PresentationsService implements OnApplicationBootstrap {
     /**
      * Instance of SDJwtVcInstance for handling SD-JWT-VCs.
      */
-    sdjwtInstance: SDJwtVcInstance;
+    sdjwtInstance!: SDJwtVcInstance;
 
     /**
      * Constructor for the PresentationsService.

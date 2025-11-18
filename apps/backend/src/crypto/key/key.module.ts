@@ -2,7 +2,7 @@ import { HttpModule, HttpService } from "@nestjs/axios";
 import { DynamicModule, Global, Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { getRepositoryToken, TypeOrmModule } from "@nestjs/typeorm";
-import { Repository } from "typeorm/repository/Repository";
+import { Repository } from "typeorm";
 import { DBKeyService } from "./adapters/db-key.service";
 import { VaultKeyService } from "./adapters/vault-key.service";
 import { CryptoImplementatationModule } from "./crypto-implementation/crypto-implementation.module";
