@@ -55,7 +55,6 @@ updates:
 
       openid4vc-all:
         patterns: ["@openid4vc/*"]
-        update-types: ["major", "minor", "patch"]
 
       sd-jwt:
         patterns: ["@sd-jwt/*"]
