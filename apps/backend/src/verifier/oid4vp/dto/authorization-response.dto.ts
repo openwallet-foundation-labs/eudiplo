@@ -8,7 +8,7 @@ export class AuthorizationResponse {
      * The response string containing the authorization details.
      */
     @IsString()
-    response: string;
+    response!: string;
 
     /**
      * When set to true, the authorization response will be sent to the client.

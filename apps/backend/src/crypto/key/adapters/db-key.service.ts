@@ -11,7 +11,7 @@ import {
     JWTPayload,
     SignJWT,
 } from "jose";
-import { Repository } from "typeorm/repository/Repository";
+import { Repository } from "typeorm";
 import { v4 } from "uuid";
 import { EC_Public } from "../../../well-known/dto/jwks-response.dto";
 import { CryptoImplementation } from "../crypto-implementation/crypto-implementation";

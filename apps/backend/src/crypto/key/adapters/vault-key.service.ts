@@ -3,7 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { JwtPayload, Signer } from "@sd-jwt/types";
 import { exportJWK, importSPKI, JWK, JWTHeaderParameters } from "jose";
 import { firstValueFrom } from "rxjs";
-import { Repository } from "typeorm/repository/Repository";
+import { Repository } from "typeorm";
 import { v4 } from "uuid";
 import {
     CryptoImplementationService,

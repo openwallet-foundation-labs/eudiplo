@@ -4,19 +4,19 @@ import { JWK } from "jose";
 
 class Key implements JWK {
     @IsString()
-    kid: string; // Key ID
+    kid!: string; // Key ID
     @IsEnum(["EC"])
-    kty: string; // Key Type
+    kty!: string; // Key Type
     @IsString()
-    x: string; // X coordinate for EC keys
+    x!: string; // X coordinate for EC keys
     @IsString()
-    y: string; // Y coordinate for EC keys
+    y!: string; // Y coordinate for EC keys
     @IsString()
-    crv: string; // Curve name for EC keys
+    crv!: string; // Curve name for EC keys
     @IsString()
-    d: string; // Private key value for EC keys
+    d!: string; // Private key value for EC keys
     @IsString()
-    alg: string; // Algorithm used with the key
+    alg!: string; // Algorithm used with the key
 }
 
 /**
@@ -28,7 +28,7 @@ export class KeyImportDto {
      */
     @ValidateNested()
     @Type(() => Key)
-    privateKey: Key;
+    privateKey!: Key;
 
     /**
      * Optional certificate in PEM format.

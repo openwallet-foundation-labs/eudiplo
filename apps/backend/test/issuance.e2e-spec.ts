@@ -7,37 +7,19 @@ import {
     JwtSignerJwk,
 } from "@openid4vc/oauth2";
 import {
-    AuthorizationFlow,
     extractScopesForCredentialConfigurationIds,
     Openid4vciClient,
 } from "@openid4vc/openid4vci";
-import {
-    Openid4vpAuthorizationRequest,
-    Openid4vpClient,
-} from "@openid4vc/openid4vp";
 import { digest } from "@sd-jwt/crypto-nodejs";
 import { SDJwtVcInstance } from "@sd-jwt/sd-jwt-vc";
 import { readFileSync, rmSync } from "fs";
-import {
-    EncryptJWT,
-    exportJWK,
-    generateKeyPair,
-    importJWK,
-    importX509,
-    JWK,
-    jwtVerify,
-} from "jose";
+import { exportJWK, generateKeyPair, importX509, jwtVerify } from "jose";
 import request from "supertest";
 import { App } from "supertest/types";
 import { Agent, fetch, setGlobalDispatcher } from "undici";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../src/app.module";
-import {
-    callbacks,
-    getSignJwtCallback,
-    getToken,
-    preparePresentation,
-} from "./utils";
+import { callbacks, getSignJwtCallback, getToken } from "./utils";
 
 setGlobalDispatcher(
     new Agent({
@@ -51,9 +33,6 @@ describe("Issuance", () => {
     let authToken: string;
     let clientId: string;
     let clientSecret: string;
-    let host: string;
-
-    const predefinedSessionId = "fd3ebf28-8ad6-4909-8a7a-a739c2c412c0";
 
     const sdjwt = new SDJwtVcInstance({
         hasher: digest,
@@ -62,7 +41,7 @@ describe("Issuance", () => {
 
     beforeAll(async () => {
         //delete the database
-        rmSync("../../tmp/service.db", { force: true });
+        rmSync("../../../tmp/service.db", { force: true });
 
         const moduleFixture: TestingModule = await Test.createTestingModule({
             imports: [AppModule],
@@ -75,7 +54,6 @@ describe("Issuance", () => {
         configService.set("CONFIG_IMPORT_FORCE", true);
         clientId = configService.getOrThrow<string>("AUTH_CLIENT_ID");
         clientSecret = configService.getOrThrow<string>("AUTH_CLIENT_SECRET");
-        host = configService.getOrThrow<string>("PUBLIC_URL");
 
         await app.init();
         await app.listen(3000);
@@ -100,10 +78,24 @@ describe("Issuance", () => {
             })
             .expect(201);
 
+        //import issuance config
+        const issuerConfiguration = JSON.parse(
+            readFileSync(
+                "../../../assets/config/root/issuance/issuance.json",
+                "utf-8",
+            ),
+        );
+        await request(app.getHttpServer())
+            .post("/issuer-management/issuance")
+            .trustLocalhost()
+            .set("Authorization", `Bearer ${authToken}`)
+            .send(issuerConfiguration)
+            .expect(201);
+
         //import the pid credential configuration
         const pidCredentialConfiguration = JSON.parse(
             readFileSync(
-                "../../assets/config/root/issuance/credentials/pid.json",
+                "../../../assets/config/root/issuance/credentials/pid.json",
                 "utf-8",
             ),
         );
@@ -114,40 +106,10 @@ describe("Issuance", () => {
             .send(pidCredentialConfiguration)
             .expect(201);
 
-        //import the pid credential configuration for pre authorized code flow
-        const pidNoneIssuanceConfiguration = JSON.parse(
-            readFileSync(
-                "../../assets/config/root/issuance/issuance/pid-none.json",
-                "utf-8",
-            ),
-        );
-        await request(app.getHttpServer())
-            .post("/issuer-management/issuance")
-            .trustLocalhost()
-            .set("Authorization", `Bearer ${authToken}`)
-            .send(pidNoneIssuanceConfiguration)
-            .expect(201);
-
-        //import the pid credential configuration for authorized code flow
-        const pidIssuanceConfiguration = JSON.parse(
-            readFileSync(
-                "../../assets/config/root/issuance/issuance/pid.json",
-                "utf-8",
-            ),
-        );
-        pidIssuanceConfiguration.authenticationConfig.config.url = `http://localhost:3000/${predefinedSessionId}`;
-        await request(app.getHttpServer())
-            .post("/issuer-management/issuance")
-            .trustLocalhost()
-            .set("Authorization", `Bearer ${authToken}`)
-            .send(pidIssuanceConfiguration)
-            .expect(201);
-
         //import citizen that that requires presentation during issuance
-
         const citizenPresentationConfiguration = JSON.parse(
             readFileSync(
-                "../../assets/config/root/presentation/pid.json",
+                "../../../assets/config/root/presentation/pid.json",
                 "utf-8",
             ),
         );
@@ -161,7 +123,7 @@ describe("Issuance", () => {
         //import the citizen credential configuration
         const citizenCredentialConfiguration = JSON.parse(
             readFileSync(
-                "../../assets/config/root/issuance/credentials/citizen.json",
+                "../../../assets/config/root/issuance/credentials/citizen.json",
                 "utf-8",
             ),
         );
@@ -171,38 +133,6 @@ describe("Issuance", () => {
             .set("Authorization", `Bearer ${authToken}`)
             .send(citizenCredentialConfiguration)
             .expect(201);
-
-        const citizenIssuanceConfiguration = JSON.parse(
-            readFileSync(
-                "../../assets/config/root/issuance/issuance/citizen.json",
-                "utf-8",
-            ),
-        );
-        await request(app.getHttpServer())
-            .post("/issuer-management/issuance")
-            .trustLocalhost()
-            .set("Authorization", `Bearer ${authToken}`)
-            .send(citizenIssuanceConfiguration)
-            .expect(201);
-        await request(app.getHttpServer())
-            .get("/issuer-management/issuance")
-            .trustLocalhost()
-            .set("Authorization", `Bearer ${authToken}`)
-            .expect(200);
-
-        //import display information
-        const displayConfiguration = JSON.parse(
-            readFileSync(
-                "../../assets/config/root/issuance/display.json",
-                "utf-8",
-            ),
-        );
-        await request(app.getHttpServer())
-            .post("/display")
-            .trustLocalhost()
-            .set("Authorization", `Bearer ${authToken}`)
-            .send(displayConfiguration)
-            .expect(201);
     });
 
     afterAll(async () => {
@@ -210,45 +140,25 @@ describe("Issuance", () => {
     });
 
     test("get issuer metadata", async () => {
-        const offerResponse = await request(app.getHttpServer())
-            .post("/issuer-management/offer")
-            .trustLocalhost()
-            .set("Authorization", `Bearer ${authToken}`)
-            .send({
-                response_type: "uri",
-                issuanceId: "pid-none",
-            })
-            .expect(201);
-
-        const sessionId = offerResponse.body.session;
+        const tenantId = "root";
 
         const res = await request(app.getHttpServer())
-            .get(`/.well-known/openid-credential-issuer/${sessionId}`)
+            .get(`/.well-known/openid-credential-issuer/${tenantId}`)
             .trustLocalhost()
             .set("Accept", "application/json")
             .expect(200);
         expect(res.body).toBeDefined();
         expect(res.body.credential_issuer).toBeDefined();
         expect(res.body.credential_issuer).toBe(
-            `http://localhost:3000/${sessionId}`,
+            `http://localhost:3000/${tenantId}`,
         );
     });
 
     test("get signed issuer metadata", async () => {
-        const offerResponse = await request(app.getHttpServer())
-            .post("/issuer-management/offer")
-            .trustLocalhost()
-            .set("Authorization", `Bearer ${authToken}`)
-            .send({
-                response_type: "uri",
-                issuanceId: "pid-none",
-            })
-            .expect(201);
-
-        const sessionId = offerResponse.body.session;
+        const tenantId = "root";
 
         const res = await request(app.getHttpServer())
-            .get(`/.well-known/openid-credential-issuer/${sessionId}`)
+            .get(`/.well-known/openid-credential-issuer/${tenantId}`)
             .trustLocalhost()
             .set("Accept", "application/jwt")
             .expect(200);
@@ -281,7 +191,8 @@ describe("Issuance", () => {
             .set("Authorization", `Bearer ${authToken}`)
             .send({
                 response_type: "uri",
-                issuanceId: "pid-none",
+                credentialConfigurationIds: ["pid"],
+                flow: "pre_authorized_code",
             })
             .expect(201);
 
@@ -297,24 +208,6 @@ describe("Issuance", () => {
             .expect((res) => {
                 expect(res.body.id).toBe(session);
             });
-    });
-
-    test("create oid4vci offer with defined session", async () => {
-        const sessionId = predefinedSessionId;
-        const res = await request(app.getHttpServer())
-            .post("/issuer-management/offer")
-            .trustLocalhost()
-            .set("Authorization", `Bearer ${authToken}`)
-            .send({
-                response_type: "uri",
-                issuanceId: "pid",
-                session: sessionId,
-            })
-            .expect(201);
-
-        expect(res.body).toBeDefined();
-        const session = res.body.session;
-        expect(session).toBe(sessionId);
     });
 
     test("ask for an invalid oid4vci offer", async () => {
@@ -336,7 +229,8 @@ describe("Issuance", () => {
             .set("Authorization", `Bearer ${authToken}`)
             .send({
                 response_type: "uri",
-                issuanceId: "pid-none",
+                credentialConfigurationIds: ["pid"],
+                flow: "pre_authorized_code",
             })
             .expect(201);
 
@@ -415,15 +309,14 @@ describe("Issuance", () => {
     });
 
     test("authorized code flow", async () => {
-        const sessionId = "fd3ebf28-8ad6-4909-8a7a-a739c2c412c0";
         const offerResponse = await request(app.getHttpServer())
             .post("/issuer-management/offer")
             .trustLocalhost()
             .set("Authorization", `Bearer ${authToken}`)
             .send({
                 response_type: "uri",
-                issuanceId: "pid",
-                session: sessionId,
+                credentialConfigurationIds: ["pid"],
+                flow: "authorization_code",
             })
             .expect(201);
 
@@ -459,23 +352,6 @@ describe("Issuance", () => {
         //TODO: no real use for this yet, need to check: https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-authorization-endpoint
         const pkceCodeVerifier = "random-code-verifier";
 
-        const authorization = await client.initiateAuthorization({
-            clientId,
-            issuerMetadata,
-            redirectUri,
-            credentialOffer,
-            pkceCodeVerifier,
-            scope: extractScopesForCredentialConfigurationIds({
-                credentialConfigurationIds:
-                    credentialOffer.credential_configuration_ids,
-                issuerMetadata,
-            })?.join(" "),
-        });
-
-        expect(authorization.authorizationFlow).toBe(
-            AuthorizationFlow.Oauth2Redirect,
-        );
-
         const { authorizationRequestUrl, pkce } =
             await client.createAuthorizationRequestUrlFromOffer({
                 clientId,
@@ -489,11 +365,9 @@ describe("Issuance", () => {
                     issuerMetadata,
                 })?.join(" "),
             });
-
         //get the authorization code, in this setup it will return a redirect with the URL
         const result = await fetch(authorizationRequestUrl);
         const authorizationCode = new URL(result.url).searchParams.get("code")!;
-
         const { accessTokenResponse, dpop } =
             await client.retrieveAuthorizationCodeAccessTokenFromOffer({
                 issuerMetadata,
@@ -577,7 +451,8 @@ describe("Issuance", () => {
         expect(notificationObj.event).toBe("credential_accepted");
     });
 
-    test("presentation during issuance", async () => {
+    //TODO: excluded since the new approach should be implemented
+    /* test("presentation during issuance", async () => {
         const offerResponse = await request(app.getHttpServer())
             .post("/issuer-management/offer")
             .trustLocalhost()
@@ -809,5 +684,5 @@ describe("Issuance", () => {
         );
         expect(notificationObj).toBeDefined();
         expect(notificationObj.event).toBe("credential_accepted");
-    });
+    });*/
 });

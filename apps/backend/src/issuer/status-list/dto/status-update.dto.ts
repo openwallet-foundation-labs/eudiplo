@@ -5,7 +5,7 @@ export class StatusUpdateDto {
      * The session ID of the user
      */
     @IsString()
-    sessionId: string;
+    sessionId!: string;
 
     /**
      * The ID of the credential configuration
@@ -20,5 +20,5 @@ export class StatusUpdateDto {
      * 0 = valid, 1 = revoked, 2 = suspended
      */
     @IsNumber()
-    status: number;
+    status!: number;
 }

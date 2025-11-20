@@ -16,7 +16,7 @@ export interface LoggerConfiguration {
  */
 @Injectable()
 export class LoggerConfigService {
-    private config: LoggerConfiguration;
+    private config!: LoggerConfiguration;
 
     constructor(private readonly configService: ConfigService) {
         this.loadConfiguration();

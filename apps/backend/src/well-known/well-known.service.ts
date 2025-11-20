@@ -3,11 +3,9 @@ import { CryptoService } from "../crypto/crypto.service";
 import { CryptoImplementationService } from "../crypto/key/crypto-implementation/crypto-implementation.service";
 import { AuthorizeService } from "../issuer/authorize/authorize.service";
 import { Oid4vciService } from "../issuer/oid4vci/oid4vci.service";
-import { Session } from "../session/entities/session.entity";
 import { MediaType } from "../utils/mediaType/media-type.enum";
 import { CredentialIssuerMetadataDto } from "./dto/credential-issuer-metadata.dto";
 import { JwksResponseDto } from "./dto/jwks-response.dto";
-import { Oauth2AuthorizationServerResponse } from "./dto/oauth-authorization-server-response.dto";
 
 /**
  * Service to handle well-known endpoints and metadata retrieval.
@@ -36,13 +34,13 @@ export class WellKnownService {
      * @param contentType
      * @returns
      */
-    async getIssuerMetadata(session: Session, contentType: MediaType) {
-        const metadata = (await this.oid4vciService.issuerMetadata(session))
+    async getIssuerMetadata(tenantId: string, contentType: MediaType) {
+        const metadata = (await this.oid4vciService.issuerMetadata(tenantId))
             .credentialIssuer as unknown as CredentialIssuerMetadataDto;
 
         if (contentType === MediaType.APPLICATION_JWT) {
             const keyId = await this.cryptoService.keyService.getKid(
-                session.tenantId,
+                tenantId,
                 "access",
             );
             return this.cryptoService.signJwt(
@@ -51,7 +49,7 @@ export class WellKnownService {
                     alg: this.cryptoImplementationService.getAlg(),
                     x5c: await this.cryptoService.getCertChain(
                         "access",
-                        session.tenantId,
+                        tenantId,
                     ),
                 },
                 {
@@ -62,7 +60,7 @@ export class WellKnownService {
                     // [Review]: should we add `exp` value here?
                     //MM: the value makes sense when we cache the issuer metadata so it must not be signed on every request. Like when it is issued every hour, its lifetime is 1 hour and the jwt is in the cache.
                 },
-                session.tenantId,
+                tenantId,
                 keyId,
             );
         }
@@ -74,12 +72,8 @@ export class WellKnownService {
      * Returns the OAuth 2.0 Authorization Server metadata for a given tenant.
      * @returns
      */
-    getAuthzMetadata(
-        session: Session,
-    ): Promise<Oauth2AuthorizationServerResponse> {
-        return this.authorizeService.authzMetadata(
-            session,
-        ) as Promise<Oauth2AuthorizationServerResponse>;
+    getAuthzMetadata(tenantId: string) {
+        return this.authorizeService.authzMetadata(tenantId);
     }
 
     /**

@@ -5,23 +5,23 @@ export class CredentialIssuerMetadataDto {
     /**
      * The issuer identifier, typically a URL.
      */
-    credential_issuer: string;
+    credential_issuer!: string;
     /**
      * List of authorization servers that support the credential issuer.
      */
-    authorization_servers: string[];
+    authorization_servers!: string[];
     /**
      * The URL of the credential issuance endpoint.
      */
-    credential_endpoint: string;
+    credential_endpoint!: string;
     /**
      * The URL of the notification endpoint for credential issuance.
      */
-    notification_endpoint: string;
+    notification_endpoint!: string;
     /**
      * Information about batch credential issuance.
      */
-    batch_credential_issuance: {
+    batch_credential_issuance!: {
         /**
          * Amount of elements in a batch.
          */
@@ -30,7 +30,7 @@ export class CredentialIssuerMetadataDto {
     /**
      * Display information for the credentials that are getting issued.
      */
-    display: Array<any>;
+    display!: Array<any>;
     /**
      * Object of credentials configurations supported by the issuer.
      */
@@ -38,5 +38,5 @@ export class CredentialIssuerMetadataDto {
     /**
      * The URL of the preferred authorization server.
      */
-    authorization_server: string;
+    authorization_server!: string;
 }

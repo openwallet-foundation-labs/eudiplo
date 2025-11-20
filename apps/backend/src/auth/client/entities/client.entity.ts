@@ -13,7 +13,7 @@ export class ClientEntity {
      */
     @IsString()
     @PrimaryColumn()
-    clientId: string;
+    clientId!: string;
 
     /**
      * The secret key for the client.
@@ -41,7 +41,7 @@ export class ClientEntity {
      */
     @IsEnum(Role, { each: true })
     @Column({ type: "json" })
-    roles: Role[];
+    roles!: Role[];
 
     /**
      * The tenant that the client belongs to.

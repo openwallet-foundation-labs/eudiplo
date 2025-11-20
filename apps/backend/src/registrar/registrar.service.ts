@@ -26,16 +26,15 @@ export class RegistrarService implements OnModuleInit {
     /**
      * OAuth2 client for interacting with the OIDC provider.
      */
-    private oauth2Client: OAuth2Client;
+    private oauth2Client!: OAuth2Client;
     /**
      * Client for interacting with the registrar API.
      */
-    private client: typeof client;
+    private client!: typeof client;
     /**
      * Access token for authenticating requests to the registrar.
      */
-    private accessToken: string;
-
+    private accessToken!: string;
     /**
      * Constructor for the RegistrarService.
      * @param configService - Instance of ConfigService for accessing configuration values.

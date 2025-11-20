@@ -55,19 +55,19 @@ export class Session {
      * Unique identifier for the session.
      */
     @PrimaryColumn("uuid")
-    id: string;
+    id!: string;
 
     /**
      * The timestamp when the request was created.
      */
     @CreateDateColumn()
-    createdAt: Date;
+    createdAt!: Date;
 
     /**
      * The timestamp when the request was last updated.
      */
     @UpdateDateColumn()
-    updatedAt: Date;
+    updatedAt!: Date;
 
     /**
      * The timestamp when the request is set to expire.
@@ -79,13 +79,13 @@ export class Session {
      * Flag indicating whether to use the DC API for the presentation request.
      */
     @Column("boolean", { nullable: true })
-    useDcApi: boolean;
+    useDcApi!: boolean;
 
     /**
      * Tenant ID for multi-tenancy support.
      */
     @Column("varchar")
-    tenantId: string;
+    tenantId!: string;
 
     /**
      * The tenant that owns this object.
@@ -95,14 +95,14 @@ export class Session {
         onDelete: "CASCADE",
         eager: true,
     })
-    tenant: TenantEntity;
+    tenant!: TenantEntity;
 
     /**
      * Status of the session.
      */
     @ApiProperty({ enum: SessionStatus })
     @Column("varchar", { nullable: true, default: "active" })
-    status: SessionStatus;
+    status!: SessionStatus;
 
     // issuance specific fields
 
@@ -162,7 +162,7 @@ export class Session {
      * Notifications associated with the session.
      */
     @Column("json", { default: JSON.stringify([]) })
-    notifications: Notification[];
+    notifications!: Notification[];
 
     // presentation specific fields
 
