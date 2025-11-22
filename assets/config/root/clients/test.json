@@ -3,7 +3,10 @@
     "secret": "test-secret",
     "description": "Test client",
     "roles": [
+        "clients:manage",
         "issuance:offer",
-        "presentation:offer"
+        "issuance:manage",
+        "presentation:offer",
+        "presentation:manage"
     ]
 }

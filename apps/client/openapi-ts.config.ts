@@ -11,6 +11,7 @@ export default defineConfig({
   plugins: [
     {
       name: '@hey-api/client-fetch',
+      throwOnError: true,
     },
     '@hey-api/schemas',
     {

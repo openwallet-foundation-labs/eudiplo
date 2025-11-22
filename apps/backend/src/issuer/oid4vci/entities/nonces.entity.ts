@@ -1,5 +1,5 @@
-import { TenantEntity } from "src/auth/tenant/entitites/tenant.entity";
 import { Column, Entity, ManyToOne, PrimaryColumn } from "typeorm";
+import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
 
 @Entity()
 export class NonceEntity {

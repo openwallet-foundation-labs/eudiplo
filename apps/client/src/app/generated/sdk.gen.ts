@@ -2,7 +2,7 @@
 
 import { type Client, formDataBodySerializer, type Options as Options2, type TDataShape } from './client';
 import { client } from './client.gen';
-import type { AuthControllerGetGlobalJwksData, AuthControllerGetGlobalJwksResponses, AuthControllerGetOAuth2TokenData, AuthControllerGetOAuth2TokenErrors, AuthControllerGetOAuth2TokenResponses, AuthControllerGetOidcDiscoveryData, AuthControllerGetOidcDiscoveryResponses, AuthorizeControllerAuthorizationChallengeEndpointData, AuthorizeControllerAuthorizationChallengeEndpointResponses, AuthorizeControllerAuthorizeData, AuthorizeControllerAuthorizeResponses, AuthorizeControllerParData, AuthorizeControllerParResponses, AuthorizeControllerTokenData, AuthorizeControllerTokenResponses, ClientControllerCreateClientData, ClientControllerCreateClientResponses, ClientControllerDeleteClientData, ClientControllerDeleteClientResponses, ClientControllerGetClientData, ClientControllerGetClientResponses, ClientControllerGetClientsData, ClientControllerGetClientSecretData, ClientControllerGetClientSecretResponses, ClientControllerGetClientsResponses, ClientControllerUpdateClientData, ClientControllerUpdateClientResponses, CredentialsControllerDeleteIssuanceConfigurationData, CredentialsControllerDeleteIssuanceConfigurationResponses, CredentialsControllerGetConfigsData, CredentialsControllerGetConfigsResponses, CredentialsControllerStoreCredentialConfigurationData, CredentialsControllerStoreCredentialConfigurationResponses, CredentialsMetadataControllerSchemaData, CredentialsMetadataControllerSchemaResponses, CredentialsMetadataControllerVctData, CredentialsMetadataControllerVctResponses, DisplayControllerCreateDisplayData, DisplayControllerCreateDisplayResponses, DisplayControllerGetDisplayData, DisplayControllerGetDisplayResponses, HealthControllerCheckData, HealthControllerCheckErrors, HealthControllerCheckResponses, IssuanceControllerDeleteIssuanceConfigurationData, IssuanceControllerDeleteIssuanceConfigurationResponses, IssuanceControllerGetIssuanceConfigurationsData, IssuanceControllerGetIssuanceConfigurationsResponses, IssuanceControllerStoreIssuanceConfigurationData, IssuanceControllerStoreIssuanceConfigurationResponses, IssuerManagementControllerGetOfferData, IssuerManagementControllerGetOfferResponses, KeyControllerAddKeyData, KeyControllerAddKeyResponses, KeyControllerDeleteKeyData, KeyControllerDeleteKeyResponses, KeyControllerGetKeyData, KeyControllerGetKeyResponses, KeyControllerGetKeysData, KeyControllerGetKeysResponses, KeyControllerUpdateKeyData, KeyControllerUpdateKeyResponses, Oid4VciControllerCredentialData, Oid4VciControllerCredentialResponses, Oid4VciControllerNonceData, Oid4VciControllerNonceResponses, Oid4VciControllerNotificationsData, Oid4VciControllerNotificationsResponses, Oid4VpControllerGetPostRequestWithSessionData, Oid4VpControllerGetPostRequestWithSessionResponses, Oid4VpControllerGetRequestWithSessionData, Oid4VpControllerGetRequestWithSessionResponses, Oid4VpControllerGetResponseData, Oid4VpControllerGetResponseResponses, PresentationManagementControllerConfigurationData, PresentationManagementControllerConfigurationResponses, PresentationManagementControllerDeleteConfigurationData, PresentationManagementControllerDeleteConfigurationResponses, PresentationManagementControllerGetOfferData, PresentationManagementControllerGetOfferResponses, PresentationManagementControllerStorePresentationConfigData, PresentationManagementControllerStorePresentationConfigResponses, PrometheusControllerIndexData, PrometheusControllerIndexResponses, SessionControllerDeleteSessionData, SessionControllerDeleteSessionResponses, SessionControllerGetAllSessionsData, SessionControllerGetAllSessionsResponses, SessionControllerGetSessionData, SessionControllerGetSessionResponses, SessionControllerRevokeAllData, SessionControllerRevokeAllResponses, StatusListControllerGetListData, StatusListControllerGetListResponses, StorageControllerDownloadData, StorageControllerDownloadResponses, StorageControllerUploadData, StorageControllerUploadResponses, TenantControllerDeleteTenantData, TenantControllerDeleteTenantResponses, TenantControllerGetTenantData, TenantControllerGetTenantResponses, TenantControllerGetTenantsData, TenantControllerGetTenantsResponses, TenantControllerInitTenantData, TenantControllerInitTenantResponses, WellKnownControllerAuthzMetadata0Data, WellKnownControllerAuthzMetadata0Responses, WellKnownControllerAuthzMetadata1Data, WellKnownControllerAuthzMetadata1Responses, WellKnownControllerGetJwksData, WellKnownControllerGetJwksResponses, WellKnownControllerIssuerMetadata0Data, WellKnownControllerIssuerMetadata0Responses, WellKnownControllerIssuerMetadata1Data, WellKnownControllerIssuerMetadata1Responses } from './types.gen';
+import type { AuthControllerGetGlobalJwksData, AuthControllerGetGlobalJwksResponses, AuthControllerGetOAuth2TokenData, AuthControllerGetOAuth2TokenErrors, AuthControllerGetOAuth2TokenResponses, AuthControllerGetOidcDiscoveryData, AuthControllerGetOidcDiscoveryResponses, AuthorizeControllerAuthorizationChallengeEndpointData, AuthorizeControllerAuthorizationChallengeEndpointResponses, AuthorizeControllerAuthorizeData, AuthorizeControllerAuthorizeResponses, AuthorizeControllerParData, AuthorizeControllerParResponses, AuthorizeControllerTokenData, AuthorizeControllerTokenResponses, ClientControllerCreateClientData, ClientControllerCreateClientResponses, ClientControllerDeleteClientData, ClientControllerDeleteClientResponses, ClientControllerGetClientData, ClientControllerGetClientResponses, ClientControllerGetClientsData, ClientControllerGetClientSecretData, ClientControllerGetClientSecretResponses, ClientControllerGetClientsResponses, ClientControllerUpdateClientData, ClientControllerUpdateClientResponses, CredentialsControllerDeleteIssuanceConfigurationData, CredentialsControllerDeleteIssuanceConfigurationResponses, CredentialsControllerGetConfigsData, CredentialsControllerGetConfigsResponses, CredentialsControllerStoreCredentialConfigurationData, CredentialsControllerStoreCredentialConfigurationResponses, CredentialsMetadataControllerVctData, CredentialsMetadataControllerVctResponses, HealthControllerCheckData, HealthControllerCheckErrors, HealthControllerCheckResponses, IssuanceControllerGetIssuanceConfigurationsData, IssuanceControllerGetIssuanceConfigurationsResponses, IssuanceControllerStoreIssuanceConfigurationData, IssuanceControllerStoreIssuanceConfigurationResponses, IssuerManagementControllerGetOfferData, IssuerManagementControllerGetOfferResponses, KeyControllerAddKeyData, KeyControllerAddKeyResponses, KeyControllerDeleteKeyData, KeyControllerDeleteKeyResponses, KeyControllerGetKeyData, KeyControllerGetKeyResponses, KeyControllerGetKeysData, KeyControllerGetKeysResponses, KeyControllerUpdateKeyData, KeyControllerUpdateKeyResponses, Oid4VciControllerCredentialData, Oid4VciControllerCredentialResponses, Oid4VciControllerNonceData, Oid4VciControllerNonceResponses, Oid4VciControllerNotificationsData, Oid4VciControllerNotificationsResponses, Oid4VpControllerGetPostRequestWithSessionData, Oid4VpControllerGetPostRequestWithSessionResponses, Oid4VpControllerGetRequestWithSessionData, Oid4VpControllerGetRequestWithSessionResponses, Oid4VpControllerGetResponseData, Oid4VpControllerGetResponseResponses, PresentationManagementControllerConfigurationData, PresentationManagementControllerConfigurationResponses, PresentationManagementControllerDeleteConfigurationData, PresentationManagementControllerDeleteConfigurationResponses, PresentationManagementControllerGetOfferData, PresentationManagementControllerGetOfferResponses, PresentationManagementControllerStorePresentationConfigData, PresentationManagementControllerStorePresentationConfigResponses, PrometheusControllerIndexData, PrometheusControllerIndexResponses, SessionControllerDeleteSessionData, SessionControllerDeleteSessionResponses, SessionControllerGetAllSessionsData, SessionControllerGetAllSessionsResponses, SessionControllerGetSessionData, SessionControllerGetSessionResponses, SessionControllerRevokeAllData, SessionControllerRevokeAllResponses, StatusListControllerGetListData, StatusListControllerGetListResponses, StorageControllerDownloadData, StorageControllerDownloadResponses, StorageControllerUploadData, StorageControllerUploadResponses, TenantControllerDeleteTenantData, TenantControllerDeleteTenantResponses, TenantControllerGetTenantData, TenantControllerGetTenantResponses, TenantControllerGetTenantsData, TenantControllerGetTenantsResponses, TenantControllerInitTenantData, TenantControllerInitTenantResponses, WellKnownControllerAuthzMetadataData, WellKnownControllerAuthzMetadataResponses, WellKnownControllerGetJwksData, WellKnownControllerGetJwksResponses, WellKnownControllerIssuerMetadataData, WellKnownControllerIssuerMetadataResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -20,22 +20,12 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
 
 /**
  * Get OpenID4VCI issuer metadata
+ *
  * Returns the OpenID4VCI issuer metadata.
  */
-export const wellKnownControllerIssuerMetadata0 = <ThrowOnError extends boolean = false>(options: Options<WellKnownControllerIssuerMetadata0Data, ThrowOnError>) => {
-    return (options.client ?? client).get<WellKnownControllerIssuerMetadata0Responses, unknown, ThrowOnError>({
-        url: '/.well-known/openid-credential-issuer/{session}',
-        ...options
-    });
-};
-
-/**
- * Get OpenID4VCI issuer metadata
- * Returns the OpenID4VCI issuer metadata.
- */
-export const wellKnownControllerIssuerMetadata1 = <ThrowOnError extends boolean = false>(options: Options<WellKnownControllerIssuerMetadata1Data, ThrowOnError>) => {
-    return (options.client ?? client).get<WellKnownControllerIssuerMetadata1Responses, unknown, ThrowOnError>({
-        url: '/{session}/.well-known/openid-credential-issuer',
+export const wellKnownControllerIssuerMetadata = <ThrowOnError extends boolean = true>(options: Options<WellKnownControllerIssuerMetadataData, ThrowOnError>) => {
+    return (options.client ?? client).get<WellKnownControllerIssuerMetadataResponses, unknown, ThrowOnError>({
+        url: '/.well-known/openid-credential-issuer/{tenantId}',
         ...options
     });
 };
@@ -43,19 +33,9 @@ export const wellKnownControllerIssuerMetadata1 = <ThrowOnError extends boolean 
 /**
  * Authorization Server Metadata
  */
-export const wellKnownControllerAuthzMetadata0 = <ThrowOnError extends boolean = false>(options: Options<WellKnownControllerAuthzMetadata0Data, ThrowOnError>) => {
-    return (options.client ?? client).get<WellKnownControllerAuthzMetadata0Responses, unknown, ThrowOnError>({
-        url: '/.well-known/oauth-authorization-server/{session}',
-        ...options
-    });
-};
-
-/**
- * Authorization Server Metadata
- */
-export const wellKnownControllerAuthzMetadata1 = <ThrowOnError extends boolean = false>(options: Options<WellKnownControllerAuthzMetadata1Data, ThrowOnError>) => {
-    return (options.client ?? client).get<WellKnownControllerAuthzMetadata1Responses, unknown, ThrowOnError>({
-        url: '/{session}/.well-known/oauth-authorization-server',
+export const wellKnownControllerAuthzMetadata = <ThrowOnError extends boolean = true>(options: Options<WellKnownControllerAuthzMetadataData, ThrowOnError>) => {
+    return (options.client ?? client).get<WellKnownControllerAuthzMetadataResponses, unknown, ThrowOnError>({
+        url: '/.well-known/oauth-authorization-server/{tenantId}',
         ...options
     });
 };
@@ -63,9 +43,9 @@ export const wellKnownControllerAuthzMetadata1 = <ThrowOnError extends boolean =
 /**
  * Returns the JSON Web Key Set (JWKS) for the authorization server.
  */
-export const wellKnownControllerGetJwks = <ThrowOnError extends boolean = false>(options: Options<WellKnownControllerGetJwksData, ThrowOnError>) => {
+export const wellKnownControllerGetJwks = <ThrowOnError extends boolean = true>(options: Options<WellKnownControllerGetJwksData, ThrowOnError>) => {
     return (options.client ?? client).get<WellKnownControllerGetJwksResponses, unknown, ThrowOnError>({
-        url: '/{session}/.well-known/jwks.json',
+        url: '/{tenantId}/.well-known/jwks.json',
         ...options
     });
 };
@@ -74,7 +54,7 @@ export const wellKnownControllerGetJwks = <ThrowOnError extends boolean = false>
  * OAuth2 Token endpoint - supports client credentials flow only
  * Accepts client credentials either in Authorization header (Basic auth) or request body
  */
-export const authControllerGetOAuth2Token = <ThrowOnError extends boolean = false>(options: Options<AuthControllerGetOAuth2TokenData, ThrowOnError>) => {
+export const authControllerGetOAuth2Token = <ThrowOnError extends boolean = true>(options: Options<AuthControllerGetOAuth2TokenData, ThrowOnError>) => {
     return (options.client ?? client).post<AuthControllerGetOAuth2TokenResponses, AuthControllerGetOAuth2TokenErrors, ThrowOnError>({
         url: '/oauth2/token',
         ...options,
@@ -87,9 +67,10 @@ export const authControllerGetOAuth2Token = <ThrowOnError extends boolean = fals
 
 /**
  * OIDC Discovery Configuration
+ *
  * Returns the OpenID Connect discovery configuration for client credentials authentication.
  */
-export const authControllerGetOidcDiscovery = <ThrowOnError extends boolean = false>(options?: Options<AuthControllerGetOidcDiscoveryData, ThrowOnError>) => {
+export const authControllerGetOidcDiscovery = <ThrowOnError extends boolean = true>(options?: Options<AuthControllerGetOidcDiscoveryData, ThrowOnError>) => {
     return (options?.client ?? client).get<AuthControllerGetOidcDiscoveryResponses, unknown, ThrowOnError>({
         url: '/.well-known/oauth-authorization-server',
         ...options
@@ -98,9 +79,10 @@ export const authControllerGetOidcDiscovery = <ThrowOnError extends boolean = fa
 
 /**
  * JSON Web Key Set
+ *
  * Returns the JSON Web Key Set for token verification.
  */
-export const authControllerGetGlobalJwks = <ThrowOnError extends boolean = false>(options?: Options<AuthControllerGetGlobalJwksData, ThrowOnError>) => {
+export const authControllerGetGlobalJwks = <ThrowOnError extends boolean = true>(options?: Options<AuthControllerGetGlobalJwksData, ThrowOnError>) => {
     return (options?.client ?? client).get<AuthControllerGetGlobalJwksResponses, unknown, ThrowOnError>({
         url: '/.well-known/jwks.json',
         ...options
@@ -110,7 +92,7 @@ export const authControllerGetGlobalJwks = <ThrowOnError extends boolean = false
 /**
  * Get all tenants
  */
-export const tenantControllerGetTenants = <ThrowOnError extends boolean = false>(options?: Options<TenantControllerGetTenantsData, ThrowOnError>) => {
+export const tenantControllerGetTenants = <ThrowOnError extends boolean = true>(options?: Options<TenantControllerGetTenantsData, ThrowOnError>) => {
     return (options?.client ?? client).get<TenantControllerGetTenantsResponses, unknown, ThrowOnError>({
         security: [
             {
@@ -126,7 +108,7 @@ export const tenantControllerGetTenants = <ThrowOnError extends boolean = false>
 /**
  * Initialize a tenant
  */
-export const tenantControllerInitTenant = <ThrowOnError extends boolean = false>(options: Options<TenantControllerInitTenantData, ThrowOnError>) => {
+export const tenantControllerInitTenant = <ThrowOnError extends boolean = true>(options: Options<TenantControllerInitTenantData, ThrowOnError>) => {
     return (options.client ?? client).post<TenantControllerInitTenantResponses, unknown, ThrowOnError>({
         security: [
             {
@@ -146,7 +128,7 @@ export const tenantControllerInitTenant = <ThrowOnError extends boolean = false>
 /**
  * Deletes a tenant by ID
  */
-export const tenantControllerDeleteTenant = <ThrowOnError extends boolean = false>(options: Options<TenantControllerDeleteTenantData, ThrowOnError>) => {
+export const tenantControllerDeleteTenant = <ThrowOnError extends boolean = true>(options: Options<TenantControllerDeleteTenantData, ThrowOnError>) => {
     return (options.client ?? client).delete<TenantControllerDeleteTenantResponses, unknown, ThrowOnError>({
         security: [
             {
@@ -162,7 +144,7 @@ export const tenantControllerDeleteTenant = <ThrowOnError extends boolean = fals
 /**
  * Get a tenant by ID
  */
-export const tenantControllerGetTenant = <ThrowOnError extends boolean = false>(options: Options<TenantControllerGetTenantData, ThrowOnError>) => {
+export const tenantControllerGetTenant = <ThrowOnError extends boolean = true>(options: Options<TenantControllerGetTenantData, ThrowOnError>) => {
     return (options.client ?? client).get<TenantControllerGetTenantResponses, unknown, ThrowOnError>({
         security: [
             {
@@ -178,7 +160,7 @@ export const tenantControllerGetTenant = <ThrowOnError extends boolean = false>(
 /**
  * Get all clients for a user
  */
-export const clientControllerGetClients = <ThrowOnError extends boolean = false>(options?: Options<ClientControllerGetClientsData, ThrowOnError>) => {
+export const clientControllerGetClients = <ThrowOnError extends boolean = true>(options?: Options<ClientControllerGetClientsData, ThrowOnError>) => {
     return (options?.client ?? client).get<ClientControllerGetClientsResponses, unknown, ThrowOnError>({
         security: [
             {
@@ -194,7 +176,7 @@ export const clientControllerGetClients = <ThrowOnError extends boolean = false>
 /**
  * Create a new client
  */
-export const clientControllerCreateClient = <ThrowOnError extends boolean = false>(options: Options<ClientControllerCreateClientData, ThrowOnError>) => {
+export const clientControllerCreateClient = <ThrowOnError extends boolean = true>(options: Options<ClientControllerCreateClientData, ThrowOnError>) => {
     return (options.client ?? client).post<ClientControllerCreateClientResponses, unknown, ThrowOnError>({
         security: [
             {
@@ -214,7 +196,7 @@ export const clientControllerCreateClient = <ThrowOnError extends boolean = fals
 /**
  * Get a client by its id
  */
-export const clientControllerDeleteClient = <ThrowOnError extends boolean = false>(options: Options<ClientControllerDeleteClientData, ThrowOnError>) => {
+export const clientControllerDeleteClient = <ThrowOnError extends boolean = true>(options: Options<ClientControllerDeleteClientData, ThrowOnError>) => {
     return (options.client ?? client).delete<ClientControllerDeleteClientResponses, unknown, ThrowOnError>({
         security: [
             {
@@ -230,7 +212,7 @@ export const clientControllerDeleteClient = <ThrowOnError extends boolean = fals
 /**
  * Get a client by its id
  */
-export const clientControllerGetClient = <ThrowOnError extends boolean = false>(options: Options<ClientControllerGetClientData, ThrowOnError>) => {
+export const clientControllerGetClient = <ThrowOnError extends boolean = true>(options: Options<ClientControllerGetClientData, ThrowOnError>) => {
     return (options.client ?? client).get<ClientControllerGetClientResponses, unknown, ThrowOnError>({
         security: [
             {
@@ -246,7 +228,7 @@ export const clientControllerGetClient = <ThrowOnError extends boolean = false>(
 /**
  * Update a client by its id
  */
-export const clientControllerUpdateClient = <ThrowOnError extends boolean = false>(options: Options<ClientControllerUpdateClientData, ThrowOnError>) => {
+export const clientControllerUpdateClient = <ThrowOnError extends boolean = true>(options: Options<ClientControllerUpdateClientData, ThrowOnError>) => {
     return (options.client ?? client).patch<ClientControllerUpdateClientResponses, unknown, ThrowOnError>({
         security: [
             {
@@ -263,7 +245,7 @@ export const clientControllerUpdateClient = <ThrowOnError extends boolean = fals
     });
 };
 
-export const clientControllerGetClientSecret = <ThrowOnError extends boolean = false>(options: Options<ClientControllerGetClientSecretData, ThrowOnError>) => {
+export const clientControllerGetClientSecret = <ThrowOnError extends boolean = true>(options: Options<ClientControllerGetClientSecretData, ThrowOnError>) => {
     return (options.client ?? client).get<ClientControllerGetClientSecretResponses, unknown, ThrowOnError>({
         security: [
             {
@@ -279,7 +261,7 @@ export const clientControllerGetClientSecret = <ThrowOnError extends boolean = f
 /**
  * Get all keys for the tenant.
  */
-export const keyControllerGetKeys = <ThrowOnError extends boolean = false>(options?: Options<KeyControllerGetKeysData, ThrowOnError>) => {
+export const keyControllerGetKeys = <ThrowOnError extends boolean = true>(options?: Options<KeyControllerGetKeysData, ThrowOnError>) => {
     return (options?.client ?? client).get<KeyControllerGetKeysResponses, unknown, ThrowOnError>({
         security: [
             {
@@ -295,7 +277,7 @@ export const keyControllerGetKeys = <ThrowOnError extends boolean = false>(optio
 /**
  * Add a new key to the key service.
  */
-export const keyControllerAddKey = <ThrowOnError extends boolean = false>(options: Options<KeyControllerAddKeyData, ThrowOnError>) => {
+export const keyControllerAddKey = <ThrowOnError extends boolean = true>(options: Options<KeyControllerAddKeyData, ThrowOnError>) => {
     return (options.client ?? client).post<KeyControllerAddKeyResponses, unknown, ThrowOnError>({
         security: [
             {
@@ -315,7 +297,7 @@ export const keyControllerAddKey = <ThrowOnError extends boolean = false>(option
 /**
  * Delete a key from the key service.
  */
-export const keyControllerDeleteKey = <ThrowOnError extends boolean = false>(options: Options<KeyControllerDeleteKeyData, ThrowOnError>) => {
+export const keyControllerDeleteKey = <ThrowOnError extends boolean = true>(options: Options<KeyControllerDeleteKeyData, ThrowOnError>) => {
     return (options.client ?? client).delete<KeyControllerDeleteKeyResponses, unknown, ThrowOnError>({
         security: [
             {
@@ -331,7 +313,7 @@ export const keyControllerDeleteKey = <ThrowOnError extends boolean = false>(opt
 /**
  * Get a specific key by ID
  */
-export const keyControllerGetKey = <ThrowOnError extends boolean = false>(options: Options<KeyControllerGetKeyData, ThrowOnError>) => {
+export const keyControllerGetKey = <ThrowOnError extends boolean = true>(options: Options<KeyControllerGetKeyData, ThrowOnError>) => {
     return (options.client ?? client).get<KeyControllerGetKeyResponses, unknown, ThrowOnError>({
         security: [
             {
@@ -347,7 +329,7 @@ export const keyControllerGetKey = <ThrowOnError extends boolean = false>(option
 /**
  * Updates an existing key in the key service.
  */
-export const keyControllerUpdateKey = <ThrowOnError extends boolean = false>(options: Options<KeyControllerUpdateKeyData, ThrowOnError>) => {
+export const keyControllerUpdateKey = <ThrowOnError extends boolean = true>(options: Options<KeyControllerUpdateKeyData, ThrowOnError>) => {
     return (options.client ?? client).put<KeyControllerUpdateKeyResponses, unknown, ThrowOnError>({
         security: [
             {
@@ -367,7 +349,7 @@ export const keyControllerUpdateKey = <ThrowOnError extends boolean = false>(opt
 /**
  * Get the status list
  */
-export const statusListControllerGetList = <ThrowOnError extends boolean = false>(options: Options<StatusListControllerGetListData, ThrowOnError>) => {
+export const statusListControllerGetList = <ThrowOnError extends boolean = true>(options: Options<StatusListControllerGetListData, ThrowOnError>) => {
     return (options.client ?? client).get<StatusListControllerGetListResponses, unknown, ThrowOnError>({
         url: '/{tenantId}/status-management/status-list',
         ...options
@@ -377,7 +359,7 @@ export const statusListControllerGetList = <ThrowOnError extends boolean = false
 /**
  * Create an presentation request that can be sent to the user
  */
-export const presentationManagementControllerGetOffer = <ThrowOnError extends boolean = false>(options: Options<PresentationManagementControllerGetOfferData, ThrowOnError>) => {
+export const presentationManagementControllerGetOffer = <ThrowOnError extends boolean = true>(options: Options<PresentationManagementControllerGetOfferData, ThrowOnError>) => {
     return (options.client ?? client).post<PresentationManagementControllerGetOfferResponses, unknown, ThrowOnError>({
         security: [
             {
@@ -397,7 +379,7 @@ export const presentationManagementControllerGetOffer = <ThrowOnError extends bo
 /**
  * Returns the presentation request configurations.
  */
-export const presentationManagementControllerConfiguration = <ThrowOnError extends boolean = false>(options?: Options<PresentationManagementControllerConfigurationData, ThrowOnError>) => {
+export const presentationManagementControllerConfiguration = <ThrowOnError extends boolean = true>(options?: Options<PresentationManagementControllerConfigurationData, ThrowOnError>) => {
     return (options?.client ?? client).get<PresentationManagementControllerConfigurationResponses, unknown, ThrowOnError>({
         security: [
             {
@@ -413,7 +395,7 @@ export const presentationManagementControllerConfiguration = <ThrowOnError exten
 /**
  * Store a presentation request configuration. If it already exists, it will be updated.
  */
-export const presentationManagementControllerStorePresentationConfig = <ThrowOnError extends boolean = false>(options: Options<PresentationManagementControllerStorePresentationConfigData, ThrowOnError>) => {
+export const presentationManagementControllerStorePresentationConfig = <ThrowOnError extends boolean = true>(options: Options<PresentationManagementControllerStorePresentationConfigData, ThrowOnError>) => {
     return (options.client ?? client).post<PresentationManagementControllerStorePresentationConfigResponses, unknown, ThrowOnError>({
         security: [
             {
@@ -433,7 +415,7 @@ export const presentationManagementControllerStorePresentationConfig = <ThrowOnE
 /**
  * Deletes a presentation request configuration by its ID.
  */
-export const presentationManagementControllerDeleteConfiguration = <ThrowOnError extends boolean = false>(options: Options<PresentationManagementControllerDeleteConfigurationData, ThrowOnError>) => {
+export const presentationManagementControllerDeleteConfiguration = <ThrowOnError extends boolean = true>(options: Options<PresentationManagementControllerDeleteConfigurationData, ThrowOnError>) => {
     return (options.client ?? client).delete<PresentationManagementControllerDeleteConfigurationResponses, unknown, ThrowOnError>({
         security: [
             {
@@ -449,7 +431,7 @@ export const presentationManagementControllerDeleteConfiguration = <ThrowOnError
 /**
  * Returns the authorization request for a given requestId and session.
  */
-export const oid4VpControllerGetRequestWithSession = <ThrowOnError extends boolean = false>(options: Options<Oid4VpControllerGetRequestWithSessionData, ThrowOnError>) => {
+export const oid4VpControllerGetRequestWithSession = <ThrowOnError extends boolean = true>(options: Options<Oid4VpControllerGetRequestWithSessionData, ThrowOnError>) => {
     return (options.client ?? client).get<Oid4VpControllerGetRequestWithSessionResponses, unknown, ThrowOnError>({
         url: '/{session}/oid4vp/request',
         ...options
@@ -459,7 +441,7 @@ export const oid4VpControllerGetRequestWithSession = <ThrowOnError extends boole
 /**
  * Returns the authorization request for a given requestId and session.
  */
-export const oid4VpControllerGetPostRequestWithSession = <ThrowOnError extends boolean = false>(options: Options<Oid4VpControllerGetPostRequestWithSessionData, ThrowOnError>) => {
+export const oid4VpControllerGetPostRequestWithSession = <ThrowOnError extends boolean = true>(options: Options<Oid4VpControllerGetPostRequestWithSessionData, ThrowOnError>) => {
     return (options.client ?? client).post<Oid4VpControllerGetPostRequestWithSessionResponses, unknown, ThrowOnError>({
         url: '/{session}/oid4vp/request',
         ...options,
@@ -473,7 +455,7 @@ export const oid4VpControllerGetPostRequestWithSession = <ThrowOnError extends b
 /**
  * Endpoint to receive the response from the wallet.
  */
-export const oid4VpControllerGetResponse = <ThrowOnError extends boolean = false>(options: Options<Oid4VpControllerGetResponseData, ThrowOnError>) => {
+export const oid4VpControllerGetResponse = <ThrowOnError extends boolean = true>(options: Options<Oid4VpControllerGetResponseData, ThrowOnError>) => {
     return (options.client ?? client).post<Oid4VpControllerGetResponseResponses, unknown, ThrowOnError>({
         url: '/{session}/oid4vp',
         ...options,
@@ -487,7 +469,7 @@ export const oid4VpControllerGetResponse = <ThrowOnError extends boolean = false
 /**
  * Retrieves all sessions.
  */
-export const sessionControllerGetAllSessions = <ThrowOnError extends boolean = false>(options?: Options<SessionControllerGetAllSessionsData, ThrowOnError>) => {
+export const sessionControllerGetAllSessions = <ThrowOnError extends boolean = true>(options?: Options<SessionControllerGetAllSessionsData, ThrowOnError>) => {
     return (options?.client ?? client).get<SessionControllerGetAllSessionsResponses, unknown, ThrowOnError>({
         security: [
             {
@@ -503,7 +485,7 @@ export const sessionControllerGetAllSessions = <ThrowOnError extends boolean = f
 /**
  * Deletes a session by its ID
  */
-export const sessionControllerDeleteSession = <ThrowOnError extends boolean = false>(options: Options<SessionControllerDeleteSessionData, ThrowOnError>) => {
+export const sessionControllerDeleteSession = <ThrowOnError extends boolean = true>(options: Options<SessionControllerDeleteSessionData, ThrowOnError>) => {
     return (options.client ?? client).delete<SessionControllerDeleteSessionResponses, unknown, ThrowOnError>({
         security: [
             {
@@ -519,7 +501,7 @@ export const sessionControllerDeleteSession = <ThrowOnError extends boolean = fa
 /**
  * Retrieves the session information for a given session ID.
  */
-export const sessionControllerGetSession = <ThrowOnError extends boolean = false>(options: Options<SessionControllerGetSessionData, ThrowOnError>) => {
+export const sessionControllerGetSession = <ThrowOnError extends boolean = true>(options: Options<SessionControllerGetSessionData, ThrowOnError>) => {
     return (options.client ?? client).get<SessionControllerGetSessionResponses, unknown, ThrowOnError>({
         security: [
             {
@@ -535,7 +517,7 @@ export const sessionControllerGetSession = <ThrowOnError extends boolean = false
 /**
  * Update the status of the credentials of a specific session.
  */
-export const sessionControllerRevokeAll = <ThrowOnError extends boolean = false>(options: Options<SessionControllerRevokeAllData, ThrowOnError>) => {
+export const sessionControllerRevokeAll = <ThrowOnError extends boolean = true>(options: Options<SessionControllerRevokeAllData, ThrowOnError>) => {
     return (options.client ?? client).post<SessionControllerRevokeAllResponses, unknown, ThrowOnError>({
         security: [
             {
@@ -555,9 +537,9 @@ export const sessionControllerRevokeAll = <ThrowOnError extends boolean = false>
 /**
  * Endpoint to issue credentials
  */
-export const oid4VciControllerCredential = <ThrowOnError extends boolean = false>(options: Options<Oid4VciControllerCredentialData, ThrowOnError>) => {
+export const oid4VciControllerCredential = <ThrowOnError extends boolean = true>(options: Options<Oid4VciControllerCredentialData, ThrowOnError>) => {
     return (options.client ?? client).post<Oid4VciControllerCredentialResponses, unknown, ThrowOnError>({
-        url: '/{session}/vci/credential',
+        url: '/{tenantId}/vci/credential',
         ...options
     });
 };
@@ -565,9 +547,9 @@ export const oid4VciControllerCredential = <ThrowOnError extends boolean = false
 /**
  * Notification endpoint
  */
-export const oid4VciControllerNotifications = <ThrowOnError extends boolean = false>(options: Options<Oid4VciControllerNotificationsData, ThrowOnError>) => {
+export const oid4VciControllerNotifications = <ThrowOnError extends boolean = true>(options: Options<Oid4VciControllerNotificationsData, ThrowOnError>) => {
     return (options.client ?? client).post<Oid4VciControllerNotificationsResponses, unknown, ThrowOnError>({
-        url: '/{session}/vci/notification',
+        url: '/{tenantId}/vci/notification',
         ...options,
         headers: {
             'Content-Type': 'application/json',
@@ -576,9 +558,9 @@ export const oid4VciControllerNotifications = <ThrowOnError extends boolean = fa
     });
 };
 
-export const oid4VciControllerNonce = <ThrowOnError extends boolean = false>(options: Options<Oid4VciControllerNonceData, ThrowOnError>) => {
+export const oid4VciControllerNonce = <ThrowOnError extends boolean = true>(options: Options<Oid4VciControllerNonceData, ThrowOnError>) => {
     return (options.client ?? client).post<Oid4VciControllerNonceResponses, unknown, ThrowOnError>({
-        url: '/{session}/vci/nonce',
+        url: '/{tenantId}/vci/nonce',
         ...options
     });
 };
@@ -586,9 +568,9 @@ export const oid4VciControllerNonce = <ThrowOnError extends boolean = false>(opt
 /**
  * Endpoint to handle the Authorization Request.
  */
-export const authorizeControllerAuthorize = <ThrowOnError extends boolean = false>(options?: Options<AuthorizeControllerAuthorizeData, ThrowOnError>) => {
-    return (options?.client ?? client).get<AuthorizeControllerAuthorizeResponses, unknown, ThrowOnError>({
-        url: '/{session}/authorize',
+export const authorizeControllerAuthorize = <ThrowOnError extends boolean = true>(options: Options<AuthorizeControllerAuthorizeData, ThrowOnError>) => {
+    return (options.client ?? client).get<AuthorizeControllerAuthorizeResponses, unknown, ThrowOnError>({
+        url: '/{tenantId}/authorize',
         ...options
     });
 };
@@ -596,9 +578,9 @@ export const authorizeControllerAuthorize = <ThrowOnError extends boolean = fals
 /**
  * Endpoint to handle the Pushed Authorization Request (PAR).
  */
-export const authorizeControllerPar = <ThrowOnError extends boolean = false>(options: Options<AuthorizeControllerParData, ThrowOnError>) => {
+export const authorizeControllerPar = <ThrowOnError extends boolean = true>(options: Options<AuthorizeControllerParData, ThrowOnError>) => {
     return (options.client ?? client).post<AuthorizeControllerParResponses, unknown, ThrowOnError>({
-        url: '/{session}/authorize/par',
+        url: '/{tenantId}/authorize/par',
         ...options,
         headers: {
             'Content-Type': 'application/json',
@@ -611,9 +593,9 @@ export const authorizeControllerPar = <ThrowOnError extends boolean = false>(opt
  * Endpoint to validate the token request.
  * This endpoint is used to exchange the authorization code for an access token.
  */
-export const authorizeControllerToken = <ThrowOnError extends boolean = false>(options: Options<AuthorizeControllerTokenData, ThrowOnError>) => {
+export const authorizeControllerToken = <ThrowOnError extends boolean = true>(options: Options<AuthorizeControllerTokenData, ThrowOnError>) => {
     return (options.client ?? client).post<AuthorizeControllerTokenResponses, unknown, ThrowOnError>({
-        url: '/{session}/authorize/token',
+        url: '/{tenantId}/authorize/token',
         ...options
     });
 };
@@ -621,9 +603,9 @@ export const authorizeControllerToken = <ThrowOnError extends boolean = false>(o
 /**
  * Endpoint for the authorization challenge.
  */
-export const authorizeControllerAuthorizationChallengeEndpoint = <ThrowOnError extends boolean = false>(options: Options<AuthorizeControllerAuthorizationChallengeEndpointData, ThrowOnError>) => {
+export const authorizeControllerAuthorizationChallengeEndpoint = <ThrowOnError extends boolean = true>(options: Options<AuthorizeControllerAuthorizationChallengeEndpointData, ThrowOnError>) => {
     return (options.client ?? client).post<AuthorizeControllerAuthorizationChallengeEndpointResponses, unknown, ThrowOnError>({
-        url: '/{session}/authorize/challenge',
+        url: '/{tenantId}/authorize/challenge',
         ...options,
         headers: {
             'Content-Type': 'application/json',
@@ -635,7 +617,7 @@ export const authorizeControllerAuthorizationChallengeEndpoint = <ThrowOnError e
 /**
  * Returns the credential configurations for this tenant.
  */
-export const credentialsControllerGetConfigs = <ThrowOnError extends boolean = false>(options?: Options<CredentialsControllerGetConfigsData, ThrowOnError>) => {
+export const credentialsControllerGetConfigs = <ThrowOnError extends boolean = true>(options?: Options<CredentialsControllerGetConfigsData, ThrowOnError>) => {
     return (options?.client ?? client).get<CredentialsControllerGetConfigsResponses, unknown, ThrowOnError>({
         security: [
             {
@@ -651,7 +633,7 @@ export const credentialsControllerGetConfigs = <ThrowOnError extends boolean = f
 /**
  * Stores the credential configuration for this tenant.
  */
-export const credentialsControllerStoreCredentialConfiguration = <ThrowOnError extends boolean = false>(options: Options<CredentialsControllerStoreCredentialConfigurationData, ThrowOnError>) => {
+export const credentialsControllerStoreCredentialConfiguration = <ThrowOnError extends boolean = true>(options: Options<CredentialsControllerStoreCredentialConfigurationData, ThrowOnError>) => {
     return (options.client ?? client).post<CredentialsControllerStoreCredentialConfigurationResponses, unknown, ThrowOnError>({
         security: [
             {
@@ -671,7 +653,7 @@ export const credentialsControllerStoreCredentialConfiguration = <ThrowOnError e
 /**
  * Deletes an credential configuration.
  */
-export const credentialsControllerDeleteIssuanceConfiguration = <ThrowOnError extends boolean = false>(options: Options<CredentialsControllerDeleteIssuanceConfigurationData, ThrowOnError>) => {
+export const credentialsControllerDeleteIssuanceConfiguration = <ThrowOnError extends boolean = true>(options: Options<CredentialsControllerDeleteIssuanceConfigurationData, ThrowOnError>) => {
     return (options.client ?? client).delete<CredentialsControllerDeleteIssuanceConfigurationResponses, unknown, ThrowOnError>({
         security: [
             {
@@ -687,7 +669,7 @@ export const credentialsControllerDeleteIssuanceConfiguration = <ThrowOnError ex
 /**
  * Create an offer for a credential.
  */
-export const issuerManagementControllerGetOffer = <ThrowOnError extends boolean = false>(options: Options<IssuerManagementControllerGetOfferData, ThrowOnError>) => {
+export const issuerManagementControllerGetOffer = <ThrowOnError extends boolean = true>(options: Options<IssuerManagementControllerGetOfferData, ThrowOnError>) => {
     return (options.client ?? client).post<IssuerManagementControllerGetOfferResponses, unknown, ThrowOnError>({
         security: [
             {
@@ -707,7 +689,7 @@ export const issuerManagementControllerGetOffer = <ThrowOnError extends boolean 
 /**
  * Returns the issuance configurations for this tenant.
  */
-export const issuanceControllerGetIssuanceConfigurations = <ThrowOnError extends boolean = false>(options?: Options<IssuanceControllerGetIssuanceConfigurationsData, ThrowOnError>) => {
+export const issuanceControllerGetIssuanceConfigurations = <ThrowOnError extends boolean = true>(options?: Options<IssuanceControllerGetIssuanceConfigurationsData, ThrowOnError>) => {
     return (options?.client ?? client).get<IssuanceControllerGetIssuanceConfigurationsResponses, unknown, ThrowOnError>({
         security: [
             {
@@ -723,7 +705,7 @@ export const issuanceControllerGetIssuanceConfigurations = <ThrowOnError extends
 /**
  * Stores the issuance configuration for this tenant.
  */
-export const issuanceControllerStoreIssuanceConfiguration = <ThrowOnError extends boolean = false>(options: Options<IssuanceControllerStoreIssuanceConfigurationData, ThrowOnError>) => {
+export const issuanceControllerStoreIssuanceConfiguration = <ThrowOnError extends boolean = true>(options: Options<IssuanceControllerStoreIssuanceConfigurationData, ThrowOnError>) => {
     return (options.client ?? client).post<IssuanceControllerStoreIssuanceConfigurationResponses, unknown, ThrowOnError>({
         security: [
             {
@@ -741,25 +723,9 @@ export const issuanceControllerStoreIssuanceConfiguration = <ThrowOnError extend
 };
 
 /**
- * Deletes an issuance configuration.
- */
-export const issuanceControllerDeleteIssuanceConfiguration = <ThrowOnError extends boolean = false>(options: Options<IssuanceControllerDeleteIssuanceConfigurationData, ThrowOnError>) => {
-    return (options.client ?? client).delete<IssuanceControllerDeleteIssuanceConfigurationResponses, unknown, ThrowOnError>({
-        security: [
-            {
-                scheme: 'bearer',
-                type: 'http'
-            }
-        ],
-        url: '/issuer-management/issuance/{id}',
-        ...options
-    });
-};
-
-/**
  * Retrieves the VCT (Verifiable Credential Type) from the credentials service.
  */
-export const credentialsMetadataControllerVct = <ThrowOnError extends boolean = false>(options: Options<CredentialsMetadataControllerVctData, ThrowOnError>) => {
+export const credentialsMetadataControllerVct = <ThrowOnError extends boolean = true>(options: Options<CredentialsMetadataControllerVctData, ThrowOnError>) => {
     return (options.client ?? client).get<CredentialsMetadataControllerVctResponses, unknown, ThrowOnError>({
         url: '/{tenantId}/credentials-metadata/vct/{id}',
         ...options
@@ -767,62 +733,16 @@ export const credentialsMetadataControllerVct = <ThrowOnError extends boolean = 
 };
 
 /**
- * Retrieves the schema for a specific credential
- */
-export const credentialsMetadataControllerSchema = <ThrowOnError extends boolean = false>(options: Options<CredentialsMetadataControllerSchemaData, ThrowOnError>) => {
-    return (options.client ?? client).get<CredentialsMetadataControllerSchemaResponses, unknown, ThrowOnError>({
-        url: '/{tenantId}/credentials-metadata/schema/{id}',
-        ...options
-    });
-};
-
-/**
- * Get display information for a user
- */
-export const displayControllerGetDisplay = <ThrowOnError extends boolean = false>(options?: Options<DisplayControllerGetDisplayData, ThrowOnError>) => {
-    return (options?.client ?? client).get<DisplayControllerGetDisplayResponses, unknown, ThrowOnError>({
-        security: [
-            {
-                scheme: 'bearer',
-                type: 'http'
-            }
-        ],
-        url: '/display',
-        ...options
-    });
-};
-
-/**
- * Create a new display for a user
- */
-export const displayControllerCreateDisplay = <ThrowOnError extends boolean = false>(options: Options<DisplayControllerCreateDisplayData, ThrowOnError>) => {
-    return (options.client ?? client).post<DisplayControllerCreateDisplayResponses, unknown, ThrowOnError>({
-        security: [
-            {
-                scheme: 'bearer',
-                type: 'http'
-            }
-        ],
-        url: '/display',
-        ...options,
-        headers: {
-            'Content-Type': 'application/json',
-            ...options.headers
-        }
-    });
-};
-
-/**
  * Endpoint to check the health of the service.
  */
-export const healthControllerCheck = <ThrowOnError extends boolean = false>(options?: Options<HealthControllerCheckData, ThrowOnError>) => {
+export const healthControllerCheck = <ThrowOnError extends boolean = true>(options?: Options<HealthControllerCheckData, ThrowOnError>) => {
     return (options?.client ?? client).get<HealthControllerCheckResponses, HealthControllerCheckErrors, ThrowOnError>({
         url: '/health',
         ...options
     });
 };
 
-export const prometheusControllerIndex = <ThrowOnError extends boolean = false>(options?: Options<PrometheusControllerIndexData, ThrowOnError>) => {
+export const prometheusControllerIndex = <ThrowOnError extends boolean = true>(options?: Options<PrometheusControllerIndexData, ThrowOnError>) => {
     return (options?.client ?? client).get<PrometheusControllerIndexResponses, unknown, ThrowOnError>({
         url: '/metrics',
         ...options
@@ -832,7 +752,7 @@ export const prometheusControllerIndex = <ThrowOnError extends boolean = false>(
 /**
  * Upload files that belong to a tenant like images
  */
-export const storageControllerUpload = <ThrowOnError extends boolean = false>(options: Options<StorageControllerUploadData, ThrowOnError>) => {
+export const storageControllerUpload = <ThrowOnError extends boolean = true>(options: Options<StorageControllerUploadData, ThrowOnError>) => {
     return (options.client ?? client).post<StorageControllerUploadResponses, unknown, ThrowOnError>({
         ...formDataBodySerializer,
         security: [
@@ -850,7 +770,7 @@ export const storageControllerUpload = <ThrowOnError extends boolean = false>(op
     });
 };
 
-export const storageControllerDownload = <ThrowOnError extends boolean = false>(options: Options<StorageControllerDownloadData, ThrowOnError>) => {
+export const storageControllerDownload = <ThrowOnError extends boolean = true>(options: Options<StorageControllerDownloadData, ThrowOnError>) => {
     return (options.client ?? client).get<StorageControllerDownloadResponses, unknown, ThrowOnError>({
         url: '/storage/{key}',
         ...options

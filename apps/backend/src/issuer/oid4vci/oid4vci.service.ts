@@ -155,15 +155,19 @@ export class Oid4vciService {
             authorization_server: authServers[0],
             notification_endpoint: `${credential_issuer}/vci/notification`,
             nonce_endpoint: `${credential_issuer}/vci/nonce`,
-            display: issuanceConfig?.display as any,
-            batch_size: issuanceConfig?.batchSize,
+            display: issuanceConfig.display as any,
+            batch_credential_issuance: issuanceConfig?.batchSize
+                ? {
+                      batch_size: issuanceConfig?.batchSize,
+                  }
+                : undefined,
         });
 
         return {
             credentialIssuer,
             authorizationServers: [authorizationServerMetadata],
-            originalDraftVersion: Openid4vciDraftVersion.Draft14,
-        } as const satisfies IssuerMetadataResult;
+            originalDraftVersion: Openid4vciDraftVersion.Draft15,
+        } as IssuerMetadataResult;
     }
 
     /**
@@ -277,10 +281,20 @@ export class Oid4vciService {
         const issuanceConfig =
             await this.issuanceService.getIssuanceConfiguration(tenantId);
 
-        const parsedCredentialRequest = issuer.parseCredentialRequest({
-            issuerMetadata,
-            credentialRequest: req.body as Record<string, unknown>,
-        });
+        let parsedCredentialRequest;
+        const known = issuer.getKnownCredentialConfigurationsSupported(
+            issuerMetadata.credentialIssuer,
+        );
+        issuerMetadata.knownCredentialConfigurations = known;
+        try {
+            parsedCredentialRequest = issuer.parseCredentialRequest({
+                issuerMetadata,
+                credentialRequest: req.body as Record<string, unknown>,
+            });
+        } catch (error) {
+            console.log(error);
+            throw new ConflictException("Invalid credential request");
+        }
 
         if (parsedCredentialRequest?.proofs?.jwt === undefined) {
             throw new Error("Invalid credential request");

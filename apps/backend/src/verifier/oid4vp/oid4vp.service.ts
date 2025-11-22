@@ -321,7 +321,6 @@ export class Oid4vpService {
                 [],
                 session.vp_nonce as string,
             );
-            console.log(JSON.stringify(credentials, null, 2));
 
             this.sessionLogger.logCredentialVerification(
                 logContext,
@@ -372,7 +371,6 @@ export class Oid4vpService {
 
             return {};
         } catch (error: any) {
-            console.log(error);
             this.sessionLogger.logFlowError(logContext, error as Error, {
                 action: "process_presentation_response",
             });

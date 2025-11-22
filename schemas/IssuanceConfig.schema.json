@@ -4,24 +4,6 @@
   "title": "IssuanceConfig",
   "type": "object",
   "properties": {
-    "authenticationConfig": {
-      "description": "Authentication configuration for the issuance process.",
-      "oneOf": [
-        {
-          "$ref": "./AuthenticationMethodNone.schema.json"
-        },
-        {
-          "$ref": "./AuthenticationMethodAuth.schema.json"
-        },
-        {
-          "$ref": "./AuthenticationMethodPresentation.schema.json"
-        }
-      ]
-    },
-    "id": {
-      "type": "string",
-      "description": "Unique identifier for the issuance configuration."
-    },
     "tenant": {
       "description": "The tenant that owns this object.",
       "allOf": [
@@ -30,34 +12,12 @@
         }
       ]
     },
-    "description": {
-      "type": "string",
-      "description": "Description of the issuance configuration."
-    },
-    "credentialConfigs": {
-      "description": "Links to all credential config bindings that are included in this issuance config.",
+    "authServers": {
+      "description": "Authentication server URL for the issuance process.",
       "type": "array",
       "items": {
-        "$ref": "./CredentialConfig.schema.json"
+        "type": "string"
       }
-    },
-    "createdAt": {
-      "format": "date-time",
-      "type": "string",
-      "description": "The timestamp when the VP request was created."
-    },
-    "updatedAt": {
-      "format": "date-time",
-      "type": "string",
-      "description": "The timestamp when the VP request was last updated."
-    },
-    "claimsWebhook": {
-      "description": "Webhook to receive claims for the issuance process.",
-      "allOf": [
-        {
-          "$ref": "./WebhookConfig.schema.json"
-        }
-      ]
     },
     "notifyWebhook": {
       "description": "Webhook to send the result of the notification response",
@@ -74,13 +34,27 @@
     "dPopRequired": {
       "type": "boolean",
       "description": "Indicates whether DPoP is required for the issuance process. Default value is true."
+    },
+    "display": {
+      "type": "array",
+      "items": {
+        "$ref": "./DisplayInfo.schema.json"
+      }
+    },
+    "createdAt": {
+      "format": "date-time",
+      "type": "string",
+      "description": "The timestamp when the VP request was created."
+    },
+    "updatedAt": {
+      "format": "date-time",
+      "type": "string",
+      "description": "The timestamp when the VP request was last updated."
     }
   },
   "required": [
-    "authenticationConfig",
-    "id",
     "tenant",
-    "credentialConfigs",
+    "display",
     "createdAt",
     "updatedAt"
   ]

@@ -10,7 +10,6 @@ import { Repository } from "typeorm";
 import { CryptoService } from "../../crypto/crypto.service";
 import { CryptoImplementationService } from "../../crypto/key/crypto-implementation/crypto-implementation.service";
 import { Session } from "../../session/entities/session.entity";
-import { SchemaResponse } from "../credentials-metadata/dto/schema-response.dto";
 import { VCT } from "../credentials-metadata/dto/vct.dto";
 import { StatusListService } from "../status-list/status-list.service";
 import { CredentialConfig } from "./entities/credential.entity";
@@ -215,32 +214,5 @@ export class CredentialsService {
         const host = this.configService.getOrThrow<string>("PUBLIC_URL");
         credentialConfig.vct.vct = `${host}/${tenantId}/credentials-metadata/vct/${credentialConfig.id}`;
         return credentialConfig.vct;
-    }
-
-    /**
-     * Retrieves the schema for a specific credential configuration.
-     * @param id
-     * @param tenantId
-     * @returns
-     */
-    async getSchema(
-        credentialConfigurationId: string,
-        tenantId: string,
-    ): Promise<SchemaResponse> {
-        const credentialConfig =
-            await this.credentialConfigRepo.findOneByOrFail({
-                tenantId,
-            });
-        if (!credentialConfig) {
-            throw new ConflictException(
-                `Credential configuration with id ${credentialConfigurationId} not found`,
-            );
-        }
-        if (!credentialConfig.schema) {
-            throw new ConflictException(
-                `Schema for credential configuration with id ${credentialConfigurationId} not found`,
-            );
-        }
-        return credentialConfig.schema;
     }
 }

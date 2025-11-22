@@ -39,10 +39,7 @@ export class Oid4vciController {
         @Req() req: Request,
         @Param("tenantId") tenantId: string,
     ): Promise<CredentialResponse> {
-        return this.oid4vciService.getCredential(req, tenantId).then((res) => {
-            console.log(res);
-            return res;
-        });
+        return this.oid4vciService.getCredential(req, tenantId);
     }
 
     /**
@@ -68,15 +65,4 @@ export class Oid4vciController {
             c_nonce: nonce,
         }));
     }
-
-    //TODO: this endpoint may be relevant for the wallet attestation.
-    /* @Get('session')
-  session() {
-    console.log('Session requested');
-    //TODO store session and created at
-    const session = randomUUID();
-    return {
-      session_id: session,
-    };
-  } */
 }

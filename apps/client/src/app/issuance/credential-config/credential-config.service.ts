@@ -28,30 +28,20 @@ export class CredentialConfigService {
   /**
    * Save or update a credential configuration
    */
-  async saveConfiguration(config: CredentialConfigCreate): Promise<void> {
+  async saveConfiguration(config: CredentialConfigCreate): Promise<any> {
     return credentialsControllerStoreCredentialConfiguration({
       body: config,
-    }).then((response) => {
-      if (response.error) {
-        throw new Error((response.error as any).message);
-      }
-      //return response.data;
     });
   }
 
   /**
    * Delete a credential configuration
    */
-  async deleteConfiguration(configId: string): Promise<void> {
-    try {
-      await credentialsControllerDeleteIssuanceConfiguration({
-        client,
-        path: { id: configId },
-      });
-    } catch (error) {
-      console.error('Failed to delete credential configuration:', error);
-      throw new Error('Failed to delete configuration');
-    }
+  async deleteConfiguration(configId: string): Promise<any> {
+    return credentialsControllerDeleteIssuanceConfiguration({
+      client,
+      path: { id: configId },
+    });
   }
 
   /**

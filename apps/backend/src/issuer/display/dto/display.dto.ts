@@ -1,17 +1,24 @@
 import { Type } from "class-transformer";
-import { IsString, ValidateNested } from "class-validator";
+import { IsOptional, IsString, ValidateNested } from "class-validator";
 
 class DisplayLogo {
     @IsString()
     uri!: string;
+
+    @IsString()
+    @IsOptional()
+    alt_text?: string;
 }
 export class DisplayInfo {
     @IsString()
-    name!: string;
+    @IsOptional()
+    name?: string;
     @IsString()
-    locale!: string;
+    @IsOptional()
+    locale?: string;
 
     @ValidateNested()
+    @IsOptional()
     @Type(() => DisplayLogo)
-    logo!: DisplayLogo;
+    logo?: DisplayLogo;
 }

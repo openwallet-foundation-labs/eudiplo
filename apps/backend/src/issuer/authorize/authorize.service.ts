@@ -81,13 +81,11 @@ export class AuthorizeService {
     }
 
     sendAuthorizationResponse(values: AuthorizeQueries, tenantId) {
-        console.log(values);
         if (values.request_uri) {
             return this.sessionService
                 .getBy({ request_uri: values.request_uri })
                 .then(async (session) => {
-                    //values = session.auth_queries!;
-                    const code = await this.setAuthCode(values.issuer_state!);
+                    const code = await this.setAuthCode(session.id);
                     return `${session.auth_queries!.redirect_uri}?code=${code}`;
                 })
                 .catch(async () => {
@@ -128,13 +126,11 @@ export class AuthorizeService {
             parsedAccessTokenRequest.accessTokenRequest[
                 "pre-authorized_code"
             ] ?? parsedAccessTokenRequest.accessTokenRequest["code"];
-        console.log(authorization_code);
         const session = await this.sessionService
             .getBy({
                 authorization_code,
             })
-            .catch((err) => {
-                console.log(err);
+            .catch(() => {
                 throw new ConflictException("Invalid authorization code");
             });
         const issuanceConfig =

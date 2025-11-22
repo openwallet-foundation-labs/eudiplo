@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/Oauth2AuthorizationServerResponseDto.schema.json",
+  "title": "Oauth2AuthorizationServerResponseDto",
+  "type": "object",
+  "properties": {
+    "issuer": {
+      "type": "string",
+      "format": "uri"
+    },
+    "token_endpoint": {
+      "type": "string",
+      "format": "uri"
+    },
+    "token_endpoint_auth_methods_supported": {
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "type": "string",
+            "enum": [
+              "client_secret_basic",
+              "client_secret_post",
+              "attest_jwt_client_auth",
+              "client_secret_jwt",
+              "private_key_jwt"
+            ]
+          },
+          {
+            "type": "string"
+          }
+        ]
+      }
+    },
+    "authorization_endpoint": {
+      "type": "string",
+      "format": "uri"
+    },
+    "jwks_uri": {
+      "type": "string",
+      "format": "uri"
+    },
+    "grant_types_supported": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "code_challenge_methods_supported": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dpop_signing_alg_values_supported": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "require_pushed_authorization_requests": {
+      "type": "boolean"
+    },
+    "pushed_authorization_request_endpoint": {
+      "type": "string",
+      "format": "uri"
+    },
+    "introspection_endpoint": {
+      "type": "string",
+      "format": "uri"
+    },
+    "introspection_endpoint_auth_methods_supported": {
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "type": "string",
+            "enum": [
+              "client_secret_basic",
+              "client_secret_post",
+              "attest_jwt_client_auth",
+              "client_secret_jwt",
+              "private_key_jwt"
+            ]
+          },
+          {
+            "type": "string"
+          }
+        ]
+      }
+    },
+    "introspection_endpoint_auth_signing_alg_values_supported": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "authorization_challenge_endpoint": {
+      "type": "string",
+      "format": "uri"
+    },
+    "pre-authorized_grant_anonymous_access_supported": {
+      "type": "boolean"
+    },
+    "client_attestation_pop_nonce_required": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "issuer",
+    "token_endpoint"
+  ]
+}

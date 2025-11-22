@@ -1,17 +1,36 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
+import { MatAnchor } from '@angular/material/button';
+
+export const fbWebhook = new FormGroup({
+  url: new FormControl(''),
+  auth: new FormGroup({
+    type: new FormControl(''),
+    config: new FormGroup({
+      headerName: new FormControl(''),
+      value: new FormControl(''),
+    }),
+  }),
+});
 
 @Component({
-  selector: 'app-webhook-config',
-  imports: [MatInputModule, ReactiveFormsModule, MatSelectModule, FlexLayoutModule, MatIconModule],
-  templateUrl: './webhook-config.component.html',
-  styleUrl: './webhook-config.component.scss',
+  selector: 'app-webhook-config-edit',
+  imports: [
+    MatInputModule,
+    ReactiveFormsModule,
+    MatSelectModule,
+    FlexLayoutModule,
+    MatIconModule,
+    MatAnchor,
+  ],
+  templateUrl: './webhook-config-edit.component.html',
+  styleUrl: './webhook-config-edit.component.scss',
 })
-export class WebhookConfigComponent implements OnInit {
+export class WebhookConfigEditComponent implements OnInit {
   @Input() group!: FormGroup;
 
   ngOnInit(): void {
@@ -33,5 +52,9 @@ export class WebhookConfigComponent implements OnInit {
         valueControl?.updateValueAndValidity();
       });
     }
+  }
+
+  clearConfig() {
+    this.group.reset();
   }
 }

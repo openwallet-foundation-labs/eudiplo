@@ -106,6 +106,15 @@ export class CredentialConfig {
     @Column("json", { nullable: true })
     claimsWebhook?: WebhookConfig;
 
+    /**
+     * Webhook to receive claims for the issuance process.
+     */
+    @IsOptional()
+    @ValidateNested()
+    @Type(() => WebhookConfig)
+    @Column("json", { nullable: true })
+    notificationWebhook?: WebhookConfig;
+
     // has to be optional since there may be credentials that are disclosed without a frame
     @Column("json", { nullable: true })
     @IsOptional()

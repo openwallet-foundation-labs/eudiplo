@@ -20,7 +20,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { configs } from './pre-config';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { EditorComponent, extractSchema } from '../../../utils/editor/editor.component';
-import { WebhookConfigComponent } from '../../../utils/webhook-config/webhook-config.component';
+import { WebhookConfigEditComponent } from '../../../utils/webhook-config-edit/webhook-config-edit.component';
 import {
   DCQLSchema,
   presentationConfigSchema,
@@ -47,7 +47,7 @@ import { CredentialIdsComponent } from '../../credential-ids/credential-ids.comp
     MatDividerModule,
     MonacoEditorModule,
     EditorComponent,
-    WebhookConfigComponent,
+    WebhookConfigEditComponent,
     CredentialIdsComponent,
   ],
   templateUrl: './presentation-create.component.html',

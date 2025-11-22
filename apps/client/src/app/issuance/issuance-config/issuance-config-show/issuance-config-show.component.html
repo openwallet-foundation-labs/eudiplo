@@ -2,16 +2,12 @@
   <div fxLayout="column" fxFlex fxLayoutGap="24px">
     <!-- Header -->
     <div fxLayout="row" fxLayoutAlign="space-between center">
-      <h2>Issuance Configuration: {{ config.id }}</h2>
+      <h2>Issuance Configuration</h2>
       <div>
         <button mat-icon-button [routerLink]="['../']" matTooltip="Back to list">
           <mat-icon>arrow_back</mat-icon>
         </button>
-        <button
-          mat-icon-button
-          [routerLink]="['/offer/issuance', config.id]"
-          matTooltip="Create offer"
-        >
+        <button mat-icon-button [routerLink]="['/offer/issuance']" matTooltip="Create offer">
           <mat-icon>add</mat-icon>
         </button>
         <button mat-icon-button [routerLink]="['edit']" matTooltip="Edit configuration">
@@ -19,14 +15,6 @@
         </button>
         <button mat-icon-button (click)="downloadConfig()" matTooltip="Download configuration">
           <mat-icon>download</mat-icon>
-        </button>
-        <button
-          mat-icon-button
-          (click)="deleteConfig()"
-          matTooltip="Delete configuration"
-          color="warn"
-        >
-          <mat-icon>delete</mat-icon>
         </button>
       </div>
     </div>
@@ -42,10 +30,6 @@
       <mat-card-content fxLayout="column" fxLayoutGap="16px">
         <div fxLayout="row" fxLayoutGap="32px" fxLayout.lt-md="column">
           <div fxFlex>
-            <div><strong>Configuration ID:</strong></div>
-            <div class="value-text">{{ config.id }}</div>
-          </div>
-          <div fxFlex>
             <div><strong>Created At:</strong></div>
             <div class="value-text">{{ formatDate(config.createdAt) }}</div>
           </div>
@@ -57,81 +41,52 @@
             <div><strong>DPop required:</strong></div>
             <div class="value-text">{{ config.dPopRequired ? 'Yes' : 'No' }}</div>
           </div>
-          @if (config.description) {
-            <div fxFlex>
-              <div><strong>Description:</strong></div>
-              <div class="value-text">{{ config.description }}</div>
-            </div>
-          }
         </div>
       </mat-card-content>
     </mat-card>
 
-    <!-- Authentication Configuration Card -->
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>security</mat-icon>
-          Authentication Configuration
-        </mat-card-title>
-        <mat-card-subtitle
-          >Configuration for authenticating the user during the process</mat-card-subtitle
-        >
-      </mat-card-header>
-      <mat-card-content fxLayout="column" fxLayoutGap="16px">
-        <div>
-          <div><strong>Authentication Type:</strong></div>
-          <div class="value-text">{{ config.authenticationConfig.method }}</div>
-        </div>
-
-        @if (getObjectKeys(config.authenticationConfig).length > 0) {
-          <div>
-            <div><strong>Configuration Details:</strong></div>
-            @if (getAuthConfigDetails()) {
-              <pre class="config-value">{{ formatJsonValue(getAuthConfigDetails()) }}</pre>
-            }
-          </div>
-        }
-      </mat-card-content>
-    </mat-card>
-
-    <!-- Credential Bindings Card -->
-    @if (config.credentialConfigs && config.credentialConfigs.length > 0) {
+    <!-- Display Configurations Card -->
+    @if (config.display && config.display.length > 0) {
       <mat-card>
         <mat-card-header>
           <mat-card-title>
-            <mat-icon>link</mat-icon>
-            Credential Configurations ({{ config.credentialConfigs.length }})
+            <mat-icon>view_carousel</mat-icon>
+            Display Configurations ({{ config.display.length }})
           </mat-card-title>
+          <mat-card-subtitle>How credentials are displayed to users</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
           <div fxLayout="column" fxLayoutGap="16px">
-            @for (config of config.credentialConfigs; track config.id) {
-              <mat-card class="binding-card">
-                <mat-card-content fxLayout="column" fxLayoutGap="8px">
-                  <div fxLayout="row" fxLayoutAlign="space-between center">
-                    <div>
-                      <div><strong>Credential Config ID:</strong></div>
+            @for (display of config.display; track $index; let i = $index) {
+              <mat-card class="display-entry-card">
+                <mat-card-header>
+                  <mat-card-title>Display Entry {{ i + 1 }}</mat-card-title>
+                </mat-card-header>
+                <mat-card-content fxLayout="column" fxLayoutGap="12px">
+                  <div fxLayout="row" fxLayoutGap="32px" fxLayout.lt-md="column">
+                    <div fxFlex>
+                      <div><strong>Name:</strong></div>
+                      <div class="value-text">{{ display.name }}</div>
+                    </div>
+                    <div fxFlex>
+                      <div><strong>Locale:</strong></div>
                       <div class="value-text">
-                        <a [routerLink]="['/credential-config', config.id]">
-                          {{ config.id }}
-                        </a>
+                        <mat-icon inline class="locale-icon">language</mat-icon>
+                        {{ display.locale }}
                       </div>
                     </div>
                   </div>
-
-                  <mat-divider></mat-divider>
-                  <div>
-                    <div><strong>Credential Type:</strong></div>
-                    <div class="value-text">
-                      {{ config.vct?.name || 'Not specified' }}
-                    </div>
-                  </div>
-                  @if (config.vct?.description) {
+                  @if (display.logo.uri) {
                     <div>
-                      <div><strong>Description:</strong></div>
-                      <div class="value-text">
-                        {{ config.vct?.description }}
+                      <div><strong>Logo:</strong></div>
+                      <div class="value-text logo-container">
+                        <img
+                          [src]="display.logo.uri"
+                          alt="Display configuration logo"
+                          title="Display configuration logo"
+                          class="logo-image"
+                          (error)="$event.target.style.display = 'none'"
+                        />
                       </div>
                     </div>
                   }
@@ -143,77 +98,10 @@
       </mat-card>
     }
 
-    <!-- Claim Webhook Configuration -->
-
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>webhook</mat-icon>
-          Claim Webhook
-        </mat-card-title>
-        <mat-card-subtitle>Webhook to fetch the claims during issuance process</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content fxLayout="column" fxLayoutGap="16px">
-        <div>
-          <div><strong>URL:</strong></div>
-          <div class="value-text">{{ config.claimsWebhook?.url || 'Not configured' }}</div>
-        </div>
-
-        @if (config.claimsWebhook?.auth) {
-          <div>
-            <div><strong>Authentication:</strong></div>
-            <div class="value-text">Configured</div>
-          </div>
-        }
-
-        @if (config.claimsWebhook) {
-          <mat-expansion-panel>
-            <mat-expansion-panel-header>
-              <mat-panel-title>
-                <mat-icon>tune</mat-icon>
-                Webhook Details
-              </mat-panel-title>
-            </mat-expansion-panel-header>
-            <pre class="config-value">{{ formatJsonValue(config.claimsWebhook) }}</pre>
-          </mat-expansion-panel>
-        }
-      </mat-card-content>
-    </mat-card>
-
-    <!-- Webhook Configuration -->
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>webhook</mat-icon>
-          Notification Webhook
-        </mat-card-title>
-        <mat-card-subtitle>Webhook to notify about issuance events</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content fxLayout="column" fxLayoutGap="16px">
-        <div>
-          <div><strong>URL:</strong></div>
-          <div class="value-text">{{ config.notifyWebhook?.url || 'Not configured' }}</div>
-        </div>
-
-        @if (config.notifyWebhook?.auth) {
-          <div>
-            <div><strong>Authentication:</strong></div>
-            <div class="value-text">Configured</div>
-          </div>
-        }
-
-        @if (getObjectKeys(config.notifyWebhook).length > 1) {
-          <mat-expansion-panel>
-            <mat-expansion-panel-header>
-              <mat-panel-title>
-                <mat-icon>tune</mat-icon>
-                Webhook Details
-              </mat-panel-title>
-            </mat-expansion-panel-header>
-            <pre class="config-value">{{ formatJsonValue(config.notifyWebhook) }}</pre>
-          </mat-expansion-panel>
-        }
-      </mat-card-content>
-    </mat-card>
+    <app-webhook-config-show
+      [config]="config.notifyWebhook"
+      title="Notification"
+      descriptions="to receive notifications during issuance"
+    ></app-webhook-config-show>
   </div>
 }

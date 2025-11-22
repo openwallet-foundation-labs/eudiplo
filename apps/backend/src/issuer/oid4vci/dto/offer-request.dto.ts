@@ -5,6 +5,7 @@ import {
     IsEnum,
     IsObject,
     IsOptional,
+    IsString,
     ValidateNested,
 } from "class-validator";
 import { WebhookConfig } from "../../../utils/webhook/webhook.dto";
@@ -27,8 +28,18 @@ export class OfferRequestDto {
     @IsEnum(ResponseType)
     response_type!: ResponseType;
 
+    /**
+     * The flow type for the offer request.
+     */
     @IsEnum(FlowType)
     flow!: FlowType;
+
+    /**
+     * Transaction code for pre-authorized code flow.
+     */
+    @IsString()
+    @IsOptional()
+    tx_code?: string;
 
     /**
      * List of credential configuration ids to be included in the offer.

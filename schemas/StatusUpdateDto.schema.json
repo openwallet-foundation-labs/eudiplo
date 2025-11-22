@@ -14,11 +14,7 @@
     },
     "status": {
       "type": "number",
-      "description": "The status of the credential\n0 = valid, 1 = revoked",
-      "enum": [
-        0,
-        1
-      ]
+      "description": "The status of the credential\n0 = valid, 1 = revoked, 2 = suspended"
     }
   },
   "required": [

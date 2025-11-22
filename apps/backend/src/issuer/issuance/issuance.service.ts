@@ -10,6 +10,7 @@ import { Repository } from "typeorm";
 import { CryptoService } from "../../crypto/crypto.service";
 import { FilesService } from "../../storage/files.service";
 import { CredentialConfigService } from "../credentials/credential-config/credential-config.service";
+import { DisplayInfo } from "../display/dto/display.dto";
 import { IssuanceDto } from "./dto/issuance.dto";
 import { IssuanceConfig } from "./entities/issuance-config.entity";
 
@@ -131,27 +132,9 @@ export class IssuanceService implements OnApplicationBootstrap {
                 }
 
                 //replace relative uris with public urls
-                issuanceDto.display = await Promise.all(
-                    issuanceDto.display.map(async (display) => {
-                        if (display.logo?.uri) {
-                            const uri =
-                                await this.filesService.replaceUriWithPublicUrl(
-                                    tenant.name,
-                                    display.logo.uri.trim(),
-                                );
-                            if (!uri) {
-                                this.logger.error(
-                                    {
-                                        event: "Import",
-                                    },
-                                    `Could not find logo ${display.logo.uri} for ${tenant.name}, skipping import`,
-                                );
-                            } else {
-                                display.logo.uri = uri;
-                            }
-                        }
-                        return display;
-                    }),
+                issuanceDto.display = await this.replaceUrl(
+                    issuanceDto.display,
+                    tenant.name,
                 );
 
                 await this.storeIssuanceConfiguration(tenant.name, issuanceDto);
@@ -160,10 +143,35 @@ export class IssuanceService implements OnApplicationBootstrap {
                     {
                         event: "Import",
                     },
-                    `$issuance config imported for ${tenant.name}`,
+                    `issuance config imported for ${tenant.name}`,
                 );
             }
         }
+    }
+
+    private replaceUrl(display: DisplayInfo[], tenantId: string) {
+        return Promise.all(
+            display.map(async (display) => {
+                if (display.logo?.uri) {
+                    const uri = await this.filesService.replaceUriWithPublicUrl(
+                        tenantId,
+                        display.logo.uri.trim(),
+                    );
+                    if (!uri) {
+                        this.logger.error(
+                            {
+                                event: "Import",
+                            },
+                            `Could not find logo ${display.logo.uri} for ${tenantId}, skipping import`,
+                        );
+                    } else {
+                        display.logo.uri = uri;
+                    }
+                    delete display.logo;
+                }
+                return display;
+            }),
+        );
     }
 
     async onTenantDelete(tenantId: string) {
@@ -185,7 +193,8 @@ export class IssuanceService implements OnApplicationBootstrap {
      * @param value
      * @returns
      */
-    storeIssuanceConfiguration(tenantId: string, value: IssuanceDto) {
+    async storeIssuanceConfiguration(tenantId: string, value: IssuanceDto) {
+        value.display = await this.replaceUrl(value.display, tenantId);
         return this.issuanceConfigRepo.save({
             ...value,
             tenantId,

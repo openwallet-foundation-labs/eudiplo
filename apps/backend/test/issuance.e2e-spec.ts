@@ -280,9 +280,8 @@ describe("Issuance", () => {
             credentialConfigurationId:
                 credentialOffer.credential_configuration_ids[0],
             issuerMetadata,
-            proof: {
-                proof_type: "jwt",
-                jwt: proofJwt,
+            proofs: {
+                jwt: [proofJwt],
             },
         });
         await client.sendNotification({
@@ -409,8 +408,9 @@ describe("Issuance", () => {
             },
         });
 
-        const credential: string = credentialResponse.credentialResponse
-            .credentials?.[0] as string;
+        const credential: string = (
+            credentialResponse.credentialResponse.credentials?.[0] as any
+        ).credential;
         expect(credential).toBeDefined();
 
         const claims: any = await sdjwt.getClaims(credential);

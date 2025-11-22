@@ -28,4 +28,10 @@
       </div>
     }
   </div>
+  <div align="end">
+    <button mat-button type="button" (click)="clearConfig()" [disabled]="group.pristine">
+      <mat-icon>clear</mat-icon>
+      Clear Webhook Configuration
+    </button>
+  </div>
 </div>
