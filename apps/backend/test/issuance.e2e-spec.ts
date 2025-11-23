@@ -41,7 +41,7 @@ describe("Issuance", () => {
 
     beforeAll(async () => {
         //delete the database
-        rmSync("../../../tmp/service.db", { force: true });
+        rmSync("../../tmp/service.db", { force: true });
 
         const moduleFixture: TestingModule = await Test.createTestingModule({
             imports: [AppModule],
@@ -81,7 +81,7 @@ describe("Issuance", () => {
         //import issuance config
         const issuerConfiguration = JSON.parse(
             readFileSync(
-                "../../../assets/config/root/issuance/issuance.json",
+                "../../assets/config/root/issuance/issuance.json",
                 "utf-8",
             ),
         );
@@ -95,7 +95,7 @@ describe("Issuance", () => {
         //import the pid credential configuration
         const pidCredentialConfiguration = JSON.parse(
             readFileSync(
-                "../../../assets/config/root/issuance/credentials/pid.json",
+                "../../assets/config/root/issuance/credentials/pid.json",
                 "utf-8",
             ),
         );
@@ -109,7 +109,7 @@ describe("Issuance", () => {
         //import citizen that that requires presentation during issuance
         const citizenPresentationConfiguration = JSON.parse(
             readFileSync(
-                "../../../assets/config/root/presentation/pid.json",
+                "../../assets/config/root/presentation/pid.json",
                 "utf-8",
             ),
         );
@@ -123,7 +123,7 @@ describe("Issuance", () => {
         //import the citizen credential configuration
         const citizenCredentialConfiguration = JSON.parse(
             readFileSync(
-                "../../../assets/config/root/issuance/credentials/citizen.json",
+                "../../assets/config/root/issuance/credentials/citizen.json",
                 "utf-8",
             ),
         );

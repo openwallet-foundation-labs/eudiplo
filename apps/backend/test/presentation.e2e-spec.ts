@@ -42,7 +42,7 @@ describe("Presentation", () => {
         //import the pid credential configuration
         const pidCredentialConfiguration = JSON.parse(
             readFileSync(
-                "../../../assets/config/root/presentation/pid-no-hook.json",
+                "../../assets/config/root/presentation/pid-no-hook.json",
                 "utf-8",
             ),
         );

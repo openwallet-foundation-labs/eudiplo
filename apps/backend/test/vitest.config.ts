@@ -8,7 +8,6 @@ export default defineConfig({
         exclude: ["**/oidf*.e2e-spec.ts"],
         globals: true,
         root: "./",
-        setupFiles: ["./test/setup.ts"],
         reporters: [
             "default",
             ["junit", { outputFile: "test-report.junit.xml" }],
