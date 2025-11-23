@@ -28,7 +28,7 @@ describe("OIDF - issuance", () => {
         process.env.VITE_OIDF_URL ?? "https://demo.certification.openid.net";
     const OIDF_DEMO_TOKEN = process.env.VITE_OIDF_DEMO_TOKEN;
     const PRE_AUTH_PLAN_ID = "DW5WarWxHpR33";
-    const AUTH_CODE_PLAN_ID = "uXuNVuZbkEpRk";
+    const AUTH_CODE_PLAN_ID = "YQh1KysTUByvl";
 
     // --- Test-run state (populated at runtime) ----------------------------------
     let authToken: string;
@@ -184,27 +184,6 @@ describe("OIDF - issuance", () => {
         const url = await getEndpoint(testInstance);
         // Follow the authorize URL exposed by the runner to simulate the user's action.
         await axios.default.get(`${url}` + parameters);
-
-        //get the redirect uri from the test instance to visit it
-        const browserInfo = await instance
-            .get(`/api/runner/${testInstance.id}`)
-            .then((res) => res.data.browser);
-        if (browserInfo.urlsWithMethod.length > 0) {
-            const redirectUrl = browserInfo.urlsWithMethod[0].url;
-            await axios.default.get(redirectUrl);
-            await instance.post(
-                `/api/runner/browser/${testInstance.id}/visit`,
-                undefined,
-                {
-                    params: {
-                        url: redirectUrl,
-                    },
-                },
-            );
-            console.log("Visited redirect URL: " + redirectUrl);
-        } else {
-            throw new Error("No redirect URL found in browser info");
-        }
 
         let logResult: any;
         while (!logResult || logResult.status !== "FINISHED") {

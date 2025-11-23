@@ -108,7 +108,7 @@ describe("OIDF", () => {
                 "http://localhost:3000/presentation-management/request",
                 {
                     response_type: "uri",
-                    requestId: "pid",
+                    requestId: "pid-no-hook",
                 },
                 {
                     headers: {

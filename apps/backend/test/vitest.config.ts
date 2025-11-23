@@ -5,8 +5,10 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
     test: {
         include: ["**/*.e2e-spec.ts"],
+        exclude: ["**/oidf*.e2e-spec.ts"],
         globals: true,
         root: "./",
+        setupFiles: ["./test/setup.ts"],
         reporters: [
             "default",
             ["junit", { outputFile: "test-report.junit.xml" }],

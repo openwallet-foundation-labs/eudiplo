@@ -42,11 +42,10 @@ describe("Presentation", () => {
         //import the pid credential configuration
         const pidCredentialConfiguration = JSON.parse(
             readFileSync(
-                "../../../assets/config/root/presentation/pid.json",
+                "../../../assets/config/root/presentation/pid-no-hook.json",
                 "utf-8",
             ),
         );
-        pidCredentialConfiguration.id = "pid";
         await request(app.getHttpServer())
             .post("/presentation-management")
             .trustLocalhost()
@@ -62,9 +61,9 @@ describe("Presentation", () => {
             .set("Authorization", `Bearer ${authToken}`)
             .send({
                 response_type: "uri",
-                requestId: "pid",
+                requestId: "pid-no-hook",
             });
-
+        expect(res.status).toBe(201);
         expect(res.body).toBeDefined();
         const session = res.body.session;
 

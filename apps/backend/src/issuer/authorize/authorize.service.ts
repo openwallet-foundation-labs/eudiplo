@@ -86,7 +86,8 @@ export class AuthorizeService {
                 .getBy({ request_uri: values.request_uri })
                 .then(async (session) => {
                     const code = await this.setAuthCode(session.id);
-                    return `${session.auth_queries!.redirect_uri}?code=${code}`;
+                    const iss = `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${tenantId}`;
+                    return `${session.auth_queries!.redirect_uri}?code=${code}&state=${session.auth_queries!.state}&iss=${iss}`;
                 })
                 .catch(async () => {
                     //if not found, this means the flow is initiated by the wallet and not the issuer which is also fine.
