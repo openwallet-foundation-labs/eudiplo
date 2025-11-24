@@ -134,8 +134,6 @@ describe("Presentation", () => {
             },
         });
 
-        console.log(res.body.uri);
-
         const authRequest = client.parseOpenid4vpAuthorizationRequest({
             authorizationRequest: res.body.uri,
         });
