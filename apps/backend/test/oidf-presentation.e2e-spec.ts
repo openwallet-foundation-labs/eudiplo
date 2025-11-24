@@ -1,44 +1,25 @@
 import * as axios from "axios";
-import { test } from "vitest";
+import { beforeAll, describe, expect, test } from "vitest";
+import { OIDFSuite, TestInstance } from "./oidf-suite";
 
 /**
  * E2E: OIDF conformance runner integration test
- *
- * This test suite performs the following steps:
- * - Retrieves a local access token from the backend using client credentials
- * - Interacts with the OpenID Foundation demo server to fetch a test plan
- * - Creates a runner instance on the demo server and polls until it's in WAITING state
- * - Requests a presentation from the local backend and follows the authorize URL exposed by the runner
- * - Asserts that the test runner reports a PASSED result
- *
- * Notes / assumptions:
- * - Local backend must be reachable at http://localhost:3000
- * - Demo OIDF server must be reachable at https://demo.certification.openid.net
  */
 describe("OIDF", () => {
-    // --- Configuration / constants -------------------------------------------------
-    // Client credentials used to get an access token from the local backend.
-    // These can be provided via a .env file at the repository root. Example keys:
-    // OIDF_CLIENT_ID, OIDF_CLIENT_SECRET, OIDF_PLAN_ID, OIDF_DEMO_TOKEN, OIDF_URL
     const CLIENT_ID = process.env.VITE_OIDF_CLIENT_ID;
     const CLIENT_SECRET = process.env.VITE_OIDF_CLIENT_SECRET;
+    const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:3000";
 
     // Demo OIDF server configuration — read from env when available.
     const OIDF_URL =
         process.env.VITE_OIDF_URL ?? "https://demo.certification.openid.net";
-    const OIDF_DEMO_TOKEN = process.env.VITE_OIDF_DEMO_TOKEN;
-    const PLAN_ID = process.env.VITE_OIDF_PLAN_ID;
+    const OIDF_DEMO_TOKEN = process.env.VITE_OIDF_DEMO_TOKEN!;
+    const PLAN_ID = "FkyShJcFlHDbc";
 
     // --- Test-run state (populated at runtime) ----------------------------------
     let authToken: string;
-    let testInstance: any;
-    let instance: axios.AxiosInstance;
-
-    /**
-     * Small helper to sleep for a given number of milliseconds.
-     * Kept local to the suite to avoid external test helpers.
-     */
-    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    let testInstance: TestInstance;
+    const oidfSuite = new OIDFSuite(OIDF_URL, OIDF_DEMO_TOKEN);
 
     /**
      * Prepare the external runner and local authorization token.
@@ -47,88 +28,77 @@ describe("OIDF", () => {
      * - Creates a runner (testInstance) and polls until it reaches WAITING state
      */
     beforeAll(async () => {
-        // --- Acquire local backend token -----------------------------------------
-        // Get JWT token using client credentials
-        authToken = await axios.default
-            .post("http://localhost:3000/oauth2/token", {
-                client_id: CLIENT_ID,
-                client_secret: CLIENT_SECRET,
-                grant_type: "client_credentials",
-            })
-            .then((response) => response.data.access_token);
-        expect(authToken).toBeDefined();
-
-        // --- Prepare demo OIDF instance ----------------------------------------
-        instance = axios.default.create({
-            baseURL: OIDF_URL,
-            headers: {
-                Authorization: `Bearer ${OIDF_DEMO_TOKEN}`,
-                "Content-Type": "application/json",
-            },
-        });
-
-        // Fetch the plan from demo server
-        const plan = await instance
-            .get(`/api/plan/${PLAN_ID}`)
-            .then((res) => res.data);
-
-        // Create a runner (testInstance) on the demo server using the first module
-        testInstance = await instance
-            .post("/api/runner", undefined, {
-                params: {
-                    test: plan.modules[0].testModule,
-                    plan: plan._id,
-                },
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                },
-            })
-            .then((res) => res.data);
-
-        // Poll until runner is in WAITING state. This is required before we request
-        // presentation/authorization flows that the runner will handle.
-        let state = "";
-        while (state !== "WAITING") {
-            await sleep(1000);
-            await instance
-                .get(`/api/info/${testInstance.id}`)
-                .then((res) => (state = res.data.status));
+        if (!CLIENT_ID || !CLIENT_SECRET) {
+            throw new Error(
+                "VITE_OIDF_CLIENT_ID and VITE_OIDF_CLIENT_SECRET must be set",
+            );
+        }
+        if (!OIDF_DEMO_TOKEN) {
+            throw new Error("VITE_OIDF_DEMO_TOKEN must be set");
         }
 
+        // --- Acquire local backend token -----------------------------------------
+        // Get JWT token using client credentials
+        const tokenResponse = await axios.default.post<{
+            access_token: string;
+        }>(`${BACKEND_URL}/oauth2/token`, {
+            client_id: CLIENT_ID,
+            client_secret: CLIENT_SECRET,
+            grant_type: "client_credentials",
+        });
+
+        authToken = tokenResponse.data.access_token;
+        expect(authToken).toBeDefined();
+        expect(authToken).toBeTruthy();
+
+        // Create test instance and wait for it to be ready
+        testInstance = await oidfSuite.getInstance(PLAN_ID);
+
         console.log(
-            `https://demo.certification.openid.net/log-detail.html?log=${testInstance.id}`,
+            `Test details: ${OIDF_URL}/log-detail.html?log=${testInstance.id}`,
         );
     }, 30000);
 
     test("oidf conformance suite presentation", async () => {
-        // Request a presentation URI from the local backend
-        const res = await axios.default
-            .post(
-                "http://localhost:3000/presentation-management/request",
-                {
-                    response_type: "uri",
-                    requestId: "pid-no-hook",
+        // Step 1: Request a presentation URI from the local backend
+        const presentationResponse = await axios.default.post<{
+            uri: string;
+            session: string;
+        }>(
+            `${BACKEND_URL}/presentation-management/request`,
+            {
+                response_type: "uri",
+                requestId: "pid-no-hook",
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
                 },
-                {
-                    headers: {
-                        Authorization: `Bearer ${authToken}`,
-                    },
-                },
-            )
-            .then((response) => response.data);
+            },
+        );
 
-        // The backend returns a URI that includes parameters after the scheme.
-        const parameters = res.uri.split("//")[1];
+        expect(presentationResponse.data.uri).toBeDefined();
 
-        // Follow the authorize URL exposed by the runner to simulate the user's action.
-        await axios.default.get(`${testInstance.url}/authorize` + parameters);
+        // Step 2: Extract parameters from the URI
+        // The backend returns a URI like "openid4vp://param1=value1&param2=value2"
+        const uriParts = presentationResponse.data.uri.split("//");
+        if (uriParts.length < 2) {
+            throw new Error(
+                `Invalid URI format: ${presentationResponse.data.uri}`,
+            );
+        }
+        const parameters = uriParts[1];
 
-        // Finally, fetch the runner status and assert the test passed.
-        const testResponse = await instance
-            .get(`/api/info/${testInstance.id}`)
-            .then((res) => res.data);
+        // Step 3: Simulate wallet authorization by calling the OIDF runner's authorize endpoint
+        const authorizeUrl = `${testInstance.url}/authorize${parameters}`;
+        await axios.default.get(authorizeUrl);
 
-        expect(testResponse.result).toBe("PASSED");
+        // Step 4: Poll for test completion and verify result
+        // Give the test some time to complete
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
+        const result = await oidfSuite.getResult(testInstance.id);
+
+        expect(result).toBe("PASSED");
     }, 30000);
 });

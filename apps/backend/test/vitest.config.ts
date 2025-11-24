@@ -7,7 +7,7 @@ export default defineConfig({
         include: ["**/*.e2e-spec.ts"],
         exclude: ["**/oidf*.e2e-spec.ts"],
         globals: true,
-        root: "./",
+        root: "../",
         reporters: [
             "default",
             ["junit", { outputFile: "test-report.junit.xml" }],

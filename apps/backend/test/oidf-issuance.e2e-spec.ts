@@ -1,5 +1,6 @@
 import * as axios from "axios";
-import { test } from "vitest";
+import { beforeAll, describe, expect, test } from "vitest";
+import { OIDFSuite } from "./oidf-suite";
 
 /**
  * E2E: OIDF conformance runner integration test
@@ -22,23 +23,18 @@ describe("OIDF - issuance", () => {
     // OIDF_CLIENT_ID, OIDF_CLIENT_SECRET, OIDF_PLAN_ID, OIDF_DEMO_TOKEN, OIDF_URL
     const CLIENT_ID = process.env.VITE_OIDF_CLIENT_ID;
     const CLIENT_SECRET = process.env.VITE_OIDF_CLIENT_SECRET;
+    const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:3000";
 
     // Demo OIDF server configuration — read from env when available.
     const OIDF_URL =
         process.env.VITE_OIDF_URL ?? "https://demo.certification.openid.net";
-    const OIDF_DEMO_TOKEN = process.env.VITE_OIDF_DEMO_TOKEN;
+    const OIDF_DEMO_TOKEN = process.env.VITE_OIDF_DEMO_TOKEN!;
     const PRE_AUTH_PLAN_ID = "DW5WarWxHpR33";
     const AUTH_CODE_PLAN_ID = "YQh1KysTUByvl";
 
     // --- Test-run state (populated at runtime) ----------------------------------
     let authToken: string;
-    let instance: axios.AxiosInstance;
-
-    /**
-     * Small helper to sleep for a given number of milliseconds.
-     * Kept local to the suite to avoid external test helpers.
-     */
-    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    const oidfSuite = new OIDFSuite(OIDF_URL, OIDF_DEMO_TOKEN);
 
     /**
      * Prepare the external runner and local authorization token.
@@ -47,208 +43,173 @@ describe("OIDF - issuance", () => {
      * - Creates a runner (testInstance) and polls until it reaches WAITING state
      */
     beforeAll(async () => {
+        if (!CLIENT_ID || !CLIENT_SECRET) {
+            throw new Error(
+                "VITE_OIDF_CLIENT_ID and VITE_OIDF_CLIENT_SECRET must be set",
+            );
+        }
+        if (!OIDF_DEMO_TOKEN) {
+            throw new Error("VITE_OIDF_DEMO_TOKEN must be set");
+        }
+
         // --- Acquire local backend token -----------------------------------------
         // Get JWT token using client credentials
-        authToken = await axios.default
-            .post("http://localhost:3000/oauth2/token", {
-                client_id: CLIENT_ID,
-                client_secret: CLIENT_SECRET,
-                grant_type: "client_credentials",
-            })
-            .then((response) => response.data.access_token);
-        expect(authToken).toBeDefined();
-
-        // --- Prepare demo OIDF instance ----------------------------------------
-        instance = axios.default.create({
-            baseURL: OIDF_URL,
-            headers: {
-                Authorization: `Bearer ${OIDF_DEMO_TOKEN}`,
-                "Content-Type": "application/json",
-            },
+        const tokenResponse = await axios.default.post<{
+            access_token: string;
+        }>(`${BACKEND_URL}/oauth2/token`, {
+            client_id: CLIENT_ID,
+            client_secret: CLIENT_SECRET,
+            grant_type: "client_credentials",
         });
+
+        authToken = tokenResponse.data.access_token;
+        expect(authToken).toBeDefined();
+        expect(authToken).toBeTruthy();
     });
 
-    async function startTest(plan, test) {
-        // Create a runner (testInstance) on the demo server using the first module
-        const testInstance = await instance
-            .post("/api/runner", undefined, {
-                params: {
-                    test,
-                    plan: plan,
-                },
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                },
-            })
-            .then((res) => res.data);
-
-        console.log(
-            `https://demo.certification.openid.net/log-detail.html?log=${testInstance.id}`,
-        );
-        return testInstance;
-    }
-
     test("oid4vci-1_0-issuer-metadata-test", async () => {
-        const testInstance = await startTest(
+        const testInstance = await oidfSuite.startTest(
             PRE_AUTH_PLAN_ID,
             "oid4vci-1_0-issuer-metadata-test",
         );
 
-        let logResult: any;
-        while (!logResult || logResult.status !== "FINISHED") {
-            // Finally, fetch the runner status and assert the test passed.
-            await instance
-                .get(`/api/info/${testInstance.id}`)
-                .then((res) => (logResult = res.data));
-            await sleep(300);
-        }
+        console.log(
+            `Test details: ${OIDF_URL}/log-detail.html?log=${testInstance.id}`,
+        );
+
+        const logResult = await oidfSuite.waitForFinished(testInstance.id);
         expect(logResult.result).toBe("PASSED");
     });
 
     test("oid4vci-1_0-issuer-happy-flow", async () => {
-        const testInstance = await startTest(
+        const testInstance = await oidfSuite.startTest(
             PRE_AUTH_PLAN_ID,
             "oid4vci-1_0-issuer-happy-flow",
         );
 
-        // Request a presentation URI from the local backend
-        const res = await axios.default
-            .post(
-                "http://localhost:3000/issuer-management/offer",
-                {
-                    response_type: "uri",
-                    credentialConfigurationIds: ["pid"],
-                    flow: "pre_authorized_code",
+        console.log(
+            `Test details: ${OIDF_URL}/log-detail.html?log=${testInstance.id}`,
+        );
+
+        // Request an issuance offer from the local backend
+        const offerResponse = await axios.default.post<{ uri: string }>(
+            `${BACKEND_URL}/issuer-management/offer`,
+            {
+                response_type: "uri",
+                credentialConfigurationIds: ["pid"],
+                flow: "pre_authorized_code",
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
                 },
-                {
-                    headers: {
-                        Authorization: `Bearer ${authToken}`,
-                    },
-                },
-            )
-            .then((response) => response.data);
+            },
+        );
 
-        // The backend returns a URI that includes parameters after the scheme.
-        const parameters = res.uri.split("//")[1];
+        expect(offerResponse.data.uri).toBeDefined();
 
-        await instance
-            .get(`/api/runner/${testInstance.id}`)
-            .then((res) => res.data);
-
-        const url = await getEndpoint(testInstance);
-        // Follow the authorize URL exposed by the runner to simulate the user's action.
-        await axios.default.get(`${url}` + parameters);
-
-        let logResult: any;
-        while (!logResult || logResult.status !== "FINISHED") {
-            // Finally, fetch the runner status and assert the test passed.
-            await instance
-                .get(`/api/info/${testInstance.id}`)
-                .then((res) => (logResult = res.data));
-            await sleep(300);
+        // Extract parameters from the URI
+        const uriParts = offerResponse.data.uri.split("//");
+        if (uriParts.length < 2) {
+            throw new Error(`Invalid URI format: ${offerResponse.data.uri}`);
         }
+        const parameters = uriParts[1];
+
+        // Get the credential offer endpoint from the test runner
+        const url = await oidfSuite.getEndpoint(testInstance);
+
+        // Send the offer to the OIDF test runner
+        await axios.default.get(`${url}${parameters}`);
+
+        const logResult = await oidfSuite.waitForFinished(testInstance.id);
         expect(logResult.result).toBe("PASSED");
     }, 10000);
 
     test("auth flow", async () => {
-        const testInstance = await startTest(
+        const testInstance = await oidfSuite.startTest(
             AUTH_CODE_PLAN_ID,
             "oid4vci-1_0-issuer-happy-flow",
         );
 
-        // Request a presentation URI from the local backend
-        const res = await axios.default
-            .post(
-                "http://localhost:3000/issuer-management/offer",
-                {
-                    response_type: "uri",
-                    credentialConfigurationIds: ["pid"],
-                    flow: "authorization_code",
+        console.log(
+            `Test details: ${OIDF_URL}/log-detail.html?log=${testInstance.id}`,
+        );
+
+        // Request an issuance offer from the local backend
+        const offerResponse = await axios.default.post<{ uri: string }>(
+            `${BACKEND_URL}/issuer-management/offer`,
+            {
+                response_type: "uri",
+                credentialConfigurationIds: ["pid"],
+                flow: "authorization_code",
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
                 },
-                {
-                    headers: {
-                        Authorization: `Bearer ${authToken}`,
-                    },
-                },
-            )
-            .then((response) => response.data);
+            },
+        );
 
-        // The backend returns a URI that includes parameters after the scheme.
-        const parameters = res.uri.split("//")[1];
+        expect(offerResponse.data.uri).toBeDefined();
 
-        await instance
-            .get(`/api/runner/${testInstance.id}`)
-            .then((res) => res.data);
-
-        const url = await getEndpoint(testInstance);
-        // Follow the authorize URL exposed by the runner to simulate the user's action.
-        await axios.default.get(`${url}` + parameters);
-
-        let logResult: any;
-        while (!logResult || logResult.status !== "FINISHED") {
-            // Finally, fetch the runner status and assert the test passed.
-            await instance
-                .get(`/api/info/${testInstance.id}`)
-                .then((res) => (logResult = res.data));
-            await sleep(300);
+        // Extract parameters from the URI
+        const uriParts = offerResponse.data.uri.split("//");
+        if (uriParts.length < 2) {
+            throw new Error(`Invalid URI format: ${offerResponse.data.uri}`);
         }
+        const parameters = uriParts[1];
+
+        // Get the credential offer endpoint from the test runner
+        const url = await oidfSuite.getEndpoint(testInstance);
+
+        // Send the offer to the OIDF test runner
+        await axios.default.get(`${url}${parameters}`);
+
+        const logResult = await oidfSuite.waitForFinished(testInstance.id);
         expect(logResult.result).toBe("PASSED");
     }, 10000);
 
     test("oid4vci-1_0-issuer-ensure-request-object-with-multiple-aud-succeeds", async () => {
-        const testInstance = await startTest(
+        const testInstance = await oidfSuite.startTest(
             PRE_AUTH_PLAN_ID,
             "oid4vci-1_0-issuer-ensure-request-object-with-multiple-aud-succeeds",
         );
 
-        // Request a presentation URI from the local backend
-        const res = await axios.default
-            .post(
-                "http://localhost:3000/issuer-management/offer",
-                {
-                    response_type: "uri",
-                    credentialConfigurationIds: ["pid"],
-                    flow: "pre_authorized_code",
+        console.log(
+            `Test details: ${OIDF_URL}/log-detail.html?log=${testInstance.id}`,
+        );
+
+        // Request an issuance offer from the local backend
+        const offerResponse = await axios.default.post<{ uri: string }>(
+            `${BACKEND_URL}/issuer-management/offer`,
+            {
+                response_type: "uri",
+                credentialConfigurationIds: ["pid"],
+                flow: "pre_authorized_code",
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
                 },
-                {
-                    headers: {
-                        Authorization: `Bearer ${authToken}`,
-                    },
-                },
-            )
-            .then((response) => response.data);
+            },
+        );
 
-        // The backend returns a URI that includes parameters after the scheme.
-        const parameters = res.uri.split("//")[1];
+        expect(offerResponse.data.uri).toBeDefined();
 
-        await instance
-            .get(`/api/runner/${testInstance.id}`)
-            .then((res) => res.data);
-
-        const url = await getEndpoint(testInstance);
-        // Follow the authorize URL exposed by the runner to simulate the user's action.
-        await axios.default.get(`${url}` + parameters);
-
-        let logResult: any;
-        while (!logResult || logResult.status !== "FINISHED") {
-            // Finally, fetch the runner status and assert the test passed.
-            await instance
-                .get(`/api/info/${testInstance.id}`)
-                .then((res) => (logResult = res.data));
-            await sleep(300);
+        // Extract parameters from the URI
+        const uriParts = offerResponse.data.uri.split("//");
+        if (uriParts.length < 2) {
+            throw new Error(`Invalid URI format: ${offerResponse.data.uri}`);
         }
+        const parameters = uriParts[1];
+
+        // Get the credential offer endpoint from the test runner
+        const url = await oidfSuite.getEndpoint(testInstance);
+
+        // Send the offer to the OIDF test runner
+        await axios.default.get(`${url}${parameters}`);
+
+        const logResult = await oidfSuite.waitForFinished(testInstance.id);
         expect(logResult.result).toBe("PASSED");
     }, 10000);
-
-    async function getEndpoint(testInstance): Promise<string> {
-        let url;
-        while (!url) {
-            url = await instance
-                .get(`/api/runner/${testInstance.id}`)
-                .then((res) => res.data.exposed.credential_offer_endpoint);
-            await sleep(300);
-        }
-        return url;
-    }
 });

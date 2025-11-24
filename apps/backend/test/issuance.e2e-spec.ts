@@ -14,6 +14,7 @@ import { digest } from "@sd-jwt/crypto-nodejs";
 import { SDJwtVcInstance } from "@sd-jwt/sd-jwt-vc";
 import { readFileSync, rmSync } from "fs";
 import { exportJWK, generateKeyPair, importX509, jwtVerify } from "jose";
+import { resolve } from "path";
 import request from "supertest";
 import { App } from "supertest/types";
 import { Agent, fetch, setGlobalDispatcher } from "undici";
@@ -78,13 +79,23 @@ describe("Issuance", () => {
             })
             .expect(201);
 
+        console.log(
+            resolve(
+                __dirname +
+                    "/../../../assets/config/root/issuance/issuance.json",
+            ),
+        );
         //import issuance config
         const issuerConfiguration = JSON.parse(
             readFileSync(
-                "../../assets/config/root/issuance/issuance.json",
+                resolve(
+                    __dirname +
+                        "/../../../assets/config/root/issuance/issuance.json",
+                ),
                 "utf-8",
             ),
         );
+        console.log("done");
         await request(app.getHttpServer())
             .post("/issuer-management/issuance")
             .trustLocalhost()
