@@ -102,7 +102,7 @@ describe("Presentation", () => {
             .set("Authorization", `Bearer ${authToken}`)
             .send({
                 response_type: "uri",
-                requestId: "pid",
+                requestId: "pid-no-hook",
             });
 
         const client = new Openid4vpClient({
@@ -133,6 +133,9 @@ describe("Presentation", () => {
                 },
             },
         });
+
+        console.log(res.body.uri);
+
         const authRequest = client.parseOpenid4vpAuthorizationRequest({
             authorizationRequest: res.body.uri,
         });
