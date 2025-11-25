@@ -1,6 +1,0 @@
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/SessionController_revokeAll.request.schema.json",
-  "title": "SessionController_revokeAll.request",
-  "$ref": "./StatusUpdateDto.schema.json"
-}

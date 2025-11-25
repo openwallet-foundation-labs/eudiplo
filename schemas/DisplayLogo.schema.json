@@ -6,6 +6,9 @@
   "properties": {
     "uri": {
       "type": "string"
+    },
+    "alt_text": {
+      "type": "string"
     }
   },
   "required": [

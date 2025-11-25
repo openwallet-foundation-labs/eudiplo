@@ -199,9 +199,9 @@ async function main() {
   // 2) bundle (avoid circular JSON on stringify)
   const { bundled, isOAS31 } = await loadAndBundle(OUT_SPEC);
 
-  // 3) emit JSON Schemas (components + operations)
+  // 3) emit JSON Schemas (components only, skip operations)
   await emitComponentSchemas(bundled, isOAS31);
-  await emitOperationSchemas(bundled, isOAS31);
+  // await emitOperationSchemas(bundled, isOAS31); // Disabled: only store object schemas
   
   writeFile('apps/client/src/app/utils/schemas.json', JSON.stringify(schemas, null, 2));
 

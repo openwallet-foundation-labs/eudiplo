@@ -113,13 +113,9 @@ nav:
           - Overview: getting-started/issuance/index.md
           - Credential Configuration: getting-started/issuance/credential-configuration.md
           - Issuance Configuration: getting-started/issuance/issuance-configuration.md
-          - Advanced Features: getting-started/issuance/advanced-features.md
-          - Authentication: getting-started/issuance/authentication.md
-          - API Guide: getting-started/issuance/api-guide.md          
         - Presentation:
           - Overview: getting-started/presentation/index.md
-          - Presentation Configuration: getting-started/presentation/presentation-configuration.md
-          - API Guide: getting-started/presentation/api-guide.md          
+          - Presentation Configuration: getting-started/presentation/presentation-configuration.md                
       - Advanced:
         - Registrar: getting-started/registrar.md
         - Monitor: getting-started/monitor.md        

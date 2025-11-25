@@ -75,6 +75,11 @@ export function buildModelFromSchema(schema: Joi.ObjectSchema): ConfigModel {
       conditions,
       meta,
     });
+
+    //check if some must be replaced
+    if(key === "CONFIG_FOLDER") {
+      items[items.length - 1].defaultValue = "/path/to/config/folder";
+    }
   }
 
   // Group & sort

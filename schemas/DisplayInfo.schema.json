@@ -13,10 +13,5 @@
     "logo": {
       "$ref": "./DisplayLogo.schema.json"
     }
-  },
-  "required": [
-    "name",
-    "locale",
-    "logo"
-  ]
+  }
 }
