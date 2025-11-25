@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, type OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,12 +13,11 @@ import { DisplayFormValue } from '../credential-config.types';
   selector: 'app-credential-config-list',
   imports: [
     MatTableModule,
-    CommonModule,
     MatIconModule,
     MatButtonModule,
     RouterModule,
-    FlexLayoutModule,
-  ],
+    FlexLayoutModule
+],
   templateUrl: './credential-config-list.component.html',
   styleUrl: './credential-config-list.component.scss',
 })

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, type OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -38,7 +38,6 @@ import {
 @Component({
   selector: 'app-credential-config-create',
   imports: [
-    CommonModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
@@ -59,8 +58,8 @@ import {
     MonacoEditorModule,
     EditorComponent,
     ImageFieldComponent,
-    WebhookConfigEditComponent,
-  ],
+    WebhookConfigEditComponent
+],
   templateUrl: './credential-config-create.component.html',
   styleUrl: './credential-config-create.component.scss',
 })

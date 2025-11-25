@@ -1,5 +1,5 @@
 import { Component, type OnDestroy, type OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -18,7 +18,6 @@ import { EnvironmentService } from '../services/environment.service';
   selector: 'app-dashboard',
   standalone: true,
   imports: [
-    CommonModule,
     FlexLayoutModule,
     MatCardModule,
     MatButtonModule,
@@ -28,8 +27,8 @@ import { EnvironmentService } from '../services/environment.service';
     MatInputModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
-    MatTooltipModule,
-  ],
+    MatTooltipModule
+],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })

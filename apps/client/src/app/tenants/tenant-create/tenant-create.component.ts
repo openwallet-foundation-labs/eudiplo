@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component } from '@angular/core';
 import {
   FormBuilder,
@@ -23,7 +23,6 @@ import { Role, roles } from '../../services/jwt.service';
 @Component({
   selector: 'app-tenant-create',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatCardModule,
     MatFormFieldModule,
@@ -33,8 +32,8 @@ import { Role, roles } from '../../services/jwt.service';
     MatSelectModule,
     RouterModule,
     MatIconModule,
-    MatTooltipModule,
-  ],
+    MatTooltipModule
+],
   templateUrl: './tenant-create.component.html',
   styleUrl: './tenant-create.component.scss',
 })

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, type OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -17,7 +17,6 @@ import { WebhookConfigShowComponent } from '../../../utils/webhook-config-show/w
 @Component({
   selector: 'app-credential-config-show',
   imports: [
-    CommonModule,
     MatIconModule,
     MatCardModule,
     MatButtonModule,
@@ -27,8 +26,8 @@ import { WebhookConfigShowComponent } from '../../../utils/webhook-config-show/w
     MatDividerModule,
     FlexLayoutModule,
     RouterModule,
-    WebhookConfigShowComponent,
-  ],
+    WebhookConfigShowComponent
+],
   templateUrl: './credential-config-show.component.html',
   styleUrl: './credential-config-show.component.scss',
 })

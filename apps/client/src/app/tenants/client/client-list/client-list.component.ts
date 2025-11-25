@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, Input, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -20,15 +20,14 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   selector: 'app-client-list',
   imports: [
     MatTableModule,
-    CommonModule,
     MatIconModule,
     MatButtonModule,
     MatCardModule,
     RouterModule,
     FlexLayoutModule,
     MatChipsModule,
-    MatTooltipModule,
-  ],
+    MatTooltipModule
+],
   templateUrl: './client-list.component.html',
   styleUrl: './client-list.component.scss',
 })

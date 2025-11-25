@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, type OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -14,14 +14,13 @@ import { KeyManagementService } from '../key-management.service';
 @Component({
   selector: 'app-key-management-show',
   imports: [
-    CommonModule,
     MatIconModule,
     MatCardModule,
     MatButtonModule,
     MatTooltipModule,
     FlexLayoutModule,
-    RouterModule,
-  ],
+    RouterModule
+],
   templateUrl: './key-management-show.component.html',
   styleUrl: './key-management-show.component.scss',
 })
