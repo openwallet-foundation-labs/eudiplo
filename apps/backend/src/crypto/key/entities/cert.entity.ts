@@ -18,31 +18,31 @@ export class CertEntity {
      * Unique identifier for the key.
      */
     @Column("varchar", { primary: true })
-    id: string;
+    id!: string;
 
     /**
      * Tenant ID for the key.
      */
     @Column("varchar", { primary: true })
-    tenantId: string;
+    tenantId!: string;
 
     /**
      * The tenant that owns this object.
      */
     @ManyToOne(() => TenantEntity, { cascade: true, onDelete: "CASCADE" })
-    tenant: TenantEntity;
+    tenant!: TenantEntity;
 
     /**
      * Certificate in PEM format.
      */
     @Column("varchar")
-    crt: string;
+    crt!: string;
 
     /**
      * Type of the certificate (access or signing).
      */
     @Column("varchar", { default: "signing", primary: true })
-    type: CertificateType;
+    type!: CertificateType;
 
     /**
      * Description of the key.
@@ -54,11 +54,11 @@ export class CertEntity {
      * The timestamp when the VP request was created.
      */
     @CreateDateColumn()
-    createdAt: Date;
+    createdAt!: Date;
 
     /**
      * The timestamp when the VP request was last updated.
      */
     @UpdateDateColumn()
-    updatedAt: Date;
+    updatedAt!: Date;
 }

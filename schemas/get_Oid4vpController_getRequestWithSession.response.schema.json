@@ -1,6 +1,0 @@
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/Oid4vpController_getRequestWithSession.response.schema.json",
-  "title": "Oid4vpController_getRequestWithSession.response",
-  "type": "string"
-}

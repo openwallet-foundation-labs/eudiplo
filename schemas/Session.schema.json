@@ -50,12 +50,8 @@
         }
       ]
     },
-    "issuanceId": {
-      "type": "string"
-    },
     "authorization_code": {
-      "type": "string",
-      "description": "Authorization code for the session."
+      "type": "string"
     },
     "request_uri": {
       "type": "string",
@@ -74,8 +70,8 @@
       "description": "Nonce used for the OID4VCI flow."
     },
     "offer": {
-      "type": "object",
-      "description": "Credential offer object containing details about the credential offer or presentation request."
+      "description": "Credential offer object containing details about the credential offer or presentation request.",
+      "type": "object"
     },
     "offerUrl": {
       "type": "string",

@@ -10,9 +10,7 @@ import { Repository } from "typeorm";
 import { CryptoService } from "../../crypto/crypto.service";
 import { CryptoImplementationService } from "../../crypto/key/crypto-implementation/crypto-implementation.service";
 import { Session } from "../../session/entities/session.entity";
-import { SchemaResponse } from "../credentials-metadata/dto/schema-response.dto";
 import { VCT } from "../credentials-metadata/dto/vct.dto";
-import { IssuanceConfig } from "../issuance/entities/issuance-config.entity";
 import { StatusListService } from "../status-list/status-list.service";
 import { CredentialConfig } from "./entities/credential.entity";
 
@@ -44,8 +42,7 @@ export class CredentialsService {
      * @returns
      */
     async getCredentialConfigurationSupported(
-        session: Session,
-        issuanceConfig: IssuanceConfig,
+        tenantId: string,
     ): Promise<Record<string, CredentialConfigurationSupported>> {
         const credential_configurations_supported: Record<
             string,
@@ -53,7 +50,7 @@ export class CredentialsService {
         > = {};
 
         const configs = await this.credentialConfigRepo.findBy({
-            tenantId: session.tenantId,
+            tenantId,
         });
 
         //add key binding when required:
@@ -72,24 +69,20 @@ export class CredentialsService {
         };
 
         for (const value of configs) {
-            const isUsed = issuanceConfig.credentialConfigs.find(
-                (config) => config.id === value.id,
-            );
-            (value.config as CredentialConfigurationSupported).vct =
-                `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${session.tenantId}/credentials-metadata/vct/${value.id}`;
+            (value.config as unknown as CredentialConfigurationSupported).vct =
+                `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${tenantId}/credentials-metadata/vct/${value.id}`;
 
             if (value.embeddedDisclosurePolicy) {
                 delete (value.embeddedDisclosurePolicy as any).$schema;
                 (
-                    value.config as CredentialConfigurationSupported
+                    value.config as unknown as CredentialConfigurationSupported
                 ).disclosure_policy = value.embeddedDisclosurePolicy;
             }
 
-            if (isUsed?.id)
-                value.config = {
-                    ...value.config,
-                    ...kb,
-                };
+            value.config = {
+                ...value.config,
+                ...kb,
+            };
             (
                 credential_configurations_supported as CredentialConfigurationSupported
             )[value.id] = value.config;
@@ -108,12 +101,14 @@ export class CredentialsService {
         credentialConfigurationId: string,
         holderCnf: Jwk,
         session: Session,
-        issuanceConfig: IssuanceConfig,
         claims?: Record<string, Record<string, unknown>>,
     ) {
-        const credentialConfiguration = issuanceConfig.credentialConfigs.find(
-            (config) => config.id === credentialConfigurationId,
-        );
+        const credentialConfiguration =
+            await this.credentialConfigRepo.findOneByOrFail({
+                tenantId: session.tenantId,
+                id: credentialConfigurationId,
+            });
+
         if (!credentialConfiguration)
             throw new ConflictException(
                 `Credential configuration with id ${credentialConfigurationId} not found`,
@@ -203,6 +198,7 @@ export class CredentialsService {
     async getVCT(credentialId: string, tenantId: string): Promise<VCT> {
         const credentialConfig = await this.credentialConfigRepo
             .findOneByOrFail({
+                id: credentialId,
                 tenantId,
             })
             .catch(() => {
@@ -218,32 +214,5 @@ export class CredentialsService {
         const host = this.configService.getOrThrow<string>("PUBLIC_URL");
         credentialConfig.vct.vct = `${host}/${tenantId}/credentials-metadata/vct/${credentialConfig.id}`;
         return credentialConfig.vct;
-    }
-
-    /**
-     * Retrieves the schema for a specific credential configuration.
-     * @param id
-     * @param tenantId
-     * @returns
-     */
-    async getSchema(
-        credentialConfigurationId: string,
-        tenantId: string,
-    ): Promise<SchemaResponse> {
-        const credentialConfig =
-            await this.credentialConfigRepo.findOneByOrFail({
-                tenantId,
-            });
-        if (!credentialConfig) {
-            throw new ConflictException(
-                `Credential configuration with id ${credentialConfigurationId} not found`,
-            );
-        }
-        if (!credentialConfig.schema) {
-            throw new ConflictException(
-                `Schema for credential configuration with id ${credentialConfigurationId} not found`,
-            );
-        }
-        return credentialConfig.schema;
     }
 }

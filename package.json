@@ -26,6 +26,7 @@
     "prepare": "husky"
   },
   "devDependencies": {
+    "@adobe/jsonschema2md": "^8.0.8",
     "@apidevtools/json-schema-ref-parser": "^14.2.1",
     "@codedependant/semantic-release-docker": "^5.1.1",
     "@openapi-contrib/openapi-schema-to-json-schema": "^5.1.0",

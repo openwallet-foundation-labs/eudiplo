@@ -80,7 +80,7 @@ export class JwtService {
                 algorithms: ["HS256"],
             })) as { payload: TokenPayload };
             return payload;
-        } catch (error) {
+        } catch (error: any) {
             throw new Error(`Invalid token: ${error.message}`);
         }
     }

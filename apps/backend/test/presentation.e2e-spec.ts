@@ -42,11 +42,10 @@ describe("Presentation", () => {
         //import the pid credential configuration
         const pidCredentialConfiguration = JSON.parse(
             readFileSync(
-                "../../assets/config/root/presentation/pid.json",
+                "../../assets/config/root/presentation/pid-no-hook.json",
                 "utf-8",
             ),
         );
-        pidCredentialConfiguration.id = "pid";
         await request(app.getHttpServer())
             .post("/presentation-management")
             .trustLocalhost()
@@ -62,9 +61,9 @@ describe("Presentation", () => {
             .set("Authorization", `Bearer ${authToken}`)
             .send({
                 response_type: "uri",
-                requestId: "pid",
+                requestId: "pid-no-hook",
             });
-
+        expect(res.status).toBe(201);
         expect(res.body).toBeDefined();
         const session = res.body.session;
 
@@ -103,7 +102,7 @@ describe("Presentation", () => {
             .set("Authorization", `Bearer ${authToken}`)
             .send({
                 response_type: "uri",
-                requestId: "pid",
+                requestId: "pid-no-hook",
             });
 
         const client = new Openid4vpClient({
@@ -134,6 +133,7 @@ describe("Presentation", () => {
                 },
             },
         });
+
         const authRequest = client.parseOpenid4vpAuthorizationRequest({
             authorizationRequest: res.body.uri,
         });
@@ -157,7 +157,7 @@ describe("Presentation", () => {
         )) as CryptoKey;
 
         const jwt = await new EncryptJWT({
-            vp_token: { pid: vp_token },
+            vp_token: { pid: [vp_token] },
             state: resolved.authorizationRequestPayload.state!,
         })
             .setProtectedHeader({
@@ -184,6 +184,6 @@ describe("Presentation", () => {
                 resolved.authorizationRequestPayload as Openid4vpAuthorizationRequest,
         });
         expect(submitRes).toBeDefined();
-        expect(submitRes.response.status).toBe(201);
+        expect(submitRes.response.status).toBe(200);
     });
 });

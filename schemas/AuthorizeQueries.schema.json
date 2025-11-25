@@ -36,6 +36,9 @@
     },
     "auth_session": {
       "type": "string"
+    },
+    "state": {
+      "type": "string"
     }
   }
 }

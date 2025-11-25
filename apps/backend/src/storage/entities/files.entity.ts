@@ -7,20 +7,20 @@ export class FileEntity {
      * The ID of the object.
      */
     @PrimaryColumn()
-    id: string;
+    id!: string;
 
     @Column()
-    filename: string;
+    filename!: string;
 
     /**
      * Tenant ID for the key.
      */
     @Column("varchar", { primary: true })
-    tenantId: string;
+    tenantId!: string;
 
     /**
      * The tenant that owns this object.
      */
     @ManyToOne(() => TenantEntity, { cascade: true, onDelete: "CASCADE" })
-    tenant: TenantEntity;
+    tenant!: TenantEntity;
 }

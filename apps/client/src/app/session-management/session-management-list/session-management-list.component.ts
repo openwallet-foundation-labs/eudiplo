@@ -94,7 +94,7 @@ export class SessionManagementListComponent implements OnInit, AfterViewInit {
             case 'createdAt':
               return new Date(item.createdAt).getTime();
             case 'type':
-              return item.issuanceId ? 'issuance' : 'presentation';
+              return item.requestId ? 'verification' : 'issuance';
             case 'status':
               return this.getSessionStatus(item);
             default:
@@ -129,9 +129,9 @@ export class SessionManagementListComponent implements OnInit, AfterViewInit {
 
     // Apply type filter
     if (typeFilterValue === 'issuance') {
-      filteredSessions = filteredSessions.filter((session) => !!session.issuanceId);
+      filteredSessions = filteredSessions.filter((session) => !session.requestId);
     } else if (typeFilterValue === 'presentation') {
-      filteredSessions = filteredSessions.filter((session) => !session.issuanceId);
+      filteredSessions = filteredSessions.filter((session) => !!session.requestId);
     }
 
     // Apply status filter
@@ -156,10 +156,6 @@ export class SessionManagementListComponent implements OnInit, AfterViewInit {
   getStatusClass(status: any): string {
     const sessionStatus = this.getSessionStatus({ status } as Session);
     return 'status-' + sessionStatus;
-  }
-
-  getSessionType(session: Session): string {
-    return session.issuanceId ? 'issuance' : 'presentation';
   }
 
   // Selection methods

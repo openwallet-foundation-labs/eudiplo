@@ -130,7 +130,7 @@ export class Oid4vpService {
                                 ),
                             ],
                         },
-                        vp_formats: {
+                        vp_formats_supported: {
                             //MDOC not supported yet
                             /* mso_mdoc: {
                                 alg: ["ES256", "Ed25519"],
@@ -142,10 +142,7 @@ export class Oid4vpService {
                                     this.cryptoImplementationService.getSupportedAlgorithms(),
                             },
                         },
-                        authorization_encrypted_response_alg: "ECDH-ES",
-                        authorization_encrypted_response_enc: "A128GCM",
-                        client_name: session.tenant.name,
-                        response_types_supported: ["vp_token"],
+                        encrypted_response_enc_values_supported: ["A128GCM"],
                     },
                     state: !session.useDcApi ? session.id : undefined,
                     //TODO: check if this value is correct accroding to https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-aud-of-a-request-object
@@ -347,8 +344,6 @@ export class Oid4vpService {
                     session,
                     logContext,
                     credentials,
-                    //when issuance id we expect the caller to handle the response
-                    !!session.issuanceId,
                 );
                 //override it when a redirect URI is returned by the webhook
                 if (response?.redirectUri) {
@@ -371,7 +366,9 @@ export class Oid4vpService {
             if (body.sendResponse) {
                 return credentials;
             }
-        } catch (error) {
+
+            return {};
+        } catch (error: any) {
             this.sessionLogger.logFlowError(logContext, error as Error, {
                 action: "process_presentation_response",
             });

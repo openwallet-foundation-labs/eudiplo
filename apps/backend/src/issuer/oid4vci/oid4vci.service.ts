@@ -5,6 +5,7 @@ import {
     Injectable,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { Cron, CronExpression } from "@nestjs/schedule";
 import { InjectRepository } from "@nestjs/typeorm";
 import {
     AuthorizationServerMetadata,
@@ -21,26 +22,27 @@ import {
     Openid4vciIssuer,
 } from "@openid4vc/openid4vci";
 import type { Request } from "express";
+import { decodeJwt } from "jose";
 import { firstValueFrom } from "rxjs";
-import { Repository } from "typeorm/repository/Repository";
+import { LessThan, Repository } from "typeorm";
 import { v4 } from "uuid";
 import { TokenPayload } from "../../auth/token.decorator";
 import { CryptoService } from "../../crypto/crypto.service";
-import { Session, SessionStatus } from "../../session/entities/session.entity";
+import { SessionStatus } from "../../session/entities/session.entity";
 import { SessionService } from "../../session/session.service";
 import { SessionLoggerService } from "../../utils/logger/session-logger.service";
 import { SessionLogContext } from "../../utils/logger/session-logger-context";
 import { WebhookService } from "../../utils/webhook/webhook.service";
 import { AuthorizeService } from "../authorize/authorize.service";
 import { CredentialsService } from "../credentials/credentials.service";
-import { DisplayEntity } from "../display/entities/display.entity";
-import {
-    AuthenticationMethodAuth,
-    AuthenticationUrlConfig,
-} from "../issuance/dto/authentication-config.dto";
 import { IssuanceService } from "../issuance/issuance.service";
 import { NotificationRequestDto } from "./dto/notification-request.dto";
-import { OfferRequestDto, OfferResponse } from "./dto/offer-request.dto";
+import {
+    FlowType,
+    OfferRequestDto,
+    OfferResponse,
+} from "./dto/offer-request.dto";
+import { NonceEntity } from "./entities/nonces.entity";
 import { getHeadersFromRequest } from "./util";
 
 /**
@@ -58,8 +60,8 @@ export class Oid4vciService {
         private readonly issuanceService: IssuanceService,
         private readonly webhookService: WebhookService,
         private readonly httpService: HttpService,
-        @InjectRepository(DisplayEntity)
-        private readonly displayRepository: Repository<DisplayEntity>,
+        @InjectRepository(NonceEntity)
+        private nonceRepository: Repository<NonceEntity>,
     ) {}
 
     /**
@@ -92,43 +94,29 @@ export class Oid4vciService {
      * @returns The OID4VCI issuer metadata.
      */
     async issuerMetadata(
-        session: Session,
+        tenantId: string,
         issuer?: Openid4vciIssuer,
     ): Promise<IssuerMetadataResult> {
         if (!issuer) {
-            issuer = this.getIssuer(session.tenantId);
+            issuer = this.getIssuer(tenantId);
         }
 
-        const credential_issuer = `${this.configService.getOrThrow<string>(
-            "PUBLIC_URL",
-        )}/${session.id}`;
-
-        const display = await this.displayRepository
-            .findOneByOrFail({
-                tenantId: session.tenantId,
-            })
-            .then((res) => res.value);
+        const credential_issuer = `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${tenantId}`;
 
         const issuanceConfig =
-            await this.issuanceService.getIssuanceConfigurationById(
-                session.issuanceId as string,
-                session.tenantId,
-            );
+            await this.issuanceService.getIssuanceConfiguration(tenantId);
 
         let authorizationServerMetadata: AuthorizationServerMetadata;
+        let authServers: string[] = [];
 
-        let authServer: string;
-
-        if (issuanceConfig.authenticationConfig.method === "auth") {
-            authServer = (
-                (
-                    issuanceConfig.authenticationConfig as AuthenticationMethodAuth
-                ).config as AuthenticationUrlConfig
-            ).url;
-            // fetch the authorization server metadata
+        if (
+            issuanceConfig.authServers &&
+            issuanceConfig.authServers.length > 0
+        ) {
+            authServers = issuanceConfig.authServers;
             authorizationServerMetadata = await firstValueFrom(
                 this.httpService.get(
-                    `${authServer}/.well-known/oauth-authorization-server`,
+                    `${issuanceConfig.authServers}/.well-known/oauth-authorization-server`,
                 ),
             ).then(
                 (response) => response.data,
@@ -136,18 +124,11 @@ export class Oid4vciService {
                     // Retry fetching from OIDC metadata endpoint
                     return await firstValueFrom(
                         this.httpService.get(
-                            `${authServer}/.well-known/openid-configuration`,
+                            `${issuanceConfig.authServers}/.well-known/openid-configuration`,
                         ),
                     ).then(
                         (response) => response.data,
-                        (err) => {
-                            const logContext: SessionLogContext = {
-                                sessionId: session.id,
-                                tenantId: session.tenantId,
-                                flowType: "OID4VCI",
-                                stage: "credential_request",
-                            };
-                            this.sessionLogger.logFlowError(logContext, err);
+                        () => {
                             throw new BadRequestException(
                                 "Failed to fetch authorization server metadata",
                             );
@@ -156,47 +137,38 @@ export class Oid4vciService {
                 },
             );
         } else {
-            authServer =
+            authServers.push(
                 this.configService.getOrThrow<string>("PUBLIC_URL") +
-                `/${session.id}`;
+                    `/${tenantId}`,
+            );
             authorizationServerMetadata =
-                await this.authzService.authzMetadata(session);
+                await this.authzService.authzMetadata(tenantId);
         }
 
-        let credentialIssuer = issuer.createCredentialIssuerMetadata({
+        const credentialIssuer = issuer.createCredentialIssuerMetadata({
             credential_issuer,
             credential_configurations_supported:
                 await this.credentialsService.getCredentialConfigurationSupported(
-                    session,
-                    issuanceConfig,
+                    tenantId,
                 ),
             credential_endpoint: `${credential_issuer}/vci/credential`,
-            authorization_servers: [authServer],
-            authorization_server: authServer,
+            authorization_servers: authServers,
+            authorization_server: authServers[0],
             notification_endpoint: `${credential_issuer}/vci/notification`,
             nonce_endpoint: `${credential_issuer}/vci/nonce`,
-            display: display as any,
+            display: issuanceConfig.display as any,
+            batch_credential_issuance: issuanceConfig?.batchSize
+                ? {
+                      batch_size: issuanceConfig?.batchSize,
+                  }
+                : undefined,
         });
-
-        if (issuanceConfig.batchSize) {
-            credentialIssuer.batch_credential_issuance = {
-                batch_size: issuanceConfig.batchSize,
-            };
-        }
-
-        //replace placeholders in the issuer metadata
-        credentialIssuer = JSON.parse(
-            JSON.stringify(credentialIssuer).replace(
-                /<PUBLIC_URL>/g,
-                this.configService.getOrThrow<string>("PUBLIC_URL"),
-            ),
-        );
 
         return {
             credentialIssuer,
             authorizationServers: [authorizationServerMetadata],
-            originalDraftVersion: Openid4vciDraftVersion.Draft14,
-        } as const satisfies IssuerMetadataResult;
+            originalDraftVersion: Openid4vciDraftVersion.Draft15,
+        } as IssuerMetadataResult;
     }
 
     /**
@@ -211,21 +183,12 @@ export class Oid4vciService {
         user: TokenPayload,
         tenantId: string,
     ): Promise<OfferResponse> {
-        const issuanceConfig = await this.issuanceService
-            .getIssuanceConfigurationById(body.issuanceId, tenantId)
-            .catch(() => {
-                throw new BadRequestException(
-                    `Issuance configuration with ID ${body.issuanceId} not found`,
-                );
-            });
-        const credentialConfigurationIds =
-            body.credentialConfigurationIds ||
-            issuanceConfig.credentialConfigs.map((config) => config.id);
+        const credentialConfigurationIds = body.credentialConfigurationIds;
 
         let authorization_code: string | undefined;
         let grants: any;
-        const issuer_state = body.session ?? v4();
-        if (issuanceConfig.authenticationConfig.method === "none") {
+        const issuer_state = v4();
+        if (body.flow === FlowType.PRE_AUTH_CODE) {
             authorization_code = v4();
             grants = {
                 [preAuthorizedCodeGrantIdentifier]: {
@@ -244,13 +207,13 @@ export class Oid4vciService {
             id: issuer_state,
             credentialPayload: body,
             tenantId: user.entity!.id,
-            issuanceId: body.issuanceId,
             authorization_code,
-            claimsWebhook: body.claimsWebhook ?? issuanceConfig.claimsWebhook,
+            claimsWebhook: body.claimWebhook,
+            notifyWebhook: body.notifyWebhook,
         });
 
         const issuer = this.getIssuer(session.tenantId);
-        const issuerMetadata = await this.issuerMetadata(session, issuer);
+        const issuerMetadata = await this.issuerMetadata(tenantId, issuer);
 
         return issuer
             .createCredentialOffer({
@@ -265,7 +228,7 @@ export class Oid4vciService {
                         offerUrl: offer.credentialOffer,
                     });
                     return {
-                        session: issuer_state,
+                        session: session.id,
                         uri: offer.credentialOffer,
                     } as OfferResponse;
                 },
@@ -282,13 +245,25 @@ export class Oid4vciService {
      * @param session
      * @returns
      */
-    async nonceRequest(session: Session) {
-        //TODO: check if nonces should be handled in another way (document lifetime, allow multiple (then a new table would be better))
+    async nonceRequest(tenantId: string) {
         const nonce = v4();
-        await this.sessionService.add(session.id, { nonce });
-        return {
-            c_nonce: nonce,
-        };
+        await this.nonceRepository.save({
+            nonce,
+            tenantId,
+            expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+        });
+        return nonce;
+    }
+
+    /**
+     * Cleanup expired nonces from the database.
+     */
+    @Cron(CronExpression.EVERY_10_MINUTES)
+    nonceCleanup() {
+        const now = new Date();
+        this.nonceRepository.delete({
+            expiresAt: LessThan(now),
+        });
     }
 
     /**
@@ -299,21 +274,28 @@ export class Oid4vciService {
      */
     async getCredential(
         req: Request,
-        session: Session,
+        tenantId: string,
     ): Promise<CredentialResponse> {
-        const issuer = this.getIssuer(session.tenantId);
-        const issuerMetadata = await this.issuerMetadata(session, issuer);
-        const resourceServer = this.getResourceServer(session.tenantId);
+        const issuer = this.getIssuer(tenantId);
+        const issuerMetadata = await this.issuerMetadata(tenantId, issuer);
+        const resourceServer = this.getResourceServer(tenantId);
         const issuanceConfig =
-            await this.issuanceService.getIssuanceConfigurationById(
-                session.issuanceId!,
-                session.tenantId,
-            );
+            await this.issuanceService.getIssuanceConfiguration(tenantId);
 
-        const parsedCredentialRequest = issuer.parseCredentialRequest({
-            issuerMetadata,
-            credentialRequest: req.body as Record<string, unknown>,
-        });
+        let parsedCredentialRequest;
+        const known = issuer.getKnownCredentialConfigurationsSupported(
+            issuerMetadata.credentialIssuer,
+        );
+        issuerMetadata.knownCredentialConfigurations = known;
+        try {
+            parsedCredentialRequest = issuer.parseCredentialRequest({
+                issuerMetadata,
+                credentialRequest: req.body as Record<string, unknown>,
+            });
+        } catch (error) {
+            console.log(error);
+            throw new ConflictException("Invalid credential request");
+        }
 
         if (parsedCredentialRequest?.proofs?.jwt === undefined) {
             throw new Error("Invalid credential request");
@@ -346,6 +328,9 @@ export class Oid4vciService {
             resourceServer: issuerMetadata.credentialIssuer.credential_issuer,
             allowedAuthenticationSchemes,
         });
+        const session = await this.sessionService.getBy({
+            id: tokenPayload.sub,
+        });
 
         if (tokenPayload.sub !== session.id) {
             throw new BadRequestException("Session not found");
@@ -354,7 +339,7 @@ export class Oid4vciService {
         // Create session logging context
         const logContext: SessionLogContext = {
             sessionId: session.id,
-            tenantId: session.tenantId,
+            tenantId,
             flowType: "OID4VCI",
             stage: "credential_request",
         };
@@ -366,18 +351,12 @@ export class Oid4vciService {
         });
 
         try {
-            const credentials: string[] = [];
-            const expectedNonce =
-                (tokenPayload.nonce as string) || session.nonce;
-            if (expectedNonce === undefined) {
-                throw new BadRequestException("Nonce not found");
-            }
-
+            const credentials: { credential: string }[] = [];
             // if a webhook is provided, fetch the data from it.
 
-            let claims: Record<string, Record<string, unknown>> | undefined =
+            const claims: Record<string, Record<string, unknown>> | undefined =
                 undefined;
-            if (
+            /*             if (
                 issuanceConfig.claimsWebhook &&
                 issuanceConfig.authenticationConfig.method !==
                     "presentationDuringIssuance"
@@ -386,14 +365,37 @@ export class Oid4vciService {
                     session,
                     logContext,
                 );
-            }
+            } */
 
             for (const jwt of parsedCredentialRequest.proofs.jwt) {
+                // check if the nonce was requested before and delete it
+                const payload = decodeJwt(jwt);
+                const expectedNonce = payload.nonce! as string;
+                //check if nonce was requested before and delete it
+                const nonceResult = await this.nonceRepository.delete({
+                    nonce: expectedNonce,
+                    tenantId,
+                });
+                if (nonceResult.affected === 0) {
+                    this.sessionLogger.logFlowError(
+                        logContext,
+                        new ConflictException(
+                            "Nonce not found or already deleted",
+                        ),
+                        {
+                            credentialConfigurationId:
+                                parsedCredentialRequest.credentialConfigurationId,
+                        },
+                    );
+                }
+
                 const verifiedProof =
                     await issuer.verifyCredentialRequestJwtProof({
                         //check if this is correct or if the passed nonce is validated.
                         expectedNonce,
-                        issuerMetadata: await this.issuerMetadata(session),
+                        issuerMetadata: await this.issuerMetadata(
+                            session.tenantId,
+                        ),
                         jwt,
                     });
                 const cnf = verifiedProof.signer.publicJwk;
@@ -401,10 +403,11 @@ export class Oid4vciService {
                     parsedCredentialRequest.credentialConfigurationId as string,
                     cnf as any,
                     session,
-                    issuanceConfig,
                     claims,
                 );
-                credentials.push(cred);
+                credentials.push({
+                    credential: cred,
+                });
 
                 this.sessionLogger.logCredentialIssuance(
                     logContext,
@@ -436,7 +439,6 @@ export class Oid4vciService {
                 credentials,
                 credentialRequest: parsedCredentialRequest,
                 cNonce: tokenPayload.nonce as string,
-                cNonceExpiresInSeconds: 3600,
                 //this should be stored in the session in case this endpoint is requested multiple times, but the response is differnt.
                 notificationId,
             });
@@ -457,16 +459,13 @@ export class Oid4vciService {
     async handleNotification(
         req: Request,
         body: NotificationRequestDto,
-        session: Session,
+        tenantId: string,
     ) {
-        const issuer = this.getIssuer(session.tenantId);
-        const resourceServer = this.getResourceServer(session.tenantId);
-        const issuerMetadata = await this.issuerMetadata(session, issuer);
+        const issuer = this.getIssuer(tenantId);
+        const resourceServer = this.getResourceServer(tenantId);
+        const issuerMetadata = await this.issuerMetadata(tenantId, issuer);
         const issuanceConfig =
-            await this.issuanceService.getIssuanceConfigurationById(
-                session.issuanceId!,
-                session.tenantId,
-            );
+            await this.issuanceService.getIssuanceConfiguration(tenantId);
         const headers = getHeadersFromRequest(req);
         const protocol = new URL(
             this.configService.getOrThrow<string>("PUBLIC_URL"),
@@ -492,6 +491,10 @@ export class Oid4vciService {
             allowedAuthenticationSchemes,
         });
 
+        const session = await this.sessionService.getBy({
+            id: tokenPayload.sub,
+        });
+
         if (session.id !== tokenPayload.sub) {
             throw new BadRequestException("Session not found");
         }
@@ -499,7 +502,7 @@ export class Oid4vciService {
         // Create session logging context
         const logContext: SessionLogContext = {
             sessionId: session.id,
-            tenantId: session.tenantId,
+            tenantId,
             flowType: "OID4VCI",
             stage: "notification",
         };

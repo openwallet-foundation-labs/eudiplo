@@ -1,4 +1,5 @@
 import * as Joi from "joi";
+import { resolve } from "path";
 
 /**
  * Validation schema for configuration
@@ -15,7 +16,7 @@ export const CONFIG_VALIDATION_SCHEMA = Joi.object({
         .meta({ group: "config", order: 20 }),
 
     CONFIG_FOLDER: Joi.string()
-        .default("../../assets/config")
+        .default(resolve(__dirname + "/../../../../assets/config"))
         .description("Path to config import folder")
         .meta({ group: "config", order: 30 }),
 });

@@ -4,15 +4,8 @@ import { SchedulerRegistry } from "@nestjs/schedule";
 import { InjectRepository } from "@nestjs/typeorm";
 import { InjectMetric } from "@willsoto/nestjs-prometheus/dist/injector";
 import { Gauge } from "prom-client";
-import {
-    DeepPartial,
-    FindOptionsWhere,
-    IsNull,
-    LessThan,
-    Not,
-    Repository,
-} from "typeorm";
-import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
+import { DeepPartial, FindOptionsWhere, LessThan, Repository } from "typeorm";
+import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity.js";
 import { Session, SessionStatus } from "./entities/session.entity";
 
 @Injectable()
@@ -53,7 +46,6 @@ export class SessionService implements OnApplicationBootstrap {
         for (const state of states) {
             const issuanceCounter = await this.sessionRepository.countBy({
                 tenantId,
-                issuanceId: Not(IsNull()),
                 status: state,
             });
             this.sessionsCounter.set(
@@ -66,7 +58,6 @@ export class SessionService implements OnApplicationBootstrap {
             );
             const verificationCounter = await this.sessionRepository.countBy({
                 tenantId,
-                issuanceId: IsNull(),
                 status: state,
             });
             this.sessionsCounter.set(
@@ -101,9 +92,9 @@ export class SessionService implements OnApplicationBootstrap {
         // Count total sessions created
         this.sessionsCounter.inc({
             tenant_id: createdSession.tenantId,
-            session_type: createdSession.issuanceId
-                ? "issuance"
-                : "verification",
+            session_type: createdSession.requestId
+                ? "verification"
+                : "issuance",
             status: "active",
         });
 
@@ -116,7 +107,7 @@ export class SessionService implements OnApplicationBootstrap {
      * @param status
      */
     async setState(session: Session, status: SessionStatus) {
-        const sessionType = session.issuanceId ? "issuance" : "verification";
+        const sessionType = session.requestId ? "verification" : "issuance";
 
         await this.sessionRepository.update({ id: session.id }, { status });
 

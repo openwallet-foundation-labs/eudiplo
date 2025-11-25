@@ -34,4 +34,7 @@ export class AuthorizeQueries {
     @IsOptional()
     @IsString()
     auth_session?: string;
+    @IsOptional()
+    @IsString()
+    state?: string;
 }

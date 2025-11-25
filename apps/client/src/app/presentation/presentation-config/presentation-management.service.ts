@@ -14,12 +14,7 @@ import {
 export class PresentationManagementService {
   createConfiguration(value: PresentationConfig) {
     return presentationManagementControllerStorePresentationConfig({ client, body: value }).then(
-      (response) => {
-        if (response.error) {
-          throw new Error((response.error as any).message);
-        }
-        return response.data as PresentationConfig;
-      }
+      (response) => response.data as PresentationConfig
     );
   }
   getPresentationById(presentationId: string) {
@@ -42,12 +37,7 @@ export class PresentationManagementService {
 
   getOffer(offerRequest: PresentationRequest): Promise<OfferResponse> {
     return presentationManagementControllerGetOffer({ client, body: offerRequest }).then(
-      (response) => {
-        if (response.error) {
-          throw new Error((response.error as any).message);
-        }
-        return response.data as OfferResponse;
-      }
+      (response) => response.data as OfferResponse
     );
   }
 }

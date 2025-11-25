@@ -44,6 +44,7 @@ export class WebhookService {
         expectResponse = true,
     ) {
         const headers: Record<string, string> = {};
+
         if (
             session.claimsWebhook!.auth &&
             session.claimsWebhook!.auth.type === "apiKey"

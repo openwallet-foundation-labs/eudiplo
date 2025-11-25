@@ -7,7 +7,6 @@ import { CredentialConfigCreateComponent } from './issuance/credential-config/cr
 import { CredentialConfigListComponent } from './issuance/credential-config/credential-config-list/credential-config-list.component';
 import { CredentialConfigShowComponent } from './issuance/credential-config/credential-config-show/credential-config-show.component';
 import { IssuanceConfigCreateComponent } from './issuance/issuance-config/issuance-config-create/issuance-config-create.component';
-import { IssuanceConfigListComponent } from './issuance/issuance-config/issuance-config-list/issuance-config-list.component';
 import { IssuanceConfigShowComponent } from './issuance/issuance-config/issuance-config-show/issuance-config-show.component';
 import { IssuanceOfferComponent } from './issuance/issuance-offer/issuance-offer.component';
 import { KeyManagementCreateComponent } from './key-management/key-management-create/key-management-create.component';
@@ -20,7 +19,6 @@ import { PresentationShowComponent } from './presentation/presentation-config/pr
 import { PresentationOfferComponent } from './presentation/presentation-offer/presentation-offer.component';
 import { SessionManagementListComponent } from './session-management/session-management-list/session-management-list.component';
 import { SessionManagementShowComponent } from './session-management/session-management-show/session-management-show.component';
-import { DisplayComponent } from './issuance/display/display.component';
 import { getRole } from './services/jwt.service';
 import { RoleGuard } from './guards/roles.guard';
 import { TenantCreateComponent } from './tenants/tenant-create/tenant-create.component';
@@ -33,11 +31,6 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     component: DashboardComponent,
-    canActivate: [AuthGuard],
-  },
-  {
-    path: 'display',
-    component: DisplayComponent,
     canActivate: [AuthGuard],
   },
   {
@@ -129,18 +122,10 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        component: IssuanceConfigListComponent,
-      },
-      {
-        path: 'create',
-        component: IssuanceConfigCreateComponent,
-      },
-      {
-        path: ':id',
         component: IssuanceConfigShowComponent,
       },
       {
-        path: ':id/edit',
+        path: 'edit',
         component: IssuanceConfigCreateComponent,
       },
     ],

@@ -13,12 +13,11 @@ import {
     preAuthorizedCodeGrantIdentifier,
 } from "@openid4vc/oauth2";
 import type { Request, Response } from "express";
+import { v4 } from "uuid";
 import { CryptoService } from "../../crypto/crypto.service";
 import { Session } from "../../session/entities/session.entity";
 import { SessionService } from "../../session/session.service";
 import { WebhookConfig } from "../../utils/webhook/webhook.dto";
-import { Oid4vpService } from "../../verifier/oid4vp/oid4vp.service";
-import { AuthenticationMethodPresentation } from "../issuance/dto/authentication-config.dto";
 import { IssuanceService } from "../issuance/issuance.service";
 import { getHeadersFromRequest } from "../oid4vci/util";
 import { AuthorizeQueries } from "./dto/authorize-request.dto";
@@ -41,7 +40,6 @@ export class AuthorizeService {
     constructor(
         private configService: ConfigService,
         private cryptoService: CryptoService,
-        private oid4vpService: Oid4vpService,
         private sessionService: SessionService,
         private issuanceService: IssuanceService,
     ) {}
@@ -53,70 +51,68 @@ export class AuthorizeService {
         });
     }
 
-    async authzMetadata(
-        session: Session,
-    ): Promise<AuthorizationServerMetadata> {
+    authzMetadata(tenantId: string): AuthorizationServerMetadata {
+        //TODO: read from config
+        const useDpop = true;
+
         const authServer =
             this.configService.getOrThrow<string>("PUBLIC_URL") +
-            `/${session.id}`;
-        const issuanceConfig =
-            await this.issuanceService.getIssuanceConfigurationById(
-                session.issuanceId!,
-                session.tenantId,
-            );
+            `/${tenantId}`;
         return this.getAuthorizationServer(
-            session.tenantId,
+            tenantId,
         ).createAuthorizationServerMetadata({
             issuer: authServer,
             token_endpoint: `${authServer}/authorize/token`,
             authorization_endpoint: `${authServer}/authorize`,
             jwks_uri: `${authServer}/.well-known/jwks.json`,
-            dpop_signing_alg_values_supported: issuanceConfig.dPopRequired
-                ? ["ES256"]
-                : undefined,
+            dpop_signing_alg_values_supported: useDpop ? ["ES256"] : undefined,
             // TODO: verify this on the server
             require_pushed_authorization_requests: true,
             pushed_authorization_request_endpoint: `${authServer}/authorize/par`,
             code_challenge_methods_supported: [PkceCodeChallengeMethod.S256],
             authorization_challenge_endpoint: `${authServer}/authorize/challenge`,
+            client_attestation_pop_nonce_required: true,
+            authorization_details_types_supported: ["openid_credential"],
+            token_endpoint_auth_methods_supported: ["attest_jwt_client_auth"],
             /*         token_endpoint_auth_methods_supported: [
-          SupportedAuthenticationScheme.ClientAttestationJwt,
+          SupportedAuthenticationScheme.ClientAttestationJwt,          
         ], */
         });
     }
 
-    async sendAuthorizationResponse(
-        queries: AuthorizeQueries,
-        res: Response<any, Record<string, any>>,
-    ) {
-        let values = queries;
-        if (queries.request_uri) {
-            await this.sessionService
-                .getBy({ request_uri: queries.request_uri })
-                .then((session) => {
-                    values = session.auth_queries!;
+    sendAuthorizationResponse(values: AuthorizeQueries, tenantId) {
+        if (values.request_uri) {
+            return this.sessionService
+                .getBy({ request_uri: values.request_uri })
+                .then(async (session) => {
+                    const code = await this.setAuthCode(session.id);
+                    const iss = `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${tenantId}`;
+                    return `${session.auth_queries!.redirect_uri}?code=${code}&state=${session.auth_queries!.state}&iss=${iss}`;
                 })
-                .catch(() => {
-                    throw new ConflictException(
-                        "request_uri not found or not provided in the request",
-                    );
+                .catch(async () => {
+                    //if not found, this means the flow is initiated by the wallet and not the issuer which is also fine.
+                    const code = v4();
+                    await this.sessionService.create({
+                        id: v4(),
+                        tenantId,
+                        authorization_code: code,
+                        request_uri: values.request_uri,
+                    });
+                    return `${values.redirect_uri}?code=${code}`;
                 });
         } else {
             throw new ConflictException(
                 "request_uri not found or not provided in the request",
             );
         }
-        const code = await this.setAuthCode(values.issuer_state!);
-        res.redirect(`${values.redirect_uri}?code=${code}`);
     }
 
     async validateTokenRequest(
         body: any,
         req: Request,
-        session: Session,
+        tenantId: string,
     ): Promise<any> {
         const url = `${this.configService.getOrThrow<string>("PUBLIC_URL")}${req.url}`;
-        const tenantId = session.tenantId;
         const parsedAccessTokenRequest = this.getAuthorizationServer(
             tenantId,
         ).parseAccessTokenRequest({
@@ -127,14 +123,21 @@ export class AuthorizeService {
                 headers: getHeadersFromRequest(req),
             },
         });
-
+        const authorization_code =
+            parsedAccessTokenRequest.accessTokenRequest[
+                "pre-authorized_code"
+            ] ?? parsedAccessTokenRequest.accessTokenRequest["code"];
+        const session = await this.sessionService
+            .getBy({
+                authorization_code,
+            })
+            .catch(() => {
+                throw new ConflictException("Invalid authorization code");
+            });
         const issuanceConfig =
-            await this.issuanceService.getIssuanceConfigurationById(
-                session.issuanceId!,
-                session.tenantId,
-            );
+            await this.issuanceService.getIssuanceConfiguration(tenantId);
 
-        const authorizationServerMetadata = await this.authzMetadata(session);
+        const authorizationServerMetadata = await this.authzMetadata(tenantId);
         let dpopValue;
         if (
             parsedAccessTokenRequest.grant.grantType ===
@@ -194,7 +197,7 @@ export class AuthorizeService {
         }
         //const cNonce = randomUUID();
         return this.getAuthorizationServer(tenantId).createAccessTokenResponse({
-            audience: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${session.id}`,
+            audience: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${tenantId}`,
             signer: {
                 method: "jwk",
                 alg: "ES256",
@@ -213,21 +216,20 @@ export class AuthorizeService {
         });
     }
 
-    async parseChallengeRequest(
+    parseChallengeRequest(
         body: AuthorizeQueries,
         session: Session,
         origin: string,
         webhook?: WebhookConfig,
     ) {
-        // re using the issuer state as auth session
-        const auth_session = body.issuer_state;
-        //use the issuanceId to get the presentationId.
+        throw new Error("Not implemented");
+        /* // re using the issuer state as auth session
+        const auth_session = body.issuer_state;        
         const issuanceConfig =
-            await this.issuanceService.getIssuanceConfigurationById(
-                session.issuanceId!,
+            await this.issuanceService.getIssuanceConfiguration(
                 session.tenantId,
-            );
-        const presentationConfig = (
+            ); */
+        /* const presentationConfig = (
             issuanceConfig.authenticationConfig as AuthenticationMethodPresentation
         ).config.type;
         const presentation = `openid4vp://?${(await this.oid4vpService.createRequest(presentationConfig, { session: auth_session, webhook }, session.tenantId, session.useDcApi, origin)).uri}`;
@@ -238,13 +240,13 @@ export class AuthorizeService {
             error_description:
                 "Presentation of credential required before issuance",
         };
-        return res;
+        return res;*/
     }
 
     async authorizationChallengeEndpoint(
         res: Response<any, Record<string, any>>,
         body: AuthorizeQueries,
-        session: Session,
+        tenantId: string,
         origin: string,
     ) {
         // auth session and issuer state have the same value
@@ -258,7 +260,7 @@ export class AuthorizeService {
             }
  */
             //check if session has valid presentation, we assume for now
-            if (session.credentials) {
+            /* if (session.credentials) {
                 await this.sendAuthorizationCode(res, body.auth_session);
                 return;
             } else {
@@ -266,31 +268,20 @@ export class AuthorizeService {
                 throw new ConflictException(
                     "Session does not have valid credentials for issuance",
                 );
-            }
+            } */
         }
 
         /* const session = await this.sessionService.get(body.issuer_state!);
         if (!session) {
             throw new Error('Credential offer not found');
         } */
-        const issuanceId = session.issuanceId!;
-        const issuanceConfig =
-            await this.issuanceService.getIssuanceConfigurationById(
-                issuanceId,
-                session.tenantId,
-            );
+        /* const issuanceConfig =
+            await this.issuanceService.getIssuanceConfiguration(tenantId); */
 
-        // Use the new authentication configuration structure
-        const authConfig = issuanceConfig.authenticationConfig;
-
-        if (!authConfig) {
-            throw new Error(
-                "No authentication configuration found for issuance config",
-            );
-        }
-
-        switch (authConfig.method) {
+        await this.sendAuthorizationCode(res, body.issuer_state!);
+        /* switch (authConfig.method) {
             case "presentationDuringIssuance": {
+                throw new Error("Not implemented");
                 // OID4VP flow - credential presentation required
                 const webhook = issuanceConfig.claimsWebhook;
                 const response = await this.parseChallengeRequest(
@@ -303,7 +294,7 @@ export class AuthorizeService {
                 break;
             }
             case "auth":
-                await this.sendAuthorizationCode(res, body.issuer_state!);
+                
                 break;
             case "none":
                 await this.sendAuthorizationCode(res, body.issuer_state!);
@@ -311,8 +302,8 @@ export class AuthorizeService {
             default:
                 throw new Error(
                     `Unsupported authentication method: ${(authConfig as any).method}`,
-                );
-        }
+                ); 
+        }*/
     }
 
     private async sendAuthorizationCode(res: Response, issuer_state: string) {

@@ -3,6 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { writeFileSync } from "fs";
+import { cleanupOpenApiDoc } from "nestjs-zod";
 import { AppModule } from "./app.module";
 
 /**
@@ -73,7 +74,7 @@ async function bootstrap() {
 
     const documentConfig = config.build();
     const documentFactory = () =>
-        SwaggerModule.createDocument(app, documentConfig);
+        cleanupOpenApiDoc(SwaggerModule.createDocument(app, documentConfig));
 
     if (process.env.DOC_GENERATE) {
         writeFileSync(

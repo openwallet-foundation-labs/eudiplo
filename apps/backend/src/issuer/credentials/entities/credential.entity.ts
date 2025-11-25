@@ -1,5 +1,3 @@
-// --- credential-config.entity.ts ---
-
 import {
     ApiExtraModels,
     ApiHideProperty,
@@ -15,12 +13,12 @@ import {
     IsString,
     ValidateNested,
 } from "class-validator";
-import { Column, Entity, ManyToMany, ManyToOne } from "typeorm";
+import { Column, Entity, ManyToOne } from "typeorm";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
 import { CertEntity } from "../../../crypto/key/entities/cert.entity";
+import { WebhookConfig } from "../../../utils/webhook/webhook.dto";
 import { SchemaResponse } from "../../credentials-metadata/dto/schema-response.dto";
 import { VCT } from "../../credentials-metadata/dto/vct.dto";
-import { IssuanceConfig } from "../../issuance/entities/issuance-config.entity";
 import {
     AllowListPolicy,
     AttestationBasedPolicy,
@@ -31,15 +29,15 @@ import {
 
 export class DisplayImage {
     @IsString()
-    uri: string;
+    uri!: string;
 }
 export class Display {
     @IsString()
-    name: string;
+    name!: string;
     @IsString()
-    description: string;
+    description!: string;
     @IsString()
-    locale: string;
+    locale!: string;
     @IsString()
     background_color?: string;
     @IsString()
@@ -54,10 +52,10 @@ export class Display {
 
 export class IssuerMetadataCredentialConfig {
     @IsString()
-    format: string;
+    format!: string;
     @ValidateNested()
     @Type(() => Display)
-    display: Display[];
+    display!: Display[];
     @IsOptional()
     @IsString()
     scope?: string;
@@ -87,7 +85,7 @@ export class CredentialConfig {
      * The tenant that owns this object.
      */
     @ManyToOne(() => TenantEntity, { cascade: true, onDelete: "CASCADE" })
-    tenant: TenantEntity;
+    tenant!: TenantEntity;
 
     @Column("json")
     @ValidateNested()
@@ -98,6 +96,24 @@ export class CredentialConfig {
     @IsOptional()
     @IsObject()
     claims?: Record<string, any>;
+
+    /**
+     * Webhook to receive claims for the issuance process.
+     */
+    @IsOptional()
+    @ValidateNested()
+    @Type(() => WebhookConfig)
+    @Column("json", { nullable: true })
+    claimsWebhook?: WebhookConfig;
+
+    /**
+     * Webhook to receive claims for the issuance process.
+     */
+    @IsOptional()
+    @ValidateNested()
+    @Type(() => WebhookConfig)
+    @Column("json", { nullable: true })
+    notificationWebhook?: WebhookConfig;
 
     // has to be optional since there may be credentials that are disclosed without a frame
     @Column("json", { nullable: true })
@@ -171,11 +187,4 @@ export class CredentialConfig {
     })
     @Column("json", { nullable: true })
     embeddedDisclosurePolicy?: EmbeddedDisclosurePolicy;
-
-    @ManyToMany(
-        () => IssuanceConfig,
-        (issuance) => issuance.credentialConfigs,
-        { cascade: ["remove"], onDelete: "CASCADE" },
-    )
-    issuanceConfigs!: IssuanceConfig[];
 }

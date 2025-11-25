@@ -18,7 +18,7 @@ import { plainToClass } from "class-transformer";
 import { validate } from "class-validator";
 import { importJWK, type JWK, jwtVerify } from "jose";
 import { PinoLogger } from "nestjs-pino";
-import { Repository } from "typeorm/repository/Repository";
+import { Repository } from "typeorm";
 import { TenantEntity } from "../auth/tenant/entitites/tenant.entity";
 import { EC_Public } from "../well-known/dto/jwks-response.dto";
 import { KeyImportDto } from "./key/dto/key-import.dto";
@@ -40,7 +40,7 @@ export class CryptoService {
     /**
      * Folder where the keys are stored.
      */
-    folder: string;
+    folder!: string;
 
     /**
      * Constructor for CryptoService.

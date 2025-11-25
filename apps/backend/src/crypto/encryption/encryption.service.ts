@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { exportJWK, generateKeyPair, importJWK, JWK, jwtDecrypt } from "jose";
-import { Repository } from "typeorm/repository/Repository";
+import { Repository } from "typeorm";
 import { v4 } from "uuid";
 import { KeyEntity } from "../key/entities/keys.entity";
 
@@ -29,6 +29,7 @@ export class EncryptionService {
             extractable: true,
         }).then(async (secret) => exportJWK(secret.privateKey));
 
+        privateKey.alg = "ECDH-ES";
         this.keyRepository.save({
             id: v4(),
             tenantId,
@@ -79,6 +80,7 @@ export class EncryptionService {
             })
             .then((entry) => {
                 delete entry.key.d;
+                entry.key.kid = entry.id;
                 return entry.key;
             });
     }

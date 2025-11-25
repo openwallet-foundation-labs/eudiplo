@@ -1,6 +1,6 @@
 import { promises as fs } from "node:fs";
 import { dirname } from "node:path";
-import { ConfigModel, ConfigGroup } from "./model";
+import { ConfigGroup } from "./model";
 
 function mdEscapePipes(s: string) {
   return s.replace(/\|/g, "\\|");

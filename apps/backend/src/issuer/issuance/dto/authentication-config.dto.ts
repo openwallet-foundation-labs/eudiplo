@@ -18,7 +18,7 @@ export class AuthenticationUrlConfig {
      * This URL is where users will be redirected for authentication.
      */
     @IsString()
-    url: string;
+    url!: string;
 
     /**
      * Optional webhook configuration for authentication callbacks
@@ -38,7 +38,7 @@ export class PresentationDuringIssuanceConfig {
      * Link to the presentation configuration that is relevant for the issuance process
      */
     @IsString()
-    type: string;
+    type!: string;
 }
 
 export class AuthenticationMethodPresentation
@@ -46,27 +46,27 @@ export class AuthenticationMethodPresentation
 {
     @IsString()
     @IsIn(["presentationDuringIssuance"])
-    method: "presentationDuringIssuance";
+    method!: "presentationDuringIssuance";
     @IsObject()
     @ValidateNested()
     @Type(() => PresentationDuringIssuanceConfig)
-    config: PresentationDuringIssuanceConfig;
+    config!: PresentationDuringIssuanceConfig;
 }
 
 export class AuthenticationMethodAuth implements AuthenticationMethodInterface {
     @IsString()
     @IsIn(["auth"])
-    method: "auth";
+    method!: "auth";
     @IsObject()
     @ValidateNested()
     @Type(() => AuthenticationUrlConfig)
-    config: AuthenticationUrlConfig;
+    config!: AuthenticationUrlConfig;
 }
 
 export class AuthenticationMethodNone implements AuthenticationMethodInterface {
     @IsString()
     @IsIn(["none"])
-    method: "none";
+    method!: "none";
 }
 
 export interface AuthenticationMethodInterface {

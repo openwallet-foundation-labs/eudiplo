@@ -73,9 +73,7 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
       this.session = await this.sessionManagementService.getSession(sessionId);
       this.generateQRCode(this.session.offerUrl || this.session.requestUrl!);
 
-      if (this.session.issuanceId) {
-        this.getIssuerMetadata();
-      }
+      this.getIssuerMetadata();
     } catch (error) {
       console.error('Error loading session:', error);
       this.snackBar.open('Failed to load session', 'Close', {
@@ -101,12 +99,10 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
   }
 
   getIssuerMetadata(): void {
-    if (!this.session) return;
-
+    if (!this.session?.offer) return;
+    const url = new URL((this.session.offer as any).credential_issuer);
     firstValueFrom(
-      this.httpClient.get(
-        `${(this.session.offer as any).credential_issuer}/.well-known/openid-credential-issuer`
-      )
+      this.httpClient.get(`${url.origin}/.well-known/openid-credential-issuer${url.pathname}`)
     ).then((res) => (this.metadata = res));
   }
 
@@ -315,7 +311,7 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
 
   // Helper to check if this is an issuance session that might have a QR code
   isIssuanceSession(): boolean {
-    return !!this.session?.issuanceId;
+    return !this.session?.requestId;
   }
 
   // Get the offer URI if available in session data

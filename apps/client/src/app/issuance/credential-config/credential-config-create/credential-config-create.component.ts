@@ -1,13 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, type OnInit } from '@angular/core';
-import {
-  type FormArray,
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
@@ -37,6 +30,10 @@ import {
 } from '../../../utils/schemas';
 import { EditorComponent, extractSchema } from '../../../utils/editor/editor.component';
 import { ImageFieldComponent } from '../../../utils/image-field/image-field.component';
+import {
+  fbWebhook,
+  WebhookConfigEditComponent,
+} from '../../../utils/webhook-config-edit/webhook-config-edit.component';
 
 @Component({
   selector: 'app-credential-config-create',
@@ -62,6 +59,7 @@ import { ImageFieldComponent } from '../../../utils/image-field/image-field.comp
     MonacoEditorModule,
     EditorComponent,
     ImageFieldComponent,
+    WebhookConfigEditComponent,
   ],
   templateUrl: './credential-config-create.component.html',
   styleUrl: './credential-config-create.component.scss',
@@ -83,23 +81,24 @@ export class CredentialConfigCreateComponent implements OnInit {
     private route: ActivatedRoute,
     private snackBar: MatSnackBar,
     private keyManagementService: KeyManagementService,
-    private fb: FormBuilder,
     private dialog: MatDialog
   ) {
-    this.form = this.fb.group({
-      id: ['', [Validators.required]],
-      description: ['', Validators.required],
-      keyId: [''],
-      scope: [''],
-      lifeTime: [3600, [Validators.min(1)]],
-      keyBinding: [true, [Validators.required]],
-      statusManagement: [true, [Validators.required]],
-      claims: [''],
-      disclosureFrame: [''],
-      vct: [''],
-      schema: [''],
-      displayConfigs: this.fb.array([this.createDisplayConfigGroup()]),
-      embeddedDisclosurePolicy: [''],
+    this.form = new FormGroup({
+      id: new FormControl('', [Validators.required]),
+      description: new FormControl('', Validators.required),
+      keyId: new FormControl(''),
+      scope: new FormControl(''),
+      lifeTime: new FormControl(3600, [Validators.min(1)]),
+      keyBinding: new FormControl(true, [Validators.required]),
+      statusManagement: new FormControl(true, [Validators.required]),
+      claims: new FormControl(''),
+      disclosureFrame: new FormControl(''),
+      vct: new FormControl(''),
+      schema: new FormControl(''),
+      displayConfigs: new FormArray([this.createDisplayConfigGroup()]),
+      embeddedDisclosurePolicy: new FormControl(''),
+      claimsWebhook: fbWebhook,
+      notificationWebhook: fbWebhook,
     } as { [k in keyof Omit<CredentialConfigCreate, 'config'>]: any });
 
     if (this.route.snapshot.params['id']) {
@@ -210,6 +209,13 @@ export class CredentialConfigCreateComponent implements OnInit {
             ? extractSchema(formValue.embeddedDisclosurePolicy)
             : formValue.embeddedDisclosurePolicy;
       }
+      if (!formValue.claimsWebhook?.url) {
+        formValue.claimsWebhook = null;
+      }
+
+      if (!formValue.notificationWebhook?.url) {
+        formValue.notificationWebhook = null;
+      }
 
       // Remove the displayConfigs form array from the final data
       delete formValue.displayConfigs;
@@ -244,6 +250,10 @@ export class CredentialConfigCreateComponent implements OnInit {
       });
   }
 
+  getFormGroup(controlName: string): FormGroup {
+    return this.form.get(controlName) as FormGroup;
+  }
+
   getControl(value: any) {
     return value as FormControl;
   }
@@ -257,18 +267,18 @@ export class CredentialConfigCreateComponent implements OnInit {
 
   // Display Configuration Management
   createDisplayConfigGroup(): FormGroup {
-    return this.fb.group({
-      name: ['', [Validators.required]],
-      description: ['', [Validators.required]],
-      locale: ['en-US', [Validators.required]],
-      background_color: ['#FFFFFF'],
-      text_color: ['#000000'],
+    return new FormGroup({
+      name: new FormControl('', [Validators.required]),
+      description: new FormControl('', [Validators.required]),
+      locale: new FormControl('en-US', [Validators.required]),
+      background_color: new FormControl('#FFFFFF'),
+      text_color: new FormControl('#000000'),
       // Handle both nested (from API/JSON) and flattened (from form) formats
-      background_image: this.fb.group({
-        uri: [''],
+      background_image: new FormGroup({
+        uri: new FormControl(''),
       }),
-      logo: this.fb.group({
-        uri: [''],
+      logo: new FormGroup({
+        uri: new FormControl(''),
       }),
     });
   }

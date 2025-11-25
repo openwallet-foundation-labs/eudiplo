@@ -28,7 +28,7 @@ import { RegistrationCertificateRequest } from "../dto/vp-request.dto";
  */
 export class PresentationAttachment {
     @IsString()
-    format: string;
+    format!: string;
 
     @IsNotEmpty()
     data: any;
@@ -41,26 +41,26 @@ export class PresentationAttachment {
 export class TrustedAuthorityQuery {
     @IsString()
     @IsIn(["aki", "etsi_tl", "openid_federation"])
-    type: string;
+    type!: string;
 
     @IsArray()
     @IsString({ each: true })
-    values: string[];
+    values!: string[];
 }
 
 export class Claim {
     @IsArray()
-    path: string[];
+    path!: string[];
 }
 
 //TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-credential-query
 
 export class CredentialQuery {
     @IsString()
-    id: string;
+    id!: string;
 
     @IsString()
-    format: string;
+    format!: string;
 
     @IsOptional()
     @IsBoolean()
@@ -84,10 +84,10 @@ export class CredentialQuery {
 //TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#claims_query
 export class ClaimsQuery {
     @IsString()
-    id: string;
+    id!: string;
 
     @IsArray()
-    path: string[];
+    path!: string[];
 
     @IsArray()
     @IsOptional()
@@ -101,7 +101,7 @@ export class CredentialSetQuery {
         items: { type: "array", items: { type: "string" } },
     })
     @IsArray()
-    options: string[][];
+    options!: string[][];
 
     @IsBoolean()
     @IsOptional()
@@ -112,7 +112,7 @@ export class DCQL {
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => CredentialQuery)
-    credentials: CredentialQuery[];
+    credentials!: CredentialQuery[];
 
     @IsArray()
     @IsOptional()
@@ -131,20 +131,20 @@ export class PresentationConfig {
      */
     @Column("varchar", { primary: true })
     @IsString()
-    id: string;
+    id!: string;
 
     /**
      * The tenant ID for which the VP request is made.
      */
     @ApiHideProperty()
     @Column("varchar", { primary: true })
-    tenantId: string;
+    tenantId!: string;
 
     /**
      * The tenant that owns this object.
      */
     @ManyToOne(() => TenantEntity, { cascade: true, onDelete: "CASCADE" })
-    tenant: TenantEntity;
+    tenant!: TenantEntity;
 
     /**
      * Description of the presentation configuration.
@@ -168,7 +168,7 @@ export class PresentationConfig {
     @Column("json")
     @ValidateNested()
     @Type(() => DCQL)
-    dcql_query: DCQL;
+    dcql_query!: DCQL;
     /**
      * The registration certificate request containing the necessary details.
      */
@@ -190,13 +190,13 @@ export class PresentationConfig {
      * The timestamp when the VP request was created.
      */
     @CreateDateColumn()
-    createdAt: Date;
+    createdAt!: Date;
 
     /**
      * The timestamp when the VP request was last updated.
      */
     @UpdateDateColumn()
-    updatedAt: Date;
+    updatedAt!: Date;
 
     /**
      * Attestation that should be attached

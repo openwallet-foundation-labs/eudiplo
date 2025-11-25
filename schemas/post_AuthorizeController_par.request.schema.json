@@ -1,6 +1,0 @@
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AuthorizeController_par.request.schema.json",
-  "title": "AuthorizeController_par.request",
-  "$ref": "./AuthorizeQueries.schema.json"
-}

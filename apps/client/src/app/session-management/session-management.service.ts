@@ -65,20 +65,6 @@ export class SessionManagementService {
   }
 
   /**
-   * Get session type based on available fields
-   */
-  getSessionType(session: Session): string {
-    if (session.issuanceId) {
-      return 'Issuance';
-    } else if (session.requestId) {
-      return 'Presentation';
-    } else if (session.credentials && session.credentials.length > 0) {
-      return 'Verification';
-    }
-    return 'Unknown';
-  }
-
-  /**
    * Revoke/delete a session by ID
    */
   async deleteSession(sessionId: string): Promise<void> {

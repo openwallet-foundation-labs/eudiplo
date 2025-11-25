@@ -16,7 +16,7 @@ import { JWK, JWTPayload } from "jose";
 import { PinoLogger } from "nestjs-pino";
 import { join } from "path";
 import { firstValueFrom } from "rxjs";
-import { Repository } from "typeorm/repository/Repository";
+import { Repository } from "typeorm";
 import { CryptoImplementationService } from "../../crypto/key/crypto-implementation/crypto-implementation.service";
 import { ResolverService } from "../resolver/resolver.service";
 import { AuthResponse } from "./dto/auth-response.dto";
@@ -31,7 +31,7 @@ export class PresentationsService implements OnApplicationBootstrap {
     /**
      * Instance of SDJwtVcInstance for handling SD-JWT-VCs.
      */
-    sdjwtInstance: SDJwtVcInstance;
+    sdjwtInstance!: SDJwtVcInstance;
 
     /**
      * Constructor for the PresentationsService.
@@ -286,23 +286,21 @@ export class PresentationsService implements OnApplicationBootstrap {
         keyBindingNonce: string,
     ) {
         const attestations = Object.keys(res.vp_token);
-        const att = attestations.map((att) =>
-            this.sdjwtInstance
-                .verify(res.vp_token[att], {
-                    requiredClaimKeys: requiredFields,
-                    keyBindingNonce,
-                })
-                .then(
-                    (result) => {
-                        return {
-                            id: att,
-                            values: {
+        const att = attestations.map(async (att) => ({
+            id: att,
+            values: await Promise.all(
+                (res.vp_token[att] as unknown as string[]).map(
+                    (cred) =>
+                        this.sdjwtInstance
+                            .verify(cred, {
+                                requiredClaimKeys: requiredFields,
+                                keyBindingNonce,
+                            })
+                            .then((result) => ({
                                 ...result.payload,
                                 cnf: undefined, // remove cnf for simplicity
                                 status: undefined, // remove status for simplicity
-                            },
-                        };
-                    },
+                            })),
                     /* (err) => {
                         throw new Error
                         //(console.log(err);
@@ -312,7 +310,8 @@ export class PresentationsService implements OnApplicationBootstrap {
                         };
                     }, */
                 ),
-        );
+            ),
+        }));
         return Promise.all(att);
     }
 }

@@ -5,8 +5,9 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
     test: {
         include: ["**/*.e2e-spec.ts"],
+        exclude: ["**/oidf*.e2e-spec.ts"],
         globals: true,
-        root: "./",
+        root: "../",
         reporters: [
             "default",
             ["junit", { outputFile: "test-report.junit.xml" }],
@@ -25,7 +26,6 @@ export default defineConfig({
                 "**/main.ts",
             ],
             include: ["**/src/**/*.ts"],
-            all: true,
         },
         fileParallelism: false,
     },

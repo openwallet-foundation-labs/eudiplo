@@ -30,13 +30,11 @@ business requirements.
 EUDIPLO supports multiple presentation scenarios:
 
 - Standard Presentation Flow
-
     - Direct credential verification requests
     - Used for access control and identity verification
     - Returns verified claims to the requesting service
 
 - Presentation During Issuance
-
     - Credentials presented as prerequisites for new credential issuance
     - Enables qualification-based credential issuance
     - Supports complex identity verification workflows
@@ -96,45 +94,45 @@ For a quick start, follow these steps:
 
 ```json
 {
-  "id": "identity-verification",
-  "dcql_query": {
-    "credentials": [
-      {
-        "id": "pid",
-        "format": "dc+sd-jwt",
-        "meta": {
-          "vct_values": ["https://your-domain.com/credentials/vct/pid"]
-        },
-        "claims": [
-          {
-            "path": ["given_name"]
-          },
-          {
-            "path": ["family_name"]
-          }
+    "id": "identity-verification",
+    "dcql_query": {
+        "credentials": [
+            {
+                "id": "pid",
+                "format": "dc+sd-jwt",
+                "meta": {
+                    "vct_values": ["https://your-domain.com/credentials/vct/pid"]
+                },
+                "claims": [
+                    {
+                        "path": ["given_name"]
+                    },
+                    {
+                        "path": ["family_name"]
+                    }
+                ]
+            }
         ]
-      }
-    ]
-  },
-  "registrationCert": {
-    "body": {
-      "privacy_policy": "https://your-domain.com/privacy-policy",
-      "purpose": [
-        {
-          "locale": "en-US",
-          "name": "Identity verification for service access"
+    },
+    "registrationCert": {
+        "body": {
+            "privacy_policy": "https://your-domain.com/privacy-policy",
+            "purpose": [
+                {
+                    "locale": "en-US",
+                    "name": "Identity verification for service access"
+                }
+            ],
+            "contact": {
+                "website": "https://your-domain.com/contact",
+                "email": "privacy@your-domain.com",
+                "phone": "+1234567890"
+            }
         }
-      ],
-      "contact": {
-        "website": "https://your-domain.com/contact",
-        "email": "privacy@your-domain.com",
-        "phone": "+1234567890"
-      }
+    },
+    "webhook": {
+        "url": "https://your-backend.com/presentation-webhook"
     }
-  },
-  "webhook": {
-    "url": "https://your-backend.com/presentation-webhook"
-  }
 }
 ```
 
@@ -167,8 +165,8 @@ The response includes a URI that can be presented to the user:
 
 ```json
 {
-  "uri": "openid4vp://?request_uri=https://your-domain.com/oid4vp/request/abc123&session_id=session-456",
-  "session_id": "session-456"
+    "uri": "openid4vp://?request_uri=https://your-domain.com/oid4vp/request/abc123&session_id=session-456",
+    "session_id": "session-456"
 }
 ```
 
@@ -198,6 +196,10 @@ sequenceDiagram
 ```
 
 ### Presentation During Issuance
+
+!!! Info
+
+    Presentation during issuance is temporarily removed to be aligned with the latest OID4VCI spec. It will be reintroduced in a future release.
 
 ```mermaid
 sequenceDiagram
