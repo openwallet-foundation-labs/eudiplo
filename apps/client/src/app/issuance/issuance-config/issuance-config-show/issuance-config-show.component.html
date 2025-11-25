@@ -76,12 +76,12 @@
                       </div>
                     </div>
                   </div>
-                  @if (display.logo.uri) {
+                  @if (display.logo?.uri) {
                     <div>
                       <div><strong>Logo:</strong></div>
                       <div class="value-text logo-container">
                         <img
-                          [src]="display.logo.uri"
+                          [src]="display.logo!.uri"
                           alt="Display configuration logo"
                           title="Display configuration logo"
                           class="logo-image"
