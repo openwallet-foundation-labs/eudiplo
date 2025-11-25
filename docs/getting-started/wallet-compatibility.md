@@ -38,7 +38,7 @@ EUDIPLO:
 
 #### Feature Matrix
 
-|              | Auth | Pre | PDI | DPoP | Att | DC API | SD-JWT |
+| Wallet       | Auth | Pre | PDI | DPoP | Att | DC API | SD-JWT |
 | ------------ | ---- | --- | --- | ---- | --- | ------ | ------ |
 | Heidi Wallet | ✅   | ✅  | n/a | ✅   | n/a | ✅     | ✅     |
 
