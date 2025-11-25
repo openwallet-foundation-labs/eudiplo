@@ -17,9 +17,10 @@ guidance for testing new wallets with EUDIPLO.
 The following wallets have been tested and verified to work with
 EUDIPLO:
 
-| Wallet       | Provider                    | Download                                                                                                                                          | Features                 |
-| ------------ | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
-| Heidi Wallet | [Ubique](https://ubique.ch) | [Android](https://play.google.com/store/apps/details?id=ch.ubique.heidi.android) / [iOS](https://apps.apple.com/ch/app/heidi-wallet/id6741428702) | [Details](#heidi-wallet) |
+| Wallet         | Provider                    | Download                                                                                                                                              | Features                   |
+| -------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| Heidi Wallet   | [Ubique](https://ubique.ch) | [Android](https://play.google.com/store/apps/details?id=ch.ubique.heidi.android) / [iOS](https://apps.apple.com/ch/app/heidi-wallet/id6741428702)     | [Details](#heidi-wallet)   |
+| Paradym Wallet | [Animo](https://animo.id)   | [Android](https://play.google.com/store/apps/details?id=id.paradym.wallet) / [iOS](https://apps.apple.com/nl/app/paradym-wallet/id6449846111?l=en-GB) | [Details](#paradym-wallet) |
 
 ### Feature Support Details
 
@@ -36,11 +37,16 @@ EUDIPLO:
 - **Credential Format**
     - **SD-JWT**: SD-JWT VC support
 
+!!! note "KISS: Keep It Simple, Stupid"
+
+    The legend above explains the abbreviations used in the feature matrix below. If you think any other features should be tracked, please let us know!
+
 #### Feature Matrix
 
-| Wallet       | Auth | Pre | PDI | DPoP | Att | DC API | SD-JWT |
-| ------------ | ---- | --- | --- | ---- | --- | ------ | ------ |
-| Heidi Wallet | ✅   | ✅  | n/a | ✅   | n/a | ✅     | ✅     |
+| Wallet         | Auth | Pre | PDI | DPoP | Att | DC API | SD-JWT |
+| -------------- | ---- | --- | --- | ---- | --- | ------ | ------ |
+| Heidi Wallet   | ✅   | ✅  | n/a | ✅   | n/a | ✅     | ✅     |
+| Paradym Wallet | ✅   | ✅  | n/a | ✅   | n/a | ✅     | ✅     |
 
 #### Individual Wallet Details
 
@@ -49,6 +55,11 @@ EUDIPLO:
 - **Version tested**: 1.0.4
 - **Last verified**: October 11, 2025
 - **Notes**: Got stuck in the presentation during issuance during the issuance process (credential got issued, but got not stored)
+
+##### Paradym Wallet
+
+- **Version tested**: 1.16.2
+- **Last verified**: November 25, 2025
 
 !!! note "Help us expand this list!"
 
