@@ -1,4 +1,3 @@
-
 import { Component, type OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -49,8 +48,8 @@ import { FormBuilder } from '@angular/forms';
     MatSlideToggleModule,
     WebhookConfigEditComponent,
     MatSlideToggle,
-    ImageFieldComponent
-],
+    ImageFieldComponent,
+  ],
   templateUrl: './issuance-config-create.component.html',
   styleUrl: './issuance-config-create.component.scss',
 })

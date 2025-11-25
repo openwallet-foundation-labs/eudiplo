@@ -27,8 +27,8 @@ import { EnvironmentService } from '../services/environment.service';
     MatInputModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
-    MatTooltipModule
-],
+    MatTooltipModule,
+  ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })

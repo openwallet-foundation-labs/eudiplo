@@ -16,8 +16,8 @@ import { MatListModule } from '@angular/material/list';
     RouterModule,
     MatButtonModule,
     FlexLayoutModule,
-    MatListModule
-],
+    MatListModule,
+  ],
   templateUrl: './tenant-show.component.html',
   styleUrl: './tenant-show.component.scss',
 })

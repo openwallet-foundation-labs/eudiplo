@@ -1,4 +1,3 @@
-
 import { Component, Inject } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -34,8 +33,8 @@ export interface JsonViewDialogData {
     ReactiveFormsModule,
     FlexLayoutModule,
     MonacoEditorModule,
-    EditorComponent
-],
+    EditorComponent,
+  ],
   templateUrl: './json-view-dialog.component.html',
   styleUrl: './json-view-dialog.component.scss',
 })

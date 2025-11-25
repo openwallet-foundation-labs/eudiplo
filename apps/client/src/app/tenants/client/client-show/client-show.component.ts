@@ -18,8 +18,8 @@ import { MatChipsModule } from '@angular/material/chips';
     MatIconModule,
     RouterModule,
     FlexLayoutModule,
-    MatChipsModule
-],
+    MatChipsModule,
+  ],
   templateUrl: './client-show.component.html',
   styleUrl: './client-show.component.scss',
 })

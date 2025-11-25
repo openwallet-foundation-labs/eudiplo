@@ -1,4 +1,3 @@
-
 import { Component, type OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -58,8 +57,8 @@ import {
     MonacoEditorModule,
     EditorComponent,
     ImageFieldComponent,
-    WebhookConfigEditComponent
-],
+    WebhookConfigEditComponent,
+  ],
   templateUrl: './credential-config-create.component.html',
   styleUrl: './credential-config-create.component.scss',
 })

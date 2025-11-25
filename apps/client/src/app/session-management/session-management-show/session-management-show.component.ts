@@ -1,4 +1,3 @@
-
 import { Component, type OnDestroy, type OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -27,8 +26,8 @@ import { decodeJwt } from 'jose';
     MatTabsModule,
     MatChipsModule,
     MatProgressSpinnerModule,
-    MatTooltipModule
-],
+    MatTooltipModule,
+  ],
   templateUrl: './session-management-show.component.html',
   styleUrl: './session-management-show.component.scss',
 })

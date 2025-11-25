@@ -1,4 +1,3 @@
-
 import { Component } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -47,8 +46,8 @@ import { CredentialIdsComponent } from '../../credential-ids/credential-ids.comp
     MonacoEditorModule,
     EditorComponent,
     WebhookConfigEditComponent,
-    CredentialIdsComponent
-],
+    CredentialIdsComponent,
+  ],
   templateUrl: './presentation-create.component.html',
   styleUrls: ['./presentation-create.component.scss'],
 })

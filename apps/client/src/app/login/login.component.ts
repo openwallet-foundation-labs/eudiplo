@@ -1,4 +1,3 @@
-
 import { Component, type OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -30,8 +29,8 @@ import { EnvironmentService } from '../services/environment.service';
     MatProgressSpinnerModule,
     MatIconModule,
     MatSnackBarModule,
-    FlexLayoutModule
-],
+    FlexLayoutModule,
+  ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })

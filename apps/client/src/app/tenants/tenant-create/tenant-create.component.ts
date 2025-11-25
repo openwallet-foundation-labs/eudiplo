@@ -1,4 +1,3 @@
-
 import { Component } from '@angular/core';
 import {
   FormBuilder,
@@ -32,8 +31,8 @@ import { Role, roles } from '../../services/jwt.service';
     MatSelectModule,
     RouterModule,
     MatIconModule,
-    MatTooltipModule
-],
+    MatTooltipModule,
+  ],
   templateUrl: './tenant-create.component.html',
   styleUrl: './tenant-create.component.scss',
 })

@@ -1,4 +1,3 @@
-
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators, type FormGroup } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -31,8 +30,8 @@ import { ApiService } from '../../../api.service';
     FlexLayoutModule,
     MatSelectModule,
     RouterModule,
-    MatTooltipModule
-],
+    MatTooltipModule,
+  ],
   templateUrl: './client-create.component.html',
   styleUrl: './client-create.component.scss',
 })

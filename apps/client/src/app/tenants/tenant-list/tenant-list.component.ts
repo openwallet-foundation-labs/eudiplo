@@ -1,4 +1,3 @@
-
 import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -24,8 +23,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
     RouterModule,
     FlexLayoutModule,
     MatSlideToggleModule,
-    MatSnackBarModule
-],
+    MatSnackBarModule,
+  ],
   templateUrl: './tenant-list.component.html',
   styleUrl: './tenant-list.component.scss',
 })
