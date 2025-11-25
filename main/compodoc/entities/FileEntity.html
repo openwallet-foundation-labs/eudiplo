@@ -360,22 +360,22 @@ export class FileEntity {
      * The ID of the object.
      */
     @PrimaryColumn()
-    id: string;
+    id!: string;
 
     @Column()
-    filename: string;
+    filename!: string;
 
     /**
      * Tenant ID for the key.
      */
     @Column(&quot;varchar&quot;, { primary: true })
-    tenantId: string;
+    tenantId!: string;
 
     /**
      * The tenant that owns this object.
      */
     @ManyToOne(() &#x3D;&gt; TenantEntity, { cascade: true, onDelete: &quot;CASCADE&quot; })
-    tenant: TenantEntity;
+    tenant!: TenantEntity;
 }
 </code></pre>
     </div>

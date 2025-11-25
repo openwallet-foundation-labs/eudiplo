@@ -160,9 +160,11 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#configuration" >configuration</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                 <a href="#deleteConfiguration" >deleteConfiguration</a>
                             </li>
@@ -171,10 +173,12 @@
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                     <span class="modifier">Async</span>
                                 <a href="#getOffer" >getOffer</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                 <a href="#storePresentationConfig" >storePresentationConfig</a>
                             </li>
@@ -202,6 +206,7 @@
                     <a name="configuration"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>configuration</b></span>
                         <a href="#configuration"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -218,14 +223,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Get()<br /></code>
+                    <code>@Secured([&#x27;undefined&#x27;])<br />@Get()<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="114"
-                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:114</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="115"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:115</a></div>
                         </td>
                     </tr>
 
@@ -280,6 +285,7 @@
                     <a name="deleteConfiguration"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>deleteConfiguration</b></span>
                         <a href="#deleteConfiguration"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -296,14 +302,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Delete(&#x27;:id&#x27;)<br /></code>
+                    <code>@Secured([&#x27;undefined&#x27;])<br />@Delete(&#x27;:id&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="142"
-                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:142</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="145"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:145</a></div>
                         </td>
                     </tr>
 
@@ -373,6 +379,7 @@
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                             <span class="modifier">Async</span>
                         <span ><b>getOffer</b></span>
                         <a href="#getOffer"><span class="icon ion-ios-link"></span></a>
@@ -390,7 +397,7 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@ApiResponse({description: &#x27;JSON response&#x27;, status: 201, type: OfferResponse, content: undefined})<br />@ApiProduces(&#x27;application/json&#x27;, &#x27;image/png&#x27;)<br />@ApiBody({type: PresentationRequest, examples: undefined})<br />@Post(&#x27;request&#x27;)<br /></code>
+                    <code>@ApiResponse({description: &#x27;JSON response&#x27;, status: 201, type: OfferResponse, content: undefined})<br />@ApiProduces(&#x27;application/json&#x27;, &#x27;image/png&#x27;)<br />@ApiBody({type: PresentationRequest, examples: undefined})<br />@Secured([&#x27;undefined&#x27;, &#x27;undefined&#x27;])<br />@Post(&#x27;request&#x27;)<br /></code>
                 </td>
             </tr>
 
@@ -488,6 +495,7 @@
                     <a name="storePresentationConfig"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>storePresentationConfig</b></span>
                         <a href="#storePresentationConfig"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -504,14 +512,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Post()<br /></code>
+                    <code>@Secured([&#x27;undefined&#x27;])<br />@Post()<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="126"
-                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:126</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="128"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:128</a></div>
                         </td>
                     </tr>
 
@@ -601,7 +609,6 @@ import { PresentationConfigCreateDto } from &quot;./dto/presentation-config-crea
 import { PresentationsService } from &quot;./presentations.service&quot;;
 
 @ApiTags(&quot;Presentation management&quot;)
-@Secured([Role.Presentations])
 @Controller(&quot;presentation-management&quot;)
 export class PresentationManagementController {
     constructor(
@@ -651,6 +658,7 @@ export class PresentationManagementController {
             },
         },
     })
+    @Secured([Role.PresentationOffer, Role.Presentations])
     @Post(&quot;request&quot;)
     async getOffer(
         @Req() req: Request,
@@ -687,6 +695,7 @@ export class PresentationManagementController {
      * Returns the presentation request configurations.
      * @returns
      */
+    @Secured([Role.Presentations])
     @Get()
     configuration(@Token() user: TokenPayload) {
         return this.presentationsService.getPresentationConfigs(
@@ -699,6 +708,7 @@ export class PresentationManagementController {
      * @param config
      * @returns
      */
+    @Secured([Role.Presentations])
     @Post()
     storePresentationConfig(
         @Body() config: PresentationConfigCreateDto,
@@ -715,6 +725,7 @@ export class PresentationManagementController {
      * @param id
      * @returns
      */
+    @Secured([Role.Presentations])
     @Delete(&quot;:id&quot;)
     deleteConfiguration(@Param(&quot;id&quot;) id: string, @Token() user: TokenPayload) {
         return this.presentationsService.deletePresentationConfig(

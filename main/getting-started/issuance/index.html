@@ -611,12 +611,6 @@
       
         
       
-        
-      
-        
-      
-        
-      
     
     
     
@@ -727,90 +721,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="advanced-features/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Advanced Features
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="authentication/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Authentication
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="api-guide/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    API Guide
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -830,8 +740,6 @@
       
         
           
-        
-      
         
       
         
@@ -907,34 +815,6 @@
     
   
     Presentation Configuration
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../presentation/api-guide/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    API Guide
   
 
     
@@ -1916,10 +1796,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#issuance-configurations" class="md-nav__link">
+  <a href="#issuance-configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Issuance Configurations
+        Issuance Configuration
       
     </span>
   </a>
@@ -1999,54 +1879,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#1-webhook-response-highest-priority" class="md-nav__link">
+  <a href="#when-to-use-each-method" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Webhook Response (Highest Priority)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-credential-offer-values-medium-priority" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. Credential Offer Values (Medium Priority)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-static-claims-lowest-priority" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. Static Claims (Lowest Priority)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#no-claims-scenario" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        No Claims Scenario
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#best-practices" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Best Practices
+        When to Use Each Method
       
     </span>
   </a>
@@ -2055,17 +1891,6 @@
         
       </ul>
     </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#display-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Display Configuration
-      
-    </span>
-  </a>
   
 </li>
       
@@ -2178,18 +2003,13 @@
 
 
 <h1 id="configuring-credential-issuance-flows">Configuring Credential Issuance Flows<a class="headerlink" href="#configuring-credential-issuance-flows" title="Permanent link">¶</a></h1>
-<p>Issuance flow files define how a credential should be generated, signed, and
-formatted. EUDIPLO uses a tenant-based architecture where each tenant has
-isolated configuration.</p>
 <p>The issuance system uses a <strong>two-layer configuration approach</strong>:</p>
 <ol>
 <li><strong>Credential Configurations</strong> - Define the structure, format, and metadata of
    individual credentials</li>
-<li><strong>Issuance Configurations</strong> - Define which credentials to issue together and
-   authentication requirements</li>
+<li><strong>Issuance Configuration</strong> - Define the issuance configuration that get used to
+   group multiple credentials and publish the issuer metadata</li>
 </ol>
-<p>Both configurations have a <em>many-to-many</em> relationship, which means a defined
-credential can be used in multiple issuance configurations.</p>
 <hr>
 <h2 id="api-endpoints">API Endpoints<a class="headerlink" href="#api-endpoints" title="Permanent link">¶</a></h2>
 <p>The system uses two separate endpoints for the two-layer configuration:</p>
@@ -2197,27 +2017,27 @@ credential can be used in multiple issuance configurations.</p>
 <p>To manage individual credential configurations, use the
 <code>/issuer-management/credentials</code> endpoint. This endpoint handles the definition
 of credential types, their formats, claims, and display properties.</p>
-<h3 id="issuance-configurations">Issuance Configurations<a class="headerlink" href="#issuance-configurations" title="Permanent link">¶</a></h3>
-<p>To manage issuance flows (which credentials to issue together and authentication
-requirements), use the <code>/issuer-management/issuance</code> endpoint. This endpoint
-handles grouping credentials and defining authorizations or webhooks.</p>
+<h3 id="issuance-configuration">Issuance Configuration<a class="headerlink" href="#issuance-configuration" title="Permanent link">¶</a></h3>
+<p>To manage the issuance flow, use the <code>/issuer-management/issuance</code> endpoint. This endpoint
+handles grouping credentials and defining authorization or webhooks.</p>
 <p>Based on your passed access token, both endpoints will be scoped to the tenant ID of the
 token. You also need the <code>issuance:manage</code> role to access these endpoints.
 The configurations are internally stored in a database.</p>
 <h3 id="creating-credential-offers">Creating Credential Offers<a class="headerlink" href="#creating-credential-offers" title="Permanent link">¶</a></h3>
-<p>Via the <code>/issuer-management/offer</code> endpoint you can start the issuance flow for
-a specific issuance configuration. The credential offer process works as
-follows:</p>
+<p>Via the <a href="http://localhost:8000/api/openapi/#post-issuer-managementoffer">credential offer endpoint</a> you can create a credential offer that can be presented to the user.
+When creating an offer, you can:</p>
 <ol>
-<li><strong>Provide an <code>issuanceId</code></strong> - This specifies which issuance configuration to
-   use as the base</li>
-<li><strong>Optionally override credentials</strong> - Use <code>credentialConfigurationIds</code> to
-   override which specific credentials are issued</li>
+<li><strong>Define the flow</strong> - Either go with the pre authorized flow or require user
+   authentication via the authorization code flow</li>
+<li><strong>Provide credentials</strong> - Use <code>credentialConfigurationIds</code> to specify which
+   credentials to issue from the issuance configuration</li>
 <li><strong>Optionally override claims</strong> - Use the <code>values</code> parameter to provide custom
    claims for specific credentials</li>
+<li><strong>Optionally pass claim webhooks</strong> - Use the <code>claimsWebhook</code> parameter to
+   dynamically fetch claims during the issuance flow</li>
+<li><strong>Optionally pass notification webhooks</strong> - Use the <code>notifyWebhook</code> parameter to
+   get notified about issuance status changes</li>
 </ol>
-<p>The issuance configuration defines the default credentials to issue and
-authentication requirements, but these can be customized per offer.</p>
 <hr>
 <h2 id="credential-issuance-flow">Credential Issuance Flow<a class="headerlink" href="#credential-issuance-flow" title="Permanent link">¶</a></h2>
 <p>This flow describes how a backend service starts an issuance flow of an
@@ -2260,12 +2080,9 @@ with the wallet. It also shows the interactions with <a href="../../architecture
 <li><strong><a href="credential-configuration/">Credential Configuration</a></strong> - Learn how to
   define individual credential types, their structure, claims, and display
   properties</li>
-<li><strong><a href="advanced-features/">Advanced Features</a></strong> - Explore key binding, status
-  management, expiration, and advanced key management</li>
-<li><strong><a href="authentication/">Authentication Flows</a></strong> - Configure different
-  authentication methods for issuance flows</li>
-<li><strong><a href="api-guide/">API Guide</a></strong> - Step-by-step API usage with examples and curl
-  commands</li>
+<li><strong><a href="issuance-configuration/">Issuance Configuration</a></strong> - Understand how to
+  create issuance configurations that group multiple credentials and define
+  issuance parameters such as authorization and webhooks</li>
 </ul>
 <hr>
 <h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">¶</a></h2>
@@ -2273,112 +2090,33 @@ with the wallet. It also shows the interactions with <a href="../../architecture
 <ol>
 <li><strong>Create a credential configuration</strong> - Define your credential type using the
    <a href="credential-configuration/">Credential Configuration</a> guide</li>
-<li><strong>Create an issuance configuration</strong> - Set up authentication and grouping
-   using the <a href="api-guide/">API Guide</a></li>
+<li><strong>Create an issuance configuration</strong> - Define the issuance configuration using
+   the <a href="issuance-configuration/">Issuance Configuration</a> guide</li>
 <li><strong>Issue credentials</strong> - Start the issuance flow by creating credential offers</li>
 </ol>
-<p>For advanced features like key binding, status management, or expiration, see
-the <a href="advanced-features/">Advanced Features</a> section.</p>
 <hr>
 <h2 id="passing-claims">Passing Claims<a class="headerlink" href="#passing-claims" title="Permanent link">¶</a></h2>
-<p>EUDIPLO provides three methods to pass claims (data) for credentials during issuance. Understanding these methods and their priority order is crucial for designing your issuance flows effectively.</p>
+<p>EUDIPLO provides multiple methods to pass claims (data) for credentials during issuance, with a clear priority system that determines which claims are used.</p>
 <h3 id="priority-order">Priority Order<a class="headerlink" href="#priority-order" title="Permanent link">¶</a></h3>
 <p>Claims are resolved in the following priority order (highest to lowest):</p>
 <ol>
-<li><strong>Webhook Response</strong> - Dynamic claims from webhook endpoints</li>
-<li><strong>Credential Offer Values</strong> - Claims passed during offer creation</li>
-<li><strong>Static Claims</strong> - Default claims defined in credential configuration</li>
+<li><strong>Offer-level webhook</strong> - Webhook specified in the credential offer</li>
+<li><strong>Offer-level static claims</strong> - Claims specified in the credential offer</li>
+<li><strong>Configuration-level webhook</strong> - Webhook defined in the credential configuration</li>
+<li><strong>Configuration-level static claims</strong> - Claims defined in the credential configuration</li>
 </ol>
-<div class="admonition info important">
-<p class="admonition-title">Info</p>
-<p>Higher priority sources completely override lower priority sources - claims are not merged between different sources.</p>
+<div class="admonition warning">
+<p class="admonition-title">Claims are not merged</p>
+<p>Higher priority sources completely override lower priority sources - claims are not merged. If an offer-level webhook is provided, all configuration-level claims will be entirely ignored.</p>
 </div>
-<h3 id="1-webhook-response-highest-priority">1. Webhook Response (Highest Priority)<a class="headerlink" href="#1-webhook-response-highest-priority" title="Permanent link">¶</a></h3>
-<p>Webhooks allow you to dynamically generate claims based on authentication context or external data sources. This is the most flexible approach for personalized credentials.</p>
-<p><strong>Current Support:</strong> Presentation during issuance flows only (future Enhancement: <a href="https://github.com/openwallet-foundation-labs/eudiplo/issues/32">General webhook support planned</a>)</p>
-<div class="admonition info">
-<p class="admonition-title">Learn More About Presentation During Issuance</p>
-<p>For detailed information about presentation during issuance workflows:</p>
+<p>For a detailed explanation of the claims priority system and how to configure each method, see the <a href="credential-configuration/#fetching-claims">Fetching Claims</a> section in the Credential Configuration documentation.</p>
+<h3 id="when-to-use-each-method">When to Use Each Method<a class="headerlink" href="#when-to-use-each-method" title="Permanent link">¶</a></h3>
 <ul>
-<li><strong><a href="authentication/#3-oid4vp-flow-presentationduringissuance">Authentication Guide</a></strong> - Configuration and setup</li>
-<li><strong><a href="api-guide/#webhook-integration">API Guide</a></strong> - Implementation examples and webhook payloads</li>
-<li><strong><a href="../presentation/#presentation-during-issuance">Presentation Documentation</a></strong> - Flow diagrams and use cases</li>
-<li><strong><a href="../../architecture/webhooks/">Webhooks Architecture</a></strong> - Technical details</li>
+<li><strong>Configuration-level static claims</strong> - Default values for all credentials of this type, fixed metadata (e.g., issuing country, authority)</li>
+<li><strong>Configuration-level webhook</strong> - Dynamic claims based on authentication context, personalized credentials requiring real-time data</li>
+<li><strong>Offer-level static claims</strong> - Claims known at offer creation time, overriding specific values for individual issuances</li>
+<li><strong>Offer-level webhook</strong> - Custom data source per offer, testing different webhook endpoints</li>
 </ul>
-</div>
-<p><strong>When to use:</strong></p>
-<ul>
-<li>Dynamic claims based on user authentication</li>
-<li>Claims from external systems or databases</li>
-<li>Personalized credentials requiring real-time data</li>
-</ul>
-<p><strong>Example webhook response:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="nt">"pid"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">        </span><span class="nt">"given_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Max"</span><span class="p">,</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">        </span><span class="nt">"family_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Mustermann"</span><span class="p">,</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">        </span><span class="nt">"birthdate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1990-01-01"</span><span class="p">,</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">        </span><span class="nt">"issuing_country"</span><span class="p">:</span><span class="w"> </span><span class="s2">"DE"</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">}</span>
-</code></pre></div>
-<h3 id="2-credential-offer-values-medium-priority">2. Credential Offer Values (Medium Priority)<a class="headerlink" href="#2-credential-offer-values-medium-priority" title="Permanent link">¶</a></h3>
-<p>Pass claims directly when creating a credential offer. This is ideal for scenarios where the issuing service has the required data at offer creation time.</p>
-<p><strong>When to use:</strong></p>
-<ul>
-<li>Claims known at offer creation time</li>
-<li>Overriding specific static claims for individual issuances</li>
-<li>Customizing credentials per recipient</li>
-</ul>
-<p><strong>Example API request:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">'POST'</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="s1">'http://localhost:3000/issuer-management/offer'</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">'Authorization: Bearer your-jwt-token'</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">'Content-Type: application/json'</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="s1">    "issuanceId": "employee-onboarding",</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="s1">    "response_type": "uri",</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="s1">    "claims": {</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="s1">      "pid": {</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="s1">        "given_name": "Max",</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="s1">        "family_name": "Mustermann",</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="s1">        "employee_id": "EMP12345",</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="s1">        "department": "Engineering"</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="s1">      }</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="s1">    }</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="s1">  }'</span>
-</code></pre></div>
-<h3 id="3-static-claims-lowest-priority">3. Static Claims (Lowest Priority)<a class="headerlink" href="#3-static-claims-lowest-priority" title="Permanent link">¶</a></h3>
-<p>Define default claims directly in the credential configuration. These serve as fallback values when no higher priority source provides claims.</p>
-<p><strong>When to use:</strong></p>
-<ul>
-<li>Default values for all credentials of this type</li>
-<li>Fixed metadata (e.g., issuing country, authority)</li>
-<li>Development and testing scenarios</li>
-</ul>
-<p><strong>Example in credential configuration:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pid"</span><span class="p">,</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"vc+sd-jwt"</span><span class="p">,</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="nt">"claims"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">        </span><span class="nt">"issuing_country"</span><span class="p">:</span><span class="w"> </span><span class="s2">"DE"</span><span class="p">,</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">        </span><span class="nt">"issuing_authority"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Federal Government"</span><span class="p">,</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">        </span><span class="nt">"credential_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PersonalID"</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="p">}</span>
-</code></pre></div>
-<h3 id="no-claims-scenario">No Claims Scenario<a class="headerlink" href="#no-claims-scenario" title="Permanent link">¶</a></h3>
-<p>If no claims are provided through any of the three methods, the credential will be issued with an empty claims set. While technically valid, this is rarely useful in practice.</p>
-<h3 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">¶</a></h3>
-<ul>
-<li><strong>Combine methods strategically</strong>: Use static claims for fixed metadata, offer values for known recipient data, and webhooks for dynamic personalization</li>
-<li><strong>Test priority behavior</strong>: Ensure you understand which claims source will be used in your specific scenario</li>
-<li><strong>Validate claim completeness</strong>: Verify that all required claims are provided through at least one method</li>
-</ul>
-<hr>
-<h2 id="display-configuration">Display Configuration<a class="headerlink" href="#display-configuration" title="Permanent link">¶</a></h2>
-<p>The display information from the <a href="https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-credential-issuer-metadata:~:text=2%20or%20greater.-,display,-%3A%20OPTIONAL.%20A%20non">OID4VCI spec</a> can be configured via the <code>/display</code> endpoint.</p>
-<p>To host images or logos, you can use the <a href="../../architecture/storage/">storage</a> system provided by EUDIPLO.</p>
 
 
 

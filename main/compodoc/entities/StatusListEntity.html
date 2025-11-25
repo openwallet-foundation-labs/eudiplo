@@ -471,31 +471,31 @@ export class StatusListEntity {
      * The ID of the tenant to which the status list belongs.
      */
     @Column(&quot;varchar&quot;, { primary: true })
-    tenantId: string;
+    tenantId!: string;
 
     /**
      * The tenant that owns this object.
      */
     @ManyToOne(() &#x3D;&gt; TenantEntity, { cascade: true, onDelete: &quot;CASCADE&quot; })
-    tenant: TenantEntity;
+    tenant!: TenantEntity;
 
     /**
      * The elements of the status list.
      */
     @Column(&quot;json&quot;)
-    elements: number[];
+    elements!: number[];
 
     /**
      * The stack of available indexes for the status list.
      */
     @Column(&quot;json&quot;)
-    stack: number[];
+    stack!: number[];
 
     /**
      * The number of bits used for each status in the status list.
      */
     @Column(&quot;int&quot;)
-    bits: BitsPerStatus;
+    bits!: BitsPerStatus;
 
     /**
      * The JSON Web Token (JWT) for the status list.

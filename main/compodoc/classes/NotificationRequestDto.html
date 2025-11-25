@@ -274,10 +274,10 @@ import { IsEnum, IsString } from &quot;class-validator&quot;;
 
 export class NotificationRequestDto {
     @IsString()
-    notification_id: string;
+    notification_id!: string;
 
     @IsEnum([&quot;credential_accepted&quot;, &quot;credential_revoked&quot;])
-    event: NotificationEvent;
+    event!: NotificationEvent;
 }
 </code></pre>
     </div>

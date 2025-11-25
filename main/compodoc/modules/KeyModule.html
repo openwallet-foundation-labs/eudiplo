@@ -196,7 +196,7 @@
 import { DynamicModule, Global, Module } from &quot;@nestjs/common&quot;;
 import { ConfigModule, ConfigService } from &quot;@nestjs/config&quot;;
 import { getRepositoryToken, TypeOrmModule } from &quot;@nestjs/typeorm&quot;;
-import { Repository } from &quot;typeorm/repository/Repository&quot;;
+import { Repository } from &quot;typeorm&quot;;
 import { DBKeyService } from &quot;./adapters/db-key.service&quot;;
 import { VaultKeyService } from &quot;./adapters/vault-key.service&quot;;
 import { CryptoImplementatationModule } from &quot;./crypto-implementation/crypto-implementation.module&quot;;

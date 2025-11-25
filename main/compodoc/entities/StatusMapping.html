@@ -425,25 +425,25 @@ import { TenantEntity } from &quot;../../../auth/tenant/entitites/tenant.entity&
 @Entity()
 export class StatusMapping {
     @Column({ type: &quot;varchar&quot;, primary: true })
-    tenantId: string;
+    tenantId!: string;
 
     /**
      * The tenant that owns this object.
      */
     @ManyToOne(() &#x3D;&gt; TenantEntity, { cascade: true, onDelete: &quot;CASCADE&quot; })
-    tenant: TenantEntity;
+    tenant!: TenantEntity;
 
     @Column({ type: &quot;varchar&quot;, primary: true })
-    sessionId: string;
+    sessionId!: string;
 
     @Column({ type: &quot;varchar&quot;, primary: true })
-    list: string;
+    list!: string;
 
     @Column({ type: &quot;int&quot;, primary: true })
-    index: number;
+    index!: number;
 
     @Column({ type: &quot;varchar&quot;, primary: true })
-    credentialConfigurationId: string;
+    credentialConfigurationId!: string;
 }
 </code></pre>
     </div>

@@ -178,6 +178,7 @@
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#getResponse" >getResponse</a>
                             </li>
                         </ul>
@@ -227,8 +228,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="56"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:56</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="58"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:58</a></div>
                         </td>
                     </tr>
 
@@ -330,8 +331,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="40"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:40</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="42"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:42</a></div>
                         </td>
                     </tr>
 
@@ -399,6 +400,7 @@
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>getResponse</b></span>
                         <a href="#getResponse"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -415,14 +417,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Post()<br />@SessionLogger(&#x27;session&#x27;, &#x27;OID4VP&#x27;)<br /></code>
+                    <code>@Post()<br />@HttpCode(HttpStatus.OK)<br />@SessionLogger(&#x27;session&#x27;, &#x27;OID4VP&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="72"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:72</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="75"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:75</a></div>
                         </td>
                     </tr>
 
@@ -490,6 +492,8 @@
     Body,
     Controller,
     Get,
+    HttpCode,
+    HttpStatus,
     Post,
     Req,
     UseInterceptors,
@@ -556,12 +560,16 @@ export class Oid4vpController {
      * @returns
      */
     @Post()
+    @HttpCode(HttpStatus.OK)
     @SessionLogger(&quot;session&quot;, &quot;OID4VP&quot;)
     getResponse(
         @Body() body: AuthorizationResponse,
         @SessionEntity() session: Session,
     ) {
-        return this.oid4vpService.getResponse(body, session);
+        return this.oid4vpService.getResponse(body, session).catch((err) &#x3D;&gt; {
+            console.error(err);
+            throw err;
+        });
     }
 }
 </code></pre>

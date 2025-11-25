@@ -683,8 +683,8 @@ entries. The status list is stored in the file system as a JSON file.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="180"
-                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:180</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="175"
+                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:175</a></div>
                         </td>
                     </tr>
 
@@ -778,8 +778,8 @@ entries. The status list is stored in the file system as a JSON file.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="196"
-                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:196</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="191"
+                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:191</a></div>
                         </td>
                     </tr>
 
@@ -994,12 +994,7 @@ export class StatusListService {
         if (idx &#x3D;&#x3D;&#x3D; undefined) {
             throw new Error(&quot;Stack for status list is empty!!!&quot;);
         }
-        const sub &#x3D; join(
-            this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;),
-            session.tenantId,
-            &quot;status-management&quot;,
-            &quot;status-list&quot;,
-        );
+        const sub &#x3D; &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/${session.tenantId}/status-management/status-list&#x60;;
         // store the index in the status mapping
         await this.statusMappingRepository.save({
             tenantId: session.tenantId,

@@ -936,7 +936,7 @@ import { ClientEntity } from &quot;../entities/client.entity&quot;;
 
 @Injectable()
 export class KeycloakClientsProvider implements ClientsProvider, OnModuleInit {
-    private kc: KeycloakAdminClient;
+    private kc!: KeycloakAdminClient;
 
     constructor(
         private cfg: ConfigService,

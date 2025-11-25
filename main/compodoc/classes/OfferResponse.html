@@ -202,7 +202,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="78" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:78</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="91" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:91</a></div>
                         </td>
                     </tr>
 
@@ -228,7 +228,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="77" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:77</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="90" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:90</a></div>
                         </td>
                     </tr>
 
@@ -255,11 +255,15 @@ import {
     IsObject,
     IsOptional,
     IsString,
-    IsUUID,
     ValidateNested,
 } from &quot;class-validator&quot;;
 import { WebhookConfig } from &quot;../../../utils/webhook/webhook.dto&quot;;
 import { ResponseType } from &quot;../../../verifier/oid4vp/dto/presentation-request.dto&quot;;
+
+export enum FlowType {
+    AUTH_CODE &#x3D; &quot;authorization_code&quot;,
+    PRE_AUTH_CODE &#x3D; &quot;pre_authorized_code&quot;,
+}
 
 export class OfferRequestDto {
     @ApiProperty({
@@ -271,20 +275,26 @@ export class OfferRequestDto {
         description: &quot;The type of response expected for the offer request.&quot;,
     })
     @IsEnum(ResponseType)
-    response_type: ResponseType;
+    response_type!: ResponseType;
 
     /**
-     * Issuance config id to reference the issuance configuration.
+     * The flow type for the offer request.
+     */
+    @IsEnum(FlowType)
+    flow!: FlowType;
+
+    /**
+     * Transaction code for pre-authorized code flow.
      */
     @IsString()
-    issuanceId: string;
+    @IsOptional()
+    tx_code?: string;
 
     /**
-     * Overrides the default values for the credential ids.
+     * List of credential configuration ids to be included in the offer.
      */
     @IsArray()
-    @IsOptional()
-    credentialConfigurationIds?: string[];
+    credentialConfigurationIds!: string[];
 
     /**
      * Override the default values for the credential claims.
@@ -307,24 +317,27 @@ export class OfferRequestDto {
     claims?: Record&lt;string, Record&lt;string, any&gt;&gt;;
 
     /**
-     * Webhook configuration for claims
+     * Webhooks to fetch the claims dynamically.
      */
+    @IsObject()
+    @IsOptional()
     @ValidateNested()
     @Type(() &#x3D;&gt; WebhookConfig)
-    @IsOptional()
-    claimsWebhook?: WebhookConfig;
+    claimWebhook?: WebhookConfig;
 
     /**
-     * Pre defined session id
+     * Webhook to notify about the status of the issuance process.
      */
-    @IsUUID()
+    @IsObject()
     @IsOptional()
-    session?: string;
+    @ValidateNested()
+    @Type(() &#x3D;&gt; WebhookConfig)
+    notifyWebhook?: WebhookConfig;
 }
 
 export class OfferResponse {
-    uri: string;
-    session: string;
+    uri!: string;
+    session!: string;
 }
 </code></pre>
     </div>

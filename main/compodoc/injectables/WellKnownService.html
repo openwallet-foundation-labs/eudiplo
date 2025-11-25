@@ -194,7 +194,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="16" class="link-to-prism">src/well-known/well-known.service.ts:16</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="14" class="link-to-prism">src/well-known/well-known.service.ts:14</a></div>
                             </td>
                         </tr>
 
@@ -288,15 +288,15 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>getAuthzMetadata(session: <a href="../entitys/Session.html" target="_self">Session</a>)</code>
+<code>getAuthzMetadata(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="77"
-                                    class="link-to-prism">src/well-known/well-known.service.ts:77</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="75"
+                                    class="link-to-prism">src/well-known/well-known.service.ts:75</a></div>
                         </td>
                     </tr>
 
@@ -319,9 +319,9 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>session</td>
+                                                <td>tenantId</td>
                                             <td>
-                                                            <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
 
                                             <td>
@@ -334,7 +334,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../classes/Oauth2AuthorizationServerResponse.html" target="_self" >Promise&lt;Oauth2AuthorizationServerResponse&gt;</a></code>
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
 
                         </div>
                             <div class="io-description">
@@ -359,15 +359,15 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getIssuerMetadata(session: <a href="../entitys/Session.html" target="_self">Session</a>, contentType: <a href="../undefineds/MediaType.html" target="_self">MediaType</a>)</code>
+                    <code>getIssuerMetadata(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, contentType: <a href="../undefineds/MediaType.html" target="_self">MediaType</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="39"
-                                    class="link-to-prism">src/well-known/well-known.service.ts:39</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="37"
+                                    class="link-to-prism">src/well-known/well-known.service.ts:37</a></div>
                         </td>
                     </tr>
 
@@ -395,9 +395,9 @@ The metadata can be returned in two formats:</p>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>session</td>
+                                                <td>tenantId</td>
                                             <td>
-                                                            <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
 
                                             <td>
@@ -452,8 +452,8 @@ The metadata can be returned in two formats:</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="89"
-                                    class="link-to-prism">src/well-known/well-known.service.ts:89</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="83"
+                                    class="link-to-prism">src/well-known/well-known.service.ts:83</a></div>
                         </td>
                     </tr>
 
@@ -512,11 +512,9 @@ import { CryptoService } from &quot;../crypto/crypto.service&quot;;
 import { CryptoImplementationService } from &quot;../crypto/key/crypto-implementation/crypto-implementation.service&quot;;
 import { AuthorizeService } from &quot;../issuer/authorize/authorize.service&quot;;
 import { Oid4vciService } from &quot;../issuer/oid4vci/oid4vci.service&quot;;
-import { Session } from &quot;../session/entities/session.entity&quot;;
 import { MediaType } from &quot;../utils/mediaType/media-type.enum&quot;;
 import { CredentialIssuerMetadataDto } from &quot;./dto/credential-issuer-metadata.dto&quot;;
 import { JwksResponseDto } from &quot;./dto/jwks-response.dto&quot;;
-import { Oauth2AuthorizationServerResponse } from &quot;./dto/oauth-authorization-server-response.dto&quot;;
 
 /**
  * Service to handle well-known endpoints and metadata retrieval.
@@ -545,13 +543,13 @@ export class WellKnownService {
      * @param contentType
      * @returns
      */
-    async getIssuerMetadata(session: Session, contentType: MediaType) {
-        const metadata &#x3D; (await this.oid4vciService.issuerMetadata(session))
+    async getIssuerMetadata(tenantId: string, contentType: MediaType) {
+        const metadata &#x3D; (await this.oid4vciService.issuerMetadata(tenantId))
             .credentialIssuer as unknown as CredentialIssuerMetadataDto;
 
         if (contentType &#x3D;&#x3D;&#x3D; MediaType.APPLICATION_JWT) {
             const keyId &#x3D; await this.cryptoService.keyService.getKid(
-                session.tenantId,
+                tenantId,
                 &quot;access&quot;,
             );
             return this.cryptoService.signJwt(
@@ -560,7 +558,7 @@ export class WellKnownService {
                     alg: this.cryptoImplementationService.getAlg(),
                     x5c: await this.cryptoService.getCertChain(
                         &quot;access&quot;,
-                        session.tenantId,
+                        tenantId,
                     ),
                 },
                 {
@@ -571,7 +569,7 @@ export class WellKnownService {
                     // [Review]: should we add &#x60;exp&#x60; value here?
                     //MM: the value makes sense when we cache the issuer metadata so it must not be signed on every request. Like when it is issued every hour, its lifetime is 1 hour and the jwt is in the cache.
                 },
-                session.tenantId,
+                tenantId,
                 keyId,
             );
         }
@@ -583,12 +581,8 @@ export class WellKnownService {
      * Returns the OAuth 2.0 Authorization Server metadata for a given tenant.
      * @returns
      */
-    getAuthzMetadata(
-        session: Session,
-    ): Promise&lt;Oauth2AuthorizationServerResponse&gt; {
-        return this.authorizeService.authzMetadata(
-            session,
-        ) as Promise&lt;Oauth2AuthorizationServerResponse&gt;;
+    getAuthzMetadata(tenantId: string) {
+        return this.authorizeService.authzMetadata(tenantId);
     }
 
     /**

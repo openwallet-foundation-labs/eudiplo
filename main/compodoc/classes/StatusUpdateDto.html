@@ -340,7 +340,7 @@ export class StatusUpdateDto {
      * The session ID of the user
      */
     @IsString()
-    sessionId: string;
+    sessionId!: string;
 
     /**
      * The ID of the credential configuration
@@ -355,7 +355,7 @@ export class StatusUpdateDto {
      * 0 &#x3D; valid, 1 &#x3D; revoked, 2 &#x3D; suspended
      */
     @IsNumber()
-    status: number;
+    status!: number;
 }
 </code></pre>
     </div>

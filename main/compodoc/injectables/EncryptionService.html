@@ -266,8 +266,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="54"
-                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:54</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="55"
+                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:55</a></div>
                         </td>
                     </tr>
 
@@ -369,8 +369,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="74"
-                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:74</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="75"
+                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:75</a></div>
                         </td>
                     </tr>
 
@@ -448,8 +448,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="44"
-                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:44</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="45"
+                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:45</a></div>
                         </td>
                     </tr>
 
@@ -591,7 +591,7 @@
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { exportJWK, generateKeyPair, importJWK, JWK, jwtDecrypt } from &quot;jose&quot;;
-import { Repository } from &quot;typeorm/repository/Repository&quot;;
+import { Repository } from &quot;typeorm&quot;;
 import { v4 } from &quot;uuid&quot;;
 import { KeyEntity } from &quot;../key/entities/keys.entity&quot;;
 
@@ -619,6 +619,7 @@ export class EncryptionService {
             extractable: true,
         }).then(async (secret) &#x3D;&gt; exportJWK(secret.privateKey));
 
+        privateKey.alg &#x3D; &quot;ECDH-ES&quot;;
         this.keyRepository.save({
             id: v4(),
             tenantId,
@@ -669,6 +670,7 @@ export class EncryptionService {
             })
             .then((entry) &#x3D;&gt; {
                 delete entry.key.d;
+                entry.key.kid &#x3D; entry.id;
                 return entry.key;
             });
     }

@@ -435,8 +435,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="217"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:217</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="214"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:214</a></div>
                         </td>
                     </tr>
 
@@ -554,8 +554,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="299"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:299</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="296"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:296</a></div>
                         </td>
                     </tr>
 
@@ -753,7 +753,7 @@ export class Oid4vpService {
                                 ),
                             ],
                         },
-                        vp_formats: {
+                        vp_formats_supported: {
                             //MDOC not supported yet
                             /* mso_mdoc: {
                                 alg: [&quot;ES256&quot;, &quot;Ed25519&quot;],
@@ -765,10 +765,7 @@ export class Oid4vpService {
                                     this.cryptoImplementationService.getSupportedAlgorithms(),
                             },
                         },
-                        authorization_encrypted_response_alg: &quot;ECDH-ES&quot;,
-                        authorization_encrypted_response_enc: &quot;A128GCM&quot;,
-                        client_name: session.tenant.name,
-                        response_types_supported: [&quot;vp_token&quot;],
+                        encrypted_response_enc_values_supported: [&quot;A128GCM&quot;],
                     },
                     state: !session.useDcApi ? session.id : undefined,
                     //TODO: check if this value is correct accroding to https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-aud-of-a-request-object
@@ -970,8 +967,6 @@ export class Oid4vpService {
                     session,
                     logContext,
                     credentials,
-                    //when issuance id we expect the caller to handle the response
-                    !!session.issuanceId,
                 );
                 //override it when a redirect URI is returned by the webhook
                 if (response?.redirectUri) {
@@ -994,7 +989,9 @@ export class Oid4vpService {
             if (body.sendResponse) {
                 return credentials;
             }
-        } catch (error) {
+
+            return {};
+        } catch (error: any) {
             this.sessionLogger.logFlowError(logContext, error as Error, {
                 action: &quot;process_presentation_response&quot;,
             });

@@ -519,7 +519,7 @@
         .meta({ group: &quot;config&quot;, order: 20 }),
 
     CONFIG_FOLDER: Joi.string()
-        .default(&quot;../../assets/config&quot;)
+        .default(resolve(__dirname + &quot;/../../../../assets/config&quot;))
         .description(&quot;Path to config import folder&quot;)
         .meta({ group: &quot;config&quot;, order: 30 }),
 })</code>

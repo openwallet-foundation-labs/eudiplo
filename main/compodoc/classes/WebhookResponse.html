@@ -230,6 +230,7 @@ export class WebhookService {
         expectResponse &#x3D; true,
     ) {
         const headers: Record&lt;string, string&gt; &#x3D; {};
+
         if (
             session.claimsWebhook!.auth &amp;&amp;
             session.claimsWebhook!.auth.type &#x3D;&#x3D;&#x3D; &quot;apiKey&quot;

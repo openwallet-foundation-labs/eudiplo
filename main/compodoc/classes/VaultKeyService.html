@@ -1531,7 +1531,7 @@ import { ConfigService } from &quot;@nestjs/config&quot;;
 import { JwtPayload, Signer } from &quot;@sd-jwt/types&quot;;
 import { exportJWK, importSPKI, JWK, JWTHeaderParameters } from &quot;jose&quot;;
 import { firstValueFrom } from &quot;rxjs&quot;;
-import { Repository } from &quot;typeorm/repository/Repository&quot;;
+import { Repository } from &quot;typeorm&quot;;
 import { v4 } from &quot;uuid&quot;;
 import {
     CryptoImplementationService,

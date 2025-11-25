@@ -345,19 +345,19 @@ import { TenantEntity } from &quot;../../auth/tenant/entitites/tenant.entity&quo
 @Entity()
 export class RegistrarEntity {
     @Column(&quot;varchar&quot;, { primary: true })
-    tenantId: string;
+    tenantId!: string;
 
     /**
      * The tenant that owns this object.
      */
     @ManyToOne(() &#x3D;&gt; TenantEntity, { cascade: true, onDelete: &quot;CASCADE&quot; })
-    tenant: TenantEntity;
+    tenant!: TenantEntity;
 
     @Column(&quot;varchar&quot;)
-    relyingPartyId: string;
+    relyingPartyId!: string;
 
     @Column(&quot;varchar&quot;)
-    accessCertificateId: string;
+    accessCertificateId!: string;
 }
 </code></pre>
     </div>
