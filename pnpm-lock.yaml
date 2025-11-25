@@ -351,9 +351,6 @@ importers:
       jose:
         specifier: ^6.1.0
         version: 6.1.1
-      json-schema:
-        specifier: link:@ngx-formly/core/json-schema
-        version: link:@ngx-formly/core/json-schema
       monaco-editor:
         specifier: ^0.54.0
         version: 0.54.0
