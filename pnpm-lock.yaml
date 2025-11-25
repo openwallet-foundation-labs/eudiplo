@@ -100,17 +100,17 @@ importers:
         specifier: ^11.0.0
         version: 11.0.0(@nestjs/common@11.1.8(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.8)(reflect-metadata@0.2.2)(rxjs@7.8.2)(typeorm@0.3.27(mysql2@3.15.3)(pg@8.16.3)(reflect-metadata@0.2.2)(sqlite3@5.1.7)(ts-node@10.9.2(@swc/core@1.15.1)(@types/node@24.10.1)(typescript@5.9.3)))
       '@openid4vc/oauth2':
-        specifier: 0.3.0-alpha-20250825150235
-        version: 0.3.0-alpha-20250825150235
+        specifier: 0.3.0
+        version: 0.3.0
       '@openid4vc/openid4vci':
-        specifier: 0.3.0-alpha-20250825150235
-        version: 0.3.0-alpha-20250825150235
+        specifier: 0.3.0
+        version: 0.3.0
       '@openid4vc/openid4vp':
-        specifier: 0.3.0-alpha-20250825150235
-        version: 0.3.0-alpha-20250825150235
+        specifier: 0.3.0
+        version: 0.3.0
       '@openid4vc/utils':
-        specifier: 0.3.0-alpha-20250825150235
-        version: 0.3.0-alpha-20250825150235
+        specifier: 0.3.0
+        version: 0.3.0
       '@peculiar/x509':
         specifier: ^1.14.0
         version: 1.14.0
@@ -3239,17 +3239,17 @@ packages:
     engines: {node: '>=14.0.0'}
     hasBin: true
 
-  '@openid4vc/oauth2@0.3.0-alpha-20250825150235':
-    resolution: {integrity: sha512-BZZ5rnUvjtDg+5fVLkzwj+WQ7Ph4OjzfuWCVk9kHfO/ystF+K+2pE80bGIfEzwPn0CVn5dVktxWCQZs2BfkbOw==}
+  '@openid4vc/oauth2@0.3.0':
+    resolution: {integrity: sha512-UtwQbGGjENRCwtKGSsS58AvYR14NQv7wdlb4VzPWgMy1hwo7UEWhAu3VdkzySYT4Fepsw7U9Y+Ee2kDtzygMcA==}
 
-  '@openid4vc/openid4vci@0.3.0-alpha-20250825150235':
-    resolution: {integrity: sha512-5JCjyHod9ycrKYtPaLk/TMFEYwt7EWnW/5pzTEXx4tyrsLzjhkwKzPnnkbRt/pNci5Yu9nkP2GMgVLVyV715lw==}
+  '@openid4vc/openid4vci@0.3.0':
+    resolution: {integrity: sha512-N6khIXOyUpCg1sphFstYWcyjM/YEfBiK+xr71Qxs3kDTBqgc7jSowxdUjVrdlRU+6OoloRq+VJdU+bhvYjaJUQ==}
 
-  '@openid4vc/openid4vp@0.3.0-alpha-20250825150235':
-    resolution: {integrity: sha512-UPEimJYvCSsdLkxavQ5Hh9DnmL/FsethK2IT9JZlYoWTGnNc8KnYb5kKbDAGyGWpusZSZ3WuqQz8uHlLiaig+A==}
+  '@openid4vc/openid4vp@0.3.0':
+    resolution: {integrity: sha512-YaUqkGv2ani7/mQNLpWE/fLr1lDHTZqeDz1rln0iY9Q/ZfoA4rEqfItdZvFt0UOwHAQcKQW6Ywfkqzrv1Jg71A==}
 
-  '@openid4vc/utils@0.3.0-alpha-20250825150235':
-    resolution: {integrity: sha512-lxm+PTGPB3g8ZObEned2wIX3mzBjoj/UIsv0xRGZGKsf9Z3Z+T4ukje05oj8HYn0d7sApPw5v1cJaBC+uzdjFg==}
+  '@openid4vc/utils@0.3.0':
+    resolution: {integrity: sha512-knp6cnbpQ7t5Gq8YtpbEVKc44llrRQ2VqK3xZ8rypqv0W6IffkK6lI4Qw5l5JuWvTyTlYwkvSCEfDVGj50enbg==}
 
   '@opentelemetry/api@1.9.0':
     resolution: {integrity: sha512-3giAOQvZiH5F9bMlMiv8+GSPMeqg0dbaeo58/0SlA9sxSqZhnUtxzX9/2FzyhS9sWQf5S0GJE0AKBrFqjpeYcg==}
@@ -9989,6 +9989,9 @@ packages:
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
+  zod@4.1.13:
+    resolution: {integrity: sha512-AvvthqfqrAhNH9dnfmrfKzX5upOdjUVJYFqNSlkmGf64gRaTzlPwz99IHYnVs28qYAybvAlBV+H7pn0saFY4Ig==}
+
   zone.js@0.15.1:
     resolution: {integrity: sha512-XE96n56IQpJM7NAoXswY3XRLcWFW83xe0BiAOeMD7K5k5xecOeul3Qcpx6GqEeeHNkW5DWL5zOyTbEfB4eti8w==}
 
@@ -13259,27 +13262,27 @@ snapshots:
       openapi-typescript: 5.4.2
       yargs: 17.7.2
 
-  '@openid4vc/oauth2@0.3.0-alpha-20250825150235':
+  '@openid4vc/oauth2@0.3.0':
     dependencies:
-      '@openid4vc/utils': 0.3.0-alpha-20250825150235
-      zod: 3.25.76
+      '@openid4vc/utils': 0.3.0
+      zod: 4.1.13
 
-  '@openid4vc/openid4vci@0.3.0-alpha-20250825150235':
+  '@openid4vc/openid4vci@0.3.0':
     dependencies:
-      '@openid4vc/oauth2': 0.3.0-alpha-20250825150235
-      '@openid4vc/utils': 0.3.0-alpha-20250825150235
-      zod: 3.25.76
+      '@openid4vc/oauth2': 0.3.0
+      '@openid4vc/utils': 0.3.0
+      zod: 4.1.13
 
-  '@openid4vc/openid4vp@0.3.0-alpha-20250825150235':
+  '@openid4vc/openid4vp@0.3.0':
     dependencies:
-      '@openid4vc/oauth2': 0.3.0-alpha-20250825150235
-      '@openid4vc/utils': 0.3.0-alpha-20250825150235
-      zod: 3.25.76
+      '@openid4vc/oauth2': 0.3.0
+      '@openid4vc/utils': 0.3.0
+      zod: 4.1.13
 
-  '@openid4vc/utils@0.3.0-alpha-20250825150235':
+  '@openid4vc/utils@0.3.0':
     dependencies:
       buffer: 6.0.3
-      zod: 3.25.76
+      zod: 4.1.13
 
   '@opentelemetry/api@1.9.0': {}
 
@@ -20929,5 +20932,7 @@ snapshots:
   zod@3.22.3: {}
 
   zod@3.25.76: {}
+
+  zod@4.1.13: {}
 
   zone.js@0.15.1: {}
