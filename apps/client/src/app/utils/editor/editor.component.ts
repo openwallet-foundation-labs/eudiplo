@@ -7,7 +7,7 @@ import {
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { MonacoEditorModule, NgxEditorModel } from 'ngx-monaco-editor-v2';
 import Ajv, { ValidateFunction } from 'ajv/dist/2020';
 import addFormats from 'ajv-formats';
@@ -33,14 +33,7 @@ export function extractSchema(obj: any) {
 @Component({
   selector: 'app-editor',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MonacoEditorModule,
-    MatInputModule,
-    FlexLayoutModule,
-  ],
+  imports: [FormsModule, ReactiveFormsModule, MonacoEditorModule, MatInputModule, FlexLayoutModule],
   templateUrl: './editor.component.html',
   styleUrls: ['./editor.component.scss'],
   providers: [

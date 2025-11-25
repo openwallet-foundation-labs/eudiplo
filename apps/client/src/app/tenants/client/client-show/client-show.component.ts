@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { clientControllerGetClient, ClientEntity } from '../../../generated';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { CommonModule } from '@angular/common';
+
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,7 +13,6 @@ import { MatChipsModule } from '@angular/material/chips';
   selector: 'app-client-show',
   imports: [
     MatSnackBarModule,
-    CommonModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,

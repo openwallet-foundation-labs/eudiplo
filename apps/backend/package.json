@@ -36,8 +36,8 @@
         "registrar": "npx @hey-api/openapi-ts -i https://funke-wallet.de/-json -o ./src/registrar/generated -c @hey-api/client-fetch"
     },
     "dependencies": {
-        "@aws-sdk/client-s3": "^3.927.0",
-        "@aws-sdk/s3-request-presigner": "^3.927.0",
+        "@aws-sdk/client-s3": "^3.939.0",
+        "@aws-sdk/s3-request-presigner": "^3.939.0",
         "@badgateway/oauth2-client": "^3.3.1",
         "@keycloak/keycloak-admin-client": "^26.4.4",
         "@nestjs/axios": "^4.0.1",
@@ -63,13 +63,13 @@
         "@willsoto/nestjs-prometheus": "^6.0.2",
         "axios": "^1.13.2",
         "class-transformer": "^0.5.1",
-        "class-validator": "^0.14.2",
+        "class-validator": "^0.14.3",
         "joi": "^18.0.1",
         "jose": "^6.1.0",
         "jwks-rsa": "^3.2.0",
         "multer": "^2.0.2",
         "mysql2": "^3.15.3",
-        "nestjs-pino": "^4.4.1",
+        "nestjs-pino": "^4.5.0",
         "nestjs-zod": "^5.0.1",
         "passport-jwt": "^4.0.1",
         "pg": "^8.16.3",
@@ -84,10 +84,10 @@
         "uuid": "^13.0.0"
     },
     "devDependencies": {
-        "@biomejs/biome": "2.3.4",
+        "@biomejs/biome": "2.3.7",
         "@codecov/vite-plugin": "^1.9.1",
         "@compodoc/compodoc": "^1.1.32",
-        "@hey-api/openapi-ts": "^0.87.1",
+        "@hey-api/openapi-ts": "^0.88.0",
         "@nestjs/cli": "^11.0.10",
         "@nestjs/schematics": "^11.0.9",
         "@nestjs/testing": "^11.1.8",
@@ -98,7 +98,7 @@
         "@types/multer": "^2.0.0",
         "@types/node": "^24.10.0",
         "@types/supertest": "^6.0.3",
-        "@vitest/coverage-v8": "^4.0.8",
+        "@vitest/coverage-v8": "^4.0.14",
         "dotenv": "^17.2.3",
         "express": "^5.1.0",
         "globals": "^16.5.0",
@@ -111,8 +111,8 @@
         "tsx": "^4.20.6",
         "typescript": "^5.9.3",
         "undici": "^7.16.0",
-        "unplugin-swc": "^1.5.8",
-        "vitest": "^4.0.8"
+        "unplugin-swc": "^1.5.9",
+        "vitest": "^4.0.14"
     },
     "packageManager": "pnpm@10.13.1"
 }

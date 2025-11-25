@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { tenantControllerGetTenant, TenantEntity } from '../../generated';
-import { CommonModule } from '@angular/common';
+
 import { ClientListComponent } from '../client/client-list/client-list.component';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,7 +11,6 @@ import { MatListModule } from '@angular/material/list';
 @Component({
   selector: 'app-tenant-show',
   imports: [
-    CommonModule,
     ClientListComponent,
     MatIconModule,
     RouterModule,

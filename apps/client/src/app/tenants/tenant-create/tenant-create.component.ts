@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import {
   FormBuilder,
@@ -23,7 +22,6 @@ import { Role, roles } from '../../services/jwt.service';
 @Component({
   selector: 'app-tenant-create',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatCardModule,
     MatFormFieldModule,

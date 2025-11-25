@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, type OnDestroy, type OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -19,7 +18,6 @@ import { decodeJwt } from 'jose';
 @Component({
   selector: 'app-session-management-show',
   imports: [
-    CommonModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,

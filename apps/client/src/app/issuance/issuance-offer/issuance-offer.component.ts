@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, type OnInit } from '@angular/core';
 import {
   FormControl,
@@ -33,7 +32,6 @@ import { WebhookConfigShowComponent } from '../../utils/webhook-config-show/webh
 @Component({
   selector: 'app-issuance-offer',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     FormsModule,
     MatButtonModule,
