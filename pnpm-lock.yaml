@@ -119,10 +119,10 @@ importers:
         version: 0.17.0
       '@sd-jwt/jwt-status-list':
         specifier: ^0.17.0
-        version: 0.17.0
+        version: 0.17.1
       '@sd-jwt/sd-jwt-vc':
         specifier: ^0.17.0
-        version: 0.17.0
+        version: 0.17.1
       '@sd-jwt/types':
         specifier: ^0.17.0
         version: 0.17.0
@@ -3697,16 +3697,16 @@ packages:
     resolution: {integrity: sha512-1qBA0nfsYdAPb/s+n+uWfeaYRVaiDYBg/cL7iDpPcSS8Zq8rtHFwR86KhQfRk8WR5V4cKO7p+njK/8LweqlHxg==}
     engines: {node: '>=20'}
 
-  '@sd-jwt/jwt-status-list@0.17.0':
-    resolution: {integrity: sha512-gnUrtWFn6wdb2a1zcCKAenlu1xRBEL2ZImaIl1wfyCE2zb0AqljWPZrtglpBP8iMXyzhoyT7CHSsEZH+/dnW1Q==}
+  '@sd-jwt/jwt-status-list@0.17.1':
+    resolution: {integrity: sha512-5vcOQsEmWwCkh7uEU7iwSaZ9aDH7nSNLnt48dTc6X5UrF9qWNFkVf8r/juBfuzSy2JlxRZQitVYGhyactiXxHA==}
     engines: {node: '>=20'}
 
   '@sd-jwt/present@0.17.0':
     resolution: {integrity: sha512-qh226z4H76uMVfFfqvltV9d0oz2N9S2REURy2HcVFKhsa1fSYZXdKkhg4S102iwp9fEELEPyCnLkW26+qwWLcg==}
     engines: {node: '>=20'}
 
-  '@sd-jwt/sd-jwt-vc@0.17.0':
-    resolution: {integrity: sha512-G231nbKkOIbeFCbOrZ54MTUofD8/Vusb4FdSCbqLgmirxCupVkE1OhemePQwTBAHEGm89j3Bj/Zw9mO8GptUlQ==}
+  '@sd-jwt/sd-jwt-vc@0.17.1':
+    resolution: {integrity: sha512-rkbkAfZSJM6gLyOn+eKqzFRrsztfpo+k8odKkXv+psmmZURnOleVvECJHdn2v3ggn6HSqa5uiiH7WkjNiHmGMA==}
     engines: {node: '>=20'}
 
   '@sd-jwt/types@0.17.0':
@@ -13666,7 +13666,7 @@ snapshots:
       '@sd-jwt/types': 0.17.0
       '@sd-jwt/utils': 0.17.0
 
-  '@sd-jwt/jwt-status-list@0.17.0':
+  '@sd-jwt/jwt-status-list@0.17.1':
     dependencies:
       '@sd-jwt/types': 0.17.0
       '@sd-jwt/utils': 0.17.0
@@ -13678,13 +13678,11 @@ snapshots:
       '@sd-jwt/types': 0.17.0
       '@sd-jwt/utils': 0.17.0
 
-  '@sd-jwt/sd-jwt-vc@0.17.0':
+  '@sd-jwt/sd-jwt-vc@0.17.1':
     dependencies:
       '@sd-jwt/core': 0.17.0
-      '@sd-jwt/jwt-status-list': 0.17.0
+      '@sd-jwt/jwt-status-list': 0.17.1
       '@sd-jwt/utils': 0.17.0
-      ajv: 8.17.1
-      ajv-formats: 3.0.1(ajv@8.17.1)
 
   '@sd-jwt/types@0.17.0': {}
 
