@@ -22,6 +22,7 @@ import {
     Openid4vciIssuer,
 } from "@openid4vc/openid4vci";
 import type { Request } from "express";
+import { decodeJwt } from "jose";
 import { firstValueFrom } from "rxjs";
 import { LessThan, Repository } from "typeorm";
 import { v4 } from "uuid";
@@ -351,12 +352,6 @@ export class Oid4vciService {
 
         try {
             const credentials: { credential: string }[] = [];
-            const expectedNonce =
-                (tokenPayload.nonce as string) || session.nonce;
-            if (expectedNonce === undefined) {
-                throw new BadRequestException("Nonce not found");
-            }
-
             // if a webhook is provided, fetch the data from it.
 
             const claims: Record<string, Record<string, unknown>> | undefined =
@@ -373,6 +368,27 @@ export class Oid4vciService {
             } */
 
             for (const jwt of parsedCredentialRequest.proofs.jwt) {
+                // check if the nonce was requested before and delete it
+                const payload = decodeJwt(jwt);
+                const expectedNonce = payload.nonce! as string;
+                //check if nonce was requested before and delete it
+                const nonceResult = await this.nonceRepository.delete({
+                    nonce: expectedNonce,
+                    tenantId,
+                });
+                if (nonceResult.affected === 0) {
+                    this.sessionLogger.logFlowError(
+                        logContext,
+                        new ConflictException(
+                            "Nonce not found or already deleted",
+                        ),
+                        {
+                            credentialConfigurationId:
+                                parsedCredentialRequest.credentialConfigurationId,
+                        },
+                    );
+                }
+
                 const verifiedProof =
                     await issuer.verifyCredentialRequestJwtProof({
                         //check if this is correct or if the passed nonce is validated.

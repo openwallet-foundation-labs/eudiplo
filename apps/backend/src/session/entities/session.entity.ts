@@ -122,12 +122,6 @@ export class Session {
     auth_queries?: AuthorizeQueries;
 
     /**
-     * Nonce used for the OID4VCI flow.
-     */
-    @Column("varchar", { nullable: true })
-    nonce?: string;
-
-    /**
      * Credential offer object containing details about the credential offer or presentation request.
      */
     @Column("json", { nullable: true })

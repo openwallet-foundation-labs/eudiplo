@@ -61,6 +61,7 @@ export class Oid4vciController {
     @HttpCode(HttpStatus.OK)
     @Header("Cache-Control", "no-store")
     nonce(@Param("tenantId") tenantId: string) {
+        //TODO: maybe also add it into the header, see https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-nonce-response
         return this.oid4vciService.nonceRequest(tenantId).then((nonce) => ({
             c_nonce: nonce,
         }));
