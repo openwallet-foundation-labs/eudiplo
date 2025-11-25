@@ -4,25 +4,6 @@ export type ClientOptions = {
     baseUrl: string;
 };
 
-export type Oauth2AuthorizationServerResponseDto = {
-    issuer: string;
-    token_endpoint: string;
-    token_endpoint_auth_methods_supported?: Array<'client_secret_basic' | 'client_secret_post' | 'attest_jwt_client_auth' | 'client_secret_jwt' | 'private_key_jwt' | string>;
-    authorization_endpoint?: string;
-    jwks_uri?: string;
-    grant_types_supported?: Array<string>;
-    code_challenge_methods_supported?: Array<string>;
-    dpop_signing_alg_values_supported?: Array<string>;
-    require_pushed_authorization_requests?: boolean;
-    pushed_authorization_request_endpoint?: string;
-    introspection_endpoint?: string;
-    introspection_endpoint_auth_methods_supported?: Array<'client_secret_basic' | 'client_secret_post' | 'attest_jwt_client_auth' | 'client_secret_jwt' | 'private_key_jwt' | string>;
-    introspection_endpoint_auth_signing_alg_values_supported?: Array<string>;
-    authorization_challenge_endpoint?: string;
-    'pre-authorized_grant_anonymous_access_supported'?: boolean;
-    client_attestation_pop_nonce_required?: boolean;
-};
-
 export type EcPublic = {
     /**
      * The key type, which is always 'EC' for Elliptic Curve keys.
@@ -449,6 +430,7 @@ export type AuthorizeQueries = {
     dpop_jkt?: string;
     request_uri?: string;
     auth_session?: string;
+    state?: string;
 };
 
 export type OfferRequestDto = {
@@ -517,10 +499,6 @@ export type Session = {
      * The tenant that owns this object.
      */
     tenant: TenantEntity;
-    issuanceId?: string;
-    /**
-     * Authorization code for the session.
-     */
     authorization_code?: string;
     /**
      * Request URI from the authorization request.
@@ -815,12 +793,13 @@ export type AuthenticationMethodPresentation = {
 
 export type DisplayLogo = {
     uri: string;
+    alt_text?: string;
 };
 
 export type DisplayInfo = {
-    name: string;
-    locale: string;
-    logo: DisplayLogo;
+    name?: string;
+    locale?: string;
+    logo?: DisplayLogo;
 };
 
 export type IssuanceConfig = {
@@ -881,7 +860,7 @@ export type FileUploadDto = {
     file: Blob | File;
 };
 
-export type WellKnownControllerIssuerMetadataData = {
+export type WellKnownControllerIssuerMetadata0Data = {
     body?: never;
     path: {
         tenantId: string;
@@ -890,15 +869,32 @@ export type WellKnownControllerIssuerMetadataData = {
     url: '/.well-known/openid-credential-issuer/{tenantId}';
 };
 
-export type WellKnownControllerIssuerMetadataResponses = {
+export type WellKnownControllerIssuerMetadata0Responses = {
     200: {
         [key: string]: unknown;
     };
 };
 
-export type WellKnownControllerIssuerMetadataResponse = WellKnownControllerIssuerMetadataResponses[keyof WellKnownControllerIssuerMetadataResponses];
+export type WellKnownControllerIssuerMetadata0Response = WellKnownControllerIssuerMetadata0Responses[keyof WellKnownControllerIssuerMetadata0Responses];
 
-export type WellKnownControllerAuthzMetadataData = {
+export type WellKnownControllerIssuerMetadata1Data = {
+    body?: never;
+    path: {
+        tenantId: string;
+    };
+    query?: never;
+    url: '/{tenantId}/.well-known/openid-credential-issuer';
+};
+
+export type WellKnownControllerIssuerMetadata1Responses = {
+    200: {
+        [key: string]: unknown;
+    };
+};
+
+export type WellKnownControllerIssuerMetadata1Response = WellKnownControllerIssuerMetadata1Responses[keyof WellKnownControllerIssuerMetadata1Responses];
+
+export type WellKnownControllerAuthzMetadata0Data = {
     body?: never;
     path: {
         tenantId: string;
@@ -907,13 +903,39 @@ export type WellKnownControllerAuthzMetadataData = {
     url: '/.well-known/oauth-authorization-server/{tenantId}';
 };
 
-export type WellKnownControllerAuthzMetadataResponses = {
-    200: Oauth2AuthorizationServerResponseDto;
+export type WellKnownControllerAuthzMetadata0Responses = {
+    200: unknown;
 };
 
-export type WellKnownControllerAuthzMetadataResponse = WellKnownControllerAuthzMetadataResponses[keyof WellKnownControllerAuthzMetadataResponses];
+export type WellKnownControllerAuthzMetadata1Data = {
+    body?: never;
+    path: {
+        tenantId: string;
+    };
+    query?: never;
+    url: '/{tenantId}/.well-known/oauth-authorization-server';
+};
 
-export type WellKnownControllerGetJwksData = {
+export type WellKnownControllerAuthzMetadata1Responses = {
+    200: unknown;
+};
+
+export type WellKnownControllerGetJwks0Data = {
+    body?: never;
+    path: {
+        tenantId: string;
+    };
+    query?: never;
+    url: '/.well-known/jwks.json/{tenantId}';
+};
+
+export type WellKnownControllerGetJwks0Responses = {
+    200: JwksResponseDto;
+};
+
+export type WellKnownControllerGetJwks0Response = WellKnownControllerGetJwks0Responses[keyof WellKnownControllerGetJwks0Responses];
+
+export type WellKnownControllerGetJwks1Data = {
     body?: never;
     path: {
         tenantId: string;
@@ -922,11 +944,11 @@ export type WellKnownControllerGetJwksData = {
     url: '/{tenantId}/.well-known/jwks.json';
 };
 
-export type WellKnownControllerGetJwksResponses = {
+export type WellKnownControllerGetJwks1Responses = {
     200: JwksResponseDto;
 };
 
-export type WellKnownControllerGetJwksResponse = WellKnownControllerGetJwksResponses[keyof WellKnownControllerGetJwksResponses];
+export type WellKnownControllerGetJwks1Response = WellKnownControllerGetJwks1Responses[keyof WellKnownControllerGetJwks1Responses];
 
 export type AuthControllerGetOAuth2TokenData = {
     body: ClientCredentialsDto;
@@ -1413,6 +1435,7 @@ export type AuthorizeControllerAuthorizeData = {
         dpop_jkt?: string;
         request_uri?: string;
         auth_session?: string;
+        state?: string;
     };
     url: '/{tenantId}/authorize';
 };

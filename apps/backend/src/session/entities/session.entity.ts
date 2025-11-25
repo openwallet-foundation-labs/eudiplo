@@ -105,10 +105,6 @@ export class Session {
     status!: SessionStatus;
 
     // issuance specific fields
-
-    @Column("varchar", { nullable: true })
-    issuanceId?: string;
-
     /**
      * Authorization code for the session.
      */

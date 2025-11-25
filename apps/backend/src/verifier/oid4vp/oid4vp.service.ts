@@ -344,8 +344,6 @@ export class Oid4vpService {
                     session,
                     logContext,
                     credentials,
-                    //when issuance id we expect the caller to handle the response
-                    !!session.issuanceId,
                 );
                 //override it when a redirect URI is returned by the webhook
                 if (response?.redirectUri) {

@@ -224,8 +224,7 @@ export class AuthorizeService {
     ) {
         throw new Error("Not implemented");
         /* // re using the issuer state as auth session
-        const auth_session = body.issuer_state;
-        //use the issuanceId to get the presentationId.
+        const auth_session = body.issuer_state;        
         const issuanceConfig =
             await this.issuanceService.getIssuanceConfiguration(
                 session.tenantId,

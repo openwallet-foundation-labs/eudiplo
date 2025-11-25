@@ -263,7 +263,6 @@ export class IssuanceOfferComponent implements OnInit {
 
   resetForm(): void {
     this.form.reset({
-      issuanceId: '',
       credentialConfigurationIds: [],
     });
   }

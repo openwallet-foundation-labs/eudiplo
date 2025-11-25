@@ -80,6 +80,7 @@ export class EncryptionService {
             })
             .then((entry) => {
                 delete entry.key.d;
+                entry.key.kid = entry.id;
                 return entry.key;
             });
     }

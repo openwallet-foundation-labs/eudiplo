@@ -41,22 +41,6 @@
             </span>
           </div>
 
-          @if (session.issuanceId) {
-            <div class="info-item">
-              <strong>Issuance ID:</strong>
-              <span class="value-with-copy">
-                {{ session.issuanceId }}
-                <button
-                  mat-icon-button
-                  (click)="copyToClipboard(session.issuanceId)"
-                  matTooltip="Copy Issuance ID"
-                >
-                  <mat-icon>content_copy</mat-icon>
-                </button>
-              </span>
-            </div>
-          }
-
           @if (session.requestId) {
             <div class="info-item">
               <strong>Request ID:</strong>

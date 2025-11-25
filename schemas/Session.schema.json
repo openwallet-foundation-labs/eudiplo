@@ -50,12 +50,8 @@
         }
       ]
     },
-    "issuanceId": {
-      "type": "string"
-    },
     "authorization_code": {
-      "type": "string",
-      "description": "Authorization code for the session."
+      "type": "string"
     },
     "request_uri": {
       "type": "string",

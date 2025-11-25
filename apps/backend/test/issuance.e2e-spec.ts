@@ -228,7 +228,6 @@ describe("Issuance", () => {
             .set("Authorization", `Bearer ${authToken}`)
             .send({
                 response_type: "uri",
-                issuanceId: "invalid",
             })
             .expect(400);
     });
