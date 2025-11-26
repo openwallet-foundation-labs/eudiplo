@@ -17,7 +17,7 @@ jobs:
     name: Lint Codebase
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
@@ -54,7 +54,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [lint]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
@@ -83,7 +83,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [lint]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
@@ -112,7 +112,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [lint]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
@@ -141,7 +141,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [lint]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
@@ -184,7 +184,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-backend, build-client, build-webhook]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       #      - name: Add entry to /etc/hosts
       #        run: echo "127.0.0.1       host.testcontainers.internal" | sudo tee
@@ -237,7 +237,7 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Build Backend Docker image
         run: docker build -t ghcr.io/openwallet-foundation-labs/eudiplo:main --build-arg VERSION=main . --target eudiplo
@@ -293,7 +293,7 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Build Client Docker image
         run: docker build -t ghcr.io/openwallet-foundation-labs/eudiplo-client:main . --target client
