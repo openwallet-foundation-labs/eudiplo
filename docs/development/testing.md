@@ -9,6 +9,40 @@ functionality of the application.
 
 ---
 
+## OIDF Conformance Tests
+
+EUDIPLO includes dedicated tests for validating compliance with the **OpenID Foundation (OIDF) conformance suite**. These tests ensure that the implementation of OID4VCI (OpenID for Verifiable Credential Issuance) and OID4VP (OpenID for Verifiable Presentations) strictly follows the protocol specifications.
+
+### Requirements
+
+- A **publicly accessible EUDIPLO instance** (the OIDF hosted test suite needs to reach your instance over the internet)
+- Proper environment configuration with valid public URLs
+
+### Running OIDF Conformance Tests
+
+```bash
+cd apps/backend
+pnpm run test:e2e:oidf
+```
+
+For watch mode during development:
+
+```bash
+pnpm run test:e2e:oidf:watch
+```
+
+These tests will:
+
+1. Connect to your running EUDIPLO instance
+2. Communicate with the hosted OIDF conformance suite
+3. Validate protocol compliance for OID4VCI and OID4VP flows
+4. Generate a coverage report
+
+!!! warning "Public Instance Required"
+Unlike regular E2E tests, OIDF conformance tests require your instance to be reachable from the internet because they use the OpenID Foundation's hosted conformance testing infrastructure.
+
+---
+
 ## E2E Tests
 
 Right now EUDIPLO has only implemented end-to-end (E2E) tests that are stored in

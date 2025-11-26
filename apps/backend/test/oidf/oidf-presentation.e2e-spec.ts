@@ -1,66 +1,126 @@
+import { INestApplication, ValidationPipe } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { Test, TestingModule } from "@nestjs/testing";
 import * as axios from "axios";
-import { beforeAll, describe, expect, test } from "vitest";
+import { readFileSync } from "fs";
+import { join, resolve } from "path";
+import { afterAll, beforeAll, describe, expect, test } from "vitest";
+import { AppModule } from "../../src/app.module";
 import { OIDFSuite, TestInstance } from "./oidf-suite";
 
 /**
  * E2E: OIDF conformance runner integration test
  */
 describe("OIDF", () => {
-    const CLIENT_ID = process.env.VITE_OIDF_CLIENT_ID;
-    const CLIENT_SECRET = process.env.VITE_OIDF_CLIENT_SECRET;
-    const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:3000";
-
-    // Demo OIDF server configuration — read from env when available.
+    const PUBLIC_DOMAIN = import.meta.env.VITE_NGROK_DOMAIN;
     const OIDF_URL =
-        process.env.VITE_OIDF_URL ?? "https://demo.certification.openid.net";
-    const OIDF_DEMO_TOKEN = process.env.VITE_OIDF_DEMO_TOKEN!;
-    const PLAN_ID = "FkyShJcFlHDbc";
+        import.meta.env.VITE_OIDF_URL ??
+        "https://demo.certification.openid.net";
+    const OIDF_DEMO_TOKEN = import.meta.env.VITE_OIDF_DEMO_TOKEN;
 
-    // --- Test-run state (populated at runtime) ----------------------------------
+    if (!OIDF_DEMO_TOKEN) {
+        throw new Error("VITE_OIDF_DEMO_TOKEN must be set");
+    }
+    if (!PUBLIC_DOMAIN) {
+        throw new Error("VITE_NGROK_DOMAIN must be set");
+    }
+
+    let app: INestApplication;
+    let PLAN_ID: string;
     let authToken: string;
     let testInstance: TestInstance;
+    let BACKEND_URL: string;
+
     const oidfSuite = new OIDFSuite(OIDF_URL, OIDF_DEMO_TOKEN);
 
-    /**
-     * Prepare the external runner and local authorization token.
-     * - Acquires a token from the local backend
-     * - Fetches the plan from the demo server
-     * - Creates a runner (testInstance) and polls until it reaches WAITING state
-     */
     beforeAll(async () => {
-        if (!CLIENT_ID || !CLIENT_SECRET) {
-            throw new Error(
-                "VITE_OIDF_CLIENT_ID and VITE_OIDF_CLIENT_SECRET must be set",
-            );
-        }
-        if (!OIDF_DEMO_TOKEN) {
-            throw new Error("VITE_OIDF_DEMO_TOKEN must be set");
-        }
+        const planId = "oid4vp-1final-verifier-test-plan";
+        const variant = {
+            credential_format: "sd_jwt_vc",
+            client_id_prefix: "x509_san_dns",
+            request_method: "request_uri_signed",
+            response_mode: "direct_post.jwt",
+        };
+        const body = {
+            alias: "test-plan",
+            description: "test plan created via e2e tests",
+            client: {
+                client_id: PUBLIC_DOMAIN,
+            },
+            credential: {
+                signing_jwk: {
+                    kty: "EC",
+                    d: "y2NSNIvlRAEBMFk2bjQcSKbjS1y_NBJQ6jRzIfuIxS0",
+                    use: "sig",
+                    x5c: [
+                        "MIICHjCCAcOgAwIBAgIUZX9BS5CDOJRW2t1FK1UDMt/QwMEwCgYIKoZIzj0EAwIwITELMAkGA1UEBhMCR0IxEjAQBgNVBAMMCU9JREYgVGVzdDAeFw0yNDExMjUwODM2MDRaFw0zNDExMjMwODM2MDRaMCExCzAJBgNVBAYTAkdCMRIwEAYDVQQDDAlPSURGIFRlc3QwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATT/dLsd51LLBrGV6R23o6vymRxHXeFBoI8yq31y5kFV2VV0gi9x5ZzEFiq8DMiAHucLACFndxLtZorCha9zznQo4HYMIHVMB0GA1UdDgQWBBS5cbdgAeMBi5wxpbpwISGhShAWETAfBgNVHSMEGDAWgBS5cbdgAeMBi5wxpbpwISGhShAWETAPBgNVHRMBAf8EBTADAQH/MIGBBgNVHREEejB4ghB3d3cuaGVlbmFuLm1lLnVrgh1kZW1vLmNlcnRpZmljYXRpb24ub3BlbmlkLm5ldIIJbG9jYWxob3N0ghZsb2NhbGhvc3QuZW1vYml4LmNvLnVrgiJkZW1vLnBpZC1pc3N1ZXIuYnVuZGVzZHJ1Y2tlcmVpLmRlMAoGCCqGSM49BAMCA0kAMEYCIQCPbnLxCI+WR1vhOW+A8KznAWv1MJo+YEb1MI45NKW/VQIhALzsqox8VuBRwN2dl5LkpnxP4oH9p6H0AOZmKP+Y7nXS",
+                    ],
+                    crv: "P-256",
+                    kid: "5H1WLeSx55tMW6JNlvqMfg3O_E0eQPqB8jDSoUn6oiI",
+                    x: "0_3S7HedSywaxlekdt6Or8pkcR13hQaCPMqt9cuZBVc",
+                    y: "ZVXSCL3HlnMQWKrwMyIAe5wsAIWd3Eu1misKFr3POdA",
+                    alg: "ES256",
+                },
+            },
+            publish: "everything",
+        };
 
-        // --- Acquire local backend token -----------------------------------------
-        // Get JWT token using client credentials
+        PLAN_ID = await oidfSuite.createPlan(planId, variant, body);
+        console.log(`Created plan with ID: ${PLAN_ID}`);
+
+        const moduleFixture: TestingModule = await Test.createTestingModule({
+            imports: [AppModule],
+        }).compile();
+
+        app = moduleFixture.createNestApplication();
+        app.useGlobalPipes(new ValidationPipe());
+
+        const configService = app.get(ConfigService);
+        const configFolder = resolve(__dirname + "/../../../../assets/config");
+        configService.set("PUBLIC_URL", `https://${PUBLIC_DOMAIN}`);
+        configService.set("CONFIG_FOLDER", configFolder);
+        configService.set("CONFIG_IMPORT", true);
+        configService.set("CONFIG_IMPORT_FORCE", true);
+        BACKEND_URL = configService.getOrThrow<string>("PUBLIC_URL");
+
+        await app.init();
+        await app.listen(3000);
+
+        // Get client credentials
+        const client = JSON.parse(
+            readFileSync(join(configFolder, "root/clients/test.json"), "utf-8"),
+        );
+        const clientId = client.clientId;
+        const clientSecret = client.secret;
+
+        // Acquire JWT token using client credentials
         const tokenResponse = await axios.default.post<{
             access_token: string;
         }>(`${BACKEND_URL}/oauth2/token`, {
-            client_id: CLIENT_ID,
-            client_secret: CLIENT_SECRET,
+            client_id: clientId,
+            client_secret: clientSecret,
             grant_type: "client_credentials",
         });
 
         authToken = tokenResponse.data.access_token;
         expect(authToken).toBeDefined();
-        expect(authToken).toBeTruthy();
 
-        // Create test instance and wait for it to be ready
+        // Create test instance
         testInstance = await oidfSuite.getInstance(PLAN_ID);
+    });
 
-        console.log(
-            `Test details: ${OIDF_URL}/log-detail.html?log=${testInstance.id}`,
-        );
-    }, 30000);
+    afterAll(async () => {
+        const outputDir = resolve(__dirname, `../../logs/${PLAN_ID}`);
+        await oidfSuite.storeLog(PLAN_ID, outputDir);
+        console.log(`Test log extracted to: ${outputDir}`);
+
+        if (app) {
+            await app.close();
+        }
+    });
 
     test("oidf conformance suite presentation", async () => {
-        // Step 1: Request a presentation URI from the local backend
+        // Request presentation URI from backend
         const presentationResponse = await axios.default.post<{
             uri: string;
             session: string;
@@ -79,26 +139,22 @@ describe("OIDF", () => {
 
         expect(presentationResponse.data.uri).toBeDefined();
 
-        // Step 2: Extract parameters from the URI
-        // The backend returns a URI like "openid4vp://param1=value1&param2=value2"
-        const uriParts = presentationResponse.data.uri.split("//");
-        if (uriParts.length < 2) {
-            throw new Error(
-                `Invalid URI format: ${presentationResponse.data.uri}`,
-            );
+        // Extract query parameters from URI (format: openid4vp://...?params)
+        const uri = presentationResponse.data.uri;
+        const queryStart = uri.indexOf("?");
+        if (queryStart === -1) {
+            throw new Error(`URI missing query parameters: ${uri}`);
         }
-        const parameters = uriParts[1];
+        const queryString = uri.substring(queryStart);
 
-        // Step 3: Simulate wallet authorization by calling the OIDF runner's authorize endpoint
-        const authorizeUrl = `${testInstance.url}/authorize${parameters}`;
+        // Simulate wallet authorization via OIDF runner
+        const authorizeUrl = `${testInstance.url}/authorize${queryString}`;
         await axios.default.get(authorizeUrl);
 
-        // Step 4: Poll for test completion and verify result
-        // Give the test some time to complete
+        // Wait for test completion (2s polling delay)
         await new Promise((resolve) => setTimeout(resolve, 2000));
 
         const result = await oidfSuite.getResult(testInstance.id);
-
         expect(result).toBe("PASSED");
-    }, 30000);
+    }, 10000);
 });

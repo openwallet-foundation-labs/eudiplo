@@ -47,6 +47,7 @@ can run yourself, integrate over HTTP, and configure via JSON.
 | 🖥️ **Web Client Included**  | Comes with a ready-to-use web interface for easy testing and interaction                      |
 | ⚙️ **JSON Configurable**    | Set up templates, trust roots, and issuers through JSON files                                 |
 | 🇪🇺 **Wallet Compatible**    | Works with multiple [wallets](./getting-started/wallet-compatibility.md)                      |
+| ✅ **OIDF Conformant**      | Tested against the OpenID Foundation conformance suite for OID4VCI and OID4VP                 |
 | 👥 **Multi-Tenant Support** | Isolate configurations for different tenants or clients                                       |
 
 ---

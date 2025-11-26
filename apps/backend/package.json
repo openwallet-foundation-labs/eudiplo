@@ -91,6 +91,7 @@
         "@nestjs/cli": "^11.0.10",
         "@nestjs/schematics": "^11.0.9",
         "@nestjs/testing": "^11.1.8",
+        "@ngrok/ngrok": "^1.6.0",
         "@swc/cli": "^0.7.9",
         "@swc/core": "^1.15.0",
         "@testcontainers/postgresql": "^11.8.0",

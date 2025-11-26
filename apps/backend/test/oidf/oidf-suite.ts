@@ -1,4 +1,6 @@
 import * as axios from "axios";
+import { mkdirSync } from "fs";
+import unzipper from "unzipper";
 
 export interface TestInstance {
     id: string;
@@ -21,6 +23,36 @@ export class OIDFSuite {
                 "Content-Type": "application/json",
             },
         });
+    }
+
+    createPlan(planId: string, variant: object, body: any): Promise<string> {
+        return this.instance
+            .post("/api/plan", body, {
+                params: { planName: planId, variant: JSON.stringify(variant) },
+            })
+            .then((res) => res.data.id);
+    }
+
+    deletePlan(PLAN_ID: string) {
+        return this.instance.delete(`/api/plan/${PLAN_ID}`);
+    }
+
+    async storeLog(PLAN_ID: string, outputDir: string): Promise<void> {
+        const response = await this.instance.get(
+            `/api/plan/exporthtml/${PLAN_ID}`,
+            {
+                params: { public: false },
+                responseType: "arraybuffer",
+            },
+        );
+        const zipBuffer = Buffer.from(response.data);
+
+        // Create output directory
+        mkdirSync(outputDir, { recursive: true });
+
+        // Extract zip contents
+        const directory = await unzipper.Open.buffer(zipBuffer);
+        await directory.extract({ path: outputDir });
     }
 
     async getInstance(PLAN_ID: string): Promise<TestInstance> {
