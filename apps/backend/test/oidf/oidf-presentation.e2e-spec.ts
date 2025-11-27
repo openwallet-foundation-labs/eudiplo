@@ -1,8 +1,10 @@
 import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { NestExpressApplication } from "@nestjs/platform-express";
 import { Test, TestingModule } from "@nestjs/testing";
 import * as axios from "axios";
 import { readFileSync } from "fs";
+import https from "https";
 import { join, resolve } from "path";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../../src/app.module";
@@ -18,9 +20,6 @@ describe("OIDF", () => {
         "https://demo.certification.openid.net";
     const OIDF_DEMO_TOKEN = import.meta.env.VITE_OIDF_DEMO_TOKEN;
 
-    if (!OIDF_DEMO_TOKEN) {
-        throw new Error("VITE_OIDF_DEMO_TOKEN must be set");
-    }
     if (!PUBLIC_DOMAIN) {
         throw new Error("VITE_DOMAIN must be set");
     }
@@ -29,7 +28,13 @@ describe("OIDF", () => {
     let PLAN_ID: string;
     let authToken: string;
     let testInstance: TestInstance;
-    let BACKEND_URL: string;
+
+    const axiosBackendInstance = axios.default.create({
+        baseURL: "https://localhost:3000",
+        httpsAgent: new https.Agent({
+            rejectUnauthorized: false,
+        }),
+    });
 
     const oidfSuite = new OIDFSuite(OIDF_URL, OIDF_DEMO_TOKEN);
 
@@ -45,7 +50,7 @@ describe("OIDF", () => {
             alias: "test-plan",
             description: "test plan created via e2e tests",
             client: {
-                client_id: PUBLIC_DOMAIN,
+                client_id: new URL(`https://${PUBLIC_DOMAIN}`).hostname,
             },
             credential: {
                 signing_jwk: {
@@ -71,7 +76,15 @@ describe("OIDF", () => {
             imports: [AppModule],
         }).compile();
 
-        app = moduleFixture.createNestApplication();
+        // Enable HTTPS with self-signed certificate
+        const httpsOptions = {
+            key: readFileSync(resolve(__dirname, "../../key.pem")),
+            cert: readFileSync(resolve(__dirname, "../../cert.pem")),
+        };
+
+        app = moduleFixture.createNestApplication<NestExpressApplication>({
+            httpsOptions,
+        });
         app.useGlobalPipes(new ValidationPipe());
 
         const configService = app.get(ConfigService);
@@ -80,10 +93,9 @@ describe("OIDF", () => {
         configService.set("PUBLIC_URL", `https://${PUBLIC_DOMAIN}`);
         configService.set("CONFIG_IMPORT", true);
         configService.set("CONFIG_IMPORT_FORCE", true);
-        BACKEND_URL = configService.getOrThrow<string>("PUBLIC_URL");
 
         await app.init();
-        await app.listen(3000);
+        await app.listen(3000, "0.0.0.0");
 
         // Get client credentials
         const client = JSON.parse(
@@ -93,9 +105,9 @@ describe("OIDF", () => {
         const clientSecret = client.secret;
 
         // Acquire JWT token using client credentials
-        const tokenResponse = await axios.default.post<{
+        const tokenResponse = await axiosBackendInstance.post<{
             access_token: string;
-        }>(`${BACKEND_URL}/oauth2/token`, {
+        }>("/oauth2/token", {
             client_id: clientId,
             client_secret: clientSecret,
             grant_type: "client_credentials",
@@ -111,7 +123,6 @@ describe("OIDF", () => {
     afterAll(async () => {
         const outputDir = resolve(__dirname, `../../logs/${PLAN_ID}`);
         await oidfSuite.storeLog(PLAN_ID, outputDir);
-        console.log(`Test log extracted to: ${outputDir}`);
 
         if (app) {
             await app.close();
@@ -120,11 +131,11 @@ describe("OIDF", () => {
 
     test("oidf conformance suite presentation", async () => {
         // Request presentation URI from backend
-        const presentationResponse = await axios.default.post<{
+        const presentationResponse = await axiosBackendInstance.post<{
             uri: string;
             session: string;
         }>(
-            `${BACKEND_URL}/presentation-management/request`,
+            `/presentation-management/request`,
             {
                 response_type: "uri",
                 requestId: "pid-no-hook",
@@ -148,7 +159,11 @@ describe("OIDF", () => {
 
         // Simulate wallet authorization via OIDF runner
         const authorizeUrl = `${testInstance.url}/authorize${queryString}`;
-        await axios.default.get(authorizeUrl);
+        await axios.default.get(authorizeUrl, {
+            httpsAgent: new https.Agent({
+                rejectUnauthorized: false,
+            }),
+        });
 
         // Wait for test completion (2s polling delay)
         await new Promise((resolve) => setTimeout(resolve, 2000));

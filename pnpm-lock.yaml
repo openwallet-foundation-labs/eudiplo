@@ -277,7 +277,7 @@ importers:
         specifier: ^7.1.4
         version: 7.1.4
       testcontainers:
-        specifier: ^11.8.0
+        specifier: ^11.8.1
         version: 11.8.1
       ts-loader:
         specifier: ^9.5.4

@@ -1,8 +1,10 @@
 import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { NestExpressApplication } from "@nestjs/platform-express";
 import { Test, TestingModule } from "@nestjs/testing";
 import * as axios from "axios";
 import { readFileSync } from "fs";
+import https from "https";
 import { join, resolve } from "path";
 import { beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../../src/app.module";
@@ -18,9 +20,6 @@ describe("OIDF - issuance - pre auth", () => {
         "https://demo.certification.openid.net";
     const OIDF_DEMO_TOKEN = import.meta.env.VITE_OIDF_DEMO_TOKEN;
 
-    if (!OIDF_DEMO_TOKEN) {
-        throw new Error("VITE_OIDF_DEMO_TOKEN must be set");
-    }
     if (!PUBLIC_DOMAIN) {
         throw new Error("VITE_DOMAIN must be set");
     }
@@ -28,7 +27,13 @@ describe("OIDF - issuance - pre auth", () => {
     let app: INestApplication;
     let PLAN_ID: string;
     let authToken: string;
-    let BACKEND_URL: string;
+
+    const axiosBackendInstance = axios.default.create({
+        baseURL: "https://localhost:3000",
+        httpsAgent: new https.Agent({
+            rejectUnauthorized: false,
+        }),
+    });
 
     const oidfSuite = new OIDFSuite(OIDF_URL, OIDF_DEMO_TOKEN);
 
@@ -96,39 +101,11 @@ describe("OIDF - issuance - pre auth", () => {
                         },
                     ],
                 },
-                client_id: "demo.certification.openid.net",
+                client_id: "localhost",
                 authorization_encrypted_response_enc: "A128GCM",
                 scope: "eu.europa.ec.eudi.pid.1",
             },
-            browser: [
-                {
-                    comment:
-                        "expect an immediate redirect back to the conformance suite",
-                    match: "https://*/test/a/*/authorize*",
-                    tasks: [
-                        {
-                            task: "Verify Complete",
-                            match: "*/test/*/callback*",
-                            comment:
-                                "declaring both this and the next task as optional means this configuration works regardless of whether a url is returned in the direct post response",
-                            optional: true,
-                            commands: [
-                                ["wait", "id", "submission_complete", 10],
-                            ],
-                        },
-                        {
-                            task: "Verify Complete",
-                            optional: true,
-                            match: "https://*/test/a/*/authorize*",
-                        },
-                    ],
-                },
-            ],
             alias: "acme-vci-test-3",
-            resource: {
-                resourceUrl:
-                    "https://e0ea-2a02-8071-b781-bbe-ed43-c7cd-6384-7530.ngrok-free.app/credential",
-            },
             vci: {
                 credential_issuer_url: `https://${PUBLIC_DOMAIN}/root`,
                 credential_configuration_id: "pid",
@@ -161,7 +138,15 @@ describe("OIDF - issuance - pre auth", () => {
             imports: [AppModule],
         }).compile();
 
-        app = moduleFixture.createNestApplication();
+        // Enable HTTPS with self-signed certificate
+        const httpsOptions = {
+            key: readFileSync(resolve(__dirname, "../../key.pem")),
+            cert: readFileSync(resolve(__dirname, "../../cert.pem")),
+        };
+
+        app = moduleFixture.createNestApplication<NestExpressApplication>({
+            httpsOptions,
+        });
         app.useGlobalPipes(new ValidationPipe());
 
         const configService = app.get(ConfigService);
@@ -170,10 +155,9 @@ describe("OIDF - issuance - pre auth", () => {
         configService.set("CONFIG_FOLDER", configFolder);
         configService.set("CONFIG_IMPORT", true);
         configService.set("CONFIG_IMPORT_FORCE", true);
-        BACKEND_URL = configService.getOrThrow<string>("PUBLIC_URL");
 
         await app.init();
-        await app.listen(3000);
+        await app.listen(3000, "0.0.0.0");
 
         // Get client credentials
         const client = JSON.parse(
@@ -183,9 +167,9 @@ describe("OIDF - issuance - pre auth", () => {
         const clientSecret = client.secret;
 
         // Acquire JWT token using client credentials
-        const tokenResponse = await axios.default.post<{
+        const tokenResponse = await axiosBackendInstance.post<{
             access_token: string;
-        }>(`${BACKEND_URL}/oauth2/token`, {
+        }>("/oauth2/token", {
             client_id: clientId,
             client_secret: clientSecret,
             grant_type: "client_credentials",
@@ -240,8 +224,8 @@ describe("OIDF - issuance - pre auth", () => {
         );
 
         // Request an issuance offer from the local backend
-        const offerResponse = await axios.default.post<{ uri: string }>(
-            `${BACKEND_URL}/issuer-management/offer`,
+        const offerResponse = await axiosBackendInstance.post<{ uri: string }>(
+            `/issuer-management/offer`,
             {
                 response_type: "uri",
                 credentialConfigurationIds: ["pid"],
@@ -267,55 +251,15 @@ describe("OIDF - issuance - pre auth", () => {
         const url = await oidfSuite.getEndpoint(testInstance);
 
         // Send the offer to the OIDF test runner
-        await axios.default.get(`${url}${parameters}`);
+        await axios.default.get(`${url}${parameters}`, {
+            httpsAgent: new https.Agent({
+                rejectUnauthorized: false,
+            }),
+        });
 
         const logResult = await oidfSuite.waitForFinished(testInstance.id);
         expect(logResult.result).toBe("PASSED");
     }, 10000);
-
-    /*test("auth flow", async () => {
-        const testInstance = await oidfSuite.startTest(
-            AUTH_CODE_PLAN_ID,
-            "oid4vci-1_0-issuer-happy-flow",
-        );
-
-        console.log(
-            `Test details: ${OIDF_URL}/log-detail.html?log=${testInstance.id}`,
-        );
-
-        // Request an issuance offer from the local backend
-        const offerResponse = await axios.default.post<{ uri: string }>(
-            `${BACKEND_URL}/issuer-management/offer`,
-            {
-                response_type: "uri",
-                credentialConfigurationIds: ["pid"],
-                flow: "authorization_code",
-            },
-            {
-                headers: {
-                    Authorization: `Bearer ${authToken}`,
-                },
-            },
-        );
-
-        expect(offerResponse.data.uri).toBeDefined();
-
-        // Extract parameters from the URI
-        const uriParts = offerResponse.data.uri.split("//");
-        if (uriParts.length < 2) {
-            throw new Error(`Invalid URI format: ${offerResponse.data.uri}`);
-        }
-        const parameters = uriParts[1];
-
-        // Get the credential offer endpoint from the test runner
-        const url = await oidfSuite.getEndpoint(testInstance);
-
-        // Send the offer to the OIDF test runner
-        await axios.default.get(`${url}${parameters}`);
-
-        const logResult = await oidfSuite.waitForFinished(testInstance.id);
-        expect(logResult.result).toBe("PASSED");
-    }); */
 
     test("oid4vci-1_0-issuer-ensure-request-object-with-multiple-aud-succeeds", async () => {
         const testInstance = await oidfSuite.startTest(
@@ -328,8 +272,8 @@ describe("OIDF - issuance - pre auth", () => {
         );
 
         // Request an issuance offer from the local backend
-        const offerResponse = await axios.default.post<{ uri: string }>(
-            `${BACKEND_URL}/issuer-management/offer`,
+        const offerResponse = await axiosBackendInstance.post<{ uri: string }>(
+            `/issuer-management/offer`,
             {
                 response_type: "uri",
                 credentialConfigurationIds: ["pid"],

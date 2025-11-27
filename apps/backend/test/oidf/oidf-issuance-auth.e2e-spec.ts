@@ -18,9 +18,6 @@ describe("OIDF - issuance - auth code flow", () => {
         "https://demo.certification.openid.net";
     const OIDF_DEMO_TOKEN = import.meta.env.VITE_OIDF_DEMO_TOKEN;
 
-    if (!OIDF_DEMO_TOKEN) {
-        throw new Error("VITE_OIDF_DEMO_TOKEN must be set");
-    }
     if (!PUBLIC_DOMAIN) {
         throw new Error("VITE_DOMAIN must be set");
     }
