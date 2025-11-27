@@ -173,7 +173,6 @@ export async function getToken(
     clientSecret: string,
 ) {
     // Get JWT token using client credentials
-
     const tokenResponse = await request(app.getHttpServer())
         .post("/oauth2/token")
         .trustLocalhost()
@@ -183,7 +182,6 @@ export async function getToken(
             grant_type: "client_credentials",
         })
         .expect(201);
-
     const authToken = tokenResponse.body.access_token;
     expect(authToken).toBeDefined();
 

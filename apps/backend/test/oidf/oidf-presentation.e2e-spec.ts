@@ -12,7 +12,7 @@ import { OIDFSuite, TestInstance } from "./oidf-suite";
  * E2E: OIDF conformance runner integration test
  */
 describe("OIDF", () => {
-    const PUBLIC_DOMAIN = import.meta.env.VITE_NGROK_DOMAIN;
+    const PUBLIC_DOMAIN = import.meta.env.VITE_DOMAIN;
     const OIDF_URL =
         import.meta.env.VITE_OIDF_URL ??
         "https://demo.certification.openid.net";
@@ -22,7 +22,7 @@ describe("OIDF", () => {
         throw new Error("VITE_OIDF_DEMO_TOKEN must be set");
     }
     if (!PUBLIC_DOMAIN) {
-        throw new Error("VITE_NGROK_DOMAIN must be set");
+        throw new Error("VITE_DOMAIN must be set");
     }
 
     let app: INestApplication;
@@ -66,7 +66,6 @@ describe("OIDF", () => {
         };
 
         PLAN_ID = await oidfSuite.createPlan(planId, variant, body);
-        console.log(`Created plan with ID: ${PLAN_ID}`);
 
         const moduleFixture: TestingModule = await Test.createTestingModule({
             imports: [AppModule],
@@ -77,8 +76,8 @@ describe("OIDF", () => {
 
         const configService = app.get(ConfigService);
         const configFolder = resolve(__dirname + "/../../../../assets/config");
-        configService.set("PUBLIC_URL", `https://${PUBLIC_DOMAIN}`);
         configService.set("CONFIG_FOLDER", configFolder);
+        configService.set("PUBLIC_URL", `https://${PUBLIC_DOMAIN}`);
         configService.set("CONFIG_IMPORT", true);
         configService.set("CONFIG_IMPORT_FORCE", true);
         BACKEND_URL = configService.getOrThrow<string>("PUBLIC_URL");

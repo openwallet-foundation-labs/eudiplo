@@ -1,4 +1,4 @@
-import { setupTunnel, teardownTunnel } from "./tunnel-setup";
+import { setupTunnel, teardownTunnel } from "./oidf/tunnel-setup";
 
 export async function setup() {
     await setupTunnel();

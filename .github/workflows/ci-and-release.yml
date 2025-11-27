@@ -229,6 +229,13 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
+      - name: Upload OIDF test results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: oidf-test-results
+          path: apps/backend/logs/
+
   docker-backend:
     name: Build & Push Backend Docker Image
     needs: [test-e2e]

@@ -7,6 +7,7 @@ import {
 } from "@openid4vc/openid4vp";
 import { readFileSync, rmSync } from "fs";
 import { CryptoKey, EncryptJWT, importJWK, JWK } from "jose";
+import { join, resolve } from "path";
 import request from "supertest";
 import { App } from "supertest/types";
 import { beforeAll, describe, expect, test } from "vitest";
@@ -29,6 +30,8 @@ describe("Presentation", () => {
         app = moduleFixture.createNestApplication();
 
         const configService = app.get(ConfigService);
+        const configFolder = resolve(__dirname + "/../../../assets/config");
+        configService.set("CONFIG_FOLDER", configFolder);
         host = configService.getOrThrow("PUBLIC_URL");
         clientId = configService.getOrThrow<string>("AUTH_CLIENT_ID");
         clientSecret = configService.getOrThrow<string>("AUTH_CLIENT_SECRET");
@@ -36,16 +39,16 @@ describe("Presentation", () => {
 
         await app.init();
         await app.listen(3000);
-
         authToken = await getToken(app, clientId, clientSecret);
 
         //import the pid credential configuration
         const pidCredentialConfiguration = JSON.parse(
             readFileSync(
-                "../../assets/config/root/presentation/pid-no-hook.json",
+                join(configFolder, "root/presentation/pid-no-hook.json"),
                 "utf-8",
             ),
         );
+
         await request(app.getHttpServer())
             .post("/presentation-management")
             .trustLocalhost()

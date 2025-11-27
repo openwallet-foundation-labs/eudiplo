@@ -6,13 +6,13 @@ import { readFileSync } from "fs";
 import { join, resolve } from "path";
 import { beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../../src/app.module";
-import { OIDFSuite, TestInstance } from "./oidf-suite";
+import { OIDFSuite } from "./oidf-suite";
 
 /**
  * E2E: OIDF conformance runner integration test
  */
-describe("OIDF - issuance", () => {
-    const PUBLIC_DOMAIN = import.meta.env.VITE_NGROK_DOMAIN;
+describe("OIDF - issuance - auth code flow", () => {
+    const PUBLIC_DOMAIN = import.meta.env.VITE_DOMAIN;
     const OIDF_URL =
         import.meta.env.VITE_OIDF_URL ??
         "https://demo.certification.openid.net";
@@ -22,13 +22,12 @@ describe("OIDF - issuance", () => {
         throw new Error("VITE_OIDF_DEMO_TOKEN must be set");
     }
     if (!PUBLIC_DOMAIN) {
-        throw new Error("VITE_NGROK_DOMAIN must be set");
+        throw new Error("VITE_DOMAIN must be set");
     }
 
     let app: INestApplication;
     let PLAN_ID: string;
     let authToken: string;
-    let testInstance: TestInstance;
     let BACKEND_URL: string;
 
     const oidfSuite = new OIDFSuite(OIDF_URL, OIDF_DEMO_TOKEN);
@@ -42,7 +41,7 @@ describe("OIDF - issuance", () => {
             authorization_request_type: "simple",
             vci_profile: "haip",
             fapi_request_method: "unsigned",
-            vci_grant_type: "pre_authorization_code",
+            vci_grant_type: "authorization_code",
         };
         const body = {
             description:
@@ -105,7 +104,7 @@ describe("OIDF - issuance", () => {
                 {
                     comment:
                         "expect an immediate redirect back to the conformance suite",
-                    match: "https://*/test/a/*/authorize*",
+                    match: "https://*/authorize*",
                     tasks: [
                         {
                             task: "Verify Complete",
@@ -152,12 +151,10 @@ describe("OIDF - issuance", () => {
                 },
                 client_attestation_issuer:
                     "https://client-attester.example.org/",
-                static_tx_code: "1234",
             },
         };
 
         PLAN_ID = await oidfSuite.createPlan(planId, variant, body);
-        console.log(`Created plan with ID: ${PLAN_ID}`);
 
         const moduleFixture: TestingModule = await Test.createTestingModule({
             imports: [AppModule],
@@ -172,7 +169,9 @@ describe("OIDF - issuance", () => {
         configService.set("CONFIG_FOLDER", configFolder);
         configService.set("CONFIG_IMPORT", true);
         configService.set("CONFIG_IMPORT_FORCE", true);
-        BACKEND_URL = configService.getOrThrow<string>("PUBLIC_URL");
+        BACKEND_URL = `http://localhost:3000`;
+
+        console.log(`Backend URL: ${BACKEND_URL}`);
 
         await app.init();
         await app.listen(3000);
@@ -196,14 +195,16 @@ describe("OIDF - issuance", () => {
         authToken = tokenResponse.data.access_token;
         expect(authToken).toBeDefined();
 
-        console.log("get instance");
+        console.log(
+            `https://demo.certification.openid.net/plan-detail.html?plan=${PLAN_ID}`,
+        );
         // Create test instance
-        testInstance = await oidfSuite.getInstance(PLAN_ID).catch((err) => {
+        // running this will cause to run the first test but also returns no result. Test will time out.
+        /* testInstance = await oidfSuite.getInstance(PLAN_ID).catch((err) => {
             console.error("Error getting test instance:", err);
             throw err;
-        });
-        console.log(`Created test instance with ID: ${testInstance.id}`);
-    }, 20000);
+        }); */
+    });
 
     afterAll(async () => {
         const outputDir = resolve(__dirname, `../../logs/${PLAN_ID}`);
@@ -215,70 +216,9 @@ describe("OIDF - issuance", () => {
         }
     });
 
-    /*     test("oid4vci-1_0-issuer-metadata-test", async () => {
+    test("auth flow", async () => {
         const testInstance = await oidfSuite.startTest(
             PLAN_ID,
-            "oid4vci-1_0-issuer-metadata-test",
-        );
-
-        console.log(
-            `Test details: ${OIDF_URL}/log-detail.html?log=${testInstance.id}`,
-        );
-
-        console.log("wait for fininshed");
-        const logResult = await oidfSuite.waitForFinished(testInstance.id);
-        expect(logResult.result).toBe("PASSED");
-        console.log(`Test ${testInstance.id} passed successfully`);
-    }, 10000); */
-
-    test("oid4vci-1_0-issuer-happy-flow", async () => {
-        console.log(`Starting test: oid4vci-1_0-issuer-happy-flow`);
-        const testInstance = await oidfSuite.startTest(
-            PLAN_ID,
-            "oid4vci-1_0-issuer-happy-flow",
-        );
-
-        console.log(
-            `Test details: ${OIDF_URL}/log-detail.html?log=${testInstance.id}`,
-        );
-
-        // Request an issuance offer from the local backend
-        const offerResponse = await axios.default.post<{ uri: string }>(
-            `${BACKEND_URL}/issuer-management/offer`,
-            {
-                response_type: "uri",
-                credentialConfigurationIds: ["pid"],
-                flow: "pre_authorized_code",
-            },
-            {
-                headers: {
-                    Authorization: `Bearer ${authToken}`,
-                },
-            },
-        );
-
-        expect(offerResponse.data.uri).toBeDefined();
-
-        // Extract parameters from the URI
-        const uriParts = offerResponse.data.uri.split("//");
-        if (uriParts.length < 2) {
-            throw new Error(`Invalid URI format: ${offerResponse.data.uri}`);
-        }
-        const parameters = uriParts[1];
-
-        // Get the credential offer endpoint from the test runner
-        const url = await oidfSuite.getEndpoint(testInstance);
-
-        // Send the offer to the OIDF test runner
-        await axios.default.get(`${url}${parameters}`);
-
-        const logResult = await oidfSuite.waitForFinished(testInstance.id);
-        expect(logResult.result).toBe("PASSED");
-    }, 10000);
-
-    /*  test("auth flow", async () => {
-        const testInstance = await oidfSuite.startTest(
-            AUTH_CODE_PLAN_ID,
             "oid4vci-1_0-issuer-happy-flow",
         );
 
@@ -318,49 +258,5 @@ describe("OIDF - issuance", () => {
 
         const logResult = await oidfSuite.waitForFinished(testInstance.id);
         expect(logResult.result).toBe("PASSED");
-    }); */
-
-    test("oid4vci-1_0-issuer-ensure-request-object-with-multiple-aud-succeeds", async () => {
-        const testInstance = await oidfSuite.startTest(
-            PLAN_ID,
-            "oid4vci-1_0-issuer-ensure-request-object-with-multiple-aud-succeeds",
-        );
-
-        console.log(
-            `Test details: ${OIDF_URL}/log-detail.html?log=${testInstance.id}`,
-        );
-
-        // Request an issuance offer from the local backend
-        const offerResponse = await axios.default.post<{ uri: string }>(
-            `${BACKEND_URL}/issuer-management/offer`,
-            {
-                response_type: "uri",
-                credentialConfigurationIds: ["pid"],
-                flow: "pre_authorized_code",
-            },
-            {
-                headers: {
-                    Authorization: `Bearer ${authToken}`,
-                },
-            },
-        );
-
-        expect(offerResponse.data.uri).toBeDefined();
-
-        // Extract parameters from the URI
-        const uriParts = offerResponse.data.uri.split("//");
-        if (uriParts.length < 2) {
-            throw new Error(`Invalid URI format: ${offerResponse.data.uri}`);
-        }
-        const parameters = uriParts[1];
-
-        // Get the credential offer endpoint from the test runner
-        const url = await oidfSuite.getEndpoint(testInstance);
-
-        // Send the offer to the OIDF test runner
-        await axios.default.get(`${url}${parameters}`);
-
-        const logResult = await oidfSuite.waitForFinished(testInstance.id);
-        expect(logResult.result).toBe("PASSED");
-    }, 10000);
+    }, 20000);
 });

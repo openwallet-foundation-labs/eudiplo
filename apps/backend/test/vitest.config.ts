@@ -5,9 +5,8 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
     test: {
         include: ["**/*.e2e-spec.ts"],
-        exclude: ["**/oidf*.e2e-spec.ts"],
         globals: true,
-        root: "../",
+        root: "./",
         reporters: [
             "default",
             ["junit", { outputFile: "test-report.junit.xml" }],
@@ -28,6 +27,8 @@ export default defineConfig({
             include: ["**/src/**/*.ts"],
         },
         fileParallelism: false,
+        setupFiles: ["./test/setup.ts"],
+        globalSetup: ["./test/global-setup.ts"],
     },
     plugins: [
         swc.vite(), // Put the Codecov vite plugin after all other plugins

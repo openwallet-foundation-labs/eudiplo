@@ -31,8 +31,6 @@
         "test:debug": "vitest --inspect-brk --inspect --logHeapUsage --threads=false",
         "test:e2e": "vitest run --coverage --config ./test/vitest.config.ts",
         "test:e2e:watch": "vitest --config ./test/vitest.config.ts",
-        "test:e2e:oidf": "vitest run --coverage --config ./test/vitest.config.oidf.ts",
-        "test:e2e:oidf:watch": "vitest --config ./test/vitest.config.oidf.ts",
         "registrar": "npx @hey-api/openapi-ts -i https://funke-wallet.de/-json -o ./src/registrar/generated -c @hey-api/client-fetch"
     },
     "dependencies": {
@@ -100,6 +98,7 @@
         "@types/node": "^24.10.0",
         "@types/supertest": "^6.0.3",
         "@vitest/coverage-v8": "^4.0.14",
+        "cloudflared": "^0.7.1",
         "dotenv": "^17.2.3",
         "express": "^5.1.0",
         "globals": "^16.5.0",
