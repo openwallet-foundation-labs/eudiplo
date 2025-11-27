@@ -1145,6 +1145,34 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#oidf-conformance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OIDF Conformance
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OIDF Conformance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#running-conformance-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running Conformance Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1857,6 +1885,34 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#oidf-conformance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OIDF Conformance
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OIDF Conformance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#running-conformance-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running Conformance Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1947,6 +2003,25 @@ stable support as specifications mature.</p>
 <li>Companies targeting pan-European credential workflows</li>
 <li>Developers seeking a reliable, minimal abstraction layer over complex specs</li>
 </ul>
+<hr>
+<h2 id="oidf-conformance">OIDF Conformance<a class="headerlink" href="#oidf-conformance" title="Permanent link">¶</a></h2>
+<p>EUDIPLO has been tested against the <strong>OpenID Foundation (OIDF) Conformance Suite</strong> to ensure strict compliance with protocol specifications:</p>
+<ul>
+<li>✅ <strong>OID4VCI (OpenID for Verifiable Credential Issuance)</strong> - Conformance tested</li>
+<li>✅ <strong>OID4VP (OpenID for Verifiable Presentations)</strong> - Conformance tested</li>
+</ul>
+<p>These conformance tests validate that EUDIPLO correctly implements the protocol flows, security requirements, and interoperability features specified by the OpenID Foundation.</p>
+<h3 id="running-conformance-tests">Running Conformance Tests<a class="headerlink" href="#running-conformance-tests" title="Permanent link">¶</a></h3>
+<p>To run the OIDF conformance tests yourself:</p>
+<ol>
+<li>Deploy EUDIPLO to a publicly accessible instance (required for the hosted OIDF test suite)</li>
+<li>Run the conformance test suite:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">cd</span><span class="w"> </span>apps/backend
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pnpm<span class="w"> </span>run<span class="w"> </span>test:e2e:oidf
+</code></pre></div>
+<p>These tests execute against your running instance and communicate with the hosted OIDF conformance suite to validate protocol compliance.</p>
+<p>For more details on testing, see the <a href="../../development/testing/#oidf-conformance-tests">Testing Guide</a>.</p>
 
 
 

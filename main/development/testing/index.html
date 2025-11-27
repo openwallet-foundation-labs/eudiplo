@@ -1716,6 +1716,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#oidf-conformance-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OIDF Conformance Tests
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#e2e-tests" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1775,17 +1786,6 @@
     <span class="md-ellipsis">
       
         Test Structure
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#tips" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        💡 Tips
       
     </span>
   </a>
@@ -1891,6 +1891,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#oidf-conformance-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OIDF Conformance Tests
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#e2e-tests" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1956,17 +1967,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#tips" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        💡 Tips
-      
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -2013,6 +2013,11 @@ project.</p>
 <p>The current focus is on end-to-end (E2E) tests, which verify the overall
 functionality of the application.</p>
 <hr>
+<h2 id="oidf-conformance-tests">OIDF Conformance Tests<a class="headerlink" href="#oidf-conformance-tests" title="Permanent link">¶</a></h2>
+<p>EUDIPLO includes dedicated tests for validating compliance with the <a href="https://openid.net/certification/conformance/">OpenID Foundation (OIDF) conformance suite</a> for OID4VCI and OID4VP. These tests ensure that the implementation of OID4VCI (OpenID for Verifiable Credential Issuance) and OID4VP (OpenID for Verifiable Presentations) strictly follows the protocol specifications.</p>
+<p>The test are part of the E2E tests that run in the Github Action CI pipeline for a pull request and on the <code>main</code> branch.</p>
+<p>The current deployment is using the provided suite of the OIDF, using a proxy to make EUDIPLO accessible from the public internet. In the future it is planned to spin up a test instance inside the action. This might take a bit longer to execute, but will be more reliable and not depend on an external service. The test results are stored as an artifact of the action run as an HTML report.</p>
+<hr>
 <h2 id="e2e-tests">E2E Tests<a class="headerlink" href="#e2e-tests" title="Permanent link">¶</a></h2>
 <p>Right now EUDIPLO has only implemented end-to-end (E2E) tests that are stored in
 the <code>/test</code> folder. These tests are designed to verify the overall functionality
@@ -2036,7 +2041,7 @@ tests on file changes:</p>
 <h2 id="github-actions">GitHub Actions<a class="headerlink" href="#github-actions" title="Permanent link">¶</a></h2>
 <p>Tests run automatically on every push to <code>main</code> or pull request via GitHub
 Actions.</p>
-<p>You can find the workflow config in <code>.github/workflows/ci.yml</code>.</p>
+<p>You can find the workflow config in <code>.github/workflows/ci-and-release.yml</code>.</p>
 <hr>
 <h2 id="running-tests-locally">Running Tests Locally<a class="headerlink" href="#running-tests-locally" title="Permanent link">¶</a></h2>
 <p>To run all unit and integration tests locally:</p>
@@ -2049,31 +2054,22 @@ Actions.</p>
 NestJS.</p>
 <hr>
 <h2 id="test-coverage">Test Coverage<a class="headerlink" href="#test-coverage" title="Permanent link">¶</a></h2>
-<p>To check code coverage:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>pnpm<span class="w"> </span>run<span class="w"> </span>test:cov
-</code></pre></div>
+<p>The coverage is generated when running the E2E tests.</p>
 <p>This generates a report in the <code>/coverage</code> folder. Open <code>coverage/index.html</code> in
 your browser to view it.</p>
 <hr>
 <h2 id="test-structure">Test Structure<a class="headerlink" href="#test-structure" title="Permanent link">¶</a></h2>
 <p>Tests are located next to their implementation files:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>src/
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span>service/
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span>my.service.ts
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span>my.service.spec.ts<span class="w">  </span>&lt;--<span class="w"> </span>Test<span class="w"> </span>file
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>src/
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span>service/
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span>my.service.ts
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span>my.service.spec.ts<span class="w">  </span>&lt;--<span class="w"> </span>Test<span class="w"> </span>file
 </code></pre></div>
-<p>Use <code>.spec.ts</code> naming to ensure Vitest picks up the test files automatically.</p>
-<h2 id="tips">💡 Tips<a class="headerlink" href="#tips" title="Permanent link">¶</a></h2>
-<ul>
-<li>Keep unit tests isolated; mock dependencies using tools like <code>vitest.mock()</code>
-  or NestJS's testing module.</li>
-<li>For HTTP integration tests, use
-  <a href="https://github.com/visionmedia/supertest">supertest</a>.</li>
-<li>For mocking external APIs (e.g., Vault or Keycloak), consider
-  <a href="https://github.com/nock/nock"><code>nock</code></a>.</li>
-</ul>
-<hr>
-<p>Happy testing! 🚀</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>At this point EUDIPLO only has E2E tests. Unit and integration tests may be added
+in the future.</p>
+</div>
 
 
 
