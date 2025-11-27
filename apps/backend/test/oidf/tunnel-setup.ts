@@ -19,6 +19,10 @@ export function setupTunnel(): Promise<void> {
                 console.log("Tunnel is ready at", url);
                 resolvePromise();
             });
+
+            tunnel.on("error", (error) => {
+                console.error("Error", error);
+            });
         } else if (import.meta.env.VITE_NGROK_AUTH_TOKEN) {
             console.log("Setting up ngrok tunnel...");
             connect({
