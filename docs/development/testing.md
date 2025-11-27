@@ -9,6 +9,16 @@ functionality of the application.
 
 ---
 
+## OIDF Conformance Tests
+
+EUDIPLO includes dedicated tests for validating compliance with the [OpenID Foundation (OIDF) conformance suite](https://openid.net/certification/conformance/) for OID4VCI and OID4VP. These tests ensure that the implementation of OID4VCI (OpenID for Verifiable Credential Issuance) and OID4VP (OpenID for Verifiable Presentations) strictly follows the protocol specifications.
+
+The test are part of the E2E tests that run in the Github Action CI pipeline for a pull request and on the `main` branch.
+
+The current deployment is using the provided suite of the OIDF, using a proxy to make EUDIPLO accessible from the public internet. In the future it is planned to spin up a test instance inside the action. This might take a bit longer to execute, but will be more reliable and not depend on an external service. The test results are stored as an artifact of the action run as an HTML report.
+
+---
+
 ## E2E Tests
 
 Right now EUDIPLO has only implemented end-to-end (E2E) tests that are stored in
@@ -49,7 +59,7 @@ pnpm run lint
 Tests run automatically on every push to `main` or pull request via GitHub
 Actions.
 
-You can find the workflow config in `.github/workflows/ci.yml`.
+You can find the workflow config in `.github/workflows/ci-and-release.yml`.
 
 ---
 
@@ -74,11 +84,7 @@ NestJS.
 
 ## Test Coverage
 
-To check code coverage:
-
-```bash
-pnpm run test:cov
-```
+The coverage is generated when running the E2E tests.
 
 This generates a report in the `/coverage` folder. Open `coverage/index.html` in
 your browser to view it.
@@ -96,17 +102,7 @@ src/
     my.service.spec.ts  <-- Test file
 ```
 
-Use `.spec.ts` naming to ensure Vitest picks up the test files automatically.
+!!! Info
 
-## 💡 Tips
-
-- Keep unit tests isolated; mock dependencies using tools like `vitest.mock()`
-  or NestJS's testing module.
-- For HTTP integration tests, use
-  [supertest](https://github.com/visionmedia/supertest).
-- For mocking external APIs (e.g., Vault or Keycloak), consider
-  [`nock`](https://github.com/nock/nock).
-
----
-
-Happy testing! 🚀
+    At this point EUDIPLO only has E2E tests. Unit and integration tests may be added
+    in the future.

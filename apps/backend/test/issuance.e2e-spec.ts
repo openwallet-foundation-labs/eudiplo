@@ -79,23 +79,14 @@ describe("Issuance", () => {
             })
             .expect(201);
 
-        console.log(
-            resolve(
-                __dirname +
-                    "/../../../assets/config/root/issuance/issuance.json",
-            ),
-        );
+        const configFolder = resolve(__dirname + "/../../../assets/config");
         //import issuance config
         const issuerConfiguration = JSON.parse(
             readFileSync(
-                resolve(
-                    __dirname +
-                        "/../../../assets/config/root/issuance/issuance.json",
-                ),
+                resolve(configFolder + "/root/issuance/issuance.json"),
                 "utf-8",
             ),
         );
-        console.log("done");
         await request(app.getHttpServer())
             .post("/issuer-management/issuance")
             .trustLocalhost()
@@ -106,7 +97,7 @@ describe("Issuance", () => {
         //import the pid credential configuration
         const pidCredentialConfiguration = JSON.parse(
             readFileSync(
-                "../../assets/config/root/issuance/credentials/pid.json",
+                configFolder + "/root/issuance/credentials/pid.json",
                 "utf-8",
             ),
         );
@@ -119,10 +110,7 @@ describe("Issuance", () => {
 
         //import citizen that that requires presentation during issuance
         const citizenPresentationConfiguration = JSON.parse(
-            readFileSync(
-                "../../assets/config/root/presentation/pid.json",
-                "utf-8",
-            ),
+            readFileSync(configFolder + "/root/presentation/pid.json", "utf-8"),
         );
         await request(app.getHttpServer())
             .post("/presentation-management")
@@ -134,7 +122,7 @@ describe("Issuance", () => {
         //import the citizen credential configuration
         const citizenCredentialConfiguration = JSON.parse(
             readFileSync(
-                "../../assets/config/root/issuance/credentials/citizen.json",
+                configFolder + "/root/issuance/credentials/citizen.json",
                 "utf-8",
             ),
         );

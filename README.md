@@ -39,6 +39,7 @@ management, scalable database support, and clean API boundaries.
 
 - ✅ Supports **OID4VCI**, **OID4VP**, **SD-JWT VC**, and **OAuth Token Status
   List**
+- ✅ **OIDF conformance tested** for OID4VCI and OID4VP protocols
 - ✅ JSON-based credential configuration
 - ✅ Client credentials authentication for easy service integration
 - ✅ Runs via Docker with `.env` config
@@ -75,7 +76,7 @@ docker compose up -d
 # Client UI: http://localhost:4200
 ```
 
-⚠️  **Demo mode uses default credentials** - perfect for testing, but change them for production!
+⚠️ **Demo mode uses default credentials** - perfect for testing, but change them for production!
 
 ### Option 1: Using Docker Compose (Recommended for Production)
 

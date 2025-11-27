@@ -213,6 +213,10 @@ jobs:
 
       - name: Run E2E tests
         run: pnpm run --filter @eudiplo/backend test:e2e
+        env:
+          VITE_CLOUDFLARED_AUTH_TOKEN: ${{ secrets.VITE_CLOUDFLARED_AUTH_TOKEN }}
+          VITE_DOMAIN: ${{ secrets.VITE_DOMAIN }}
+          VITE_OIDF_DEMO_TOKEN: ${{ secrets.VITE_OIDF_DEMO_TOKEN }}
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
@@ -228,6 +232,13 @@ jobs:
         uses: codecov/test-results-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload OIDF test results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: oidf-test-results
+          path: apps/backend/logs/
 
   docker-backend:
     name: Build & Push Backend Docker Image

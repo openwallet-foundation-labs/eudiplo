@@ -35,3 +35,30 @@ This makes EUDIPLO especially suitable for:
 - Public sector services integrating with national wallet pilots
 - Companies targeting pan-European credential workflows
 - Developers seeking a reliable, minimal abstraction layer over complex specs
+
+---
+
+## OIDF Conformance
+
+EUDIPLO has been tested against the **OpenID Foundation (OIDF) Conformance Suite** to ensure strict compliance with protocol specifications:
+
+- ✅ **OID4VCI (OpenID for Verifiable Credential Issuance)** - Conformance tested
+- ✅ **OID4VP (OpenID for Verifiable Presentations)** - Conformance tested
+
+These conformance tests validate that EUDIPLO correctly implements the protocol flows, security requirements, and interoperability features specified by the OpenID Foundation.
+
+### Running Conformance Tests
+
+To run the OIDF conformance tests yourself:
+
+1. Deploy EUDIPLO to a publicly accessible instance (required for the hosted OIDF test suite)
+2. Run the conformance test suite:
+
+```bash
+cd apps/backend
+pnpm run test:e2e:oidf
+```
+
+These tests execute against your running instance and communicate with the hosted OIDF conformance suite to validate protocol compliance.
+
+For more details on testing, see the [Testing Guide](../development/testing.md#oidf-conformance-tests).
