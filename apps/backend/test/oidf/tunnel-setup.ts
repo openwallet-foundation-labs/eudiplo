@@ -19,42 +19,9 @@ export async function setupTunnel(): Promise<void> {
         new ConfigHandler(tunnel);
 
         return new Promise((resolvePromise) => {
-            handler.on("config", ({ config }) => {
-                console.log("Config", config);
-            });
-
             tunnel.on("url", (url) => {
                 console.log("Tunnel is ready at", url);
                 resolvePromise();
-            });
-
-            tunnel.on("connected", (connection) => {
-                console.log("Connected to", connection);
-            });
-
-            tunnel.on("disconnected", (connection) => {
-                console.log("Disconnected from", connection);
-            });
-
-            tunnel.on("stdout", (data) => {
-                console.log("Tunnel stdout", data);
-            });
-
-            tunnel.on("stderr", (data) => {
-                console.error("Tunnel stderr", data);
-            });
-
-            tunnel.on("exit", (code, signal) => {
-                console.log(
-                    "Tunnel exited with code",
-                    code,
-                    "and signal",
-                    signal,
-                );
-            });
-
-            tunnel.on("error", (error) => {
-                console.error("Error", error);
             });
         });
     } else if (import.meta.env.VITE_NGROK_AUTH_TOKEN) {
