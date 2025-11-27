@@ -1,20 +1,24 @@
 import { connect, Listener } from "@ngrok/ngrok";
-import { ConfigHandler, Tunnel } from "cloudflared";
+import { bin, ConfigHandler, install, Tunnel } from "cloudflared";
+import { existsSync } from "fs";
 
 let listener: Listener;
 
 let tunnel: Tunnel;
 
-export function setupTunnel(): Promise<void> {
-    return new Promise((resolvePromise) => {
-        if (import.meta.env.VITE_CLOUDFLARED_AUTH_TOKEN) {
-            console.log("Setting up cloudflared tunnel...");
-            tunnel = Tunnel.withToken(
-                import.meta.env.VITE_CLOUDFLARED_AUTH_TOKEN,
-            );
+export async function setupTunnel(): Promise<void> {
+    if (import.meta.env.VITE_CLOUDFLARED_AUTH_TOKEN) {
+        console.log("Setting up cloudflared tunnel...");
 
-            new ConfigHandler(tunnel);
+        if (!existsSync(bin)) {
+            // install cloudflared binary
+            await install(bin);
+        }
+        tunnel = Tunnel.withToken(import.meta.env.VITE_CLOUDFLARED_AUTH_TOKEN);
 
+        new ConfigHandler(tunnel);
+
+        return new Promise((resolvePromise) => {
             handler.on("config", ({ config }) => {
                 console.log("Config", config);
             });
@@ -52,23 +56,16 @@ export function setupTunnel(): Promise<void> {
             tunnel.on("error", (error) => {
                 console.error("Error", error);
             });
-        } else if (import.meta.env.VITE_NGROK_AUTH_TOKEN) {
-            console.log("Setting up ngrok tunnel...");
-            connect({
-                addr: 3000,
-                domain: import.meta.env.VITE_DOMAIN,
-                authtoken: import.meta.env.VITE_NGROK_AUTH_TOKEN,
-            }).then((l) => {
-                listener = l;
-                console.log(
-                    `ngrok tunnel established at URL: ${listener.url()}`,
-                );
-                resolvePromise();
-            });
-        } else {
-            resolvePromise();
-        }
-    });
+        });
+    } else if (import.meta.env.VITE_NGROK_AUTH_TOKEN) {
+        console.log("Setting up ngrok tunnel...");
+        listener = await connect({
+            addr: 3000,
+            domain: import.meta.env.VITE_DOMAIN,
+            authtoken: import.meta.env.VITE_NGROK_AUTH_TOKEN,
+        });
+        console.log(`ngrok tunnel established at URL: ${listener.url()}`);
+    }
 }
 
 export async function teardownTunnel(): Promise<void> {
