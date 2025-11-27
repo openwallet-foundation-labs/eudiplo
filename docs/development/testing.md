@@ -11,35 +11,11 @@ functionality of the application.
 
 ## OIDF Conformance Tests
 
-EUDIPLO includes dedicated tests for validating compliance with the **OpenID Foundation (OIDF) conformance suite**. These tests ensure that the implementation of OID4VCI (OpenID for Verifiable Credential Issuance) and OID4VP (OpenID for Verifiable Presentations) strictly follows the protocol specifications.
+EUDIPLO includes dedicated tests for validating compliance with the [OpenID Foundation (OIDF) conformance suite](https://openid.net/certification/conformance/) for OID4VCI and OID4VP. These tests ensure that the implementation of OID4VCI (OpenID for Verifiable Credential Issuance) and OID4VP (OpenID for Verifiable Presentations) strictly follows the protocol specifications.
 
-### Requirements
+The test are part of the E2E tests that run in the Github Action CI pipeline for a pull request and on the `main` branch.
 
-- A **publicly accessible EUDIPLO instance** (the OIDF hosted test suite needs to reach your instance over the internet)
-- Proper environment configuration with valid public URLs
-
-### Running OIDF Conformance Tests
-
-```bash
-cd apps/backend
-pnpm run test:e2e:oidf
-```
-
-For watch mode during development:
-
-```bash
-pnpm run test:e2e:oidf:watch
-```
-
-These tests will:
-
-1. Connect to your running EUDIPLO instance
-2. Communicate with the hosted OIDF conformance suite
-3. Validate protocol compliance for OID4VCI and OID4VP flows
-4. Generate a coverage report
-
-!!! warning "Public Instance Required"
-Unlike regular E2E tests, OIDF conformance tests require your instance to be reachable from the internet because they use the OpenID Foundation's hosted conformance testing infrastructure.
+The current deployment is using the provided suite of the OIDF, using a proxy to make EUDIPLO accessible from the public internet. In the future it is planned to spin up a test instance inside the action. This might take a bit longer to execute, but will be more reliable and not depend on an external service. The test results are stored as an artifact of the action run as an HTML report.
 
 ---
 
@@ -83,7 +59,7 @@ pnpm run lint
 Tests run automatically on every push to `main` or pull request via GitHub
 Actions.
 
-You can find the workflow config in `.github/workflows/ci.yml`.
+You can find the workflow config in `.github/workflows/ci-and-release.yml`.
 
 ---
 
@@ -108,11 +84,7 @@ NestJS.
 
 ## Test Coverage
 
-To check code coverage:
-
-```bash
-pnpm run test:cov
-```
+The coverage is generated when running the E2E tests.
 
 This generates a report in the `/coverage` folder. Open `coverage/index.html` in
 your browser to view it.
@@ -130,17 +102,7 @@ src/
     my.service.spec.ts  <-- Test file
 ```
 
-Use `.spec.ts` naming to ensure Vitest picks up the test files automatically.
+!!! Info
 
-## 💡 Tips
-
-- Keep unit tests isolated; mock dependencies using tools like `vitest.mock()`
-  or NestJS's testing module.
-- For HTTP integration tests, use
-  [supertest](https://github.com/visionmedia/supertest).
-- For mocking external APIs (e.g., Vault or Keycloak), consider
-  [`nock`](https://github.com/nock/nock).
-
----
-
-Happy testing! 🚀
+    At this point EUDIPLO only has E2E tests. Unit and integration tests may be added
+    in the future.
