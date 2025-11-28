@@ -213,10 +213,6 @@ jobs:
 
       - name: Run E2E tests
         run: pnpm run --filter @eudiplo/backend test:e2e
-        env:
-          VITE_CLOUDFLARED_AUTH_TOKEN: ${{ secrets.VITE_CLOUDFLARED_AUTH_TOKEN }}
-          VITE_DOMAIN: ${{ secrets.VITE_DOMAIN }}
-          VITE_OIDF_DEMO_TOKEN: ${{ secrets.VITE_OIDF_DEMO_TOKEN }}
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5

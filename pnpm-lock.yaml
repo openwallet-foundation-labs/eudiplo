@@ -231,9 +231,6 @@ importers:
       '@nestjs/testing':
         specifier: ^11.1.8
         version: 11.1.9(@nestjs/common@11.1.9(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.9)(@nestjs/platform-express@11.1.9)
-      '@ngrok/ngrok':
-        specifier: ^1.6.0
-        version: 1.6.0
       '@swc/cli':
         specifier: ^0.7.9
         version: 0.7.9(@swc/core@1.15.3)(chokidar@4.0.3)
@@ -258,9 +255,6 @@ importers:
       '@vitest/coverage-v8':
         specifier: ^4.0.14
         version: 4.0.14(vitest@4.0.14(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(jiti@2.6.1)(sass@1.93.2)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))
-      cloudflared:
-        specifier: ^0.7.1
-        version: 0.7.1
       dotenv:
         specifier: ^17.2.3
         version: 17.2.3
@@ -277,7 +271,7 @@ importers:
         specifier: ^7.1.4
         version: 7.1.4
       testcontainers:
-        specifier: ^11.8.0
+        specifier: ^11.8.1
         version: 11.8.1
       ts-loader:
         specifier: ^9.5.4
@@ -2914,87 +2908,6 @@ packages:
       rxjs: ^7.2.0
       typeorm: ^0.3.0
 
-  '@ngrok/ngrok-android-arm64@1.6.0':
-    resolution: {integrity: sha512-gOfVVjYq7ruPMgH108j99uaBUkwD1DxDpnk+RufQHzxRKL72MZad7QfaRwc1v8iRMyOh3EKYYvU2y8HSXDbSkA==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [android]
-
-  '@ngrok/ngrok-darwin-arm64@1.6.0':
-    resolution: {integrity: sha512-YdKlEkz0PHHnoy2UlEH2XMrupetmT6K6bLrF+MFWrKYKpIbOuGV4HcVioh1iu0NTmn7xJwrAbo/Mwx2E95/qdg==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [darwin]
-
-  '@ngrok/ngrok-darwin-universal@1.6.0':
-    resolution: {integrity: sha512-yiUCkg10+vUKgvkD2rAZHlzvZmINUNF7mna7iL+ydh4pOx6jamSwDQ2QRseVAyxC9eZVy/rKFYLVnz2Ci+0D9w==}
-    engines: {node: '>= 10'}
-    os: [darwin]
-
-  '@ngrok/ngrok-darwin-x64@1.6.0':
-    resolution: {integrity: sha512-a6LbwODDDCRpriILe+1lq+zuIjGbj+pR1A0KThTP8riVTQ538DMqR09kv5Oz7ZqcclS/IK+3ZLKkxHuPX9ob3g==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [darwin]
-
-  '@ngrok/ngrok-freebsd-x64@1.6.0':
-    resolution: {integrity: sha512-t77ayWr0zPrW75DstzvoE6Hwj7h1mpQSFKQ3I0B3iC9o7XZhcNkwFpX8QLbmQNkeHxz5UhlBtzOYPdzDJY+3uw==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [freebsd]
-
-  '@ngrok/ngrok-linux-arm-gnueabihf@1.6.0':
-    resolution: {integrity: sha512-NBCJnPAbl44Ua3dpO+kOkyz4cGGLu2FiDcEHBES7OARiSscoui+DyNPLe5auZFjag5/0B3ZNiDgCcdRBAi+KNQ==}
-    engines: {node: '>= 10'}
-    cpu: [arm]
-    os: [linux]
-
-  '@ngrok/ngrok-linux-arm64-gnu@1.6.0':
-    resolution: {integrity: sha512-i65WIaeImO2/oyTfwUAVW1j/poLMzX/PAYsDRLXOac6/1DV6kIQX1kmr+CEs6NtmKgD76QiApbqtksd9MDlncg==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [linux]
-
-  '@ngrok/ngrok-linux-arm64-musl@1.6.0':
-    resolution: {integrity: sha512-7osqE43Pl6HiTeLZSEnSTtgbNQ1zqYovYjZ7lGgeKJHlgWXE6RvE7qhdjDw17ebUuT0IS8JPGZFnlyF6J0UKPQ==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [linux]
-
-  '@ngrok/ngrok-linux-x64-gnu@1.6.0':
-    resolution: {integrity: sha512-jP3enLStnTGTKLBXqctVt3wIVvGLP/BkLKYuXwrU1EqchtvDcsAhpspeUeX23SAtLXUgbX9vN1B6IvsAxWcyxw==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [linux]
-
-  '@ngrok/ngrok-linux-x64-musl@1.6.0':
-    resolution: {integrity: sha512-hrBrXCofgmY9pc36N0nfDS+bfomu5hOqt0N5IQkL4n0UaQcl48tKddIex2eR+mU3QBYh6p1XKxAwyAVjwplD2w==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [linux]
-
-  '@ngrok/ngrok-win32-arm64-msvc@1.6.0':
-    resolution: {integrity: sha512-EXJXFaXh/cNRaTqs02EmysILtcSImFWwC98mjG6PU5MEG+gqNz8AddnqFytY0RRxkR9SxwnC+7QAV3qYOSU6kA==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [win32]
-
-  '@ngrok/ngrok-win32-ia32-msvc@1.6.0':
-    resolution: {integrity: sha512-R+5WB6ONT4ynHFusxRw8kbXx2SBYftl6XUiNQNmwwCdwdNO7fPzdwhbmbzgfCEjQrYQrXD1vs5J+zJJeSaAicw==}
-    engines: {node: '>= 10'}
-    cpu: [ia32]
-    os: [win32]
-
-  '@ngrok/ngrok-win32-x64-msvc@1.6.0':
-    resolution: {integrity: sha512-4QViW0GSPsjmghYPExO0Jt9DtIybK23MXPP0BltOuoFP0iyA15vb03QXAI4223zlSLWSWYnOx+qnCuzV1qT0lQ==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [win32]
-
-  '@ngrok/ngrok@1.6.0':
-    resolution: {integrity: sha512-TWC6nh4Kl16HjhG/bVhpYNP5UIyJc9oZetCrnO4r5+gq95eIxZKoLXzuAyC0gF/J+NEY3c1euFAET5Sn9wOWaw==}
-    engines: {node: '>= 10'}
-
   '@ngx-formly/core@7.0.1':
     resolution: {integrity: sha512-Ahx9STZ9tntaRikizsnApBPSCM1dGsS+G3MYN0JOZYn6sgb+dz8SczYNMFHokMW7f9o0lR0Za3Bd9nT9f85E6w==}
     peerDependencies:
@@ -5116,10 +5029,6 @@ packages:
   clone@1.0.4:
     resolution: {integrity: sha512-JQHZ2QMW6l3aH/j6xCqQThY/9OH4D/9ls34cgkUBiEeocRTU04tHfKPBsUK1PqZCUQM7GiA0IIXJSuXHI64Kbg==}
     engines: {node: '>=0.8'}
-
-  cloudflared@0.7.1:
-    resolution: {integrity: sha512-jJn1Gu9Tf4qnIu8tfiHZ25Hs8rNcRYSVf8zAd97wvYdOCzftm1CTs1S/RPhijjGi8gUT1p9yzfDi9zYlU/0RwA==}
-    hasBin: true
 
   code-block-writer@13.0.3:
     resolution: {integrity: sha512-Oofo0pq3IKnsFtuHqSF7TqBfr71aeyZDVJ0HpmqB7FBM2qEigL0iPONSCZSO9pE9dZTAxANe5XHG9Uy0YMv8cg==}
@@ -12754,61 +12663,6 @@ snapshots:
       rxjs: 7.8.2
       typeorm: 0.3.27(mysql2@3.15.3)(pg@8.16.3)(reflect-metadata@0.2.2)(sqlite3@5.1.7)(ts-node@10.9.2(@swc/core@1.15.3)(@types/node@24.10.1)(typescript@5.9.3))
 
-  '@ngrok/ngrok-android-arm64@1.6.0':
-    optional: true
-
-  '@ngrok/ngrok-darwin-arm64@1.6.0':
-    optional: true
-
-  '@ngrok/ngrok-darwin-universal@1.6.0':
-    optional: true
-
-  '@ngrok/ngrok-darwin-x64@1.6.0':
-    optional: true
-
-  '@ngrok/ngrok-freebsd-x64@1.6.0':
-    optional: true
-
-  '@ngrok/ngrok-linux-arm-gnueabihf@1.6.0':
-    optional: true
-
-  '@ngrok/ngrok-linux-arm64-gnu@1.6.0':
-    optional: true
-
-  '@ngrok/ngrok-linux-arm64-musl@1.6.0':
-    optional: true
-
-  '@ngrok/ngrok-linux-x64-gnu@1.6.0':
-    optional: true
-
-  '@ngrok/ngrok-linux-x64-musl@1.6.0':
-    optional: true
-
-  '@ngrok/ngrok-win32-arm64-msvc@1.6.0':
-    optional: true
-
-  '@ngrok/ngrok-win32-ia32-msvc@1.6.0':
-    optional: true
-
-  '@ngrok/ngrok-win32-x64-msvc@1.6.0':
-    optional: true
-
-  '@ngrok/ngrok@1.6.0':
-    optionalDependencies:
-      '@ngrok/ngrok-android-arm64': 1.6.0
-      '@ngrok/ngrok-darwin-arm64': 1.6.0
-      '@ngrok/ngrok-darwin-universal': 1.6.0
-      '@ngrok/ngrok-darwin-x64': 1.6.0
-      '@ngrok/ngrok-freebsd-x64': 1.6.0
-      '@ngrok/ngrok-linux-arm-gnueabihf': 1.6.0
-      '@ngrok/ngrok-linux-arm64-gnu': 1.6.0
-      '@ngrok/ngrok-linux-arm64-musl': 1.6.0
-      '@ngrok/ngrok-linux-x64-gnu': 1.6.0
-      '@ngrok/ngrok-linux-x64-musl': 1.6.0
-      '@ngrok/ngrok-win32-arm64-msvc': 1.6.0
-      '@ngrok/ngrok-win32-ia32-msvc': 1.6.0
-      '@ngrok/ngrok-win32-x64-msvc': 1.6.0
-
   '@ngx-formly/core@7.0.1(@angular/forms@21.0.0(@angular/common@21.0.0(@angular/core@21.0.0(@angular/compiler@21.0.0)(rxjs@7.8.2)(zone.js@0.16.0))(rxjs@7.8.2))(@angular/core@21.0.0(@angular/compiler@21.0.0)(rxjs@7.8.2)(zone.js@0.16.0))(@angular/platform-browser@21.0.0(@angular/animations@21.0.0(@angular/core@21.0.0(@angular/compiler@21.0.0)(rxjs@7.8.2)(zone.js@0.16.0)))(@angular/common@21.0.0(@angular/core@21.0.0(@angular/compiler@21.0.0)(rxjs@7.8.2)(zone.js@0.16.0))(rxjs@7.8.2))(@angular/core@21.0.0(@angular/compiler@21.0.0)(rxjs@7.8.2)(zone.js@0.16.0)))(@standard-schema/spec@1.0.0)(rxjs@7.8.2))(rxjs@7.8.2)':
     dependencies:
       '@angular/forms': 21.0.0(@angular/common@21.0.0(@angular/core@21.0.0(@angular/compiler@21.0.0)(rxjs@7.8.2)(zone.js@0.16.0))(rxjs@7.8.2))(@angular/core@21.0.0(@angular/compiler@21.0.0)(rxjs@7.8.2)(zone.js@0.16.0))(@angular/platform-browser@21.0.0(@angular/animations@21.0.0(@angular/core@21.0.0(@angular/compiler@21.0.0)(rxjs@7.8.2)(zone.js@0.16.0)))(@angular/common@21.0.0(@angular/core@21.0.0(@angular/compiler@21.0.0)(rxjs@7.8.2)(zone.js@0.16.0))(rxjs@7.8.2))(@angular/core@21.0.0(@angular/compiler@21.0.0)(rxjs@7.8.2)(zone.js@0.16.0)))(@standard-schema/spec@1.0.0)(rxjs@7.8.2)
@@ -15362,8 +15216,6 @@ snapshots:
       wrap-ansi: 9.0.2
 
   clone@1.0.4: {}
-
-  cloudflared@0.7.1: {}
 
   code-block-writer@13.0.3: {}
 

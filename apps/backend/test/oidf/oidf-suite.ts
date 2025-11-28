@@ -1,5 +1,6 @@
 import * as axios from "axios";
 import { mkdirSync } from "fs";
+import https from "https";
 import unzipper from "unzipper";
 
 export interface TestInstance {
@@ -14,14 +15,19 @@ interface TestResult {
 
 export class OIDFSuite {
     instance: axios.AxiosInstance;
-    constructor(OIDF_URL: string, OIDF_DEMO_TOKEN: string) {
+    constructor(OIDF_URL: string, OIDF_DEMO_TOKEN?: string) {
         // --- Prepare demo OIDF instance ----------------------------------------
         this.instance = axios.default.create({
             baseURL: OIDF_URL,
             headers: {
-                Authorization: `Bearer ${OIDF_DEMO_TOKEN}`,
+                Authorization: OIDF_DEMO_TOKEN
+                    ? `Bearer ${OIDF_DEMO_TOKEN}`
+                    : undefined,
                 "Content-Type": "application/json",
             },
+            httpsAgent: new https.Agent({
+                rejectUnauthorized: false,
+            }),
         });
     }
 
