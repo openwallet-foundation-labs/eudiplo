@@ -36,8 +36,13 @@ export default async function setup() {
         .withNetwork(network)
         .withNetworkAliases("server")
         .withName("fapi-test-suite-server")
-        .withNetworkMode("host")
         .withLabels(projectLabels)
+        .withExtraHosts([
+            {
+                host: "host.docker.internal",
+                ipAddress: "host-gateway",
+            },
+        ])
         .withEntrypoint([
             "java",
             "-jar",
