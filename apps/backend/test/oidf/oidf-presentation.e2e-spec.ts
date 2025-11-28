@@ -14,15 +14,10 @@ import { OIDFSuite, TestInstance } from "./oidf-suite";
  * E2E: OIDF conformance runner integration test
  */
 describe("OIDF", () => {
-    const PUBLIC_DOMAIN = import.meta.env.VITE_DOMAIN;
-    const OIDF_URL =
-        import.meta.env.VITE_OIDF_URL ??
-        "https://demo.certification.openid.net";
+    const PUBLIC_DOMAIN =
+        import.meta.env.VITE_DOMAIN ?? "host.docker.internal:3000";
+    const OIDF_URL = import.meta.env.VITE_OIDF_URL ?? "https://localhost:8443";
     const OIDF_DEMO_TOKEN = import.meta.env.VITE_OIDF_DEMO_TOKEN;
-
-    if (!PUBLIC_DOMAIN) {
-        throw new Error("VITE_DOMAIN must be set");
-    }
 
     let app: INestApplication;
     let PLAN_ID: string;
