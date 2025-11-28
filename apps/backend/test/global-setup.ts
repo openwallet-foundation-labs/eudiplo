@@ -1,4 +1,3 @@
-import path from "path";
 import {
     GenericContainer,
     Network,
@@ -12,31 +11,33 @@ let mongoDb: StartedTestContainer;
 let containerServer: StartedTestContainer;
 let containerHttp: StartedTestContainer;
 
-export async function setup() {
+export default async function setup() {
     console.log("Global setup for backend tests...");
     // Create a custom network for container communication
     network = await new Network().start();
+
+    const projectLabels = {
+        "com.docker.compose.project": "fapi-test-suite",
+    };
 
     // Start MongoDB first (dependency for server)
     mongoDb = await new GenericContainer("mongo:6.0.13")
         .withNetwork(network)
         .withNetworkAliases("mongodb")
+        .withName("fapi-test-suite-mongodb")
+        .withLabels(projectLabels)
         .start();
     console.log("MongoDB container started");
 
     // Start the FAPI test suite server (depends on MongoDB)
     containerServer = await new GenericContainer(
-        "lunilein/conformance-suite-server:latest",
+        "ghcr.io/cre8/oidf-conformance-suite-publisher/server:latest",
     )
         .withNetwork(network)
         .withNetworkAliases("server")
-        .withBindMounts([
-            {
-                source: path.resolve("./target"),
-                target: "/server",
-            },
-        ])
-        .withCommand([
+        .withName("fapi-test-suite-server")
+        .withLabels(projectLabels)
+        .withEntrypoint([
             "java",
             "-jar",
             "/server/fapi-test-suite.jar",
@@ -45,15 +46,27 @@ export async function setup() {
             "--fintechlabs.devmode=true",
             "--fintechlabs.startredir=true",
         ])
-        //.withWaitStrategy(Wait.))
-        .start();
+        .withWaitStrategy(
+            Wait.forLogMessage(new RegExp(".*Started Application in.*")),
+        )
+        .start()
+        .catch((err) => {
+            console.error("Error starting server container:", err);
+            throw err;
+        });
     console.log("FAPI test suite server container started");
 
     // Start httpd (depends on server)
     containerHttp = await new GenericContainer(
-        "lunilein/conformance-suite-httpd:latest",
+        "ghcr.io/cre8/oidf-conformance-suite-publisher/httpd:latest",
     )
         .withNetwork(network)
+        .withName("fapi-test-suite-httpd")
+        .withLabels(projectLabels)
+        .withEnvironment({
+            OIDC_GITLAB_CLIENTID: "fapi-test-suite-client",
+            OIDC_GITLAB_CLIENTSECRET: "fapi-test-suite-secret",
+        })
         .withExposedPorts({
             container: 8443,
             host: 8443,
@@ -65,11 +78,33 @@ export async function setup() {
     const httpdPort = containerHttp.getMappedPort(8443);
     process.env.FAPI_TEST_URL = `https://localhost:${httpdPort}`;
     console.log(`FAPI test URL set to ${process.env.FAPI_TEST_URL}`);
-}
 
-export async function teardown() {
-    await containerHttp?.stop();
-    await containerServer?.stop();
-    await mongoDb?.stop();
-    await network?.stop();
+    // Return the teardown function
+    return async () => {
+        console.log("Global teardown for backend tests...");
+        try {
+            await containerHttp?.stop();
+            console.log("Stopped httpd container");
+        } catch (error) {
+            console.error("Error stopping httpd:", error);
+        }
+        try {
+            await containerServer?.stop();
+            console.log("Stopped server container");
+        } catch (error) {
+            console.error("Error stopping server:", error);
+        }
+        try {
+            await mongoDb?.stop();
+            console.log("Stopped MongoDB container");
+        } catch (error) {
+            console.error("Error stopping MongoDB:", error);
+        }
+        try {
+            await network?.stop();
+            console.log("Stopped network");
+        } catch (error) {
+            console.error("Error stopping network:", error);
+        }
+    };
 }

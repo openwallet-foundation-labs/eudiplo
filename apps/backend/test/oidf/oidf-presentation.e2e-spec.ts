@@ -95,7 +95,9 @@ describe("OIDF", () => {
         configService.set("CONFIG_IMPORT_FORCE", true);
 
         await app.init();
-        await app.listen(3000, "0.0.0.0");
+        await app.listen(3000);
+
+        console.log("Backend application started for OIDF E2E tests");
 
         // Get client credentials
         const client = JSON.parse(

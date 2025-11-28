@@ -178,9 +178,7 @@ describe("OIDF - issuance - pre auth", () => {
         authToken = tokenResponse.data.access_token;
         expect(authToken).toBeDefined();
 
-        console.log(
-            `https://demo.certification.openid.net/plan-detail.html?plan=${PLAN_ID}`,
-        );
+        console.log(`${OIDF_URL}/plan-detail.html?plan=${PLAN_ID}`);
         // Create test instance
         // running this will cause to run the first test but also returns no result. Test will time out.
         /* testInstance = await oidfSuite.getInstance(PLAN_ID).catch((err) => {
@@ -299,7 +297,11 @@ describe("OIDF - issuance - pre auth", () => {
         const url = await oidfSuite.getEndpoint(testInstance);
 
         // Send the offer to the OIDF test runner
-        await axios.default.get(`${url}${parameters}`);
+        await axios.default.get(`${url}${parameters}`, {
+            httpsAgent: new https.Agent({
+                rejectUnauthorized: false,
+            }),
+        });
 
         const logResult = await oidfSuite.waitForFinished(testInstance.id);
         expect(logResult.result).toBe("PASSED");
