@@ -36,6 +36,7 @@ export default async function setup() {
         .withNetwork(network)
         .withNetworkAliases("server")
         .withName("fapi-test-suite-server")
+        .withNetworkMode("host")
         .withLabels(projectLabels)
         .withEntrypoint([
             "java",

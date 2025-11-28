@@ -15,7 +15,9 @@ EUDIPLO includes dedicated tests for validating compliance with the [OpenID Foun
 
 The test are part of the E2E tests that run in the Github Action CI pipeline for a pull request and on the `main` branch.
 
-The current deployment is using the provided suite of the OIDF, using a proxy to make EUDIPLO accessible from the public internet. In the future it is planned to spin up a test instance inside the action. This might take a bit longer to execute, but will be more reliable and not depend on an external service. The test results are stored as an artifact of the action run as an HTML report.
+!!! Info
+
+    Because there are no public docker images available, we are building them in a parallel github repo. Images of the suite will be build daily.
 
 ---
 
