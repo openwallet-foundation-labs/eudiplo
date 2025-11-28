@@ -40,7 +40,7 @@ export default async function setup() {
         .withExtraHosts([
             {
                 host: "host.docker.internal",
-                ipAddress: "host-gateway",
+                ipAddress: "172.17.0.1",
             },
         ])
         .withEntrypoint([
