@@ -241,7 +241,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="44" class="link-to-prism">src/issuer/credentials/entities/credential.entity.ts:44</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/issuer/credentials/entities/credential.entity.ts:42</a></div>
                         </td>
                     </tr>
 
@@ -279,7 +279,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="49" class="link-to-prism">src/issuer/credentials/entities/credential.entity.ts:49</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">src/issuer/credentials/entities/credential.entity.ts:47</a></div>
                         </td>
                     </tr>
 
@@ -315,7 +315,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="40" class="link-to-prism">src/issuer/credentials/entities/credential.entity.ts:40</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="38" class="link-to-prism">src/issuer/credentials/entities/credential.entity.ts:38</a></div>
                         </td>
                     </tr>
 
@@ -351,7 +351,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/issuer/credentials/entities/credential.entity.ts:42</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="40" class="link-to-prism">src/issuer/credentials/entities/credential.entity.ts:40</a></div>
                         </td>
                     </tr>
 
@@ -389,7 +389,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="52" class="link-to-prism">src/issuer/credentials/entities/credential.entity.ts:52</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="50" class="link-to-prism">src/issuer/credentials/entities/credential.entity.ts:50</a></div>
                         </td>
                     </tr>
 
@@ -425,7 +425,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="38" class="link-to-prism">src/issuer/credentials/entities/credential.entity.ts:38</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/issuer/credentials/entities/credential.entity.ts:36</a></div>
                         </td>
                     </tr>
 
@@ -462,7 +462,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="46" class="link-to-prism">src/issuer/credentials/entities/credential.entity.ts:46</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="44" class="link-to-prism">src/issuer/credentials/entities/credential.entity.ts:44</a></div>
                         </td>
                     </tr>
 
@@ -496,12 +496,12 @@ import {
     IsString,
     ValidateNested,
 } from &quot;class-validator&quot;;
-import { Column, Entity, ManyToMany, ManyToOne } from &quot;typeorm&quot;;
+import { Column, Entity, ManyToOne } from &quot;typeorm&quot;;
 import { TenantEntity } from &quot;../../../auth/tenant/entitites/tenant.entity&quot;;
 import { CertEntity } from &quot;../../../crypto/key/entities/cert.entity&quot;;
+import { WebhookConfig } from &quot;../../../utils/webhook/webhook.dto&quot;;
 import { SchemaResponse } from &quot;../../credentials-metadata/dto/schema-response.dto&quot;;
 import { VCT } from &quot;../../credentials-metadata/dto/vct.dto&quot;;
-import { IssuanceConfig } from &quot;../../issuance/entities/issuance-config.entity&quot;;
 import {
     AllowListPolicy,
     AttestationBasedPolicy,
@@ -512,15 +512,15 @@ import {
 
 export class DisplayImage {
     @IsString()
-    uri: string;
+    uri!: string;
 }
 export class Display {
     @IsString()
-    name: string;
+    name!: string;
     @IsString()
-    description: string;
+    description!: string;
     @IsString()
-    locale: string;
+    locale!: string;
     @IsString()
     background_color?: string;
     @IsString()
@@ -535,10 +535,10 @@ export class Display {
 
 export class IssuerMetadataCredentialConfig {
     @IsString()
-    format: string;
+    format!: string;
     @ValidateNested()
     @Type(() &#x3D;&gt; Display)
-    display: Display[];
+    display!: Display[];
     @IsOptional()
     @IsString()
     scope?: string;
@@ -568,7 +568,7 @@ export class CredentialConfig {
      * The tenant that owns this object.
      */
     @ManyToOne(() &#x3D;&gt; TenantEntity, { cascade: true, onDelete: &quot;CASCADE&quot; })
-    tenant: TenantEntity;
+    tenant!: TenantEntity;
 
     @Column(&quot;json&quot;)
     @ValidateNested()
@@ -579,6 +579,24 @@ export class CredentialConfig {
     @IsOptional()
     @IsObject()
     claims?: Record&lt;string, any&gt;;
+
+    /**
+     * Webhook to receive claims for the issuance process.
+     */
+    @IsOptional()
+    @ValidateNested()
+    @Type(() &#x3D;&gt; WebhookConfig)
+    @Column(&quot;json&quot;, { nullable: true })
+    claimsWebhook?: WebhookConfig;
+
+    /**
+     * Webhook to receive claims for the issuance process.
+     */
+    @IsOptional()
+    @ValidateNested()
+    @Type(() &#x3D;&gt; WebhookConfig)
+    @Column(&quot;json&quot;, { nullable: true })
+    notificationWebhook?: WebhookConfig;
 
     // has to be optional since there may be credentials that are disclosed without a frame
     @Column(&quot;json&quot;, { nullable: true })
@@ -652,13 +670,6 @@ export class CredentialConfig {
     })
     @Column(&quot;json&quot;, { nullable: true })
     embeddedDisclosurePolicy?: EmbeddedDisclosurePolicy;
-
-    @ManyToMany(
-        () &#x3D;&gt; IssuanceConfig,
-        (issuance) &#x3D;&gt; issuance.credentialConfigs,
-        { cascade: [&quot;remove&quot;], onDelete: &quot;CASCADE&quot; },
-    )
-    issuanceConfigs!: IssuanceConfig[];
 }
 </code></pre>
     </div>

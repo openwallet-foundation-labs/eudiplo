@@ -267,10 +267,9 @@ import { validate } from &quot;class-validator&quot;;
 import { readdirSync, readFileSync } from &quot;fs&quot;;
 import { PinoLogger } from &quot;nestjs-pino&quot;;
 import { Gauge } from &quot;prom-client&quot;;
-import { Repository } from &quot;typeorm/repository/Repository&quot;;
+import { Repository } from &quot;typeorm&quot;;
 import { CryptoService } from &quot;../../crypto/crypto.service&quot;;
 import { EncryptionService } from &quot;../../crypto/encryption/encryption.service&quot;;
-import { DisplayService } from &quot;../../issuer/display/display.service&quot;;
 import { StatusListService } from &quot;../../issuer/status-list/status-list.service&quot;;
 import { RegistrarService } from &quot;../../registrar/registrar.service&quot;;
 import { FilesService } from &quot;../../storage/files.service&quot;;
@@ -294,7 +293,6 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
         private encryptionService: EncryptionService,
         private statusListService: StatusListService,
         private registrarService: RegistrarService,
-        private displayService: DisplayService,
         @InjectRepository(TenantEntity)
         private tenantRepository: Repository&lt;TenantEntity&gt;,
         @InjectMetric(&quot;tenant_total&quot;)
@@ -410,7 +408,6 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
         await this.encryptionService.onTenantInit(tenant.id);
         await this.statusListService.onTenantInit(tenant.id);
         await this.registrarService.onTenantInit(tenant);
-        await this.displayService.onTenantInit(tenant);
         await this.tenantRepository.update(
             { id: tenant.id },
             { status: &quot;active&quot; },

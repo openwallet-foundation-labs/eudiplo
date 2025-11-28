@@ -701,8 +701,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="179"
-                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:179</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="176"
+                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:176</a></div>
                         </td>
                     </tr>
 
@@ -780,8 +780,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="168"
-                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:168</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="165"
+                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:165</a></div>
                         </td>
                     </tr>
 
@@ -871,8 +871,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="183"
-                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:183</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="180"
+                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:180</a></div>
                         </td>
                     </tr>
 
@@ -1000,7 +1000,7 @@ export class InternalClientsProvider
 
                     const clientExists &#x3D; await this.getClient(
                         tenant.name,
-                        &#x60;${tenant.name}-${payload.clientId}&#x60;,
+                        payload.clientId,
                     ).catch(() &#x3D;&gt; false);
                     if (clientExists &amp;&amp; !force) {
                         continue; // Skip if config already exists and force is not set
@@ -1086,9 +1086,6 @@ export class InternalClientsProvider
         dto: CreateClientDto,
         secret &#x3D; randomBytes(32).toString(&quot;hex&quot;),
     ) {
-        // we are adding the prefix because the clientId is not bound to tenant during login. This is relevant since not every tenant has it&#x27;s own client database/iam system.
-        dto.clientId &#x3D; &#x60;${tenantId}-${dto.clientId}&#x60;;
-
         const entity &#x3D; await this.repo.save({
             ...dto,
             secret,

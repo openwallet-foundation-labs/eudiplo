@@ -224,6 +224,12 @@
                                     <span class="modifier">Optional</span>
                                 <a href="#scope" >scope</a>
                             </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
+                                <a href="#state" >state</a>
+                            </li>
                         </ul>
                     </td>
                 </tr>
@@ -661,6 +667,44 @@
 
         </tbody>
     </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="state"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
+                        <span ><b>state</b></span>
+                        <a href="#state"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @IsOptional()<br />@IsString()<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="39" class="link-to-prism">src/issuer/authorize/dto/authorize-request.dto.ts:39</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
 </section>
 
 
@@ -709,6 +753,9 @@ export class AuthorizeQueries {
     @IsOptional()
     @IsString()
     auth_session?: string;
+    @IsOptional()
+    @IsString()
+    state?: string;
 }
 </code></pre>
     </div>

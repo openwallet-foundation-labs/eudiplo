@@ -211,7 +211,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/session/session.service.ts:19</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="12" class="link-to-prism">src/session/session.service.ts:12</a></div>
                             </td>
                         </tr>
 
@@ -310,8 +310,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="144"
-                                    class="link-to-prism">src/session/session.service.ts:144</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="135"
+                                    class="link-to-prism">src/session/session.service.ts:135</a></div>
                         </td>
                     </tr>
 
@@ -393,8 +393,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="98"
-                                    class="link-to-prism">src/session/session.service.ts:98</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="89"
+                                    class="link-to-prism">src/session/session.service.ts:89</a></div>
                         </td>
                     </tr>
 
@@ -462,8 +462,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="192"
-                                    class="link-to-prism">src/session/session.service.ts:192</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="183"
+                                    class="link-to-prism">src/session/session.service.ts:183</a></div>
                         </td>
                     </tr>
 
@@ -543,8 +543,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="163"
-                                    class="link-to-prism">src/session/session.service.ts:163</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="154"
+                                    class="link-to-prism">src/session/session.service.ts:154</a></div>
                         </td>
                     </tr>
 
@@ -612,8 +612,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="152"
-                                    class="link-to-prism">src/session/session.service.ts:152</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="143"
+                                    class="link-to-prism">src/session/session.service.ts:143</a></div>
                         </td>
                     </tr>
 
@@ -654,8 +654,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="172"
-                                    class="link-to-prism">src/session/session.service.ts:172</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="163"
+                                    class="link-to-prism">src/session/session.service.ts:163</a></div>
                         </td>
                     </tr>
 
@@ -725,8 +725,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="34"
-                                    class="link-to-prism">src/session/session.service.ts:34</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="27"
+                                    class="link-to-prism">src/session/session.service.ts:27</a></div>
                         </td>
                     </tr>
 
@@ -770,8 +770,8 @@ This will run every hour by default, but can be configured via the <code>SESSION
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="89"
-                                    class="link-to-prism">src/session/session.service.ts:89</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="80"
+                                    class="link-to-prism">src/session/session.service.ts:80</a></div>
                         </td>
                     </tr>
 
@@ -841,8 +841,8 @@ This will run every hour by default, but can be configured via the <code>SESSION
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="118"
-                                    class="link-to-prism">src/session/session.service.ts:118</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="109"
+                                    class="link-to-prism">src/session/session.service.ts:109</a></div>
                         </td>
                     </tr>
 
@@ -922,8 +922,8 @@ This will run every hour by default, but can be configured via the <code>SESSION
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="179"
-                                    class="link-to-prism">src/session/session.service.ts:179</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="170"
+                                    class="link-to-prism">src/session/session.service.ts:170</a></div>
                         </td>
                     </tr>
 
@@ -953,15 +953,8 @@ import { SchedulerRegistry } from &quot;@nestjs/schedule&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { InjectMetric } from &quot;@willsoto/nestjs-prometheus/dist/injector&quot;;
 import { Gauge } from &quot;prom-client&quot;;
-import {
-    DeepPartial,
-    FindOptionsWhere,
-    IsNull,
-    LessThan,
-    Not,
-    Repository,
-} from &quot;typeorm&quot;;
-import { QueryDeepPartialEntity } from &quot;typeorm/query-builder/QueryPartialEntity&quot;;
+import { DeepPartial, FindOptionsWhere, LessThan, Repository } from &quot;typeorm&quot;;
+import { QueryDeepPartialEntity } from &quot;typeorm/query-builder/QueryPartialEntity.js&quot;;
 import { Session, SessionStatus } from &quot;./entities/session.entity&quot;;
 
 @Injectable()
@@ -1002,7 +995,6 @@ export class SessionService implements OnApplicationBootstrap {
         for (const state of states) {
             const issuanceCounter &#x3D; await this.sessionRepository.countBy({
                 tenantId,
-                issuanceId: Not(IsNull()),
                 status: state,
             });
             this.sessionsCounter.set(
@@ -1015,7 +1007,6 @@ export class SessionService implements OnApplicationBootstrap {
             );
             const verificationCounter &#x3D; await this.sessionRepository.countBy({
                 tenantId,
-                issuanceId: IsNull(),
                 status: state,
             });
             this.sessionsCounter.set(
@@ -1050,9 +1041,9 @@ export class SessionService implements OnApplicationBootstrap {
         // Count total sessions created
         this.sessionsCounter.inc({
             tenant_id: createdSession.tenantId,
-            session_type: createdSession.issuanceId
-                ? &quot;issuance&quot;
-                : &quot;verification&quot;,
+            session_type: createdSession.requestId
+                ? &quot;verification&quot;
+                : &quot;issuance&quot;,
             status: &quot;active&quot;,
         });
 
@@ -1065,7 +1056,7 @@ export class SessionService implements OnApplicationBootstrap {
      * @param status
      */
     async setState(session: Session, status: SessionStatus) {
-        const sessionType &#x3D; session.issuanceId ? &quot;issuance&quot; : &quot;verification&quot;;
+        const sessionType &#x3D; session.requestId ? &quot;verification&quot; : &quot;issuance&quot;;
 
         await this.sessionRepository.update({ id: session.id }, { status });
 

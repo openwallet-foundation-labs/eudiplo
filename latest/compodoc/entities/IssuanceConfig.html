@@ -161,8 +161,8 @@
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                <a href="#authenticationConfig" >authenticationConfig</a>
+                                    <span class="modifier">Optional</span>
+                                <a href="#authServers" >authServers</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
@@ -173,27 +173,13 @@
                             </li>
                             <li>
                                     <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier">Optional</span>
-                                <a href="#claimsWebhook" >claimsWebhook</a>
-                            </li>
-                            <li>
-                                    <span class="modifier"></span>
                                 <a href="#createdAt" >createdAt</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
-                                <a href="#credentialConfigs" >credentialConfigs</a>
-                            </li>
-                            <li>
                                     <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier">Optional</span>
-                                <a href="#description" >description</a>
+                                <a href="#display" >display</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
@@ -201,11 +187,6 @@
                                     <span class="modifier"></span>
                                     <span class="modifier">Optional</span>
                                 <a href="#dPopRequired" >dPopRequired</a>
-                            </li>
-                            <li>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                <a href="#id" >id</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
@@ -250,20 +231,20 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="authenticationConfig"></a>
+                    <a name="authServers"></a>
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
-                            <span class="modifier"></span>
-                        <span ><b>authenticationConfig</b></span>
-                        <a href="#authenticationConfig"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier">Optional</span>
+                        <span ><b>authServers</b></span>
+                        <a href="#authServers"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../miscellaneous/enumerations.html#AuthenticationMethod" target="_self" >AuthenticationMethodNone | AuthenticationMethodAuth | AuthenticationMethodPresentation</a></code>
+                        <i>Type : </i>    <code>string[]</code>
 
                     </td>
                 </tr>
@@ -272,19 +253,19 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @Column(&#x27;json&#x27;)<br />@ValidateNested()<br />@ApiProperty({oneOf: undefined})<br />@Type(undefined, {discriminator: undefined, keepDiscriminatorProperty: true})<br />
+                            @IsArray()<br />@IsOptional()<br />@Column({type: &#x27;json&#x27;, nullable: true})<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="114" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:114</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="56" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:56</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><p>Authentication configuration for the issuance process.</p>
+                    <div class="io-description"><p>Authentication server URL for the issuance process.</p>
 </div>
                 </td>
             </tr>
@@ -323,7 +304,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="156" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:156</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="74" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:74</a></div>
                         </td>
                     </tr>
 
@@ -331,52 +312,6 @@
                 <td class="col-md-4">
                     <div class="io-description"><p>Value to determine the amount of credentials that are issued in a batch.
 Default is 1.</p>
-</div>
-                </td>
-            </tr>
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="claimsWebhook"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier">Optional</span>
-                        <span ><b>claimsWebhook</b></span>
-                        <a href="#claimsWebhook"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../classes/WebhookConfig.html" target="_self" >WebhookConfig</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @IsOptional()<br />@ValidateNested()<br />@Type(undefined)<br />@Column(&#x27;json&#x27;, {nullable: true})<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="138" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:138</a></div>
-                        </td>
-                    </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Webhook to receive claims for the issuance process.</p>
 </div>
                 </td>
             </tr>
@@ -412,7 +347,7 @@ Default is 1.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="123" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:123</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="93" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:93</a></div>
                         </td>
                     </tr>
 
@@ -429,18 +364,19 @@ Default is 1.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="credentialConfigs"></a>
+                    <a name="display"></a>
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
-                        <span ><b>credentialConfigs</b></span>
-                        <a href="#credentialConfigs"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier"></span>
+                        <span ><b>display</b></span>
+                        <a href="#display"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../classes/CredentialConfig.html" target="_self" >CredentialConfig[]</a></code>
+                        <i>Type : </i>    <code>DisplayInfo[]</code>
 
                     </td>
                 </tr>
@@ -449,67 +385,16 @@ Default is 1.</p>
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ManyToMany(undefined, credential &#x3D;&gt; credential.issuanceConfigs)<br />@JoinTable()<br />
+                            @ValidateNested({each: true})<br />@Type(undefined)<br />@Column(&#x27;json&#x27;, {nullable: true})<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="80" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:80</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="87" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:87</a></div>
                         </td>
                     </tr>
 
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Links to all credential config bindings that are included in this issuance config.</p>
-</div>
-                </td>
-            </tr>
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="description"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier">Optional</span>
-                        <span ><b>description</b></span>
-                        <a href="#description"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @IsString()<br />@IsOptional()<br />@Column(&#x27;varchar&#x27;, {nullable: true})<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="70" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:70</a></div>
-                        </td>
-                    </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Description of the issuance configuration.</p>
-</div>
-                </td>
-            </tr>
 
         </tbody>
     </table>
@@ -545,56 +430,13 @@ Default is 1.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="164" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:164</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="82" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:82</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
                     <div class="io-description"><p>Indicates whether DPoP is required for the issuance process. Default value is true.</p>
-</div>
-                </td>
-            </tr>
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="id"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                        <span ><b>id</b></span>
-                        <a href="#id"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @IsString()<br />@Column(&#x27;varchar&#x27;, {primary: true})<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="49" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:49</a></div>
-                        </td>
-                    </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Unique identifier for the issuance configuration.</p>
 </div>
                 </td>
             </tr>
@@ -634,7 +476,7 @@ Default is 1.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="147" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:147</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="65" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:65</a></div>
                         </td>
                     </tr>
 
@@ -676,7 +518,7 @@ Default is 1.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="62" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:62</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="48" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:48</a></div>
                         </td>
                     </tr>
 
@@ -713,13 +555,13 @@ Default is 1.</p>
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ApiHideProperty()<br />@Column(&#x27;varchar&#x27;, {primary: true})<br />
+                            @ApiHideProperty()<br />@PrimaryColumn()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="56" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:56</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:42</a></div>
                         </td>
                     </tr>
 
@@ -761,7 +603,7 @@ Default is 1.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="129" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:129</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="99" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:99</a></div>
                         </td>
                     </tr>
 
@@ -779,34 +621,27 @@ Default is 1.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
-    ApiExtraModels,
-    ApiHideProperty,
-    ApiProperty,
-    getSchemaPath,
-} from &quot;@nestjs/swagger&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiExtraModels, ApiHideProperty } from &quot;@nestjs/swagger&quot;;
 import { Type } from &quot;class-transformer&quot;;
 import {
+    IsArray,
     IsBoolean,
     IsNumber,
     IsOptional,
-    IsString,
     ValidateNested,
 } from &quot;class-validator&quot;;
 import {
     Column,
     CreateDateColumn,
     Entity,
-    JoinTable,
-    ManyToMany,
     ManyToOne,
+    PrimaryColumn,
     UpdateDateColumn,
 } from &quot;typeorm&quot;;
 import { TenantEntity } from &quot;../../../auth/tenant/entitites/tenant.entity&quot;;
 import { WebhookConfig } from &quot;../../../utils/webhook/webhook.dto&quot;;
-import { CredentialConfig } from &quot;../../credentials/entities/credential.entity&quot;;
+import { DisplayInfo } from &quot;../../display/dto/display.dto&quot;;
 import {
-    AuthenticationMethod,
     AuthenticationMethodAuth,
     AuthenticationMethodNone,
     AuthenticationMethodPresentation,
@@ -823,100 +658,25 @@ import {
 @Entity()
 export class IssuanceConfig {
     /**
-     * Unique identifier for the issuance configuration.
-     */
-    @IsString()
-    @Column(&quot;varchar&quot;, { primary: true })
-    id: string;
-
-    /**
      * Tenant ID for the issuance configuration.
      */
     @ApiHideProperty()
-    @Column(&quot;varchar&quot;, { primary: true })
-    tenantId: string;
+    @PrimaryColumn()
+    tenantId!: string;
 
     /**
      * The tenant that owns this object.
      */
     @ManyToOne(() &#x3D;&gt; TenantEntity, { cascade: true, onDelete: &quot;CASCADE&quot; })
-    tenant: TenantEntity;
+    tenant!: TenantEntity;
 
     /**
-     * Description of the issuance configuration.
+     * Authentication server URL for the issuance process.
      */
-    @IsString()
+    @IsArray()
     @IsOptional()
-    @Column(&quot;varchar&quot;, { nullable: true })
-    description?: string;
-
-    /**
-     * Links to all credential config bindings that are included in this issuance config.
-     */
-    @ManyToMany(
-        () &#x3D;&gt; CredentialConfig,
-        (credential) &#x3D;&gt; credential.issuanceConfigs,
-    )
-    @JoinTable()
-    credentialConfigs: CredentialConfig[];
-
-    /**
-     * Authentication configuration for the issuance process.
-     */
-    @Column(&quot;json&quot;)
-    @ValidateNested()
-    @ApiProperty({
-        oneOf: [
-            { $ref: getSchemaPath(AuthenticationMethodNone) },
-            { $ref: getSchemaPath(AuthenticationMethodAuth) },
-            { $ref: getSchemaPath(AuthenticationMethodPresentation) },
-        ],
-    })
-    @Type(() &#x3D;&gt; AuthenticationMethodNone, {
-        discriminator: {
-            property: &quot;method&quot;,
-            subTypes: [
-                {
-                    name: AuthenticationMethod.NONE,
-                    value: AuthenticationMethodNone,
-                },
-                {
-                    name: AuthenticationMethod.AUTH,
-                    value: AuthenticationMethodAuth,
-                },
-                {
-                    name: AuthenticationMethod.PRESENTATION_DURING_ISSUANCE,
-                    value: AuthenticationMethodPresentation,
-                },
-            ],
-        },
-        keepDiscriminatorProperty: true,
-    })
-    authenticationConfig:
-        | AuthenticationMethodNone
-        | AuthenticationMethodAuth
-        | AuthenticationMethodPresentation;
-
-    /**
-     * The timestamp when the VP request was created.
-     */
-    @CreateDateColumn()
-    createdAt: Date;
-
-    /**
-     * The timestamp when the VP request was last updated.
-     */
-    @UpdateDateColumn()
-    updatedAt: Date;
-
-    /**
-     * Webhook to receive claims for the issuance process.
-     */
-    @IsOptional()
-    @ValidateNested()
-    @Type(() &#x3D;&gt; WebhookConfig)
-    @Column(&quot;json&quot;, { nullable: true })
-    claimsWebhook?: WebhookConfig;
+    @Column({ type: &quot;json&quot;, nullable: true })
+    authServers?: string[];
 
     /**
      * Webhook to send the result of the notification response
@@ -943,6 +703,23 @@ export class IssuanceConfig {
     @IsOptional()
     @Column(&quot;boolean&quot;, { default: true })
     dPopRequired?: boolean;
+
+    @ValidateNested({ each: true })
+    @Type(() &#x3D;&gt; DisplayInfo)
+    @Column(&quot;json&quot;, { nullable: true })
+    display!: DisplayInfo[];
+
+    /**
+     * The timestamp when the VP request was created.
+     */
+    @CreateDateColumn()
+    createdAt!: Date;
+
+    /**
+     * The timestamp when the VP request was last updated.
+     */
+    @UpdateDateColumn()
+    updatedAt!: Date;
 }
 </code></pre>
     </div>

@@ -206,6 +206,9 @@
                             <a href="#SessionLogger" title="src/utils/logger/session-logger.decorator.ts" ><b>SessionLogger</b>&nbsp;&nbsp;&nbsp;(src/.../session-logger.decorator.ts)</a>
                         </li>
                         <li>
+                            <a href="#STATUS_LIST_VALIDATION_SCHEMA" title="src/issuer/status-list/status-list-validation.schema.ts" ><b>STATUS_LIST_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../status-list-validation.schema.ts)</a>
+                        </li>
+                        <li>
                             <a href="#STORAGE_VALIDATION_SCHEMA" title="src/storage/storage-validation.schema.ts" ><b>STORAGE_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../storage-validation.schema.ts)</a>
                         </li>
                         <li>
@@ -516,7 +519,7 @@
         .meta({ group: &quot;config&quot;, order: 20 }),
 
     CONFIG_FOLDER: Joi.string()
-        .default(&quot;../../assets/config&quot;)
+        .default(resolve(__dirname + &quot;/../../../../assets/config&quot;))
         .description(&quot;Path to config import folder&quot;)
         .meta({ group: &quot;config&quot;, order: 30 }),
 })</code>
@@ -1402,6 +1405,45 @@ Defines the required environment variables and their types.</p>
         </tbody>
     </table>
 </section>
+    <h3>src/issuer/status-list/status-list-validation.schema.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="STATUS_LIST_VALIDATION_SCHEMA"></a>
+                    <span class="name">
+                        <span ><b>STATUS_LIST_VALIDATION_SCHEMA</b></span>
+                        <a href="#STATUS_LIST_VALIDATION_SCHEMA"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>Joi.object({
+    STATUS_LENGTH: Joi.number()
+        .default(10000)
+        .description(&quot;The length of the status list&quot;)
+        .meta({ group: &quot;status&quot;, order: 10 }),
+    STATUS_BITS: Joi.number()
+        .valid(1, 2, 4, 8)
+        .default(1)
+        .description(&quot;The number of bits used per status entry&quot;)
+        .meta({ group: &quot;status&quot;, order: 20 }),
+})</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
     <h3>src/storage/storage-validation.schema.ts</h3>
     <section data-compodoc="block-properties">
     <h3></h3>    <table class="table table-sm table-bordered">
@@ -1569,7 +1611,8 @@ Defines the required environment variables and their types.</p>
     .concat(CRYPTO_VALIDATION_SCHEMA)
     .concat(ISSUER_VALIDATION_SCHEMA)
     .concat(SESSION_VALIDATION_SCHEMA)
-    .concat(STORAGE_VALIDATION_SCHEMA)</code>
+    .concat(STORAGE_VALIDATION_SCHEMA)
+    .concat(STATUS_LIST_VALIDATION_SCHEMA)</code>
                     </td>
                 </tr>
 

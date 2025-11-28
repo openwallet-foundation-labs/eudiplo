@@ -176,6 +176,10 @@
                             </li>
                             <li>
                                     <span class="modifier"></span>
+                                <a href="#getKey" >getKey</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
                                 <a href="#getKeys" >getKeys</a>
                             </li>
                             <li>
@@ -230,8 +234,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="48"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:48</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="62"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:62</a></div>
                         </td>
                     </tr>
 
@@ -320,8 +324,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="77"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:77</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="91"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:91</a></div>
                         </td>
                     </tr>
 
@@ -372,6 +376,96 @@
                             </div>
                         <div class="io-description">
                             <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getKey"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                        <span ><b>getKey</b></span>
+                        <a href="#getKey"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getKey(token: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;:id&#x27;)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="48"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:48</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get a specific key by ID</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>token</td>
+                                            <td>
+                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../entitys/CertEntity.html" target="_self" >Promise&lt;CertEntity&gt;</a></code>
 
                         </div>
                             <div class="io-description">
@@ -489,8 +583,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="63"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:63</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="77"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:77</a></div>
                         </td>
                     </tr>
 
@@ -604,6 +698,20 @@ export class KeyController {
     @Get()
     getKeys(@Token() token: TokenPayload): Promise&lt;CertEntity[]&gt; {
         return this.cryptoService.getCerts(token.entity!.id);
+    }
+
+    /**
+     * Get a specific key by ID
+     * @param token
+     * @param id
+     * @returns
+     */
+    @Get(&quot;:id&quot;)
+    getKey(
+        @Token() token: TokenPayload,
+        @Param(&quot;id&quot;) id: string,
+    ): Promise&lt;CertEntity&gt; {
+        return this.cryptoService.getCertEntry(token.entity!.id, id);
     }
 
     /**

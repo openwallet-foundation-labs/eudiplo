@@ -436,14 +436,14 @@ export class TenantEntity {
      */
     @IsString()
     @PrimaryColumn()
-    id: string;
+    id!: string;
 
     /**
      * The name of the tenant.
      */
     @IsString()
     @Column({ default: &quot;EUDIPLO&quot; })
-    name: string;
+    name!: string;
 
     /**
      * The description of the tenant.
@@ -457,7 +457,7 @@ export class TenantEntity {
      * The current status of the tenant.
      */
     @Column(&quot;varchar&quot;, { nullable: true })
-    status: TenantStatus;
+    status!: TenantStatus;
 
     /**
      * The clients associated with the tenant.
@@ -466,7 +466,7 @@ export class TenantEntity {
         () &#x3D;&gt; ClientEntity,
         (client) &#x3D;&gt; client.tenant,
     )
-    clients: ClientEntity[];
+    clients!: ClientEntity[];
 }
 </code></pre>
     </div>

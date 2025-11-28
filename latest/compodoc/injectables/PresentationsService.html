@@ -1275,7 +1275,7 @@ import { JWK, JWTPayload } from &quot;jose&quot;;
 import { PinoLogger } from &quot;nestjs-pino&quot;;
 import { join } from &quot;path&quot;;
 import { firstValueFrom } from &quot;rxjs&quot;;
-import { Repository } from &quot;typeorm/repository/Repository&quot;;
+import { Repository } from &quot;typeorm&quot;;
 import { CryptoImplementationService } from &quot;../../crypto/key/crypto-implementation/crypto-implementation.service&quot;;
 import { ResolverService } from &quot;../resolver/resolver.service&quot;;
 import { AuthResponse } from &quot;./dto/auth-response.dto&quot;;
@@ -1290,7 +1290,7 @@ export class PresentationsService implements OnApplicationBootstrap {
     /**
      * Instance of SDJwtVcInstance for handling SD-JWT-VCs.
      */
-    sdjwtInstance: SDJwtVcInstance;
+    sdjwtInstance!: SDJwtVcInstance;
 
     /**
      * Constructor for the PresentationsService.
@@ -1545,23 +1545,21 @@ export class PresentationsService implements OnApplicationBootstrap {
         keyBindingNonce: string,
     ) {
         const attestations &#x3D; Object.keys(res.vp_token);
-        const att &#x3D; attestations.map((att) &#x3D;&gt;
-            this.sdjwtInstance
-                .verify(res.vp_token[att], {
-                    requiredClaimKeys: requiredFields,
-                    keyBindingNonce,
-                })
-                .then(
-                    (result) &#x3D;&gt; {
-                        return {
-                            id: att,
-                            values: {
+        const att &#x3D; attestations.map(async (att) &#x3D;&gt; ({
+            id: att,
+            values: await Promise.all(
+                (res.vp_token[att] as unknown as string[]).map(
+                    (cred) &#x3D;&gt;
+                        this.sdjwtInstance
+                            .verify(cred, {
+                                requiredClaimKeys: requiredFields,
+                                keyBindingNonce,
+                            })
+                            .then((result) &#x3D;&gt; ({
                                 ...result.payload,
                                 cnf: undefined, // remove cnf for simplicity
                                 status: undefined, // remove status for simplicity
-                            },
-                        };
-                    },
+                            })),
                     /* (err) &#x3D;&gt; {
                         throw new Error
                         //(console.log(err);
@@ -1571,7 +1569,8 @@ export class PresentationsService implements OnApplicationBootstrap {
                         };
                     }, */
                 ),
-        );
+            ),
+        }));
         return Promise.all(att);
     }
 }

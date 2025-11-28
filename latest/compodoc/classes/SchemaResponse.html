@@ -459,11 +459,11 @@
  */
 export class SchemaResponse {
     @Equals(&quot;https://json-schema.org/draft/2020-12/schema&quot;)
-    $schema: &quot;https://json-schema.org/draft/2020-12/schema&quot;;
+    $schema!: &quot;https://json-schema.org/draft/2020-12/schema&quot;;
     @Equals(&quot;object&quot;)
-    type: &quot;object&quot;;
+    type!: &quot;object&quot;;
     @IsObject()
-    properties: Record&lt;string, any&gt;;
+    properties!: Record&lt;string, any&gt;;
     @IsArray()
     required?: string[];
     @IsOptional()

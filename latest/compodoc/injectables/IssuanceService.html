@@ -163,14 +163,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
-                                <a href="#deleteIssuanceConfiguration" >deleteIssuanceConfiguration</a>
-                            </li>
-                            <li>
                                     <span class="modifier">Public</span>
                                 <a href="#getIssuanceConfiguration" >getIssuanceConfiguration</a>
-                            </li>
-                            <li>
-                                <a href="#getIssuanceConfigurationById" >getIssuanceConfigurationById</a>
                             </li>
                             <li>
                                     <span class="modifier">Private</span>
@@ -184,6 +178,10 @@ It provides methods to get, store, and delete issuance configurations.</p>
                             <li>
                                     <span class="modifier">Async</span>
                                 <a href="#onTenantDelete" >onTenantDelete</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#replaceUrl" >replaceUrl</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
@@ -207,12 +205,12 @@ It provides methods to get, store, and delete issuance configurations.</p>
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(issuanceConfigRepo: <a href="../classes/IssuanceConfig.html" target="_self">Repository&lt;IssuanceConfig&gt;</a>, credentialsConfigService: <a href="../injectables/CredentialConfigService.html" target="_self">CredentialConfigService</a>, configService: ConfigService, logger: PinoLogger, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>)</code>
+<code>constructor(issuanceConfigRepo: <a href="../classes/IssuanceConfig.html" target="_self">Repository&lt;IssuanceConfig&gt;</a>, credentialsConfigService: <a href="../injectables/CredentialConfigService.html" target="_self">CredentialConfigService</a>, configService: ConfigService, logger: PinoLogger, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, filesService: <a href="../injectables/FilesService.html" target="_self">FilesService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="21" class="link-to-prism">src/issuer/issuance/issuance.service.ts:21</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="22" class="link-to-prism">src/issuer/issuance/issuance.service.ts:22</a></div>
                             </td>
                         </tr>
 
@@ -291,6 +289,18 @@ It provides methods to get, store, and delete issuance configurations.</p>
                                                     </td>
                                                     
                                                 </tr>
+                                                <tr>
+                                                        <td>filesService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/FilesService.html" target="_self" >FilesService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
                                         </tbody>
                                     </table>
                             </div>
@@ -305,87 +315,6 @@ It provides methods to get, store, and delete issuance configurations.</p>
     <h3 id="methods">
         Methods
     </h3>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="deleteIssuanceConfiguration"></a>
-                    <span class="name">
-                        <span ><b>deleteIssuanceConfiguration</b></span>
-                        <a href="#deleteIssuanceConfiguration"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>deleteIssuanceConfiguration(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="221"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:221</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Deletes a credential configuration.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>id</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
     <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -408,15 +337,15 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="168"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:168</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="186"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:186</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Returns the issuance configurations for this tenant.</p>
+                        <div class="io-description"><p>Returns the issuance configuration for this tenant.</p>
 </div>
 
                             <div class="io-description">
@@ -448,87 +377,6 @@ It provides methods to get, store, and delete issuance configurations.</p>
                             </div>
                         <div class="io-description">
                             <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getIssuanceConfigurationById"></a>
-                    <span class="name">
-                        <span ><b>getIssuanceConfigurationById</b></span>
-                        <a href="#getIssuanceConfigurationById"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getIssuanceConfigurationById(issuanceConfigId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="181"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:181</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Returns the issuance configuration by ID for a given tenant.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>issuanceConfigId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../classes/IssuanceConfig.html" target="_self" >Promise&lt;IssuanceConfig&gt;</a></code>
 
                         </div>
                             <div class="io-description">
@@ -561,8 +409,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="48"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:48</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="50"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:50</a></div>
                         </td>
                     </tr>
 
@@ -602,8 +450,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="39"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:39</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="41"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:41</a></div>
                         </td>
                     </tr>
 
@@ -643,8 +491,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="159"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:159</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="177"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:177</a></div>
                         </td>
                     </tr>
 
@@ -664,6 +512,87 @@ It provides methods to get, store, and delete issuance configurations.</p>
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="replaceUrl"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>replaceUrl</b></span>
+                        <a href="#replaceUrl"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>replaceUrl(display: DisplayInfo[], tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="152"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:152</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>display</td>
+                                            <td>
+                                                        <code>DisplayInfo[]</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
                                         <tr>
                                                 <td>tenantId</td>
                                             <td>
@@ -712,8 +641,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="197"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:197</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="196"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:196</a></div>
                         </td>
                     </tr>
 
@@ -789,8 +718,9 @@ import { PinoLogger } from &quot;nestjs-pino&quot;;
 import { join } from &quot;path&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import { CryptoService } from &quot;../../crypto/crypto.service&quot;;
+import { FilesService } from &quot;../../storage/files.service&quot;;
 import { CredentialConfigService } from &quot;../credentials/credential-config/credential-config.service&quot;;
-import { CredentialConfig } from &quot;../credentials/entities/credential.entity&quot;;
+import { DisplayInfo } from &quot;../display/dto/display.dto&quot;;
 import { IssuanceDto } from &quot;./dto/issuance.dto&quot;;
 import { IssuanceConfig } from &quot;./entities/issuance-config.entity&quot;;
 
@@ -812,6 +742,7 @@ export class IssuanceService implements OnApplicationBootstrap {
         private configService: ConfigService,
         private logger: PinoLogger,
         private cryptoService: CryptoService,
+        private filesService: FilesService,
     ) {}
 
     /**
@@ -828,113 +759,129 @@ export class IssuanceService implements OnApplicationBootstrap {
      */
     private async import() {
         const configPath &#x3D; this.configService.getOrThrow(&quot;CONFIG_FOLDER&quot;);
-        const subfolder &#x3D; &quot;issuance/issuance&quot;;
+        const configFile &#x3D; &quot;issuance/issuance.json&quot;;
         const force &#x3D; this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT_FORCE&quot;);
         if (this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT&quot;)) {
             const tenantFolders &#x3D; readdirSync(configPath, {
                 withFileTypes: true,
             }).filter((tenant) &#x3D;&gt; tenant.isDirectory());
             for (const tenant of tenantFolders) {
-                let counter &#x3D; 0;
                 //iterate over all elements in the folder and import them
-                const path &#x3D; join(configPath, tenant.name, subfolder);
-                const files &#x3D; readdirSync(path);
-                for (const file of files) {
-                    const payload &#x3D; JSON.parse(
-                        readFileSync(join(path, file), &quot;utf8&quot;),
-                    );
+                const file &#x3D; join(configPath, tenant.name, configFile);
 
-                    payload.id &#x3D; file.replace(&quot;.json&quot;, &quot;&quot;);
-                    const exists &#x3D; await this.getIssuanceConfigurationById(
-                        payload.id,
-                        tenant.name,
-                    ).catch(() &#x3D;&gt; false);
-                    if (exists &amp;&amp; !force) {
-                        continue; // Skip if config already exists and force is not set.
-                    } else if (exists &amp;&amp; force) {
-                        //delete old element so removed elements are not present
-                        await this.issuanceConfigRepo.delete({
-                            id: payload.id,
-                            tenantId: tenant.name,
-                        });
-                    }
+                const payload &#x3D; JSON.parse(readFileSync(file, &quot;utf8&quot;));
 
-                    // Validate the payload against IssuanceDto
-                    const issuanceDto &#x3D; plainToClass(IssuanceDto, payload);
-                    //TOODO: it does not validate the different config options
-                    const validationErrors &#x3D; await validate(issuanceDto, {
-                        whitelist: true,
-                        forbidUnknownValues: false, // avoid false positives on plain objects
-                        forbidNonWhitelisted: false,
-                        stopAtFirstError: false,
+                const exists &#x3D; await this.getIssuanceConfiguration(
+                    tenant.name,
+                ).catch(() &#x3D;&gt; false);
+                if (exists &amp;&amp; !force) {
+                    continue; // Skip if config already exists and force is not set.
+                } else if (exists &amp;&amp; force) {
+                    //delete old element so removed elements are not present
+                    await this.issuanceConfigRepo.delete({
+                        tenantId: tenant.name,
                     });
-
-                    if (validationErrors.length &gt; 0) {
-                        const extractErrorMessages &#x3D; (error: any): string[] &#x3D;&gt; {
-                            const messages: string[] &#x3D; [];
-
-                            // Add constraints from the current level
-                            if (error.constraints) {
-                                messages.push(
-                                    ...Object.values(
-                                        error.constraints as Record&lt;
-                                            string,
-                                            string
-                                        &gt;,
-                                    ),
-                                );
-                            }
-
-                            // Recursively add constraints from children
-                            if (error.children &amp;&amp; error.children.length &gt; 0) {
-                                for (const child of error.children) {
-                                    messages.push(
-                                        ...extractErrorMessages(child),
-                                    );
-                                }
-                            }
-
-                            return messages;
-                        };
-
-                        const errorMessages &#x3D; validationErrors
-                            .map((error) &#x3D;&gt; {
-                                const messages &#x3D; extractErrorMessages(error);
-                                return messages.length &gt; 0
-                                    ? &#x60;${error.property}: ${messages.join(&quot;, &quot;)}&#x60;
-                                    : error.property;
-                            })
-                            .join(&quot;; &quot;);
-
-                        this.logger.error(
-                            {
-                                event: &quot;ValidationError&quot;,
-                                file,
-                                tenant: tenant.name,
-                                errors: validationErrors.map((error) &#x3D;&gt; ({
-                                    property: error.property,
-                                    constraints: error.constraints,
-                                    value: error.value,
-                                })),
-                            },
-                            &#x60;Validation failed for issuance config ${file} in tenant ${tenant.name}: ${errorMessages}&#x60;,
-                        );
-                        continue; // Skip this invalid config
-                    }
-                    await this.storeIssuanceConfiguration(
-                        tenant.name,
-                        issuanceDto,
-                    );
-                    counter++;
                 }
+
+                // Validate the payload against IssuanceDto
+                const issuanceDto &#x3D; plainToClass(IssuanceDto, payload);
+                //TOODO: it does not validate the different config options
+                const validationErrors &#x3D; await validate(issuanceDto, {
+                    whitelist: true,
+                    forbidUnknownValues: false, // avoid false positives on plain objects
+                    forbidNonWhitelisted: false,
+                    stopAtFirstError: false,
+                });
+
+                if (validationErrors.length &gt; 0) {
+                    const extractErrorMessages &#x3D; (error: any): string[] &#x3D;&gt; {
+                        const messages: string[] &#x3D; [];
+
+                        // Add constraints from the current level
+                        if (error.constraints) {
+                            messages.push(
+                                ...Object.values(
+                                    error.constraints as Record&lt;string, string&gt;,
+                                ),
+                            );
+                        }
+
+                        // Recursively add constraints from children
+                        if (error.children &amp;&amp; error.children.length &gt; 0) {
+                            for (const child of error.children) {
+                                messages.push(...extractErrorMessages(child));
+                            }
+                        }
+
+                        return messages;
+                    };
+
+                    const errorMessages &#x3D; validationErrors
+                        .map((error) &#x3D;&gt; {
+                            const messages &#x3D; extractErrorMessages(error);
+                            return messages.length &gt; 0
+                                ? &#x60;${error.property}: ${messages.join(&quot;, &quot;)}&#x60;
+                                : error.property;
+                        })
+                        .join(&quot;; &quot;);
+
+                    this.logger.error(
+                        {
+                            event: &quot;ValidationError&quot;,
+                            file,
+                            tenant: tenant.name,
+                            errors: validationErrors.map((error) &#x3D;&gt; ({
+                                property: error.property,
+                                constraints: error.constraints,
+                                value: error.value,
+                            })),
+                        },
+                        &#x60;Validation failed for issuance config ${file} in tenant ${tenant.name}: ${errorMessages}&#x60;,
+                    );
+                    continue; // Skip this invalid config
+                }
+
+                //replace relative uris with public urls
+                issuanceDto.display &#x3D; await this.replaceUrl(
+                    issuanceDto.display,
+                    tenant.name,
+                );
+
+                await this.storeIssuanceConfiguration(tenant.name, issuanceDto);
+
                 this.logger.info(
                     {
                         event: &quot;Import&quot;,
                     },
-                    &#x60;${counter} issuance configs imported for ${tenant.name}&#x60;,
+                    &#x60;issuance config imported for ${tenant.name}&#x60;,
                 );
             }
         }
+    }
+
+    private replaceUrl(display: DisplayInfo[], tenantId: string) {
+        return Promise.all(
+            display.map(async (display) &#x3D;&gt; {
+                if (display.logo?.uri) {
+                    const uri &#x3D; await this.filesService.replaceUriWithPublicUrl(
+                        tenantId,
+                        display.logo.uri.trim(),
+                    );
+                    if (!uri) {
+                        this.logger.error(
+                            {
+                                event: &quot;Import&quot;,
+                            },
+                            &#x60;Could not find logo ${display.logo.uri} for ${tenantId}, skipping import&#x60;,
+                        );
+                    } else {
+                        display.logo.uri &#x3D; uri;
+                    }
+                    delete display.logo;
+                }
+                return display;
+            }),
+        );
     }
 
     async onTenantDelete(tenantId: string) {
@@ -942,31 +889,12 @@ export class IssuanceService implements OnApplicationBootstrap {
     }
 
     /**
-     * Returns the issuance configurations for this tenant.
+     * Returns the issuance configuration for this tenant.
      * @param tenantId
      * @returns
      */
     public getIssuanceConfiguration(tenantId: string) {
-        return this.issuanceConfigRepo.find({
-            where: { tenantId },
-            relations: [&quot;credentialConfigs&quot;],
-        });
-    }
-
-    /**
-     * Returns the issuance configuration by ID for a given tenant.
-     * @param issuanceConfigId
-     * @param tenantId
-     * @returns
-     */
-    getIssuanceConfigurationById(
-        issuanceConfigId: string,
-        tenantId: string,
-    ): Promise&lt;IssuanceConfig&gt; {
-        return this.issuanceConfigRepo.findOneOrFail({
-            where: { id: issuanceConfigId, tenantId },
-            relations: [&quot;credentialConfigs&quot;],
-        });
+        return this.issuanceConfigRepo.findOneByOrFail({ tenantId });
     }
 
     /**
@@ -976,31 +904,11 @@ export class IssuanceService implements OnApplicationBootstrap {
      * @returns
      */
     async storeIssuanceConfiguration(tenantId: string, value: IssuanceDto) {
-        const credentials: CredentialConfig[] &#x3D; [];
-        //check if all credential configs exist
-        for (const credentialConfigId of value.credentialConfigIds) {
-            const credential &#x3D; await this.credentialsConfigService.getById(
-                tenantId,
-                credentialConfigId,
-            );
-            credentials.push(credential);
-        }
-        const issuanceConfig &#x3D; await this.issuanceConfigRepo.save({
+        value.display &#x3D; await this.replaceUrl(value.display, tenantId);
+        return this.issuanceConfigRepo.save({
             ...value,
             tenantId,
-            credentialConfigs: credentials,
         });
-        return issuanceConfig;
-    }
-
-    /**
-     * Deletes a credential configuration.
-     * @param tenantId
-     * @param id
-     * @returns
-     */
-    deleteIssuanceConfiguration(tenantId: string, id: string) {
-        return this.issuanceConfigRepo.delete({ tenantId, id });
     }
 }
 </code></pre>

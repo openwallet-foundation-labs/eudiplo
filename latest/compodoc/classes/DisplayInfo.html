@@ -138,7 +138,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/issuer/display/entities/display.entity.ts</code>
+            <code>src/issuer/display/dto/display.dto.ts</code>
         </p>
 
 
@@ -160,15 +160,21 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
                                 <a href="#locale" >locale</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
                                 <a href="#logo" >logo</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
                                 <a href="#name" >name</a>
                             </li>
                         </ul>
@@ -197,6 +203,8 @@
                     <a name="locale"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
                         <span ><b>locale</b></span>
                         <a href="#locale"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -213,13 +221,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsString()<br />
+                            @IsString()<br />@IsOptional()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/issuer/display/entities/display.entity.ts:15</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="18" class="link-to-prism">src/issuer/display/dto/display.dto.ts:18</a></div>
                         </td>
                     </tr>
 
@@ -234,6 +242,8 @@
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
                         <span ><b>logo</b></span>
                         <a href="#logo"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -250,13 +260,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ValidateNested()<br />@Type(undefined)<br />
+                            @ValidateNested()<br />@IsOptional()<br />@Type(undefined)<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/issuer/display/entities/display.entity.ts:19</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="23" class="link-to-prism">src/issuer/display/dto/display.dto.ts:23</a></div>
                         </td>
                     </tr>
 
@@ -270,6 +280,8 @@
                     <a name="name"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
                         <span ><b>name</b></span>
                         <a href="#name"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -286,13 +298,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsString()<br />
+                            @IsString()<br />@IsOptional()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="13" class="link-to-prism">src/issuer/display/entities/display.entity.ts:13</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/issuer/display/dto/display.dto.ts:15</a></div>
                         </td>
                     </tr>
 
@@ -311,46 +323,29 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiHideProperty } from &quot;@nestjs/swagger&quot;;
-import { Type } from &quot;class-transformer&quot;;
-import { IsString, ValidateNested } from &quot;class-validator&quot;;
-import { Column, Entity, ManyToOne } from &quot;typeorm&quot;;
-import { TenantEntity } from &quot;../../../auth/tenant/entitites/tenant.entity&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Type } from &quot;class-transformer&quot;;
+import { IsOptional, IsString, ValidateNested } from &quot;class-validator&quot;;
 
 class DisplayLogo {
     @IsString()
-    url: string;
+    uri!: string;
+
+    @IsString()
+    @IsOptional()
+    alt_text?: string;
 }
 export class DisplayInfo {
     @IsString()
-    name: string;
+    @IsOptional()
+    name?: string;
     @IsString()
-    locale: string;
+    @IsOptional()
+    locale?: string;
 
     @ValidateNested()
+    @IsOptional()
     @Type(() &#x3D;&gt; DisplayLogo)
-    logo: DisplayLogo;
-}
-
-@Entity()
-export class DisplayEntity {
-    @ApiHideProperty()
-    @Column(&quot;varchar&quot;, { primary: true })
-    tenantId: string;
-
-    /**
-     * The tenant that owns this object.
-     */
-    @ManyToOne(() &#x3D;&gt; TenantEntity, { cascade: true, onDelete: &quot;CASCADE&quot; })
-    tenant: TenantEntity;
-
-    /**
-     * The display information.
-     */
-    @ValidateNested()
-    @Type(() &#x3D;&gt; DisplayInfo)
-    @Column(&quot;json&quot;)
-    value: DisplayInfo[];
+    logo?: DisplayLogo;
 }
 </code></pre>
     </div>
