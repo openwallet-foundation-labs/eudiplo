@@ -172,14 +172,6 @@ describe("OIDF - issuance - pre auth", () => {
 
         authToken = tokenResponse.data.access_token;
         expect(authToken).toBeDefined();
-
-        console.log(`${OIDF_URL}/plan-detail.html?plan=${PLAN_ID}`);
-        // Create test instance
-        // running this will cause to run the first test but also returns no result. Test will time out.
-        /* testInstance = await oidfSuite.getInstance(PLAN_ID).catch((err) => {
-            console.error("Error getting test instance:", err);
-            throw err;
-        }); */
     });
 
     afterAll(async () => {

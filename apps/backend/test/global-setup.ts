@@ -37,18 +37,18 @@ export default async function setup() {
         .withNetworkAliases("server")
         .withName("fapi-test-suite-server")
         .withLabels(projectLabels)
-        .withExtraHosts([
+        /*         .withExtraHosts([
             {
                 host: "host.docker.internal",
                 ipAddress: "172.17.0.1",
             },
-        ])
+        ]) */
         .withEntrypoint([
             "java",
             "-jar",
             "/server/fapi-test-suite.jar",
             "-Djdk.tls.maxHandshakeMessageSize=65536",
-            "--fintechlabs.base_url=https://localhost.emobix.co.uk:8443",
+            "--fintechlabs.base_url=https://localhost:8443",
             "--fintechlabs.devmode=true",
             "--fintechlabs.startredir=true",
         ])
