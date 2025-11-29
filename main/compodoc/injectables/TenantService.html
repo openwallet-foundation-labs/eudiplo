@@ -376,8 +376,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="121"
-                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:121</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="120"
+                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:120</a></div>
                         </td>
                     </tr>
 
@@ -447,8 +447,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="166"
-                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:166</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="165"
+                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:165</a></div>
                         </td>
                     </tr>
 
@@ -521,8 +521,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="112"
-                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:112</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="111"
+                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:111</a></div>
                         </td>
                     </tr>
 
@@ -564,8 +564,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="140"
-                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:140</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="139"
+                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:139</a></div>
                         </td>
                     </tr>
 
@@ -641,8 +641,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="102"
-                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:102</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="101"
+                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:101</a></div>
                         </td>
                     </tr>
 
@@ -719,8 +719,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="151"
-                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:151</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="150"
+                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:150</a></div>
                         </td>
                     </tr>
 
@@ -840,7 +840,6 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
                         const configFile &#x3D; readFileSync(file, &quot;utf-8&quot;);
                         const payload &#x3D; JSON.parse(configFile);
                         payload.id &#x3D; tenant.name;
-
                         // Validate the payload against CreateTenantDto
                         const tenantDto &#x3D; plainToClass(
                             CreateTenantDto,
@@ -901,8 +900,8 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
         const authTenant &#x3D; this.configService.get&lt;string&gt;(&quot;AUTH_CLIENT_TENANT&quot;);
         if (authTenant !&#x3D;&#x3D; tenant.id) {
             await this.clients.addClient(tenant.id, {
-                clientId: &quot;admin&quot;,
-                description: &quot;auto generated admin client&quot;,
+                clientId: &#x60;${tenant.id}-admin&#x60;,
+                description: &#x60;auto generated admin client for tenant ${tenant.id}&#x60;,
                 roles: [Role.Clients, ...(data.roles || [])],
             });
         }

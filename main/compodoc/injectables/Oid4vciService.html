@@ -512,8 +512,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="275"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:275</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="287"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:287</a></div>
                         </td>
                     </tr>
 
@@ -745,8 +745,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="459"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:459</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="471"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:471</a></div>
                         </td>
                     </tr>
 
@@ -931,8 +931,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="262"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:262</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="274"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:274</a></div>
                         </td>
                     </tr>
 
@@ -972,8 +972,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="248"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:248</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="260"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:260</a></div>
                         </td>
                     </tr>
 
@@ -1264,6 +1264,18 @@ export class Oid4vciService {
                     issuer_state,
                 },
             };
+        }
+
+        //if claims are provided, check them against the schemas when provided
+        if (body.claims) {
+            Promise.all(
+                Object.keys(body.claims).map((credentialConfigId) &#x3D;&gt;
+                    this.credentialsService.validateClaimsForCredential(
+                        credentialConfigId,
+                        body.claims![credentialConfigId],
+                    ),
+                ),
+            );
         }
 
         const session &#x3D; await this.sessionService.create({

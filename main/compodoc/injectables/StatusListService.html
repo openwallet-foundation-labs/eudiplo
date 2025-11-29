@@ -166,9 +166,6 @@
                                 <a href="#getList" >getList</a>
                             </li>
                             <li>
-                                <a href="#onTenantDelete" >onTenantDelete</a>
-                            </li>
-                            <li>
                                     <span class="modifier">Async</span>
                                 <a href="#onTenantInit" >onTenantInit</a>
                             </li>
@@ -305,8 +302,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="128"
-                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:128</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="119"
+                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:119</a></div>
                         </td>
                     </tr>
 
@@ -388,8 +385,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="72"
-                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:72</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="63"
+                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:63</a></div>
                         </td>
                     </tr>
 
@@ -457,8 +454,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="118"
-                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:118</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="109"
+                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:109</a></div>
                         </td>
                     </tr>
 
@@ -507,80 +504,6 @@
                             <div class="io-description">
                                 <p>The JWT for the status list.</p>
 
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="onTenantDelete"></a>
-                    <span class="name">
-                        <span ><b>onTenantDelete</b></span>
-                        <a href="#onTenantDelete"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>onTenantDelete(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="64"
-                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:64</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Delete the status list for a specific tenant.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <p>The ID of the tenant.</p>
-
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
                             </div>
                 </td>
             </tr>
@@ -683,8 +606,8 @@ entries. The status list is stored in the file system as a JSON file.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="175"
-                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:175</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="166"
+                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:166</a></div>
                         </td>
                     </tr>
 
@@ -778,8 +701,8 @@ entries. The status list is stored in the file system as a JSON file.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="191"
-                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:191</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="182"
+                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:182</a></div>
                         </td>
                     </tr>
 
@@ -902,15 +825,6 @@ export class StatusListService {
         });
 
         await this.createList(entry);
-    }
-
-    /**
-     * Delete the status list for a specific tenant.
-     * @param tenantId The ID of the tenant.
-     */
-    onTenantDelete(tenantId: string) {
-        this.statusListRepository.delete({ tenantId });
-        this.statusMappingRepository.delete({ tenantId });
     }
 
     /**
