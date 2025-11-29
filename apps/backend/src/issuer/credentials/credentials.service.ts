@@ -6,6 +6,8 @@ import { CredentialConfigurationSupported } from "@openid4vc/openid4vci";
 import { digest, generateSalt } from "@sd-jwt/crypto-nodejs";
 import { JWTwithStatusListPayload } from "@sd-jwt/jwt-status-list";
 import { SDJwtVcInstance } from "@sd-jwt/sd-jwt-vc";
+import Ajv from "ajv/dist/2020";
+
 import { Repository } from "typeorm";
 import { CryptoService } from "../../crypto/crypto.service";
 import { CryptoImplementationService } from "../../crypto/key/crypto-implementation/crypto-implementation.service";
@@ -13,7 +15,6 @@ import { Session } from "../../session/entities/session.entity";
 import { VCT } from "../credentials-metadata/dto/vct.dto";
 import { StatusListService } from "../status-list/status-list.service";
 import { CredentialConfig } from "./entities/credential.entity";
-
 /**
  * Service for managing credentials and their configurations.
  */
@@ -88,6 +89,45 @@ export class CredentialsService {
             )[value.id] = value.config;
         }
         return credential_configurations_supported;
+    }
+
+    /**
+     * Validates the provided claims against the schema defined in the credential configuration.
+     * @param credentialConfigurationId
+     * @param claims
+     * @returns
+     */
+    validateClaimsForCredential(
+        credentialConfigurationId: string,
+        claims: Record<string, unknown>,
+    ) {
+        // AJV instance with draft 2020-12 meta-schema support.
+        // removeAdditional:"all" ensures only schema-declared properties remain on the claims object.
+        const ajv = new Ajv({
+            allErrors: true,
+            strict: true,
+            removeAdditional: "all", // strip properties not defined in the schema
+            useDefaults: true, // optionally apply default values from schema
+        });
+        //fetch the credential configuration
+        return this.credentialConfigRepo
+            .findOneByOrFail({ id: credentialConfigurationId })
+            .then((credentialConfiguration) => {
+                //if a schema is defined, validate the claims against it
+                if (credentialConfiguration.schema) {
+                    const validate = ajv.compile(
+                        credentialConfiguration.schema,
+                    );
+                    const valid = validate(claims); // claims mutated: unknown props removed, defaults applied
+                    if (!valid) {
+                        throw new ConflictException(
+                            `Claims do not conform to the schema for credential configuration with id ${credentialConfigurationId}: ${ajv.errorsText(
+                                validate.errors,
+                            )}`,
+                        );
+                    }
+                }
+            });
     }
 
     /**

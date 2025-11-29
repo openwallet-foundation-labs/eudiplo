@@ -179,7 +179,7 @@ describe("OIDF - issuance - auth code flow", () => {
         configService.set("CONFIG_IMPORT_FORCE", true);
 
         await app.init();
-        await app.listen(3000, "0.0.0.0");
+        await app.listen(3000);
 
         // Get client credentials
         const client = JSON.parse(
@@ -204,13 +204,13 @@ describe("OIDF - issuance - auth code flow", () => {
     });
 
     afterAll(async () => {
-        const outputDir = resolve(__dirname, `../../logs/${PLAN_ID}`);
+        /* const outputDir = resolve(__dirname, `../../logs/${PLAN_ID}`);
         await oidfSuite.storeLog(PLAN_ID, outputDir);
         console.log(`Test log extracted to: ${outputDir}`);
 
         if (app) {
             await app.close();
-        }
+        } */
     });
 
     test("auth flow", async () => {
@@ -256,9 +256,7 @@ describe("OIDF - issuance - auth code flow", () => {
                 rejectUnauthorized: false,
             }),
         });
-        expect(true).toBe(true);
-        //TODO: assuming the interaction with the browser is not working correctly
-        /* const logResult = await oidfSuite.waitForFinished(testInstance.id);
-        expect(logResult.result).toBe("PASSED"); */
-    }, 20000);
+        const logResult = await oidfSuite.waitForFinished(testInstance.id);
+        expect(logResult.result).toBe("PASSED");
+    }, 30000);
 });

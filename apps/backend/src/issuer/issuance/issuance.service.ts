@@ -40,8 +40,9 @@ export class IssuanceService implements OnApplicationBootstrap {
      */
     async onApplicationBootstrap() {
         await this.cryptoService.import();
-        await this.credentialsConfigService.import();
+        // import first the issuance config to make sure it exists when credentials should be imported
         await this.import();
+        await this.credentialsConfigService.import();
     }
 
     /**
@@ -174,17 +175,20 @@ export class IssuanceService implements OnApplicationBootstrap {
         );
     }
 
-    async onTenantDelete(tenantId: string) {
-        await this.issuanceConfigRepo.delete({ tenantId });
-    }
-
     /**
-     * Returns the issuance configuration for this tenant.
+     * Returns the issuance configuration for this tenant. If not found, creates a default one.
      * @param tenantId
      * @returns
      */
     public getIssuanceConfiguration(tenantId: string) {
-        return this.issuanceConfigRepo.findOneByOrFail({ tenantId });
+        return this.issuanceConfigRepo
+            .findOneByOrFail({ tenantId })
+            .catch(() => {
+                const defaultConfig = this.issuanceConfigRepo.create({
+                    tenantId,
+                });
+                return this.issuanceConfigRepo.save(defaultConfig);
+            });
     }
 
     /**

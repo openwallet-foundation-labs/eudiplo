@@ -52,22 +52,6 @@ export class CredentialConfigService {
                             readFileSync(join(path, file), "utf8"),
                         );
 
-                        const id = file.replace(".json", "");
-                        payload.id = id;
-                        const exists = await this.getById(
-                            tenant.name,
-                            id,
-                        ).catch(() => false);
-                        if (exists && !force) {
-                            continue; // Skip if config already exists and force is not set
-                        } else if (exists && force) {
-                            //delete old element so removed elements are not present
-                            await this.credentialConfigRepository.delete({
-                                id,
-                                tenantId: tenant.name,
-                            });
-                        }
-
                         // Validate the payload against CredentialConfig
                         const config = plainToClass(
                             CredentialConfigCreate,
@@ -79,6 +63,20 @@ export class CredentialConfigService {
                             forbidNonWhitelisted: false,
                             stopAtFirstError: false,
                         });
+
+                        const exists = await this.getById(
+                            tenant.name,
+                            config.id,
+                        ).catch(() => false);
+                        if (exists && !force) {
+                            continue; // Skip if config already exists and force is not set
+                        } else if (exists && force) {
+                            //delete old element so removed elements are not present
+                            await this.credentialConfigRepository.delete({
+                                id: config.id,
+                                tenantId: tenant.name,
+                            });
+                        }
 
                         //check for image references and replace them with the actual urls
                         config.config.display = await Promise.all(
@@ -195,10 +193,6 @@ export class CredentialConfigService {
                 );
             }
         }
-    }
-
-    async onTenantDelete(tenantId: string) {
-        await this.credentialConfigRepository.delete({ tenantId });
     }
 
     /**

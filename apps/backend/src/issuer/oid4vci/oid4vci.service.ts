@@ -203,6 +203,18 @@ export class Oid4vciService {
             };
         }
 
+        //if claims are provided, check them against the schemas when provided
+        if (body.claims) {
+            Promise.all(
+                Object.keys(body.claims).map((credentialConfigId) =>
+                    this.credentialsService.validateClaimsForCredential(
+                        credentialConfigId,
+                        body.claims![credentialConfigId],
+                    ),
+                ),
+            );
+        }
+
         const session = await this.sessionService.create({
             id: issuer_state,
             credentialPayload: body,
