@@ -170,6 +170,10 @@
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
+                                <a href="#onTenantDelete" >onTenantDelete</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#onTenantInit" >onTenantInit</a>
                             </li>
                         </ul>
@@ -262,8 +266,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="47"
-                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:47</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="55"
+                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:55</a></div>
                         </td>
                     </tr>
 
@@ -365,8 +369,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="67"
-                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:67</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="75"
+                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:75</a></div>
                         </td>
                     </tr>
 
@@ -417,6 +421,84 @@
                             <div class="io-description">
                                 <p>The public encryption key as a JWK.</p>
 
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onTenantDelete"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>onTenantDelete</b></span>
+                        <a href="#onTenantDelete"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>onTenantDelete(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="45"
+                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:45</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Deletes the encryption keys for a given tenant.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The ID of the tenant for which to delete the keys.</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
                             </div>
                 </td>
             </tr>
@@ -544,6 +626,14 @@ export class EncryptionService {
             key: privateKey,
             usage: &quot;encrypt&quot;,
         });
+    }
+
+    /**
+     * Deletes the encryption keys for a given tenant.
+     * @param tenantId - The ID of the tenant for which to delete the keys.
+     */
+    async onTenantDelete(tenantId: string) {
+        await this.keyRepository.delete({ tenantId });
     }
 
     /**
