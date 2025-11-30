@@ -176,10 +176,6 @@ It provides methods to get, store, and delete issuance configurations.</p>
                                 <a href="#onApplicationBootstrap" >onApplicationBootstrap</a>
                             </li>
                             <li>
-                                    <span class="modifier">Async</span>
-                                <a href="#onTenantDelete" >onTenantDelete</a>
-                            </li>
-                            <li>
                                     <span class="modifier">Private</span>
                                 <a href="#replaceUrl" >replaceUrl</a>
                             </li>
@@ -337,15 +333,15 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="186"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:186</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="183"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:183</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Returns the issuance configuration for this tenant.</p>
+                        <div class="io-description"><p>Returns the issuance configuration for this tenant. If not found, creates a default one.</p>
 </div>
 
                             <div class="io-description">
@@ -409,8 +405,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="50"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:50</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="51"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:51</a></div>
                         </td>
                     </tr>
 
@@ -473,75 +469,6 @@ It provides methods to get, store, and delete issuance configurations.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="onTenantDelete"></a>
-                    <span class="name">
-                            <span class="modifier">Async</span>
-                        <span ><b>onTenantDelete</b></span>
-                        <a href="#onTenantDelete"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>onTenantDelete(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="177"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:177</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
                     <a name="replaceUrl"></a>
                     <span class="name">
                             <span class="modifier">Private</span>
@@ -560,8 +487,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="152"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:152</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="153"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:153</a></div>
                         </td>
                     </tr>
 
@@ -641,8 +568,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="196"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:196</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="200"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:200</a></div>
                         </td>
                     </tr>
 
@@ -750,8 +677,9 @@ export class IssuanceService implements OnApplicationBootstrap {
      */
     async onApplicationBootstrap() {
         await this.cryptoService.import();
-        await this.credentialsConfigService.import();
+        // import first the issuance config to make sure it exists when credentials should be imported
         await this.import();
+        await this.credentialsConfigService.import();
     }
 
     /**
@@ -884,17 +812,20 @@ export class IssuanceService implements OnApplicationBootstrap {
         );
     }
 
-    async onTenantDelete(tenantId: string) {
-        await this.issuanceConfigRepo.delete({ tenantId });
-    }
-
     /**
-     * Returns the issuance configuration for this tenant.
+     * Returns the issuance configuration for this tenant. If not found, creates a default one.
      * @param tenantId
      * @returns
      */
     public getIssuanceConfiguration(tenantId: string) {
-        return this.issuanceConfigRepo.findOneByOrFail({ tenantId });
+        return this.issuanceConfigRepo
+            .findOneByOrFail({ tenantId })
+            .catch(() &#x3D;&gt; {
+                const defaultConfig &#x3D; this.issuanceConfigRepo.create({
+                    tenantId,
+                });
+                return this.issuanceConfigRepo.save(defaultConfig);
+            });
     }
 
     /**

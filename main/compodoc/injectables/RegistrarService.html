@@ -210,10 +210,6 @@ including adding relying parties, access certificates, and registration certific
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#onTenantDelete" >onTenantDelete</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Async</span>
                                 <a href="#onTenantInit" >onTenantInit</a>
                             </li>
                             <li>
@@ -368,8 +364,8 @@ including adding relying parties, access certificates, and registration certific
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="189"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:189</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="181"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:181</a></div>
                         </td>
                     </tr>
 
@@ -453,8 +449,8 @@ If the access certificate already exists, it will be returned.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="231"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:231</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="223"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:223</a></div>
                         </td>
                     </tr>
 
@@ -560,8 +556,8 @@ If the registration certificate already exists, it will be returned.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="149"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:149</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="141"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:141</a></div>
                         </td>
                     </tr>
 
@@ -632,8 +628,8 @@ This is only needed once, when the relying party is created.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="172"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:172</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="164"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:164</a></div>
                         </td>
                     </tr>
 
@@ -778,77 +774,6 @@ This is used when the relying party already exists in the registrar.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="onTenantDelete"></a>
-                    <span class="name">
-                            <span class="modifier">Async</span>
-                        <span ><b>onTenantDelete</b></span>
-                        <a href="#onTenantDelete"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>onTenantDelete(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="124"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:124</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Deletes all registrar entries for a specific tenant.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
                     <a name="onTenantInit"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
@@ -938,8 +863,8 @@ This is used when the relying party already exists in the registrar.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="132"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:132</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="124"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:124</a></div>
                         </td>
                     </tr>
 
@@ -1186,14 +1111,6 @@ export class RegistrarService implements OnModuleInit {
             relyingPartyId,
             accessCertificateId,
         });
-    }
-
-    /**
-     * Deletes all registrar entries for a specific tenant.
-     * @param tenantId
-     */
-    async onTenantDelete(tenantId: string) {
-        await this.registrarRepository.delete({ tenantId });
     }
 
     /**

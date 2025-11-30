@@ -24,10 +24,6 @@
 <title>cluster_IssuerModule</title>
 <polygon fill="none" stroke="black" stroke-dasharray="1,5" points="8,-70 8,-268 1610,-268 1610,-70 8,-70"/>
 </g>
-<g id="clust4" class="cluster">
-<title>cluster_IssuerModule_exports</title>
-<polygon fill="none" stroke="black" points="654,-208 654,-260 1216,-260 1216,-208 654,-208"/>
-</g>
 <g id="clust3" class="cluster">
 <title>cluster_IssuerModule_imports</title>
 <polygon fill="none" stroke="black" points="1114,-78 1114,-130 1602,-130 1602,-78 1114,-78"/>
@@ -35,6 +31,10 @@
 <g id="clust6" class="cluster">
 <title>cluster_IssuerModule_providers</title>
 <polygon fill="none" stroke="black" points="16,-78 16,-130 1106,-130 1106,-78 16,-78"/>
+</g>
+<g id="clust4" class="cluster">
+<title>cluster_IssuerModule_exports</title>
+<polygon fill="none" stroke="black" points="654,-208 654,-260 1216,-260 1216,-208 654,-208"/>
 </g>
 <!-- CryptoModule -->
 <g id="node1" class="node">
