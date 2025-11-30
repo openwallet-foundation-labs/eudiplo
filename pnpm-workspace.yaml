@@ -11,9 +11,5 @@ onlyBuiltDependencies:
   - esbuild
   - sqlite3
 
-patchedDependencies:
-  '@openid4vc/oauth2': patches/@openid4vc__oauth2.patch
-  '@openid4vc/openid4vci': patches/@openid4vc__openid4vci.patch
-
 syncInjectedDepsAfterScripts:
   - build

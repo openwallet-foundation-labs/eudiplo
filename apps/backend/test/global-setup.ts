@@ -1,3 +1,5 @@
+import { config } from "dotenv";
+import { resolve } from "path";
 import {
     GenericContainer,
     Network,
@@ -7,6 +9,9 @@ import {
     Wait,
 } from "testcontainers";
 
+// Load test environment variables
+config({ path: resolve(__dirname, "../.env"), quiet: true });
+
 let network: StartedNetwork;
 let mongoDb: StartedTestContainer;
 let containerServer: StartedTestContainer;
@@ -15,7 +20,6 @@ let containerHttp: StartedTestContainer;
 export async function setup() {
     await TestContainers.exposeHostPorts(3000);
     await TestContainers.exposeHostPorts(8443);
-    console.log("Global setup for backend tests...");
     // Create a custom network for container communication
     network = await new Network().start();
 

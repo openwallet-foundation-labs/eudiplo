@@ -5,14 +5,6 @@ settings:
   excludeLinksFromLockfile: false
   injectWorkspacePackages: true
 
-patchedDependencies:
-  '@openid4vc/oauth2':
-    hash: 6804d8bc41e710c208222ae6f9e43753a895b2a044ce73a8dc7b8f9a9c58c6db
-    path: patches/@openid4vc__oauth2.patch
-  '@openid4vc/openid4vci':
-    hash: 85508636fef36fa2bbce3cd86610d13a2e0314db9ce8029f370f5dbb7a59b5d3
-    path: patches/@openid4vc__openid4vci.patch
-
 importers:
 
   .:
@@ -118,10 +110,10 @@ importers:
         version: 11.0.0(@nestjs/common@11.1.9(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.9)(reflect-metadata@0.2.2)(rxjs@7.8.2)(typeorm@0.3.27(mysql2@3.15.3)(pg@8.16.3)(reflect-metadata@0.2.2)(sqlite3@5.1.7)(ts-node@10.9.2(@swc/core@1.15.3)(@types/node@24.10.1)(typescript@5.9.3)))
       '@openid4vc/oauth2':
         specifier: 0.3.0
-        version: 0.3.0(patch_hash=6804d8bc41e710c208222ae6f9e43753a895b2a044ce73a8dc7b8f9a9c58c6db)
+        version: 0.3.0
       '@openid4vc/openid4vci':
         specifier: 0.3.0
-        version: 0.3.0(patch_hash=85508636fef36fa2bbce3cd86610d13a2e0314db9ce8029f370f5dbb7a59b5d3)
+        version: 0.3.0
       '@openid4vc/openid4vp':
         specifier: 0.3.0
         version: 0.3.0
@@ -12898,20 +12890,20 @@ snapshots:
       openapi-typescript: 5.4.2
       yargs: 17.7.2
 
-  '@openid4vc/oauth2@0.3.0(patch_hash=6804d8bc41e710c208222ae6f9e43753a895b2a044ce73a8dc7b8f9a9c58c6db)':
+  '@openid4vc/oauth2@0.3.0':
     dependencies:
       '@openid4vc/utils': 0.3.0
       zod: 4.1.12
 
-  '@openid4vc/openid4vci@0.3.0(patch_hash=85508636fef36fa2bbce3cd86610d13a2e0314db9ce8029f370f5dbb7a59b5d3)':
+  '@openid4vc/openid4vci@0.3.0':
     dependencies:
-      '@openid4vc/oauth2': 0.3.0(patch_hash=6804d8bc41e710c208222ae6f9e43753a895b2a044ce73a8dc7b8f9a9c58c6db)
+      '@openid4vc/oauth2': 0.3.0
       '@openid4vc/utils': 0.3.0
       zod: 4.1.12
 
   '@openid4vc/openid4vp@0.3.0':
     dependencies:
-      '@openid4vc/oauth2': 0.3.0(patch_hash=6804d8bc41e710c208222ae6f9e43753a895b2a044ce73a8dc7b8f9a9c58c6db)
+      '@openid4vc/oauth2': 0.3.0
       '@openid4vc/utils': 0.3.0
       zod: 4.1.12
 
