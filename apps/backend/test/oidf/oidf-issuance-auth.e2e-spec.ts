@@ -15,7 +15,7 @@ import { OIDFSuite } from "./oidf-suite";
  */
 describe("OIDF - issuance - auth code flow", () => {
     const PUBLIC_DOMAIN =
-        import.meta.env.VITE_DOMAIN ?? "host.docker.internal:3000";
+        import.meta.env.VITE_DOMAIN ?? "host.testcontainers.internal:3000";
     const OIDF_URL = import.meta.env.VITE_OIDF_URL ?? "https://localhost:8443";
     const OIDF_DEMO_TOKEN = import.meta.env.VITE_OIDF_DEMO_TOKEN;
 
@@ -204,13 +204,13 @@ describe("OIDF - issuance - auth code flow", () => {
     });
 
     afterAll(async () => {
-        /* const outputDir = resolve(__dirname, `../../logs/${PLAN_ID}`);
+        const outputDir = resolve(__dirname, `../../logs/${PLAN_ID}`);
         await oidfSuite.storeLog(PLAN_ID, outputDir);
         console.log(`Test log extracted to: ${outputDir}`);
 
         if (app) {
             await app.close();
-        } */
+        }
     });
 
     test("auth flow", async () => {
@@ -249,7 +249,6 @@ describe("OIDF - issuance - auth code flow", () => {
 
         // Get the credential offer endpoint from the test runner
         const url = await oidfSuite.getEndpoint(testInstance);
-
         // Send the offer to the OIDF test runner
         await axios.default.get(`${url}${parameters}`, {
             httpsAgent: new https.Agent({
@@ -258,5 +257,5 @@ describe("OIDF - issuance - auth code flow", () => {
         });
         const logResult = await oidfSuite.waitForFinished(testInstance.id);
         expect(logResult.result).toBe("PASSED");
-    }, 30000);
+    }, 20000);
 });

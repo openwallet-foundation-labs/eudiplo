@@ -28,7 +28,7 @@ container.
 Prometheus is configured to monitor both:
 
 1. **Docker container**: `eudiplo:3000` (when running via docker-compose)
-2. **Local Node.js**: `host.docker.internal:3000` (when running `npm start`
+2. **Local Node.js**: `host.testcontainers.internal:3000` (when running `npm start`
    locally)
 
 To run EUDIPLO locally and monitor it:
@@ -235,17 +235,17 @@ curl http://localhost:3001/health
 ### Common Issues
 
 1. **Prometheus can't reach EUDIPLO**
-    - Check if services are on same network
-    - Verify target name in prometheus.yml matches service name
+   - Check if services are on same network
+   - Verify target name in prometheus.yml matches service name
 
 2. **No data in Grafana**
-    - Check Prometheus targets are UP
-    - Verify datasource configuration
-    - Check time range in dashboards
+   - Check Prometheus targets are UP
+   - Verify datasource configuration
+   - Check time range in dashboards
 
 3. **Permission errors**
-    - Ensure file permissions allow Docker to read configs
-    - Check volume mounts are correct
+   - Ensure file permissions allow Docker to read configs
+   - Check volume mounts are correct
 
 ## Production Considerations
 

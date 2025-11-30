@@ -15,7 +15,7 @@ import { OIDFSuite } from "./oidf-suite";
  */
 describe("OIDF - issuance - pre auth", () => {
     const PUBLIC_DOMAIN =
-        import.meta.env.VITE_DOMAIN ?? "host.docker.internal:3000";
+        import.meta.env.VITE_DOMAIN ?? "host.testcontainers.internal:3000";
     const OIDF_URL = import.meta.env.VITE_OIDF_URL ?? "https://localhost:8443";
     const OIDF_DEMO_TOKEN = import.meta.env.VITE_OIDF_DEMO_TOKEN;
 

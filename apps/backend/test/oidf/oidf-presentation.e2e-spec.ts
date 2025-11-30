@@ -2,6 +2,7 @@ import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { Test, TestingModule } from "@nestjs/testing";
+import * as x509 from "@peculiar/x509";
 import * as axios from "axios";
 import { readFileSync } from "fs";
 import https from "https";
@@ -15,7 +16,7 @@ import { OIDFSuite, TestInstance } from "./oidf-suite";
  */
 describe("OIDF", () => {
     const PUBLIC_DOMAIN =
-        import.meta.env.VITE_DOMAIN ?? "host.docker.internal:3000";
+        import.meta.env.VITE_DOMAIN ?? "host.testcontainers.internal:3000";
     const OIDF_URL = import.meta.env.VITE_OIDF_URL ?? "https://localhost:8443";
     const OIDF_DEMO_TOKEN = import.meta.env.VITE_OIDF_DEMO_TOKEN;
 
@@ -34,6 +35,52 @@ describe("OIDF", () => {
     const oidfSuite = new OIDFSuite(OIDF_URL, OIDF_DEMO_TOKEN);
 
     beforeAll(async () => {
+        // create a jwt and a self signed certificate for https
+
+        const ECDSA_P256 = {
+            name: "ECDSA",
+            namedCurve: "P-256",
+            hash: "SHA-256" as const,
+        };
+
+        // === Create issuer key pair and self-signed issuer certificate ===
+        const issuerKeys = await crypto.subtle.generateKey(ECDSA_P256, true, [
+            "sign",
+            "verify",
+        ]);
+        const now = new Date();
+        const inOneYear = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
+
+        const issuerCert = await x509.X509CertificateGenerator.createSelfSigned(
+            {
+                serialNumber: "01",
+                name: `CN=${PUBLIC_DOMAIN}`,
+                notBefore: now,
+                notAfter: inOneYear,
+                signingAlgorithm: ECDSA_P256,
+                keys: issuerKeys,
+                extensions: [
+                    new x509.BasicConstraintsExtension(true, 0, true), // CA: true, pathLen:0
+                    new x509.KeyUsagesExtension(
+                        x509.KeyUsageFlags.keyCertSign,
+                        true,
+                    ),
+                    await x509.SubjectKeyIdentifierExtension.create(
+                        issuerKeys.publicKey,
+                    ),
+                    new x509.SubjectAlternativeNameExtension([
+                        { type: "dns", value: PUBLIC_DOMAIN },
+                    ]),
+                ],
+            },
+        );
+
+        // Export private key as JWK
+        const privateKeyJwk = await crypto.subtle.exportKey(
+            "jwk",
+            issuerKeys.privateKey,
+        );
+
         const planId = "oid4vp-1final-verifier-test-plan";
         const variant = {
             credential_format: "sd_jwt_vc",
@@ -49,16 +96,15 @@ describe("OIDF", () => {
             },
             credential: {
                 signing_jwk: {
-                    kty: "EC",
-                    d: "y2NSNIvlRAEBMFk2bjQcSKbjS1y_NBJQ6jRzIfuIxS0",
+                    ...privateKeyJwk,
                     use: "sig",
                     x5c: [
-                        "MIICHjCCAcOgAwIBAgIUZX9BS5CDOJRW2t1FK1UDMt/QwMEwCgYIKoZIzj0EAwIwITELMAkGA1UEBhMCR0IxEjAQBgNVBAMMCU9JREYgVGVzdDAeFw0yNDExMjUwODM2MDRaFw0zNDExMjMwODM2MDRaMCExCzAJBgNVBAYTAkdCMRIwEAYDVQQDDAlPSURGIFRlc3QwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATT/dLsd51LLBrGV6R23o6vymRxHXeFBoI8yq31y5kFV2VV0gi9x5ZzEFiq8DMiAHucLACFndxLtZorCha9zznQo4HYMIHVMB0GA1UdDgQWBBS5cbdgAeMBi5wxpbpwISGhShAWETAfBgNVHSMEGDAWgBS5cbdgAeMBi5wxpbpwISGhShAWETAPBgNVHRMBAf8EBTADAQH/MIGBBgNVHREEejB4ghB3d3cuaGVlbmFuLm1lLnVrgh1kZW1vLmNlcnRpZmljYXRpb24ub3BlbmlkLm5ldIIJbG9jYWxob3N0ghZsb2NhbGhvc3QuZW1vYml4LmNvLnVrgiJkZW1vLnBpZC1pc3N1ZXIuYnVuZGVzZHJ1Y2tlcmVpLmRlMAoGCCqGSM49BAMCA0kAMEYCIQCPbnLxCI+WR1vhOW+A8KznAWv1MJo+YEb1MI45NKW/VQIhALzsqox8VuBRwN2dl5LkpnxP4oH9p6H0AOZmKP+Y7nXS",
+                        issuerCert
+                            .toString("pem")
+                            .replace(/-----BEGIN CERTIFICATE-----/g, "")
+                            .replace(/-----END CERTIFICATE-----/g, "")
+                            .replace(/\r?\n|\r/g, ""),
                     ],
-                    crv: "P-256",
-                    kid: "5H1WLeSx55tMW6JNlvqMfg3O_E0eQPqB8jDSoUn6oiI",
-                    x: "0_3S7HedSywaxlekdt6Or8pkcR13hQaCPMqt9cuZBVc",
-                    y: "ZVXSCL3HlnMQWKrwMyIAe5wsAIWd3Eu1misKFr3POdA",
                     alg: "ES256",
                 },
             },
@@ -90,7 +136,7 @@ describe("OIDF", () => {
         configService.set("CONFIG_IMPORT_FORCE", true);
 
         await app.init();
-        await app.listen(3000);
+        await app.listen(3000, "0.0.0.0");
 
         console.log("Backend application started for OIDF E2E tests");
 
@@ -115,6 +161,10 @@ describe("OIDF", () => {
 
         // Create test instance
         testInstance = await oidfSuite.getInstance(PLAN_ID);
+
+        console.log(
+            `Test details: ${OIDF_URL}/log-detail.html?log=${testInstance.id}`,
+        );
     });
 
     afterAll(async () => {
