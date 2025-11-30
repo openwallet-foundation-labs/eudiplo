@@ -4,9 +4,9 @@ import { plainToClass } from "class-transformer";
 import { readFileSync } from "fs";
 import { PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm";
-import { ConfigImportService } from "../../../config-import/config-import.service";
 import { CryptoService } from "../../../crypto/crypto.service";
 import { FilesService } from "../../../storage/files.service";
+import { ConfigImportService } from "../../../utils/config-import/config-import.service";
 import { CredentialConfigCreate } from "../dto/credential-config-create.dto";
 import { CredentialConfig } from "../entities/credential.entity";
 

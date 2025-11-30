@@ -31,6 +31,8 @@ export class ConfigImportService {
             withFileTypes: true,
         }).filter((tenant) => tenant.isDirectory());
 
+        const strictConfig = this.configService.get<any>("CONFIG_STRICT");
+
         for (const tenant of tenantFolders) {
             let counter = 0;
             const path = join(configPath, tenant.name, options.subfolder);
@@ -65,6 +67,9 @@ export class ConfigImportService {
                         );
                         data = payload as T;
                     }
+
+                    // Replace placeholders like ${ENV_VAR} or ${ENV_VAR:default}
+                    data = this.replacePlaceholders(data);
 
                     // Validate if validation class is provided
                     if (options.validationClass) {
@@ -115,6 +120,10 @@ export class ConfigImportService {
                         },
                         `Failed to import ${options.resourceType} ${file} in tenant ${tenant.name}`,
                     );
+                    if (strictConfig === "abort") {
+                        // Abort the entire import process in strict abort mode
+                        throw error;
+                    }
                 }
             }
 
@@ -125,6 +134,74 @@ export class ConfigImportService {
                 );
             }
         }
+    }
+
+    /**
+     * Recursively replace placeholders of the form ${VAR} or ${VAR:default} in all string properties.
+     * ${VAR} -> replaced with process.env.VAR if defined; if undefined and no default given, logs a warning and leaves placeholder intact.
+     * ${VAR:default} -> replaced with env value if defined, otherwise with "default".
+     */
+    private replacePlaceholders<T>(input: T): T {
+        const seen = new WeakSet();
+        const isObject = (val: any) =>
+            val && typeof val === "object" && !Array.isArray(val);
+        const strictConfigInner = this.configService.get<any>("CONFIG_STRICT");
+        const strictMode =
+            strictConfigInner === true
+                ? "skip"
+                : strictConfigInner === false || strictConfigInner === undefined
+                  ? "ignore"
+                  : (strictConfigInner as string);
+
+        const processString = (str: string): string => {
+            const pattern = /\$\{([A-Z0-9_]+)(?::([^}]*))?\}/g;
+            return str.replace(
+                pattern,
+                (fullMatch, varName: string, defVal: string) => {
+                    const envVal = process.env[varName];
+                    if (envVal !== undefined && envVal !== "") {
+                        return envVal;
+                    }
+                    if (defVal !== undefined) {
+                        return defVal;
+                    }
+                    if (
+                        strictMode === "abort" ||
+                        strictMode === "skip" ||
+                        strictMode === "true"
+                    ) {
+                        // abort -> will bubble up and stop the whole process via outer catch
+                        // skip/true -> outer catch will log and continue with next file
+                        throw new Error(
+                            `Missing required environment variable ${varName} for placeholder ${fullMatch}`,
+                        );
+                    }
+                    // ignore/false/undefined: keep placeholder and warn
+                    this.logger.warn(
+                        { event: "ImportPlaceholder", var: varName },
+                        `Environment variable ${varName} not set and no default provided (placeholder kept)`,
+                    );
+                    return fullMatch; // keep original placeholder
+                },
+            );
+        };
+
+        const recurse = (val: any): any => {
+            if (typeof val === "string") return processString(val);
+            if (Array.isArray(val)) return val.map(recurse);
+            if (Buffer.isBuffer(val)) return val; // skip binary
+            if (isObject(val)) {
+                if (seen.has(val)) return val; // avoid circular refs
+                seen.add(val);
+                for (const key of Object.keys(val)) {
+                    (val as any)[key] = recurse((val as any)[key]);
+                }
+                return val;
+            }
+            return val;
+        };
+
+        return recurse(input);
     }
 
     /**

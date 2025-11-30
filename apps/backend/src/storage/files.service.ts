@@ -4,12 +4,12 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { randomUUID } from "crypto";
 import { readFileSync } from "fs";
 import { Repository } from "typeorm";
-import { ConfigImportService } from "../config-import/config-import.service";
 import {
     FILE_STORAGE,
     FileStorage,
     StoredObject,
 } from "../storage/storage.types";
+import { ConfigImportService } from "../utils/config-import/config-import.service";
 import { FileEntity } from "./entities/files.entity";
 
 @Injectable()

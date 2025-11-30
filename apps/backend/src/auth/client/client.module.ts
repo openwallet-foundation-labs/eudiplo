@@ -3,7 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { getRepositoryToken, TypeOrmModule } from "@nestjs/typeorm";
 import { makeGaugeProvider } from "@willsoto/nestjs-prometheus";
 import { Repository } from "typeorm";
-import { ConfigImportService } from "../../config-import/config-import.service";
+import { ConfigImportService } from "../../utils/config-import/config-import.service";
 import { InternalClientsProvider } from "./adapters/internal-clients.service";
 import { KeycloakClientsProvider } from "./adapters/keycloak-clients.service";
 import { ClientController } from "./client.controller";

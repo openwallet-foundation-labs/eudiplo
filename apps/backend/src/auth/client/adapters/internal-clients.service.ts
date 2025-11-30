@@ -5,7 +5,7 @@ import { plainToClass } from "class-transformer";
 import { randomBytes } from "crypto";
 import { readFileSync } from "fs";
 import { Repository } from "typeorm";
-import { ConfigImportService } from "../../../config-import/config-import.service";
+import { ConfigImportService } from "../../../utils/config-import/config-import.service";
 import { Role } from "../../roles/role.enum";
 import { ClientsProvider } from "../client.provider";
 import { CreateClientDto } from "../dto/create-client.dto";

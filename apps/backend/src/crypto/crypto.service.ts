@@ -18,7 +18,7 @@ import { importJWK, type JWK, jwtVerify } from "jose";
 import { PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm";
 import { TenantEntity } from "../auth/tenant/entitites/tenant.entity";
-import { ConfigImportService } from "../config-import/config-import.service";
+import { ConfigImportService } from "../utils/config-import/config-import.service";
 import { EC_Public } from "../well-known/dto/jwks-response.dto";
 import { KeyImportDto } from "./key/dto/key-import.dto";
 import { UpdateKeyDto } from "./key/dto/key-update.dto";

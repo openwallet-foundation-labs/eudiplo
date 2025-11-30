@@ -152,26 +152,3 @@ Each client can have multiple roles assigned, but each client can only be assign
   expose them in logs or URLs
 - **Service-to-Service**: This API is designed for service-to-service
   authentication without user interaction
-
----
-
-## Related Documentation
-
-### Architecture & Design
-
-- **[Tenant-Based Architecture](../architecture/tenant.md)** - Multi-tenant
-  isolation and configuration
-- **[Sessions](../architecture/sessions.md)** - Session lifecycle and management
-- **[Key Management](../architecture/key-management.md)** - Cryptographic key
-  handling and security
-
-### Implementation Guides
-
-- **[Quick Start](../getting-started/quick-start.md)** - Get authentication
-  working in 5 minutes
-- **[API Overview](./index.md)** - Complete API reference and endpoints
-
-### Operations
-
-- **[Development Setup](../development/running-locally.md)** - Local development
-  authentication setup
