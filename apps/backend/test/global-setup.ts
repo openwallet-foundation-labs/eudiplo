@@ -1,18 +1,25 @@
+import { config } from "dotenv";
+import { resolve } from "path";
 import {
     GenericContainer,
     Network,
     StartedNetwork,
     StartedTestContainer,
+    TestContainers,
     Wait,
 } from "testcontainers";
+
+// Load test environment variables
+config({ path: resolve(__dirname, "../.env"), quiet: true });
 
 let network: StartedNetwork;
 let mongoDb: StartedTestContainer;
 let containerServer: StartedTestContainer;
 let containerHttp: StartedTestContainer;
 
-export default async function setup() {
-    console.log("Global setup for backend tests...");
+export async function setup() {
+    await TestContainers.exposeHostPorts(3000);
+    await TestContainers.exposeHostPorts(8443);
     // Create a custom network for container communication
     network = await new Network().start();
 
@@ -37,20 +44,13 @@ export default async function setup() {
         .withNetworkAliases("server")
         .withName("fapi-test-suite-server")
         .withLabels(projectLabels)
-        .withExtraHosts([
-            {
-                host: "host.docker.internal",
-                ipAddress: "172.17.0.1",
-            },
-        ])
         .withEntrypoint([
             "java",
             "-jar",
             "/server/fapi-test-suite.jar",
             "-Djdk.tls.maxHandshakeMessageSize=65536",
-            "--fintechlabs.base_url=https://localhost:8443",
+            "--fintechlabs.base_url=https://host.testcontainers.internal:8443",
             "--fintechlabs.devmode=true",
-            "--fintechlabs.startredir=true",
         ])
         .withWaitStrategy(
             Wait.forLogMessage(new RegExp(".*Started Application in.*")),
@@ -84,33 +84,32 @@ export default async function setup() {
     const httpdPort = containerHttp.getMappedPort(8443);
     process.env.FAPI_TEST_URL = `https://localhost:${httpdPort}`;
     console.log(`FAPI test URL set to ${process.env.FAPI_TEST_URL}`);
+}
 
-    // Return the teardown function
-    return async () => {
-        console.log("Global teardown for backend tests...");
-        try {
-            await containerHttp?.stop();
-            console.log("Stopped httpd container");
-        } catch (error) {
-            console.error("Error stopping httpd:", error);
-        }
-        try {
-            await containerServer?.stop();
-            console.log("Stopped server container");
-        } catch (error) {
-            console.error("Error stopping server:", error);
-        }
-        try {
-            await mongoDb?.stop();
-            console.log("Stopped MongoDB container");
-        } catch (error) {
-            console.error("Error stopping MongoDB:", error);
-        }
-        try {
-            await network?.stop();
-            console.log("Stopped network");
-        } catch (error) {
-            console.error("Error stopping network:", error);
-        }
-    };
+export async function teardown() {
+    console.log("Global teardown for backend tests...");
+    try {
+        await containerHttp?.stop();
+        console.log("Stopped httpd container");
+    } catch (error) {
+        console.error("Error stopping httpd:", error);
+    }
+    try {
+        await containerServer?.stop();
+        console.log("Stopped server container");
+    } catch (error) {
+        console.error("Error stopping server:", error);
+    }
+    try {
+        await mongoDb?.stop();
+        console.log("Stopped MongoDB container");
+    } catch (error) {
+        console.error("Error stopping MongoDB:", error);
+    }
+    try {
+        await network?.stop();
+        console.log("Stopped network");
+    } catch (error) {
+        console.error("Error stopping network:", error);
+    }
 }

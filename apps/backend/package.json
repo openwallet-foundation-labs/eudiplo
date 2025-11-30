@@ -27,10 +27,9 @@
         "lint:fix": "biome check --fix",
         "test": "vitest run",
         "test:watch": "vitest",
-        "test:cov": "vitest run --coverage",
         "test:debug": "vitest --inspect-brk --inspect --logHeapUsage --threads=false",
         "test:e2e": "vitest run --coverage --config ./test/vitest.config.ts",
-        "test:e2e:watch": "vitest --config ./test/vitest.config.ts",
+        "test:e2e:watch": "vitest --coverage --config ./test/vitest.config.ts",
         "registrar": "npx @hey-api/openapi-ts -i https://funke-wallet.de/-json -o ./src/registrar/generated -c @hey-api/client-fetch"
     },
     "dependencies": {
@@ -59,6 +58,7 @@
         "@sd-jwt/sd-jwt-vc": "^0.17.0",
         "@sd-jwt/types": "^0.17.0",
         "@willsoto/nestjs-prometheus": "^6.0.2",
+        "ajv": "^8.17.1",
         "axios": "^1.13.2",
         "class-transformer": "^0.5.1",
         "class-validator": "^0.14.3",

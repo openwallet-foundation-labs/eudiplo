@@ -64,7 +64,6 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
                         const configFile = readFileSync(file, "utf-8");
                         const payload = JSON.parse(configFile);
                         payload.id = tenant.name;
-
                         // Validate the payload against CreateTenantDto
                         const tenantDto = plainToClass(
                             CreateTenantDto,
@@ -125,8 +124,8 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
         const authTenant = this.configService.get<string>("AUTH_CLIENT_TENANT");
         if (authTenant !== tenant.id) {
             await this.clients.addClient(tenant.id, {
-                clientId: "admin",
-                description: "auto generated admin client",
+                clientId: `${tenant.id}-admin`,
+                description: `auto generated admin client for tenant ${tenant.id}`,
                 roles: [Role.Clients, ...(data.roles || [])],
             });
         }

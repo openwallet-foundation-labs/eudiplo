@@ -7,27 +7,7 @@ export default defineConfig({
         include: ["**/*.e2e-spec.ts"],
         globals: true,
         root: "./",
-        reporters: [
-            "default",
-            ["junit", { outputFile: "test-report.junit.xml" }],
-        ],
-        coverage: {
-            provider: "v8",
-            reporter: ["json", "html"],
-            reportsDirectory: "./coverage-e2e",
-            exclude: [
-                "node_modules/",
-                "test/",
-                "dist/",
-                "**/*.d.ts",
-                "**/*.config.ts",
-                "**/*.config.js",
-                "**/main.ts",
-            ],
-            include: ["**/src/**/*.ts"],
-        },
         fileParallelism: false,
-        setupFiles: ["./test/setup.ts"],
         globalSetup: ["./test/global-setup.ts"],
     },
     plugins: [
