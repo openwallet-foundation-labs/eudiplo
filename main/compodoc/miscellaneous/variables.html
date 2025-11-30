@@ -522,6 +522,11 @@
         .default(resolve(__dirname + &quot;/../../../../assets/config&quot;))
         .description(&quot;Path to config import folder&quot;)
         .meta({ group: &quot;config&quot;, order: 30 }),
+    CONFIG_VARIABLE_STRICT: Joi.alternatives()
+        .try(Joi.string().valid(&quot;abort&quot;, &quot;skip&quot;, &quot;ignore&quot;), Joi.boolean())
+        .default(&quot;skip&quot;)
+        .description(&quot;Strict mode for config import.&quot;)
+        .meta({ group: &quot;config&quot;, order: 40 }),
 })</code>
                     </td>
                 </tr>

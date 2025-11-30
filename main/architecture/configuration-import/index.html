@@ -1391,6 +1391,78 @@
   
 </li>
         
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environment-variable-placeholders" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environment Variable Placeholders
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Environment Variable Placeholders">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Syntax
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strict-mode-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Strict Mode Levels
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logging-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logging Events
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommendations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommendations
+      
+    </span>
+  </a>
+  
+</li>
+        
           <li class="md-nav__item">
   <a href="#validation-and-processing" class="md-nav__link">
     <span class="md-ellipsis">
@@ -1512,17 +1584,6 @@
     <span class="md-ellipsis">
       
         Security Considerations
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#related-documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Related Documentation
       
     </span>
   </a>
@@ -2263,6 +2324,78 @@
   
 </li>
         
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environment-variable-placeholders" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environment Variable Placeholders
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Environment Variable Placeholders">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Syntax
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strict-mode-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Strict Mode Levels
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logging-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logging Events
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommendations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommendations
+      
+    </span>
+  </a>
+  
+</li>
+        
           <li class="md-nav__item">
   <a href="#validation-and-processing" class="md-nav__link">
     <span class="md-ellipsis">
@@ -2390,17 +2523,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#related-documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Related Documentation
-      
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -2481,6 +2603,11 @@ starts. This is particularly useful for:</p>
 <td><code>CONFIG_FOLDER</code></td>
 <td><code>string</code></td>
 <td>Path to config import folder  (default: <code>/path/to/config/folder</code>)</td>
+</tr>
+<tr>
+<td><code>CONFIG_VARIABLE_STRICT</code></td>
+<td><code>alternatives</code></td>
+<td>Strict mode for config import.  (default: <code>skip</code>)</td>
 </tr>
 </tbody>
 </table>
@@ -2612,6 +2739,65 @@ The reference to the image is done via the filename, e.g. <code>logo.png</code> 
 <li><strong>Validates file structure</strong> - Ensures required subdirectories exist</li>
 <li><strong>Reads JSON files</strong> - Parses each configuration file</li>
 </ul>
+<h2 id="environment-variable-placeholders">Environment Variable Placeholders<a class="headerlink" href="#environment-variable-placeholders" title="Permanent link">¶</a></h2>
+<p>Configuration files can contain dynamic placeholders that are replaced at import time before validation.</p>
+<h3 id="syntax">Syntax<a class="headerlink" href="#syntax" title="Permanent link">¶</a></h3>
+<p><code>"value": "${VAR_NAME}"</code> – replaced by the environment variable <code>VAR_NAME</code> if it is set and non-empty.</p>
+<p><code>"value": "${VAR_NAME:defaultValue}"</code> – uses <code>VAR_NAME</code> from the environment if present; otherwise falls back to <code>defaultValue</code>.</p>
+<p>Placeholders are resolved recursively in all string fields of imported JSON objects (arrays, nested objects included). Binary buffers are ignored.</p>
+<h3 id="strict-mode-levels">Strict Mode Levels<a class="headerlink" href="#strict-mode-levels" title="Permanent link">¶</a></h3>
+<p><code>CONFIG_VARIABLE_STRICT</code> supports three levels to control behavior when a placeholder has no environment value and no default:</p>
+<ul>
+<li><code>abort</code>: Throw immediately and abort the entire import process.</li>
+<li><code>skip</code>: Throw for the current file (caught and logged as <code>ImportError</code>), skip that file and continue.</li>
+<li><code>ignore</code>: Keep the placeholder as-is, log a warning (<code>ImportPlaceholder</code>), and continue processing.</li>
+</ul>
+<p>Default behavior is <code>skip</code> in production recommendations.</p>
+<h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>// Given process.env.CLIENT_ID_ROOT = "root-123"
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>{
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    "clientId": "${CLIENT_ID_ROOT}", // =&gt; "root-123"
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    "clientSecret": "${CLIENT_SECRET_ROOT:dev-secret}", // =&gt; "dev-secret" if CLIENT_SECRET_ROOT unset
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>}
+</code></pre></div>
+<p>Strict failure example (<code>CONFIG_VARIABLE_STRICT=abort</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>{ "apiKey": "${API_KEY}" } // throws if API_KEY not set
+</code></pre></div>
+<p>Non-strict warning example (<code>CONFIG_VARIABLE_STRICT=ignore</code> or absent / false):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>{ "apiKey": "${API_KEY}" } // remains "${API_KEY}" and logs a warning
+</code></pre></div>
+<h3 id="logging-events">Logging Events<a class="headerlink" href="#logging-events" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Condition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ImportPlaceholder</code></td>
+<td>Non-strict mode, missing env and no default</td>
+</tr>
+<tr>
+<td><code>ImportError</code></td>
+<td>Strict mode, missing env and no default (file skipped)</td>
+</tr>
+<tr>
+<td><code>ValidationError</code></td>
+<td>Placeholder substituted but subsequent schema validation fails</td>
+</tr>
+</tbody>
+</table>
+<h3 id="recommendations">Recommendations<a class="headerlink" href="#recommendations" title="Permanent link">¶</a></h3>
+<ul>
+<li>Prefer <code>${VAR:default}</code> for optional values to avoid noisy warnings.</li>
+<li>Use <code>CONFIG_VARIABLE_STRICT=true</code> in production to detect misconfiguration early.</li>
+<li>Keep secrets in environment variables; use defaults only for non-sensitive fallbacks.</li>
+</ul>
+<blockquote>
+<p>Note: Placeholder replacement occurs BEFORE class-validator schema validation so resolved values are validated, not the raw <code>${...}</code> tokens.</p>
+</blockquote>
 <h3 id="validation-and-processing">Validation and Processing<a class="headerlink" href="#validation-and-processing" title="Permanent link">¶</a></h3>
 <p>For each configuration file:</p>
 <ul>
@@ -2630,33 +2816,33 @@ The reference to the image is done via the filename, e.g. <code>logo.png</code> 
 </ul>
 <h2 id="logging">Logging<a class="headerlink" href="#logging" title="Permanent link">¶</a></h2>
 <p>Import activities are logged with structured information:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Import"</span><span class="p">,</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="nt">"tenant"</span><span class="p">:</span><span class="w"> </span><span class="s2">"company-xyz"</span><span class="p">,</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="nt">"files"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5 credential configs imported for company-xyz"</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Import"</span><span class="p">,</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="nt">"tenant"</span><span class="p">:</span><span class="w"> </span><span class="s2">"company-xyz"</span><span class="p">,</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="nt">"files"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5 credential configs imported for company-xyz"</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="p">}</span>
 </code></pre></div>
 <p><strong>Key import logging</strong>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Import"</span><span class="p">,</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="nt">"tenant"</span><span class="p">:</span><span class="w"> </span><span class="s2">"company-xyz"</span><span class="p">,</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3 keys imported for company-xyz"</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="p">{</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Import"</span><span class="p">,</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="nt">"tenant"</span><span class="p">:</span><span class="w"> </span><span class="s2">"company-xyz"</span><span class="p">,</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3 keys imported for company-xyz"</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="p">}</span>
 </code></pre></div>
 <p><strong>Error logging</strong> includes detailed validation information:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ValidationError"</span><span class="p">,</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="nt">"file"</span><span class="p">:</span><span class="w"> </span><span class="s2">"invalid-config.json"</span><span class="p">,</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="nt">"tenant"</span><span class="p">:</span><span class="w"> </span><span class="s2">"company-xyz"</span><span class="p">,</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="nt">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">        </span><span class="p">{</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">            </span><span class="nt">"property"</span><span class="p">:</span><span class="w"> </span><span class="s2">"credentialConfigs"</span><span class="p">,</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">            </span><span class="nt">"constraints"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"isArray"</span><span class="p">:</span><span class="w"> </span><span class="s2">"credentialConfigs must be an array"</span><span class="w"> </span><span class="p">},</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">            </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"not-an-array"</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="p">]</span>
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p">{</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ValidationError"</span><span class="p">,</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="nt">"file"</span><span class="p">:</span><span class="w"> </span><span class="s2">"invalid-config.json"</span><span class="p">,</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="nt">"tenant"</span><span class="p">:</span><span class="w"> </span><span class="s2">"company-xyz"</span><span class="p">,</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="nt">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">        </span><span class="p">{</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">            </span><span class="nt">"property"</span><span class="p">:</span><span class="w"> </span><span class="s2">"credentialConfigs"</span><span class="p">,</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">            </span><span class="nt">"constraints"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"isArray"</span><span class="p">:</span><span class="w"> </span><span class="s2">"credentialConfigs must be an array"</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">            </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"not-an-array"</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">    </span><span class="p">]</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="p">}</span>
 </code></pre></div>
 <h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">¶</a></h2>
 <h3 id="configuration-management">Configuration Management<a class="headerlink" href="#configuration-management" title="Permanent link">¶</a></h3>
@@ -2673,20 +2859,20 @@ The reference to the image is done via the filename, e.g. <code>logo.png</code> 
 <li><strong>Manage configurations via API</strong> after initial import</li>
 </ul>
 <h3 id="multi-tenant-setup">Multi-Tenant Setup<a class="headerlink" href="#multi-tenant-setup" title="Permanent link">¶</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Organize by tenant/organization</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>assets/config/
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>├──<span class="w"> </span>acme-corp/
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>│<span class="w">   </span>├──<span class="w"> </span>keys/
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>│<span class="w">   </span>├──<span class="w"> </span>issuance/
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>│<span class="w">   </span>└──<span class="w"> </span>presentation/
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>├──<span class="w"> </span>university-x/
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>│<span class="w">   </span>├──<span class="w"> </span>keys/
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>│<span class="w">   </span>├──<span class="w"> </span>issuance/
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>│<span class="w">   </span>└──<span class="w"> </span>presentation/
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>└──<span class="w"> </span>government-agency/
-<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">    </span>├──<span class="w"> </span>keys/
-<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">    </span>├──<span class="w"> </span>issuance/
-<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">    </span>└──<span class="w"> </span>presentation/
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Organize by tenant/organization</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>assets/config/
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>├──<span class="w"> </span>acme-corp/
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>│<span class="w">   </span>├──<span class="w"> </span>keys/
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>│<span class="w">   </span>├──<span class="w"> </span>issuance/
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>│<span class="w">   </span>└──<span class="w"> </span>presentation/
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>├──<span class="w"> </span>university-x/
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>│<span class="w">   </span>├──<span class="w"> </span>keys/
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>│<span class="w">   </span>├──<span class="w"> </span>issuance/
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>│<span class="w">   </span>└──<span class="w"> </span>presentation/
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>└──<span class="w"> </span>government-agency/
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">    </span>├──<span class="w"> </span>keys/
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="w">    </span>├──<span class="w"> </span>issuance/
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="w">    </span>└──<span class="w"> </span>presentation/
 </code></pre></div>
 <p>Even when you just have one tenant, use a folder structure to prepare for future
 multi-tenancy.</p>
@@ -2708,18 +2894,12 @@ the imported private key</p>
 <li><strong>File permissions</strong> - Ensure config files have appropriate read permissions</li>
 <li><strong>Tenant isolation</strong> - Verify tenant boundaries are properly maintained</li>
 </ul>
-<blockquote>
-<p>TODO: check if webhook credentials should be stored here or in environment
-variables for security.</p>
-</blockquote>
-<h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">¶</a></h2>
-<ul>
-<li><a href="../key-management/">Key Management</a> - Detailed key management architecture</li>
-<li><a href="../../api/authentication/">API Authentication</a></li>
-<li><a href="../tenant/">Multi-tenant Architecture</a></li>
-<li><a href="../database/">Database Architecture</a></li>
-<li><a href="../">Production Deployment</a></li>
-</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Avoid storing sensitive information (e.g., private keys, secrets) in
+configuration files. Use <a href="#environment-variable-placeholders">environment variables</a>
+for sensitive data and reference them using placeholders.</p>
+</div>
 
 
 

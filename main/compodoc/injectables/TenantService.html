@@ -376,8 +376,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="120"
-                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:120</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="125"
+                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:125</a></div>
                         </td>
                     </tr>
 
@@ -447,8 +447,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="165"
-                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:165</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="170"
+                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:170</a></div>
                         </td>
                     </tr>
 
@@ -521,8 +521,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="111"
-                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:111</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="116"
+                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:116</a></div>
                         </td>
                     </tr>
 
@@ -564,8 +564,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="139"
-                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:139</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="144"
+                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:144</a></div>
                         </td>
                     </tr>
 
@@ -641,8 +641,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="101"
-                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:101</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="106"
+                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:106</a></div>
                         </td>
                     </tr>
 
@@ -719,8 +719,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="150"
-                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:150</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="155"
+                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:155</a></div>
                         </td>
                     </tr>
 
@@ -785,7 +785,7 @@ import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { InjectMetric } from &quot;@willsoto/nestjs-prometheus&quot;;
 import { plainToClass } from &quot;class-transformer&quot;;
 import { validate } from &quot;class-validator&quot;;
-import { readdirSync, readFileSync } from &quot;fs&quot;;
+import { existsSync, readdirSync, readFileSync } from &quot;fs&quot;;
 import { PinoLogger } from &quot;nestjs-pino&quot;;
 import { Gauge } from &quot;prom-client&quot;;
 import { Repository } from &quot;typeorm&quot;;
@@ -836,7 +836,12 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
                     });
                     if (!setUp) {
                         const file &#x3D; &#x60;${configPath}/${tenant.name}/info.json&#x60;;
-                        //TODO: validate file
+                        if (!existsSync(file)) {
+                            // throw an eror because we need the tenant info file to set up the tenant.
+                            throw new Error(
+                                &#x60;Tenant config file not found for tenant ${tenant.name} in ${file}&#x60;,
+                            );
+                        }
                         const configFile &#x3D; readFileSync(file, &quot;utf-8&quot;);
                         const payload &#x3D; JSON.parse(configFile);
                         payload.id &#x3D; tenant.name;

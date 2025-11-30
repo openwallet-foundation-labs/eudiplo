@@ -201,12 +201,12 @@ It provides methods to get, store, and delete issuance configurations.</p>
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(issuanceConfigRepo: <a href="../classes/IssuanceConfig.html" target="_self">Repository&lt;IssuanceConfig&gt;</a>, credentialsConfigService: <a href="../injectables/CredentialConfigService.html" target="_self">CredentialConfigService</a>, configService: ConfigService, logger: PinoLogger, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, filesService: <a href="../injectables/FilesService.html" target="_self">FilesService</a>)</code>
+<code>constructor(issuanceConfigRepo: <a href="../classes/IssuanceConfig.html" target="_self">Repository&lt;IssuanceConfig&gt;</a>, credentialsConfigService: <a href="../injectables/CredentialConfigService.html" target="_self">CredentialConfigService</a>, logger: PinoLogger, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, filesService: <a href="../injectables/FilesService.html" target="_self">FilesService</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="22" class="link-to-prism">src/issuer/issuance/issuance.service.ts:22</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="20" class="link-to-prism">src/issuer/issuance/issuance.service.ts:20</a></div>
                             </td>
                         </tr>
 
@@ -250,18 +250,6 @@ It provides methods to get, store, and delete issuance configurations.</p>
                                                     
                                                 </tr>
                                                 <tr>
-                                                        <td>configService</td>
-                                                  
-                                                        <td>
-                                                                    <code>ConfigService</code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
                                                         <td>logger</td>
                                                   
                                                         <td>
@@ -290,6 +278,18 @@ It provides methods to get, store, and delete issuance configurations.</p>
                                                   
                                                         <td>
                                                                         <code><a href="../injectables/FilesService.html" target="_self" >FilesService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>configImportService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/ConfigImportService.html" target="_self" >ConfigImportService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -333,8 +333,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="183"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:183</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="117"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:117</a></div>
                         </td>
                     </tr>
 
@@ -405,8 +405,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="51"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:51</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="49"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:49</a></div>
                         </td>
                     </tr>
 
@@ -446,8 +446,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="41"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:41</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="39"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:39</a></div>
                         </td>
                     </tr>
 
@@ -487,8 +487,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="153"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:153</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="87"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:87</a></div>
                         </td>
                     </tr>
 
@@ -568,8 +568,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="200"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:200</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="134"
+                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:134</a></div>
                         </td>
                     </tr>
 
@@ -636,16 +636,14 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, OnApplicationBootstrap } from &quot;@nestjs/common&quot;;
-import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { plainToClass } from &quot;class-transformer&quot;;
-import { validate } from &quot;class-validator&quot;;
-import { readdirSync, readFileSync } from &quot;fs&quot;;
+import { readFileSync } from &quot;fs&quot;;
 import { PinoLogger } from &quot;nestjs-pino&quot;;
-import { join } from &quot;path&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import { CryptoService } from &quot;../../crypto/crypto.service&quot;;
 import { FilesService } from &quot;../../storage/files.service&quot;;
+import { ConfigImportService } from &quot;../../utils/config-import/config-import.service&quot;;
 import { CredentialConfigService } from &quot;../credentials/credential-config/credential-config.service&quot;;
 import { DisplayInfo } from &quot;../display/dto/display.dto&quot;;
 import { IssuanceDto } from &quot;./dto/issuance.dto&quot;;
@@ -666,10 +664,10 @@ export class IssuanceService implements OnApplicationBootstrap {
         @InjectRepository(IssuanceConfig)
         private issuanceConfigRepo: Repository&lt;IssuanceConfig&gt;,
         private credentialsConfigService: CredentialConfigService,
-        private configService: ConfigService,
         private logger: PinoLogger,
         private cryptoService: CryptoService,
         private filesService: FilesService,
+        private configImportService: ConfigImportService,
     ) {}
 
     /**
@@ -686,105 +684,41 @@ export class IssuanceService implements OnApplicationBootstrap {
      * Import issuance configurations from the configured folder.
      */
     private async import() {
-        const configPath &#x3D; this.configService.getOrThrow(&quot;CONFIG_FOLDER&quot;);
-        const configFile &#x3D; &quot;issuance/issuance.json&quot;;
-        const force &#x3D; this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT_FORCE&quot;);
-        if (this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT&quot;)) {
-            const tenantFolders &#x3D; readdirSync(configPath, {
-                withFileTypes: true,
-            }).filter((tenant) &#x3D;&gt; tenant.isDirectory());
-            for (const tenant of tenantFolders) {
-                //iterate over all elements in the folder and import them
-                const file &#x3D; join(configPath, tenant.name, configFile);
-
-                const payload &#x3D; JSON.parse(readFileSync(file, &quot;utf8&quot;));
-
-                const exists &#x3D; await this.getIssuanceConfiguration(
-                    tenant.name,
-                ).catch(() &#x3D;&gt; false);
-                if (exists &amp;&amp; !force) {
-                    continue; // Skip if config already exists and force is not set.
-                } else if (exists &amp;&amp; force) {
-                    //delete old element so removed elements are not present
-                    await this.issuanceConfigRepo.delete({
-                        tenantId: tenant.name,
-                    });
-                }
-
-                // Validate the payload against IssuanceDto
-                const issuanceDto &#x3D; plainToClass(IssuanceDto, payload);
-                //TOODO: it does not validate the different config options
-                const validationErrors &#x3D; await validate(issuanceDto, {
-                    whitelist: true,
-                    forbidUnknownValues: false, // avoid false positives on plain objects
-                    forbidNonWhitelisted: false,
-                    stopAtFirstError: false,
-                });
-
-                if (validationErrors.length &gt; 0) {
-                    const extractErrorMessages &#x3D; (error: any): string[] &#x3D;&gt; {
-                        const messages: string[] &#x3D; [];
-
-                        // Add constraints from the current level
-                        if (error.constraints) {
-                            messages.push(
-                                ...Object.values(
-                                    error.constraints as Record&lt;string, string&gt;,
-                                ),
-                            );
-                        }
-
-                        // Recursively add constraints from children
-                        if (error.children &amp;&amp; error.children.length &gt; 0) {
-                            for (const child of error.children) {
-                                messages.push(...extractErrorMessages(child));
-                            }
-                        }
-
-                        return messages;
-                    };
-
-                    const errorMessages &#x3D; validationErrors
-                        .map((error) &#x3D;&gt; {
-                            const messages &#x3D; extractErrorMessages(error);
-                            return messages.length &gt; 0
-                                ? &#x60;${error.property}: ${messages.join(&quot;, &quot;)}&#x60;
-                                : error.property;
-                        })
-                        .join(&quot;; &quot;);
-
-                    this.logger.error(
-                        {
-                            event: &quot;ValidationError&quot;,
-                            file,
-                            tenant: tenant.name,
-                            errors: validationErrors.map((error) &#x3D;&gt; ({
-                                property: error.property,
-                                constraints: error.constraints,
-                                value: error.value,
-                            })),
-                        },
-                        &#x60;Validation failed for issuance config ${file} in tenant ${tenant.name}: ${errorMessages}&#x60;,
-                    );
-                    continue; // Skip this invalid config
-                }
-
-                //replace relative uris with public urls
+        await this.configImportService.importConfigs&lt;IssuanceDto&gt;({
+            subfolder: &quot;issuance&quot;,
+            fileExtension: &quot;.json&quot;,
+            validationClass: IssuanceDto,
+            resourceType: &quot;issuance config&quot;,
+            formatValidationError: (error) &#x3D;&gt;
+                this.configImportService.formatNestedValidationError(error),
+            checkExists: (tenantId) &#x3D;&gt; {
+                return this.getIssuanceConfiguration(tenantId)
+                    .then(() &#x3D;&gt; true)
+                    .catch(() &#x3D;&gt; false);
+            },
+            deleteExisting: (tenantId) &#x3D;&gt;
+                this.issuanceConfigRepo
+                    .delete({ tenantId })
+                    .then(() &#x3D;&gt; undefined),
+            loadData: (filePath) &#x3D;&gt; {
+                const payload &#x3D; JSON.parse(readFileSync(filePath, &quot;utf8&quot;));
+                return plainToClass(IssuanceDto, payload);
+            },
+            processItem: async (tenantId, issuanceDto) &#x3D;&gt; {
+                // Replace relative URIs with public URLs
                 issuanceDto.display &#x3D; await this.replaceUrl(
                     issuanceDto.display,
-                    tenant.name,
+                    tenantId,
                 );
 
-                await this.storeIssuanceConfiguration(tenant.name, issuanceDto);
+                await this.storeIssuanceConfiguration(tenantId, issuanceDto);
 
                 this.logger.info(
-                    {
-                        event: &quot;Import&quot;,
-                    },
-                    &#x60;issuance config imported for ${tenant.name}&#x60;,
+                    { event: &quot;Import&quot; },
+                    &#x60;issuance config imported for ${tenantId}&#x60;,
                 );
-            }
-        }
+            },
+        });
     }
 
     private replaceUrl(display: DisplayInfo[], tenantId: string) {

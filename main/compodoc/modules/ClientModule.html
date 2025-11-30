@@ -162,8 +162,8 @@
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { getRepositoryToken, TypeOrmModule } from &quot;@nestjs/typeorm&quot;;
 import { makeGaugeProvider } from &quot;@willsoto/nestjs-prometheus&quot;;
-import { PinoLogger } from &quot;nestjs-pino/PinoLogger&quot;;
 import { Repository } from &quot;typeorm&quot;;
+import { ConfigImportService } from &quot;../../utils/config-import/config-import.service&quot;;
 import { InternalClientsProvider } from &quot;./adapters/internal-clients.service&quot;;
 import { KeycloakClientsProvider } from &quot;./adapters/keycloak-clients.service&quot;;
 import { ClientController } from &quot;./client.controller&quot;;
@@ -178,17 +178,21 @@ import { ClientEntity } from &quot;./entities/client.entity&quot;;
             inject: [
                 ConfigService,
                 getRepositoryToken(ClientEntity),
-                PinoLogger,
+                ConfigImportService,
             ],
             useFactory: (
                 cfg: ConfigService,
                 repo: Repository&lt;ClientEntity&gt;,
-                Logger: PinoLogger,
+                configImportService: ConfigImportService,
             ): ClientsProvider &#x3D;&gt; {
                 const useKeycloak &#x3D; !!cfg.get&lt;string&gt;(&quot;OIDC&quot;); // if OIDC base/realm is configured, pick KC
                 return useKeycloak
                     ? new KeycloakClientsProvider(cfg, repo)
-                    : new InternalClientsProvider(cfg, Logger, repo);
+                    : new InternalClientsProvider(
+                          cfg,
+                          repo,
+                          configImportService,
+                      );
             },
         },
         makeGaugeProvider({
