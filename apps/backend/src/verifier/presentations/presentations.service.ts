@@ -4,20 +4,17 @@ import {
     Injectable,
     OnApplicationBootstrap,
 } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { digest } from "@sd-jwt/crypto-nodejs";
 import { SDJwtVcInstance } from "@sd-jwt/sd-jwt-vc";
 import { KbVerifier, Verifier } from "@sd-jwt/types";
 import { plainToClass } from "class-transformer";
-import { validate } from "class-validator";
-import { readdirSync, readFileSync } from "fs";
+import { readFileSync } from "fs";
 import { JWK, JWTPayload } from "jose";
-import { PinoLogger } from "nestjs-pino";
-import { join } from "path";
 import { firstValueFrom } from "rxjs";
 import { Repository } from "typeorm";
 import { CryptoImplementationService } from "../../crypto/key/crypto-implementation/crypto-implementation.service";
+import { ConfigImportService } from "../../utils/config-import/config-import.service";
 import { ResolverService } from "../resolver/resolver.service";
 import { AuthResponse } from "./dto/auth-response.dto";
 import { PresentationConfigCreateDto } from "./dto/presentation-config-create.dto";
@@ -44,9 +41,8 @@ export class PresentationsService implements OnApplicationBootstrap {
         private resolverService: ResolverService,
         @InjectRepository(PresentationConfig)
         private vpRequestRepository: Repository<PresentationConfig>,
-        private configService: ConfigService,
-        private logger: PinoLogger,
         private cryptoService: CryptoImplementationService,
+        private configImportService: ConfigImportService,
     ) {}
 
     /**
@@ -66,79 +62,37 @@ export class PresentationsService implements OnApplicationBootstrap {
      * Imports presentation configurations from a predefined directory structure.
      */
     private async import() {
-        const configPath = this.configService.getOrThrow("CONFIG_FOLDER");
-        const subfolder = "presentation";
-        const force = this.configService.get<boolean>("CONFIG_IMPORT_FORCE");
-        if (this.configService.get<boolean>("CONFIG_IMPORT")) {
-            const tenantFolders = readdirSync(configPath, {
-                withFileTypes: true,
-            }).filter((tenant) => tenant.isDirectory());
-            for (const tenant of tenantFolders) {
-                let counter = 0;
-                //iterate over all elements in the folder and import them
-                const path = join(configPath, tenant.name, subfolder);
-                const files = readdirSync(path);
-                for (const file of files) {
-                    const payload = JSON.parse(
-                        readFileSync(join(path, file), "utf8"),
+        await this.configImportService.importConfigs<PresentationConfigCreateDto>(
+            {
+                subfolder: "presentation",
+                fileExtension: ".json",
+                validationClass: PresentationConfigCreateDto,
+                resourceType: "presentation config",
+                loadData: (filePath) => {
+                    const payload = JSON.parse(readFileSync(filePath, "utf8"));
+                    const id = (filePath.split("/").pop() || "").replace(
+                        ".json",
+                        "",
                     );
-
-                    const id = file.replace(".json", "");
                     payload.id = id;
-                    const presentationExists = await this.getPresentationConfig(
-                        id,
-                        tenant.name,
-                    ).catch(() => false);
-                    if (presentationExists && !force) {
-                        continue; // Skip if config already exists and force is not set
-                    } else if (presentationExists && force) {
-                        //delete old element so removed elements are not present
-                        await this.vpRequestRepository.delete({
-                            id,
-                            tenantId: tenant.name,
-                        });
-                    }
-
-                    // Validate the payload against PresentationConfig
-                    const config = plainToClass(
-                        PresentationConfigCreateDto,
-                        payload,
-                    );
-                    const validationErrors = await validate(config, {
-                        whitelist: true,
-                        forbidUnknownValues: false, // avoid false positives on plain objects
-                        forbidNonWhitelisted: false,
-                        stopAtFirstError: false,
+                    return plainToClass(PresentationConfigCreateDto, payload);
+                },
+                checkExists: (tenantId, data) => {
+                    return this.getPresentationConfig(data.id, tenantId)
+                        .then(() => true)
+                        .catch(() => false);
+                },
+                deleteExisting: async (tenantId, data) => {
+                    await this.vpRequestRepository.delete({
+                        id: data.id,
+                        tenantId,
                     });
-
-                    if (validationErrors.length > 0) {
-                        this.logger.error(
-                            {
-                                event: "ValidationError",
-                                file,
-                                tenant: tenant.name,
-                                errors: validationErrors.map((error) => ({
-                                    property: error.property,
-                                    constraints: error.constraints,
-                                    value: error.value,
-                                })),
-                            },
-                            `Validation failed for presentation config ${file} in tenant ${tenant.name}`,
-                        );
-                        continue; // Skip this invalid config
-                    }
-
-                    await this.storePresentationConfig(tenant.name, config);
-                    counter++;
-                }
-                this.logger.info(
-                    {
-                        event: "Import",
-                    },
-                    `${counter} presentation configs imported for ${tenant.name}`,
-                );
-            }
-        }
+                },
+                processItem: async (tenantId, config) => {
+                    await this.storePresentationConfig(tenantId, config);
+                },
+            },
+        );
     }
 
     /**

@@ -1,6 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
-import { readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { readFileSync } from "node:fs";
 import { URL } from "node:url";
 import { Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
@@ -15,11 +14,11 @@ import {
 } from "@openid4vc/oauth2";
 import * as x509 from "@peculiar/x509";
 import { plainToClass } from "class-transformer";
-import { validate } from "class-validator";
 import { importJWK, type JWK, jwtVerify } from "jose";
 import { PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm";
 import { TenantEntity } from "../auth/tenant/entitites/tenant.entity";
+import { ConfigImportService } from "../utils/config-import/config-import.service";
 import { EC_Public } from "../well-known/dto/jwks-response.dto";
 import { KeyImportDto } from "./key/dto/key-import.dto";
 import { UpdateKeyDto } from "./key/dto/key-update.dto";
@@ -56,6 +55,7 @@ export class CryptoService {
         private logger: PinoLogger,
         @InjectRepository(TenantEntity)
         private tenantRepository: Repository<TenantEntity>,
+        private configImportService: ConfigImportService,
     ) {}
 
     /**
@@ -82,86 +82,36 @@ export class CryptoService {
      * Imports keys from the file system into the key service.
      */
     async import() {
-        if (this.configService.get<boolean>("CONFIG_IMPORT")) {
-            const configPath = this.configService.getOrThrow("CONFIG_FOLDER");
-            const subfolder = "keys";
-            const force = this.configService.get<boolean>(
-                "CONFIG_IMPORT_FORCE",
-            );
-            if (this.configService.get<boolean>("CONFIG_IMPORT")) {
-                const tenantFolders = readdirSync(configPath, {
-                    withFileTypes: true,
-                }).filter((tenant) => tenant.isDirectory());
-                let counter = 0;
-                for (const tenant of tenantFolders) {
-                    //iterate over all elements in the folder and import them
-                    const path = join(configPath, tenant.name, subfolder);
-                    const files = readdirSync(path);
-                    for (const file of files) {
-                        const payload = JSON.parse(
-                            readFileSync(join(path, file), "utf8"),
-                        );
-
-                        const id = payload.privateKey.kid;
-                        const exists = await this.keyService
-                            .getPublicKey("jwk", tenant.name, id)
-                            .catch(() => false);
-                        if (exists && !force) {
-                            continue; // Skip if config already exists and force is not set
-                        } else if (exists && force) {
-                            //delete old element so removed elements are not present
-                            await this.certRepository.delete({
-                                id,
-                                tenantId: tenant.name,
-                            });
-                        }
-
-                        // Validate the payload against KeyImportDto
-                        const config = plainToClass(KeyImportDto, payload);
-                        const validationErrors = await validate(config, {
-                            whitelist: true,
-                            forbidUnknownValues: false, // avoid false positives on plain objects
-                            forbidNonWhitelisted: false,
-                            stopAtFirstError: false,
-                        });
-
-                        if (validationErrors.length > 0) {
-                            this.logger.error(
-                                {
-                                    event: "ValidationError",
-                                    file,
-                                    tenant: tenant.name,
-                                    errors: validationErrors.map((error) => ({
-                                        property: error.property,
-                                        constraints: error.constraints,
-                                        value: error.value,
-                                    })),
-                                },
-                                `Validation failed for key config ${file} in tenant ${tenant.name}`,
-                            );
-                            continue; // Skip this invalid config
-                        }
-                        //TODO: temporary fix since importing tenantService results in circular dependency
-                        const tenantEntity =
-                            await this.tenantRepository.findOneByOrFail({
-                                id: tenant.name,
-                            });
-                        await this.importKey(tenantEntity, config).catch(
-                            (err) => {
-                                this.logger.info(err.message);
-                            },
-                        );
-                        counter++;
-                    }
-                    this.logger.info(
-                        {
-                            event: "Import",
-                        },
-                        `${counter} keys imported for ${tenant.name}`,
-                    );
-                }
-            }
-        }
+        await this.configImportService.importConfigs<KeyImportDto>({
+            subfolder: "keys",
+            fileExtension: ".json",
+            validationClass: KeyImportDto,
+            resourceType: "key",
+            loadData: (filePath) => {
+                const payload = JSON.parse(readFileSync(filePath, "utf8"));
+                return plainToClass(KeyImportDto, payload);
+            },
+            checkExists: (tenantId, data) => {
+                const id = data.privateKey.kid;
+                return this.keyService
+                    .getPublicKey("jwk", tenantId, id)
+                    .then(() => true)
+                    .catch(() => false);
+            },
+            deleteExisting: async (tenantId, data) => {
+                const id = data.privateKey.kid;
+                await this.certRepository.delete({ id, tenantId });
+            },
+            processItem: async (tenantId, config) => {
+                const tenantEntity =
+                    await this.tenantRepository.findOneByOrFail({
+                        id: tenantId,
+                    });
+                await this.importKey(tenantEntity, config).catch((err) => {
+                    this.logger.info(err.message);
+                });
+            },
+        });
     }
 
     /**

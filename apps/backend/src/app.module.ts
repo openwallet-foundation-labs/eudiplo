@@ -15,6 +15,7 @@ import { MetricModule } from "./metric/metric.module";
 import { RegistrarModule } from "./registrar/registrar.module";
 import { SessionModule } from "./session/session.module";
 import { StorageModule } from "./storage/storage.module";
+import { ConfigImportModule } from "./utils/config-import/config-import.module";
 import { VALIDATION_SCHEMA } from "./utils/config-printer/combined.schema";
 import { createLoggerOptions } from "./utils/logger/logger.factory";
 import { VerifierModule } from "./verifier/verifier.module";
@@ -49,6 +50,7 @@ import { WellKnownService } from "./well-known/well-known.service";
         HealthModule,
         MetricModule,
         StorageModule.forRoot(),
+        ConfigImportModule,
     ],
     controllers: [WellKnownController, AppController],
     providers: [WellKnownService],

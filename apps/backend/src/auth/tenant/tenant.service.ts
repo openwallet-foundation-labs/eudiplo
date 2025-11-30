@@ -9,7 +9,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { plainToClass } from "class-transformer";
 import { validate } from "class-validator";
-import { readdirSync, readFileSync } from "fs";
+import { existsSync, readdirSync, readFileSync } from "fs";
 import { PinoLogger } from "nestjs-pino";
 import { Gauge } from "prom-client";
 import { Repository } from "typeorm";
@@ -60,7 +60,12 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
                     });
                     if (!setUp) {
                         const file = `${configPath}/${tenant.name}/info.json`;
-                        //TODO: validate file
+                        if (!existsSync(file)) {
+                            // throw an eror because we need the tenant info file to set up the tenant.
+                            throw new Error(
+                                `Tenant config file not found for tenant ${tenant.name} in ${file}`,
+                            );
+                        }
                         const configFile = readFileSync(file, "utf-8");
                         const payload = JSON.parse(configFile);
                         payload.id = tenant.name;

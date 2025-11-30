@@ -184,6 +184,66 @@ During application startup, EUDIPLO:
 - **Validates file structure** - Ensures required subdirectories exist
 - **Reads JSON files** - Parses each configuration file
 
+## Environment Variable Placeholders
+
+Configuration files can contain dynamic placeholders that are replaced at import time before validation.
+
+### Syntax
+
+`"value": "${VAR_NAME}"` – replaced by the environment variable `VAR_NAME` if it is set and non-empty.
+
+`"value": "${VAR_NAME:defaultValue}"` – uses `VAR_NAME` from the environment if present; otherwise falls back to `defaultValue`.
+
+Placeholders are resolved recursively in all string fields of imported JSON objects (arrays, nested objects included). Binary buffers are ignored.
+
+### Strict Mode Levels
+
+`CONFIG_VARIABLE_STRICT` supports three levels to control behavior when a placeholder has no environment value and no default:
+
+- `abort`: Throw immediately and abort the entire import process.
+- `skip`: Throw for the current file (caught and logged as `ImportError`), skip that file and continue.
+- `ignore`: Keep the placeholder as-is, log a warning (`ImportPlaceholder`), and continue processing.
+
+Default behavior is `skip` in production recommendations.
+
+### Examples
+
+```jsonc
+// Given process.env.CLIENT_ID_ROOT = "root-123"
+{
+    "clientId": "${CLIENT_ID_ROOT}", // => "root-123"
+    "clientSecret": "${CLIENT_SECRET_ROOT:dev-secret}", // => "dev-secret" if CLIENT_SECRET_ROOT unset
+}
+```
+
+Strict failure example (`CONFIG_VARIABLE_STRICT=abort`):
+
+```jsonc
+{ "apiKey": "${API_KEY}" } // throws if API_KEY not set
+```
+
+Non-strict warning example (`CONFIG_VARIABLE_STRICT=ignore` or absent / false):
+
+```jsonc
+{ "apiKey": "${API_KEY}" } // remains "${API_KEY}" and logs a warning
+```
+
+### Logging Events
+
+| Event               | Condition                                                      |
+| ------------------- | -------------------------------------------------------------- |
+| `ImportPlaceholder` | Non-strict mode, missing env and no default                    |
+| `ImportError`       | Strict mode, missing env and no default (file skipped)         |
+| `ValidationError`   | Placeholder substituted but subsequent schema validation fails |
+
+### Recommendations
+
+- Prefer `${VAR:default}` for optional values to avoid noisy warnings.
+- Use `CONFIG_VARIABLE_STRICT=true` in production to detect misconfiguration early.
+- Keep secrets in environment variables; use defaults only for non-sensitive fallbacks.
+
+> Note: Placeholder replacement occurs BEFORE class-validator schema validation so resolved values are validated, not the raw `${...}` tokens.
+
 ### Validation and Processing
 
 For each configuration file:
@@ -305,13 +365,8 @@ the imported private key
 - **File permissions** - Ensure config files have appropriate read permissions
 - **Tenant isolation** - Verify tenant boundaries are properly maintained
 
-> TODO: check if webhook credentials should be stored here or in environment
-> variables for security.
+!!! warning
 
-## Related Documentation
-
-- [Key Management](./key-management.md) - Detailed key management architecture
-- [API Authentication](../api/authentication.md)
-- [Multi-tenant Architecture](./tenant.md)
-- [Database Architecture](./database.md)
-- [Production Deployment](./index.md)
+    Avoid storing sensitive information (e.g., private keys, secrets) in
+    configuration files. Use [environment variables](#environment-variable-placeholders)
+    for sensitive data and reference them using placeholders.
