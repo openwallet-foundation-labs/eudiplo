@@ -198,7 +198,7 @@ Placeholders are resolved recursively in all string fields of imported JSON obje
 
 ### Strict Mode Levels
 
-`CONFIG_STRICT` supports three levels to control behavior when a placeholder has no environment value and no default:
+`CONFIG_VARIABLE_STRICT` supports three levels to control behavior when a placeholder has no environment value and no default:
 
 - `abort`: Throw immediately and abort the entire import process.
 - `skip`: Throw for the current file (caught and logged as `ImportError`), skip that file and continue.
@@ -216,13 +216,13 @@ Default behavior is `skip` in production recommendations.
 }
 ```
 
-Strict failure example (`CONFIG_STRICT=abort`):
+Strict failure example (`CONFIG_VARIABLE_STRICT=abort`):
 
 ```jsonc
 { "apiKey": "${API_KEY}" } // throws if API_KEY not set
 ```
 
-Non-strict warning example (`CONFIG_STRICT=ignore` or absent / false):
+Non-strict warning example (`CONFIG_VARIABLE_STRICT=ignore` or absent / false):
 
 ```jsonc
 { "apiKey": "${API_KEY}" } // remains "${API_KEY}" and logs a warning
@@ -239,7 +239,7 @@ Non-strict warning example (`CONFIG_STRICT=ignore` or absent / false):
 ### Recommendations
 
 - Prefer `${VAR:default}` for optional values to avoid noisy warnings.
-- Use `CONFIG_STRICT=true` in production to detect misconfiguration early.
+- Use `CONFIG_VARIABLE_STRICT=true` in production to detect misconfiguration early.
 - Keep secrets in environment variables; use defaults only for non-sensitive fallbacks.
 
 > Note: Placeholder replacement occurs BEFORE class-validator schema validation so resolved values are validated, not the raw `${...}` tokens.

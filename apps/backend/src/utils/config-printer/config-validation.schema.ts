@@ -19,7 +19,7 @@ export const CONFIG_VALIDATION_SCHEMA = Joi.object({
         .default(resolve(__dirname + "/../../../../assets/config"))
         .description("Path to config import folder")
         .meta({ group: "config", order: 30 }),
-    CONFIG_STRICT: Joi.alternatives()
+    CONFIG_VARIABLE_STRICT: Joi.alternatives()
         .try(Joi.string().valid("abort", "skip", "ignore"), Joi.boolean())
         .default("skip")
         .description("Strict mode for config import.")

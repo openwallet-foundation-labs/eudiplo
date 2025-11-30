@@ -31,7 +31,9 @@ export class ConfigImportService {
             withFileTypes: true,
         }).filter((tenant) => tenant.isDirectory());
 
-        const strictConfig = this.configService.get<any>("CONFIG_STRICT");
+        const strictConfig = this.configService.get<any>(
+            "CONFIG_VARIABLE_STRICT",
+        );
 
         for (const tenant of tenantFolders) {
             let counter = 0;
@@ -145,7 +147,9 @@ export class ConfigImportService {
         const seen = new WeakSet();
         const isObject = (val: any) =>
             val && typeof val === "object" && !Array.isArray(val);
-        const strictConfigInner = this.configService.get<any>("CONFIG_STRICT");
+        const strictConfigInner = this.configService.get<any>(
+            "CONFIG_VARIABLE_STRICT",
+        );
         const strictMode =
             strictConfigInner === true
                 ? "skip"
