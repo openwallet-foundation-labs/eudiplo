@@ -1,12 +1,10 @@
 import { Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
-import { validate } from "class-validator";
-import { readdirSync, readFileSync } from "fs";
+import { readFileSync } from "fs";
 import { PinoLogger } from "nestjs-pino";
-import { join } from "path";
 import { Repository } from "typeorm";
+import { ConfigImportService } from "../../../config-import/config-import.service";
 import { CryptoService } from "../../../crypto/crypto.service";
 import { FilesService } from "../../../storage/files.service";
 import { CredentialConfigCreate } from "../dto/credential-config-create.dto";
@@ -24,175 +22,99 @@ export class CredentialConfigService {
     constructor(
         @InjectRepository(CredentialConfig)
         private readonly credentialConfigRepository: Repository<CredentialConfig>,
-        private configService: ConfigService,
         private logger: PinoLogger,
         private cryptoService: CryptoService,
         private filesService: FilesService,
+        private configImportService: ConfigImportService,
     ) {}
 
     /**
      * Imports the configs
      */
     public async import() {
-        const configPath = this.configService.getOrThrow("CONFIG_FOLDER");
-        const subfolder = "issuance/credentials";
-        const force = this.configService.get<boolean>("CONFIG_IMPORT_FORCE");
-        if (this.configService.get<boolean>("CONFIG_IMPORT")) {
-            const tenantFolders = readdirSync(configPath, {
-                withFileTypes: true,
-            }).filter((tenant) => tenant.isDirectory());
-            for (const tenant of tenantFolders) {
-                let counter = 0;
-                //iterate over all elements in the folder and import them
-                const path = join(configPath, tenant.name, subfolder);
-                const files = readdirSync(path);
-                for (const file of files) {
-                    try {
-                        const payload = JSON.parse(
-                            readFileSync(join(path, file), "utf8"),
-                        );
-
-                        // Validate the payload against CredentialConfig
-                        const config = plainToClass(
-                            CredentialConfigCreate,
-                            payload,
-                        );
-                        const validationErrors = await validate(config, {
-                            whitelist: true,
-                            forbidUnknownValues: false, // avoid false positives on plain objects
-                            forbidNonWhitelisted: false,
-                            stopAtFirstError: false,
-                        });
-
-                        const exists = await this.getById(
-                            tenant.name,
-                            config.id,
-                        ).catch(() => false);
-                        if (exists && !force) {
-                            continue; // Skip if config already exists and force is not set
-                        } else if (exists && force) {
-                            //delete old element so removed elements are not present
-                            await this.credentialConfigRepository.delete({
-                                id: config.id,
-                                tenantId: tenant.name,
-                            });
-                        }
-
-                        //check for image references and replace them with the actual urls
-                        config.config.display = await Promise.all(
-                            config.config.display.map(async (display) => {
-                                if (display.background_image?.uri) {
-                                    const url =
-                                        await this.filesService.replaceUriWithPublicUrl(
-                                            tenant.name,
-                                            display.background_image.uri,
-                                        );
-                                    if (url) {
-                                        display.background_image.uri = url;
-                                    } else {
-                                        this.logger.warn(
-                                            {
-                                                event: "ImportWarning",
-                                                file,
-                                                tenant: tenant.name,
-                                                uri: display.background_image
-                                                    .uri,
-                                            },
-                                            `Could not find image ${display.background_image.uri} for credentials config ${file} in tenant ${tenant.name}`,
-                                        );
-                                    }
-                                }
-                                if (display.logo?.uri) {
-                                    const url =
-                                        await this.filesService.replaceUriWithPublicUrl(
-                                            tenant.name,
-                                            display.logo.uri,
-                                        );
-                                    if (url) {
-                                        display.logo.uri = url;
-                                    } else {
-                                        this.logger.warn(
-                                            {
-                                                event: "ImportWarning",
-                                                file,
-                                                tenant: tenant.name,
-                                                uri: display.logo.uri,
-                                            },
-                                            `Could not find image ${display.logo.uri} for credentials config ${file} in tenant ${tenant.name}`,
-                                        );
-                                    }
-                                }
-
-                                return display;
-                            }),
-                        );
-
-                        // Check if keyId is provided and if the certificate exists
-                        if (config.keyId) {
-                            const cert = await this.cryptoService.getCertEntry(
-                                tenant.name,
-                                config.keyId,
-                            );
-                            if (!cert) {
-                                this.logger.error(
-                                    {
-                                        event: "ValidationError",
-                                        file,
-                                        tenant: tenant.name,
-                                        errors: [
-                                            {
-                                                property: "keyId",
-                                                constraints: {
-                                                    isDefined:
-                                                        "Key ID must be defined in the crypto service.",
-                                                },
-                                                value: config.keyId,
-                                            },
-                                        ],
-                                    },
-                                    `Validation failed for credentials config ${file} in tenant ${tenant.name}`,
+        await this.configImportService.importConfigs<CredentialConfigCreate>({
+            subfolder: "issuance/credentials",
+            fileExtension: ".json",
+            validationClass: CredentialConfigCreate,
+            resourceType: "credential config",
+            checkExists: (tenantId, data) =>
+                this.getById(tenantId, data.id)
+                    .then(() => true)
+                    .catch(() => false),
+            deleteExisting: (tenantId, data) =>
+                this.credentialConfigRepository
+                    .delete({
+                        id: data.id,
+                        tenantId,
+                    })
+                    .then(() => undefined),
+            loadData: (filePath) => {
+                const payload = JSON.parse(readFileSync(filePath, "utf8"));
+                return plainToClass(CredentialConfigCreate, payload);
+            },
+            processItem: async (tenantId, config) => {
+                // Replace image references with actual URLs
+                config.config.display = await Promise.all(
+                    config.config.display.map(async (display) => {
+                        if (display.background_image?.uri) {
+                            const url =
+                                await this.filesService.replaceUriWithPublicUrl(
+                                    tenantId,
+                                    display.background_image.uri,
                                 );
-                                continue; // Skip this invalid config
+                            if (url) {
+                                display.background_image.uri = url;
+                            } else {
+                                this.logger.warn(
+                                    {
+                                        event: "ImportWarning",
+                                        tenant: tenantId,
+                                        uri: display.background_image.uri,
+                                    },
+                                    `Could not find image ${display.background_image.uri} for credentials config in tenant ${tenantId}`,
+                                );
                             }
-                            (config as CredentialConfig).key = cert;
                         }
-
-                        if (validationErrors.length > 0) {
-                            this.logger.error(
-                                {
-                                    event: "ValidationError",
-                                    file,
-                                    tenant: tenant.name,
-                                    //we need to extract the constraints because they tell what is wrong, also from the children elements
-                                    errors: validationErrors,
-                                },
-                                `Validation failed for credentials config ${file} in tenant ${tenant.name}`,
-                            );
-                            continue; // Skip this invalid config
+                        if (display.logo?.uri) {
+                            const url =
+                                await this.filesService.replaceUriWithPublicUrl(
+                                    tenantId,
+                                    display.logo.uri,
+                                );
+                            if (url) {
+                                display.logo.uri = url;
+                            } else {
+                                this.logger.warn(
+                                    {
+                                        event: "ImportWarning",
+                                        tenant: tenantId,
+                                        uri: display.logo.uri,
+                                    },
+                                    `Could not find image ${display.logo.uri} for credentials config in tenant ${tenantId}`,
+                                );
+                            }
                         }
+                        return display;
+                    }),
+                );
 
-                        await this.store(tenant.name, config);
-                        counter++;
-                    } catch (error: any) {
-                        this.logger.error(
-                            {
-                                event: "ImportError",
-                                file,
-                                tenant: tenant.name,
-                                error: error.message,
-                            },
-                            `Failed to import credentials config ${file} in tenant ${tenant.name}`,
+                // Check if keyId is provided and if the certificate exists
+                if (config.keyId) {
+                    const cert = await this.cryptoService.getCertEntry(
+                        tenantId,
+                        config.keyId,
+                    );
+                    if (!cert) {
+                        throw new Error(
+                            `Key ID ${config.keyId} must be defined in the crypto service`,
                         );
                     }
+                    (config as CredentialConfig).key = cert;
                 }
-                this.logger.info(
-                    {
-                        event: "Import",
-                    },
-                    `${counter} credential configs imported for ${tenant.name}`,
-                );
-            }
-        }
+
+                await this.store(tenantId, config);
+            },
+        });
     }
 
     /**

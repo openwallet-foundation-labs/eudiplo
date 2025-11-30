@@ -6,6 +6,7 @@ import { memoryStorage } from "multer";
 import { LoggerModule } from "nestjs-pino";
 import { AppController } from "./app/app.controller";
 import { AuthModule } from "./auth/auth.module";
+import { ConfigImportModule } from "./config-import/config-import.module";
 import { CryptoModule } from "./crypto/crypto.module";
 import { KeyModule } from "./crypto/key/key.module";
 import { DatabaseModule } from "./database/database.module";
@@ -49,6 +50,7 @@ import { WellKnownService } from "./well-known/well-known.service";
         HealthModule,
         MetricModule,
         StorageModule.forRoot(),
+        ConfigImportModule,
     ],
     controllers: [WellKnownController, AppController],
     providers: [WellKnownService],

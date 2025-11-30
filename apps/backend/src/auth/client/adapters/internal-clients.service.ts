@@ -2,12 +2,10 @@ import { Injectable, OnApplicationBootstrap } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
-import { validate } from "class-validator";
 import { randomBytes } from "crypto";
-import { readdirSync, readFileSync } from "fs";
-import { PinoLogger } from "nestjs-pino";
-import { join } from "path";
+import { readFileSync } from "fs";
 import { Repository } from "typeorm";
+import { ConfigImportService } from "../../../config-import/config-import.service";
 import { Role } from "../../roles/role.enum";
 import { ClientsProvider } from "../client.provider";
 import { CreateClientDto } from "../dto/create-client.dto";
@@ -20,8 +18,8 @@ export class InternalClientsProvider
 {
     constructor(
         private configService: ConfigService,
-        private logger: PinoLogger,
         @InjectRepository(ClientEntity) private repo: Repository<ClientEntity>,
+        private configImportService: ConfigImportService,
     ) {}
 
     async onApplicationBootstrap() {
@@ -43,74 +41,32 @@ export class InternalClientsProvider
     }
 
     async import() {
-        const configPath = this.configService.getOrThrow("CONFIG_FOLDER");
-        const subfolder = "clients";
-        const force = this.configService.get<boolean>("CONFIG_IMPORT_FORCE");
-        if (this.configService.get<boolean>("CONFIG_IMPORT")) {
-            const tenantFolders = readdirSync(configPath, {
-                withFileTypes: true,
-            }).filter((tenant) => tenant.isDirectory());
-            for (const tenant of tenantFolders) {
-                let counter = 0;
-                //iterate over all elements in the folder and import them
-                const path = join(configPath, tenant.name, subfolder);
-                const files = readdirSync(path);
-                for (const file of files) {
-                    const payload = JSON.parse(
-                        readFileSync(join(path, file), "utf8"),
-                    );
-
-                    const clientExists = await this.getClient(
-                        tenant.name,
-                        payload.clientId,
-                    ).catch(() => false);
-                    if (clientExists && !force) {
-                        continue; // Skip if config already exists and force is not set
-                    } else if (clientExists && force) {
-                        //delete old element so removed elements are not present
-                        await this.repo.delete({
-                            clientId: payload.clientId,
-                            tenant: { id: tenant.name },
-                        });
-                    }
-
-                    // Validate the payload against ClientEntity
-                    const config = plainToClass(ClientEntity, payload);
-
-                    const validationErrors = await validate(config, {
-                        whitelist: true,
-                        forbidUnknownValues: false, // avoid false positives on plain objects
-                        forbidNonWhitelisted: false,
-                        stopAtFirstError: false,
-                    });
-
-                    if (validationErrors.length > 0) {
-                        this.logger.error(
-                            {
-                                event: "ValidationError",
-                                file,
-                                tenant: tenant.name,
-                                errors: validationErrors.map((error) => ({
-                                    property: error.property,
-                                    constraints: error.constraints,
-                                    value: error.value,
-                                })),
-                            },
-                            `Validation failed for client config ${file} in tenant ${tenant.name}`,
-                        );
-                        continue; // Skip this invalid config
-                    }
-                    await this.addClient(tenant.name, config, payload.secret);
-                    counter++;
-                }
-                this.logger.info(
-                    {
-                        event: "Import",
-                    },
-                    `${counter} client configs imported for ${tenant.name}`,
-                );
-            }
-        }
+        await this.configImportService.importConfigs<ClientEntity>({
+            subfolder: "clients",
+            fileExtension: ".json",
+            validationClass: ClientEntity,
+            resourceType: "client config",
+            loadData: (filePath) => {
+                const payload = JSON.parse(readFileSync(filePath, "utf8"));
+                return plainToClass(ClientEntity, payload);
+            },
+            checkExists: async (tenantId, data) => {
+                return this.getClient(tenantId, (data as any).clientId)
+                    .then(() => true)
+                    .catch(() => false);
+            },
+            deleteExisting: async (tenantId, data) => {
+                await this.repo.delete({
+                    clientId: (data as any).clientId,
+                    tenant: { id: tenantId },
+                });
+            },
+            processItem: async (tenantId, data, file) => {
+                const secret =
+                    (data as any).secret ?? randomBytes(32).toString("hex");
+                await this.addClient(tenantId, data as any, secret);
+            },
+        });
     }
 
     getClients(tenantId: string) {
