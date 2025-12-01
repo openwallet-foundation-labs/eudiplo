@@ -16,6 +16,12 @@ let containerServer: StartedTestContainer;
 let containerHttp: StartedTestContainer;
 
 export async function setup() {
+    if (process.env.VITEST_SKIP_OIDF) {
+        console.log(
+            "Skipping OIDF test suite setup as per SKIP_OIDF env variable.",
+        );
+        return;
+    }
     await TestContainers.exposeHostPorts(3000);
     await TestContainers.exposeHostPorts(8443);
     // Create a custom network for container communication
