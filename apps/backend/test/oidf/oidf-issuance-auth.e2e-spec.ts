@@ -8,6 +8,7 @@ import * as https from "https";
 import { join, resolve } from "path";
 import { beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../../src/app.module";
+import { getDefaultSecret } from "../utils";
 import { OIDFSuite } from "./oidf-suite";
 
 /**
@@ -186,7 +187,7 @@ describe("OIDF - issuance - auth code flow", () => {
             readFileSync(join(configFolder, "root/clients/test.json"), "utf-8"),
         );
         const clientId = client.clientId;
-        const clientSecret = client.secret;
+        const clientSecret = getDefaultSecret(client.secret);
 
         // Acquire JWT token using client credentials
 

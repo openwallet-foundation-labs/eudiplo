@@ -9,6 +9,7 @@ import https from "https";
 import { join, resolve } from "path";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../../src/app.module";
+import { getDefaultSecret } from "../utils";
 import { OIDFSuite, TestInstance } from "./oidf-suite";
 
 /**
@@ -145,7 +146,7 @@ describe("OIDF", () => {
             readFileSync(join(configFolder, "root/clients/test.json"), "utf-8"),
         );
         const clientId = client.clientId;
-        const clientSecret = client.secret;
+        const clientSecret = getDefaultSecret(client.secret);
 
         // Acquire JWT token using client credentials
         const tokenResponse = await axiosBackendInstance.post<{

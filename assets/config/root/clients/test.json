@@ -1,6 +1,6 @@
 {
     "clientId": "test-client",
-    "secret": "${TEST_CLIENT_SECRET}",
+    "secret": "${TEST_CLIENT_SECRET:test-client-secret}",
     "description": "Test client",
     "roles": [
         "clients:manage",

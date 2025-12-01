@@ -226,3 +226,13 @@ export async function getToken(
         .expect(201)
         .then((res) => res.body.access_token);
 }
+
+export function getDefaultSecret(input: string): string {
+    const pattern = /\$\{([A-Z0-9_]+)(?::([^}]*))?\}/g;
+    return input.replace(
+        pattern,
+        (fullMatch, varName: string, defVal: string) => {
+            return defVal;
+        },
+    );
+}
