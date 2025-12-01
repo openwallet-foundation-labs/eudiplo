@@ -1,5 +1,3 @@
-import { config } from "dotenv";
-import { resolve } from "path";
 import {
     GenericContainer,
     Network,
@@ -10,7 +8,7 @@ import {
 } from "testcontainers";
 
 // Load test environment variables
-config({ path: resolve(__dirname, "../.env"), quiet: true });
+//config({ path: resolve(__dirname, "../.env"), quiet: true });
 
 let network: StartedNetwork;
 let mongoDb: StartedTestContainer;

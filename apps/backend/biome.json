@@ -1,5 +1,5 @@
 {
-    "$schema": "https://biomejs.dev/schemas/2.3.7/schema.json",
+    "$schema": "https://biomejs.dev/schemas/2.3.8/schema.json",
     "vcs": {
         "enabled": false,
         "clientKind": "git",
@@ -128,7 +128,9 @@
             "attributePosition": "auto",
             "bracketSpacing": true
         },
-        "globals": ["exports"],
+        "globals": [
+            "exports"
+        ],
         "parser": {
             "unsafeParameterDecoratorsEnabled": true
         }
@@ -140,7 +142,12 @@
     },
     "overrides": [
         {
-            "includes": ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts"],
+            "includes": [
+                "**/*.ts",
+                "**/*.tsx",
+                "**/*.mts",
+                "**/*.cts"
+            ],
             "linter": {
                 "rules": {
                     "complexity": {
