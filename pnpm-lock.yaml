@@ -74,7 +74,7 @@ importers:
         version: 3.3.1
       '@keycloak/keycloak-admin-client':
         specifier: ^26.4.6
-        version: 26.4.6
+        version: 26.4.7
       '@nestjs/axios':
         specifier: ^4.0.1
         version: 4.0.1(@nestjs/common@11.1.9(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(axios@1.13.2)(rxjs@7.8.2)
@@ -330,7 +330,7 @@ importers:
         version: 3.3.1
       '@keycloak/keycloak-admin-client':
         specifier: ^26.4.6
-        version: 26.4.6
+        version: 26.4.7
       '@ngx-formly/core':
         specifier: ^7.0.1
         version: 7.0.1(@angular/forms@21.0.1(@angular/common@21.0.1(@angular/core@21.0.1(@angular/compiler@21.0.1)(rxjs@7.8.2)(zone.js@0.16.0))(rxjs@7.8.2))(@angular/core@21.0.1(@angular/compiler@21.0.1)(rxjs@7.8.2)(zone.js@0.16.0))(@angular/platform-browser@21.0.1(@angular/animations@21.0.1(@angular/core@21.0.1(@angular/compiler@21.0.1)(rxjs@7.8.2)(zone.js@0.16.0)))(@angular/common@21.0.1(@angular/core@21.0.1(@angular/compiler@21.0.1)(rxjs@7.8.2)(zone.js@0.16.0))(rxjs@7.8.2))(@angular/core@21.0.1(@angular/compiler@21.0.1)(rxjs@7.8.2)(zone.js@0.16.0)))(@standard-schema/spec@1.0.0)(rxjs@7.8.2))(rxjs@7.8.2)
@@ -2677,8 +2677,8 @@ packages:
   '@jsdevtools/ono@7.1.3':
     resolution: {integrity: sha512-4JQNk+3mVzK3xh2rqd6RB4J46qUR19azEHBneZyTZM+c456qOrbbM/5xcR8huNCCcbVt7+UmizG6GuUvPvKUYg==}
 
-  '@keycloak/keycloak-admin-client@26.4.6':
-    resolution: {integrity: sha512-nR58fuft1BpFJGKoV67SN1uu6V26AvCv59GpuWQW7dh+/devugMTe7kjih67MFuxL9Id7woznJyTbICdqsDl6w==}
+  '@keycloak/keycloak-admin-client@26.4.7':
+    resolution: {integrity: sha512-6AqwZjWuWBzM0nPVggWDV4Oep+CO8ATfNEvVhXgC1dH7PkBCl/4hCRj9ZFHnX1OtQJ+zozD6LQ1giwArcAU6qQ==}
     engines: {node: '>=18'}
 
   '@listr2/prompt-adapter-inquirer@3.0.5':
@@ -12573,7 +12573,7 @@ snapshots:
 
   '@jsdevtools/ono@7.1.3': {}
 
-  '@keycloak/keycloak-admin-client@26.4.6':
+  '@keycloak/keycloak-admin-client@26.4.7':
     dependencies:
       camelize-ts: 3.0.0
       url-template: 3.1.1
