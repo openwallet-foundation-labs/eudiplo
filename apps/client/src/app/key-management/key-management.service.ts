@@ -8,23 +8,22 @@ import {
   keyControllerGetKey,
   keyControllerGetKeys,
   keyControllerUpdateKey,
-} from '../generated';
-import { client } from '../generated/client.gen';
+} from '@eudiplo/sdk';
 
 @Injectable({
   providedIn: 'root',
 })
 export class KeyManagementService {
   loadKeys(): Promise<CertEntity[]> {
-    return keyControllerGetKeys({ client }).then((response) => response.data || []);
+    return keyControllerGetKeys().then((response) => response.data || []);
   }
 
   getKey(id: string) {
-    return keyControllerGetKey({ client, path: { id } }).then((response) => response.data);
+    return keyControllerGetKey({ path: { id } }).then((response) => response.data);
   }
 
   importKey(keyData: KeyImportDto): Promise<void> {
-    return keyControllerAddKey({ client, body: keyData })
+    return keyControllerAddKey({ body: keyData })
       .then(() => undefined)
       .catch((error) => {
         console.error('Failed to import key:', error);
@@ -33,7 +32,7 @@ export class KeyManagementService {
   }
 
   updateKey(keyId: string, keyData: UpdateKeyDto): Promise<void> {
-    return keyControllerUpdateKey({ client, body: keyData, path: { id: keyId } })
+    return keyControllerUpdateKey({ body: keyData, path: { id: keyId } })
       .then(() => undefined)
       .catch((error) => {
         console.error('Failed to update key:', error);
@@ -42,7 +41,7 @@ export class KeyManagementService {
   }
 
   deleteKey(keyId: string): Promise<void> {
-    return keyControllerDeleteKey({ client, path: { id: keyId } })
+    return keyControllerDeleteKey({ path: { id: keyId } })
       .then(() => undefined)
       .catch((error) => {
         console.error('Failed to delete key:', error);

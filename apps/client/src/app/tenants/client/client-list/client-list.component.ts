@@ -11,7 +11,7 @@ import {
   clientControllerGetClients,
   ClientEntity,
   clientControllerDeleteClient,
-} from '../../../generated';
+} from '@eudiplo/sdk';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 

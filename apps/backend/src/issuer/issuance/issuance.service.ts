@@ -75,11 +75,6 @@ export class IssuanceService implements OnApplicationBootstrap {
                 );
 
                 await this.storeIssuanceConfiguration(tenantId, issuanceDto);
-
-                this.logger.info(
-                    { event: "Import" },
-                    `issuance config imported for ${tenantId}`,
-                );
             },
         });
     }
@@ -99,10 +94,10 @@ export class IssuanceService implements OnApplicationBootstrap {
                             },
                             `Could not find logo ${display.logo.uri} for ${tenantId}, skipping import`,
                         );
+                        delete display.logo;
                     } else {
                         display.logo.uri = uri;
                     }
-                    delete display.logo;
                 }
                 return display;
             }),

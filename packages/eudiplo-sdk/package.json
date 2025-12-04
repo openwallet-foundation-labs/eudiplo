@@ -1,0 +1,20 @@
+{
+    "name": "@eudiplo/sdk",
+    "version": "1.0.0",
+    "description": "EUDIPLO SDK generated from OpenAPI spec",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "generate": "openapi-ts"
+    },
+    "devDependencies": {
+        "@hey-api/openapi-ts": "^0.88.0",
+        "typescript": "^5.9.3",
+        "@angular/common": "^21.0.0",
+        "@angular/core": "^21.0.0",
+        "rxjs": "^7.8.1"
+    },
+    "files": [
+        "dist"
+    ]
+}

@@ -9,7 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { IssuanceConfig } from '../../../generated';
+import { IssuanceConfig } from '@eudiplo/sdk';
 import { IssuanceConfigService } from '../issuance-config.service';
 import { WebhookConfigShowComponent } from '../../../utils/webhook-config-show/webhook-config-show.component';
 

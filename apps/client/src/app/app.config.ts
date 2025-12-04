@@ -1,11 +1,10 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import {
   type ApplicationConfig,
   importProvidersFrom,
   provideZoneChangeDetection,
 } from '@angular/core';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { routes } from './app.routes';
@@ -15,6 +14,9 @@ import { ObjectTypeComponent } from './types/object.type';
 import { ArrayTypeComponent } from './types/array.type';
 import { provideMonacoEditor } from 'ngx-monaco-editor-v2';
 import schemas from './utils/schemas.json';
+import { provideHeyApiClient } from '@eudiplo/sdk/client/client.gen';
+import { client } from '@eudiplo/sdk/client.gen';
+import { authInterceptor } from '../../../../packages/eudiplo-sdk/src/auth.interceptor';
 
 declare let monaco: any;
 
@@ -30,9 +32,9 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideAnimationsAsync(),
-    provideHttpClient(),
     importProvidersFrom(FlexLayoutModule),
+    provideHttpClient(withInterceptors([authInterceptor]), withFetch()),
+    provideHeyApiClient(client),
     provideMonacoEditor({
       baseUrl: window.location.origin + '/assets/monaco/min/vs',
       onMonacoLoad,

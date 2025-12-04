@@ -50,7 +50,6 @@
     "@angular/cli": "^21.0.1",
     "@angular/compiler-cli": "^21.0.1",
     "@eslint/js": "^9.39.1",
-    "@hey-api/openapi-ts": "^0.88.0",
     "@playwright/test": "1.57.0",
     "@types/jasmine": "~5.1.13",
     "angular-eslint": "21.0.1",

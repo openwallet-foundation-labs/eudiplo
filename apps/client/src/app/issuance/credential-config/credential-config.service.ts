@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { client } from '../../generated/client.gen';
 import {
+  CredentialConfig,
+  CredentialConfigCreate,
   credentialsControllerDeleteIssuanceConfiguration,
   credentialsControllerGetConfigs,
   credentialsControllerStoreCredentialConfiguration,
-} from '../../generated/sdk.gen';
-import { CredentialConfig, CredentialConfigCreate } from '../../generated/types.gen';
+} from '@eudiplo/sdk';
 
 @Injectable({
   providedIn: 'root',
@@ -21,7 +21,7 @@ export class CredentialConfigService {
    * Load all existing credential configurations
    */
   async loadConfigurations(): Promise<CredentialConfig[]> {
-    const response = await credentialsControllerGetConfigs({ client });
+    const response = await credentialsControllerGetConfigs();
     return response.data || [];
   }
 
@@ -39,7 +39,6 @@ export class CredentialConfigService {
    */
   async deleteConfiguration(configId: string): Promise<any> {
     return credentialsControllerDeleteIssuanceConfiguration({
-      client,
       path: { id: configId },
     });
   }

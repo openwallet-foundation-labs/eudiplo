@@ -12,7 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { KeyImportDto } from '../../generated';
+import { KeyImportDto } from '@eudiplo/sdk';
 import { KeyManagementService } from '../key-management.service';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { EditorComponent } from '../../utils/editor/editor.component';

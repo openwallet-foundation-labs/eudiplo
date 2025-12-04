@@ -18,7 +18,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { CredentialConfig, type OfferRequestDto } from '../../generated';
+import { CredentialConfig, type OfferRequestDto } from '@eudiplo/sdk';
 import { IssuanceConfigService } from '../issuance-config/issuance-config.service';
 import { FormlyJsonschema } from '@ngx-formly/core/json-schema';
 import { CredentialConfigService } from '../credential-config/credential-config.service';

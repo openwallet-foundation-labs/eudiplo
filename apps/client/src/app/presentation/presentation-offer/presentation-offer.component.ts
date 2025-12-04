@@ -12,7 +12,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { OfferResponse, PresentationConfig, PresentationRequest } from '../../generated';
+import { OfferResponse, PresentationConfig, PresentationRequest } from '@eudiplo/sdk';
 import { PresentationManagementService } from '../presentation-config/presentation-management.service';
 
 @Component({

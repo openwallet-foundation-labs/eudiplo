@@ -163,9 +163,15 @@ export class Oid4vpService {
                 },
             };
 
+            const keyId = await this.cryptoService.keyService.getKid(
+                session.tenantId,
+                "access",
+            );
+
             const accessCert = await this.cryptoService.getCertChain(
                 "access",
                 session.tenantId,
+                keyId,
             );
 
             const header = {
@@ -174,10 +180,6 @@ export class Oid4vpService {
                 x5c: accessCert,
             };
 
-            const keyId = await this.cryptoService.keyService.getKid(
-                session.tenantId,
-                "access",
-            );
             const signedJwt = await this.cryptoService.signJwt(
                 header,
                 request.payload,

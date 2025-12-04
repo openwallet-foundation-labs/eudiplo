@@ -11,7 +11,7 @@ import {
   clientControllerCreateClient,
   clientControllerGetClient,
   clientControllerUpdateClient,
-} from '../../../generated';
+} from '@eudiplo/sdk';
 import { roles } from '../../../services/jwt.service';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
