@@ -136,17 +136,19 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
         ],
       },
     });
-    const dcResponse = await navigator.credentials.get({
-      mediation: 'required',
-      digital: {
-        requests: [
-          { protocol: 'openid4vp-v1-signed', data: { request: this.session.requestObject } },
-        ],
-      },
-    } as CredentialRequestOptions).catch((err) => {
-      console.error(err);
-      throw err;
-    });
+    const dcResponse = await navigator.credentials
+      .get({
+        mediation: 'required',
+        digital: {
+          requests: [
+            { protocol: 'openid4vp-v1-signed', data: { request: this.session.requestObject } },
+          ],
+        },
+      } as CredentialRequestOptions)
+      .catch((err) => {
+        console.error(err);
+        throw err;
+      });
     console.log('Digital Credentials API response:', dcResponse);
 
     if (dcResponse?.data?.error) {
