@@ -2,6 +2,7 @@ import { inject } from '@angular/core';
 import {
   HttpEvent,
   HttpHandlerFn,
+  HttpInterceptorFn,
   HttpRequest,
 } from '@angular/common/http';
 import { ApiService } from './api.service';

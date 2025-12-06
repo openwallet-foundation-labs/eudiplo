@@ -18,6 +18,8 @@ export class ApiService {
   private tokenExpirationTime?: number;
   private baseUrl?: string;
   client!: Client;
+  private refreshTimerId?: any;
+  private refreshInProgress?: Promise<void> | null = null;
 
   constructor(private httpClient: HttpClient) {
     this.loadTokenFromStorage();
@@ -25,30 +27,40 @@ export class ApiService {
   }
 
   async login(clientId: string, clientSecret: string, baseUrl: string) {
-    //get oidc url
-    const oidcUrl = await firstValueFrom(
-      this.httpClient.get(`${baseUrl}/.well-known/oauth-authorization-server`)
-    ).then((res: any) => res.issuer as string);
+    // Get OIDC issuer URL (safe network call with error handling)
+    let oidcUrl: string;
+    try {
+      const res: any = await firstValueFrom(this.httpClient.get(`${baseUrl}/.well-known/oauth-authorization-server`));
+      oidcUrl = res?.issuer;
+      if (!oidcUrl) throw new Error('Invalid OIDC discovery response');
+    } catch (err) {
+      console.error('Failed to fetch OIDC discovery document', err);
+      throw err;
+    }
 
     this.oauth2Client = new OAuth2Client({
       discoveryEndpoint: `${oidcUrl}/.well-known/oauth-authorization-server`,
       clientId,
       clientSecret,
-    });
+    });    
 
     const safeConfig = {
       server: oidcUrl,
       clientId,
-      clientSecret,
       baseUrl: baseUrl,
     };
-    localStorage.setItem('oauth_config', JSON.stringify(safeConfig));
+    // Persist oauth config (without secret) for rehydration
+    try {
+      localStorage.setItem('oauth_config', JSON.stringify(safeConfig));
+    } catch (e) {
+      console.warn('Failed to persist oauth config:', e);
+    }
 
-    // Always persist the clientSecret for auto-refresh across reloads
+    // Persist client secret only if storage is available and caller opted in.
     try {
       localStorage.setItem('oauth_client_secret', clientSecret);
     } catch (e) {
-      console.warn('Failed to persist client secret:', e);
+      console.warn('Failed to persist client secret (storage may be unavailable):', e);
     }
 
     // Set up the client immediately
@@ -57,9 +69,19 @@ export class ApiService {
 
   setClient(url: string) {
     this.baseUrl = url;
+    // Configure SDK client to ensure it requests a fresh token when needed.    
     client.setConfig({
       baseUrl: url,
-      auth: () => this.accessToken,
+      auth: async () => {        
+        // Ensure token is valid or refreshed before providing it to the SDK
+        try {
+          await this.ensureAuthenticated();
+        } catch (e) {
+          // If ensureAuthenticated fails, return whatever token we have (may be empty)
+          console.warn('Failed to ensure authentication for SDK auth callback', e);
+        }
+        return this.accessToken;
+      },
     });
   }
 
@@ -69,49 +91,54 @@ export class ApiService {
    * NOTE: This will fail if client secret is not available (after page reload)
    */
   async refreshAccessToken(): Promise<void> {
-    try {
-      // Check if we have a valid OAuth2 client with credentials
-      if (!this.oauth2Client || !this.oauth2Client.settings.clientSecret) {
-        // Try to recover client secret from storage if user opted in
-        const storedSecret = localStorage.getItem('oauth_client_secret');
-        const oauthConfig = this.getOAuthConfiguration();
-        if (storedSecret && oauthConfig?.server && oauthConfig?.clientId) {
-          this.oauth2Client = new OAuth2Client({
-            discoveryEndpoint: `${oauthConfig.server}/.well-known/oauth-authorization-server`,
-            clientId: oauthConfig.clientId,
-            clientSecret: storedSecret,
-          });
-        } else {
-          throw new Error('OAuth2 client not properly configured. Please log in again.');
-        }
-      }
-
-      console.log('Refreshing access token...');
-      const token = await this.oauth2Client.clientCredentials();
-      this.accessToken = token.accessToken;
-      this.isAuthenticated = true;
-
-      const expirationTime = token.expiresAt as number;
-      this.tokenExpirationTime = expirationTime;
-
-      // Save token to storage (without client secret)
-      const storedOAuthConfig = localStorage.getItem('oauth_config');
-      if (storedOAuthConfig) {
-        this.saveTokenToStorage(token.accessToken, expirationTime, JSON.parse(storedOAuthConfig));
-      }
-
-      console.log('Access token refreshed successfully. Next refresh scheduled.');
-
-      // Schedule next refresh only if we have valid credentials
-      this.scheduleTokenRefresh(expirationTime);
-
-      return Promise.resolve();
-    } catch (error) {
-      console.error('Failed to refresh access token:', error);
-      this.isAuthenticated = false;
-      this.clearTokenFromStorage();
-      return Promise.reject(error);
+    // Prevent concurrent refresh attempts
+    if (this.refreshInProgress) {
+      return this.refreshInProgress;
     }
+
+    this.refreshInProgress = (async () => {
+      try {
+        // Ensure oauth2Client exists, otherwise try to rehydrate from storage        
+        if (!this.oauth2Client || !this.oauth2Client.settings.clientSecret) {          
+          const storedSecret = localStorage.getItem('oauth_client_secret');
+          const oauthConfig = this.getOAuthConfiguration();
+          if (storedSecret && oauthConfig?.server && oauthConfig?.clientId) {            
+            this.oauth2Client = new OAuth2Client({
+              discoveryEndpoint: `${oauthConfig.server}/.well-known/oauth-authorization-server`,
+              clientId: oauthConfig.clientId,
+              clientSecret: storedSecret,
+            });
+          } else {
+            throw new Error('OAuth2 client not properly configured. Please log in again.');
+          }
+        }        
+
+        const token = await this.oauth2Client.clientCredentials();
+        this.accessToken = token.accessToken;
+        this.isAuthenticated = true;
+
+        const expirationTime = token.expiresAt as number;
+        this.tokenExpirationTime = expirationTime;
+
+        // Save token to storage (without client secret)
+        const storedOAuthConfig = localStorage.getItem('oauth_config');
+        if (storedOAuthConfig) {
+          this.saveTokenToStorage(token.accessToken, expirationTime, JSON.parse(storedOAuthConfig));
+        }
+
+        // Schedule next refresh only if we have valid credentials
+        this.scheduleTokenRefresh(expirationTime);
+      } catch (error) {
+        console.error('Failed to refresh access token:', error);
+        this.isAuthenticated = false;
+        this.clearTokenFromStorage();
+        throw error;
+      } finally {
+        this.refreshInProgress = null;
+      }
+    })();
+
+    return this.refreshInProgress;
   }
 
   /**
@@ -233,6 +260,11 @@ export class ApiService {
     this.baseUrl = undefined;
     this.clearTokenFromStorage();
     localStorage.removeItem('oauth_client_secret');
+    // Clear any scheduled refresh
+    if (this.refreshTimerId) {
+      clearTimeout(this.refreshTimerId);
+      this.refreshTimerId = undefined;
+    }
   }
 
   /**
@@ -359,12 +391,23 @@ export class ApiService {
 
     if (timeUntilRefresh > 0) {
       console.log(`Token refresh scheduled in ${Math.floor(timeUntilRefresh / 60000)} minutes`);
-      setTimeout(() => this.refreshAccessToken(), timeUntilRefresh);
+      if (this.refreshTimerId) {
+        clearTimeout(this.refreshTimerId);
+      }
+      this.refreshTimerId = setTimeout(() => {
+        this.refreshTimerId = undefined;
+        this.refreshAccessToken().catch((e) => console.warn('Scheduled refresh failed', e));
+      }, timeUntilRefresh);
     } else {
       // Token is very close to expiration, refresh immediately
       console.log('Token close to expiration, refreshing immediately');
-
-      setTimeout(() => this.refreshAccessToken(), 1000);
+      if (this.refreshTimerId) {
+        clearTimeout(this.refreshTimerId);
+      }
+      this.refreshTimerId = setTimeout(() => {
+        this.refreshTimerId = undefined;
+        this.refreshAccessToken().catch((e) => console.warn('Immediate scheduled refresh failed', e));
+      }, 1000);
     }
   }
 

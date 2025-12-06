@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import {
-  type CertEntity,
   type KeyImportDto,
   UpdateKeyDto,
   keyControllerAddKey,
@@ -14,7 +13,7 @@ import {
   providedIn: 'root',
 })
 export class KeyManagementService {
-  loadKeys(): Promise<CertEntity[]> {
+  loadKeys() {
     return keyControllerGetKeys().then((response) => response.data || []);
   }
 

@@ -8,5 +8,12 @@
         "kid": "039af178-3ca0-48f4-a2e4-7b1209f30376",
         "alg": "ES256"
     },
-    "description": "Imported test key"
+    "description": "Imported test key",
+    "certificate": {
+        "crt": "",
+        "description": "",
+        "usages": [
+            "signing"
+        ]
+    }
 }

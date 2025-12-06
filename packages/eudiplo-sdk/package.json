@@ -8,11 +8,11 @@
         "generate": "openapi-ts"
     },
     "devDependencies": {
+        "@angular/common": "^21.0.3",
+        "@angular/core": "^21.0.3",
         "@hey-api/openapi-ts": "^0.88.0",
-        "typescript": "^5.9.3",
-        "@angular/common": "^21.0.0",
-        "@angular/core": "^21.0.0",
-        "rxjs": "^7.8.1"
+        "rxjs": "^7.8.2",
+        "typescript": "^5.9.3"
     },
     "files": [
         "dist"

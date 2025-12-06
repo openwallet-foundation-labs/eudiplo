@@ -16,6 +16,12 @@ export class KeyEntity {
     id!: string;
 
     /**
+     * Description of the key.
+     */
+    @Column("varchar", { nullable: true })
+    description?: string;
+
+    /**
      * Tenant ID for the key.
      */
     @Column("varchar", { primary: true })
