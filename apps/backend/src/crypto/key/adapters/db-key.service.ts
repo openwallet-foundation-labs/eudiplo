@@ -31,9 +31,9 @@ export class DBKeyService extends KeyService {
         configService: ConfigService,
         private cryptoService: CryptoImplementationService,
         certRepository: Repository<CertEntity>,
-        private keyRepository: Repository<KeyEntity>,
+        protected keyRepository: Repository<KeyEntity>,
     ) {
-        super(configService, certRepository);
+        super(configService, certRepository, keyRepository);
         this.crypto = cryptoService.getCrypto();
     }
 

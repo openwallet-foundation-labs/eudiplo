@@ -63,8 +63,8 @@ export class CryptoService {
      * @param tenantId
      */
     async onTenantInit(tenant: TenantEntity) {
-        const keyId = await this.keyService.init(tenant.id);
-        await this.hasCerts(tenant, keyId);
+        //const keyId = await this.keyService.init(tenant.id);
+        //await this.hasCerts(tenant, keyId);
     }
 
     /**
@@ -129,16 +129,11 @@ export class CryptoService {
                 id,
                 crt: body.crt,
                 description: body.description,
+                key: { id, tenantId: tenant.id },
             });
         } else {
             // If no certificate is provided, generate a self-signed certificate
             await this.hasCerts(tenant, id);
-            if (body.description) {
-                await this.certRepository.update(
-                    { tenantId: tenant.id, id },
-                    { description: body.description },
-                );
-            }
         }
         return id;
     }
@@ -239,7 +234,9 @@ export class CryptoService {
             tenantId: tenant.id,
             id,
             crt: crtPem,
-            type: "signing",
+            type: ["signing"],
+            description: `Self-signed cert for tenant ${tenant.name}`,
+            key: { id, tenantId: tenant.id },
         });
 
         // Mirror your logic: if no "access" cert yet, reuse the same PEM
@@ -252,7 +249,7 @@ export class CryptoService {
                 tenantId: tenant.id,
                 id,
                 crt: crtPem,
-                type: "access",
+                type: ["access"],
             });
         }
     }
@@ -343,7 +340,7 @@ export class CryptoService {
             tenantId,
             id,
             crt,
-            type: "access",
+            type: ["access"],
         });
     }
 

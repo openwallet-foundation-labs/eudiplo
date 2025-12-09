@@ -179,6 +179,41 @@ export type CreateClientDto = {
   >;
 };
 
+export type KeyEntity = {
+  /**
+   * Unique identifier for the key.
+   */
+  id: string;
+  /**
+   * Description of the key.
+   */
+  description?: string;
+  /**
+   * Tenant ID for the key.
+   */
+  tenantId: string;
+  /**
+   * The tenant that owns this object.
+   */
+  tenant: TenantEntity;
+  /**
+   * The key material.
+   */
+  key: {
+    [key: string]: unknown;
+  };
+  /**
+   * The usage type of the key.
+   */
+  usage: {
+    [key: string]: unknown;
+  };
+  /**
+   * Certificates associated with this key.
+   */
+  certificates: Array<CertEntity>;
+};
+
 export type CertEntity = {
   /**
    * Unique identifier for the key.
@@ -199,13 +234,14 @@ export type CertEntity = {
   /**
    * Type of the certificate (access or signing).
    */
-  type: {
+  type: Array<{
     [key: string]: unknown;
-  };
+  }>;
   /**
    * Description of the key.
    */
   description?: string;
+  key: KeyEntity;
   /**
    * The timestamp when the VP request was created.
    */
@@ -1190,7 +1226,7 @@ export type KeyControllerGetKeysData = {
 };
 
 export type KeyControllerGetKeysResponses = {
-  200: Array<CertEntity>;
+  200: Array<KeyEntity>;
 };
 
 export type KeyControllerGetKeysResponse =
@@ -1230,7 +1266,7 @@ export type KeyControllerGetKeyData = {
 };
 
 export type KeyControllerGetKeyResponses = {
-  200: CertEntity;
+  200: KeyEntity;
 };
 
 export type KeyControllerGetKeyResponse =

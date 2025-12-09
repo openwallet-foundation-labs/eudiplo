@@ -7,8 +7,23 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { X509Certificate, SubjectAlternativeNameExtension } from '@peculiar/x509';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { CertEntity } from '@eudiplo/sdk';
+import { KeyEntity } from '@eudiplo/sdk';
 import { KeyManagementService } from '../key-management.service';
+
+interface CertificateInfo {
+  subject?: string;
+  issuer?: string;
+  validFrom?: string;
+  validTo?: string;
+  serialNumber?: string;
+  algorithm?: string;
+  publicKeyAlgorithm?: string;
+  keyUsage?: string[];
+  isExpired?: boolean;
+  fingerprint?: string;
+  sans?: string[];
+  usages?: string[];
+}
 
 @Component({
   selector: 'app-key-management-show',
@@ -24,21 +39,8 @@ import { KeyManagementService } from '../key-management.service';
   styleUrl: './key-management-show.component.scss',
 })
 export class KeyManagementShowComponent implements OnInit {
-  key?: CertEntity;
-
-  certificateInfo?: {
-    subject?: string;
-    issuer?: string;
-    validFrom?: string;
-    validTo?: string;
-    serialNumber?: string;
-    algorithm?: string;
-    publicKeyAlgorithm?: string;
-    keyUsage?: string[];
-    isExpired?: boolean;
-    fingerprint?: string;
-    sans?: string[];
-  };
+  key?: KeyEntity;
+  certificateInfoMap = new Map<string, CertificateInfo>();
 
   constructor(
     private keyManagementService: KeyManagementService,
@@ -57,8 +59,13 @@ export class KeyManagementShowComponent implements OnInit {
       this.keyManagementService.getKey(keyId).then(
         (key) => {
           this.key = key;
-          if (key?.crt) {
-            this.parseCertificateInfo(key.crt);
+          // Parse all certificates if they exist
+          if (key?.certificates && Array.isArray(key.certificates)) {
+            key.certificates.forEach((cert) => {
+              // Convert type to usages array (for now, type is singular string)
+              const usages = cert.type ? [String(cert.type)] : [];
+              this.parseCertificateInfo(cert.id, cert.crt, usages);
+            });
           }
         },
         (error) => {
@@ -71,7 +78,11 @@ export class KeyManagementShowComponent implements OnInit {
     }
   }
 
-  private async parseCertificateInfo(pemCert: string): Promise<void> {
+  private async parseCertificateInfo(
+    certId: string,
+    pemCert: string,
+    usages?: string[]
+  ): Promise<void> {
     try {
       // Parse the PEM certificate using @peculiar/x509
       const cert = new X509Certificate(pemCert);
@@ -118,7 +129,7 @@ export class KeyManagementShowComponent implements OnInit {
         sans = names.items.filter((name) => name.type === 'dns').map((name) => name.value);
       }
 
-      this.certificateInfo = {
+      this.certificateInfoMap.set(certId, {
         subject: cert.subject,
         issuer: cert.issuer,
         validFrom: cert.notBefore.toLocaleDateString() + ' ' + cert.notBefore.toLocaleTimeString(),
@@ -130,10 +141,11 @@ export class KeyManagementShowComponent implements OnInit {
         isExpired: isExpired,
         fingerprint: fingerprint || 'Computing...',
         sans,
-      };
+        usages: usages || [],
+      });
     } catch (error) {
       console.warn('Could not parse certificate:', error);
-      this.certificateInfo = {
+      this.certificateInfoMap.set(certId, {
         subject: 'Error parsing certificate',
         issuer: 'Certificate parsing failed',
         validFrom: 'N/A',
@@ -144,7 +156,8 @@ export class KeyManagementShowComponent implements OnInit {
         keyUsage: ['N/A'],
         isExpired: false,
         fingerprint: 'N/A',
-      };
+        usages: usages || [],
+      });
     }
   }
 
@@ -162,21 +175,19 @@ export class KeyManagementShowComponent implements OnInit {
   }
 
   // Helper method to copy certificate to clipboard
-  copyCertificateToClipboard(): void {
-    if (this.key?.crt) {
-      navigator.clipboard
-        .writeText(this.key.crt)
-        .then(() => {
-          this.snackBar.open('Certificate copied to clipboard', 'Close', {
-            duration: 2000,
-          });
-        })
-        .catch(() => {
-          this.snackBar.open('Failed to copy certificate', 'Close', {
-            duration: 2000,
-          });
+  copyCertificateToClipboard(pem: string): void {
+    navigator.clipboard
+      .writeText(pem)
+      .then(() => {
+        this.snackBar.open('Certificate copied to clipboard', 'Close', {
+          duration: 2000,
         });
-    }
+      })
+      .catch(() => {
+        this.snackBar.open('Failed to copy certificate', 'Close', {
+          duration: 2000,
+        });
+      });
   }
 
   deleteKey() {

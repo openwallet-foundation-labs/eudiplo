@@ -10,8 +10,8 @@ import {
     CryptoType,
 } from "../crypto-implementation/crypto-implementation.service";
 import { KeyImportDto } from "../dto/key-import.dto";
-import { KeyObj } from "../dto/key-object.dto";
 import { CertEntity } from "../entities/cert.entity";
+import { KeyEntity } from "../entities/keys.entity";
 import { KeyService } from "../key.service";
 
 export class VaultKeyService extends KeyService {
@@ -25,8 +25,9 @@ export class VaultKeyService extends KeyService {
         configService: ConfigService,
         private cryptoService: CryptoImplementationService,
         certRepository: Repository<CertEntity>,
+        keyRepository: Repository<KeyEntity>,
     ) {
-        super(configService, certRepository);
+        super(configService, certRepository, keyRepository);
 
         this.vaultUrl = this.configService.get<string>("VAULT_URL") as string;
         this.headers = {
@@ -63,7 +64,7 @@ export class VaultKeyService extends KeyService {
         throw new Error("Importing not supported by VaultKeyService");
     }
 
-    getKeys(tenantId: string): Promise<KeyObj[]> {
+    /* getKeys(tenantId: string): Promise<KeyObj[]> {
         return firstValueFrom(
             this.httpService.get<any>(
                 `${this.vaultUrl}/v1/${tenantId}/keys?list=true`,
@@ -87,7 +88,7 @@ export class VaultKeyService extends KeyService {
                 }),
             );
         });
-    }
+    } */
 
     /**
      * Get the signer for the key service

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDivider } from '@angular/material/divider';
@@ -12,7 +12,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { KeyImportDto } from '@eudiplo/sdk';
 import { KeyManagementService } from '../key-management.service';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { EditorComponent } from '../../utils/editor/editor.component';
@@ -45,6 +44,7 @@ export class KeyManagementCreateComponent {
   public create = true;
 
   jwkSchema = jwkSchema;
+  certificateTypes = ['signing', 'access'];
 
   editorOptionsPem = {
     automaticLayout: true,
@@ -62,12 +62,12 @@ export class KeyManagementCreateComponent {
     this.form = this.fb.group({
       id: ['', [Validators.required]],
       description: ['', [Validators.required]],
-      crt: [''],
+      certificates: this.fb.array([]),
     });
 
     if (!this.create) {
       this.keyManagementService.getKey(this.route.snapshot.params['id']).then(
-        (key) => {
+        (key: any) => {
           if (!key) {
             this.snackBar.open('Key not found', 'Close', { duration: 3000 });
             this.router.navigate(['../'], { relativeTo: this.route });
@@ -77,8 +77,19 @@ export class KeyManagementCreateComponent {
           this.form.patchValue({
             id: key.id,
             description: key.description,
-            crt: key.crt,
           });
+
+          // Load certificates
+          if (key.certificates && Array.isArray(key.certificates)) {
+            key.certificates.forEach((cert: any) => {
+              this.certificatesArray.push(
+                this.fb.group({
+                  crt: [cert.crt || '', [Validators.required]],
+                  type: [cert.type || 'signing', [Validators.required]],
+                })
+              );
+            });
+          }
 
           // Disable non-editable fields for edit mode
           this.form.get('id')?.disable();
@@ -97,24 +108,52 @@ export class KeyManagementCreateComponent {
     }
   }
 
+  get certificatesArray(): FormArray {
+    return this.form.get('certificates') as FormArray;
+  }
+
+  addCertificate(): void {
+    this.certificatesArray.push(
+      this.fb.group({
+        crt: ['', [Validators.required]],
+        type: ['signing', [Validators.required]],
+      })
+    );
+  }
+
+  removeCertificate(index: number): void {
+    this.certificatesArray.removeAt(index);
+  }
+
   async onSubmit(): Promise<void> {
     try {
       if (this.create) {
         // For creating a new key, use all form values
-        const keyImportDto: KeyImportDto = {
+        const keyImportDto: any = {
           privateKey: JSON.parse(this.form.value.privateKey),
           description: this.form.value.description,
-          crt: this.form.value.crt || undefined,
         };
+
+        // Add certificates if any exist
+        if (this.certificatesArray.length > 0) {
+          keyImportDto.certificates = this.certificatesArray.value;
+        }
+
         await this.keyManagementService.importKey(keyImportDto);
         this.snackBar.open('Key imported successfully', 'Close', {
           duration: 3000,
         });
       } else {
-        await this.keyManagementService.updateKey(
-          this.route.snapshot.params['id'],
-          this.form.value
-        );
+        // For edit mode, update key with certificates
+        const updateData: any = {
+          description: this.form.get('description')?.value,
+        };
+
+        if (this.certificatesArray.length > 0) {
+          updateData.certificates = this.certificatesArray.value;
+        }
+
+        await this.keyManagementService.updateKey(this.route.snapshot.params['id'], updateData);
       }
 
       this.router.navigate(['../'], { relativeTo: this.route });

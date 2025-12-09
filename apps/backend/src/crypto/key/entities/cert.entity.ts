@@ -6,6 +6,7 @@ import {
     UpdateDateColumn,
 } from "typeorm";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
+import { KeyEntity } from "./keys.entity";
 
 export type CertificateType = "access" | "signing";
 
@@ -42,13 +43,19 @@ export class CertEntity {
      * Type of the certificate (access or signing).
      */
     @Column("varchar", { default: "signing", primary: true })
-    type!: CertificateType;
+    type!: CertificateType[];
 
     /**
      * Description of the key.
      */
     @Column("varchar", { nullable: true })
     description?: string;
+
+    @ManyToOne(
+        () => KeyEntity,
+        (key) => key.certificates,
+    )
+    key!: KeyEntity;
 
     /**
      * The timestamp when the VP request was created.

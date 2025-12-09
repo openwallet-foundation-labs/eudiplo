@@ -267,6 +267,48 @@ export const CreateClientDtoSchema = {
   required: ["clientId", "roles"],
 } as const;
 
+export const KeyEntitySchema = {
+  type: "object",
+  properties: {
+    id: {
+      type: "string",
+      description: "Unique identifier for the key.",
+    },
+    description: {
+      type: "string",
+      description: "Description of the key.",
+    },
+    tenantId: {
+      type: "string",
+      description: "Tenant ID for the key.",
+    },
+    tenant: {
+      description: "The tenant that owns this object.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/TenantEntity",
+        },
+      ],
+    },
+    key: {
+      type: "object",
+      description: "The key material.",
+    },
+    usage: {
+      type: "object",
+      description: "The usage type of the key.",
+    },
+    certificates: {
+      description: "Certificates associated with this key.",
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/CertEntity",
+      },
+    },
+  },
+  required: ["id", "tenantId", "tenant", "key", "usage", "certificates"],
+} as const;
+
 export const CertEntitySchema = {
   type: "object",
   properties: {
@@ -291,12 +333,18 @@ export const CertEntitySchema = {
       description: "Certificate in PEM format.",
     },
     type: {
-      type: "object",
       description: "Type of the certificate (access or signing).",
+      type: "array",
+      items: {
+        type: "object",
+      },
     },
     description: {
       type: "string",
       description: "Description of the key.",
+    },
+    key: {
+      $ref: "#/components/schemas/KeyEntity",
     },
     createdAt: {
       format: "date-time",
@@ -315,6 +363,7 @@ export const CertEntitySchema = {
     "tenant",
     "crt",
     "type",
+    "key",
     "createdAt",
     "updatedAt",
   ],

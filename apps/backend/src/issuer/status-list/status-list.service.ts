@@ -29,12 +29,9 @@ export class StatusListService {
     ) {}
 
     /**
-     * Initialize the status list service by checking if the status list file exists.
-     * If it does not exist, create a new status list with 10,000 entries and a stack
-     * of 10,000 indexes. The stack is shuffled to ensure randomness in the order of
-     * entries. The status list is stored in the file system as a JSON file.
+     * Create a new status list and store it in the file
      */
-    async onTenantInit(tenantId: string) {
+    async createNewList(tenantId: string) {
         const size = this.configService.getOrThrow<number>("STATUS_LENGTH");
         // create an empty array with the size of 1000
         const elements = new Array(size).fill(0).map(() => 0);
@@ -47,20 +44,18 @@ export class StatusListService {
         const bits =
             this.configService.getOrThrow<BitsPerStatus>("STATUS_BITS");
 
-        const entry = await this.statusListRepository.save({
+        await this.statusListRepository.save({
             tenantId,
             elements,
             stack,
             bits,
         });
-
-        await this.createList(entry);
     }
 
     /**
      * Create a new status list and stored it in the file
      */
-    async createList(entry: StatusListEntity) {
+    async createListJWT(entry: StatusListEntity) {
         const list = new StatusList(entry.elements, entry.bits);
         const iss = `${this.configService.getOrThrow<string>("PUBLIC_URL")}`;
 
@@ -125,8 +120,8 @@ export class StatusListService {
                 tenantId: session.tenantId,
             })
             //if none if found, create one
-            .then(() =>
-                this.onTenantInit(session.tenantId).then(() =>
+            .catch(() =>
+                this.createNewList(session.tenantId).then(() =>
                     this.statusListRepository.findOneByOrFail({
                         tenantId: session.tenantId,
                     }),
@@ -172,7 +167,7 @@ export class StatusListService {
             { tenantId },
             { elements: entry.elements },
         );
-        return this.createList(entry);
+        return this.createListJWT(entry);
     }
 
     /**

@@ -93,18 +93,78 @@
       <mat-card-header>
         <mat-card-title>
           <mat-icon>badge</mat-icon>
-          Certificate (Optional)
+          Certificates (Multiple)
         </mat-card-title>
-        <mat-card-subtitle> X.509 certificate for public key verification </mat-card-subtitle>
+        <mat-card-subtitle> X.509 certificates for public key verification </mat-card-subtitle>
       </mat-card-header>
 
       <mat-card-content fxLayout="column" fxLayoutGap="16px">
-        <h4>Certificate (PEM Format)</h4>
-        <app-editor
-          formControlName="crt"
-          [editorOptions]="editorOptionsPem"
-          [errors]="form.get('crt')?.errors"
-        ></app-editor>
+        <div formArrayName="certificates">
+          @if (certificatesArray.length > 0) {
+            @for (cert of certificatesArray.controls; let i = $index; track i) {
+              <div
+                [formGroupName]="i"
+                fxLayout="column"
+                fxLayoutGap="16px"
+                class="certificate-item"
+              >
+                <div fxLayout="row" fxLayoutAlign="space-between center">
+                  <h5 class="cert-header">Certificate {{ i + 1 }}</h5>
+                  <button
+                    mat-icon-button
+                    type="button"
+                    (click)="removeCertificate(i)"
+                    color="warn"
+                    title="Remove certificate"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+
+                <mat-form-field appearance="outline" fxFlex>
+                  <mat-label>Usage Type</mat-label>
+                  <mat-select formControlName="type">
+                    @for (type of certificateTypes; track type) {
+                      <mat-option [value]="type">{{ type | titlecase }}</mat-option>
+                    }
+                  </mat-select>
+                  @if (cert.get('type')?.hasError('required') && cert.get('type')?.touched) {
+                    <mat-error>Certificate usage type is required</mat-error>
+                  }
+                </mat-form-field>
+
+                <div>
+                  <h5 class="cert-pem-header">Certificate (PEM Format)</h5>
+                  <app-editor
+                    formControlName="crt"
+                    [editorOptions]="editorOptionsPem"
+                    [errors]="cert.get('crt')?.errors"
+                  ></app-editor>
+                  @if (cert.get('crt')?.hasError('required') && cert.get('crt')?.touched) {
+                    <mat-error>Certificate is required</mat-error>
+                  }
+                </div>
+              </div>
+              @if (i < certificatesArray.length - 1) {
+                <mat-divider class="cert-divider"></mat-divider>
+              }
+            }
+          } @else {
+            <p class="info-text">No certificates added. Add one to associate with this key.</p>
+          }
+        </div>
+
+        <button
+          mat-stroked-button
+          type="button"
+          (click)="addCertificate()"
+          fxLayout="row"
+          fxLayoutAlign="center center"
+          fxLayoutGap="8px"
+        >
+          <mat-icon>add</mat-icon>
+          Add Certificate
+        </button>
       </mat-card-content>
     </mat-card>
     <mat-divider></mat-divider>

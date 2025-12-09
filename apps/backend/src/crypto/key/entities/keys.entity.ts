@@ -1,6 +1,7 @@
 import { JWK } from "jose";
-import { Column, Entity, ManyToOne } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
+import { CertEntity } from "./cert.entity";
 
 /**
  * Key usage types.
@@ -44,4 +45,13 @@ export class KeyEntity {
      */
     @Column("varchar", { default: "sign" })
     usage!: KeyUsage;
+
+    /**
+     * Certificates associated with this key.
+     */
+    @OneToMany(
+        () => CertEntity,
+        (cert) => cert.key,
+    )
+    certificates: CertEntity[];
 }

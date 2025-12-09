@@ -32,6 +32,9 @@
       "type": "string",
       "description": "Description of the key."
     },
+    "key": {
+      "$ref": "./KeyEntity.schema.json"
+    },
     "createdAt": {
       "format": "date-time",
       "type": "string",
@@ -49,6 +52,7 @@
     "tenant",
     "crt",
     "type",
+    "key",
     "createdAt",
     "updatedAt"
   ]

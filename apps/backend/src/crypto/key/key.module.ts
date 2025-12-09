@@ -41,6 +41,7 @@ export class KeyModule {
                                 configService,
                                 cryptoService,
                                 certRepository,
+                                keyRepository,
                             );
                         }
 

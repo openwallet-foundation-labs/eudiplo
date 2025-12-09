@@ -15,7 +15,6 @@ import { Gauge } from "prom-client";
 import { Repository } from "typeorm";
 import { CryptoService } from "../../crypto/crypto.service";
 import { EncryptionService } from "../../crypto/encryption/encryption.service";
-import { StatusListService } from "../../issuer/status-list/status-list.service";
 import { RegistrarService } from "../../registrar/registrar.service";
 import { FilesService } from "../../storage/files.service";
 import { CLIENTS_PROVIDER, ClientsProvider } from "../client/client.provider";
@@ -36,7 +35,6 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
         private configService: ConfigService,
         private cryptoService: CryptoService,
         private encryptionService: EncryptionService,
-        private statusListService: StatusListService,
         private registrarService: RegistrarService,
         @InjectRepository(TenantEntity)
         private tenantRepository: Repository<TenantEntity>,
@@ -155,7 +153,6 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
     async setUpTenant(tenant: TenantEntity) {
         await this.cryptoService.onTenantInit(tenant);
         await this.encryptionService.onTenantInit(tenant.id);
-        await this.statusListService.onTenantInit(tenant.id);
         await this.registrarService.onTenantInit(tenant);
         await this.tenantRepository.update(
             { id: tenant.id },

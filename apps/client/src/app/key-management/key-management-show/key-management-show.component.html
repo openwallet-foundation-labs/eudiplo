@@ -16,42 +16,55 @@
     </div>
     <p><strong>Description:</strong> {{ key.description }}</p>
 
-    @if (key.crt) {
+    @for (cert of key.certificates; track cert.id) {
       <mat-card>
         <mat-card-header>
           <mat-card-title>Certificate Information</mat-card-title>
           <div class="spacer"></div>
           <button
             mat-icon-button
-            (click)="copyCertificateToClipboard()"
+            (click)="copyCertificateToClipboard(cert.crt)"
             matTooltip="Copy certificate to clipboard"
           >
             <mat-icon>content_copy</mat-icon>
           </button>
         </mat-card-header>
         <mat-card-content>
-          @if (certificateInfo) {
+          @let certInfo = certificateInfoMap.get(cert.id);
+          @if (certInfo) {
             <div class="cert-info">
               <h4>Certificate Details:</h4>
               <table class="cert-details-table">
                 <tr>
+                  <td><strong>Usages:</strong></td>
+                  <td>
+                    @if (certInfo.usages && certInfo.usages.length > 0) {
+                      @for (usage of certInfo.usages; track usage) {
+                        <span class="usage-tag">{{ usage }}</span>
+                      }
+                    } @else {
+                      <span>No usages specified</span>
+                    }
+                  </td>
+                </tr>
+                <tr>
                   <td><strong>Subject:</strong></td>
-                  <td>{{ certificateInfo.subject }}</td>
+                  <td>{{ certInfo.subject }}</td>
                 </tr>
                 <tr>
                   <td><strong>Issuer:</strong></td>
-                  <td>{{ certificateInfo.issuer }}</td>
+                  <td>{{ certInfo.issuer }}</td>
                 </tr>
                 <tr>
                   <td><strong>Valid From:</strong></td>
-                  <td>{{ certificateInfo.validFrom }}</td>
+                  <td>{{ certInfo.validFrom }}</td>
                 </tr>
                 <tr>
                   <td><strong>Valid To:</strong></td>
                   <td>
-                    <span [class]="certificateInfo.isExpired ? 'expired' : 'valid'">
-                      {{ certificateInfo.validTo }}
-                      @if (certificateInfo.isExpired) {
+                    <span [class]="certInfo.isExpired ? 'expired' : 'valid'">
+                      {{ certInfo.validTo }}
+                      @if (certInfo.isExpired) {
                         <mat-icon class="status-icon expired">warning</mat-icon>
                         <span class="status-text">EXPIRED</span>
                       } @else {
@@ -64,8 +77,8 @@
                 <tr>
                   <td><strong>Subject Alternative Names (SANs):</strong></td>
                   <td>
-                    @if (certificateInfo.sans && certificateInfo.sans.length > 0) {
-                      @for (san of certificateInfo.sans; track san) {
+                    @if (certInfo.sans && certInfo.sans.length > 0) {
+                      @for (san of certInfo.sans; track san) {
                         <span class="san-tag">{{ san }}</span>
                       }
                     } @else {
@@ -75,27 +88,27 @@
                 </tr>
                 <tr>
                   <td><strong>Serial Number:</strong></td>
-                  <td>{{ certificateInfo.serialNumber }}</td>
+                  <td>{{ certInfo.serialNumber }}</td>
                 </tr>
                 <tr>
                   <td><strong>Signature Algorithm:</strong></td>
-                  <td>{{ certificateInfo.algorithm }}</td>
+                  <td>{{ certInfo.algorithm }}</td>
                 </tr>
                 <tr>
                   <td><strong>Public Key Algorithm:</strong></td>
-                  <td>{{ certificateInfo.publicKeyAlgorithm }}</td>
+                  <td>{{ certInfo.publicKeyAlgorithm }}</td>
                 </tr>
                 <tr>
                   <td><strong>Key Usage:</strong></td>
                   <td>
-                    @for (usage of certificateInfo.keyUsage; track usage) {
+                    @for (usage of certInfo.keyUsage; track usage) {
                       <span class="key-usage-tag">{{ usage }}</span>
                     }
                   </td>
                 </tr>
                 <tr>
                   <td><strong>Fingerprint (SHA-1):</strong></td>
-                  <td class="fingerprint">{{ certificateInfo.fingerprint }}</td>
+                  <td class="fingerprint">{{ certInfo.fingerprint }}</td>
                 </tr>
               </table>
             </div>
@@ -104,12 +117,13 @@
           <div class="cert-pem-section">
             <h4>PEM Certificate:</h4>
             <div class="pem-container">
-              <pre class="pem-certificate">{{ formatPemCertificate(key.crt) }}</pre>
+              <pre class="pem-certificate">{{ formatPemCertificate(cert.crt) }}</pre>
             </div>
           </div>
         </mat-card-content>
       </mat-card>
-    } @else {
+    }
+    @if (key.certificates.length === 0) {
       <mat-card>
         <mat-card-header>
           <mat-card-title>Certificate</mat-card-title>

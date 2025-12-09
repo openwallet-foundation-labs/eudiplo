@@ -14,7 +14,7 @@ import { Token, TokenPayload } from "../../auth/token.decorator";
 import { CryptoService } from "../crypto.service";
 import { KeyImportDto } from "./dto/key-import.dto";
 import { UpdateKeyDto } from "./dto/key-update.dto";
-import { CertEntity } from "./entities/cert.entity";
+import { KeyEntity } from "./entities/keys.entity";
 import { KeyService } from "./key.service";
 
 /**
@@ -34,8 +34,8 @@ export class KeyController {
      * @returns
      */
     @Get()
-    getKeys(@Token() token: TokenPayload): Promise<CertEntity[]> {
-        return this.cryptoService.getCerts(token.entity!.id);
+    getKeys(@Token() token: TokenPayload): Promise<KeyEntity[]> {
+        return this.keyService.getKeys(token.entity!.id);
     }
 
     /**
@@ -48,8 +48,8 @@ export class KeyController {
     getKey(
         @Token() token: TokenPayload,
         @Param("id") id: string,
-    ): Promise<CertEntity> {
-        return this.cryptoService.getCertEntry(token.entity!.id, id);
+    ): Promise<KeyEntity> {
+        return this.keyService.getKey(token.entity!.id, id);
     }
 
     /**

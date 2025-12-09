@@ -117,6 +117,17 @@ h4 {
   font-weight: 500;
 }
 
+.usage-tag {
+  display: inline-block;
+  background-color: #f3e5f5;
+  color: #7b1fa2;
+  padding: 2px 8px;
+  margin: 2px 4px 2px 0;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
 .fingerprint {
   font-family: 'Courier New', 'Monaco', 'Lucida Console', monospace;
   font-size: 12px;

@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { CertEntity } from '@eudiplo/sdk';
+import { KeyEntity } from '@eudiplo/sdk';
 import { KeyManagementService } from '../key-management.service';
 
 @Component({
@@ -22,15 +22,9 @@ import { KeyManagementService } from '../key-management.service';
   styleUrl: './key-management-list.component.scss',
 })
 export class KeyManagementListComponent implements OnInit {
-  keys: CertEntity[] = [];
+  keys: KeyEntity[] = [];
 
-  displayedColumns: (keyof CertEntity | 'actions')[] = [
-    'id',
-    'description',
-    'type',
-    'createdAt',
-    'actions',
-  ];
+  displayedColumns: (keyof KeyEntity | 'actions')[] = ['id', 'description', 'actions'];
 
   constructor(private keyManagementService: KeyManagementService) {}
   ngOnInit(): void {

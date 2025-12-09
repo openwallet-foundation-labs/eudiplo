@@ -16,7 +16,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { CertEntity, CredentialConfigCreate } from '@eudiplo/sdk';
+import { CredentialConfigCreate, KeyEntity } from '@eudiplo/sdk';
 import { KeyManagementService } from '../../../key-management/key-management.service';
 import { CredentialConfigService } from '../credential-config.service';
 import { JsonViewDialogComponent } from './json-view-dialog/json-view-dialog.component';
@@ -66,7 +66,7 @@ export class CredentialConfigCreateComponent implements OnInit {
   public form: FormGroup;
   public create = true;
   public loading = false;
-  keys: CertEntity[] = [];
+  keys: KeyEntity[] = [];
 
   predefinedConfigs = configs;
 

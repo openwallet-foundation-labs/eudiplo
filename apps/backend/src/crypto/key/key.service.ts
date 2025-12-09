@@ -5,6 +5,7 @@ import { JoseHeaderParameters, JWK, JWTPayload } from "jose";
 import { Repository } from "typeorm";
 import { KeyImportDto } from "./dto/key-import.dto";
 import { CertEntity, CertificateType } from "./entities/cert.entity";
+import { KeyEntity } from "./entities/keys.entity";
 
 /**
  * Generic interface for a key service
@@ -13,6 +14,7 @@ export abstract class KeyService {
     constructor(
         protected configService: ConfigService,
         protected certRepository: Repository<CertEntity>,
+        protected keyRepository: Repository<KeyEntity>,
     ) {}
 
     /**
@@ -94,5 +96,19 @@ export abstract class KeyService {
                     throw new ConflictException("Certificate not found");
                 },
             );
+    }
+
+    getKeys(id: string): Promise<KeyEntity[]> {
+        return this.keyRepository.findBy({ tenantId: id, usage: "sign" });
+    }
+
+    getKey(tenantId: string, keyId: string): Promise<KeyEntity> {
+        return this.keyRepository.findOneOrFail({
+            where: {
+                tenantId,
+                id: keyId,
+            },
+            relations: ["certificates"],
+        });
     }
 }
