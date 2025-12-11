@@ -1,0 +1,47 @@
+.info-message {
+  margin-bottom: 24px;
+  padding: 12px;
+  background-color: #e3f2fd;
+  border-radius: 4px;
+
+  mat-icon {
+    margin-top: 2px;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.section {
+  margin-bottom: 24px;
+
+  h3 {
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.87);
+  }
+}
+
+mat-error {
+  font-size: 12px;
+  margin-top: 8px;
+  display: block;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.tab-content {
+  padding-top: 24px;
+}
+
+.generate-buttons {
+  margin-top: 16px;
+}

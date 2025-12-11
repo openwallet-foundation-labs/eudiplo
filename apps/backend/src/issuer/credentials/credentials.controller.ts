@@ -27,6 +27,14 @@ export class CredentialsController {
     }
 
     /**
+     * Returns a specific credential configuration by ID.
+     * @param */
+    @Get(":id")
+    getConfigById(@Param("id") id: string, @Token() user: TokenPayload) {
+        return this.credentialsService.getById(user.entity!.id, id);
+    }
+
+    /**
      * Stores the credential configuration for this tenant.
      * @param config
      * @returns

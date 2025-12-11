@@ -10,3 +10,32 @@
     padding: 12px !important;
   }
 }
+
+.certificate-item {
+  border: 1px solid #e0e0e0;
+  padding: 16px;
+  border-radius: 4px;
+  background-color: #fafafa;
+}
+
+.cert-header {
+  margin: 0;
+  color: #333;
+  font-weight: 500;
+}
+
+.cert-pem-header {
+  margin: 8px 0 0 0;
+  color: #333;
+  font-weight: 500;
+}
+
+.cert-divider {
+  margin: 16px 0;
+}
+
+.info-text {
+  color: #999;
+  font-style: italic;
+  margin: 0;
+}

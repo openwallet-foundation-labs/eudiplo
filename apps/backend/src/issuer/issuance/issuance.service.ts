@@ -37,7 +37,8 @@ export class IssuanceService implements OnApplicationBootstrap {
      * Import issuance configurations and the credential configurations from the configured folder.
      */
     async onApplicationBootstrap() {
-        await this.cryptoService.import();
+        await this.cryptoService.importKeys();
+        await this.cryptoService.importCerts();
         // import first the issuance config to make sure it exists when credentials should be imported
         await this.import();
         await this.credentialsConfigService.import();
@@ -75,11 +76,6 @@ export class IssuanceService implements OnApplicationBootstrap {
                 );
 
                 await this.storeIssuanceConfiguration(tenantId, issuanceDto);
-
-                this.logger.info(
-                    { event: "Import" },
-                    `issuance config imported for ${tenantId}`,
-                );
             },
         });
     }
@@ -99,10 +95,10 @@ export class IssuanceService implements OnApplicationBootstrap {
                             },
                             `Could not find logo ${display.logo.uri} for ${tenantId}, skipping import`,
                         );
+                        delete display.logo;
                     } else {
                         display.logo.uri = uri;
                     }
-                    delete display.logo;
                 }
                 return display;
             }),

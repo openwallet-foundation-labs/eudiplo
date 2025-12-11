@@ -4,7 +4,9 @@ import { Signer } from "@sd-jwt/types";
 import { JoseHeaderParameters, JWK, JWTPayload } from "jose";
 import { Repository } from "typeorm";
 import { KeyImportDto } from "./dto/key-import.dto";
+import { UpdateKeyDto } from "./dto/key-update.dto";
 import { CertEntity, CertificateType } from "./entities/cert.entity";
+import { KeyEntity } from "./entities/keys.entity";
 
 /**
  * Generic interface for a key service
@@ -13,6 +15,7 @@ export abstract class KeyService {
     constructor(
         protected configService: ConfigService,
         protected certRepository: Repository<CertEntity>,
+        protected keyRepository: Repository<KeyEntity>,
     ) {}
 
     /**
@@ -28,6 +31,17 @@ export abstract class KeyService {
      * @return key id of the generated key.
      */
     abstract create(tenantId): Promise<string>;
+
+    /**
+     * Update key metadata
+     * @param tenantId
+     * @param id
+     * @param body
+     * @returns
+     */
+    update(tenantId: string, id: string, body: UpdateKeyDto) {
+        return this.keyRepository.update({ tenantId, id }, body);
+    }
 
     /**
      * Import a key into the key service.
@@ -95,4 +109,20 @@ export abstract class KeyService {
                 },
             );
     }
+
+    getKeys(id: string): Promise<KeyEntity[]> {
+        return this.keyRepository.findBy({ tenantId: id, usage: "sign" });
+    }
+
+    getKey(tenantId: string, keyId: string): Promise<KeyEntity> {
+        return this.keyRepository.findOneOrFail({
+            where: {
+                tenantId,
+                id: keyId,
+            },
+            relations: ["certificates"],
+        });
+    }
+
+    abstract deleteKey(tenantId: string, id: string): Promise<void>;
 }

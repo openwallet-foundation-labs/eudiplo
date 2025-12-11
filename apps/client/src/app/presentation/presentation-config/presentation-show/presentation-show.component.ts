@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { PresentationConfig } from '../../../generated';
+import { PresentationConfig } from '@eudiplo/sdk';
 import { PresentationManagementService } from '../presentation-management.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 

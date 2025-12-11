@@ -11,8 +11,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { ApiService } from '../api.service';
 import { EnvironmentService } from '../services/environment.service';
+import { ApiService } from '@eudiplo/sdk';
 
 @Component({
   selector: 'app-dashboard',

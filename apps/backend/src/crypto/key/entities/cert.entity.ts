@@ -1,3 +1,4 @@
+import { ApiProperty } from "@nestjs/swagger";
 import {
     Column,
     CreateDateColumn,
@@ -6,6 +7,7 @@ import {
     UpdateDateColumn,
 } from "typeorm";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
+import { KeyEntity } from "./keys.entity";
 
 export type CertificateType = "access" | "signing";
 
@@ -41,14 +43,33 @@ export class CertEntity {
     /**
      * Type of the certificate (access or signing).
      */
-    @Column("varchar", { default: "signing", primary: true })
-    type!: CertificateType;
+    @ApiProperty({
+        enum: ["access", "signing"] as CertificateType[],
+        isArray: true,
+        description: "Certificate usage type(s)",
+        example: ["signing"],
+    })
+    @Column("json", { default: "signing" })
+    type!: CertificateType[];
 
     /**
      * Description of the key.
      */
     @Column("varchar", { nullable: true })
     description?: string;
+
+    /**
+     * The ID of the key this certificate is associated with.
+     */
+    @Column("varchar")
+    keyId!: string;
+
+    @ManyToOne(
+        () => KeyEntity,
+        (key) => key.certificates,
+        { onDelete: "CASCADE" },
+    )
+    key!: KeyEntity;
 
     /**
      * The timestamp when the VP request was created.

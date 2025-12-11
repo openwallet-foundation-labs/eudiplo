@@ -1,6 +1,8 @@
+import { IsOptional, IsString } from "class-validator";
 import { JWK } from "jose";
-import { Column, Entity, ManyToOne } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
+import { CertEntity } from "./cert.entity";
 
 /**
  * Key usage types.
@@ -12,8 +14,17 @@ export class KeyEntity {
     /**
      * Unique identifier for the key.
      */
+    @IsString()
     @Column("varchar", { primary: true })
     id!: string;
+
+    /**
+     * Description of the key.
+     */
+    @IsString()
+    @IsOptional()
+    @Column("varchar", { nullable: true })
+    description?: string;
 
     /**
      * Tenant ID for the key.
@@ -38,4 +49,13 @@ export class KeyEntity {
      */
     @Column("varchar", { default: "sign" })
     usage!: KeyUsage;
+
+    /**
+     * Certificates associated with this key.
+     */
+    @OneToMany(
+        () => CertEntity,
+        (cert) => cert.key,
+    )
+    certificates: CertEntity[];
 }

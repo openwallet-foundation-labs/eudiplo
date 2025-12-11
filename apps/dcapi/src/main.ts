@@ -13,7 +13,6 @@ export default {
       const wellKnown = await fetch(`${instance}/.well-known/oauth-authorization-server`);
       if (!wellKnown.ok) return new Response("Failed to resolve .well-known", { status: 500 });
       const { token_endpoint } = await wellKnown.json();
-
       // 2. Get access token
       const tokenRes = await fetch(token_endpoint, {
         method: "POST",
@@ -24,7 +23,7 @@ export default {
           client_secret: clientSecret
         })
       });
-      if (!tokenRes.ok) return new Response("Failed to obtain access token", { status: 500 });
+      if (!tokenRes.ok) return new Response(JSON.stringify(await tokenRes.json()), { status: 500 });
       const { access_token } = await tokenRes.json();
 
       // 3. Create presentation request
@@ -32,7 +31,7 @@ export default {
         method: "POST",
         headers: { authorization: `Bearer ${access_token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ requestId: presentationId, response_type: "dc-api" })
-      });
+      });      
       if (!pmReq.ok) return new Response("Failed to obtain presentation request URI", { status: 500 });
       const { uri, session } = await pmReq.json();
 
@@ -40,7 +39,17 @@ export default {
       return Response.json({ uri, session });
     }
 
-    // Default: serve static assets
-    return env.ASSETS.fetch(request);
+    // Default: serve static assets if binding is provided, otherwise
+    // fall back to the global `fetch` (useful for local dev or when
+    // assets binding is not configured).
+    if (env && (env as any).ASSETS && typeof (env as any).ASSETS.fetch === 'function') {
+      return (env as any).ASSETS.fetch(request);
+    }
+
+    if (typeof fetch === 'function') {
+      return fetch(request);
+    }
+
+    return new Response('Not Found', { status: 404 });
   }
 }

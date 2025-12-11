@@ -1,19 +1,18 @@
 import { Injectable } from '@angular/core';
-import { OfferResponse, PresentationConfig, PresentationRequest } from '../../generated';
-import { client } from '../../generated/client.gen';
+import { OfferResponse, PresentationConfig, PresentationRequest } from '@eudiplo/sdk';
 import {
   presentationManagementControllerConfiguration,
   presentationManagementControllerDeleteConfiguration,
   presentationManagementControllerGetOffer,
   presentationManagementControllerStorePresentationConfig,
-} from '../../generated/sdk.gen';
+} from '@eudiplo/sdk';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PresentationManagementService {
   createConfiguration(value: PresentationConfig) {
-    return presentationManagementControllerStorePresentationConfig({ client, body: value }).then(
+    return presentationManagementControllerStorePresentationConfig({ body: value }).then(
       (response) => response.data as PresentationConfig
     );
   }
@@ -23,20 +22,19 @@ export class PresentationManagementService {
     });
   }
   loadConfigurations(): PromiseLike<PresentationConfig[]> {
-    return presentationManagementControllerConfiguration({ client }).then((response) => {
+    return presentationManagementControllerConfiguration().then((response) => {
       return response.data || [];
     });
   }
 
   deleteConfiguration(id: string) {
     return presentationManagementControllerDeleteConfiguration({
-      client,
       path: { id },
     });
   }
 
   getOffer(offerRequest: PresentationRequest): Promise<OfferResponse> {
-    return presentationManagementControllerGetOffer({ client, body: offerRequest }).then(
+    return presentationManagementControllerGetOffer({ body: offerRequest }).then(
       (response) => response.data as OfferResponse
     );
   }

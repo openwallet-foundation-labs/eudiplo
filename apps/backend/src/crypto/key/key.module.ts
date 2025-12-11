@@ -5,6 +5,7 @@ import { getRepositoryToken, TypeOrmModule } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { DBKeyService } from "./adapters/db-key.service";
 import { VaultKeyService } from "./adapters/vault-key.service";
+import { CertService } from "./cert/cert.service";
 import { CryptoImplementatationModule } from "./crypto-implementation/crypto-implementation.module";
 import { CryptoImplementationService } from "./crypto-implementation/crypto-implementation.service";
 import { CertEntity } from "./entities/cert.entity";
@@ -23,6 +24,7 @@ export class KeyModule {
                 TypeOrmModule.forFeature([CertEntity, KeyEntity]),
             ],
             providers: [
+                CertService,
                 {
                     provide: "KeyService",
                     useFactory: (
@@ -41,6 +43,7 @@ export class KeyModule {
                                 configService,
                                 cryptoService,
                                 certRepository,
+                                keyRepository,
                             );
                         }
 
@@ -60,7 +63,7 @@ export class KeyModule {
                     ],
                 },
             ],
-            exports: ["KeyService"],
+            exports: ["KeyService", CertService],
         };
     }
 }

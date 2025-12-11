@@ -34,7 +34,7 @@
   "json.schemas": [
     {
       "fileMatch": [
-        "/assets/config/*/issuance/issuance/*.json"
+        "/assets/config/*/issuance/issuance.json"
       ],
       "url": "./schemas/IssuanceDto.schema.json"
     },
@@ -46,15 +46,15 @@
     },
     {
       "fileMatch": [
-        "/assets/config/*/issuance/display.json"
-      ],
-      "url": "./schemas/DisplayCreateDto.schema.json"
-    },
-    {
-      "fileMatch": [
         "/assets/config/*/keys/*.json"
       ],
       "url": "./schemas/KeyImportDto.schema.json"
+    },
+    {
+      "fileMatch": [
+        "/assets/config/*/certs/*.json"
+      ],
+      "url": "./schemas/CertImportDto.schema.json"
     },
     {
       "fileMatch": [

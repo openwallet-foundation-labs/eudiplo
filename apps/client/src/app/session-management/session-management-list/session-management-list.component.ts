@@ -13,7 +13,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { Session } from '../../generated';
+import { Session } from '@eudiplo/sdk';
 import { SessionManagementService } from '../session-management.service';
 
 // Define the SessionStatus type

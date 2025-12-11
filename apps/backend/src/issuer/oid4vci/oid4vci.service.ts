@@ -144,31 +144,34 @@ export class Oid4vciService {
             authorizationServerMetadata =
                 await this.authzService.authzMetadata(tenantId);
         }
-
-        const credentialIssuer = issuer.createCredentialIssuerMetadata({
-            credential_issuer,
-            credential_configurations_supported:
-                await this.credentialsService.getCredentialConfigurationSupported(
-                    tenantId,
-                ),
-            credential_endpoint: `${credential_issuer}/vci/credential`,
-            authorization_servers: authServers,
-            authorization_server: authServers[0],
-            notification_endpoint: `${credential_issuer}/vci/notification`,
-            nonce_endpoint: `${credential_issuer}/vci/nonce`,
-            display: issuanceConfig.display as any,
-            batch_credential_issuance: issuanceConfig?.batchSize
-                ? {
-                      batch_size: issuanceConfig?.batchSize,
-                  }
-                : undefined,
-        });
-
-        return {
-            credentialIssuer,
-            authorizationServers: [authorizationServerMetadata],
-            originalDraftVersion: Openid4vciDraftVersion.Draft15,
-        } as IssuerMetadataResult;
+        try {
+            const credentialIssuer = issuer.createCredentialIssuerMetadata({
+                credential_issuer,
+                credential_configurations_supported:
+                    await this.credentialsService.getCredentialConfigurationSupported(
+                        tenantId,
+                    ),
+                credential_endpoint: `${credential_issuer}/vci/credential`,
+                authorization_servers: authServers,
+                authorization_server: authServers[0],
+                notification_endpoint: `${credential_issuer}/vci/notification`,
+                nonce_endpoint: `${credential_issuer}/vci/nonce`,
+                display: issuanceConfig.display as any,
+                batch_credential_issuance: issuanceConfig?.batchSize
+                    ? {
+                          batch_size: issuanceConfig?.batchSize,
+                      }
+                    : undefined,
+            });
+            return {
+                credentialIssuer,
+                authorizationServers: [authorizationServerMetadata],
+                originalDraftVersion: Openid4vciDraftVersion.Draft15,
+            } as IssuerMetadataResult;
+        } catch (error) {
+            console.log("Error creating credential issuer metadata", error);
+            throw error;
+        }
     }
 
     /**

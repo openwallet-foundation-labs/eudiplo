@@ -1,0 +1,96 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>
+      <div fxLayout="row" fxLayoutAlign="space-between center">
+        <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+          <mat-icon>edit</mat-icon>
+          <span>Edit Certificate Metadata</span>
+        </div>
+      </div>
+    </mat-card-title>
+    <mat-card-subtitle>Update certificate usage types and description</mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    @if (form) {
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <!-- Info Card -->
+        <mat-card class="info-card">
+          <mat-card-content>
+            <div fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="8px">
+              <mat-icon color="primary">info</mat-icon>
+              <div>
+                <p>
+                  You can update the certificate's usage types and description. The certificate
+                  content (PEM) cannot be modified.
+                </p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Usage Types -->
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Usage Types</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div fxLayout="column" fxLayoutGap="12px">
+              <mat-checkbox formControlName="signing">
+                <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+                  <mat-icon>edit</mat-icon>
+                  <span>Signing Certificate</span>
+                </div>
+              </mat-checkbox>
+
+              <mat-checkbox formControlName="access">
+                <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+                  <mat-icon>vpn_key</mat-icon>
+                  <span>Access Certificate</span>
+                </div>
+              </mat-checkbox>
+
+              @if (form.hasError('atLeastOneType') && form.touched) {
+                <mat-error>Please select at least one usage type</mat-error>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Description -->
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Description (Optional)</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Description</mat-label>
+              <input
+                matInput
+                formControlName="description"
+                placeholder="e.g., Production signing certificate"
+              />
+            </mat-form-field>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Action Buttons -->
+        <div fxLayout="row" fxLayoutGap="8px" fxLayoutAlign="end center">
+          <button type="button" mat-button (click)="onCancel()">
+            <mat-icon>cancel</mat-icon>
+            Cancel
+          </button>
+          <button type="submit" mat-raised-button color="primary" [disabled]="form.invalid">
+            <mat-icon>save</mat-icon>
+            Save Changes
+          </button>
+        </div>
+      </form>
+    } @else {
+      <div class="loading-state" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="16px">
+        <mat-icon class="loading-icon">hourglass_empty</mat-icon>
+        <p>Loading certificate...</p>
+      </div>
+    }
+  </mat-card-content>
+</mat-card>

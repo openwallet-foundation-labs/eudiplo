@@ -10,7 +10,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import * as QRCode from 'qrcode';
-import { Session } from '../../generated';
+import { Session } from '@eudiplo/sdk';
 import { SessionManagementService } from '../session-management.service';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
@@ -128,14 +128,28 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
     }
 
     console.log('Calling Digital Credentials API (signed)…');
-    const dcResponse = await navigator.credentials.get({
+    console.log({
       mediation: 'required',
       digital: {
         requests: [
           { protocol: 'openid4vp-v1-signed', data: { request: this.session.requestObject } },
         ],
       },
-    } as CredentialRequestOptions);
+    });
+    const dcResponse = await navigator.credentials
+      .get({
+        mediation: 'required',
+        digital: {
+          requests: [
+            { protocol: 'openid4vp-v1-signed', data: { request: this.session.requestObject } },
+          ],
+        },
+      } as CredentialRequestOptions)
+      .catch((err) => {
+        console.error(err);
+        throw err;
+      });
+    console.log('Digital Credentials API response:', dcResponse);
 
     if (dcResponse?.data?.error) {
       console.error('Wallet protocol error:', dcResponse.data.error, dcResponse.data);

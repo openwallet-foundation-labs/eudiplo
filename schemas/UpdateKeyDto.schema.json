@@ -4,13 +4,16 @@
   "title": "UpdateKeyDto",
   "type": "object",
   "properties": {
-    "crt": {
+    "id": {
       "type": "string",
-      "description": "Optional certificate in PEM format."
+      "description": "Unique identifier for the key."
     },
     "description": {
       "type": "string",
       "description": "Description of the key."
     }
-  }
+  },
+  "required": [
+    "id"
+  ]
 }

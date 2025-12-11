@@ -134,10 +134,10 @@ export class CredentialConfig {
 
     @IsOptional()
     @IsString()
-    keyId?: string;
+    certId?: string;
 
     @ManyToOne(() => CertEntity, { onDelete: "SET NULL" })
-    key!: CertEntity;
+    cert!: CertEntity;
 
     @IsOptional()
     @Column("boolean", { default: false })

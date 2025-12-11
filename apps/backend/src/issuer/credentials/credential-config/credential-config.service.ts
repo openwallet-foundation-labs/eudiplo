@@ -98,18 +98,20 @@ export class CredentialConfigService {
                     }),
                 );
 
-                // Check if keyId is provided and if the certificate exists
-                if (config.keyId) {
+                //config.schema = JSON.parse(JSON.stringify(config.schema));
+
+                // Check if cetId is provided and if the certificate exists
+                if (config.certId) {
                     const cert = await this.cryptoService.getCertEntry(
                         tenantId,
-                        config.keyId,
+                        config.certId,
                     );
                     if (!cert) {
                         throw new Error(
-                            `Key ID ${config.keyId} must be defined in the crypto service`,
+                            `Cert ID ${config.certId} must be defined in the crypto service`,
                         );
                     }
-                    (config as CredentialConfig).key = cert;
+                    (config as CredentialConfig).cert = cert;
                 }
 
                 await this.store(tenantId, config);
@@ -125,7 +127,6 @@ export class CredentialConfigService {
     get(tenantId: string) {
         return this.credentialConfigRepository.find({
             where: { tenantId },
-            relations: ["key"],
         });
     }
 

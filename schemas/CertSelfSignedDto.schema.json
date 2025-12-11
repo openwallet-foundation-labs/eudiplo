@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertSelfSignedDto.schema.json",
+  "title": "CertSelfSignedDto",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "array",
+      "description": "Certificate usage type(s)",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": [
+          "access",
+          "signing"
+        ]
+      }
+    },
+    "keyId": {
+      "type": "string",
+      "description": "The ID of the key to associate the certificate with."
+    }
+  },
+  "required": [
+    "type",
+    "keyId"
+  ]
+}

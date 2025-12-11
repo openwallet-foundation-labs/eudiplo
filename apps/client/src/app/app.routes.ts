@@ -12,6 +12,10 @@ import { IssuanceOfferComponent } from './issuance/issuance-offer/issuance-offer
 import { KeyManagementCreateComponent } from './key-management/key-management-create/key-management-create.component';
 import { KeyManagementListComponent } from './key-management/key-management-list/key-management-list.component';
 import { KeyManagementShowComponent } from './key-management/key-management-show/key-management-show.component';
+import { CertificatesOverviewComponent } from './key-management/certificates-overview/certificates-overview.component';
+import { CertificateShowComponent } from './key-management/certificate-show/certificate-show.component';
+import { CertificateCreateComponent } from './key-management/certificate-create/certificate-create.component';
+import { CertificateEditComponent } from './key-management/certificate-edit/certificate-edit.component';
 import { LoginComponent } from './login/login.component';
 import { PresentationCreateComponent } from './presentation/presentation-config/presentation-create/presentation-create.component';
 import { PresentationListComponent } from './presentation/presentation-config/presentation-list/presentation-list.component';
@@ -149,6 +153,28 @@ export const routes: Routes = [
       {
         path: ':id/edit',
         component: KeyManagementCreateComponent,
+      },
+      {
+        path: ':keyId/certificate/:certId',
+        component: CertificateShowComponent,
+      },
+      {
+        path: ':keyId/certificate/:certId/edit',
+        component: CertificateEditComponent,
+      },
+    ],
+  },
+  {
+    path: 'certificates',
+    canActivate: [AuthGuard],
+    children: [
+      {
+        path: '',
+        component: CertificatesOverviewComponent,
+      },
+      {
+        path: 'new',
+        component: CertificateCreateComponent,
       },
     ],
   },
