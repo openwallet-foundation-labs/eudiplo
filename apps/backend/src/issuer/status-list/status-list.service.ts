@@ -71,13 +71,16 @@ export class StatusListService {
             sub,
             iat: Math.floor(Date.now() / 1000),
         };
+        //TODO: maybe add a cert for status list management
+        const cert = await this.cryptoService.find({
+            tenantId: entry.tenantId,
+            type: "signing",
+        });
+
         const preHeader: StatusListJWTHeaderParameters = {
             alg: "ES256",
             typ: "statuslist+jwt",
-            x5c: await this.cryptoService.getCertChain(
-                "signing",
-                entry.tenantId,
-            ),
+            x5c: await this.cryptoService.getCertChain(cert),
         };
         const { header, payload } = createHeaderAndPayload(
             list,

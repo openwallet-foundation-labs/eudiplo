@@ -160,19 +160,18 @@ export class CredentialsService {
             credentialConfiguration.claims;
         const disclosureFrame = credentialConfiguration.disclosureFrame;
 
-        const keyId =
-            credentialConfiguration?.keyId ??
-            (await this.cryptoService.keyService.getKid(
-                session.tenantId,
-                "signing",
-            ));
+        const certificate = await this.cryptoService.find({
+            tenantId: session.tenantId,
+            type: "signing",
+            id: credentialConfiguration.certId,
+        });
 
         //at this point it is sd-jwt specific.
 
         const sdjwt = new SDJwtVcInstance({
             signer: await this.cryptoService.keyService.signer(
                 session.tenantId,
-                keyId,
+                certificate.keyId,
             ),
             signAlg: this.cryptoImplementationService.getAlg(),
             hasher: digest,
@@ -208,7 +207,6 @@ export class CredentialsService {
 
         return sdjwt.issue(
             {
-                iss: this.configService.getOrThrow<string>("PUBLIC_URL"),
                 iat,
                 exp,
                 vct: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${session.tenantId}/credentials-metadata/vct/${credentialConfigurationId}`,
@@ -219,10 +217,7 @@ export class CredentialsService {
             disclosureFrame,
             {
                 header: {
-                    x5c: await this.cryptoService.getCertChain(
-                        "signing",
-                        session.tenantId,
-                    ),
+                    x5c: await this.cryptoService.getCertChain(certificate),
                     alg: this.cryptoImplementationService.getAlg(),
                 },
             },

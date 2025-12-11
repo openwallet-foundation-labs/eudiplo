@@ -103,16 +103,19 @@ export class Oid4vpService {
                     : 1,
             });
 
-            const hostname = new URL(
-                this.configService.getOrThrow<string>("PUBLIC_URL"),
-            ).hostname;
-
             const lifeTime = 60 * 60;
+
+            const cert = await this.cryptoService.find({
+                tenantId: session.tenantId,
+                type: "access",
+            });
+
+            const certHash = await this.cryptoService.getCertHash(cert);
 
             const request = {
                 payload: {
                     response_type: "vp_token",
-                    client_id: "x509_san_dns:" + hostname,
+                    client_id: "x509_hash:" + certHash,
                     response_uri: !session.useDcApi
                         ? `${host}/${session.id}/oid4vp`
                         : undefined,
@@ -163,17 +166,10 @@ export class Oid4vpService {
                 },
             };
 
-            const keyId = await this.cryptoService.keyService.getKid(
-                session.tenantId,
-                "access",
-            );
-
-            const accessCert = await this.cryptoService.getCertChain(
-                "access",
-                session.tenantId,
-                keyId,
-            );
-
+            const accessCert = await this.cryptoService.find({
+                tenantId: session.tenantId,
+                type: "access",
+            });
             const header = {
                 ...request.header,
                 alg: "ES256",
@@ -184,15 +180,14 @@ export class Oid4vpService {
                 header,
                 request.payload,
                 session.tenantId,
-                keyId,
+                cert.keyId,
             );
 
             this.sessionLogger.logSession(
                 logContext,
                 "Authorization request created successfully",
                 {
-                    signedJwtLength: signedJwt.length,
-                    certificateChainLength: accessCert?.length || 0,
+                    certificateId: cert.id,
                 },
             );
 

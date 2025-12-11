@@ -254,4 +254,13 @@ export class VaultKeyService extends KeyService {
             throw error;
         }
     }
+
+    async deleteKey(tenantId: string, keyId: string): Promise<void> {
+        await firstValueFrom(
+            this.httpService.delete(
+                `${this.vaultUrl}/v1/${tenantId}/keys/${keyId}`,
+                this.headers,
+            ),
+        );
+    }
 }

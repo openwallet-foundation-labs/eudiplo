@@ -1,0 +1,150 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>
+      <div fxLayout="row" fxLayoutAlign="space-between center">
+        <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+          <mat-icon>badge</mat-icon>
+          <span>Add Certificate</span>
+        </div>
+      </div>
+    </mat-card-title>
+    <mat-card-subtitle>Add a new X.509 certificate to the key</mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <!-- Info Message -->
+      <div class="info-message" fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="8px">
+        <mat-icon color="primary">info</mat-icon>
+        <p>You can add multiple certificates for different purposes.</p>
+      </div>
+
+      <mat-tab-group>
+        <!-- Upload Existing Certificate Tab -->
+        <mat-tab label="Upload Certificate">
+          <div class="tab-content">
+            <!-- Certificate PEM -->
+            <div class="section">
+              <h3>Certificate (PEM Format)</h3>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Certificate PEM</mat-label>
+                <textarea
+                  matInput
+                  formControlName="crt"
+                  rows="12"
+                  placeholder="-----BEGIN CERTIFICATE-----
+...
+-----END CERTIFICATE-----"
+                ></textarea>
+                @if (form.get('crt')?.hasError('required') && form.get('crt')?.touched) {
+                  <mat-error>Certificate is required</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <!-- Usage Types -->
+            <div class="section">
+              <h3>Usage Types</h3>
+              <div fxLayout="column" fxLayoutGap="12px">
+                <mat-checkbox formControlName="signing">
+                  <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+                    <mat-icon>edit</mat-icon>
+                    <span>Signing Certificate</span>
+                  </div>
+                </mat-checkbox>
+
+                <mat-checkbox formControlName="access">
+                  <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+                    <mat-icon>vpn_key</mat-icon>
+                    <span>Access Certificate</span>
+                  </div>
+                </mat-checkbox>
+
+                @if (form.hasError('atLeastOneType') && form.touched) {
+                  <mat-error>Please select at least one usage type</mat-error>
+                }
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div class="section">
+              <h3>Description (Optional)</h3>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Description</mat-label>
+                <input
+                  matInput
+                  formControlName="description"
+                  placeholder="e.g., Production signing certificate"
+                />
+              </mat-form-field>
+            </div>
+
+            <!-- Action Buttons -->
+            <div fxLayout="row" fxLayoutGap="8px" fxLayoutAlign="end center">
+              <button type="button" mat-button (click)="onCancel()">
+                <mat-icon>cancel</mat-icon>
+                Cancel
+              </button>
+              <button type="submit" mat-raised-button color="primary" [disabled]="form.invalid">
+                <mat-icon>save</mat-icon>
+                Add Certificate
+              </button>
+            </div>
+          </div>
+        </mat-tab>
+
+        <!-- Generate Self-Signed Certificate Tab -->
+        <mat-tab label="Generate Self-Signed">
+          <div class="tab-content">
+            <div class="section">
+              <h3>Generate Self-Signed Certificate</h3>
+              <p class="mat-body-1">
+                Select the type of certificate to generate. The certificate will be created
+                automatically and added to your key.
+              </p>
+
+              <div fxLayout="column" fxLayoutGap="12px" class="generate-buttons">
+                <button
+                  type="button"
+                  mat-raised-button
+                  color="primary"
+                  (click)="generateSelfSignedCert(['signing'])"
+                >
+                  <mat-icon>edit</mat-icon>
+                  Generate Signing Certificate
+                </button>
+
+                <button
+                  type="button"
+                  mat-raised-button
+                  color="accent"
+                  (click)="generateSelfSignedCert(['access'])"
+                >
+                  <mat-icon>vpn_key</mat-icon>
+                  Generate Access Certificate
+                </button>
+
+                <button
+                  type="button"
+                  mat-raised-button
+                  (click)="generateSelfSignedCert(['signing', 'access'])"
+                >
+                  <mat-icon>star</mat-icon>
+                  Generate Both (Signing & Access)
+                </button>
+              </div>
+            </div>
+
+            <!-- Cancel Button for Generate Tab -->
+            <div fxLayout="row" fxLayoutGap="8px" fxLayoutAlign="end center">
+              <button type="button" mat-button (click)="onCancel()">
+                <mat-icon>cancel</mat-icon>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </form>
+  </mat-card-content>
+</mat-card>

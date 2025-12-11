@@ -22,7 +22,7 @@ import { CredentialConfig, type OfferRequestDto } from '@eudiplo/sdk';
 import { IssuanceConfigService } from '../issuance-config/issuance-config.service';
 import { FormlyJsonschema } from '@ngx-formly/core/json-schema';
 import { CredentialConfigService } from '../credential-config/credential-config.service';
-import { FormlyFieldConfig, FormlyFieldProps, FormlyForm } from '@ngx-formly/core';
+import { FormlyFieldConfig, FormlyFieldProps, FormlyModule } from '@ngx-formly/core';
 import { MatDividerModule } from '@angular/material/divider';
 import { JsonViewDialogComponent } from '../credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -45,7 +45,7 @@ import { WebhookConfigShowComponent } from '../../utils/webhook-config-show/webh
     MatTooltipModule,
     FlexLayoutModule,
     RouterModule,
-    FormlyForm,
+    FormlyModule,
     MatDividerModule,
     MatDialogModule,
     MatRadioModule,
@@ -55,9 +55,6 @@ import { WebhookConfigShowComponent } from '../../utils/webhook-config-show/webh
   styleUrls: ['./issuance-offer.component.scss'],
 })
 export class IssuanceOfferComponent implements OnInit {
-  getFields(arg0: FormlyFieldConfig<FormlyFieldProps & Record<string, any>>) {
-    return [arg0];
-  }
   form: FormGroup;
   loading = false;
   generatingOffer = false;
@@ -173,6 +170,10 @@ export class IssuanceOfferComponent implements OnInit {
 
   getForm(id: string) {
     return this.form.get(`claims.${id}`) as UntypedFormGroup;
+  }
+
+  getFields(arg0: FormlyFieldConfig<FormlyFieldProps & Record<string, any>>) {
+    return [arg0];
   }
 
   async onSubmit(): Promise<void> {

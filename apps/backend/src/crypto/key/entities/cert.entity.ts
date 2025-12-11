@@ -1,3 +1,4 @@
+import { ApiProperty } from "@nestjs/swagger";
 import {
     Column,
     CreateDateColumn,
@@ -42,7 +43,13 @@ export class CertEntity {
     /**
      * Type of the certificate (access or signing).
      */
-    @Column("varchar", { default: "signing", primary: true })
+    @ApiProperty({
+        enum: ["access", "signing"] as CertificateType[],
+        isArray: true,
+        description: "Certificate usage type(s)",
+        example: ["signing"],
+    })
+    @Column("json", { default: "signing" })
     type!: CertificateType[];
 
     /**
@@ -51,9 +58,16 @@ export class CertEntity {
     @Column("varchar", { nullable: true })
     description?: string;
 
+    /**
+     * The ID of the key this certificate is associated with.
+     */
+    @Column("varchar")
+    keyId!: string;
+
     @ManyToOne(
         () => KeyEntity,
         (key) => key.certificates,
+        { onDelete: "CASCADE" },
     )
     key!: KeyEntity;
 

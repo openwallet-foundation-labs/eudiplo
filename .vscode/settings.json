@@ -52,6 +52,12 @@
     },
     {
       "fileMatch": [
+        "/assets/config/*/certs/*.json"
+      ],
+      "url": "./schemas/CertImportDto.schema.json"
+    },
+    {
+      "fileMatch": [
         "/assets/config/*/presentation/*.json"
       ],
       "url": "./schemas/PresentationConfigCreateDto.schema.json"

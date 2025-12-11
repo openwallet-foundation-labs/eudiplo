@@ -1,0 +1,148 @@
+@if (certificate) {
+  <div fxLayout="row" fxLayoutAlign="space-between center">
+    <h2>Certificate Configuration: {{ certificate.id }}</h2>
+    <div>
+      <button mat-icon-button [routerLink]="['../']">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <button mat-icon-button [routerLink]="['edit']">
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button mat-icon-button (click)="delete()">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+  </div>
+  <mat-card>
+    <mat-card-content>
+      <div fxLayout="column" fxLayoutGap="24px">
+        <!-- Certificate Info -->
+        <div class="info-section">
+          <h3>Basic Information</h3>
+          <div fxLayout="column" fxLayoutGap="12px">
+            <div class="info-row">
+              <span class="label">Certificate ID:</span>
+              <code class="value">{{ certificate.id }}</code>
+            </div>
+
+            <div class="info-row">
+              <span class="label">Usage Types:</span>
+              <div fxLayout="row" fxLayoutGap="8px">
+                @for (type of certificate.type; track type) {
+                  <mat-chip [color]="getTypeColor(type)">
+                    <mat-icon>{{ type === 'signing' ? 'edit' : 'vpn_key' }}</mat-icon>
+                    {{ getTypeLabel(type) }}
+                  </mat-chip>
+                }
+              </div>
+            </div>
+
+            @if (certificate.description) {
+              <div class="info-row">
+                <span class="label">Description:</span>
+                <span class="value">{{ certificate.description }}</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Parsed Certificate Details -->
+        @if (certificateInfo) {
+          <div class="info-section">
+            <h3>Certificate Details</h3>
+            <div fxLayout="column" fxLayoutGap="12px">
+              <div class="info-row">
+                <span class="label">Subject:</span>
+                <span class="value">{{ certificateInfo.subject }}</span>
+              </div>
+
+              <div class="info-row">
+                <span class="label">Issuer:</span>
+                <span class="value">{{ certificateInfo.issuer }}</span>
+              </div>
+
+              <div class="info-row">
+                <span class="label">Valid From:</span>
+                <span class="value">{{ certificateInfo.validFrom }}</span>
+              </div>
+
+              <div class="info-row">
+                <span class="label">Valid To:</span>
+                <span class="value" [class.expired]="certificateInfo.isExpired">
+                  {{ certificateInfo.validTo }}
+                  @if (certificateInfo.isExpired) {
+                    <mat-chip color="warn">
+                      <mat-icon>warning</mat-icon>
+                      Expired
+                    </mat-chip>
+                  }
+                </span>
+              </div>
+
+              <div class="info-row">
+                <span class="label">Serial Number:</span>
+                <code class="value">{{ certificateInfo.serialNumber }}</code>
+              </div>
+
+              <div class="info-row">
+                <span class="label">Signature Algorithm:</span>
+                <span class="value">{{ certificateInfo.algorithm }}</span>
+              </div>
+
+              <div class="info-row">
+                <span class="label">Public Key Algorithm:</span>
+                <span class="value">{{ certificateInfo.publicKeyAlgorithm }}</span>
+              </div>
+
+              <div class="info-row">
+                <span class="label">Fingerprint (SHA-1):</span>
+                <code class="value fingerprint">{{ certificateInfo.fingerprint }}</code>
+              </div>
+
+              <div class="info-row">
+                <span class="label">Key Usage:</span>
+                <div fxLayout="row wrap" fxLayoutGap="8px">
+                  @for (usage of certificateInfo.keyUsage; track usage) {
+                    <mat-chip>{{ usage }}</mat-chip>
+                  }
+                </div>
+              </div>
+
+              @if (certificateInfo.sans && certificateInfo.sans.length > 0) {
+                <div class="info-row">
+                  <span class="label">Subject Alternative Names:</span>
+                  <div fxLayout="column" fxLayoutGap="4px">
+                    @for (san of certificateInfo.sans; track san) {
+                      <code class="value">{{ san }}</code>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Raw PEM Certificate -->
+        <div class="info-section">
+          <h3>Raw Certificate (PEM)</h3>
+          <div class="pem-container">
+            <pre class="pem-certificate">{{ certificate.crt }}</pre>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+} @else {
+  <mat-card>
+    <mat-card-content>
+      <div class="empty-state" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="16px">
+        <mat-icon class="empty-icon">error</mat-icon>
+        <p>Certificate not found</p>
+        <button mat-raised-button color="primary" routerLink="/certificates">
+          <mat-icon>list</mat-icon>
+          View All Certificates
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+}

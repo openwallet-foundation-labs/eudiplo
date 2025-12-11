@@ -1,0 +1,100 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>
+      <div fxLayout="row" fxLayoutAlign="space-between center">
+        <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+          <mat-icon>badge</mat-icon>
+          <span>All Certificates</span>
+        </div>
+      </div>
+    </mat-card-title>
+    <mat-card-subtitle> Overview of all X.509 certificates across all keys </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    @if (certificates.length === 0) {
+      <div class="empty-state" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="16px">
+        <mat-icon class="empty-icon">badge</mat-icon>
+        <p>No certificates found</p>
+        <p class="hint">Create a key first, then add certificates to it</p>
+        <button mat-raised-button color="primary" routerLink="/key-management">
+          <mat-icon>key</mat-icon>
+          Manage Keys
+        </button>
+      </div>
+    } @else {
+      <table mat-table [dataSource]="certificates" class="certificates-table">
+        <!-- Certificate ID Column -->
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef>Certificate ID</th>
+          <td mat-cell *matCellDef="let cert" class="id-cell">
+            <code>{{ cert.id }}</code>
+          </td>
+        </ng-container>
+
+        <!-- Key ID Column -->
+        <ng-container matColumnDef="keyId">
+          <th mat-header-cell *matHeaderCellDef>Key</th>
+          <td mat-cell *matCellDef="let cert" class="key-cell">
+            <button
+              mat-button
+              color="primary"
+              (click)="navigateToKey(cert.key.id)"
+              class="key-link"
+            >
+              <mat-icon>key</mat-icon>
+              {{ cert.key.description || cert.key.id }}
+            </button>
+          </td>
+        </ng-container>
+
+        <!-- Types Column -->
+        <ng-container matColumnDef="types">
+          <th mat-header-cell *matHeaderCellDef>Usage Types</th>
+          <td mat-cell *matCellDef="let cert">
+            <div fxLayout="row" fxLayoutGap="8px">
+              @for (type of cert.type; track type) {
+                <mat-chip [color]="getTypeColor(type)">
+                  <mat-icon>{{ type === 'signing' ? 'edit' : 'vpn_key' }}</mat-icon>
+                  {{ getTypeLabel(type) }}
+                </mat-chip>
+              }
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Description Column -->
+        <ng-container matColumnDef="description">
+          <th mat-header-cell *matHeaderCellDef>Description</th>
+          <td mat-cell *matCellDef="let cert">
+            {{ cert.description || '-' }}
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let cert">
+            <button
+              mat-icon-button
+              [routerLink]="['/key-management', cert.key.id, 'certificate', cert.id, 'edit']"
+              matTooltip="Edit certificate metadata"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              [routerLink]="['/key-management', cert.key.id, 'certificate', cert.id]"
+              matTooltip="View certificate details"
+            >
+              <mat-icon>visibility</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns" class="cert-row"></tr>
+      </table>
+    }
+  </mat-card-content>
+</mat-card>

@@ -312,6 +312,15 @@ export const KeyEntitySchema = {
 export const CertEntitySchema = {
   type: "object",
   properties: {
+    type: {
+      type: "array",
+      description: "Certificate usage type(s)",
+      example: ["signing"],
+      items: {
+        type: "string",
+        enum: ["access", "signing"],
+      },
+    },
     id: {
       type: "string",
       description: "Unique identifier for the key.",
@@ -332,16 +341,13 @@ export const CertEntitySchema = {
       type: "string",
       description: "Certificate in PEM format.",
     },
-    type: {
-      description: "Type of the certificate (access or signing).",
-      type: "array",
-      items: {
-        type: "object",
-      },
-    },
     description: {
       type: "string",
       description: "Description of the key.",
+    },
+    keyId: {
+      type: "string",
+      description: "The ID of the key this certificate is associated with.",
     },
     key: {
       $ref: "#/components/schemas/KeyEntity",
@@ -358,11 +364,12 @@ export const CertEntitySchema = {
     },
   },
   required: [
+    "type",
     "id",
     "tenantId",
     "tenant",
     "crt",
-    "type",
+    "keyId",
     "key",
     "createdAt",
     "updatedAt",
@@ -372,9 +379,6 @@ export const CertEntitySchema = {
 export const KeySchema = {
   type: "object",
   properties: {
-    kid: {
-      type: "string",
-    },
     kty: {
       type: "string",
     },
@@ -394,13 +398,13 @@ export const KeySchema = {
       type: "string",
     },
   },
-  required: ["kid", "kty", "x", "y", "crv", "d", "alg"],
+  required: ["kty", "x", "y", "crv", "d", "alg"],
 } as const;
 
 export const KeyImportDtoSchema = {
   type: "object",
   properties: {
-    privateKey: {
+    key: {
       description: "The private key in JWK format.",
       allOf: [
         {
@@ -408,28 +412,111 @@ export const KeyImportDtoSchema = {
         },
       ],
     },
-    crt: {
+    id: {
       type: "string",
-      description: "Optional certificate in PEM format.",
+      description: "Unique identifier for the key.",
     },
     description: {
       type: "string",
       description: "Description of the key.",
     },
   },
-  required: ["privateKey"],
+  required: ["key", "id"],
 } as const;
 
 export const UpdateKeyDtoSchema = {
   type: "object",
   properties: {
-    crt: {
+    id: {
       type: "string",
-      description: "Optional certificate in PEM format.",
+      description: "Unique identifier for the key.",
     },
     description: {
       type: "string",
       description: "Description of the key.",
+    },
+  },
+  required: ["id"],
+} as const;
+
+export const CertImportDtoSchema = {
+  type: "object",
+  properties: {
+    type: {
+      type: "array",
+      description: "Certificate usage type(s)",
+      example: ["signing"],
+      items: {
+        type: "string",
+        enum: ["access", "signing"],
+      },
+    },
+    keyId: {
+      type: "string",
+      description: "Key ID of the certificate's private key.",
+    },
+    id: {
+      type: "string",
+      description: "Unique identifier for the key.",
+    },
+    crt: {
+      type: "string",
+      description: "Certificate in PEM format.",
+    },
+    description: {
+      type: "string",
+      description: "Description of the key.",
+    },
+  },
+  required: ["type", "keyId", "id", "crt"],
+} as const;
+
+export const CertResponseDtoSchema = {
+  type: "object",
+  properties: {
+    id: {
+      type: "string",
+      description: "The ID of the created self-signed certificate.",
+    },
+  },
+  required: ["id"],
+} as const;
+
+export const CertSelfSignedDtoSchema = {
+  type: "object",
+  properties: {
+    type: {
+      type: "array",
+      description: "Certificate usage type(s)",
+      minItems: 1,
+      items: {
+        type: "string",
+        enum: ["access", "signing"],
+      },
+    },
+    keyId: {
+      type: "string",
+      description: "The ID of the key to associate the certificate with.",
+    },
+  },
+  required: ["type", "keyId"],
+} as const;
+
+export const CertUpdateDtoSchema = {
+  type: "object",
+  properties: {
+    type: {
+      type: "array",
+      description: "Certificate usage type(s)",
+      minItems: 1,
+      items: {
+        type: "string",
+        enum: ["access", "signing"],
+      },
+    },
+    description: {
+      type: "string",
+      description: "Optional description of the certificate.",
     },
   },
 } as const;
@@ -1427,10 +1514,10 @@ export const CredentialConfigSchema = {
     keyBinding: {
       type: "boolean",
     },
-    keyId: {
+    certId: {
       type: "string",
     },
-    key: {
+    cert: {
       $ref: "#/components/schemas/CertEntity",
     },
     statusManagement: {
@@ -1443,7 +1530,7 @@ export const CredentialConfigSchema = {
       $ref: "#/components/schemas/SchemaResponse",
     },
   },
-  required: ["id", "tenant", "config", "key"],
+  required: ["id", "tenant", "config", "cert"],
 } as const;
 
 export const CredentialConfigCreateSchema = {
@@ -1509,7 +1596,7 @@ export const CredentialConfigCreateSchema = {
     keyBinding: {
       type: "boolean",
     },
-    keyId: {
+    certId: {
       type: "string",
     },
     statusManagement: {

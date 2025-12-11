@@ -4,6 +4,20 @@
   "title": "CertEntity",
   "type": "object",
   "properties": {
+    "type": {
+      "type": "array",
+      "description": "Certificate usage type(s)",
+      "example": [
+        "signing"
+      ],
+      "items": {
+        "type": "string",
+        "enum": [
+          "access",
+          "signing"
+        ]
+      }
+    },
     "id": {
       "type": "string",
       "description": "Unique identifier for the key."
@@ -24,13 +38,13 @@
       "type": "string",
       "description": "Certificate in PEM format."
     },
-    "type": {
-      "type": "object",
-      "description": "Type of the certificate (access or signing)."
-    },
     "description": {
       "type": "string",
       "description": "Description of the key."
+    },
+    "keyId": {
+      "type": "string",
+      "description": "The ID of the key this certificate is associated with."
     },
     "key": {
       "$ref": "./KeyEntity.schema.json"
@@ -47,11 +61,12 @@
     }
   },
   "required": [
+    "type",
     "id",
     "tenantId",
     "tenant",
     "crt",
-    "type",
+    "keyId",
     "key",
     "createdAt",
     "updatedAt"

@@ -1,8 +1,10 @@
 <div fxLayout="row" fxLayoutAlign="space-between center">
   <h2>Keys</h2>
-  <button mat-icon-button [routerLink]="['create']" matTooltip="Create New Key">
-    <mat-icon>add</mat-icon>
-  </button>
+  <div fxLayout="row" fxLayoutGap="8px">
+    <button mat-icon-button [routerLink]="['create']" matTooltip="Create New Key">
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
 </div>
 
 <table mat-table [dataSource]="keys" class="mat-elevation-z8">

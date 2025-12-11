@@ -44,14 +44,13 @@ export class DBKeyService extends KeyService {
      * @returns
      */
     import(tenantId: string, body: KeyImportDto): Promise<string> {
-        const privateKey = body.privateKey;
         return this.keyRepository
             .save({
-                id: privateKey.kid,
+                id: body.id,
                 tenantId,
-                key: privateKey,
+                key: body.key,
             })
-            .then(() => privateKey.kid);
+            .then(() => body.id);
     }
 
     /**
@@ -203,5 +202,9 @@ export class DBKeyService extends KeyService {
         return new SignJWT(payload)
             .setProtectedHeader(header)
             .sign(privateKeyInstance);
+    }
+
+    async deleteKey(tenantId: string, keyId: string): Promise<void> {
+        await this.keyRepository.delete({ tenantId, id: keyId });
     }
 }

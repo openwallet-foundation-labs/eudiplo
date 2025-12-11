@@ -3,6 +3,7 @@ import {
   CredentialConfig,
   CredentialConfigCreate,
   credentialsControllerDeleteIssuanceConfiguration,
+  credentialsControllerGetConfigById,
   credentialsControllerGetConfigs,
   credentialsControllerStoreCredentialConfiguration,
 } from '@eudiplo/sdk';
@@ -12,8 +13,8 @@ import {
 })
 export class CredentialConfigService {
   getConfig(configId: string) {
-    return this.loadConfigurations().then((configs) =>
-      configs.find((config) => config.id === configId)
+    return credentialsControllerGetConfigById({ path: { id: configId } }).then(
+      (response) => response.data
     );
   }
 

@@ -117,6 +117,8 @@ export class CredentialConfigShowComponent implements OnInit {
    */
   downloadConfig() {
     if (this.config) {
+      console.log(this.config);
+
       const blob = new Blob([JSON.stringify(this.config, null, 2)], {
         type: 'application/json',
       });

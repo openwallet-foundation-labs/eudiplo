@@ -1,3 +1,4 @@
+import { IsOptional, IsString } from "class-validator";
 import { JWK } from "jose";
 import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
@@ -13,12 +14,15 @@ export class KeyEntity {
     /**
      * Unique identifier for the key.
      */
+    @IsString()
     @Column("varchar", { primary: true })
     id!: string;
 
     /**
      * Description of the key.
      */
+    @IsString()
+    @IsOptional()
     @Column("varchar", { nullable: true })
     description?: string;
 

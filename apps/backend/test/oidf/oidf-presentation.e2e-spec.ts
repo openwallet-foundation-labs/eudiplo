@@ -120,8 +120,8 @@ describe("OIDF", () => {
 
         // Enable HTTPS with self-signed certificate
         const httpsOptions = {
-            key: readFileSync(resolve(__dirname, "../../key.pem")),
-            cert: readFileSync(resolve(__dirname, "../../cert.pem")),
+            key: readFileSync(resolve(__dirname, "../key.pem")),
+            cert: readFileSync(resolve(__dirname, "../cert.pem")),
         };
 
         app = moduleFixture.createNestApplication<NestExpressApplication>({

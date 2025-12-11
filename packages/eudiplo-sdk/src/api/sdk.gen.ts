@@ -23,6 +23,18 @@ import type {
   AuthorizeControllerParResponses,
   AuthorizeControllerTokenData,
   AuthorizeControllerTokenResponses,
+  CertControllerAddCertificateData,
+  CertControllerAddCertificateResponses,
+  CertControllerAddSelfSignedCertData,
+  CertControllerAddSelfSignedCertResponses,
+  CertControllerDeleteCertificateData,
+  CertControllerDeleteCertificateResponses,
+  CertControllerGetCertificateData,
+  CertControllerGetCertificateResponses,
+  CertControllerGetCertificatesData,
+  CertControllerGetCertificatesResponses,
+  CertControllerUpdateCertificateData,
+  CertControllerUpdateCertificateResponses,
   ClientControllerCreateClientData,
   ClientControllerCreateClientResponses,
   ClientControllerDeleteClientData,
@@ -37,6 +49,8 @@ import type {
   ClientControllerUpdateClientResponses,
   CredentialsControllerDeleteIssuanceConfigurationData,
   CredentialsControllerDeleteIssuanceConfigurationResponses,
+  CredentialsControllerGetConfigByIdData,
+  CredentialsControllerGetConfigByIdResponses,
   CredentialsControllerGetConfigsData,
   CredentialsControllerGetConfigsResponses,
   CredentialsControllerStoreCredentialConfigurationData,
@@ -547,6 +561,127 @@ export const keyControllerUpdateKey = <ThrowOnError extends boolean = true>(
   });
 
 /**
+ * Get all certificates for the authenticated tenant.
+ * Can be filtered by keyId using query parameter.
+ */
+export const certControllerGetCertificates = <
+  ThrowOnError extends boolean = true,
+>(
+  options?: Options<CertControllerGetCertificatesData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    CertControllerGetCertificatesResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/certs",
+    ...options,
+  });
+
+/**
+ * Add a new certificate to a key.
+ */
+export const certControllerAddCertificate = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<CertControllerAddCertificateData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    CertControllerAddCertificateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/certs",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete a certificate.
+ */
+export const certControllerDeleteCertificate = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<CertControllerDeleteCertificateData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    CertControllerDeleteCertificateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/certs/{certId}",
+    ...options,
+  });
+
+/**
+ * Get a specific certificate by ID.
+ */
+export const certControllerGetCertificate = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<CertControllerGetCertificateData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    CertControllerGetCertificateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/certs/{certId}",
+    ...options,
+  });
+
+/**
+ * Update certificate metadata (description and usage types).
+ */
+export const certControllerUpdateCertificate = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<CertControllerUpdateCertificateData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    CertControllerUpdateCertificateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/certs/{certId}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Generate and add a self-signed certificate.
+ */
+export const certControllerAddSelfSignedCert = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<CertControllerAddSelfSignedCertData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    CertControllerAddSelfSignedCertResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/certs/self-signed",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Get the status list
  */
 export const statusListControllerGetList = <
@@ -949,6 +1084,24 @@ export const credentialsControllerDeleteIssuanceConfiguration = <
 ) =>
   (options.client ?? client).delete<
     CredentialsControllerDeleteIssuanceConfigurationResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/issuer-management/credentials/{id}",
+    ...options,
+  });
+
+/**
+ * Returns a specific credential configuration by ID.
+ */
+export const credentialsControllerGetConfigById = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<CredentialsControllerGetConfigByIdData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    CredentialsControllerGetConfigByIdResponses,
     unknown,
     ThrowOnError
   >({

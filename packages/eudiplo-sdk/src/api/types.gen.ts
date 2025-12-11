@@ -216,6 +216,10 @@ export type KeyEntity = {
 
 export type CertEntity = {
   /**
+   * Certificate usage type(s)
+   */
+  type: Array<"access" | "signing">;
+  /**
    * Unique identifier for the key.
    */
   id: string;
@@ -232,15 +236,13 @@ export type CertEntity = {
    */
   crt: string;
   /**
-   * Type of the certificate (access or signing).
-   */
-  type: Array<{
-    [key: string]: unknown;
-  }>;
-  /**
    * Description of the key.
    */
   description?: string;
+  /**
+   * The ID of the key this certificate is associated with.
+   */
+  keyId: string;
   key: KeyEntity;
   /**
    * The timestamp when the VP request was created.
@@ -253,7 +255,6 @@ export type CertEntity = {
 };
 
 export type Key = {
-  kid: string;
   kty: string;
   x: string;
   y: string;
@@ -266,11 +267,11 @@ export type KeyImportDto = {
   /**
    * The private key in JWK format.
    */
-  privateKey: Key;
+  key: Key;
   /**
-   * Optional certificate in PEM format.
+   * Unique identifier for the key.
    */
-  crt?: string;
+  id: string;
   /**
    * Description of the key.
    */
@@ -279,11 +280,63 @@ export type KeyImportDto = {
 
 export type UpdateKeyDto = {
   /**
-   * Optional certificate in PEM format.
+   * Unique identifier for the key.
    */
-  crt?: string;
+  id: string;
   /**
    * Description of the key.
+   */
+  description?: string;
+};
+
+export type CertImportDto = {
+  /**
+   * Certificate usage type(s)
+   */
+  type: Array<"access" | "signing">;
+  /**
+   * Key ID of the certificate's private key.
+   */
+  keyId: string;
+  /**
+   * Unique identifier for the key.
+   */
+  id: string;
+  /**
+   * Certificate in PEM format.
+   */
+  crt: string;
+  /**
+   * Description of the key.
+   */
+  description?: string;
+};
+
+export type CertResponseDto = {
+  /**
+   * The ID of the created self-signed certificate.
+   */
+  id: string;
+};
+
+export type CertSelfSignedDto = {
+  /**
+   * Certificate usage type(s)
+   */
+  type: Array<"access" | "signing">;
+  /**
+   * The ID of the key to associate the certificate with.
+   */
+  keyId: string;
+};
+
+export type CertUpdateDto = {
+  /**
+   * Certificate usage type(s)
+   */
+  type?: Array<"access" | "signing">;
+  /**
+   * Optional description of the certificate.
    */
   description?: string;
 };
@@ -785,8 +838,8 @@ export type CredentialConfig = {
   };
   vct?: Vct;
   keyBinding?: boolean;
-  keyId?: string;
-  key: CertEntity;
+  certId?: string;
+  cert: CertEntity;
   statusManagement?: boolean;
   lifeTime?: number;
   schema?: SchemaResponse;
@@ -818,7 +871,7 @@ export type CredentialConfigCreate = {
   };
   vct?: Vct;
   keyBinding?: boolean;
-  keyId?: string;
+  certId?: string;
   statusManagement?: boolean;
   lifeTime?: number;
   schema?: SchemaResponse;
@@ -1285,6 +1338,92 @@ export type KeyControllerUpdateKeyResponses = {
   200: unknown;
 };
 
+export type CertControllerGetCertificatesData = {
+  body?: never;
+  path?: never;
+  query?: {
+    keyId?: string;
+  };
+  url: "/certs";
+};
+
+export type CertControllerGetCertificatesResponses = {
+  200: Array<CertEntity>;
+};
+
+export type CertControllerGetCertificatesResponse =
+  CertControllerGetCertificatesResponses[keyof CertControllerGetCertificatesResponses];
+
+export type CertControllerAddCertificateData = {
+  body: CertImportDto;
+  path?: never;
+  query?: never;
+  url: "/certs";
+};
+
+export type CertControllerAddCertificateResponses = {
+  201: CertResponseDto;
+};
+
+export type CertControllerAddCertificateResponse =
+  CertControllerAddCertificateResponses[keyof CertControllerAddCertificateResponses];
+
+export type CertControllerDeleteCertificateData = {
+  body?: never;
+  path: {
+    certId: string;
+  };
+  query?: never;
+  url: "/certs/{certId}";
+};
+
+export type CertControllerDeleteCertificateResponses = {
+  200: unknown;
+};
+
+export type CertControllerGetCertificateData = {
+  body?: never;
+  path: {
+    certId: string;
+  };
+  query?: never;
+  url: "/certs/{certId}";
+};
+
+export type CertControllerGetCertificateResponses = {
+  200: CertEntity;
+};
+
+export type CertControllerGetCertificateResponse =
+  CertControllerGetCertificateResponses[keyof CertControllerGetCertificateResponses];
+
+export type CertControllerUpdateCertificateData = {
+  body: CertUpdateDto;
+  path: {
+    certId: string;
+  };
+  query?: never;
+  url: "/certs/{certId}";
+};
+
+export type CertControllerUpdateCertificateResponses = {
+  200: unknown;
+};
+
+export type CertControllerAddSelfSignedCertData = {
+  body: CertSelfSignedDto;
+  path?: never;
+  query?: never;
+  url: "/certs/self-signed";
+};
+
+export type CertControllerAddSelfSignedCertResponses = {
+  201: CertResponseDto;
+};
+
+export type CertControllerAddSelfSignedCertResponse =
+  CertControllerAddSelfSignedCertResponses[keyof CertControllerAddSelfSignedCertResponses];
+
 export type StatusListControllerGetListData = {
   body?: never;
   path: {
@@ -1623,6 +1762,22 @@ export type CredentialsControllerDeleteIssuanceConfigurationData = {
 export type CredentialsControllerDeleteIssuanceConfigurationResponses = {
   200: unknown;
 };
+
+export type CredentialsControllerGetConfigByIdData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/issuer-management/credentials/{id}";
+};
+
+export type CredentialsControllerGetConfigByIdResponses = {
+  200: CredentialConfig;
+};
+
+export type CredentialsControllerGetConfigByIdResponse =
+  CredentialsControllerGetConfigByIdResponses[keyof CredentialsControllerGetConfigByIdResponses];
 
 export type IssuerManagementControllerGetOfferData = {
   body: OfferRequestDto;

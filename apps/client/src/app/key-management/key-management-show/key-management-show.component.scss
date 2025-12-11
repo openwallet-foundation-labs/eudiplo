@@ -133,3 +133,60 @@ h4 {
   font-size: 12px;
   word-break: break-all;
 }
+
+.tab-content {
+  padding-top: 16px;
+}
+
+.tab-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+.certificates-table {
+  width: 100%;
+  margin-top: 16px;
+
+  code {
+    font-size: 12px;
+    background-color: rgba(0, 0, 0, 0.05);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+}
+
+.cert-row {
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+}
+
+.empty-state {
+  padding: 48px 24px;
+  text-align: center;
+
+  .empty-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: rgba(0, 0, 0, 0.26);
+  }
+
+  p {
+    color: rgba(0, 0, 0, 0.54);
+    margin: 0;
+  }
+}
+
+mat-chip {
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+  }
+}

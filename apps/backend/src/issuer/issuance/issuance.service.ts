@@ -37,7 +37,8 @@ export class IssuanceService implements OnApplicationBootstrap {
      * Import issuance configurations and the credential configurations from the configured folder.
      */
     async onApplicationBootstrap() {
-        await this.cryptoService.import();
+        await this.cryptoService.importKeys();
+        await this.cryptoService.importCerts();
         // import first the issuance config to make sure it exists when credentials should be imported
         await this.import();
         await this.credentialsConfigService.import();

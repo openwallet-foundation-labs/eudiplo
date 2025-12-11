@@ -9,10 +9,38 @@ import {
   keyControllerUpdateKey,
 } from '@eudiplo/sdk';
 
+interface JWKwithKey extends JsonWebKey {
+  kid?: string;
+  alg: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class KeyManagementService {
+  /**
+   * Generate a new key with the webcrypto API.
+   */
+  generateKey() {
+    return window.crypto.subtle
+      .generateKey(
+        {
+          name: 'ECDSA',
+          namedCurve: 'P-256',
+        },
+        true,
+        ['sign', 'verify']
+      )
+      .then((keyPair) => window.crypto.subtle.exportKey('jwk', keyPair.privateKey))
+      .then((jwk) => {
+        const jwkWithAlg = jwk as JWKwithKey;
+        // Remove kid if present - server will generate it
+        delete jwkWithAlg.kid;
+        jwkWithAlg.alg = 'ES256';
+        return jwk;
+      });
+  }
+
   loadKeys() {
     return keyControllerGetKeys().then((response) => response.data || []);
   }
@@ -21,13 +49,14 @@ export class KeyManagementService {
     return keyControllerGetKey({ path: { id } }).then((response) => response.data);
   }
 
-  importKey(keyData: KeyImportDto): Promise<void> {
-    return keyControllerAddKey({ body: keyData })
-      .then(() => undefined)
-      .catch((error) => {
-        console.error('Failed to import key:', error);
-        throw new Error('Failed to import key');
-      });
+  async importKey(keyData: KeyImportDto): Promise<{ id: string }> {
+    try {
+      const response = await keyControllerAddKey({ body: keyData });
+      return response.data as { id: string };
+    } catch (error) {
+      console.error('Failed to import key:', error);
+      throw new Error('Failed to import key');
+    }
   }
 
   updateKey(keyId: string, keyData: UpdateKeyDto): Promise<void> {

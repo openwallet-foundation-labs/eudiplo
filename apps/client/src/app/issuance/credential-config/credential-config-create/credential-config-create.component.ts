@@ -16,8 +16,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { CredentialConfigCreate, KeyEntity } from '@eudiplo/sdk';
-import { KeyManagementService } from '../../../key-management/key-management.service';
+import { CredentialConfigCreate, certControllerGetCertificates } from '@eudiplo/sdk';
 import { CredentialConfigService } from '../credential-config.service';
 import { JsonViewDialogComponent } from './json-view-dialog/json-view-dialog.component';
 import { configs } from './pre-config';
@@ -66,7 +65,7 @@ export class CredentialConfigCreateComponent implements OnInit {
   public form: FormGroup;
   public create = true;
   public loading = false;
-  keys: KeyEntity[] = [];
+  certificates: any[] = [];
 
   predefinedConfigs = configs;
 
@@ -78,13 +77,12 @@ export class CredentialConfigCreateComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private snackBar: MatSnackBar,
-    private keyManagementService: KeyManagementService,
     private dialog: MatDialog
   ) {
     this.form = new FormGroup({
       id: new FormControl('', [Validators.required]),
       description: new FormControl('', Validators.required),
-      keyId: new FormControl(''),
+      certId: new FormControl(''),
       scope: new FormControl(''),
       lifeTime: new FormControl(3600, [Validators.min(1)]),
       keyBinding: new FormControl(true, [Validators.required]),
@@ -111,28 +109,7 @@ export class CredentialConfigCreateComponent implements OnInit {
             return;
           }
 
-          // Disable non-editable fields for edit mode
-          this.form.patchValue({
-            id: config.id,
-            description: config.description,
-            keyId: config.keyId,
-            scope: config.config.scope,
-            lifeTime: config.lifeTime,
-            keyBinding: config.keyBinding,
-            statusManagement: config.statusManagement,
-            claims: config.claims ? JSON.stringify(config.claims, null, 2) : '',
-            disclosureFrame: config.disclosureFrame
-              ? JSON.stringify(config.disclosureFrame, null, 2)
-              : '',
-            vct: config.vct ? JSON.stringify(config.vct, null, 2) : '',
-            schema: config.schema ? JSON.stringify(config.schema, null, 2) : '',
-            displayConfigs: config.config.display || [],
-            embeddedDisclosurePolicy: config.embeddedDisclosurePolicy
-              ? JSON.stringify(config.embeddedDisclosurePolicy, null, 2)
-              : '',
-          });
-
-          //set field as readonly
+          this.patchFormFromConfig(config);
           this.form.get('id')?.disable();
         },
         (error) => {
@@ -144,8 +121,17 @@ export class CredentialConfigCreateComponent implements OnInit {
       );
     }
   }
-  ngOnInit(): void {
-    this.keyManagementService.loadKeys().then((keys) => (this.keys = keys));
+  async ngOnInit(): Promise<void> {
+    // Load all certificates directly
+    try {
+      const response = await certControllerGetCertificates({});
+      this.certificates = response.data || [];
+    } catch (error) {
+      console.error('Failed to load certificates:', error);
+      this.snackBar.open('Failed to load certificates', 'Close', {
+        duration: 3000,
+      });
+    }
   }
 
   onSubmit() {
@@ -156,96 +142,36 @@ export class CredentialConfigCreateComponent implements OnInit {
 
     this.loading = true;
 
-    // Prepare the form data
-    const formValue = { ...this.form.value };
-    formValue.id = this.route.snapshot.params['id'] || formValue.id;
-
     try {
-      // Build the technical configuration
-      formValue.config = {
-        format: 'dc+sd-jwt',
-        display: formValue.displayConfigs,
-        scope: formValue.scope,
-      };
+      const formValue = this.buildConfigurationPayload();
 
-      // Parse JSON fields when there is a value
-      if (formValue.claims) {
-        formValue.claims =
-          typeof formValue.claims === 'string' ? JSON.parse(formValue.claims) : formValue.claims;
-      } else {
-        delete formValue.claims;
-      }
-      if (formValue.disclosureFrame) {
-        formValue.disclosureFrame =
-          typeof formValue.disclosureFrame === 'string'
-            ? JSON.parse(formValue.disclosureFrame)
-            : formValue.disclosureFrame;
-      } else {
-        delete formValue.disclosureFrame;
-      }
-
-      if (formValue.vct === '') {
-        formValue.vct = null;
-      }
-      if (formValue.vct) {
-        formValue.vct =
-          typeof formValue.vct === 'string' ? extractSchema(formValue.vct) : formValue.vct;
-      }
-      if (formValue.schema === '') {
-        formValue.schema = null;
-      }
-      if (formValue.schema) {
-        formValue.schema =
-          typeof formValue.schema === 'string' ? JSON.parse(formValue.schema) : formValue.schema;
-      }
-      if (formValue.embeddedDisclosurePolicy === '') {
-        formValue.embeddedDisclosurePolicy = null;
-      }
-      if (formValue.embeddedDisclosurePolicy) {
-        formValue.embeddedDisclosurePolicy =
-          typeof formValue.embeddedDisclosurePolicy === 'string'
-            ? extractSchema(formValue.embeddedDisclosurePolicy)
-            : formValue.embeddedDisclosurePolicy;
-      }
-      if (!formValue.claimsWebhook?.url) {
-        formValue.claimsWebhook = null;
-      }
-
-      if (!formValue.notificationWebhook?.url) {
-        formValue.notificationWebhook = null;
-      }
-
-      // Remove the displayConfigs form array from the final data
-      delete formValue.displayConfigs;
+      this.credentialConfigService
+        .saveConfiguration(formValue)
+        .then(
+          () => {
+            this.snackBar.open(
+              `Configuration ${this.create ? 'created' : 'updated'} successfully`,
+              'Close',
+              { duration: 3000 }
+            );
+            this.router.navigate(['../'], { relativeTo: this.route });
+          },
+          (error) => {
+            console.error('Error saving configuration:', error);
+            this.snackBar.open(`Failed to save configuration: ${error.message}`, 'Close', {
+              duration: 3000,
+            });
+          }
+        )
+        .finally(() => {
+          this.loading = false;
+        });
     } catch {
       this.snackBar.open('Invalid JSON format in one of the fields', 'Close', {
         duration: 3000,
       });
       this.loading = false;
-      return;
     }
-
-    this.credentialConfigService
-      .saveConfiguration(formValue)
-      .then(
-        () => {
-          this.snackBar.open(
-            `Configuration ${this.create ? 'created' : 'updated'} successfully`,
-            'Close',
-            { duration: 3000 }
-          );
-          this.router.navigate(['../'], { relativeTo: this.route });
-        },
-        (error) => {
-          console.error('Error saving configuration:', error);
-          this.snackBar.open(`Failed to save configuration: ${error.message}`, 'Close', {
-            duration: 3000,
-          });
-        }
-      )
-      .finally(() => {
-        this.loading = false;
-      });
   }
 
   getFormGroup(controlName: string): FormGroup {
@@ -254,6 +180,27 @@ export class CredentialConfigCreateComponent implements OnInit {
 
   getControl(value: any) {
     return value as FormControl;
+  }
+
+  /**
+   * Patch form with configuration data (reusable for edit mode and JSON load)
+   */
+  private patchFormFromConfig(config: CredentialConfigCreate): void {
+    this.form.patchValue({
+      id: config.id || '',
+      certId: config.certId || '',
+      scope: config.config?.scope || '',
+      description: config.description || '',
+      lifeTime: config.lifeTime || 3600,
+      keyBinding: config.keyBinding ?? true,
+      statusManagement: config.statusManagement ?? true,
+      claims: this.stringifyField(config.claims),
+      disclosureFrame: this.stringifyField(config.disclosureFrame),
+      vct: this.stringifyField(config.vct),
+      schema: this.stringifyField(config.schema),
+      displayConfigs: config.config?.display || [],
+      embeddedDisclosurePolicy: this.stringifyField(config.embeddedDisclosurePolicy),
+    });
   }
 
   private markFormGroupTouched(): void {
@@ -299,7 +246,7 @@ export class CredentialConfigCreateComponent implements OnInit {
    * Open JSON view dialog to show/edit the complete configuration
    */
   viewAsJson(): void {
-    const currentConfig = this.getCompleteConfiguration();
+    const currentConfig = this.buildConfigurationPayload();
 
     const dialogRef = this.dialog.open(JsonViewDialogComponent, {
       data: {
@@ -322,37 +269,58 @@ export class CredentialConfigCreateComponent implements OnInit {
   }
 
   /**
-   * Get the complete configuration object from form values
+   * Build configuration payload from form values with proper JSON parsing
    */
-  private getCompleteConfiguration(): any {
+  private buildConfigurationPayload(): any {
     const formValue = { ...this.form.value };
     formValue.id = this.route.snapshot.params['id'] || formValue.id;
 
-    try {
-      formValue.config = {
-        format: 'dc+sd-jwt',
-        display: formValue.displayConfigs,
-      };
+    formValue.config = {
+      format: 'dc+sd-jwt',
+      display: formValue.displayConfigs,
+      scope: formValue.scope || undefined,
+    };
 
-      // Parse JSON fields
-      formValue.claims = formValue.claims ? JSON.parse(formValue.claims) : undefined;
-      formValue.disclosureFrame = formValue.disclosureFrame
-        ? JSON.parse(formValue.disclosureFrame)
-        : undefined;
-      formValue.vct = formValue.vct ? JSON.parse(formValue.vct) : undefined;
-      formValue.schema = formValue.schema ? JSON.parse(formValue.schema) : undefined;
-      formValue.embeddedDisclosurePolicy = formValue.embeddedDisclosurePolicy
-        ? JSON.parse(formValue.embeddedDisclosurePolicy)
-        : undefined;
+    // Convert empty strings to undefined for optional fields
+    formValue.certId = formValue.certId || undefined;
+    formValue.scope = formValue.scope || undefined;
 
-      // Remove the displayConfigs form array from the final data
-      delete formValue.displayConfigs;
+    // Parse JSON fields using helper
+    formValue.claims = this.parseJsonField(formValue.claims, 'parse');
+    formValue.disclosureFrame = this.parseJsonField(formValue.disclosureFrame, 'parse');
+    formValue.vct = this.parseJsonField(formValue.vct, 'extract');
+    formValue.schema = this.parseJsonField(formValue.schema, 'parse');
+    formValue.embeddedDisclosurePolicy = this.parseJsonField(
+      formValue.embeddedDisclosurePolicy,
+      'extract'
+    );
 
-      return formValue;
-    } catch (error) {
-      console.error('Error building configuration:', error);
-      return this.form.value;
-    }
+    // Handle webhooks
+    formValue.claimsWebhook = formValue.claimsWebhook?.url ? formValue.claimsWebhook : undefined;
+    formValue.notificationWebhook = formValue.notificationWebhook?.url
+      ? formValue.notificationWebhook
+      : undefined;
+
+    delete formValue.displayConfigs;
+    return formValue;
+  }
+
+  /**
+   * Helper to parse JSON fields with proper null/undefined handling
+   */
+  private parseJsonField(value: any, mode: 'parse' | 'extract' = 'parse'): any {
+    if (!value || value === '') return undefined;
+    if (typeof value !== 'string') return value;
+
+    const parsed = JSON.parse(value);
+    return mode === 'extract' ? extractSchema(value) : parsed;
+  }
+
+  /**
+   * Helper to stringify values for form fields
+   */
+  private stringifyField(value: any): string {
+    return value ? JSON.stringify(value, null, 2) : '';
   }
 
   /**
@@ -360,26 +328,7 @@ export class CredentialConfigCreateComponent implements OnInit {
    */
   private loadConfigurationFromJson(config: CredentialConfigCreate): void {
     try {
-      // Update basic form fields
-      this.form.patchValue({
-        id: config.id || '',
-        keyId: config.keyId || '',
-        scope: config.config.scope || '',
-        description: config.description || '',
-        lifeTime: config.lifeTime || 3600,
-        keyBinding: config.keyBinding ?? true,
-        statusManagement: config.statusManagement ?? true,
-        claims: config.claims ? JSON.stringify(config.claims, null, 2) : '',
-        disclosureFrame: config.disclosureFrame
-          ? JSON.stringify(config.disclosureFrame, null, 2)
-          : '',
-        vct: config.vct ? JSON.stringify(config.vct, null, 2) : '',
-        schema: config.schema ? JSON.stringify(config.schema, null, 2) : '',
-        displayConfigs: config.config?.display || [],
-        embeddedDisclosurePolicy: config.embeddedDisclosurePolicy
-          ? JSON.stringify(config.embeddedDisclosurePolicy, null, 2)
-          : '',
-      });
+      this.patchFormFromConfig(config);
 
       this.snackBar.open('Configuration loaded from JSON successfully', 'OK', {
         duration: 3000,
