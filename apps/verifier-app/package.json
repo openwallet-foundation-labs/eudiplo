@@ -9,7 +9,6 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
-  "private": true,
   "dependencies": {
     "@eudiplo/sdk": "workspace:*",
     "@angular/cdk": "~21.0.3",
