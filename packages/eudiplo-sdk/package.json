@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "description": "EUDIPLO SDK generated from OpenAPI spec",
     "main": "dist/index.js",
+    "license": "Apache-2.0",
     "types": "dist/index.d.ts",
     "exports": {
         ".": {
