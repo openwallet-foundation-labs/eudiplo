@@ -7,14 +7,21 @@ FROM base AS build
 COPY . /usr/src/app
 WORKDIR /usr/src/app
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-RUN pnpm run -r build \
-	&& pnpm -C apps/client build
+
+FROM build AS build-backend
+# Build backend only
+RUN pnpm --filter @eudiplo/backend build
 RUN pnpm deploy --filter=@eudiplo/backend --prod /prod/backend
+
+FROM build AS build-frontend
+# Build SDK first (required by both Angular apps), then both frontend apps
+RUN pnpm --filter @eudiplo/sdk build
+RUN pnpm --filter @eudiplo/client --filter verifier-app build
 
 FROM base AS eudiplo
 # Copy production dependencies for backend and built dist
-COPY --from=build /prod/backend /app
-COPY --from=build /usr/src/app/dist/backend /app/dist
+COPY --from=build-backend /prod/backend /app
+COPY --from=build-backend /usr/src/app/dist/backend /app/dist
 
 # Accept VERSION as build argument and set as environment variable
 ARG VERSION=latest
@@ -44,7 +51,7 @@ CMD [ "node", "dist/main.js" ]
 FROM nginx:alpine AS client
 # Copy the Angular build output into the nginx html directory.
 # The Angular output path is configured as apps/client/dist/apps/client in angular.json.
-COPY --from=build /usr/src/app/apps/client/dist/apps/client/browser /usr/share/nginx/html
+COPY --from=build-frontend /usr/src/app/apps/client/dist/apps/client/browser /usr/share/nginx/html
 
 # Copy nginx configuration
 COPY apps/client/nginx.conf /etc/nginx/nginx.conf
@@ -65,6 +72,34 @@ RUN apk add --no-cache curl
 # --- HEALTHCHECK (Client / Nginx) ---
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
   CMD curl -f http://localhost/ || exit 
+
+# Use our custom entrypoint script
+ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD ["nginx", "-g", "daemon off;"]
+
+FROM nginx:alpine AS verifier
+# Copy the Angular build output into the nginx html directory.
+COPY --from=build-frontend /usr/src/app/apps/verifier-app/dist/verifier-app/browser /usr/share/nginx/html
+
+# Copy nginx configuration (using client's nginx config as template)
+COPY apps/client/nginx.conf /etc/nginx/nginx.conf
+
+# Copy entrypoint script
+COPY apps/client/docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+# Environment variables with defaults
+ENV API_BASE_URL=http://localhost:3000
+
+# Expose port 80
+EXPOSE 80
+
+# --- Healthcheck dependencies ---
+RUN apk add --no-cache curl
+
+# --- HEALTHCHECK (Verifier / Nginx) ---
+HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
+  CMD curl -f http://localhost/ || exit 1
 
 # Use our custom entrypoint script
 ENTRYPOINT ["/docker-entrypoint.sh"]

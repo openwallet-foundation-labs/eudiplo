@@ -17,6 +17,7 @@
     "e2e": "ng e2e"
   },
   "dependencies": {
+    "@eudiplo/sdk": "workspace:*",
     "@angular/animations": "^21.0.4",
     "@angular/cdk": "21.0.3",
     "@angular/common": "^21.0.4",
@@ -42,6 +43,7 @@
     "qrcode": "^1.5.4",
     "rxjs": "~7.8.2",
     "tslib": "^2.8.1",
+    "uuid": "^11.0.3",
     "zone.js": "~0.16.0"
   },
   "devDependencies": {
