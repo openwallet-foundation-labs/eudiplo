@@ -13,13 +13,12 @@ import {
 import { plainToClass } from "class-transformer";
 import { importJWK, type JWK, jwtVerify } from "jose";
 import { PinoLogger } from "nestjs-pino";
-import { ArrayContains, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { TenantEntity } from "../auth/tenant/entitites/tenant.entity";
 import { ConfigImportService } from "../utils/config-import/config-import.service";
 import { EC_Public } from "../well-known/dto/jwks-response.dto";
-import { CertImportDto } from "./key/dto/cert-import.dto";
+import { CertService } from "./key/cert/cert.service";
 import { KeyImportDto } from "./key/dto/key-import.dto";
-import { UpdateKeyDto } from "./key/dto/key-update.dto";
 import { CertEntity } from "./key/entities/cert.entity";
 import { KeyService } from "./key/key.service";
 
@@ -28,17 +27,6 @@ import { KeyService } from "./key/key.service";
  */
 @Injectable()
 export class CryptoService {
-    find(value: {
-        tenantId: string;
-        type: string;
-        id?: string;
-    }): Promise<CertEntity> {
-        return this.certRepository.findOneByOrFail({
-            tenantId: value.tenantId,
-            type: ArrayContains([value.type]),
-            id: value.id,
-        });
-    }
     /**
      * Folder where the keys are stored.
      */
@@ -46,12 +34,16 @@ export class CryptoService {
 
     /**
      * Constructor for CryptoService.
-     * @param configService
      * @param keyService
+     * @param certService
      * @param certRepository
+     * @param logger
+     * @param tenantRepository
+     * @param configImportService
      */
     constructor(
         @Inject("KeyService") public readonly keyService: KeyService,
+        @Inject(CertService) private readonly certService: CertService,
         @InjectRepository(CertEntity)
         private certRepository: Repository<CertEntity>,
         private logger: PinoLogger,
@@ -66,9 +58,67 @@ export class CryptoService {
      * @returns
      */
     getCerts(tenantId: string): Promise<CertEntity[]> {
-        return this.certRepository.findBy({
-            tenantId,
-        });
+        return this.certService.getCerts(tenantId);
+    }
+
+    /**
+     * Find a certificate by tenantId and type.
+     */
+    find(value: {
+        tenantId: string;
+        type: "access" | "signing";
+        id?: string;
+    }): Promise<CertEntity> {
+        return this.certService.find(value);
+    }
+
+    /**
+     * Check if a certificate exists.
+     */
+    hasEntry(tenantId: string, certId: string): Promise<boolean> {
+        return this.certService.hasEntry(tenantId, certId);
+    }
+
+    /**
+     * Get a certificate entry.
+     */
+    getCertEntry(tenantId: string, certId: string): Promise<CertEntity> {
+        return this.certService.getCertEntry(tenantId, certId);
+    }
+
+    /**
+     * Get the certificate string.
+     */
+    getCert(tenantId: string, certId: string): Promise<string> {
+        return this.certService.getCert(tenantId, certId);
+    }
+
+    /**
+     * Get the certificate chain.
+     */
+    getCertChain(cert: CertEntity): string[] {
+        return this.certService.getCertChain(cert);
+    }
+
+    /**
+     * Store the access certificate.
+     */
+    storeAccessCertificate(crt: string, tenantId: string, id: string) {
+        return this.certService.storeAccessCertificate(crt, tenantId, id);
+    }
+
+    /**
+     * Get the certificate hash.
+     */
+    getCertHash(cert: CertEntity): string {
+        return this.certService.getCertHash(cert);
+    }
+
+    /**
+     * Import certificates from filesystem.
+     */
+    importCerts() {
+        return this.certService.importCerts();
     }
 
     /**
@@ -116,119 +166,6 @@ export class CryptoService {
                         this.logger.info(err.message);
                     });
             },
-        });
-    }
-
-    /**
-     * Imports certs from the file system into the cert service.
-     */
-    async importCerts() {
-        await this.configImportService.importConfigs<CertImportDto>({
-            subfolder: "certs",
-            fileExtension: ".json",
-            validationClass: CertImportDto,
-            resourceType: "cert",
-            loadData: (filePath) => {
-                const payload = JSON.parse(readFileSync(filePath, "utf8"));
-                return plainToClass(CertImportDto, payload);
-            },
-            checkExists: (tenantId, data) => {
-                return this.hasEntry(tenantId, data.id);
-            },
-            deleteExisting: async (tenantId, data) => {
-                // Find and delete matching certs
-                const certs = await this.certRepository.findBy({ tenantId });
-                const existingCert = certs.find((c) => c.id === data.id);
-                if (existingCert) {
-                    await this.certRepository.delete({
-                        id: existingCert.id,
-                        tenantId,
-                    });
-                }
-            },
-            processItem: async (tenantId, config) => {
-                const tenantEntity =
-                    await this.tenantRepository.findOneByOrFail({
-                        id: tenantId,
-                    });
-                this.certRepository.save({
-                    ...config,
-                    tenantId: tenantEntity.id,
-                });
-            },
-        });
-    }
-
-    /**
-     * Check if a certificate exists for the given tenant and keyId.
-     * @param tenantId
-     * @param certId
-     * @returns
-     */
-    hasEntry(tenantId: string, certId: string): Promise<boolean> {
-        return this.certRepository
-            .findOneBy({ tenantId, id: certId })
-            .then((cert) => !!cert);
-    }
-
-    /**
-     * Get a certificate entry by tenantId and keyId.
-     * @param tenantId
-     * @param certId
-     * @returns
-     */
-    getCertEntry(tenantId: string, certId: string): Promise<CertEntity> {
-        return this.certRepository.findOneByOrFail({ tenantId, id: certId });
-    }
-
-    /**
-     * Get the certificate for the given tenant and keyId.
-     * @param tenantId
-     * @param certId
-     * @returns
-     */
-    getCert(tenantId: string, certId: string): Promise<string> {
-        return this.certRepository
-            .findOneBy({ tenantId, id: certId })
-            .then((cert) => cert!.crt);
-    }
-
-    /**
-     * Update an existing certificate in the key service.
-     * @param tenantId
-     * @param id
-     * @param body
-     */
-    updateCert(tenantId: string, id: string, body: UpdateKeyDto) {
-        this.certRepository.update({ tenantId, id }, body);
-    }
-
-    /**
-     * Get the certificate chain for the given type to be included in the JWS header.
-     * @param type
-     * @param tenantId
-     * @param keyId
-     * @returns
-     */
-    getCertChain(cert: CertEntity) {
-        const chain = cert.crt
-            .replace("-----BEGIN CERTIFICATE-----", "")
-            .replace("-----END CERTIFICATE-----", "")
-            .replace(/\r?\n|\r/g, "");
-        return [chain];
-    }
-
-    /**
-     * Store the access certificate for the tenant.
-     * @param crt
-     * @param tenantId
-     */
-    async storeAccessCertificate(crt: string, tenantId: string, id: string) {
-        await this.certRepository.save({
-            tenantId,
-            id,
-            crt,
-            type: ["access"],
         });
     }
 
@@ -383,21 +320,5 @@ export class CryptoService {
             "jwk",
             tenantId,
         ) as Promise<EC_Public>;
-    }
-
-    /**
-     * Get the base64 url encoded SHA-256 hash of the certificate for the given tenant and keyId.
-     * @param tenantId
-     * @param keyId
-     */
-    getCertHash(cert: CertEntity) {
-        const der = Buffer.from(
-            cert.crt
-                .replace("-----BEGIN CERTIFICATE-----", "")
-                .replace("-----END CERTIFICATE-----", "")
-                .replace(/\r?\n|\r/g, ""),
-            "base64url",
-        );
-        return createHash("sha256").update(der).digest();
     }
 }

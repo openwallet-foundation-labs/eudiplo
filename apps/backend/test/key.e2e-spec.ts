@@ -5,6 +5,7 @@ import request from "supertest";
 import { v4 } from "uuid";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../src/app.module";
+import { KeyImportDto } from "../src/crypto/key/dto/key-import.dto";
 import { getToken } from "./utils";
 
 describe("Key (e2e)", () => {
@@ -48,8 +49,9 @@ describe("Key (e2e)", () => {
             .post("/key")
             .set("Authorization", `Bearer ${authToken}`)
             .send({
-                privateKey,
-            })
+                id: privateKey.kid,
+                key: privateKey,
+            } as KeyImportDto)
             .expect(201);
 
         expect(creationResponse.body.id).toBe(privateKey.kid);

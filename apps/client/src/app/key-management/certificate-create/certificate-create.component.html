@@ -108,7 +108,7 @@
                   type="button"
                   mat-raised-button
                   color="primary"
-                  (click)="generateSelfSignedCert(['signing'])"
+                  (click)="generateSelfSignedCert({ isSigningCert: true, isAccessCert: false })"
                 >
                   <mat-icon>edit</mat-icon>
                   Generate Signing Certificate
@@ -118,7 +118,7 @@
                   type="button"
                   mat-raised-button
                   color="accent"
-                  (click)="generateSelfSignedCert(['access'])"
+                  (click)="generateSelfSignedCert({ isSigningCert: false, isAccessCert: true })"
                 >
                   <mat-icon>vpn_key</mat-icon>
                   Generate Access Certificate
@@ -127,7 +127,7 @@
                 <button
                   type="button"
                   mat-raised-button
-                  (click)="generateSelfSignedCert(['signing', 'access'])"
+                  (click)="generateSelfSignedCert({ isSigningCert: true, isAccessCert: true })"
                 >
                   <mat-icon>star</mat-icon>
                   Generate Both (Signing & Access)

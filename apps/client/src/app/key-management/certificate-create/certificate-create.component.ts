@@ -17,8 +17,6 @@ import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { certControllerAddCertificate, certControllerAddSelfSignedCert } from '@eudiplo/sdk';
 import { v4 } from 'uuid';
 
-type CertificateType = 'signing' | 'access';
-
 @Component({
   selector: 'app-certificate-create',
   imports: [
@@ -100,12 +98,8 @@ export class CertificateCreateComponent implements OnInit {
     }
 
     const formValue = this.form.value;
-    const types: CertificateType[] = [];
 
-    if (formValue.signing) types.push('signing');
-    if (formValue.access) types.push('access');
-
-    if (types.length === 0) {
+    if (!formValue.signing && !formValue.access) {
       this.snackBar.open('Please select at least one usage type', 'Close', {
         duration: 3000,
       });
@@ -118,7 +112,8 @@ export class CertificateCreateComponent implements OnInit {
           id: v4(),
           keyId: this.keyId,
           crt: formValue.crt,
-          type: types,
+          isAccessCert: formValue.access,
+          isSigningCert: formValue.signing,
           description: formValue.description || undefined,
         },
       });
@@ -137,12 +132,16 @@ export class CertificateCreateComponent implements OnInit {
     }
   }
 
-  async generateSelfSignedCert(types: CertificateType[]): Promise<void> {
+  async generateSelfSignedCert(value: {
+    isSigningCert: boolean;
+    isAccessCert: boolean;
+  }): Promise<void> {
     try {
       const response = await certControllerAddSelfSignedCert({
         body: {
           keyId: this.keyId,
-          type: types,
+          isAccessCert: value.isAccessCert,
+          isSigningCert: value.isSigningCert,
         },
       });
 

@@ -94,10 +94,16 @@
               <th mat-header-cell *matHeaderCellDef>Usage Types</th>
               <td mat-cell *matCellDef="let cert">
                 <div fxLayout="row" fxLayoutGap="8px">
-                  @for (type of cert.type; track type) {
-                    <mat-chip [color]="type === 'signing' ? 'primary' : 'accent'">
-                      <mat-icon>{{ type === 'signing' ? 'edit' : 'vpn_key' }}</mat-icon>
-                      {{ type === 'signing' ? 'Signing' : 'Access' }}
+                  @if (cert.isSigningCert) {
+                    <mat-chip color="primary">
+                      <mat-icon>edit</mat-icon>
+                      Signing
+                    </mat-chip>
+                  }
+                  @if (cert.isAccessCert) {
+                    <mat-chip color="accent">
+                      <mat-icon>vpn_key</mat-icon>
+                      Access
                     </mat-chip>
                   }
                 </div>

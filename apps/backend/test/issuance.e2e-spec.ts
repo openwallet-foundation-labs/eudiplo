@@ -20,6 +20,7 @@ import { App } from "supertest/types";
 import { Agent, fetch, setGlobalDispatcher } from "undici";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../src/app.module";
+import { KeyImportDto } from "../src/crypto/key/dto/key-import.dto";
 import { callbacks, getSignJwtCallback, getToken } from "./utils";
 
 setGlobalDispatcher(
@@ -62,21 +63,32 @@ describe("Issuance", () => {
 
         authToken = await getToken(app, clientId, clientSecret);
 
-        const privateKey = {
-            kty: "EC",
-            x: "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
-            y: "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
-            crv: "P-256",
-            d: "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
-            kid: "039af178-3ca0-48f4-a2e4-7b1209f30376",
-            alg: "ES256",
+        const privateKey: KeyImportDto = {
+            id: "039af178-3ca0-48f4-a2e4-7b1209f30376",
+            key: {
+                kty: "EC",
+                x: "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
+                y: "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
+                crv: "P-256",
+                d: "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
+                alg: "ES256",
+            },
         };
 
         await request(app.getHttpServer())
             .post("/key")
             .set("Authorization", `Bearer ${authToken}`)
+            .send(privateKey)
+            .expect(201);
+
+        // create self signed certificate for the key
+        await request(app.getHttpServer())
+            .post(`/certs/self-signed`)
+            .set("Authorization", `Bearer ${authToken}`)
             .send({
-                privateKey,
+                keyId: privateKey.id,
+                isSigningCert: true,
+                isAccessCert: true,
             })
             .expect(201);
 

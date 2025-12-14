@@ -166,14 +166,10 @@ export class Oid4vpService {
                 },
             };
 
-            const accessCert = await this.cryptoService.find({
-                tenantId: session.tenantId,
-                type: "access",
-            });
             const header = {
                 ...request.header,
                 alg: "ES256",
-                x5c: accessCert,
+                x5c: this.cryptoService.getCertChain(cert),
             };
 
             const signedJwt = await this.cryptoService.signJwt(
@@ -223,14 +219,17 @@ export class Oid4vpService {
         const fresh = values.session === undefined;
         values.session = values.session || v4();
 
-        const hostname = new URL(
-            this.configService.getOrThrow<string>("PUBLIC_URL"),
-        ).hostname;
-
         const request_uri_method: "get" | "post" = "get";
 
+        const cert = await this.cryptoService.find({
+            tenantId: tenantId,
+            type: "access",
+        });
+
+        const certHash = await this.cryptoService.getCertHash(cert);
+
         const params = {
-            client_id: `x509_san_dns:${hostname}`,
+            client_id: "x509_hash:" + certHash,
             request_uri: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${values.session}/oid4vp/request`,
             request_uri_method,
         };
@@ -366,6 +365,7 @@ export class Oid4vpService {
 
             return {};
         } catch (error: any) {
+            console.log(error);
             this.sessionLogger.logFlowError(logContext, error as Error, {
                 action: "process_presentation_response",
             });

@@ -1,12 +1,10 @@
-import { ConflictException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Signer } from "@sd-jwt/types";
 import { JoseHeaderParameters, JWK, JWTPayload } from "jose";
 import { Repository } from "typeorm";
 import { KeyImportDto } from "./dto/key-import.dto";
 import { UpdateKeyDto } from "./dto/key-update.dto";
-import { CertEntity, CertificateType } from "./entities/cert.entity";
-import { KeyEntity } from "./entities/keys.entity";
+import { KeyEntity, KeyUsage } from "./entities/keys.entity";
 
 /**
  * Generic interface for a key service
@@ -14,7 +12,6 @@ import { KeyEntity } from "./entities/keys.entity";
 export abstract class KeyService {
     constructor(
         protected configService: ConfigService,
-        protected certRepository: Repository<CertEntity>,
         protected keyRepository: Repository<KeyEntity>,
     ) {}
 
@@ -60,7 +57,7 @@ export abstract class KeyService {
      * Get the key id
      * @returns
      */
-    abstract getKid(tenantId: string, type?: CertificateType): Promise<string>;
+    abstract getKid(tenantId: string, usage: KeyUsage): Promise<string>;
 
     /**
      * Get the public key
@@ -89,26 +86,6 @@ export abstract class KeyService {
         tenantId: string,
         keyId?: string,
     ): Promise<string>;
-
-    /**
-     * Get the certificate for the given key id.
-     * @param tenantId
-     * @param keyId
-     * @returns
-     */
-    protected getCertificate(tenantId: string, keyId: string): Promise<string> {
-        return this.certRepository
-            .findOneByOrFail({
-                tenantId,
-                id: keyId,
-            })
-            .then(
-                (cert) => cert.crt,
-                () => {
-                    throw new ConflictException("Certificate not found");
-                },
-            );
-    }
 
     getKeys(id: string): Promise<KeyEntity[]> {
         return this.keyRepository.findBy({ tenantId: id, usage: "sign" });

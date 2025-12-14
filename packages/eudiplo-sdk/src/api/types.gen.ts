@@ -216,9 +216,17 @@ export type KeyEntity = {
 
 export type CertEntity = {
   /**
-   * Certificate usage type(s)
+   * Certificate can be used for access/authentication
    */
-  type: Array<"access" | "signing">;
+  isAccessCert: boolean;
+  /**
+   * Certificate can be used for signing
+   */
+  isSigningCert: boolean;
+  /**
+   * The key ID this certificate is associated with
+   */
+  keyId: string;
   /**
    * Unique identifier for the key.
    */
@@ -239,10 +247,6 @@ export type CertEntity = {
    * Description of the key.
    */
   description?: string;
-  /**
-   * The ID of the key this certificate is associated with.
-   */
-  keyId: string;
   key: KeyEntity;
   /**
    * The timestamp when the VP request was created.
@@ -291,11 +295,15 @@ export type UpdateKeyDto = {
 
 export type CertImportDto = {
   /**
-   * Certificate usage type(s)
+   * Certificate can be used for access/authentication
    */
-  type: Array<"access" | "signing">;
+  isAccessCert: boolean;
   /**
-   * Key ID of the certificate's private key.
+   * Certificate can be used for signing
+   */
+  isSigningCert: boolean;
+  /**
+   * The key ID this certificate is associated with
    */
   keyId: string;
   /**
@@ -321,22 +329,30 @@ export type CertResponseDto = {
 
 export type CertSelfSignedDto = {
   /**
-   * Certificate usage type(s)
+   * Certificate can be used for access/authentication
    */
-  type: Array<"access" | "signing">;
+  isAccessCert: boolean;
   /**
-   * The ID of the key to associate the certificate with.
+   * Certificate can be used for signing
+   */
+  isSigningCert: boolean;
+  /**
+   * The key ID this certificate is associated with
    */
   keyId: string;
 };
 
 export type CertUpdateDto = {
   /**
-   * Certificate usage type(s)
+   * Certificate can be used for access/authentication
    */
-  type?: Array<"access" | "signing">;
+  isAccessCert: boolean;
   /**
-   * Optional description of the certificate.
+   * Certificate can be used for signing
+   */
+  isSigningCert: boolean;
+  /**
+   * Description of the key.
    */
   description?: string;
 };

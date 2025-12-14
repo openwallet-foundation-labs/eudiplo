@@ -89,7 +89,12 @@ export class CertController {
         @Body() dto: CertSelfSignedDto,
     ): Promise<CertResponseDto> {
         return this.certService
-            .addSelfSignedCert(token.entity!, dto.keyId, dto.type)
+            .addSelfSignedCert(
+                token.entity!,
+                dto.keyId,
+                dto.isAccessCert,
+                dto.isSigningCert,
+            )
             .then((id) => ({
                 id,
             }));

@@ -81,13 +81,12 @@ export class CertificateListComponent implements OnInit {
       if (key?.certificates && Array.isArray(key.certificates)) {
         this.certificatesArray.clear();
         key.certificates.forEach((cert: any) => {
-          const types = Array.isArray(cert.type) ? cert.type : [cert.type];
           this.certificatesArray.push(
             this.fb.group({
               id: [cert.id],
               crt: [{ value: cert.crt || '', disabled: true }],
-              signing: [{ value: types.includes('signing'), disabled: true }],
-              access: [{ value: types.includes('access'), disabled: true }],
+              signing: [{ value: cert.isSigningCert || false, disabled: true }],
+              access: [{ value: cert.isAccessCert || false, disabled: true }],
               description: [{ value: cert.description || '', disabled: true }],
             })
           );
@@ -127,7 +126,7 @@ export class CertificateListComponent implements OnInit {
     );
   }
 
-  async generateSelfSignedCert(types: ('signing' | 'access')[]): Promise<void> {
+  async generateSelfSignedCert(isSigningCert: boolean, isAccessCert: boolean): Promise<void> {
     if (!this.keyId) {
       this.snackBar.open('Key ID is required to generate certificate', 'Close', {
         duration: 3000,
@@ -137,7 +136,7 @@ export class CertificateListComponent implements OnInit {
 
     try {
       await certControllerAddSelfSignedCert({
-        body: { keyId: this.keyId, type: types },
+        body: { keyId: this.keyId, isAccessCert, isSigningCert },
       });
       this.snackBar.open('Self-signed certificate generated successfully', 'Close', {
         duration: 3000,
@@ -217,11 +216,10 @@ export class CertificateListComponent implements OnInit {
 
     for (const certControl of newCerts) {
       try {
-        const types: ('signing' | 'access')[] = [];
-        if (certControl.get('signing')?.value) types.push('signing');
-        if (certControl.get('access')?.value) types.push('access');
+        const isSigningCert = certControl.get('signing')?.value || false;
+        const isAccessCert = certControl.get('access')?.value || false;
 
-        if (types.length === 0) {
+        if (!isSigningCert && !isAccessCert) {
           this.snackBar.open('Certificate must have at least one usage type', 'Close', {
             duration: 3000,
           });
@@ -232,7 +230,8 @@ export class CertificateListComponent implements OnInit {
           body: {
             keyId: this.keyId,
             crt: certControl.get('crt')?.value,
-            type: types,
+            isAccessCert,
+            isSigningCert,
             description: certControl.get('description')?.value,
           },
         });

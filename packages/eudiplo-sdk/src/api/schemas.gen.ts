@@ -312,14 +312,21 @@ export const KeyEntitySchema = {
 export const CertEntitySchema = {
   type: "object",
   properties: {
-    type: {
-      type: "array",
-      description: "Certificate usage type(s)",
-      example: ["signing"],
-      items: {
-        type: "string",
-        enum: ["access", "signing"],
-      },
+    isAccessCert: {
+      type: "boolean",
+      description: "Certificate can be used for access/authentication",
+      example: false,
+    },
+    isSigningCert: {
+      type: "boolean",
+      description: "Certificate can be used for signing",
+      example: true,
+    },
+    keyId: {
+      type: "string",
+      description: "The key ID this certificate is associated with",
+      format: "uuid",
+      example: "039af178-3ca0-48f4-a2e4-7b1209f30376",
     },
     id: {
       type: "string",
@@ -345,10 +352,6 @@ export const CertEntitySchema = {
       type: "string",
       description: "Description of the key.",
     },
-    keyId: {
-      type: "string",
-      description: "The ID of the key this certificate is associated with.",
-    },
     key: {
       $ref: "#/components/schemas/KeyEntity",
     },
@@ -364,12 +367,13 @@ export const CertEntitySchema = {
     },
   },
   required: [
-    "type",
+    "isAccessCert",
+    "isSigningCert",
+    "keyId",
     "id",
     "tenantId",
     "tenant",
     "crt",
-    "keyId",
     "key",
     "createdAt",
     "updatedAt",
@@ -442,18 +446,21 @@ export const UpdateKeyDtoSchema = {
 export const CertImportDtoSchema = {
   type: "object",
   properties: {
-    type: {
-      type: "array",
-      description: "Certificate usage type(s)",
-      example: ["signing"],
-      items: {
-        type: "string",
-        enum: ["access", "signing"],
-      },
+    isAccessCert: {
+      type: "boolean",
+      description: "Certificate can be used for access/authentication",
+      example: false,
+    },
+    isSigningCert: {
+      type: "boolean",
+      description: "Certificate can be used for signing",
+      example: true,
     },
     keyId: {
       type: "string",
-      description: "Key ID of the certificate's private key.",
+      description: "The key ID this certificate is associated with",
+      format: "uuid",
+      example: "039af178-3ca0-48f4-a2e4-7b1209f30376",
     },
     id: {
       type: "string",
@@ -468,7 +475,7 @@ export const CertImportDtoSchema = {
       description: "Description of the key.",
     },
   },
-  required: ["type", "keyId", "id", "crt"],
+  required: ["isAccessCert", "isSigningCert", "keyId", "id", "crt"],
 } as const;
 
 export const CertResponseDtoSchema = {
@@ -485,40 +492,45 @@ export const CertResponseDtoSchema = {
 export const CertSelfSignedDtoSchema = {
   type: "object",
   properties: {
-    type: {
-      type: "array",
-      description: "Certificate usage type(s)",
-      minItems: 1,
-      items: {
-        type: "string",
-        enum: ["access", "signing"],
-      },
+    isAccessCert: {
+      type: "boolean",
+      description: "Certificate can be used for access/authentication",
+      example: false,
+    },
+    isSigningCert: {
+      type: "boolean",
+      description: "Certificate can be used for signing",
+      example: true,
     },
     keyId: {
       type: "string",
-      description: "The ID of the key to associate the certificate with.",
+      description: "The key ID this certificate is associated with",
+      format: "uuid",
+      example: "039af178-3ca0-48f4-a2e4-7b1209f30376",
     },
   },
-  required: ["type", "keyId"],
+  required: ["isAccessCert", "isSigningCert", "keyId"],
 } as const;
 
 export const CertUpdateDtoSchema = {
   type: "object",
   properties: {
-    type: {
-      type: "array",
-      description: "Certificate usage type(s)",
-      minItems: 1,
-      items: {
-        type: "string",
-        enum: ["access", "signing"],
-      },
+    isAccessCert: {
+      type: "boolean",
+      description: "Certificate can be used for access/authentication",
+      example: false,
+    },
+    isSigningCert: {
+      type: "boolean",
+      description: "Certificate can be used for signing",
+      example: true,
     },
     description: {
       type: "string",
-      description: "Optional description of the certificate.",
+      description: "Description of the key.",
     },
   },
+  required: ["isAccessCert", "isSigningCert"],
 } as const;
 
 export const WebHookAuthConfigNoneSchema = {

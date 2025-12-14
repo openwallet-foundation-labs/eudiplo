@@ -10,7 +10,6 @@ import {
     CryptoType,
 } from "../crypto-implementation/crypto-implementation.service";
 import { KeyImportDto } from "../dto/key-import.dto";
-import { CertEntity } from "../entities/cert.entity";
 import { KeyEntity } from "../entities/keys.entity";
 import { KeyService } from "../key.service";
 
@@ -24,10 +23,9 @@ export class VaultKeyService extends KeyService {
         private httpService: HttpService,
         configService: ConfigService,
         private cryptoService: CryptoImplementationService,
-        certRepository: Repository<CertEntity>,
         keyRepository: Repository<KeyEntity>,
     ) {
-        super(configService, certRepository, keyRepository);
+        super(configService, keyRepository);
 
         this.vaultUrl = this.configService.get<string>("VAULT_URL") as string;
         this.headers = {

@@ -28,10 +28,16 @@
             <div class="info-row">
               <span class="label">Usage Types:</span>
               <div fxLayout="row" fxLayoutGap="8px">
-                @for (type of certificate.type; track type) {
-                  <mat-chip [color]="getTypeColor(type)">
-                    <mat-icon>{{ type === 'signing' ? 'edit' : 'vpn_key' }}</mat-icon>
-                    {{ getTypeLabel(type) }}
+                @if (certificate.isSigningCert) {
+                  <mat-chip color="primary">
+                    <mat-icon>edit</mat-icon>
+                    Signing
+                  </mat-chip>
+                }
+                @if (certificate.isAccessCert) {
+                  <mat-chip color="accent">
+                    <mat-icon>vpn_key</mat-icon>
+                    Access
                   </mat-chip>
                 }
               </div>

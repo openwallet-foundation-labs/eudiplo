@@ -77,13 +77,12 @@ export class CertificateEditComponent implements OnInit {
       }
 
       const cert = response.data;
-      const types = Array.isArray(cert.type) ? cert.type : [cert.type];
-      this.isCurrentlyAccessCert = types.includes('access');
+      this.isCurrentlyAccessCert = cert.isAccessCert || false;
 
       // Initialize form with current values
       this.form = this.fb.group(
         {
-          signing: [types.includes('signing')],
+          signing: [cert.isSigningCert || false],
           access: [this.isCurrentlyAccessCert],
           description: [cert.description || ''],
         },
@@ -111,12 +110,8 @@ export class CertificateEditComponent implements OnInit {
     }
 
     const formValue = this.form.value;
-    const types: string[] = [];
 
-    if (formValue.signing) types.push('signing');
-    if (formValue.access) types.push('access');
-
-    if (types.length === 0) {
+    if (!formValue.signing && !formValue.access) {
       this.snackBar.open('Please select at least one usage type', 'Close', {
         duration: 3000,
       });
@@ -127,7 +122,8 @@ export class CertificateEditComponent implements OnInit {
       await certControllerUpdateCertificate({
         path: { certId: this.certId },
         body: {
-          type: types as ('access' | 'signing')[],
+          isAccessCert: formValue.access,
+          isSigningCert: formValue.signing,
           description: formValue.description || undefined,
         },
       });

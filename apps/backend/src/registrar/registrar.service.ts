@@ -182,7 +182,10 @@ export class RegistrarService implements OnModuleInit {
         tenantId: string,
         relyingPartyId: string,
     ): Promise<string> {
-        const keyId = await this.cryptoService.keyService.getKid(tenantId);
+        const keyId = await this.cryptoService.keyService.getKid(
+            tenantId,
+            "sign",
+        );
         const host = this.configService
             .getOrThrow<string>("PUBLIC_URL")
             .replace("https://", "");

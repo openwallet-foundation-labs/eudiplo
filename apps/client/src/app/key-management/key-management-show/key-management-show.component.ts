@@ -72,8 +72,10 @@ export class KeyManagementShowComponent implements OnInit {
           // Parse all certificates if they exist
           if (key?.certificates && Array.isArray(key.certificates)) {
             key.certificates.forEach((cert) => {
-              // Convert type to usages array (for now, type is singular string)
-              const usages = cert.type ? [String(cert.type)] : [];
+              // Build usages array from boolean fields
+              const usages: string[] = [];
+              if (cert.isSigningCert) usages.push('signing');
+              if (cert.isAccessCert) usages.push('access');
               this.parseCertificateInfo(cert.id, cert.crt, usages);
             });
           }

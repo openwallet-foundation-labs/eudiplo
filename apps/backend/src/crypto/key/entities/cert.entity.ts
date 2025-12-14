@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { IsBoolean, IsUUID } from "class-validator";
 import {
     Column,
     CreateDateColumn,
@@ -8,8 +9,6 @@ import {
 } from "typeorm";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
 import { KeyEntity } from "./keys.entity";
-
-export type CertificateType = "access" | "signing";
 
 /**
  * Entity to manage certificates for keys.
@@ -41,16 +40,26 @@ export class CertEntity {
     crt!: string;
 
     /**
-     * Type of the certificate (access or signing).
+     * Whether this certificate is used for access/authentication.
      */
     @ApiProperty({
-        enum: ["access", "signing"] as CertificateType[],
-        isArray: true,
-        description: "Certificate usage type(s)",
-        example: ["signing"],
+        description: "Certificate can be used for access/authentication",
+        example: false,
     })
-    @Column("json", { default: "signing" })
-    type!: CertificateType[];
+    @IsBoolean()
+    @Column("boolean", { default: false })
+    isAccessCert!: boolean;
+
+    /**
+     * Whether this certificate is used for signing.
+     */
+    @ApiProperty({
+        description: "Certificate can be used for signing",
+        example: true,
+    })
+    @IsBoolean()
+    @Column("boolean", { default: false })
+    isSigningCert!: boolean;
 
     /**
      * Description of the key.
@@ -61,6 +70,11 @@ export class CertEntity {
     /**
      * The ID of the key this certificate is associated with.
      */
+    @ApiProperty({
+        description: "The key ID this certificate is associated with",
+        example: "039af178-3ca0-48f4-a2e4-7b1209f30376",
+    })
+    @IsUUID()
     @Column("varchar")
     keyId!: string;
 
