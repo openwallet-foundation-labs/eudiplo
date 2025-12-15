@@ -1,9 +1,7 @@
 [
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/EC_Public.schema.json",
-    "fileMatch": [
-      "a://b/EC_Public.schema.json"
-    ],
+    "fileMatch": ["a://b/EC_Public.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/EC_Public.schema.json",
@@ -27,19 +25,12 @@
           "description": "The y coordinate of the EC public key."
         }
       },
-      "required": [
-        "kty",
-        "crv",
-        "x",
-        "y"
-      ]
+      "required": ["kty", "crv", "x", "y"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/JwksResponseDto.schema.json",
-    "fileMatch": [
-      "a://b/JwksResponseDto.schema.json"
-    ],
+    "fileMatch": ["a://b/JwksResponseDto.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/JwksResponseDto.schema.json",
@@ -54,16 +45,12 @@
           }
         }
       },
-      "required": [
-        "keys"
-      ]
+      "required": ["keys"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/RoleDto.schema.json",
-    "fileMatch": [
-      "a://b/RoleDto.schema.json"
-    ],
+    "fileMatch": ["a://b/RoleDto.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/RoleDto.schema.json",
@@ -84,16 +71,12 @@
           "example": "issuance:manage"
         }
       },
-      "required": [
-        "role"
-      ]
+      "required": ["role"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ClientCredentialsDto.schema.json",
-    "fileMatch": [
-      "a://b/ClientCredentialsDto.schema.json"
-    ],
+    "fileMatch": ["a://b/ClientCredentialsDto.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ClientCredentialsDto.schema.json",
@@ -107,17 +90,12 @@
           "type": "string"
         }
       },
-      "required": [
-        "client_id",
-        "client_secret"
-      ]
+      "required": ["client_id", "client_secret"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TokenResponse.schema.json",
-    "fileMatch": [
-      "a://b/TokenResponse.schema.json"
-    ],
+    "fileMatch": ["a://b/TokenResponse.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TokenResponse.schema.json",
@@ -137,18 +115,12 @@
           "type": "number"
         }
       },
-      "required": [
-        "access_token",
-        "token_type",
-        "expires_in"
-      ]
+      "required": ["access_token", "token_type", "expires_in"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TenantEntity.schema.json",
-    "fileMatch": [
-      "a://b/TenantEntity.schema.json"
-    ],
+    "fileMatch": ["a://b/TenantEntity.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TenantEntity.schema.json",
@@ -179,19 +151,12 @@
           }
         }
       },
-      "required": [
-        "id",
-        "name",
-        "status",
-        "clients"
-      ]
+      "required": ["id", "name", "status", "clients"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ClientEntity.schema.json",
-    "fileMatch": [
-      "a://b/ClientEntity.schema.json"
-    ],
+    "fileMatch": ["a://b/ClientEntity.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ClientEntity.schema.json",
@@ -238,17 +203,12 @@
           ]
         }
       },
-      "required": [
-        "clientId",
-        "roles"
-      ]
+      "required": ["clientId", "roles"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CreateTenantDto.schema.json",
-    "fileMatch": [
-      "a://b/CreateTenantDto.schema.json"
-    ],
+    "fileMatch": ["a://b/CreateTenantDto.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CreateTenantDto.schema.json",
@@ -282,17 +242,12 @@
           "description": "The description of the tenant."
         }
       },
-      "required": [
-        "id",
-        "name"
-      ]
+      "required": ["id", "name"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ClientSecretResponseDto.schema.json",
-    "fileMatch": [
-      "a://b/ClientSecretResponseDto.schema.json"
-    ],
+    "fileMatch": ["a://b/ClientSecretResponseDto.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ClientSecretResponseDto.schema.json",
@@ -303,16 +258,12 @@
           "type": "string"
         }
       },
-      "required": [
-        "secret"
-      ]
+      "required": ["secret"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpdateClientDto.schema.json",
-    "fileMatch": [
-      "a://b/UpdateClientDto.schema.json"
-    ],
+    "fileMatch": ["a://b/UpdateClientDto.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpdateClientDto.schema.json",
@@ -339,16 +290,12 @@
           }
         }
       },
-      "required": [
-        "roles"
-      ]
+      "required": ["roles"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CreateClientDto.schema.json",
-    "fileMatch": [
-      "a://b/CreateClientDto.schema.json"
-    ],
+    "fileMatch": ["a://b/CreateClientDto.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CreateClientDto.schema.json",
@@ -379,17 +326,12 @@
           }
         }
       },
-      "required": [
-        "clientId",
-        "roles"
-      ]
+      "required": ["clientId", "roles"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/KeyEntity.schema.json",
-    "fileMatch": [
-      "a://b/KeyEntity.schema.json"
-    ],
+    "fileMatch": ["a://b/KeyEntity.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/KeyEntity.schema.json",
@@ -456,9 +398,7 @@
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertEntity.schema.json",
-    "fileMatch": [
-      "a://b/CertEntity.schema.json"
-    ],
+    "fileMatch": ["a://b/CertEntity.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertEntity.schema.json",
@@ -536,9 +476,7 @@
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/Key.schema.json",
-    "fileMatch": [
-      "a://b/Key.schema.json"
-    ],
+    "fileMatch": ["a://b/Key.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/Key.schema.json",
@@ -564,21 +502,12 @@
           "type": "string"
         }
       },
-      "required": [
-        "kty",
-        "x",
-        "y",
-        "crv",
-        "d",
-        "alg"
-      ]
+      "required": ["kty", "x", "y", "crv", "d", "alg"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/KeyImportDto.schema.json",
-    "fileMatch": [
-      "a://b/KeyImportDto.schema.json"
-    ],
+    "fileMatch": ["a://b/KeyImportDto.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/KeyImportDto.schema.json",
@@ -602,17 +531,12 @@
           "description": "Description of the key."
         }
       },
-      "required": [
-        "key",
-        "id"
-      ]
+      "required": ["key", "id"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpdateKeyDto.schema.json",
-    "fileMatch": [
-      "a://b/UpdateKeyDto.schema.json"
-    ],
+    "fileMatch": ["a://b/UpdateKeyDto.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpdateKeyDto.schema.json",
@@ -628,16 +552,12 @@
           "description": "Description of the key."
         }
       },
-      "required": [
-        "id"
-      ]
+      "required": ["id"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertImportDto.schema.json",
-    "fileMatch": [
-      "a://b/CertImportDto.schema.json"
-    ],
+    "fileMatch": ["a://b/CertImportDto.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertImportDto.schema.json",
@@ -674,20 +594,12 @@
           "description": "Description of the key."
         }
       },
-      "required": [
-        "isAccessCert",
-        "isSigningCert",
-        "keyId",
-        "id",
-        "crt"
-      ]
+      "required": ["isAccessCert", "isSigningCert", "keyId", "id", "crt"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertResponseDto.schema.json",
-    "fileMatch": [
-      "a://b/CertResponseDto.schema.json"
-    ],
+    "fileMatch": ["a://b/CertResponseDto.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertResponseDto.schema.json",
@@ -699,16 +611,12 @@
           "description": "The ID of the created self-signed certificate."
         }
       },
-      "required": [
-        "id"
-      ]
+      "required": ["id"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertSelfSignedDto.schema.json",
-    "fileMatch": [
-      "a://b/CertSelfSignedDto.schema.json"
-    ],
+    "fileMatch": ["a://b/CertSelfSignedDto.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertSelfSignedDto.schema.json",
@@ -732,18 +640,12 @@
           "example": "039af178-3ca0-48f4-a2e4-7b1209f30376"
         }
       },
-      "required": [
-        "isAccessCert",
-        "isSigningCert",
-        "keyId"
-      ]
+      "required": ["isAccessCert", "isSigningCert", "keyId"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertUpdateDto.schema.json",
-    "fileMatch": [
-      "a://b/CertUpdateDto.schema.json"
-    ],
+    "fileMatch": ["a://b/CertUpdateDto.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertUpdateDto.schema.json",
@@ -765,17 +667,12 @@
           "description": "Description of the key."
         }
       },
-      "required": [
-        "isAccessCert",
-        "isSigningCert"
-      ]
+      "required": ["isAccessCert", "isSigningCert"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/WebHookAuthConfigNone.schema.json",
-    "fileMatch": [
-      "a://b/WebHookAuthConfigNone.schema.json"
-    ],
+    "fileMatch": ["a://b/WebHookAuthConfigNone.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/WebHookAuthConfigNone.schema.json",
@@ -785,21 +682,15 @@
         "type": {
           "type": "string",
           "description": "The type of authentication used for the webhook.",
-          "enum": [
-            "none"
-          ]
+          "enum": ["none"]
         }
       },
-      "required": [
-        "type"
-      ]
+      "required": ["type"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ApiKeyConfig.schema.json",
-    "fileMatch": [
-      "a://b/ApiKeyConfig.schema.json"
-    ],
+    "fileMatch": ["a://b/ApiKeyConfig.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ApiKeyConfig.schema.json",
@@ -815,17 +706,12 @@
           "description": "The value of the API key to be sent in the header."
         }
       },
-      "required": [
-        "headerName",
-        "value"
-      ]
+      "required": ["headerName", "value"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/WebHookAuthConfigHeader.schema.json",
-    "fileMatch": [
-      "a://b/WebHookAuthConfigHeader.schema.json"
-    ],
+    "fileMatch": ["a://b/WebHookAuthConfigHeader.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/WebHookAuthConfigHeader.schema.json",
@@ -835,9 +721,7 @@
         "type": {
           "type": "string",
           "description": "The type of authentication used for the webhook.",
-          "enum": [
-            "apiKey"
-          ]
+          "enum": ["apiKey"]
         },
         "config": {
           "description": "Configuration for API key authentication.\nThis is required if the type is 'apiKey'.",
@@ -848,17 +732,12 @@
           ]
         }
       },
-      "required": [
-        "type",
-        "config"
-      ]
+      "required": ["type", "config"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/WebhookConfig.schema.json",
-    "fileMatch": [
-      "a://b/WebhookConfig.schema.json"
-    ],
+    "fileMatch": ["a://b/WebhookConfig.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/WebhookConfig.schema.json",
@@ -881,17 +760,12 @@
           "description": "The URL to which the webhook will send notifications."
         }
       },
-      "required": [
-        "auth",
-        "url"
-      ]
+      "required": ["auth", "url"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/PresentationRequest.schema.json",
-    "fileMatch": [
-      "a://b/PresentationRequest.schema.json"
-    ],
+    "fileMatch": ["a://b/PresentationRequest.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/PresentationRequest.schema.json",
@@ -901,11 +775,7 @@
         "response_type": {
           "type": "string",
           "description": "The type of response expected from the presentation request.",
-          "enum": [
-            "qrcode",
-            "uri",
-            "dc-api"
-          ]
+          "enum": ["qrcode", "uri", "dc-api"]
         },
         "requestId": {
           "type": "string",
@@ -924,17 +794,12 @@
           "description": "Optional redirect URI to which the user-agent should be redirected after the presentation is completed."
         }
       },
-      "required": [
-        "response_type",
-        "requestId"
-      ]
+      "required": ["response_type", "requestId"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/OfferResponse.schema.json",
-    "fileMatch": [
-      "a://b/OfferResponse.schema.json"
-    ],
+    "fileMatch": ["a://b/OfferResponse.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/OfferResponse.schema.json",
@@ -948,17 +813,12 @@
           "type": "string"
         }
       },
-      "required": [
-        "uri",
-        "session"
-      ]
+      "required": ["uri", "session"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/Claim.schema.json",
-    "fileMatch": [
-      "a://b/Claim.schema.json"
-    ],
+    "fileMatch": ["a://b/Claim.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/Claim.schema.json",
@@ -972,16 +832,12 @@
           }
         }
       },
-      "required": [
-        "path"
-      ]
+      "required": ["path"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustedAuthorityQuery.schema.json",
-    "fileMatch": [
-      "a://b/TrustedAuthorityQuery.schema.json"
-    ],
+    "fileMatch": ["a://b/TrustedAuthorityQuery.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustedAuthorityQuery.schema.json",
@@ -990,11 +846,7 @@
       "properties": {
         "type": {
           "type": "string",
-          "enum": [
-            "aki",
-            "etsi_tl",
-            "openid_federation"
-          ]
+          "enum": ["aki", "etsi_tl", "openid_federation"]
         },
         "values": {
           "type": "array",
@@ -1003,17 +855,12 @@
           }
         }
       },
-      "required": [
-        "type",
-        "values"
-      ]
+      "required": ["type", "values"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CredentialQuery.schema.json",
-    "fileMatch": [
-      "a://b/CredentialQuery.schema.json"
-    ],
+    "fileMatch": ["a://b/CredentialQuery.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CredentialQuery.schema.json",
@@ -1045,18 +892,12 @@
           }
         }
       },
-      "required": [
-        "id",
-        "format",
-        "meta"
-      ]
+      "required": ["id", "format", "meta"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CredentialSetQuery.schema.json",
-    "fileMatch": [
-      "a://b/CredentialSetQuery.schema.json"
-    ],
+    "fileMatch": ["a://b/CredentialSetQuery.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CredentialSetQuery.schema.json",
@@ -1076,16 +917,12 @@
           "type": "boolean"
         }
       },
-      "required": [
-        "options"
-      ]
+      "required": ["options"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/DCQL.schema.json",
-    "fileMatch": [
-      "a://b/DCQL.schema.json"
-    ],
+    "fileMatch": ["a://b/DCQL.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/DCQL.schema.json",
@@ -1105,16 +942,12 @@
           }
         }
       },
-      "required": [
-        "credentials"
-      ]
+      "required": ["credentials"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/RegistrationCertificateRequest.schema.json",
-    "fileMatch": [
-      "a://b/RegistrationCertificateRequest.schema.json"
-    ],
+    "fileMatch": ["a://b/RegistrationCertificateRequest.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/RegistrationCertificateRequest.schema.json",
@@ -1130,16 +963,12 @@
           "description": "The body of the registration certificate request containing the necessary details."
         }
       },
-      "required": [
-        "body"
-      ]
+      "required": ["body"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/PresentationAttachment.schema.json",
-    "fileMatch": [
-      "a://b/PresentationAttachment.schema.json"
-    ],
+    "fileMatch": ["a://b/PresentationAttachment.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/PresentationAttachment.schema.json",
@@ -1159,17 +988,12 @@
           }
         }
       },
-      "required": [
-        "format",
-        "data"
-      ]
+      "required": ["format", "data"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/PresentationConfig.schema.json",
-    "fileMatch": [
-      "a://b/PresentationConfig.schema.json"
-    ],
+    "fileMatch": ["a://b/PresentationConfig.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/PresentationConfig.schema.json",
@@ -1242,20 +1066,12 @@
           "description": "Redirect URI to which the user-agent should be redirected after the presentation is completed."
         }
       },
-      "required": [
-        "id",
-        "tenant",
-        "dcql_query",
-        "createdAt",
-        "updatedAt"
-      ]
+      "required": ["id", "tenant", "dcql_query", "createdAt", "updatedAt"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/PresentationConfigCreateDto.schema.json",
-    "fileMatch": [
-      "a://b/PresentationConfigCreateDto.schema.json"
-    ],
+    "fileMatch": ["a://b/PresentationConfigCreateDto.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/PresentationConfigCreateDto.schema.json",
@@ -1310,17 +1126,12 @@
           "description": "Redirect URI to which the user-agent should be redirected after the presentation is completed."
         }
       },
-      "required": [
-        "id",
-        "dcql_query"
-      ]
+      "required": ["id", "dcql_query"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AuthorizeQueries.schema.json",
-    "fileMatch": [
-      "a://b/AuthorizeQueries.schema.json"
-    ],
+    "fileMatch": ["a://b/AuthorizeQueries.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AuthorizeQueries.schema.json",
@@ -1368,9 +1179,7 @@
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/OfferRequestDto.schema.json",
-    "fileMatch": [
-      "a://b/OfferRequestDto.schema.json"
-    ],
+    "fileMatch": ["a://b/OfferRequestDto.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/OfferRequestDto.schema.json",
@@ -1378,11 +1187,7 @@
       "type": "object",
       "properties": {
         "response_type": {
-          "enum": [
-            "qrcode",
-            "uri",
-            "dc-api"
-          ],
+          "enum": ["qrcode", "uri", "dc-api"],
           "type": "string",
           "examples": [
             {
@@ -1406,10 +1211,7 @@
         },
         "flow": {
           "description": "The flow type for the offer request.",
-          "enum": [
-            "authorization_code",
-            "pre_authorized_code"
-          ],
+          "enum": ["authorization_code", "pre_authorized_code"],
           "type": "string"
         },
         "tx_code": {
@@ -1440,18 +1242,12 @@
           ]
         }
       },
-      "required": [
-        "response_type",
-        "flow",
-        "credentialConfigurationIds"
-      ]
+      "required": ["response_type", "flow", "credentialConfigurationIds"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/Session.schema.json",
-    "fileMatch": [
-      "a://b/Session.schema.json"
-    ],
+    "fileMatch": ["a://b/Session.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/Session.schema.json",
@@ -1460,13 +1256,7 @@
       "properties": {
         "status": {
           "description": "Status of the session.",
-          "enum": [
-            "active",
-            "fetched",
-            "completed",
-            "expired",
-            "failed"
-          ],
+          "enum": ["active", "fetched", "completed", "expired", "failed"],
           "type": "string"
         },
         "id": {
@@ -1599,9 +1389,7 @@
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AuthorizationResponse.schema.json",
-    "fileMatch": [
-      "a://b/AuthorizationResponse.schema.json"
-    ],
+    "fileMatch": ["a://b/AuthorizationResponse.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AuthorizationResponse.schema.json",
@@ -1617,16 +1405,12 @@
           "description": "When set to true, the authorization response will be sent to the client."
         }
       },
-      "required": [
-        "response"
-      ]
+      "required": ["response"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/StatusUpdateDto.schema.json",
-    "fileMatch": [
-      "a://b/StatusUpdateDto.schema.json"
-    ],
+    "fileMatch": ["a://b/StatusUpdateDto.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/StatusUpdateDto.schema.json",
@@ -1646,17 +1430,12 @@
           "description": "The status of the credential\n0 = valid, 1 = revoked, 2 = suspended"
         }
       },
-      "required": [
-        "sessionId",
-        "status"
-      ]
+      "required": ["sessionId", "status"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/NotificationRequestDto.schema.json",
-    "fileMatch": [
-      "a://b/NotificationRequestDto.schema.json"
-    ],
+    "fileMatch": ["a://b/NotificationRequestDto.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/NotificationRequestDto.schema.json",
@@ -1670,17 +1449,12 @@
           "type": "object"
         }
       },
-      "required": [
-        "notification_id",
-        "event"
-      ]
+      "required": ["notification_id", "event"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ParResponseDto.schema.json",
-    "fileMatch": [
-      "a://b/ParResponseDto.schema.json"
-    ],
+    "fileMatch": ["a://b/ParResponseDto.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ParResponseDto.schema.json",
@@ -1696,17 +1470,12 @@
           "description": "The expiration time for the request URI in seconds."
         }
       },
-      "required": [
-        "request_uri",
-        "expires_in"
-      ]
+      "required": ["request_uri", "expires_in"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ClaimsQuery.schema.json",
-    "fileMatch": [
-      "a://b/ClaimsQuery.schema.json"
-    ],
+    "fileMatch": ["a://b/ClaimsQuery.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ClaimsQuery.schema.json",
@@ -1729,17 +1498,12 @@
           }
         }
       },
-      "required": [
-        "id",
-        "path"
-      ]
+      "required": ["id", "path"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/PolicyCredential.schema.json",
-    "fileMatch": [
-      "a://b/PolicyCredential.schema.json"
-    ],
+    "fileMatch": ["a://b/PolicyCredential.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/PolicyCredential.schema.json",
@@ -1765,16 +1529,12 @@
           }
         }
       },
-      "required": [
-        "credentials"
-      ]
+      "required": ["credentials"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AttestationBasedPolicy.schema.json",
-    "fileMatch": [
-      "a://b/AttestationBasedPolicy.schema.json"
-    ],
+    "fileMatch": ["a://b/AttestationBasedPolicy.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AttestationBasedPolicy.schema.json",
@@ -1783,9 +1543,7 @@
       "properties": {
         "policy": {
           "type": "string",
-          "enum": [
-            "attestationBased"
-          ]
+          "enum": ["attestationBased"]
         },
         "values": {
           "type": "array",
@@ -1794,17 +1552,12 @@
           }
         }
       },
-      "required": [
-        "policy",
-        "values"
-      ]
+      "required": ["policy", "values"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/NoneTrustPolicy.schema.json",
-    "fileMatch": [
-      "a://b/NoneTrustPolicy.schema.json"
-    ],
+    "fileMatch": ["a://b/NoneTrustPolicy.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/NoneTrustPolicy.schema.json",
@@ -1813,21 +1566,15 @@
       "properties": {
         "policy": {
           "type": "string",
-          "enum": [
-            "none"
-          ]
+          "enum": ["none"]
         }
       },
-      "required": [
-        "policy"
-      ]
+      "required": ["policy"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AllowListPolicy.schema.json",
-    "fileMatch": [
-      "a://b/AllowListPolicy.schema.json"
-    ],
+    "fileMatch": ["a://b/AllowListPolicy.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AllowListPolicy.schema.json",
@@ -1836,9 +1583,7 @@
       "properties": {
         "policy": {
           "type": "string",
-          "enum": [
-            "allowList"
-          ]
+          "enum": ["allowList"]
         },
         "values": {
           "type": "array",
@@ -1847,17 +1592,12 @@
           }
         }
       },
-      "required": [
-        "policy",
-        "values"
-      ]
+      "required": ["policy", "values"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/RootOfTrustPolicy.schema.json",
-    "fileMatch": [
-      "a://b/RootOfTrustPolicy.schema.json"
-    ],
+    "fileMatch": ["a://b/RootOfTrustPolicy.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/RootOfTrustPolicy.schema.json",
@@ -1866,25 +1606,18 @@
       "properties": {
         "policy": {
           "type": "string",
-          "enum": [
-            "rootOfTrust"
-          ]
+          "enum": ["rootOfTrust"]
         },
         "values": {
           "type": "string"
         }
       },
-      "required": [
-        "policy",
-        "values"
-      ]
+      "required": ["policy", "values"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/EmbeddedDisclosurePolicy.schema.json",
-    "fileMatch": [
-      "a://b/EmbeddedDisclosurePolicy.schema.json"
-    ],
+    "fileMatch": ["a://b/EmbeddedDisclosurePolicy.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/EmbeddedDisclosurePolicy.schema.json",
@@ -1895,16 +1628,12 @@
           "type": "string"
         }
       },
-      "required": [
-        "policy"
-      ]
+      "required": ["policy"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/DisplayImage.schema.json",
-    "fileMatch": [
-      "a://b/DisplayImage.schema.json"
-    ],
+    "fileMatch": ["a://b/DisplayImage.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/DisplayImage.schema.json",
@@ -1915,16 +1644,12 @@
           "type": "string"
         }
       },
-      "required": [
-        "uri"
-      ]
+      "required": ["uri"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/Display.schema.json",
-    "fileMatch": [
-      "a://b/Display.schema.json"
-    ],
+    "fileMatch": ["a://b/Display.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/Display.schema.json",
@@ -1953,18 +1678,12 @@
           "$ref": "./DisplayImage.schema.json"
         }
       },
-      "required": [
-        "name",
-        "description",
-        "locale"
-      ]
+      "required": ["name", "description", "locale"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/IssuerMetadataCredentialConfig.schema.json",
-    "fileMatch": [
-      "a://b/IssuerMetadataCredentialConfig.schema.json"
-    ],
+    "fileMatch": ["a://b/IssuerMetadataCredentialConfig.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/IssuerMetadataCredentialConfig.schema.json",
@@ -1984,17 +1703,12 @@
           "type": "string"
         }
       },
-      "required": [
-        "format",
-        "display"
-      ]
+      "required": ["format", "display"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/VCT.schema.json",
-    "fileMatch": [
-      "a://b/VCT.schema.json"
-    ],
+    "fileMatch": ["a://b/VCT.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/VCT.schema.json",
@@ -2027,9 +1741,7 @@
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/SchemaResponse.schema.json",
-    "fileMatch": [
-      "a://b/SchemaResponse.schema.json"
-    ],
+    "fileMatch": ["a://b/SchemaResponse.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/SchemaResponse.schema.json",
@@ -2058,18 +1770,12 @@
           "type": "string"
         }
       },
-      "required": [
-        "$schema",
-        "type",
-        "properties"
-      ]
+      "required": ["$schema", "type", "properties"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CredentialConfig.schema.json",
-    "fileMatch": [
-      "a://b/CredentialConfig.schema.json"
-    ],
+    "fileMatch": ["a://b/CredentialConfig.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CredentialConfig.schema.json",
@@ -2159,19 +1865,12 @@
           "$ref": "./SchemaResponse.schema.json"
         }
       },
-      "required": [
-        "id",
-        "tenant",
-        "config",
-        "cert"
-      ]
+      "required": ["id", "tenant", "config", "cert"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CredentialConfigCreate.schema.json",
-    "fileMatch": [
-      "a://b/CredentialConfigCreate.schema.json"
-    ],
+    "fileMatch": ["a://b/CredentialConfigCreate.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CredentialConfigCreate.schema.json",
@@ -2250,17 +1949,12 @@
           "$ref": "./SchemaResponse.schema.json"
         }
       },
-      "required": [
-        "id",
-        "config"
-      ]
+      "required": ["id", "config"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AuthenticationMethodNone.schema.json",
-    "fileMatch": [
-      "a://b/AuthenticationMethodNone.schema.json"
-    ],
+    "fileMatch": ["a://b/AuthenticationMethodNone.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AuthenticationMethodNone.schema.json",
@@ -2269,21 +1963,15 @@
       "properties": {
         "method": {
           "type": "string",
-          "enum": [
-            "none"
-          ]
+          "enum": ["none"]
         }
       },
-      "required": [
-        "method"
-      ]
+      "required": ["method"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AuthenticationUrlConfig.schema.json",
-    "fileMatch": [
-      "a://b/AuthenticationUrlConfig.schema.json"
-    ],
+    "fileMatch": ["a://b/AuthenticationUrlConfig.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AuthenticationUrlConfig.schema.json",
@@ -2303,16 +1991,12 @@
           ]
         }
       },
-      "required": [
-        "url"
-      ]
+      "required": ["url"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AuthenticationMethodAuth.schema.json",
-    "fileMatch": [
-      "a://b/AuthenticationMethodAuth.schema.json"
-    ],
+    "fileMatch": ["a://b/AuthenticationMethodAuth.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AuthenticationMethodAuth.schema.json",
@@ -2321,25 +2005,18 @@
       "properties": {
         "method": {
           "type": "string",
-          "enum": [
-            "auth"
-          ]
+          "enum": ["auth"]
         },
         "config": {
           "$ref": "./AuthenticationUrlConfig.schema.json"
         }
       },
-      "required": [
-        "method",
-        "config"
-      ]
+      "required": ["method", "config"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/PresentationDuringIssuanceConfig.schema.json",
-    "fileMatch": [
-      "a://b/PresentationDuringIssuanceConfig.schema.json"
-    ],
+    "fileMatch": ["a://b/PresentationDuringIssuanceConfig.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/PresentationDuringIssuanceConfig.schema.json",
@@ -2351,16 +2028,12 @@
           "description": "Link to the presentation configuration that is relevant for the issuance process"
         }
       },
-      "required": [
-        "type"
-      ]
+      "required": ["type"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AuthenticationMethodPresentation.schema.json",
-    "fileMatch": [
-      "a://b/AuthenticationMethodPresentation.schema.json"
-    ],
+    "fileMatch": ["a://b/AuthenticationMethodPresentation.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AuthenticationMethodPresentation.schema.json",
@@ -2369,25 +2042,18 @@
       "properties": {
         "method": {
           "type": "string",
-          "enum": [
-            "presentationDuringIssuance"
-          ]
+          "enum": ["presentationDuringIssuance"]
         },
         "config": {
           "$ref": "./PresentationDuringIssuanceConfig.schema.json"
         }
       },
-      "required": [
-        "method",
-        "config"
-      ]
+      "required": ["method", "config"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/DisplayLogo.schema.json",
-    "fileMatch": [
-      "a://b/DisplayLogo.schema.json"
-    ],
+    "fileMatch": ["a://b/DisplayLogo.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/DisplayLogo.schema.json",
@@ -2401,16 +2067,12 @@
           "type": "string"
         }
       },
-      "required": [
-        "uri"
-      ]
+      "required": ["uri"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/DisplayInfo.schema.json",
-    "fileMatch": [
-      "a://b/DisplayInfo.schema.json"
-    ],
+    "fileMatch": ["a://b/DisplayInfo.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/DisplayInfo.schema.json",
@@ -2431,9 +2093,7 @@
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/IssuanceConfig.schema.json",
-    "fileMatch": [
-      "a://b/IssuanceConfig.schema.json"
-    ],
+    "fileMatch": ["a://b/IssuanceConfig.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/IssuanceConfig.schema.json",
@@ -2488,19 +2148,12 @@
           "description": "The timestamp when the VP request was last updated."
         }
       },
-      "required": [
-        "tenant",
-        "display",
-        "createdAt",
-        "updatedAt"
-      ]
+      "required": ["tenant", "display", "createdAt", "updatedAt"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/IssuanceDto.schema.json",
-    "fileMatch": [
-      "a://b/IssuanceDto.schema.json"
-    ],
+    "fileMatch": ["a://b/IssuanceDto.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/IssuanceDto.schema.json",
@@ -2537,16 +2190,12 @@
           }
         }
       },
-      "required": [
-        "display"
-      ]
+      "required": ["display"]
     }
   },
   {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/FileUploadDto.schema.json",
-    "fileMatch": [
-      "a://b/FileUploadDto.schema.json"
-    ],
+    "fileMatch": ["a://b/FileUploadDto.schema.json"],
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/FileUploadDto.schema.json",
@@ -2558,9 +2207,7 @@
           "format": "binary"
         }
       },
-      "required": [
-        "file"
-      ]
+      "required": ["file"]
     }
   }
 ]
