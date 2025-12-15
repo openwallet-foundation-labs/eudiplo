@@ -403,8 +403,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="181"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:181</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="184"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:184</a></div>
                         </td>
                     </tr>
 
@@ -512,8 +512,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="275"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:275</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="290"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:290</a></div>
                         </td>
                     </tr>
 
@@ -745,8 +745,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="459"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:459</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="474"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:474</a></div>
                         </td>
                     </tr>
 
@@ -931,8 +931,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="262"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:262</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="277"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:277</a></div>
                         </td>
                     </tr>
 
@@ -972,8 +972,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="248"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:248</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="263"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:263</a></div>
                         </td>
                     </tr>
 
@@ -1207,31 +1207,34 @@ export class Oid4vciService {
             authorizationServerMetadata &#x3D;
                 await this.authzService.authzMetadata(tenantId);
         }
-
-        const credentialIssuer &#x3D; issuer.createCredentialIssuerMetadata({
-            credential_issuer,
-            credential_configurations_supported:
-                await this.credentialsService.getCredentialConfigurationSupported(
-                    tenantId,
-                ),
-            credential_endpoint: &#x60;${credential_issuer}/vci/credential&#x60;,
-            authorization_servers: authServers,
-            authorization_server: authServers[0],
-            notification_endpoint: &#x60;${credential_issuer}/vci/notification&#x60;,
-            nonce_endpoint: &#x60;${credential_issuer}/vci/nonce&#x60;,
-            display: issuanceConfig.display as any,
-            batch_credential_issuance: issuanceConfig?.batchSize
-                ? {
-                      batch_size: issuanceConfig?.batchSize,
-                  }
-                : undefined,
-        });
-
-        return {
-            credentialIssuer,
-            authorizationServers: [authorizationServerMetadata],
-            originalDraftVersion: Openid4vciDraftVersion.Draft15,
-        } as IssuerMetadataResult;
+        try {
+            const credentialIssuer &#x3D; issuer.createCredentialIssuerMetadata({
+                credential_issuer,
+                credential_configurations_supported:
+                    await this.credentialsService.getCredentialConfigurationSupported(
+                        tenantId,
+                    ),
+                credential_endpoint: &#x60;${credential_issuer}/vci/credential&#x60;,
+                authorization_servers: authServers,
+                authorization_server: authServers[0],
+                notification_endpoint: &#x60;${credential_issuer}/vci/notification&#x60;,
+                nonce_endpoint: &#x60;${credential_issuer}/vci/nonce&#x60;,
+                display: issuanceConfig.display as any,
+                batch_credential_issuance: issuanceConfig?.batchSize
+                    ? {
+                          batch_size: issuanceConfig?.batchSize,
+                      }
+                    : undefined,
+            });
+            return {
+                credentialIssuer,
+                authorizationServers: [authorizationServerMetadata],
+                originalDraftVersion: Openid4vciDraftVersion.Draft15,
+            } as IssuerMetadataResult;
+        } catch (error) {
+            console.log(&quot;Error creating credential issuer metadata&quot;, error);
+            throw error;
+        }
     }
 
     /**
@@ -1264,6 +1267,18 @@ export class Oid4vciService {
                     issuer_state,
                 },
             };
+        }
+
+        //if claims are provided, check them against the schemas when provided
+        if (body.claims) {
+            Promise.all(
+                Object.keys(body.claims).map((credentialConfigId) &#x3D;&gt;
+                    this.credentialsService.validateClaimsForCredential(
+                        credentialConfigId,
+                        body.claims![credentialConfigId],
+                    ),
+                ),
+            );
         }
 
         const session &#x3D; await this.sessionService.create({

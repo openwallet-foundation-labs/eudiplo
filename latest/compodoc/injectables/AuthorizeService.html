@@ -307,8 +307,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="246"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:246</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="253"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:253</a></div>
                         </td>
                     </tr>
 
@@ -544,8 +544,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="219"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:219</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="226"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:226</a></div>
                         </td>
                     </tr>
 
@@ -650,8 +650,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="309"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:309</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="316"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:316</a></div>
                         </td>
                     </tr>
 
@@ -810,8 +810,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="316"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:316</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="323"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:323</a></div>
                         </td>
                     </tr>
 
@@ -1153,25 +1153,32 @@ export class AuthorizeService {
             });
             dpopValue &#x3D; dpop;
         }
+
         //const cNonce &#x3D; randomUUID();
-        return this.getAuthorizationServer(tenantId).createAccessTokenResponse({
-            audience: &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/${tenantId}&#x60;,
-            signer: {
-                method: &quot;jwk&quot;,
-                alg: &quot;ES256&quot;,
-                publicJwk: (await this.cryptoService.keyService.getPublicKey(
-                    &quot;jwk&quot;,
-                    tenantId,
-                )) as Jwk,
-            },
-            subject: session.id,
-            expiresInSeconds: 300,
-            authorizationServer: authorizationServerMetadata.issuer,
-            /* cNonce,
+        return this.getAuthorizationServer(tenantId)
+            .createAccessTokenResponse({
+                audience: &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/${tenantId}&#x60;,
+                signer: {
+                    method: &quot;jwk&quot;,
+                    alg: &quot;ES256&quot;,
+                    publicJwk:
+                        (await this.cryptoService.keyService.getPublicKey(
+                            &quot;jwk&quot;,
+                            tenantId,
+                        )) as Jwk,
+                },
+                subject: session.id,
+                expiresInSeconds: 300,
+                authorizationServer: authorizationServerMetadata.issuer,
+                /* cNonce,
             cNonceExpiresIn: 100, */
-            clientId: req.body.client_id,
-            dpop: dpopValue,
-        });
+                clientId: req.body.client_id,
+                dpop: dpopValue,
+            })
+            .catch((err) &#x3D;&gt; {
+                console.error(&quot;Error creating access token response:&quot;, err);
+                throw err;
+            });
     }
 
     parseChallengeRequest(

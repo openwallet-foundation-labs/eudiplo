@@ -192,6 +192,10 @@
                                 <a href="#create" >create</a>
                             </li>
                             <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#deleteKey" >deleteKey</a>
+                            </li>
+                            <li>
                                 <a href="#getKid" >getKid</a>
                             </li>
                             <li>
@@ -228,8 +232,17 @@
                                 <a href="#signJWT" >signJWT</a>
                             </li>
                             <li>
-                                    <span class="modifier">Protected</span>
-                                <a href="#getCertificate" >getCertificate</a>
+                                <a href="#getKey" >getKey</a>
+                            </li>
+                            <li>
+                                <a href="#getKeys" >getKeys</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#importKeys" >importKeys</a>
+                            </li>
+                            <li>
+                                <a href="#update" >update</a>
                             </li>
                         </ul>
                     </td>
@@ -249,12 +262,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(configService: ConfigService, cryptoService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>, certRepository: <a href="../entitys/CertEntity.html" target="_self">Repository&lt;CertEntity&gt;</a>, keyRepository: <a href="../classes/Key.html" target="_self">Repository&lt;KeyEntity&gt;</a>)</code>
+<code>constructor(configService: ConfigService, cryptoService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>, keyRepository: <a href="../classes/Key.html" target="_self">Repository&lt;KeyEntity&gt;</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, certRepository: <a href="../entitys/CertEntity.html" target="_self">Repository&lt;CertEntity&gt;</a>, tenantRepository: <a href="../entitys/TenantEntity.html" target="_self">Repository&lt;TenantEntity&gt;</a>, logger: PinoLogger)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="28" class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:28</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:31</a></div>
                             </td>
                         </tr>
 
@@ -296,6 +309,30 @@
                                                     
                                                 </tr>
                                                 <tr>
+                                                        <td>keyRepository</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../classes/Key.html" target="_self" >Repository&lt;KeyEntity&gt;</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>configImportService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/ConfigImportService.html" target="_self" >ConfigImportService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
                                                         <td>certRepository</td>
                                                   
                                                         <td>
@@ -308,10 +345,22 @@
                                                     
                                                 </tr>
                                                 <tr>
-                                                        <td>keyRepository</td>
+                                                        <td>tenantRepository</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../classes/Key.html" target="_self" >Repository&lt;KeyEntity&gt;</a></code>
+                                                                        <code><a href="../entitys/TenantEntity.html" target="_self" >Repository&lt;TenantEntity&gt;</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>logger</td>
+                                                  
+                                                        <td>
+                                                                    <code>PinoLogger</code>
                                                         </td>
                                                   
                                                     <td>
@@ -353,7 +402,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="28" class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:28</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:31</a></div>
                         </td>
                     </tr>
 
@@ -395,7 +444,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:86</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:102</a></code>
 </div>
                         </td>
                     </tr>
@@ -449,16 +498,18 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getKid"></a>
+                    <a name="deleteKey"></a>
                     <span class="name">
-                        <span ><b>getKid</b></span>
-                        <a href="#getKid"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier">Async</span>
+                        <span ><b>deleteKey</b></span>
+                        <a href="#deleteKey"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>getKid(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, type: <a href="../undefineds/CertificateType.html" target="_self">CertificateType</a>)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>deleteKey(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, keyId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
@@ -471,7 +522,92 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:136</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:223</a></code>
+</div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>keyId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getKid"></a>
+                    <span class="name">
+                        <span ><b>getKid</b></span>
+                        <a href="#getKid"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getKid(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:152</a></code>
 </div>
                         </td>
                     </tr>
@@ -492,7 +628,6 @@ If no key exists, it will throw an error.</p>
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
-                                                <td>Default value</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -506,23 +641,6 @@ If no key exists, it will throw an error.</p>
                                                     No
                                             </td>
 
-                                            <td>
-                                            </td>
-
-                                        </tr>
-                                        <tr>
-                                                <td>type</td>
-                                            <td>
-                                                            <code><a href="../miscellaneous/typealiases.html#CertificateType" target="_self" >CertificateType</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-                                            <td>
-                                                    <code>&quot;signing&quot;</code>
-                                            </td>
 
                                         </tr>
                                     </tbody>
@@ -562,8 +680,8 @@ If no key exists, it will throw an error.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="118"
-                                    class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:118</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="134"
+                                    class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:134</a></div>
                         </td>
                     </tr>
 
@@ -645,8 +763,8 @@ If no key exists, it will throw an error.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="62"
-                                    class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:62</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="74"
+                                    class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:74</a></div>
                         </td>
                     </tr>
 
@@ -720,7 +838,7 @@ If no key exists, it will throw an error.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:152</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:164</a></code>
 </div>
                         </td>
                     </tr>
@@ -813,8 +931,8 @@ If no key exists, it will throw an error.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="153"
-                                    class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:153</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="165"
+                                    class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:165</a></div>
                         </td>
                     </tr>
 
@@ -906,8 +1024,8 @@ If no key exists, it will throw an error.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="158"
-                                    class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:158</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="170"
+                                    class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:170</a></div>
                         </td>
                     </tr>
 
@@ -1003,7 +1121,7 @@ If no key exists, it will throw an error.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:46</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:59</a></code>
 </div>
                         </td>
                     </tr>
@@ -1090,7 +1208,7 @@ If no key exists, it will throw an error.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:77</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:93</a></code>
 </div>
                         </td>
                     </tr>
@@ -1168,7 +1286,7 @@ This will create the keys if they do not exist.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:109</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:125</a></code>
 </div>
                         </td>
                     </tr>
@@ -1257,7 +1375,7 @@ This will create the keys if they do not exist.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:195</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:207</a></code>
 </div>
                         </td>
                     </tr>
@@ -1344,18 +1462,16 @@ This will create the keys if they do not exist.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getCertificate"></a>
+                    <a name="getKey"></a>
                     <span class="name">
-                            <span class="modifier">Protected</span>
-                        <span ><b>getCertificate</b></span>
-                        <a href="#getCertificate"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>getKey</b></span>
+                        <a href="#getKey"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getCertificate(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, keyId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+<code>getKey(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, keyId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
@@ -1368,7 +1484,7 @@ This will create the keys if they do not exist.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:85</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:104</a></code>
 </div>
                         </td>
                     </tr>
@@ -1376,8 +1492,6 @@ This will create the keys if they do not exist.</p>
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Get the certificate for the given key id.</p>
-</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -1419,7 +1533,226 @@ This will create the keys if they do not exist.</p>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
+                            <b>Returns : </b>        <code><a href="../classes/Key.html" target="_self" >Promise&lt;KeyEntity&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getKeys"></a>
+                    <span class="name">
+                        <span ><b>getKeys</b></span>
+                        <a href="#getKeys"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getKeys(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:100</a></code>
+</div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/Key.html" target="_self" >Promise&lt;KeyEntity[]&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="importKeys"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>importKeys</b></span>
+                        <a href="#importKeys"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>importKeys()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:119</a></code>
+</div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Imports keys from the file system into the key service.</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="update"></a>
+                    <span class="name">
+                        <span ><b>update</b></span>
+                        <a href="#update"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>update(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, body: <a href="../classes/UpdateKeyDto.html" target="_self">UpdateKeyDto</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:49</a></code>
+</div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Update key metadata</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>body</td>
+                                            <td>
+                                                            <code><a href="../classes/UpdateKeyDto.html" target="_self" >UpdateKeyDto</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
 
                         </div>
                             <div class="io-description">
@@ -1452,13 +1785,16 @@ import {
     JWTPayload,
     SignJWT,
 } from &quot;jose&quot;;
+import { PinoLogger } from &quot;nestjs-pino&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import { v4 } from &quot;uuid&quot;;
+import { TenantEntity } from &quot;../../../auth/tenant/entitites/tenant.entity&quot;;
+import { ConfigImportService } from &quot;../../../utils/config-import/config-import.service&quot;;
 import { EC_Public } from &quot;../../../well-known/dto/jwks-response.dto&quot;;
 import { CryptoImplementation } from &quot;../crypto-implementation/crypto-implementation&quot;;
 import { CryptoImplementationService } from &quot;../crypto-implementation/crypto-implementation.service&quot;;
 import { KeyImportDto } from &quot;../dto/key-import.dto&quot;;
-import { CertEntity, CertificateType } from &quot;../entities/cert.entity&quot;;
+import { CertEntity } from &quot;../entities/cert.entity&quot;;
 import { KeyEntity } from &quot;../entities/keys.entity&quot;;
 import { KeyService } from &quot;../key.service&quot;;
 
@@ -1471,10 +1807,20 @@ export class DBKeyService extends KeyService {
     constructor(
         configService: ConfigService,
         private cryptoService: CryptoImplementationService,
+        keyRepository: Repository&lt;KeyEntity&gt;,
+        configImportService: ConfigImportService,
         certRepository: Repository&lt;CertEntity&gt;,
-        private keyRepository: Repository&lt;KeyEntity&gt;,
+        tenantRepository: Repository&lt;TenantEntity&gt;,
+        logger: PinoLogger,
     ) {
-        super(configService, certRepository);
+        super(
+            configService,
+            keyRepository,
+            configImportService,
+            certRepository,
+            tenantRepository,
+            logger,
+        );
         this.crypto &#x3D; cryptoService.getCrypto();
     }
 
@@ -1485,14 +1831,13 @@ export class DBKeyService extends KeyService {
      * @returns
      */
     import(tenantId: string, body: KeyImportDto): Promise&lt;string&gt; {
-        const privateKey &#x3D; body.privateKey;
         return this.keyRepository
             .save({
-                id: privateKey.kid,
+                id: body.id,
                 tenantId,
-                key: privateKey,
+                key: body.key,
             })
-            .then(() &#x3D;&gt; privateKey.kid);
+            .then(() &#x3D;&gt; body.id);
     }
 
     /**
@@ -1507,6 +1852,10 @@ export class DBKeyService extends KeyService {
             ext: _ext,
             ...publicKey
         } &#x3D; privateKey;
+        // Ensure alg is set if not present
+        if (!publicKey.alg) {
+            publicKey.alg &#x3D; this.cryptoService.getAlg();
+        }
         return publicKey as EC_Public;
     }
 
@@ -1574,16 +1923,12 @@ export class DBKeyService extends KeyService {
      * If no key exists, it will throw an error.
      * @returns
      */
-    getKid(
-        tenantId: string,
-        type: CertificateType &#x3D; &quot;signing&quot;,
-    ): Promise&lt;string&gt; {
-        return this.certRepository
+    getKid(tenantId: string): Promise&lt;string&gt; {
+        return this.keyRepository
             .findOneByOrFail({
                 tenantId,
-                type,
             })
-            .then((cert) &#x3D;&gt; cert.id);
+            .then((key) &#x3D;&gt; key.id);
     }
 
     /**
@@ -1640,10 +1985,17 @@ export class DBKeyService extends KeyService {
         keyId?: string,
     ): Promise&lt;string&gt; {
         const privateKey &#x3D; await this.getPrivateKey(tenantId, keyId);
-        const privateKeyInstance &#x3D; (await importJWK(privateKey)) as CryptoKey;
+        const privateKeyInstance &#x3D; (await importJWK(
+            privateKey,
+            this.cryptoService.getAlg(),
+        )) as CryptoKey;
         return new SignJWT(payload)
             .setProtectedHeader(header)
             .sign(privateKeyInstance);
+    }
+
+    async deleteKey(tenantId: string, keyId: string): Promise&lt;void&gt; {
+        await this.keyRepository.delete({ tenantId, id: keyId });
     }
 }
 </code></pre>

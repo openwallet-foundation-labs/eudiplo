@@ -164,7 +164,7 @@
                             <a href="#DEFAULT_JWT_SECRET" title="src/auth/auth-validation.schema.ts" ><b>DEFAULT_JWT_SECRET</b>&nbsp;&nbsp;&nbsp;(src/.../auth-validation.schema.ts)</a>
                         </li>
                         <li>
-                            <a href="#ECDSA_P256" title="src/crypto/crypto.service.ts" ><b>ECDSA_P256</b>&nbsp;&nbsp;&nbsp;(src/.../crypto.service.ts)</a>
+                            <a href="#ECDSA_P256" title="src/crypto/key/cert/cert.service.ts" ><b>ECDSA_P256</b>&nbsp;&nbsp;&nbsp;(src/.../cert.service.ts)</a>
                         </li>
                         <li>
                             <a href="#ED25519" title="src/crypto/key/crypto-implementation/ed25519.ts" ><b>ED25519</b>&nbsp;&nbsp;&nbsp;(src/.../ed25519.ts)</a>
@@ -522,6 +522,11 @@
         .default(resolve(__dirname + &quot;/../../../../assets/config&quot;))
         .description(&quot;Path to config import folder&quot;)
         .meta({ group: &quot;config&quot;, order: 30 }),
+    CONFIG_VARIABLE_STRICT: Joi.alternatives()
+        .try(Joi.string().valid(&quot;abort&quot;, &quot;skip&quot;, &quot;ignore&quot;), Joi.boolean())
+        .default(&quot;skip&quot;)
+        .description(&quot;Strict mode for config import.&quot;)
+        .meta({ group: &quot;config&quot;, order: 40 }),
 })</code>
                     </td>
                 </tr>
@@ -806,7 +811,7 @@ This decorator can be used to determine the media type of the request.</p>
         </tbody>
     </table>
 </section>
-    <h3>src/crypto/crypto.service.ts</h3>
+    <h3>src/crypto/key/cert/cert.service.ts</h3>
     <section data-compodoc="block-properties">
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>

@@ -147,9 +147,7 @@
                 <h3>Extends</h3>
             </p>
             <p class="comment">
-                        <code>OmitType(KeyImportDto, [
-    &quot;privateKey&quot;,
-] as const)</code>
+                        <code>OmitType(KeyImportDto, [&quot;key&quot;] as const)</code>
             </p>
 
 
@@ -170,9 +168,7 @@
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { OmitType } from &quot;@nestjs/swagger&quot;;
 import { KeyImportDto } from &quot;./key-import.dto&quot;;
 
-export class UpdateKeyDto extends OmitType(KeyImportDto, [
-    &quot;privateKey&quot;,
-] as const) {}
+export class UpdateKeyDto extends OmitType(KeyImportDto, [&quot;key&quot;] as const) {}
 </code></pre>
     </div>
 </div>

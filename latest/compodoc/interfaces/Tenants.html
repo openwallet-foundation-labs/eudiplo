@@ -264,13 +264,11 @@ import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { InjectMetric } from &quot;@willsoto/nestjs-prometheus&quot;;
 import { plainToClass } from &quot;class-transformer&quot;;
 import { validate } from &quot;class-validator&quot;;
-import { readdirSync, readFileSync } from &quot;fs&quot;;
+import { existsSync, readdirSync, readFileSync } from &quot;fs&quot;;
 import { PinoLogger } from &quot;nestjs-pino&quot;;
 import { Gauge } from &quot;prom-client&quot;;
 import { Repository } from &quot;typeorm&quot;;
-import { CryptoService } from &quot;../../crypto/crypto.service&quot;;
 import { EncryptionService } from &quot;../../crypto/encryption/encryption.service&quot;;
-import { StatusListService } from &quot;../../issuer/status-list/status-list.service&quot;;
 import { RegistrarService } from &quot;../../registrar/registrar.service&quot;;
 import { FilesService } from &quot;../../storage/files.service&quot;;
 import { CLIENTS_PROVIDER, ClientsProvider } from &quot;../client/client.provider&quot;;
@@ -289,9 +287,7 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
     constructor(
         @Inject(CLIENTS_PROVIDER) private clients: ClientsProvider,
         private configService: ConfigService,
-        private cryptoService: CryptoService,
         private encryptionService: EncryptionService,
-        private statusListService: StatusListService,
         private registrarService: RegistrarService,
         @InjectRepository(TenantEntity)
         private tenantRepository: Repository&lt;TenantEntity&gt;,
@@ -315,11 +311,15 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
                     });
                     if (!setUp) {
                         const file &#x3D; &#x60;${configPath}/${tenant.name}/info.json&#x60;;
-                        //TODO: validate file
+                        if (!existsSync(file)) {
+                            // throw an eror because we need the tenant info file to set up the tenant.
+                            throw new Error(
+                                &#x60;Tenant config file not found for tenant ${tenant.name} in ${file}&#x60;,
+                            );
+                        }
                         const configFile &#x3D; readFileSync(file, &quot;utf-8&quot;);
                         const payload &#x3D; JSON.parse(configFile);
                         payload.id &#x3D; tenant.name;
-
                         // Validate the payload against CreateTenantDto
                         const tenantDto &#x3D; plainToClass(
                             CreateTenantDto,
@@ -380,8 +380,8 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
         const authTenant &#x3D; this.configService.get&lt;string&gt;(&quot;AUTH_CLIENT_TENANT&quot;);
         if (authTenant !&#x3D;&#x3D; tenant.id) {
             await this.clients.addClient(tenant.id, {
-                clientId: &quot;admin&quot;,
-                description: &quot;auto generated admin client&quot;,
+                clientId: &#x60;${tenant.id}-admin&#x60;,
+                description: &#x60;auto generated admin client for tenant ${tenant.id}&#x60;,
                 roles: [Role.Clients, ...(data.roles || [])],
             });
         }
@@ -404,9 +404,7 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
      * @param tenant
      */
     async setUpTenant(tenant: TenantEntity) {
-        await this.cryptoService.onTenantInit(tenant);
         await this.encryptionService.onTenantInit(tenant.id);
-        await this.statusListService.onTenantInit(tenant.id);
         await this.registrarService.onTenantInit(tenant);
         await this.tenantRepository.update(
             { id: tenant.id },

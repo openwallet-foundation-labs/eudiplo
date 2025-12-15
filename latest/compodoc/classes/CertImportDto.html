@@ -114,7 +114,7 @@
 
 <ol class="breadcrumb">
   <li class="breadcrumb-item">Classes</li>
-  <li class="breadcrumb-item" >DisplayImage</li>
+  <li class="breadcrumb-item" >CertImportDto</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -138,11 +138,30 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/issuer/credentials/entities/credential.entity.ts</code>
+            <code>src/crypto/key/dto/cert-import.dto.ts</code>
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>DTO for importing a certificate.</p>
 
+            </p>
+
+            <p class="comment">
+                <h3>Extends</h3>
+            </p>
+            <p class="comment">
+                            <code><a href="../entitys/CertEntity.html" target="_self" >OmitType(CertEntity, [
+    &quot;tenantId&quot;,
+    &quot;tenant&quot;,
+    &quot;key&quot;,
+    &quot;createdAt&quot;,
+    &quot;updatedAt&quot;,
+] as const)</a></code>
+            </p>
 
 
 
@@ -160,7 +179,7 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier"></span>
-                                <a href="#uri" >uri</a>
+                                <a href="#keyId" >keyId</a>
                             </li>
                         </ul>
                     </td>
@@ -185,11 +204,11 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="uri"></a>
+                    <a name="keyId"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                        <span ><b>uri</b></span>
-                        <a href="#uri"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>keyId</b></span>
+                        <a href="#keyId"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
@@ -210,10 +229,16 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="32" class="link-to-prism">src/issuer/credentials/entities/credential.entity.ts:32</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/crypto/key/dto/cert-import.dto.ts:19</a></div>
                         </td>
                     </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Key ID of the certificate&#39;s private key.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -229,195 +254,25 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
-    ApiExtraModels,
-    ApiHideProperty,
-    ApiProperty,
-    getSchemaPath,
-} from &quot;@nestjs/swagger&quot;;
-import { Type } from &quot;class-transformer&quot;;
-import {
-    IsBoolean,
-    IsNumber,
-    IsObject,
-    IsOptional,
-    IsString,
-    ValidateNested,
-} from &quot;class-validator&quot;;
-import { Column, Entity, ManyToOne } from &quot;typeorm&quot;;
-import { TenantEntity } from &quot;../../../auth/tenant/entitites/tenant.entity&quot;;
-import { CertEntity } from &quot;../../../crypto/key/entities/cert.entity&quot;;
-import { WebhookConfig } from &quot;../../../utils/webhook/webhook.dto&quot;;
-import { SchemaResponse } from &quot;../../credentials-metadata/dto/schema-response.dto&quot;;
-import { VCT } from &quot;../../credentials-metadata/dto/vct.dto&quot;;
-import {
-    AllowListPolicy,
-    AttestationBasedPolicy,
-    EmbeddedDisclosurePolicy,
-    NoneTrustPolicy,
-    RootOfTrustPolicy,
-} from &quot;./policies.dto&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { OmitType } from &quot;@nestjs/swagger&quot;;
+import { IsString } from &quot;class-validator&quot;;
+import { CertEntity } from &quot;../entities/cert.entity&quot;;
 
-export class DisplayImage {
-    @IsString()
-    uri!: string;
-}
-export class Display {
-    @IsString()
-    name!: string;
-    @IsString()
-    description!: string;
-    @IsString()
-    locale!: string;
-    @IsString()
-    background_color?: string;
-    @IsString()
-    text_color?: string;
-    @ValidateNested()
-    @Type(() &#x3D;&gt; DisplayImage)
-    background_image?: DisplayImage;
-    @ValidateNested()
-    @Type(() &#x3D;&gt; DisplayImage)
-    logo?: DisplayImage;
-}
-
-export class IssuerMetadataCredentialConfig {
-    @IsString()
-    format!: string;
-    @ValidateNested()
-    @Type(() &#x3D;&gt; Display)
-    display!: Display[];
-    @IsOptional()
-    @IsString()
-    scope?: string;
-}
-
-@ApiExtraModels(
-    AttestationBasedPolicy,
-    NoneTrustPolicy,
-    AllowListPolicy,
-    RootOfTrustPolicy,
-)
-@Entity()
-export class CredentialConfig {
-    @IsString()
-    @Column(&quot;varchar&quot;, { primary: true })
-    id!: string;
-
-    @IsString()
-    @Column(&quot;varchar&quot;, { nullable: true })
-    description?: string;
-
-    @ApiHideProperty()
-    @Column(&quot;varchar&quot;, { primary: true })
-    tenantId!: string;
-
+/**
+ * DTO for importing a certificate.
+ */
+export class CertImportDto extends OmitType(CertEntity, [
+    &quot;tenantId&quot;,
+    &quot;tenant&quot;,
+    &quot;key&quot;,
+    &quot;createdAt&quot;,
+    &quot;updatedAt&quot;,
+] as const) {
     /**
-     * The tenant that owns this object.
+     * Key ID of the certificate&#x27;s private key.
      */
-    @ManyToOne(() &#x3D;&gt; TenantEntity, { cascade: true, onDelete: &quot;CASCADE&quot; })
-    tenant!: TenantEntity;
-
-    @Column(&quot;json&quot;)
-    @ValidateNested()
-    @Type(() &#x3D;&gt; IssuerMetadataCredentialConfig)
-    config!: IssuerMetadataCredentialConfig;
-
-    @Column(&quot;json&quot;, { nullable: true })
-    @IsOptional()
-    @IsObject()
-    claims?: Record&lt;string, any&gt;;
-
-    /**
-     * Webhook to receive claims for the issuance process.
-     */
-    @IsOptional()
-    @ValidateNested()
-    @Type(() &#x3D;&gt; WebhookConfig)
-    @Column(&quot;json&quot;, { nullable: true })
-    claimsWebhook?: WebhookConfig;
-
-    /**
-     * Webhook to receive claims for the issuance process.
-     */
-    @IsOptional()
-    @ValidateNested()
-    @Type(() &#x3D;&gt; WebhookConfig)
-    @Column(&quot;json&quot;, { nullable: true })
-    notificationWebhook?: WebhookConfig;
-
-    // has to be optional since there may be credentials that are disclosed without a frame
-    @Column(&quot;json&quot;, { nullable: true })
-    @IsOptional()
-    @IsObject()
-    disclosureFrame?: Record&lt;string, any&gt;;
-
-    @IsOptional()
-    @ValidateNested()
-    @Type(() &#x3D;&gt; VCT)
-    @Column(&quot;json&quot;, { nullable: true })
-    vct?: VCT;
-
-    @IsOptional()
-    @Column(&quot;boolean&quot;, { default: false })
-    @IsBoolean()
-    keyBinding?: boolean;
-
-    @IsOptional()
     @IsString()
-    certId?: string;
-
-    @ManyToOne(() &#x3D;&gt; CertEntity, { onDelete: &quot;SET NULL&quot; })
-    cert!: CertEntity;
-
-    @IsOptional()
-    @Column(&quot;boolean&quot;, { default: false })
-    @IsBoolean()
-    statusManagement?: boolean;
-
-    @IsOptional()
-    @Column(&quot;int&quot;, { nullable: true })
-    @IsNumber()
-    lifeTime?: number;
-
-    @IsOptional()
-    @ValidateNested()
-    @Type(() &#x3D;&gt; SchemaResponse)
-    @Column(&quot;json&quot;, { nullable: true })
-    schema?: SchemaResponse;
-
-    /**
-     * Embedded disclosure policy (discriminated union by &#x60;policy&#x60;).
-     * The discriminator makes class-transformer instantiate the right subclass,
-     * and then class-validator runs that subclass’s rules.
-     */
-    @IsOptional()
-    @ValidateNested()
-    @ApiProperty({
-        oneOf: [
-            { $ref: getSchemaPath(AttestationBasedPolicy) },
-            { $ref: getSchemaPath(NoneTrustPolicy) },
-            { $ref: getSchemaPath(AllowListPolicy) },
-            { $ref: getSchemaPath(RootOfTrustPolicy) },
-        ],
-    })
-    @Type(() &#x3D;&gt; AttestationBasedPolicy, {
-        discriminator: {
-            property: &quot;policy&quot;,
-            subTypes: [
-                { name: &quot;none&quot;, value: NoneTrustPolicy },
-                { name: &quot;allowList&quot;, value: AllowListPolicy },
-                { name: &quot;rootOfTrust&quot;, value: RootOfTrustPolicy },
-                {
-                    name: &quot;attestationBased&quot;,
-                    value: AttestationBasedPolicy,
-                },
-            ],
-        },
-        keepDiscriminatorProperty: true, // keep &#x60;policy&#x60; on the instance
-    })
-    @Column(&quot;json&quot;, { nullable: true })
-    embeddedDisclosurePolicy?: EmbeddedDisclosurePolicy;
+    keyId: string;
 }
 </code></pre>
     </div>
@@ -457,7 +312,7 @@ export class CredentialConfig {
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
-            var COMPODOC_CURRENT_PAGE_URL = 'DisplayImage.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'CertImportDto.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

@@ -24,13 +24,13 @@
 <title>cluster_SessionModule</title>
 <polygon fill="none" stroke="black" stroke-dasharray="1,5" points="34,-70 34,-268 462,-268 462,-70 34,-70"/>
 </g>
-<g id="clust4" class="cluster">
-<title>cluster_SessionModule_exports</title>
-<polygon fill="none" stroke="black" points="113,-208 113,-260 355,-260 355,-208 113,-208"/>
-</g>
 <g id="clust6" class="cluster">
 <title>cluster_SessionModule_providers</title>
 <polygon fill="none" stroke="black" points="300,-78 300,-130 454,-130 454,-78 300,-78"/>
+</g>
+<g id="clust4" class="cluster">
+<title>cluster_SessionModule_exports</title>
+<polygon fill="none" stroke="black" points="113,-208 113,-260 355,-260 355,-208 113,-208"/>
 </g>
 <g id="clust3" class="cluster">
 <title>cluster_SessionModule_imports</title>

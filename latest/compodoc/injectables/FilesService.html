@@ -199,12 +199,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(storage: <a href="../interfaces/FileStorage.html" target="_self">FileStorage</a>, fileRepository: <a href="../entitys/FileEntity.html" target="_self">Repository&lt;FileEntity&gt;</a>, configService: ConfigService, logger: PinoLogger)</code>
+<code>constructor(storage: <a href="../interfaces/FileStorage.html" target="_self">FileStorage</a>, fileRepository: <a href="../entitys/FileEntity.html" target="_self">Repository&lt;FileEntity&gt;</a>, configService: ConfigService, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="17" class="link-to-prism">src/storage/files.service.ts:17</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="16" class="link-to-prism">src/storage/files.service.ts:16</a></div>
                             </td>
                         </tr>
 
@@ -258,10 +258,10 @@
                                                     
                                                 </tr>
                                                 <tr>
-                                                        <td>logger</td>
+                                                        <td>configImportService</td>
                                                   
                                                         <td>
-                                                                    <code>PinoLogger</code>
+                                                                        <code><a href="../injectables/ConfigImportService.html" target="_self" >ConfigImportService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -303,8 +303,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="154"
-                                    class="link-to-prism">src/storage/files.service.ts:154</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="136"
+                                    class="link-to-prism">src/storage/files.service.ts:136</a></div>
                         </td>
                     </tr>
 
@@ -380,8 +380,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="169"
-                                    class="link-to-prism">src/storage/files.service.ts:169</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="151"
+                                    class="link-to-prism">src/storage/files.service.ts:151</a></div>
                         </td>
                     </tr>
 
@@ -454,8 +454,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="158"
-                                    class="link-to-prism">src/storage/files.service.ts:158</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="140"
+                                    class="link-to-prism">src/storage/files.service.ts:140</a></div>
                         </td>
                     </tr>
 
@@ -521,8 +521,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="145"
-                                    class="link-to-prism">src/storage/files.service.ts:145</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="127"
+                                    class="link-to-prism">src/storage/files.service.ts:127</a></div>
                         </td>
                     </tr>
 
@@ -598,8 +598,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="37"
-                                    class="link-to-prism">src/storage/files.service.ts:37</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="36"
+                                    class="link-to-prism">src/storage/files.service.ts:36</a></div>
                         </td>
                     </tr>
 
@@ -637,8 +637,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="30"
-                                    class="link-to-prism">src/storage/files.service.ts:30</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="29"
+                                    class="link-to-prism">src/storage/files.service.ts:29</a></div>
                         </td>
                     </tr>
 
@@ -679,8 +679,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="99"
-                                    class="link-to-prism">src/storage/files.service.ts:99</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="81"
+                                    class="link-to-prism">src/storage/files.service.ts:81</a></div>
                         </td>
                     </tr>
 
@@ -762,8 +762,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="117"
-                                    class="link-to-prism">src/storage/files.service.ts:117</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="99"
+                                    class="link-to-prism">src/storage/files.service.ts:99</a></div>
                         </td>
                     </tr>
 
@@ -867,15 +867,14 @@
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { randomUUID } from &quot;crypto&quot;;
-import { readdirSync, readFileSync } from &quot;fs&quot;;
-import { PinoLogger } from &quot;nestjs-pino&quot;;
-import { join } from &quot;path&quot;;
+import { readFileSync } from &quot;fs&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import {
     FILE_STORAGE,
     FileStorage,
     StoredObject,
 } from &quot;../storage/storage.types&quot;;
+import { ConfigImportService } from &quot;../utils/config-import/config-import.service&quot;;
 import { FileEntity } from &quot;./entities/files.entity&quot;;
 
 @Injectable()
@@ -885,7 +884,7 @@ export class FilesService implements OnApplicationBootstrap {
         @InjectRepository(FileEntity)
         private fileRepository: Repository&lt;FileEntity&gt;,
         private configService: ConfigService,
-        private logger: PinoLogger,
+        private configImportService: ConfigImportService,
     ) {}
 
     /**
@@ -900,59 +899,42 @@ export class FilesService implements OnApplicationBootstrap {
      * Import images from the config folder
      */
     async import() {
-        const configPath &#x3D; this.configService.getOrThrow(&quot;CONFIG_FOLDER&quot;);
-        const subfolder &#x3D; &quot;images&quot;;
-        const force &#x3D; this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT_FORCE&quot;);
-        if (this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT&quot;)) {
-            const tenantFolders &#x3D; readdirSync(configPath, {
-                withFileTypes: true,
-            }).filter((tenant) &#x3D;&gt; tenant.isDirectory());
-            for (const tenant of tenantFolders) {
-                let counter &#x3D; 0;
-                //iterate over all elements in the folder and import them
-                const path &#x3D; join(configPath, tenant.name, subfolder);
-                const files &#x3D; readdirSync(path);
-                for (const file of files) {
-                    //check if already exists
-                    const exists &#x3D; await this.fileRepository.findOneBy({
-                        filename: file,
-                        tenantId: tenant.name,
-                    });
-                    if (exists &amp;&amp; !force) {
-                        this.logger.info(
-                            {
-                                event: &quot;Import&quot;,
-                            },
-                            &#x60;Image ${file} already exists for ${tenant.name}, skipping&#x60;,
-                        );
-                        continue;
-                    }
-
-                    const key &#x3D; randomUUID();
-                    await this.storage.put(
-                        key,
-                        readFileSync(join(path, file)),
-                        {
-                            contentType: &quot;application/octet-stream&quot;,
-                            acl: &quot;public&quot;,
-                            metadata: { originalName: file },
-                        },
-                    );
-                    await this.fileRepository.save({
-                        id: key,
-                        filename: file,
-                        tenantId: tenant.name,
-                    });
-                    counter++;
-                }
-                this.logger.info(
-                    {
-                        event: &quot;Import&quot;,
-                    },
-                    &#x60;${counter} images imported for ${tenant.name}&#x60;,
-                );
-            }
+        interface FileImportData {
+            filename: string;
+            content: Buffer;
         }
+
+        await this.configImportService.importConfigs&lt;FileImportData&gt;({
+            subfolder: &quot;images&quot;,
+            resourceType: &quot;image&quot;,
+            loadData: (filePath) &#x3D;&gt; {
+                const filename &#x3D; filePath.split(&quot;/&quot;).pop() || &quot;&quot;;
+                return {
+                    filename,
+                    content: readFileSync(filePath),
+                };
+            },
+            checkExists: async (tenantId, data) &#x3D;&gt; {
+                const exists &#x3D; await this.fileRepository.findOneBy({
+                    filename: data.filename,
+                    tenantId,
+                });
+                return !!exists;
+            },
+            processItem: async (tenantId, data) &#x3D;&gt; {
+                const key &#x3D; randomUUID();
+                await this.storage.put(key, data.content, {
+                    contentType: &quot;application/octet-stream&quot;,
+                    acl: &quot;public&quot;,
+                    metadata: { originalName: data.filename },
+                });
+                await this.fileRepository.save({
+                    id: key,
+                    filename: data.filename,
+                    tenantId,
+                });
+            },
+        });
     }
 
     /**

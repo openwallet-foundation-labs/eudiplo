@@ -110,7 +110,7 @@
 
 <ol class="breadcrumb">
   <li class="breadcrumb-item">Injectables</li>
-  <li class="breadcrumb-item" >CryptoService</li>
+  <li class="breadcrumb-item" >ConfigImportService</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -134,17 +134,10 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/crypto/crypto.service.ts</code>
+            <code>src/utils/config-import/config-import.service.ts</code>
         </p>
 
 
-            <p class="comment">
-                <h3>Description</h3>
-            </p>
-            <p class="comment">
-                <p>Service for cryptographic operations, including key management and certificate handling.</p>
-
-            </p>
 
 
 
@@ -152,26 +145,6 @@
     <h3 id="index">Index</h3>
     <table class="table table-sm table-bordered index-table">
         <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <h6><b>Properties</b></h6>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <ul class="index-list">
-                            <li>
-                                <a href="#folder" >folder</a>
-                            </li>
-                            <li>
-                                    <span class="modifier"></span>
-                                    <span class="modifier">Public</span>
-                                    <span class="modifier">Readonly</span>
-                                <a href="#keyService" >keyService</a>
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
 
                 <tr>
                     <td class="col-md-4">
@@ -182,20 +155,22 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
-                                <a href="#fetchFunction" >fetchFunction</a>
+                                <a href="#extractErrorMessages" >extractErrorMessages</a>
                             </li>
                             <li>
-                                <a href="#getCallbackContext" >getCallbackContext</a>
-                            </li>
-                            <li>
-                                <a href="#getSignJwtCallback" >getSignJwtCallback</a>
-                            </li>
-                            <li>
-                                <a href="#storeAccessCertificate" >storeAccessCertificate</a>
+                                <a href="#formatNestedValidationError" >formatNestedValidationError</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#verifyJwt" >verifyJwt</a>
+                                <a href="#importConfigs" >importConfigs</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#replacePlaceholders" >replacePlaceholders</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#validateConfig" >validateConfig</a>
                             </li>
                         </ul>
                     </td>
@@ -215,19 +190,17 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(keyService: <a href="../classes/KeyService.html" target="_self">KeyService</a>, certService: <a href="../injectables/CertService.html" target="_self">CertService</a>)</code>
+<code>constructor(configService: ConfigService, logger: PinoLogger)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="23" class="link-to-prism">src/crypto/crypto.service.ts:23</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="11" class="link-to-prism">src/utils/config-import/config-import.service.ts:11</a></div>
                             </td>
                         </tr>
 
                 <tr>
                     <td class="col-md-4">
-                            <div class="io-description"><p>Constructor for CryptoService.</p>
-</div>
                             <div>
                                     <b>Parameters :</b>
                                     <table class="params">
@@ -240,10 +213,10 @@
                                         </thead>
                                         <tbody>
                                                 <tr>
-                                                        <td>keyService</td>
+                                                        <td>configService</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+                                                                    <code>ConfigService</code>
                                                         </td>
                                                   
                                                     <td>
@@ -252,10 +225,10 @@
                                                     
                                                 </tr>
                                                 <tr>
-                                                        <td>certService</td>
+                                                        <td>logger</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../injectables/CertService.html" target="_self" >CertService</a></code>
+                                                                    <code>PinoLogger</code>
                                                         </td>
                                                   
                                                     <td>
@@ -281,31 +254,31 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="fetchFunction"></a>
+                    <a name="extractErrorMessages"></a>
                     <span class="name">
-                        <span ><b>fetchFunction</b></span>
-                        <a href="#fetchFunction"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>extractErrorMessages</b></span>
+                        <a href="#extractErrorMessages"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>fetchFunction(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+<code>extractErrorMessages(error: ValidationError)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="120"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:120</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="259"
+                                    class="link-to-prism">src/utils/config-import/config-import.service.ts:259</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Override the fetch function since key can be passed</p>
+                        <div class="io-description"><p>Extract nested error messages from validation errors</p>
 </div>
 
                             <div class="io-description">
@@ -321,9 +294,9 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>tenantId</td>
+                                                <td>error</td>
                                             <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                                        <code>ValidationError</code>
                                             </td>
 
                                             <td>
@@ -336,7 +309,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>() &#x3D;&gt; Promise&lt;Response&gt;</code>
+                            <b>Returns : </b>    <code>string[]</code>
 
                         </div>
                             <div class="io-description">
@@ -350,31 +323,31 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getCallbackContext"></a>
+                    <a name="formatNestedValidationError"></a>
                     <span class="name">
-                        <span ><b>getCallbackContext</b></span>
-                        <a href="#getCallbackContext"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>formatNestedValidationError</b></span>
+                        <a href="#formatNestedValidationError"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>getCallbackContext(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+<code>formatNestedValidationError(error: ValidationError)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="77"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:77</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="280"
+                                    class="link-to-prism">src/utils/config-import/config-import.service.ts:280</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Get the callback context for the key service.</p>
+                        <div class="io-description"><p>Format validation errors with nested messages</p>
 </div>
 
                             <div class="io-description">
@@ -390,9 +363,9 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>tenantId</td>
+                                                <td>error</td>
                                             <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                                        <code>ValidationError</code>
                                             </td>
 
                                             <td>
@@ -405,7 +378,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>Omit&lt;CallbackContext, &quot;encryptJwe&quot; | &quot;decryptJwe&quot;&gt;</code>
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
 
                         </div>
                             <div class="io-description">
@@ -419,193 +392,41 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getSignJwtCallback"></a>
-                    <span class="name">
-                        <span ><b>getSignJwtCallback</b></span>
-                        <a href="#getSignJwtCallback"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getSignJwtCallback(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="137"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:137</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>SignJwtCallback</code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="storeAccessCertificate"></a>
-                    <span class="name">
-                        <span ><b>storeAccessCertificate</b></span>
-                        <a href="#storeAccessCertificate"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>storeAccessCertificate(crt: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="42"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:42</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Store the access certificate.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>crt</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>id</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="verifyJwt"></a>
+                    <a name="importConfigs"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
-                        <span ><b>verifyJwt</b></span>
-                        <a href="#verifyJwt"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>importConfigs</b></span>
+                        <a href="#importConfigs"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>verifyJwt(compact: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, payload?: Record<string | any>)</code>
+                    <code>importConfigs(options: <a href="../interfaces/ImportOptions.html" target="_self">ImportOptions&lt;T&gt;</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="53"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:53</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="20"
+                                    class="link-to-prism">src/utils/config-import/config-import.service.ts:20</a></div>
                         </td>
                     </tr>
 
+                    <tr>
+                        <td class="col-md-4">
+                            <b>Type parameters :</b>
+                            <ul class="type-parameters">
+                                    <li>T</li>
+                            </ul>
+                        </td>
+                    </tr>
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Verify a JWT with the key service.</p>
+                        <div class="io-description"><p>Generic import method that handles the common pattern across all services</p>
 </div>
 
                             <div class="io-description">
@@ -621,9 +442,9 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>compact</td>
+                                                <td>options</td>
                                             <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                                            <code><a href="../interfaces/ImportOptions.html" target="_self" >ImportOptions&lt;T&gt;</a></code>
                                             </td>
 
                                             <td>
@@ -632,8 +453,156 @@
 
 
                                         </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="replacePlaceholders"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>replacePlaceholders</b></span>
+                        <a href="#replacePlaceholders"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>replacePlaceholders(input: T)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="146"
+                                    class="link-to-prism">src/utils/config-import/config-import.service.ts:146</a></div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <b>Type parameters :</b>
+                            <ul class="type-parameters">
+                                    <li>T</li>
+                            </ul>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Recursively replace placeholders of the form ${VAR} or ${VAR:default} in all string properties.
+${VAR} -&gt; replaced with process.env.VAR if defined; if undefined and no default given, logs a warning and leaves placeholder intact.
+${VAR:default} -&gt; replaced with env value if defined, otherwise with &quot;default&quot;.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
                                         <tr>
-                                                <td>tenantId</td>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>input</td>
+                                            <td>
+                                                        <code>T</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>T</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="validateConfig"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>validateConfig</b></span>
+                        <a href="#validateConfig"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>validateConfig(file: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, payload: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, cls: ClassConstructor<T>, tenant: literal type, resourceType: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, formatError?: (error?: ValidationError) => void)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="214"
+                                    class="link-to-prism">src/utils/config-import/config-import.service.ts:214</a></div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <b>Type parameters :</b>
+                            <ul class="type-parameters">
+                                    <li>T</li>
+                            </ul>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Validate configuration against a class</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>file</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -647,7 +616,55 @@
                                         <tr>
                                                 <td>payload</td>
                                             <td>
-                                                        <code>Record&lt;string | any&gt;</code>
+                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>cls</td>
+                                            <td>
+                                                        <code>ClassConstructor&lt;T&gt;</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>tenant</td>
+                                            <td>
+                                                        <code>literal type</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>resourceType</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>formatError</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
                                             </td>
 
                                             <td>
@@ -671,261 +688,295 @@
         </tbody>
     </table>
 </section>
-            <section data-compodoc="block-properties">
-    
-    <h3 id="inputs">
-        Properties
-    </h3>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="folder"></a>
-                    <span class="name">
-                        <span ><b>folder</b></span>
-                        <a href="#folder"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="23" class="link-to-prism">src/crypto/crypto.service.ts:23</a></div>
-                        </td>
-                    </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Folder where the keys are stored.</p>
-</div>
-                </td>
-            </tr>
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="keyService"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier">Public</span>
-                            <span class="modifier">Readonly</span>
-                        <span ><b>keyService</b></span>
-                        <a href="#keyService"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @Inject(&#x27;KeyService&#x27;)<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="35" class="link-to-prism">src/crypto/crypto.service.ts:35</a></div>
-                        </td>
-                    </tr>
-
-
-        </tbody>
-    </table>
-</section>
 
     </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { createHash, randomBytes } from &quot;node:crypto&quot;;
-import { Inject, Injectable } from &quot;@nestjs/common&quot;;
-import {
-    type CallbackContext,
-    calculateJwkThumbprint,
-    clientAuthenticationNone,
-    HashAlgorithm,
-    type Jwk,
-    SignJwtCallback,
-} from &quot;@openid4vc/oauth2&quot;;
-import { importJWK, type JWK, jwtVerify } from &quot;jose&quot;;
-import { CertService } from &quot;./key/cert/cert.service&quot;;
-import { KeyService } from &quot;./key/key.service&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
+import { ClassConstructor, plainToClass } from &quot;class-transformer&quot;;
+import { ValidationError, validate } from &quot;class-validator&quot;;
+import { existsSync, readdirSync, readFileSync } from &quot;fs&quot;;
+import { PinoLogger } from &quot;nestjs-pino&quot;;
+import { join } from &quot;path&quot;;
+import { ImportOptions } from &quot;./import-options&quot;;
 
-/**
- * Service for cryptographic operations, including key management and certificate handling.
- */
 @Injectable()
-export class CryptoService {
-    /**
-     * Folder where the keys are stored.
-     */
-    folder!: string;
-
-    /**
-     * Constructor for CryptoService.
-     * @param keyService
-     * @param certService
-     * @param certRepository
-     * @param logger
-     * @param tenantRepository
-     * @param configImportService
-     */
+export class ConfigImportService {
     constructor(
-        @Inject(&quot;KeyService&quot;) public readonly keyService: KeyService,
-        @Inject(CertService) private readonly certService: CertService,
+        private configService: ConfigService,
+        private logger: PinoLogger,
     ) {}
 
     /**
-     * Store the access certificate.
+     * Generic import method that handles the common pattern across all services
      */
-    storeAccessCertificate(crt: string, tenantId: string, id: string) {
-        return this.certService.storeAccessCertificate(crt, tenantId, id);
-    }
+    async importConfigs&lt;T extends object&gt;(
+        options: ImportOptions&lt;T&gt;,
+    ): Promise&lt;void&gt; {
+        if (!this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT&quot;)) {
+            return;
+        }
 
-    /**
-     * Verify a JWT with the key service.
-     * @param compact
-     * @param tenantId
-     * @param payload
-     * @returns
-     */
-    async verifyJwt(
-        compact: string,
-        tenantId: string,
-        payload?: Record&lt;string, any&gt;,
-    ): Promise&lt;{ verified: boolean }&gt; {
-        const publicJwk &#x3D; await this.keyService.getPublicKey(&quot;jwk&quot;, tenantId);
-        const publicCryptoKey &#x3D; await importJWK(publicJwk, &quot;ES256&quot;);
+        const configPath &#x3D; this.configService.getOrThrow(&quot;CONFIG_FOLDER&quot;);
+        const force &#x3D; this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT_FORCE&quot;);
 
-        try {
-            await jwtVerify(compact, publicCryptoKey, {
-                currentDate: payload?.exp
-                    ? new Date((payload.exp - 300) * 1000)
-                    : undefined,
-            });
-            return { verified: true };
-        } catch {
-            return { verified: false };
+        const tenantFolders &#x3D; readdirSync(configPath, {
+            withFileTypes: true,
+        }).filter((tenant) &#x3D;&gt; tenant.isDirectory());
+
+        const strictConfig &#x3D; this.configService.get&lt;any&gt;(
+            &quot;CONFIG_VARIABLE_STRICT&quot;,
+        );
+
+        for (const tenant of tenantFolders) {
+            let counter &#x3D; 0;
+            const path &#x3D; join(configPath, tenant.name, options.subfolder);
+
+            if (!existsSync(path)) {
+                continue;
+            }
+
+            const files &#x3D; readdirSync(path);
+
+            for (const file of files) {
+                // Filter by extension if provided
+                if (
+                    options.fileExtension &amp;&amp;
+                    !file.endsWith(options.fileExtension)
+                ) {
+                    continue;
+                }
+
+                try {
+                    const filePath &#x3D; join(path, file);
+
+                    // Load data using custom loader or default JSON loader
+                    let data: T;
+                    if (options.loadData) {
+                        data &#x3D; await Promise.resolve(
+                            options.loadData(filePath),
+                        );
+                    } else {
+                        const payload &#x3D; JSON.parse(
+                            readFileSync(filePath, &quot;utf8&quot;),
+                        );
+                        data &#x3D; payload as T;
+                    }
+
+                    // Replace placeholders like ${ENV_VAR} or ${ENV_VAR:default}
+                    data &#x3D; this.replacePlaceholders(data);
+
+                    // Validate if validation class is provided
+                    if (options.validationClass) {
+                        const validationResult &#x3D; await this.validateConfig(
+                            file,
+                            data,
+                            options.validationClass,
+                            tenant,
+                            options.resourceType,
+                            options.formatValidationError,
+                        );
+
+                        if (!validationResult.isValid) {
+                            continue; // Skip invalid config
+                        }
+
+                        data &#x3D; validationResult.data;
+                    }
+
+                    // Check if exists
+                    const exists &#x3D; await options
+                        .checkExists(tenant.name, data, file)
+                        .catch(() &#x3D;&gt; false);
+
+                    if (exists &amp;&amp; !force) {
+                        this.logger.info(
+                            { event: &quot;Import&quot; },
+                            &#x60;${options.resourceType} ${file} already exists for ${tenant.name}, skipping&#x60;,
+                        );
+                        continue;
+                    }
+
+                    // Delete existing if force is enabled
+                    if (exists &amp;&amp; force &amp;&amp; options.deleteExisting) {
+                        await options.deleteExisting(tenant.name, data, file);
+                    }
+
+                    // Process and store item
+                    await options.processItem(tenant.name, data, file);
+                    counter++;
+                } catch (error: any) {
+                    this.logger.error(
+                        {
+                            event: &quot;ImportError&quot;,
+                            file,
+                            tenant: tenant.name,
+                            error: error.message,
+                        },
+                        &#x60;Failed to import ${options.resourceType} ${file} in tenant ${tenant.name}&#x60;,
+                    );
+                    if (strictConfig &#x3D;&#x3D;&#x3D; &quot;abort&quot;) {
+                        // Abort the entire import process in strict abort mode
+                        throw error;
+                    }
+                }
+            }
+
+            if (counter &gt; 0) {
+                this.logger.info(
+                    { event: &quot;Import&quot; },
+                    &#x60;${counter} ${options.resourceType}(s) imported for ${tenant.name}&#x60;,
+                );
+            }
         }
     }
-    /**
-     * Get the callback context for the key service.
-     * @param tenantId
-     * @returns
-     */
-    getCallbackContext(
-        tenantId: string,
-    ): Omit&lt;CallbackContext, &quot;encryptJwe&quot; | &quot;decryptJwe&quot;&gt; {
-        return {
-            hash: (data, alg) &#x3D;&gt;
-                createHash(alg.replace(&quot;-&quot;, &quot;&quot;).toLowerCase())
-                    .update(data)
-                    .digest(),
-            generateRandom: (bytes) &#x3D;&gt; randomBytes(bytes),
-            clientAuthentication: clientAuthenticationNone({
-                clientId: &quot;some-random&quot;,
-            }),
-            fetch: this.fetchFunction(tenantId).bind(this),
-            //clientId: &#x27;some-random-client-id&#x27;, // TODO: Replace with your real clientId if necessary
-            signJwt: this.getSignJwtCallback(tenantId),
-            verifyJwt: async (signer, { compact, payload }) &#x3D;&gt; {
-                if (signer.method !&#x3D;&#x3D; &quot;jwk&quot;) {
-                    throw new Error(&quot;Signer method not supported&quot;);
-                }
-
-                const josePublicKey &#x3D; await importJWK(
-                    signer.publicJwk as JWK,
-                    signer.alg,
-                );
-                try {
-                    await jwtVerify(compact, josePublicKey, {
-                        currentDate: payload?.exp
-                            ? new Date((payload.exp - 300) * 1000)
-                            : undefined,
-                    });
-                    return { verified: true, signerJwk: signer.publicJwk };
-                } catch {
-                    return { verified: false };
-                }
-            },
-        };
-    }
 
     /**
-     * Override the fetch function since key can be passed
-     * @param tenantId
-     * @returns
+     * Recursively replace placeholders of the form ${VAR} or ${VAR:default} in all string properties.
+     * ${VAR} -&gt; replaced with process.env.VAR if defined; if undefined and no default given, logs a warning and leaves placeholder intact.
+     * ${VAR:default} -&gt; replaced with env value if defined, otherwise with &quot;default&quot;.
      */
-    fetchFunction(tenantId: string) {
-        return (): Promise&lt;Response&gt; &#x3D;&gt; {
-            return Promise.resolve({
-                json: async () &#x3D;&gt; {
-                    return {
-                        keys: [
-                            await this.keyService.getPublicKey(&quot;jwk&quot;, tenantId),
-                        ],
-                    };
+    private replacePlaceholders&lt;T&gt;(input: T): T {
+        const seen &#x3D; new WeakSet();
+        const isObject &#x3D; (val: any) &#x3D;&gt;
+            val &amp;&amp; typeof val &#x3D;&#x3D;&#x3D; &quot;object&quot; &amp;&amp; !Array.isArray(val);
+        const strictConfigInner &#x3D; this.configService.get&lt;any&gt;(
+            &quot;CONFIG_VARIABLE_STRICT&quot;,
+        );
+        const strictMode &#x3D;
+            strictConfigInner &#x3D;&#x3D;&#x3D; true
+                ? &quot;skip&quot;
+                : strictConfigInner &#x3D;&#x3D;&#x3D; false || strictConfigInner &#x3D;&#x3D;&#x3D; undefined
+                  ? &quot;ignore&quot;
+                  : (strictConfigInner as string);
+
+        const processString &#x3D; (str: string): string &#x3D;&gt; {
+            const pattern &#x3D; /\$\{([A-Z0-9_]+)(?::([^}]*))?\}/g;
+            return str.replace(
+                pattern,
+                (fullMatch, varName: string, defVal: string) &#x3D;&gt; {
+                    const envVal &#x3D; process.env[varName];
+                    if (envVal !&#x3D;&#x3D; undefined &amp;&amp; envVal !&#x3D;&#x3D; &quot;&quot;) {
+                        return envVal;
+                    }
+                    if (defVal !&#x3D;&#x3D; undefined) {
+                        return defVal;
+                    }
+                    if (
+                        strictMode &#x3D;&#x3D;&#x3D; &quot;abort&quot; ||
+                        strictMode &#x3D;&#x3D;&#x3D; &quot;skip&quot; ||
+                        strictMode &#x3D;&#x3D;&#x3D; &quot;true&quot;
+                    ) {
+                        // abort -&gt; will bubble up and stop the whole process via outer catch
+                        // skip/true -&gt; outer catch will log and continue with next file
+                        throw new Error(
+                            &#x60;Missing required environment variable ${varName} for placeholder ${fullMatch}&#x60;,
+                        );
+                    }
+                    // ignore/false/undefined: keep placeholder and warn
+                    this.logger.warn(
+                        { event: &quot;ImportPlaceholder&quot;, var: varName },
+                        &#x60;Environment variable ${varName} not set and no default provided (placeholder kept)&#x60;,
+                    );
+                    return fullMatch; // keep original placeholder
                 },
-                ok: true,
-                headers: new Headers({ &quot;Content-Type&quot;: &quot;application/json&quot; }),
-            }) as Promise&lt;Response&gt;;
+            );
         };
+
+        const recurse &#x3D; (val: any): any &#x3D;&gt; {
+            if (typeof val &#x3D;&#x3D;&#x3D; &quot;string&quot;) return processString(val);
+            if (Array.isArray(val)) return val.map(recurse);
+            if (Buffer.isBuffer(val)) return val; // skip binary
+            if (isObject(val)) {
+                if (seen.has(val)) return val; // avoid circular refs
+                seen.add(val);
+                for (const key of Object.keys(val)) {
+                    (val as any)[key] &#x3D; recurse((val as any)[key]);
+                }
+                return val;
+            }
+            return val;
+        };
+
+        return recurse(input);
     }
 
-    // Helper to generate signJwt callback
-    getSignJwtCallback(tenantId: string): SignJwtCallback {
-        return async (signer, { header, payload }) &#x3D;&gt; {
-            if (signer.method !&#x3D;&#x3D; &quot;jwk&quot;) {
-                throw new Error(&quot;Signer method not supported&quot;);
-            }
-            const hashCallback &#x3D; this.getCallbackContext(tenantId).hash;
-            const jwkThumbprint &#x3D; await calculateJwkThumbprint({
-                jwk: signer.publicJwk,
-                hashAlgorithm: HashAlgorithm.Sha256,
-                hashCallback,
-            });
+    /**
+     * Validate configuration against a class
+     */
+    async validateConfig&lt;T extends object&gt;(
+        file: string,
+        payload: any,
+        cls: ClassConstructor&lt;T&gt;,
+        tenant: { name: string },
+        resourceType: string,
+        formatError?: (error: ValidationError) &#x3D;&gt; any,
+    ): Promise&lt;{ isValid: boolean; data: T }&gt; {
+        const config &#x3D; plainToClass(cls, payload);
 
-            const privateThumbprint &#x3D; await calculateJwkThumbprint({
-                jwk: (await this.keyService.getPublicKey(
-                    &quot;jwk&quot;,
-                    tenantId,
-                )) as Jwk,
-                hashAlgorithm: HashAlgorithm.Sha256,
-                hashCallback,
-            });
+        const validationErrors &#x3D; await validate(config as object, {
+            whitelist: true,
+            forbidUnknownValues: false,
+            forbidNonWhitelisted: false,
+            stopAtFirstError: false,
+        });
 
-            if (jwkThumbprint !&#x3D;&#x3D; privateThumbprint) {
-                throw new Error(
-                    &#x60;No private key available for public jwk \n${JSON.stringify(signer.publicJwk, null, 2)}&#x60;,
-                );
-            }
+        if (validationErrors.length &gt; 0) {
+            const formatter &#x3D;
+                formatError ||
+                ((error: ValidationError) &#x3D;&gt; ({
+                    property: error.property,
+                    constraints: error.constraints,
+                    value: error.value,
+                }));
 
-            const jwt &#x3D; await this.keyService.signJWT(
-                payload,
-                header,
-                tenantId,
+            this.logger.error(
+                {
+                    event: &quot;ValidationError&quot;,
+                    file,
+                    tenant: tenant.name,
+                    errors: validationErrors.map(formatter),
+                },
+                &#x60;Validation failed for ${resourceType} ${file} in tenant ${tenant.name}&#x60;,
             );
 
-            return {
-                jwt,
-                signerJwk: signer.publicJwk,
-            };
-        };
+            return { isValid: false, data: config };
+        }
+
+        return { isValid: true, data: config };
+    }
+
+    /**
+     * Extract nested error messages from validation errors
+     */
+    extractErrorMessages(error: ValidationError): string[] {
+        const messages: string[] &#x3D; [];
+
+        if (error.constraints) {
+            messages.push(
+                ...Object.values(error.constraints as Record&lt;string, string&gt;),
+            );
+        }
+
+        if (error.children &amp;&amp; error.children.length &gt; 0) {
+            for (const child of error.children) {
+                messages.push(...this.extractErrorMessages(child));
+            }
+        }
+
+        return messages;
+    }
+
+    /**
+     * Format validation errors with nested messages
+     */
+    formatNestedValidationError(error: ValidationError): string {
+        const messages &#x3D; this.extractErrorMessages(error);
+        return messages.length &gt; 0
+            ? &#x60;${error.property}: ${messages.join(&quot;, &quot;)}&#x60;
+            : error.property;
     }
 }
 </code></pre>
@@ -971,7 +1022,7 @@ export class CryptoService {
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'injectable';
-            var COMPODOC_CURRENT_PAGE_URL = 'CryptoService.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'ConfigImportService.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

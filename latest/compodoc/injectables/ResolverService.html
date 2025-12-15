@@ -341,9 +341,7 @@ export class ResolverService {
      * @returns
      */
     async resolvePublicKey(payload: JWTPayload, header: JWK): Promise&lt;JWK&gt; {
-        if (!payload.iss) {
-            throw new Error(&quot;Issuer not found&quot;);
-        }
+        //we ignore is iss value since it is no required when using x5c: https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-13.html#name-registered-jwt-claims
 
         if (header.x5c) {
             //TODO: validate the certificate and the chain of trust!
@@ -351,9 +349,6 @@ export class ResolverService {
                 (cert) &#x3D;&gt; new X509Certificate(Buffer.from(cert, &quot;base64&quot;)),
             );
             const cert &#x3D; certs[0];
-            if (!cert.subjectAltName?.includes(new URL(payload.iss).hostname)) {
-                throw new Error(&quot;Subject and issuer do not match&quot;);
-            }
             return cert.publicKey.export({ format: &quot;jwk&quot; }) as JWK;
         }
         //checl if the key is in the header as jwk
