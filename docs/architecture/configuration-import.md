@@ -21,45 +21,6 @@ starts. This is particularly useful for:
 
 --8<-- "docs/generated/config-config.md"
 
-## Directory Structure
-
-The configuration import follows a specific directory structure:
-
-```shell
-assets/
-└── config/
-    ├── tenant1/
-    │   ├── keys/
-    │   │   ├── 039af178-3ca0-48f4-a2e4-7b1209f30376.json  # Key ID: "039af178-3ca0-48f4-a2e4-7b1209f30376"
-    │   │   ├── 7d8e9f10-1234-5678-9abc-def012345678.json  # Key ID: "7d8e9f10-1234-5678-9abc-def012345678"
-    │   │   └── a1b2c3d4-e5f6-7890-abcd-ef1234567890.json  # Key ID: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
-    │   ├── issuance/
-    │   │   ├── credentials/
-    │   │   │   ├── employee-badge.json
-    │   │   │   └── student-id.json
-    │   │   └── issuance/
-    │   │       ├── employee-onboarding.json
-    │   │       └── student-enrollment.json
-    │   └── presentation/
-    │       ├── age-verification.json
-    │       └── identity-check.json
-    ├── tenant2/
-    │   ├── keys/
-    │   │   └── f8e7d6c5-b4a3-9281-7065-432109876543.json  # Key ID: "f8e7d6c5-b4a3-9281-7065-432109876543"
-    │   ├── issuance/
-    │   │   ├── credentials/
-    │   │   └── issuance/
-    │   └── presentation/
-    └── company-xyz/
-        ├── keys/
-        │   ├── 12345678-abcd-ef12-3456-789012345678.json  # Key ID: "12345678-abcd-ef12-3456-789012345678"
-        │   └── 98765432-fedc-ba98-7654-321098765432.json  # Key ID: "98765432-fedc-ba98-7654-321098765432"
-        ├── issuance/
-        │   ├── credentials/
-        │   └── issuance/
-        └── presentation/
-```
-
 ### Key Points
 
 - **Tenant isolation**: Each tenant has its own folder (e.g., `tenant1`,
@@ -107,6 +68,46 @@ Import cryptographic keys for signing and certificate operations.
 - **Optional certificates**: Include X.509 certificates in PEM format
 - **Algorithm support**: ES256 (ECDSA P-256)
 - **Validation**: Full schema validation during import
+
+### Certificates
+
+**Location**: `config/{tenant}/certs/*.json`
+
+Import X.509 certificates for signing operations and certificate chain validation.
+
+**Example Structure**:
+
+```json
+{
+    "keyId": "039af178-3ca0-48f4-a2e4-7b1209f30376",
+    "isAccessCert": true,
+    "isSigningCert": true,
+    "description": "Imported self-signed certificate",
+    "crt": "-----BEGIN CERTIFICATE-----\nMIIBYTCCAQigAwIBAgIBATAKBggqhkjOPQQDAjAWMRQwEgYDVQQDEwtSb290IFRl\nbmFudDAeFw0yNTEyMTUwNzIxMzBaFw0yNjEyMTUwNzIxMzBaMBYxFDASBgNVBAMT\nC1Jvb3QgVGVuYW50MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEpmn8SKQKZ0t2\nzFlrUXzJaJwwQ0WnQxcSYoS/D6ZSGhqsx30lMCi9w4j8685dYJZnXJVmJ5VgrZSC\n8HYg+5KTaqNHMEUwFAYDVR0RBA0wC4IJbG9jYWxob3N0MA4GA1UdDwEB/wQEAwIF\noDAdBgNVHQ4EFgQUd8hzqa0NGWHfP9Uf3LcdDZ5eGGEwCgYIKoZIzj0EAwIDRwAw\nRAIgFfvs2dhqKXaDe+7zjmyTrEgRgb5IjcYONZ+6Rewt/nUCIFYCw9lF0Lbr00ca\ngUPSm5jJNWFYV3UjFl9zY73W8Rz8\n-----END CERTIFICATE-----"
+}
+```
+
+**Key Features**:
+
+- **Key reference**: Links certificate to an imported cryptographic key via `keyId`
+- **Certificate types**: Mark certificates as access certificates and/or signing certificates
+- **PEM format**: Certificates must be in PEM format with `\n` escape sequences
+- **Certificate chain support**: Import multiple certificates to establish trust chains
+- **Optional description**: Add human-readable descriptions for certificate management
+- **Validation**: Schema validation ensures proper certificate format and structure
+
+**Certificate Usage Types**:
+
+- `isAccessCert`: Certificate used for authenticating access to protected resources
+- `isSigningCert`: Certificate used for signing credentials and tokens
+
+Both flags can be set to `true` if the certificate serves both purposes.
+
+**PEM Format Notes**:
+
+- Use `\n` escape sequences for line breaks in JSON
+- Include both `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----` headers
+- The certificate content should be base64-encoded between the headers
 
 ### Credential Configurations
 
