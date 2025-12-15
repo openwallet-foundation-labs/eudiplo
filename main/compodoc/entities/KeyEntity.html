@@ -361,7 +361,7 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsString()<br />@Column(&#x27;varchar&#x27;, {primary: true})<br />
+                            @IsUUID()<br />@Column(&#x27;varchar&#x27;, {primary: true})<br />
                         </code>
                     </td>
                 </tr>
@@ -595,7 +595,7 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { IsOptional, IsString } from &quot;class-validator&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { IsOptional, IsString, IsUUID } from &quot;class-validator&quot;;
 import { JWK } from &quot;jose&quot;;
 import {
     Column,
@@ -618,7 +618,7 @@ export class KeyEntity {
     /**
      * Unique identifier for the key.
      */
-    @IsString()
+    @IsUUID()
     @Column(&quot;varchar&quot;, { primary: true })
     id!: string;
 

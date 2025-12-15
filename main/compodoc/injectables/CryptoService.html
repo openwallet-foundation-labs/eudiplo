@@ -185,44 +185,10 @@
                                 <a href="#fetchFunction" >fetchFunction</a>
                             </li>
                             <li>
-                                <a href="#find" >find</a>
-                            </li>
-                            <li>
                                 <a href="#getCallbackContext" >getCallbackContext</a>
                             </li>
                             <li>
-                                <a href="#getCert" >getCert</a>
-                            </li>
-                            <li>
-                                <a href="#getCertChain" >getCertChain</a>
-                            </li>
-                            <li>
-                                <a href="#getCertEntry" >getCertEntry</a>
-                            </li>
-                            <li>
-                                <a href="#getCertHash" >getCertHash</a>
-                            </li>
-                            <li>
-                                <a href="#getCerts" >getCerts</a>
-                            </li>
-                            <li>
-                                <a href="#getJwks" >getJwks</a>
-                            </li>
-                            <li>
                                 <a href="#getSignJwtCallback" >getSignJwtCallback</a>
-                            </li>
-                            <li>
-                                <a href="#hasEntry" >hasEntry</a>
-                            </li>
-                            <li>
-                                <a href="#importCerts" >importCerts</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Async</span>
-                                <a href="#importKeys" >importKeys</a>
-                            </li>
-                            <li>
-                                <a href="#signJwt" >signJwt</a>
                             </li>
                             <li>
                                 <a href="#storeAccessCertificate" >storeAccessCertificate</a>
@@ -249,12 +215,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(keyService: <a href="../classes/KeyService.html" target="_self">KeyService</a>, certService: <a href="../injectables/CertService.html" target="_self">CertService</a>, certRepository: <a href="../entitys/CertEntity.html" target="_self">Repository&lt;CertEntity&gt;</a>, logger: PinoLogger, tenantRepository: <a href="../entitys/TenantEntity.html" target="_self">Repository&lt;TenantEntity&gt;</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>)</code>
+<code>constructor(keyService: <a href="../classes/KeyService.html" target="_self">KeyService</a>, certService: <a href="../injectables/CertService.html" target="_self">CertService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="33" class="link-to-prism">src/crypto/crypto.service.ts:33</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="23" class="link-to-prism">src/crypto/crypto.service.ts:23</a></div>
                             </td>
                         </tr>
 
@@ -297,54 +263,6 @@
                                                     </td>
                                                     
                                                 </tr>
-                                                <tr>
-                                                        <td>certRepository</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../entitys/CertEntity.html" target="_self" >Repository&lt;CertEntity&gt;</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
-                                                        <td>logger</td>
-                                                  
-                                                        <td>
-                                                                    <code>PinoLogger</code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
-                                                        <td>tenantRepository</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../entitys/TenantEntity.html" target="_self" >Repository&lt;TenantEntity&gt;</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
-                                                        <td>configImportService</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../injectables/ConfigImportService.html" target="_self" >ConfigImportService</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
                                         </tbody>
                                     </table>
                             </div>
@@ -379,8 +297,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="262"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:262</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="120"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:120</a></div>
                         </td>
                     </tr>
 
@@ -432,75 +350,6 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="find"></a>
-                    <span class="name">
-                        <span ><b>find</b></span>
-                        <a href="#find"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>find(value: literal type)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="67"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:67</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Find a certificate by tenantId and type.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>value</td>
-                                            <td>
-                                                        <code>literal type</code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../entitys/CertEntity.html" target="_self" >Promise&lt;CertEntity&gt;</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
                     <a name="getCallbackContext"></a>
                     <span class="name">
                         <span ><b>getCallbackContext</b></span>
@@ -517,8 +366,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="219"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:219</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="77"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:77</a></div>
                         </td>
                     </tr>
 
@@ -570,444 +419,6 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getCert"></a>
-                    <span class="name">
-                        <span ><b>getCert</b></span>
-                        <a href="#getCert"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getCert(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, certId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="92"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:92</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Get the certificate string.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>certId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getCertChain"></a>
-                    <span class="name">
-                        <span ><b>getCertChain</b></span>
-                        <a href="#getCertChain"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getCertChain(cert: <a href="../entitys/CertEntity.html" target="_self">CertEntity</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="99"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:99</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Get the certificate chain.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>cert</td>
-                                            <td>
-                                                            <code><a href="../entitys/CertEntity.html" target="_self" >CertEntity</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>string[]</code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getCertEntry"></a>
-                    <span class="name">
-                        <span ><b>getCertEntry</b></span>
-                        <a href="#getCertEntry"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getCertEntry(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, certId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="85"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:85</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Get a certificate entry.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>certId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../entitys/CertEntity.html" target="_self" >Promise&lt;CertEntity&gt;</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getCertHash"></a>
-                    <span class="name">
-                        <span ><b>getCertHash</b></span>
-                        <a href="#getCertHash"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getCertHash(cert: <a href="../entitys/CertEntity.html" target="_self">CertEntity</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="113"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:113</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Get the certificate hash.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>cert</td>
-                                            <td>
-                                                            <code><a href="../entitys/CertEntity.html" target="_self" >CertEntity</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getCerts"></a>
-                    <span class="name">
-                        <span ><b>getCerts</b></span>
-                        <a href="#getCerts"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getCerts(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="60"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:60</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Imports keys and certificates from the configured folder.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../entitys/CertEntity.html" target="_self" >Promise&lt;CertEntity[]&gt;</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getJwks"></a>
-                    <span class="name">
-                        <span ><b>getJwks</b></span>
-                        <a href="#getJwks"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getJwks(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="318"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:318</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Get the JWKs for the tenant.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../classes/EC_Public.html" target="_self" >Promise&lt;EC_Public&gt;</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
                     <a name="getSignJwtCallback"></a>
                     <span class="name">
                         <span ><b>getSignJwtCallback</b></span>
@@ -1024,8 +435,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="277"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:277</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="137"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:137</a></div>
                         </td>
                     </tr>
 
@@ -1075,272 +486,6 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="hasEntry"></a>
-                    <span class="name">
-                        <span ><b>hasEntry</b></span>
-                        <a href="#hasEntry"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>hasEntry(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, certId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="78"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:78</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Check if a certificate exists.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>certId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;boolean&gt;</code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="importCerts"></a>
-                    <span class="name">
-                        <span ><b>importCerts</b></span>
-                        <a href="#importCerts"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>importCerts()</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="120"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:120</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Import certificates from filesystem.</p>
-</div>
-
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
-                        </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="importKeys"></a>
-                    <span class="name">
-                            <span class="modifier">Async</span>
-                        <span ><b>importKeys</b></span>
-                        <a href="#importKeys"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>importKeys()</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="127"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:127</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Imports keys from the file system into the key service.</p>
-</div>
-
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
-                        </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="signJwt"></a>
-                    <span class="name">
-                        <span ><b>signJwt</b></span>
-                        <a href="#signJwt"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>signJwt(header: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, payload: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, keyId?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="179"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:179</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Sign a JWT with the key service.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>header</td>
-                                            <td>
-                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>payload</td>
-                                            <td>
-                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>keyId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    Yes
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
                     <a name="storeAccessCertificate"></a>
                     <span class="name">
                         <span ><b>storeAccessCertificate</b></span>
@@ -1357,8 +502,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="106"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:106</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="42"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:42</a></div>
                         </td>
                     </tr>
 
@@ -1452,8 +597,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="195"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:195</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="53"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:53</a></div>
                         </td>
                     </tr>
 
@@ -1550,7 +695,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="33" class="link-to-prism">src/crypto/crypto.service.ts:33</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="23" class="link-to-prism">src/crypto/crypto.service.ts:23</a></div>
                         </td>
                     </tr>
 
@@ -1594,7 +739,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="45" class="link-to-prism">src/crypto/crypto.service.ts:45</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="35" class="link-to-prism">src/crypto/crypto.service.ts:35</a></div>
                         </td>
                     </tr>
 
@@ -1608,9 +753,7 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { createHash, randomBytes } from &quot;node:crypto&quot;;
-import { readFileSync } from &quot;node:fs&quot;;
 import { Inject, Injectable } from &quot;@nestjs/common&quot;;
-import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import {
     type CallbackContext,
     calculateJwkThumbprint,
@@ -1619,16 +762,8 @@ import {
     type Jwk,
     SignJwtCallback,
 } from &quot;@openid4vc/oauth2&quot;;
-import { plainToClass } from &quot;class-transformer&quot;;
 import { importJWK, type JWK, jwtVerify } from &quot;jose&quot;;
-import { PinoLogger } from &quot;nestjs-pino&quot;;
-import { Repository } from &quot;typeorm&quot;;
-import { TenantEntity } from &quot;../auth/tenant/entitites/tenant.entity&quot;;
-import { ConfigImportService } from &quot;../utils/config-import/config-import.service&quot;;
-import { EC_Public } from &quot;../well-known/dto/jwks-response.dto&quot;;
 import { CertService } from &quot;./key/cert/cert.service&quot;;
-import { KeyImportDto } from &quot;./key/dto/key-import.dto&quot;;
-import { CertEntity } from &quot;./key/entities/cert.entity&quot;;
 import { KeyService } from &quot;./key/key.service&quot;;
 
 /**
@@ -1653,145 +788,13 @@ export class CryptoService {
     constructor(
         @Inject(&quot;KeyService&quot;) public readonly keyService: KeyService,
         @Inject(CertService) private readonly certService: CertService,
-        @InjectRepository(CertEntity)
-        private certRepository: Repository&lt;CertEntity&gt;,
-        private logger: PinoLogger,
-        @InjectRepository(TenantEntity)
-        private tenantRepository: Repository&lt;TenantEntity&gt;,
-        private configImportService: ConfigImportService,
     ) {}
-
-    /**
-     * Imports keys and certificates from the configured folder.
-     * @param tenantId
-     * @returns
-     */
-    getCerts(tenantId: string): Promise&lt;CertEntity[]&gt; {
-        return this.certService.getCerts(tenantId);
-    }
-
-    /**
-     * Find a certificate by tenantId and type.
-     */
-    find(value: {
-        tenantId: string;
-        type: &quot;access&quot; | &quot;signing&quot;;
-        id?: string;
-    }): Promise&lt;CertEntity&gt; {
-        return this.certService.find(value);
-    }
-
-    /**
-     * Check if a certificate exists.
-     */
-    hasEntry(tenantId: string, certId: string): Promise&lt;boolean&gt; {
-        return this.certService.hasEntry(tenantId, certId);
-    }
-
-    /**
-     * Get a certificate entry.
-     */
-    getCertEntry(tenantId: string, certId: string): Promise&lt;CertEntity&gt; {
-        return this.certService.getCertEntry(tenantId, certId);
-    }
-
-    /**
-     * Get the certificate string.
-     */
-    getCert(tenantId: string, certId: string): Promise&lt;string&gt; {
-        return this.certService.getCert(tenantId, certId);
-    }
-
-    /**
-     * Get the certificate chain.
-     */
-    getCertChain(cert: CertEntity): string[] {
-        return this.certService.getCertChain(cert);
-    }
 
     /**
      * Store the access certificate.
      */
     storeAccessCertificate(crt: string, tenantId: string, id: string) {
         return this.certService.storeAccessCertificate(crt, tenantId, id);
-    }
-
-    /**
-     * Get the certificate hash.
-     */
-    getCertHash(cert: CertEntity): string {
-        return this.certService.getCertHash(cert);
-    }
-
-    /**
-     * Import certificates from filesystem.
-     */
-    importCerts() {
-        return this.certService.importCerts();
-    }
-
-    /**
-     * Imports keys from the file system into the key service.
-     */
-    async importKeys() {
-        await this.configImportService.importConfigs&lt;KeyImportDto&gt;({
-            subfolder: &quot;keys&quot;,
-            fileExtension: &quot;.json&quot;,
-            validationClass: KeyImportDto,
-            resourceType: &quot;key&quot;,
-            loadData: (filePath) &#x3D;&gt; {
-                const payload &#x3D; JSON.parse(readFileSync(filePath, &quot;utf8&quot;));
-                return plainToClass(KeyImportDto, payload);
-            },
-            checkExists: async (tenantId, data) &#x3D;&gt; {
-                // Get all keys and check if any match the key material
-                const keys &#x3D; await this.keyService.getKeys(tenantId);
-                // Compare key material (x, y coordinates for EC keys)
-                return keys.some(
-                    (k) &#x3D;&gt; k.key.x &#x3D;&#x3D;&#x3D; data.key.x &amp;&amp; k.key.y &#x3D;&#x3D;&#x3D; data.key.y,
-                );
-            },
-            deleteExisting: async (tenantId, data) &#x3D;&gt; {
-                // Find and delete matching key
-                const keys &#x3D; await this.keyService.getKeys(tenantId);
-                const existingKey &#x3D; keys.find(
-                    (k) &#x3D;&gt; k.key.x &#x3D;&#x3D;&#x3D; data.key.x &amp;&amp; k.key.y &#x3D;&#x3D;&#x3D; data.key.y,
-                );
-                if (existingKey) {
-                    await this.certRepository.delete({
-                        id: existingKey.id,
-                        tenantId,
-                    });
-                }
-            },
-            processItem: async (tenantId, config) &#x3D;&gt; {
-                const tenantEntity &#x3D;
-                    await this.tenantRepository.findOneByOrFail({
-                        id: tenantId,
-                    });
-                await this.keyService
-                    .import(tenantEntity.id, config)
-                    .catch((err) &#x3D;&gt; {
-                        this.logger.info(err.message);
-                    });
-            },
-        });
-    }
-
-    /**
-     * Sign a JWT with the key service.
-     * @param header
-     * @param payload
-     * @param tenantId
-     * @returns
-     */
-    signJwt(
-        header: any,
-        payload: any,
-        tenantId: string,
-        keyId?: string,
-    ): Promise&lt;string&gt; {
-        return this.keyService.signJWT(payload, header, tenantId, keyId);
     }
 
     /**
@@ -1873,7 +876,9 @@ export class CryptoService {
             return Promise.resolve({
                 json: async () &#x3D;&gt; {
                     return {
-                        keys: [await this.getJwks(tenantId)],
+                        keys: [
+                            await this.keyService.getPublicKey(&quot;jwk&quot;, tenantId),
+                        ],
                     };
                 },
                 ok: true,
@@ -1910,25 +915,17 @@ export class CryptoService {
                 );
             }
 
-            const jwt &#x3D; await this.signJwt(header, payload, tenantId);
+            const jwt &#x3D; await this.keyService.signJWT(
+                payload,
+                header,
+                tenantId,
+            );
 
             return {
                 jwt,
                 signerJwk: signer.publicJwk,
             };
         };
-    }
-
-    /**
-     * Get the JWKs for the tenant.
-     * @param tenantId
-     * @returns
-     */
-    getJwks(tenantId: string) {
-        return this.keyService.getPublicKey(
-            &quot;jwk&quot;,
-            tenantId,
-        ) as Promise&lt;EC_Public&gt;;
     }
 }
 </code></pre>

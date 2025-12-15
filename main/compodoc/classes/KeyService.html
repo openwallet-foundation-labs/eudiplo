@@ -201,6 +201,10 @@
                                 <a href="#import" >import</a>
                             </li>
                             <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#importKeys" >importKeys</a>
+                            </li>
+                            <li>
                                     <span class="modifier">Abstract</span>
                                 <a href="#init" >init</a>
                             </li>
@@ -233,12 +237,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(configService: ConfigService, keyRepository: <a href="../classes/Key.html" target="_self">Repository&lt;KeyEntity&gt;</a>)</code>
+<code>constructor(configService: ConfigService, keyRepository: <a href="../classes/Key.html" target="_self">Repository&lt;KeyEntity&gt;</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, certRepository: <a href="../entitys/CertEntity.html" target="_self">Repository&lt;CertEntity&gt;</a>, tenantRepository: <a href="../entitys/TenantEntity.html" target="_self">Repository&lt;TenantEntity&gt;</a>, logger: PinoLogger)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="12" class="link-to-prism">src/crypto/key/key.service.ts:12</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="18" class="link-to-prism">src/crypto/key/key.service.ts:18</a></div>
                             </td>
                         </tr>
 
@@ -272,6 +276,54 @@
                                                   
                                                         <td>
                                                                         <code><a href="../classes/Key.html" target="_self" >Repository&lt;KeyEntity&gt;</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>configImportService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/ConfigImportService.html" target="_self" >ConfigImportService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>certRepository</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../entitys/CertEntity.html" target="_self" >Repository&lt;CertEntity&gt;</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>tenantRepository</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../entitys/TenantEntity.html" target="_self" >Repository&lt;TenantEntity&gt;</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>logger</td>
+                                                  
+                                                        <td>
+                                                                    <code>PinoLogger</code>
                                                         </td>
                                                   
                                                     <td>
@@ -316,8 +368,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="30"
-                                    class="link-to-prism">src/crypto/key/key.service.ts:30</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="40"
+                                    class="link-to-prism">src/crypto/key/key.service.ts:40</a></div>
                         </td>
                     </tr>
 
@@ -388,8 +440,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="104"
-                                    class="link-to-prism">src/crypto/key/key.service.ts:104</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="114"
+                                    class="link-to-prism">src/crypto/key/key.service.ts:114</a></div>
                         </td>
                     </tr>
 
@@ -467,8 +519,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="94"
-                                    class="link-to-prism">src/crypto/key/key.service.ts:94</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="104"
+                                    class="link-to-prism">src/crypto/key/key.service.ts:104</a></div>
                         </td>
                     </tr>
 
@@ -546,8 +598,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="90"
-                                    class="link-to-prism">src/crypto/key/key.service.ts:90</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="100"
+                                    class="link-to-prism">src/crypto/key/key.service.ts:100</a></div>
                         </td>
                     </tr>
 
@@ -615,8 +667,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="60"
-                                    class="link-to-prism">src/crypto/key/key.service.ts:60</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="70"
+                                    class="link-to-prism">src/crypto/key/key.service.ts:70</a></div>
                         </td>
                     </tr>
 
@@ -698,8 +750,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="66"
-                                    class="link-to-prism">src/crypto/key/key.service.ts:66</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="76"
+                                    class="link-to-prism">src/crypto/key/key.service.ts:76</a></div>
                         </td>
                     </tr>
 
@@ -793,8 +845,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="71"
-                                    class="link-to-prism">src/crypto/key/key.service.ts:71</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="81"
+                                    class="link-to-prism">src/crypto/key/key.service.ts:81</a></div>
                         </td>
                     </tr>
 
@@ -886,8 +938,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="76"
-                                    class="link-to-prism">src/crypto/key/key.service.ts:76</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="86"
+                                    class="link-to-prism">src/crypto/key/key.service.ts:86</a></div>
                         </td>
                     </tr>
 
@@ -979,8 +1031,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="48"
-                                    class="link-to-prism">src/crypto/key/key.service.ts:48</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="58"
+                                    class="link-to-prism">src/crypto/key/key.service.ts:58</a></div>
                         </td>
                     </tr>
 
@@ -1044,6 +1096,47 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="importKeys"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>importKeys</b></span>
+                        <a href="#importKeys"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>importKeys()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="119"
+                                    class="link-to-prism">src/crypto/key/key.service.ts:119</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Imports keys from the file system into the key service.</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="init"></a>
                     <span class="name">
                             <span class="modifier">Abstract</span>
@@ -1062,8 +1155,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="23"
-                                    class="link-to-prism">src/crypto/key/key.service.ts:23</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="33"
+                                    class="link-to-prism">src/crypto/key/key.service.ts:33</a></div>
                         </td>
                     </tr>
 
@@ -1134,8 +1227,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="54"
-                                    class="link-to-prism">src/crypto/key/key.service.ts:54</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="64"
+                                    class="link-to-prism">src/crypto/key/key.service.ts:64</a></div>
                         </td>
                     </tr>
 
@@ -1210,15 +1303,15 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>signJWT(payload: JWTPayload, header: JoseHeaderParameters, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, keyId?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>signJWT(payload: JWTPayload, header: JWSHeaderParameters, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, keyId?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="83"
-                                    class="link-to-prism">src/crypto/key/key.service.ts:83</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="93"
+                                    class="link-to-prism">src/crypto/key/key.service.ts:93</a></div>
                         </td>
                     </tr>
 
@@ -1253,7 +1346,7 @@
                                         <tr>
                                                 <td>header</td>
                                             <td>
-                                                        <code>JoseHeaderParameters</code>
+                                                        <code>JWSHeaderParameters</code>
                                             </td>
 
                                             <td>
@@ -1320,8 +1413,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="39"
-                                    class="link-to-prism">src/crypto/key/key.service.ts:39</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="49"
+                                    class="link-to-prism">src/crypto/key/key.service.ts:49</a></div>
                         </td>
                     </tr>
 
@@ -1405,10 +1498,16 @@
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ConfigService } from &quot;@nestjs/config&quot;;
 import { Signer } from &quot;@sd-jwt/types&quot;;
-import { JoseHeaderParameters, JWK, JWTPayload } from &quot;jose&quot;;
+import { plainToClass } from &quot;class-transformer&quot;;
+import { readFileSync } from &quot;fs&quot;;
+import { JWK, JWSHeaderParameters, JWTPayload } from &quot;jose&quot;;
+import { PinoLogger } from &quot;nestjs-pino&quot;;
 import { Repository } from &quot;typeorm&quot;;
+import { TenantEntity } from &quot;../../auth/tenant/entitites/tenant.entity&quot;;
+import { ConfigImportService } from &quot;../../utils/config-import/config-import.service&quot;;
 import { KeyImportDto } from &quot;./dto/key-import.dto&quot;;
 import { UpdateKeyDto } from &quot;./dto/key-update.dto&quot;;
+import { CertEntity } from &quot;./entities/cert.entity&quot;;
 import { KeyEntity, KeyUsage } from &quot;./entities/keys.entity&quot;;
 
 /**
@@ -1418,6 +1517,10 @@ export abstract class KeyService {
     constructor(
         protected configService: ConfigService,
         protected keyRepository: Repository&lt;KeyEntity&gt;,
+        protected configImportService: ConfigImportService,
+        private certRepository: Repository&lt;CertEntity&gt;,
+        private tenantRepository: Repository&lt;TenantEntity&gt;,
+        private logger: PinoLogger,
     ) {}
 
     /**
@@ -1487,7 +1590,7 @@ export abstract class KeyService {
     //TODO: this can be handled via the signer callback
     abstract signJWT(
         payload: JWTPayload,
-        header: JoseHeaderParameters,
+        header: JWSHeaderParameters,
         tenantId: string,
         keyId?: string,
     ): Promise&lt;string&gt;;
@@ -1507,6 +1610,52 @@ export abstract class KeyService {
     }
 
     abstract deleteKey(tenantId: string, id: string): Promise&lt;void&gt;;
+
+    /**
+     * Imports keys from the file system into the key service.
+     */
+    async importKeys() {
+        await this.configImportService.importConfigs&lt;KeyImportDto&gt;({
+            subfolder: &quot;keys&quot;,
+            fileExtension: &quot;.json&quot;,
+            validationClass: KeyImportDto,
+            resourceType: &quot;key&quot;,
+            loadData: (filePath) &#x3D;&gt; {
+                const payload &#x3D; JSON.parse(readFileSync(filePath, &quot;utf8&quot;));
+                return plainToClass(KeyImportDto, payload);
+            },
+            checkExists: async (tenantId, data) &#x3D;&gt; {
+                // Get all keys and check if any match the key material
+                const keys &#x3D; await this.getKeys(tenantId);
+                // Compare key material (x, y coordinates for EC keys)
+                return keys.some(
+                    (k) &#x3D;&gt; k.key.x &#x3D;&#x3D;&#x3D; data.key.x &amp;&amp; k.key.y &#x3D;&#x3D;&#x3D; data.key.y,
+                );
+            },
+            deleteExisting: async (tenantId, data) &#x3D;&gt; {
+                // Find and delete matching key
+                const keys &#x3D; await this.getKeys(tenantId);
+                const existingKey &#x3D; keys.find(
+                    (k) &#x3D;&gt; k.key.x &#x3D;&#x3D;&#x3D; data.key.x &amp;&amp; k.key.y &#x3D;&#x3D;&#x3D; data.key.y,
+                );
+                if (existingKey) {
+                    await this.certRepository.delete({
+                        id: existingKey.id,
+                        tenantId,
+                    });
+                }
+            },
+            processItem: async (tenantId, config) &#x3D;&gt; {
+                const tenantEntity &#x3D;
+                    await this.tenantRepository.findOneByOrFail({
+                        id: tenantId,
+                    });
+                await this.import(tenantEntity.id, config).catch((err) &#x3D;&gt; {
+                    this.logger.info(err.message);
+                });
+            },
+        });
+    }
 }
 </code></pre>
     </div>
