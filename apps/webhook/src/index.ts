@@ -71,8 +71,8 @@ async function handleRequest(request: Request): Promise<Response> {
             console.log("Received request webhook:");
             console.log(JSON.stringify(presented, null, 2));
             const res: ProcessResponse = {
-                pid: {
-                    family_name: "Mustermann",
+                citizen: {
+                    town: "Berlin",
                 },
             };
             return Response.json(res, { status: 200 });

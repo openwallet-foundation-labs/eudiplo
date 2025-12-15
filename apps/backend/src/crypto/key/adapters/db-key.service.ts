@@ -11,12 +11,16 @@ import {
     JWTPayload,
     SignJWT,
 } from "jose";
+import { PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm";
 import { v4 } from "uuid";
+import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
+import { ConfigImportService } from "../../../utils/config-import/config-import.service";
 import { EC_Public } from "../../../well-known/dto/jwks-response.dto";
 import { CryptoImplementation } from "../crypto-implementation/crypto-implementation";
 import { CryptoImplementationService } from "../crypto-implementation/crypto-implementation.service";
 import { KeyImportDto } from "../dto/key-import.dto";
+import { CertEntity } from "../entities/cert.entity";
 import { KeyEntity } from "../entities/keys.entity";
 import { KeyService } from "../key.service";
 
@@ -29,9 +33,20 @@ export class DBKeyService extends KeyService {
     constructor(
         configService: ConfigService,
         private cryptoService: CryptoImplementationService,
-        protected keyRepository: Repository<KeyEntity>,
+        keyRepository: Repository<KeyEntity>,
+        configImportService: ConfigImportService,
+        certRepository: Repository<CertEntity>,
+        tenantRepository: Repository<TenantEntity>,
+        logger: PinoLogger,
     ) {
-        super(configService, keyRepository);
+        super(
+            configService,
+            keyRepository,
+            configImportService,
+            certRepository,
+            tenantRepository,
+            logger,
+        );
         this.crypto = cryptoService.getCrypto();
     }
 

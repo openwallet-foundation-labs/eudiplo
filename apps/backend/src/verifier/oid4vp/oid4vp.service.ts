@@ -1,10 +1,11 @@
 import { randomUUID } from "node:crypto";
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { v4 } from "uuid";
-import { CryptoService } from "../../crypto/crypto.service";
 import { EncryptionService } from "../../crypto/encryption/encryption.service";
+import { CertService } from "../../crypto/key/cert/cert.service";
 import { CryptoImplementationService } from "../../crypto/key/crypto-implementation/crypto-implementation.service";
+import { KeyService } from "../../crypto/key/key.service";
 import { OfferResponse } from "../../issuer/oid4vci/dto/offer-request.dto";
 import { RegistrarService } from "../../registrar/registrar.service";
 import { Session, SessionStatus } from "../../session/entities/session.entity";
@@ -20,7 +21,8 @@ import { PresentationRequestOptions } from "./dto/presentation-request-options.d
 @Injectable()
 export class Oid4vpService {
     constructor(
-        private cryptoService: CryptoService,
+        private certService: CertService,
+        @Inject("KeyService") public readonly keyService: KeyService,
         private encryptionService: EncryptionService,
         private configService: ConfigService,
         private registrarService: RegistrarService,
@@ -105,12 +107,12 @@ export class Oid4vpService {
 
             const lifeTime = 60 * 60;
 
-            const cert = await this.cryptoService.find({
+            const cert = await this.certService.find({
                 tenantId: session.tenantId,
                 type: "access",
             });
 
-            const certHash = await this.cryptoService.getCertHash(cert);
+            const certHash = await this.certService.getCertHash(cert);
 
             const request = {
                 payload: {
@@ -169,12 +171,12 @@ export class Oid4vpService {
             const header = {
                 ...request.header,
                 alg: "ES256",
-                x5c: this.cryptoService.getCertChain(cert),
+                x5c: this.certService.getCertChain(cert),
             };
 
-            const signedJwt = await this.cryptoService.signJwt(
-                header,
+            const signedJwt = await this.keyService.signJWT(
                 request.payload,
+                header,
                 session.tenantId,
                 cert.keyId,
             );
@@ -221,12 +223,12 @@ export class Oid4vpService {
 
         const request_uri_method: "get" | "post" = "get";
 
-        const cert = await this.cryptoService.find({
+        const cert = await this.certService.find({
             tenantId: tenantId,
             type: "access",
         });
 
-        const certHash = await this.cryptoService.getCertHash(cert);
+        const certHash = await this.certService.getCertHash(cert);
 
         const params = {
             client_id: "x509_hash:" + certHash,

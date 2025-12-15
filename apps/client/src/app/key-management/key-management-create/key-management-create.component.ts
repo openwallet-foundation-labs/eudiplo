@@ -14,6 +14,8 @@ import { KeyManagementService } from '../key-management.service';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { EditorComponent } from '../../utils/editor/editor.component';
 import { jwkSchema } from '../../utils/schemas';
+import { KeyImportDto } from '@eudiplo/sdk';
+import { v4 } from 'uuid';
 
 @Component({
   selector: 'app-key-management-create',
@@ -104,8 +106,9 @@ export class KeyManagementCreateComponent {
         // Remove kid if present - server will generate it
         delete privateKey.kid;
 
-        const keyImportDto: any = {
-          privateKey,
+        const keyImportDto: KeyImportDto = {
+          id: v4(),
+          key: privateKey,
           description: this.form.value.description,
         };
 

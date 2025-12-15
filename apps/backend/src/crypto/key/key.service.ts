@@ -1,9 +1,15 @@
 import { ConfigService } from "@nestjs/config";
 import { Signer } from "@sd-jwt/types";
-import { JoseHeaderParameters, JWK, JWTPayload } from "jose";
+import { plainToClass } from "class-transformer";
+import { readFileSync } from "fs";
+import { JWK, JWSHeaderParameters, JWTPayload } from "jose";
+import { PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm";
+import { TenantEntity } from "../../auth/tenant/entitites/tenant.entity";
+import { ConfigImportService } from "../../utils/config-import/config-import.service";
 import { KeyImportDto } from "./dto/key-import.dto";
 import { UpdateKeyDto } from "./dto/key-update.dto";
+import { CertEntity } from "./entities/cert.entity";
 import { KeyEntity, KeyUsage } from "./entities/keys.entity";
 
 /**
@@ -13,6 +19,10 @@ export abstract class KeyService {
     constructor(
         protected configService: ConfigService,
         protected keyRepository: Repository<KeyEntity>,
+        protected configImportService: ConfigImportService,
+        private certRepository: Repository<CertEntity>,
+        private tenantRepository: Repository<TenantEntity>,
+        private logger: PinoLogger,
     ) {}
 
     /**
@@ -82,7 +92,7 @@ export abstract class KeyService {
     //TODO: this can be handled via the signer callback
     abstract signJWT(
         payload: JWTPayload,
-        header: JoseHeaderParameters,
+        header: JWSHeaderParameters,
         tenantId: string,
         keyId?: string,
     ): Promise<string>;
@@ -102,4 +112,50 @@ export abstract class KeyService {
     }
 
     abstract deleteKey(tenantId: string, id: string): Promise<void>;
+
+    /**
+     * Imports keys from the file system into the key service.
+     */
+    async importKeys() {
+        await this.configImportService.importConfigs<KeyImportDto>({
+            subfolder: "keys",
+            fileExtension: ".json",
+            validationClass: KeyImportDto,
+            resourceType: "key",
+            loadData: (filePath) => {
+                const payload = JSON.parse(readFileSync(filePath, "utf8"));
+                return plainToClass(KeyImportDto, payload);
+            },
+            checkExists: async (tenantId, data) => {
+                // Get all keys and check if any match the key material
+                const keys = await this.getKeys(tenantId);
+                // Compare key material (x, y coordinates for EC keys)
+                return keys.some(
+                    (k) => k.key.x === data.key.x && k.key.y === data.key.y,
+                );
+            },
+            deleteExisting: async (tenantId, data) => {
+                // Find and delete matching key
+                const keys = await this.getKeys(tenantId);
+                const existingKey = keys.find(
+                    (k) => k.key.x === data.key.x && k.key.y === data.key.y,
+                );
+                if (existingKey) {
+                    await this.certRepository.delete({
+                        id: existingKey.id,
+                        tenantId,
+                    });
+                }
+            },
+            processItem: async (tenantId, config) => {
+                const tenantEntity =
+                    await this.tenantRepository.findOneByOrFail({
+                        id: tenantId,
+                    });
+                await this.import(tenantEntity.id, config).catch((err) => {
+                    this.logger.info(err.message);
+                });
+            },
+        });
+    }
 }

@@ -1,7 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
-import { readFileSync } from "node:fs";
 import { Inject, Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
 import {
     type CallbackContext,
     calculateJwkThumbprint,
@@ -10,16 +8,8 @@ import {
     type Jwk,
     SignJwtCallback,
 } from "@openid4vc/oauth2";
-import { plainToClass } from "class-transformer";
 import { importJWK, type JWK, jwtVerify } from "jose";
-import { PinoLogger } from "nestjs-pino";
-import { Repository } from "typeorm";
-import { TenantEntity } from "../auth/tenant/entitites/tenant.entity";
-import { ConfigImportService } from "../utils/config-import/config-import.service";
-import { EC_Public } from "../well-known/dto/jwks-response.dto";
 import { CertService } from "./key/cert/cert.service";
-import { KeyImportDto } from "./key/dto/key-import.dto";
-import { CertEntity } from "./key/entities/cert.entity";
 import { KeyService } from "./key/key.service";
 
 /**
@@ -44,145 +34,13 @@ export class CryptoService {
     constructor(
         @Inject("KeyService") public readonly keyService: KeyService,
         @Inject(CertService) private readonly certService: CertService,
-        @InjectRepository(CertEntity)
-        private certRepository: Repository<CertEntity>,
-        private logger: PinoLogger,
-        @InjectRepository(TenantEntity)
-        private tenantRepository: Repository<TenantEntity>,
-        private configImportService: ConfigImportService,
     ) {}
-
-    /**
-     * Imports keys and certificates from the configured folder.
-     * @param tenantId
-     * @returns
-     */
-    getCerts(tenantId: string): Promise<CertEntity[]> {
-        return this.certService.getCerts(tenantId);
-    }
-
-    /**
-     * Find a certificate by tenantId and type.
-     */
-    find(value: {
-        tenantId: string;
-        type: "access" | "signing";
-        id?: string;
-    }): Promise<CertEntity> {
-        return this.certService.find(value);
-    }
-
-    /**
-     * Check if a certificate exists.
-     */
-    hasEntry(tenantId: string, certId: string): Promise<boolean> {
-        return this.certService.hasEntry(tenantId, certId);
-    }
-
-    /**
-     * Get a certificate entry.
-     */
-    getCertEntry(tenantId: string, certId: string): Promise<CertEntity> {
-        return this.certService.getCertEntry(tenantId, certId);
-    }
-
-    /**
-     * Get the certificate string.
-     */
-    getCert(tenantId: string, certId: string): Promise<string> {
-        return this.certService.getCert(tenantId, certId);
-    }
-
-    /**
-     * Get the certificate chain.
-     */
-    getCertChain(cert: CertEntity): string[] {
-        return this.certService.getCertChain(cert);
-    }
 
     /**
      * Store the access certificate.
      */
     storeAccessCertificate(crt: string, tenantId: string, id: string) {
         return this.certService.storeAccessCertificate(crt, tenantId, id);
-    }
-
-    /**
-     * Get the certificate hash.
-     */
-    getCertHash(cert: CertEntity): string {
-        return this.certService.getCertHash(cert);
-    }
-
-    /**
-     * Import certificates from filesystem.
-     */
-    importCerts() {
-        return this.certService.importCerts();
-    }
-
-    /**
-     * Imports keys from the file system into the key service.
-     */
-    async importKeys() {
-        await this.configImportService.importConfigs<KeyImportDto>({
-            subfolder: "keys",
-            fileExtension: ".json",
-            validationClass: KeyImportDto,
-            resourceType: "key",
-            loadData: (filePath) => {
-                const payload = JSON.parse(readFileSync(filePath, "utf8"));
-                return plainToClass(KeyImportDto, payload);
-            },
-            checkExists: async (tenantId, data) => {
-                // Get all keys and check if any match the key material
-                const keys = await this.keyService.getKeys(tenantId);
-                // Compare key material (x, y coordinates for EC keys)
-                return keys.some(
-                    (k) => k.key.x === data.key.x && k.key.y === data.key.y,
-                );
-            },
-            deleteExisting: async (tenantId, data) => {
-                // Find and delete matching key
-                const keys = await this.keyService.getKeys(tenantId);
-                const existingKey = keys.find(
-                    (k) => k.key.x === data.key.x && k.key.y === data.key.y,
-                );
-                if (existingKey) {
-                    await this.certRepository.delete({
-                        id: existingKey.id,
-                        tenantId,
-                    });
-                }
-            },
-            processItem: async (tenantId, config) => {
-                const tenantEntity =
-                    await this.tenantRepository.findOneByOrFail({
-                        id: tenantId,
-                    });
-                await this.keyService
-                    .import(tenantEntity.id, config)
-                    .catch((err) => {
-                        this.logger.info(err.message);
-                    });
-            },
-        });
-    }
-
-    /**
-     * Sign a JWT with the key service.
-     * @param header
-     * @param payload
-     * @param tenantId
-     * @returns
-     */
-    signJwt(
-        header: any,
-        payload: any,
-        tenantId: string,
-        keyId?: string,
-    ): Promise<string> {
-        return this.keyService.signJWT(payload, header, tenantId, keyId);
     }
 
     /**
@@ -264,7 +122,9 @@ export class CryptoService {
             return Promise.resolve({
                 json: async () => {
                     return {
-                        keys: [await this.getJwks(tenantId)],
+                        keys: [
+                            await this.keyService.getPublicKey("jwk", tenantId),
+                        ],
                     };
                 },
                 ok: true,
@@ -301,24 +161,16 @@ export class CryptoService {
                 );
             }
 
-            const jwt = await this.signJwt(header, payload, tenantId);
+            const jwt = await this.keyService.signJWT(
+                payload,
+                header,
+                tenantId,
+            );
 
             return {
                 jwt,
                 signerJwk: signer.publicJwk,
             };
         };
-    }
-
-    /**
-     * Get the JWKs for the tenant.
-     * @param tenantId
-     * @returns
-     */
-    getJwks(tenantId: string) {
-        return this.keyService.getPublicKey(
-            "jwk",
-            tenantId,
-        ) as Promise<EC_Public>;
     }
 }

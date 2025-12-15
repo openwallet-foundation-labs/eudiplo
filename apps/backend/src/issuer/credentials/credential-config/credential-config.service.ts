@@ -4,7 +4,7 @@ import { plainToClass } from "class-transformer";
 import { readFileSync } from "fs";
 import { PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm";
-import { CryptoService } from "../../../crypto/crypto.service";
+import { CertService } from "../../../crypto/key/cert/cert.service";
 import { FilesService } from "../../../storage/files.service";
 import { ConfigImportService } from "../../../utils/config-import/config-import.service";
 import { StatusListService } from "../../status-list/status-list.service";
@@ -24,7 +24,7 @@ export class CredentialConfigService {
         @InjectRepository(CredentialConfig)
         private readonly credentialConfigRepository: Repository<CredentialConfig>,
         private logger: PinoLogger,
-        private cryptoService: CryptoService,
+        private certService: CertService,
         private filesService: FilesService,
         private configImportService: ConfigImportService,
         private statusListService: StatusListService,
@@ -100,12 +100,13 @@ export class CredentialConfigService {
                     }),
                 );
 
-                // Check if cetId is provided and if the certificate exists
+                // Check if cetId is provided and if the certificate exists.
                 if (config.certId) {
-                    const cert = await this.cryptoService.getCertEntry(
+                    const cert = await this.certService.find({
                         tenantId,
-                        config.certId,
-                    );
+                        type: "signing",
+                        id: config.certId,
+                    });
                     if (!cert) {
                         throw new Error(
                             `Cert ID ${config.certId} must be defined in the crypto service`,
