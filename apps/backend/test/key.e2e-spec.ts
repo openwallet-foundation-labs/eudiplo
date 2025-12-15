@@ -5,6 +5,7 @@ import request from "supertest";
 import { v4 } from "uuid";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../src/app.module";
+import { KeyImportDto } from "../src/crypto/key/dto/key-import.dto";
 import { getToken } from "./utils";
 
 describe("Key (e2e)", () => {
@@ -44,12 +45,14 @@ describe("Key (e2e)", () => {
             alg: "ES256",
         };
 
+        const payload: KeyImportDto = {
+            id: privateKey.kid!,
+            key: privateKey,
+        };
         const creationResponse = await request(app.getHttpServer())
             .post("/key")
             .set("Authorization", `Bearer ${authToken}`)
-            .send({
-                privateKey,
-            })
+            .send(payload)
             .expect(201);
 
         expect(creationResponse.body.id).toBe(privateKey.kid);

@@ -9,7 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { CredentialConfig } from '../../../generated';
+import { CredentialConfig } from '@eudiplo/sdk';
 import { CredentialConfigService } from '../credential-config.service';
 import { WebhookConfigShowComponent } from '../../../utils/webhook-config-show/webhook-config-show.component';
 
@@ -117,6 +117,8 @@ export class CredentialConfigShowComponent implements OnInit {
    */
   downloadConfig() {
     if (this.config) {
+      console.log(this.config);
+
       const blob = new Blob([JSON.stringify(this.config, null, 2)], {
         type: 'application/json',
       });

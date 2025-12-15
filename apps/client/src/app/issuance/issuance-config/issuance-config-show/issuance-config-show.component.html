@@ -4,16 +4,16 @@
     <div fxLayout="row" fxLayoutAlign="space-between center">
       <h2>Issuance Configuration</h2>
       <div>
-        <button mat-icon-button [routerLink]="['../']" matTooltip="Back to list">
+        <button matIconButton [routerLink]="['../']" matTooltip="Back to list">
           <mat-icon>arrow_back</mat-icon>
         </button>
-        <button mat-icon-button [routerLink]="['/offer/issuance']" matTooltip="Create offer">
+        <button matIconButton [routerLink]="['/offer/issuance']" matTooltip="Create offer">
           <mat-icon>add</mat-icon>
         </button>
-        <button mat-icon-button [routerLink]="['edit']" matTooltip="Edit configuration">
+        <button matIconButton [routerLink]="['edit']" matTooltip="Edit configuration">
           <mat-icon>edit</mat-icon>
         </button>
-        <button mat-icon-button (click)="downloadConfig()" matTooltip="Download configuration">
+        <button matIconButton (click)="downloadConfig()" matTooltip="Download configuration">
           <mat-icon>download</mat-icon>
         </button>
       </div>

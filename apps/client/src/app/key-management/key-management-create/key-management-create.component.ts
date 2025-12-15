@@ -3,16 +3,13 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatDivider } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { KeyImportDto } from '../../generated';
 import { KeyManagementService } from '../key-management.service';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { EditorComponent } from '../../utils/editor/editor.component';
@@ -27,13 +24,11 @@ import { jwkSchema } from '../../utils/schemas';
     MatIconModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
     FlexLayoutModule,
     ReactiveFormsModule,
     RouterModule,
-    MatDivider,
     MonacoEditorModule,
     EditorComponent,
   ],
@@ -43,13 +38,9 @@ import { jwkSchema } from '../../utils/schemas';
 export class KeyManagementCreateComponent {
   public form: FormGroup;
   public create = true;
+  public keyId?: string;
 
   jwkSchema = jwkSchema;
-
-  editorOptionsPem = {
-    automaticLayout: true,
-    language: 'pem',
-  };
 
   constructor(
     private keyManagementService: KeyManagementService,
@@ -59,15 +50,14 @@ export class KeyManagementCreateComponent {
     private fb: FormBuilder
   ) {
     this.create = !this.route.snapshot.params['id'];
+    this.keyId = this.route.snapshot.params['id'];
     this.form = this.fb.group({
-      id: ['', [Validators.required]],
-      description: ['', [Validators.required]],
-      crt: [''],
+      description: [''],
     });
 
     if (!this.create) {
       this.keyManagementService.getKey(this.route.snapshot.params['id']).then(
-        (key) => {
+        (key: any) => {
           if (!key) {
             this.snackBar.open('Key not found', 'Close', { duration: 3000 });
             this.router.navigate(['../'], { relativeTo: this.route });
@@ -75,17 +65,8 @@ export class KeyManagementCreateComponent {
           }
 
           this.form.patchValue({
-            id: key.id,
             description: key.description,
-            crt: key.crt,
           });
-
-          // Disable non-editable fields for edit mode
-          this.form.get('id')?.disable();
-
-          // Remove required validator from privateKey and id in edit mode
-          this.form.get('id')?.clearValidators();
-          this.form.get('id')?.updateValueAndValidity();
         },
         (error) => {
           console.error('Error loading key:', error);
@@ -97,30 +78,60 @@ export class KeyManagementCreateComponent {
     }
   }
 
+  generateKey() {
+    this.keyManagementService.generateKey().then((jwk: JsonWebKey) => {
+      this.form.get('privateKey')?.setValue(JSON.stringify(jwk, null, 2));
+      this.snackBar.open('Key generated successfully', 'Close', {
+        duration: 3000,
+      });
+    });
+  }
+
   async onSubmit(): Promise<void> {
     try {
       if (this.create) {
-        // For creating a new key, use all form values
-        const keyImportDto: KeyImportDto = {
-          privateKey: JSON.parse(this.form.value.privateKey),
+        // Parse and validate the private key
+        let privateKey: any;
+        try {
+          privateKey = JSON.parse(this.form.value.privateKey);
+        } catch {
+          this.snackBar.open('Invalid JSON format for private key', 'Close', {
+            duration: 3000,
+          });
+          return;
+        }
+
+        // Remove kid if present - server will generate it
+        delete privateKey.kid;
+
+        const keyImportDto: any = {
+          privateKey,
           description: this.form.value.description,
-          crt: this.form.value.crt || undefined,
         };
-        await this.keyManagementService.importKey(keyImportDto);
+
+        const result = await this.keyManagementService.importKey(keyImportDto);
         this.snackBar.open('Key imported successfully', 'Close', {
           duration: 3000,
         });
-      } else {
-        await this.keyManagementService.updateKey(
-          this.route.snapshot.params['id'],
-          this.form.value
-        );
-      }
 
-      this.router.navigate(['../'], { relativeTo: this.route });
+        // Navigate to the created key's detail page
+        this.router.navigate(['/key-management', result.id]);
+      } else {
+        // For edit mode, update key description
+        const updateData: any = {
+          description: this.form.get('description')?.value,
+        };
+
+        await this.keyManagementService.updateKey(this.route.snapshot.params['id'], updateData);
+        this.snackBar.open('Key updated successfully', 'Close', {
+          duration: 3000,
+        });
+
+        this.router.navigate(['../'], { relativeTo: this.route });
+      }
     } catch (error) {
       console.error('Error saving key:', error);
-      this.snackBar.open('Failed to import key', 'Close', {
+      this.snackBar.open('Failed to save key', 'Close', {
         duration: 3000,
       });
     }

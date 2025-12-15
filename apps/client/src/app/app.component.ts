@@ -14,8 +14,8 @@ import { NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/rout
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { ApiService } from './api.service';
 import { JwtService, Role } from './services/jwt.service';
+import { ApiService } from '@eudiplo/sdk';
 
 @Component({
   selector: 'app-root',

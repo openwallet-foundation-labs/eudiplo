@@ -1,8 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
 import { readFileSync } from "node:fs";
-import { URL } from "node:url";
 import { Inject, Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import {
     type CallbackContext,
@@ -12,7 +10,6 @@ import {
     type Jwk,
     SignJwtCallback,
 } from "@openid4vc/oauth2";
-import * as x509 from "@peculiar/x509";
 import { plainToClass } from "class-transformer";
 import { importJWK, type JWK, jwtVerify } from "jose";
 import { PinoLogger } from "nestjs-pino";
@@ -20,16 +17,10 @@ import { Repository } from "typeorm";
 import { TenantEntity } from "../auth/tenant/entitites/tenant.entity";
 import { ConfigImportService } from "../utils/config-import/config-import.service";
 import { EC_Public } from "../well-known/dto/jwks-response.dto";
+import { CertService } from "./key/cert/cert.service";
 import { KeyImportDto } from "./key/dto/key-import.dto";
-import { UpdateKeyDto } from "./key/dto/key-update.dto";
-import { CertEntity, CertificateType } from "./key/entities/cert.entity";
+import { CertEntity } from "./key/entities/cert.entity";
 import { KeyService } from "./key/key.service";
-
-const ECDSA_P256 = {
-    name: "ECDSA",
-    namedCurve: "P-256",
-    hash: "SHA-256" as const,
-};
 
 /**
  * Service for cryptographic operations, including key management and certificate handling.
@@ -43,13 +34,16 @@ export class CryptoService {
 
     /**
      * Constructor for CryptoService.
-     * @param configService
      * @param keyService
+     * @param certService
      * @param certRepository
+     * @param logger
+     * @param tenantRepository
+     * @param configImportService
      */
     constructor(
-        private readonly configService: ConfigService,
         @Inject("KeyService") public readonly keyService: KeyService,
+        @Inject(CertService) private readonly certService: CertService,
         @InjectRepository(CertEntity)
         private certRepository: Repository<CertEntity>,
         private logger: PinoLogger,
@@ -59,29 +53,78 @@ export class CryptoService {
     ) {}
 
     /**
-     * Initializes the key service for a specific tenant.
-     * @param tenantId
-     */
-    async onTenantInit(tenant: TenantEntity) {
-        const keyId = await this.keyService.init(tenant.id);
-        await this.hasCerts(tenant, keyId);
-    }
-
-    /**
      * Imports keys and certificates from the configured folder.
      * @param tenantId
      * @returns
      */
     getCerts(tenantId: string): Promise<CertEntity[]> {
-        return this.certRepository.findBy({
-            tenantId,
-        });
+        return this.certService.getCerts(tenantId);
+    }
+
+    /**
+     * Find a certificate by tenantId and type.
+     */
+    find(value: {
+        tenantId: string;
+        type: "access" | "signing";
+        id?: string;
+    }): Promise<CertEntity> {
+        return this.certService.find(value);
+    }
+
+    /**
+     * Check if a certificate exists.
+     */
+    hasEntry(tenantId: string, certId: string): Promise<boolean> {
+        return this.certService.hasEntry(tenantId, certId);
+    }
+
+    /**
+     * Get a certificate entry.
+     */
+    getCertEntry(tenantId: string, certId: string): Promise<CertEntity> {
+        return this.certService.getCertEntry(tenantId, certId);
+    }
+
+    /**
+     * Get the certificate string.
+     */
+    getCert(tenantId: string, certId: string): Promise<string> {
+        return this.certService.getCert(tenantId, certId);
+    }
+
+    /**
+     * Get the certificate chain.
+     */
+    getCertChain(cert: CertEntity): string[] {
+        return this.certService.getCertChain(cert);
+    }
+
+    /**
+     * Store the access certificate.
+     */
+    storeAccessCertificate(crt: string, tenantId: string, id: string) {
+        return this.certService.storeAccessCertificate(crt, tenantId, id);
+    }
+
+    /**
+     * Get the certificate hash.
+     */
+    getCertHash(cert: CertEntity): string {
+        return this.certService.getCertHash(cert);
+    }
+
+    /**
+     * Import certificates from filesystem.
+     */
+    importCerts() {
+        return this.certService.importCerts();
     }
 
     /**
      * Imports keys from the file system into the key service.
      */
-    async import() {
+    async importKeys() {
         await this.configImportService.importConfigs<KeyImportDto>({
             subfolder: "keys",
             fileExtension: ".json",
@@ -91,259 +134,38 @@ export class CryptoService {
                 const payload = JSON.parse(readFileSync(filePath, "utf8"));
                 return plainToClass(KeyImportDto, payload);
             },
-            checkExists: (tenantId, data) => {
-                const id = data.privateKey.kid;
-                return this.keyService
-                    .getPublicKey("jwk", tenantId, id)
-                    .then(() => true)
-                    .catch(() => false);
+            checkExists: async (tenantId, data) => {
+                // Get all keys and check if any match the key material
+                const keys = await this.keyService.getKeys(tenantId);
+                // Compare key material (x, y coordinates for EC keys)
+                return keys.some(
+                    (k) => k.key.x === data.key.x && k.key.y === data.key.y,
+                );
             },
             deleteExisting: async (tenantId, data) => {
-                const id = data.privateKey.kid;
-                await this.certRepository.delete({ id, tenantId });
+                // Find and delete matching key
+                const keys = await this.keyService.getKeys(tenantId);
+                const existingKey = keys.find(
+                    (k) => k.key.x === data.key.x && k.key.y === data.key.y,
+                );
+                if (existingKey) {
+                    await this.certRepository.delete({
+                        id: existingKey.id,
+                        tenantId,
+                    });
+                }
             },
             processItem: async (tenantId, config) => {
                 const tenantEntity =
                     await this.tenantRepository.findOneByOrFail({
                         id: tenantId,
                     });
-                await this.importKey(tenantEntity, config).catch((err) => {
-                    this.logger.info(err.message);
-                });
+                await this.keyService
+                    .import(tenantEntity.id, config)
+                    .catch((err) => {
+                        this.logger.info(err.message);
+                    });
             },
-        });
-    }
-
-    /**
-     * Imports a key into the key service.
-     * @param tenant
-     * @param body
-     * @returns
-     */
-    async importKey(tenant: TenantEntity, body: KeyImportDto): Promise<string> {
-        const id = await this.keyService.import(tenant.id, body);
-        // If the private key has a certificate, write it to the certs folder
-        if (body.crt) {
-            await this.certRepository.save({
-                tenantId: tenant.id,
-                id,
-                crt: body.crt,
-                description: body.description,
-            });
-        } else {
-            // If no certificate is provided, generate a self-signed certificate
-            await this.hasCerts(tenant, id);
-            if (body.description) {
-                await this.certRepository.update(
-                    { tenantId: tenant.id, id },
-                    { description: body.description },
-                );
-            }
-        }
-        return id;
-    }
-
-    /**
-     * Ensures a signing certificate (and default access cert) exist for the given tenant/key id.
-     */
-    async hasCerts(tenant: TenantEntity, id?: string) {
-        id = id ?? (await this.keyService.getKid(tenant.id));
-
-        const existing = await this.certRepository.findOneBy({
-            tenantId: tenant.id,
-            id,
-        });
-        if (existing?.crt) return;
-        //TODO: load CN from other source, e.g. config. Also required for access certificate
-        // === Inputs/parameters (subject + SAN hostname) ===
-        const subjectCN = tenant.name;
-        const hostname = new URL(
-            this.configService.getOrThrow<string>("PUBLIC_URL"),
-        ).hostname;
-
-        // === Parse the subject public key we want the leaf cert to contain ===
-        // Expecting PEM SPKI. If you have JWK, convert or import as CryptoKey first.
-        const subjectSpkiPem = await this.keyService.getPublicKey(
-            "pem",
-            tenant.id,
-            id,
-        );
-        const subjectPublicKey = await new x509.PublicKey(
-            subjectSpkiPem,
-        ).export({ name: "ECDSA", namedCurve: "P-256" }, ["verify"]);
-
-        // === Create issuer key pair and self-signed issuer certificate ===
-        const issuerKeys = await crypto.subtle.generateKey(ECDSA_P256, true, [
-            "sign",
-            "verify",
-        ]);
-        const now = new Date();
-        const inOneYear = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
-
-        const issuerCert = await x509.X509CertificateGenerator.createSelfSigned(
-            {
-                serialNumber: "01",
-                name: `CN=${subjectCN}`,
-                notBefore: now,
-                notAfter: inOneYear,
-                signingAlgorithm: ECDSA_P256,
-                keys: issuerKeys,
-                extensions: [
-                    new x509.BasicConstraintsExtension(true, 0, true), // CA: true, pathLen:0
-                    new x509.KeyUsagesExtension(
-                        x509.KeyUsageFlags.keyCertSign |
-                            x509.KeyUsageFlags.cRLSign,
-                        true,
-                    ),
-                    await x509.SubjectKeyIdentifierExtension.create(
-                        issuerKeys.publicKey,
-                    ),
-                    new x509.SubjectAlternativeNameExtension([
-                        { type: "dns", value: hostname },
-                    ]),
-                ],
-            },
-        );
-
-        // === Issue end-entity certificate for the provided public key ===
-        const leafCert = await x509.X509CertificateGenerator.create({
-            serialNumber: "02",
-            subject: `CN=${subjectCN}`,
-            issuer: issuerCert.subject, // DN string from issuer
-            notBefore: now,
-            notAfter: inOneYear,
-            signingAlgorithm: ECDSA_P256,
-            publicKey: subjectPublicKey, // <-- your key goes into the cert
-            signingKey: issuerKeys.privateKey, // signed by issuer
-            extensions: [
-                new x509.SubjectAlternativeNameExtension([
-                    { type: "dns", value: hostname },
-                ]),
-                new x509.KeyUsagesExtension(
-                    x509.KeyUsageFlags.digitalSignature,
-                    false,
-                ),
-                await x509.SubjectKeyIdentifierExtension.create(
-                    subjectPublicKey,
-                ),
-                await x509.AuthorityKeyIdentifierExtension.create(
-                    issuerCert.publicKey,
-                ),
-            ],
-        });
-
-        const crtPem = leafCert.toString("pem"); // PEM-encoded certificate
-
-        // Persist the signing certificate
-        await this.certRepository.save({
-            tenantId: tenant.id,
-            id,
-            crt: crtPem,
-            type: "signing",
-        });
-
-        // Mirror your logic: if no "access" cert yet, reuse the same PEM
-        const accessCount = await this.certRepository.countBy({
-            tenantId: tenant.id,
-            type: "access",
-        });
-        if (accessCount === 0) {
-            await this.certRepository.save({
-                tenantId: tenant.id,
-                id,
-                crt: crtPem,
-                type: "access",
-            });
-        }
-    }
-
-    /**
-     * Check if a certificate exists for the given tenant and keyId.
-     * @param tenantId
-     * @param keyId
-     * @returns
-     */
-    hasEntry(tenantId: string, keyId: string): Promise<boolean> {
-        return this.certRepository
-            .findOneBy({ tenantId, id: keyId })
-            .then((cert) => !!cert);
-    }
-
-    /**
-     * Get a certificate entry by tenantId and keyId.
-     * @param tenantId
-     * @param keyId
-     * @returns
-     */
-    getCertEntry(tenantId: string, keyId: string): Promise<CertEntity> {
-        return this.certRepository.findOneByOrFail({ tenantId, id: keyId });
-    }
-
-    /**
-     * Get the certificate for the given tenant and keyId.
-     * @param tenantId
-     * @param keyId
-     * @returns
-     */
-    getCert(tenantId: string, keyId: string): Promise<string> {
-        return this.certRepository
-            .findOneBy({ tenantId, id: keyId })
-            .then((cert) => cert!.crt);
-    }
-
-    /**
-     * Update an existing certificate in the key service.
-     * @param tenantId
-     * @param id
-     * @param body
-     */
-    updateCert(tenantId: string, id: string, body: UpdateKeyDto) {
-        this.certRepository.update({ tenantId, id }, body);
-    }
-
-    /**
-     * Get the certificate chain for the given type to be included in the JWS header.
-     * @param type
-     * @param tenantId
-     * @param keyId
-     * @returns
-     */
-    async getCertChain(
-        type: CertificateType = "signing",
-        tenantId: string,
-        keyId?: string,
-    ) {
-        let cert: string;
-        if (type === "signing") {
-            keyId = keyId || (await this.keyService.getKid(tenantId));
-            cert = await this.getCert(tenantId, keyId);
-        } else {
-            cert = await this.certRepository
-                .findOneByOrFail({
-                    tenantId,
-                    type: "access",
-                })
-                .then((cert) => cert.crt);
-        }
-
-        const chain = cert
-            .replace("-----BEGIN CERTIFICATE-----", "")
-            .replace("-----END CERTIFICATE-----", "")
-            .replace(/\r?\n|\r/g, "");
-        return [chain];
-    }
-
-    /**
-     * Store the access certificate for the tenant.
-     * @param crt
-     * @param tenantId
-     */
-    async storeAccessCertificate(crt: string, tenantId: string, id: string) {
-        await this.certRepository.save({
-            tenantId,
-            id,
-            crt,
-            type: "access",
         });
     }
 
@@ -498,16 +320,5 @@ export class CryptoService {
             "jwk",
             tenantId,
         ) as Promise<EC_Public>;
-    }
-
-    /**
-     * Delete a key from the key service and the cert.
-     * @param tenantId
-     * @param id
-     */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    deleteKey(tenantId: string, id: string) {
-        //TODO: before deleting it, make sure it is not used in a configuration
-        throw new Error("Method not implemented.");
     }
 }

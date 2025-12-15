@@ -65,10 +65,6 @@
         }
       ]
     },
-    "nonce": {
-      "type": "string",
-      "description": "Nonce used for the OID4VCI flow."
-    },
     "offer": {
       "description": "Credential offer object containing details about the credential offer or presentation request.",
       "type": "object"

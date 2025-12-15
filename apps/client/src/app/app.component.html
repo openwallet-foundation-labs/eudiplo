@@ -1,6 +1,6 @@
 @if (shouldShowToolbar) {
   <mat-toolbar class="app-toolbar">
-    <button mat-icon-button (click)="toggleSidenav()" fxHide.gt-sm>
+    <button matIconButton (click)="toggleSidenav()" fxHide.gt-sm>
       <mat-icon>menu</mat-icon>
     </button>
     <span>eudiplo client</span>
@@ -48,35 +48,39 @@
 
         @if (hasRole('clients:manage')) {
           <mat-list-item [routerLink]="['/clients']" routerLinkActive="active-link">
-            <mat-icon matListItemIcon>group</mat-icon>
             <span matListItemTitle>Clients</span>
           </mat-list-item>
         }
         <!-- Dashboard -->
         <mat-list-item [routerLink]="['/dashboard']" routerLinkActive="active-link">
-          <mat-icon matListItemIcon>dashboard</mat-icon>
           <span matListItemTitle>Dashboard</span>
         </mat-list-item>
 
         <mat-divider></mat-divider>
 
-        <!-- Core Configuration -->
+        @if (hasRole(['presentation:offer', 'issuance:offer'])) {
+          <div mat-subheader>Keys</div>
+          <mat-list-item [routerLink]="['/key-management']" routerLinkActive="active-link">
+            <span matListItemTitle>Key Management</span>
+          </mat-list-item>
+
+          <mat-list-item [routerLink]="['/certificates']" routerLinkActive="active-link">
+            <span matListItemTitle>Certificates</span>
+          </mat-list-item>
+
+          <mat-divider></mat-divider>
+        }
+
+        <!-- Issuance Workflow -->
         @if (hasRole('issuance:manage')) {
           <div mat-subheader>Issuance</div>
 
           <mat-list-item [routerLink]="['/issuance-config']" routerLinkActive="active-link">
-            <mat-icon matListItemIcon>badge</mat-icon>
             <span matListItemTitle>Issuance Configuration</span>
           </mat-list-item>
 
           <mat-list-item [routerLink]="['/credential-config']" routerLinkActive="active-link">
-            <mat-icon matListItemIcon>settings</mat-icon>
             <span matListItemTitle>Credential Configurations</span>
-          </mat-list-item>
-
-          <mat-list-item [routerLink]="['/key-management']" routerLinkActive="active-link">
-            <mat-icon matListItemIcon>vpn_key</mat-icon>
-            <span matListItemTitle>Key Management</span>
           </mat-list-item>
 
           <mat-divider></mat-divider>
@@ -87,7 +91,6 @@
           <div mat-subheader>Credential Verification</div>
 
           <mat-list-item [routerLink]="['/presentation-config']" routerLinkActive="active-link">
-            <mat-icon matListItemIcon>verified</mat-icon>
             <span matListItemTitle>Presentation Configuration</span>
           </mat-list-item>
 
@@ -99,7 +102,6 @@
           <div mat-subheader>Monitoring & Sessions</div>
 
           <mat-list-item [routerLink]="['/session-management']" routerLinkActive="active-link">
-            <mat-icon matListItemIcon>history</mat-icon>
             <span matListItemTitle>Session Management</span>
           </mat-list-item>
         }

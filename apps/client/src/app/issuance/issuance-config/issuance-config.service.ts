@@ -5,7 +5,7 @@ import {
   issuanceControllerStoreIssuanceConfiguration,
   issuerManagementControllerGetOffer,
   type OfferRequestDto,
-} from '../../generated';
+} from '@eudiplo/sdk';
 
 @Injectable({
   providedIn: 'root',

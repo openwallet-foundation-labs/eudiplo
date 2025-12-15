@@ -29,7 +29,7 @@
           <mat-label>API Base URL</mat-label>
           <input matInput [value]="currentBaseUrl" readonly />
           <button
-            mat-icon-button
+            matIconButton
             matSuffix
             (click)="copyToClipboard(currentBaseUrl, 'API Base URL')"
             matTooltip="Copy to clipboard"
@@ -44,7 +44,7 @@
           <mat-label>OAuth URL</mat-label>
           <input matInput [value]="currentOidcUrl" readonly />
           <button
-            mat-icon-button
+            matIconButton
             matSuffix
             (click)="copyToClipboard(currentOidcUrl, 'OAuth URL')"
             matTooltip="Copy to clipboard"
@@ -59,7 +59,7 @@
           <mat-label>Client ID</mat-label>
           <input matInput [value]="currentClientId" readonly />
           <button
-            mat-icon-button
+            matIconButton
             matSuffix
             (click)="copyToClipboard(currentClientId, 'Client ID')"
             matTooltip="Copy to clipboard"
@@ -74,7 +74,7 @@
           <mat-label>Client Secret</mat-label>
           <input matInput [value]="currentClientSecret" readonly type="password" />
           <button
-            mat-icon-button
+            matIconButton
             matSuffix
             (click)="copyToClipboard(currentClientSecret, 'Client Secret')"
             matTooltip="Copy to clipboard"

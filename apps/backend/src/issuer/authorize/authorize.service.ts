@@ -195,25 +195,32 @@ export class AuthorizeService {
             });
             dpopValue = dpop;
         }
+
         //const cNonce = randomUUID();
-        return this.getAuthorizationServer(tenantId).createAccessTokenResponse({
-            audience: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${tenantId}`,
-            signer: {
-                method: "jwk",
-                alg: "ES256",
-                publicJwk: (await this.cryptoService.keyService.getPublicKey(
-                    "jwk",
-                    tenantId,
-                )) as Jwk,
-            },
-            subject: session.id,
-            expiresInSeconds: 300,
-            authorizationServer: authorizationServerMetadata.issuer,
-            /* cNonce,
+        return this.getAuthorizationServer(tenantId)
+            .createAccessTokenResponse({
+                audience: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${tenantId}`,
+                signer: {
+                    method: "jwk",
+                    alg: "ES256",
+                    publicJwk:
+                        (await this.cryptoService.keyService.getPublicKey(
+                            "jwk",
+                            tenantId,
+                        )) as Jwk,
+                },
+                subject: session.id,
+                expiresInSeconds: 300,
+                authorizationServer: authorizationServerMetadata.issuer,
+                /* cNonce,
             cNonceExpiresIn: 100, */
-            clientId: req.body.client_id,
-            dpop: dpopValue,
-        });
+                clientId: req.body.client_id,
+                dpop: dpopValue,
+            })
+            .catch((err) => {
+                console.error("Error creating access token response:", err);
+                throw err;
+            });
     }
 
     parseChallengeRequest(

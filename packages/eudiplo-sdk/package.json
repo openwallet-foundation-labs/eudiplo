@@ -1,0 +1,38 @@
+{
+    "name": "@eudiplo/sdk",
+    "version": "1.0.0",
+    "description": "EUDIPLO SDK generated from OpenAPI spec",
+    "main": "dist/index.js",
+    "license": "Apache-2.0",
+    "types": "dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
+        }
+    },
+    "scripts": {
+        "generate": "openapi-ts",
+        "build": "tsc"
+    },
+    "dependencies": {
+        "@badgateway/oauth2-client": "^3.3.1",
+        "tslib": "^2.8.1"
+    },
+    "devDependencies": {
+        "@angular/common": "^21.0.4",
+        "@angular/core": "^21.0.4",
+        "@hey-api/openapi-ts": "^0.89.0",
+        "@types/node": "^20.0.0",
+        "rxjs": "^7.8.2",
+        "typescript": "^5.9.3"
+    },
+    "peerDependencies": {
+        "@angular/common": "^21.0.0",
+        "@angular/core": "^21.0.0",
+        "rxjs": "^7.8.0"
+    },
+    "files": [
+        "dist"
+    ]
+}

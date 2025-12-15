@@ -1,0 +1,100 @@
+.info-section {
+  h3 {
+    margin: 0 0 16px 0;
+    font-size: 18px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.87);
+  }
+}
+
+.info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  .label {
+    min-width: 180px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.6);
+    padding-top: 2px;
+  }
+
+  .value {
+    color: rgba(0, 0, 0, 0.87);
+    flex: 1;
+
+    &.expired {
+      color: #d32f2f;
+    }
+  }
+
+  code.value {
+    font-size: 12px;
+    background-color: rgba(0, 0, 0, 0.05);
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    word-break: break-all;
+
+    &.fingerprint {
+      font-family: 'Courier New', monospace;
+      letter-spacing: 0.5px;
+    }
+  }
+}
+
+.pem-container {
+  background-color: #f5f5f5;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  padding: 16px;
+  overflow-x: auto;
+  position: relative;
+
+  .copy-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background-color: rgba(255, 255, 255, 0.9);
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 1);
+    }
+  }
+
+  .pem-certificate {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    margin: 0;
+    white-space: pre;
+    color: rgba(0, 0, 0, 0.87);
+    padding-right: 48px; // Add space for the copy button
+  }
+}
+
+.empty-state {
+  padding: 48px 24px;
+  text-align: center;
+
+  .empty-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: rgba(0, 0, 0, 0.26);
+  }
+
+  p {
+    color: rgba(0, 0, 0, 0.54);
+    margin: 0;
+  }
+}
+
+mat-chip {
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+  }
+}

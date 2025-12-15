@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertUpdateDto.schema.json",
+  "title": "CertUpdateDto",
+  "type": "object",
+  "properties": {
+    "isAccessCert": {
+      "type": "boolean",
+      "description": "Certificate can be used for access/authentication",
+      "example": false
+    },
+    "isSigningCert": {
+      "type": "boolean",
+      "description": "Certificate can be used for signing",
+      "example": true
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the key."
+    }
+  },
+  "required": [
+    "isAccessCert",
+    "isSigningCert"
+  ]
+}

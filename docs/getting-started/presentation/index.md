@@ -92,72 +92,23 @@ For a quick start, follow these steps:
 
 ### 1. Create a Presentation Configuration
 
-```json
-{
-    "id": "identity-verification",
-    "dcql_query": {
-        "credentials": [
-            {
-                "id": "pid",
-                "format": "dc+sd-jwt",
-                "meta": {
-                    "vct_values": ["https://your-domain.com/credentials/vct/pid"]
-                },
-                "claims": [
-                    {
-                        "path": ["given_name"]
-                    },
-                    {
-                        "path": ["family_name"]
-                    }
-                ]
-            }
-        ]
-    },
-    "registrationCert": {
-        "body": {
-            "privacy_policy": "https://your-domain.com/privacy-policy",
-            "purpose": [
-                {
-                    "locale": "en-US",
-                    "name": "Identity verification for service access"
-                }
-            ],
-            "contact": {
-                "website": "https://your-domain.com/contact",
-                "email": "privacy@your-domain.com",
-                "phone": "+1234567890"
-            }
-        }
-    },
-    "webhook": {
-        "url": "https://your-backend.com/presentation-webhook"
-    }
-}
-```
+See [Presentation Configuration](presentation-configuration.md) for detailed instructions on creating and managing presentation configurations.
 
 ### 2. Store the Configuration
 
-```bash
-curl -X 'POST' \
-  'http://localhost:3000/presentation-management' \
-  -H 'Authorization: Bearer eyJhb...npoNk' \
-  -H 'Content-Type: application/json' \
-  -d '@presentation-config.json'
-```
+Use the presentation management API to store the configuration. For detailed endpoint specifications, see:
+
+**API Reference**: [Create Presentation Configuration](../../api/openapi.md#tag/presentation-management/POST/presentation-management)
 
 ### 3. Request a Presentation
 
-```bash
-curl -X 'POST' \
-  'http://localhost:3000/presentation-management/request' \
-  -H 'Authorization: Bearer eyJhb...npoNk' \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "response_type": "uri",
-    "requestId": "identity-verification"
-  }'
-```
+Initiate a presentation request using the stored configuration. For detailed endpoint specifications, see:
+
+**API Reference**: [Request Presentation](../../api/openapi.md#tag/presentation-management/POST/presentation-management/request)
+
+!!! Info
+
+    In this request you need to specify if the flow should use the DC API or not.
 
 ### 4. Present to User
 

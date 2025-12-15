@@ -1,10 +1,10 @@
+import { OmitType } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsEnum, IsOptional, IsString, ValidateNested } from "class-validator";
+import { IsEnum, IsObject, IsString, ValidateNested } from "class-validator";
 import { JWK } from "jose";
+import { KeyEntity } from "../entities/keys.entity";
 
 class Key implements JWK {
-    @IsString()
-    kid!: string; // Key ID
     @IsEnum(["EC"])
     kty!: string; // Key Type
     @IsString()
@@ -22,25 +22,19 @@ class Key implements JWK {
 /**
  * DTO for importing a key.
  */
-export class KeyImportDto {
+export class KeyImportDto extends OmitType(KeyEntity, [
+    "tenantId",
+    "tenant",
+    "certificates",
+    "createdAt",
+    "updatedAt",
+    "usage",
+] as const) {
     /**
      * The private key in JWK format.
      */
+    @IsObject()
     @ValidateNested()
     @Type(() => Key)
-    privateKey!: Key;
-
-    /**
-     * Optional certificate in PEM format.
-     */
-    @IsString()
-    @IsOptional()
-    crt?: string;
-
-    /**
-     * Description of the key.
-     */
-    @IsString()
-    @IsOptional()
-    description?: string;
+    key!: Key;
 }

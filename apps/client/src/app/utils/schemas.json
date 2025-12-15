@@ -330,6 +330,73 @@
     }
   },
   {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/KeyEntity.schema.json",
+    "fileMatch": ["a://b/KeyEntity.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/KeyEntity.schema.json",
+      "title": "KeyEntity",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the key."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the key."
+        },
+        "tenantId": {
+          "type": "string",
+          "description": "Tenant ID for the key."
+        },
+        "tenant": {
+          "description": "The tenant that owns this object.",
+          "allOf": [
+            {
+              "$ref": "./TenantEntity.schema.json"
+            }
+          ]
+        },
+        "key": {
+          "type": "object",
+          "description": "The key material."
+        },
+        "usage": {
+          "type": "object",
+          "description": "The usage type of the key."
+        },
+        "certificates": {
+          "description": "Certificates associated with this key.",
+          "type": "array",
+          "items": {
+            "$ref": "./CertEntity.schema.json"
+          }
+        },
+        "createdAt": {
+          "format": "date-time",
+          "type": "string",
+          "description": "The timestamp when the key was created."
+        },
+        "updatedAt": {
+          "format": "date-time",
+          "type": "string",
+          "description": "The timestamp when the key was last updated."
+        }
+      },
+      "required": [
+        "id",
+        "tenantId",
+        "tenant",
+        "key",
+        "usage",
+        "certificates",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertEntity.schema.json",
     "fileMatch": ["a://b/CertEntity.schema.json"],
     "schema": {
@@ -338,9 +405,26 @@
       "title": "CertEntity",
       "type": "object",
       "properties": {
+        "isAccessCert": {
+          "type": "boolean",
+          "description": "Certificate can be used for access/authentication",
+          "example": false
+        },
+        "isSigningCert": {
+          "type": "boolean",
+          "description": "Certificate can be used for signing",
+          "example": true
+        },
+        "keyId": {
+          "type": "string",
+          "description": "The key ID this certificate is associated with",
+          "format": "uuid",
+          "example": "039af178-3ca0-48f4-a2e4-7b1209f30376"
+        },
         "id": {
           "type": "string",
-          "description": "Unique identifier for the key."
+          "description": "Unique identifier for the key.",
+          "format": "uuid"
         },
         "tenantId": {
           "type": "string",
@@ -358,26 +442,36 @@
           "type": "string",
           "description": "Certificate in PEM format."
         },
-        "type": {
-          "type": "object",
-          "description": "Type of the certificate (access or signing)."
-        },
         "description": {
           "type": "string",
           "description": "Description of the key."
         },
+        "key": {
+          "$ref": "./KeyEntity.schema.json"
+        },
         "createdAt": {
           "format": "date-time",
           "type": "string",
-          "description": "The timestamp when the VP request was created."
+          "description": "The timestamp when the certificate was created."
         },
         "updatedAt": {
           "format": "date-time",
           "type": "string",
-          "description": "The timestamp when the VP request was last updated."
+          "description": "The timestamp when the certificate was last updated."
         }
       },
-      "required": ["id", "tenantId", "tenant", "crt", "type", "createdAt", "updatedAt"]
+      "required": [
+        "isAccessCert",
+        "isSigningCert",
+        "keyId",
+        "id",
+        "tenantId",
+        "tenant",
+        "crt",
+        "key",
+        "createdAt",
+        "updatedAt"
+      ]
     }
   },
   {
@@ -389,9 +483,6 @@
       "title": "Key",
       "type": "object",
       "properties": {
-        "kid": {
-          "type": "string"
-        },
         "kty": {
           "type": "string"
         },
@@ -411,7 +502,7 @@
           "type": "string"
         }
       },
-      "required": ["kid", "kty", "x", "y", "crv", "d", "alg"]
+      "required": ["kty", "x", "y", "crv", "d", "alg"]
     }
   },
   {
@@ -423,7 +514,7 @@
       "title": "KeyImportDto",
       "type": "object",
       "properties": {
-        "privateKey": {
+        "key": {
           "description": "The private key in JWK format.",
           "allOf": [
             {
@@ -431,16 +522,16 @@
             }
           ]
         },
-        "crt": {
+        "id": {
           "type": "string",
-          "description": "Optional certificate in PEM format."
+          "description": "Unique identifier for the key."
         },
         "description": {
           "type": "string",
           "description": "Description of the key."
         }
       },
-      "required": ["privateKey"]
+      "required": ["key", "id"]
     }
   },
   {
@@ -452,15 +543,131 @@
       "title": "UpdateKeyDto",
       "type": "object",
       "properties": {
-        "crt": {
+        "id": {
           "type": "string",
-          "description": "Optional certificate in PEM format."
+          "description": "Unique identifier for the key."
         },
         "description": {
           "type": "string",
           "description": "Description of the key."
         }
-      }
+      },
+      "required": ["id"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertImportDto.schema.json",
+    "fileMatch": ["a://b/CertImportDto.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertImportDto.schema.json",
+      "title": "CertImportDto",
+      "type": "object",
+      "properties": {
+        "isAccessCert": {
+          "type": "boolean",
+          "description": "Certificate can be used for access/authentication",
+          "example": false
+        },
+        "isSigningCert": {
+          "type": "boolean",
+          "description": "Certificate can be used for signing",
+          "example": true
+        },
+        "keyId": {
+          "type": "string",
+          "description": "The key ID this certificate is associated with",
+          "format": "uuid",
+          "example": "039af178-3ca0-48f4-a2e4-7b1209f30376"
+        },
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the key.",
+          "format": "uuid"
+        },
+        "crt": {
+          "type": "string",
+          "description": "Certificate in PEM format."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the key."
+        }
+      },
+      "required": ["isAccessCert", "isSigningCert", "keyId", "id", "crt"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertResponseDto.schema.json",
+    "fileMatch": ["a://b/CertResponseDto.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertResponseDto.schema.json",
+      "title": "CertResponseDto",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The ID of the created self-signed certificate."
+        }
+      },
+      "required": ["id"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertSelfSignedDto.schema.json",
+    "fileMatch": ["a://b/CertSelfSignedDto.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertSelfSignedDto.schema.json",
+      "title": "CertSelfSignedDto",
+      "type": "object",
+      "properties": {
+        "isAccessCert": {
+          "type": "boolean",
+          "description": "Certificate can be used for access/authentication",
+          "example": false
+        },
+        "isSigningCert": {
+          "type": "boolean",
+          "description": "Certificate can be used for signing",
+          "example": true
+        },
+        "keyId": {
+          "type": "string",
+          "description": "The key ID this certificate is associated with",
+          "format": "uuid",
+          "example": "039af178-3ca0-48f4-a2e4-7b1209f30376"
+        }
+      },
+      "required": ["isAccessCert", "isSigningCert", "keyId"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertUpdateDto.schema.json",
+    "fileMatch": ["a://b/CertUpdateDto.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertUpdateDto.schema.json",
+      "title": "CertUpdateDto",
+      "type": "object",
+      "properties": {
+        "isAccessCert": {
+          "type": "boolean",
+          "description": "Certificate can be used for access/authentication",
+          "example": false
+        },
+        "isSigningCert": {
+          "type": "boolean",
+          "description": "Certificate can be used for signing",
+          "example": true
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the key."
+        }
+      },
+      "required": ["isAccessCert", "isSigningCert"]
     }
   },
   {
@@ -1102,10 +1309,6 @@
             }
           ]
         },
-        "nonce": {
-          "type": "string",
-          "description": "Nonce used for the OID4VCI flow."
-        },
         "offer": {
           "description": "Credential offer object containing details about the credential offer or presentation request.",
           "type": "object"
@@ -1646,10 +1849,10 @@
         "keyBinding": {
           "type": "boolean"
         },
-        "keyId": {
+        "certId": {
           "type": "string"
         },
-        "key": {
+        "cert": {
           "$ref": "./CertEntity.schema.json"
         },
         "statusManagement": {
@@ -1662,7 +1865,7 @@
           "$ref": "./SchemaResponse.schema.json"
         }
       },
-      "required": ["id", "tenant", "config", "key"]
+      "required": ["id", "tenant", "config", "cert"]
     }
   },
   {
@@ -1733,7 +1936,7 @@
         "keyBinding": {
           "type": "boolean"
         },
-        "keyId": {
+        "certId": {
           "type": "string"
         },
         "statusManagement": {

@@ -88,6 +88,12 @@ async function requestCredential(){
     }
 
     console.log('Calling Digital Credentials API (signed)…');
+
+    console.log({
+      mediation: "required",
+      digital: { requests: [{ protocol: "openid4vp-v1-signed", data: { request: requestJwt } }] }
+    });
+
     const dcResponse = await navigator.credentials.get({
       mediation: "required",
       digital: { requests: [{ protocol: "openid4vp-v1-signed", data: { request: requestJwt } }] }

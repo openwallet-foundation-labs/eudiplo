@@ -11,10 +11,9 @@ import {
 import { Role } from "../../auth/roles/role.enum";
 import { Secured } from "../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../auth/token.decorator";
-import { CryptoService } from "../crypto.service";
 import { KeyImportDto } from "./dto/key-import.dto";
 import { UpdateKeyDto } from "./dto/key-update.dto";
-import { CertEntity } from "./entities/cert.entity";
+import { KeyEntity } from "./entities/keys.entity";
 import { KeyService } from "./key.service";
 
 /**
@@ -23,10 +22,7 @@ import { KeyService } from "./key.service";
 @Secured([Role.Issuances, Role.Presentations])
 @Controller("key")
 export class KeyController {
-    constructor(
-        @Inject("KeyService") public readonly keyService: KeyService,
-        private cryptoService: CryptoService,
-    ) {}
+    constructor(@Inject("KeyService") public readonly keyService: KeyService) {}
 
     /**
      * Get all keys for the tenant.
@@ -34,8 +30,8 @@ export class KeyController {
      * @returns
      */
     @Get()
-    getKeys(@Token() token: TokenPayload): Promise<CertEntity[]> {
-        return this.cryptoService.getCerts(token.entity!.id);
+    getKeys(@Token() token: TokenPayload): Promise<KeyEntity[]> {
+        return this.keyService.getKeys(token.entity!.id);
     }
 
     /**
@@ -48,8 +44,8 @@ export class KeyController {
     getKey(
         @Token() token: TokenPayload,
         @Param("id") id: string,
-    ): Promise<CertEntity> {
-        return this.cryptoService.getCertEntry(token.entity!.id, id);
+    ): Promise<KeyEntity> {
+        return this.keyService.getKey(token.entity!.id, id);
     }
 
     /**
@@ -63,7 +59,7 @@ export class KeyController {
         @Token() token: TokenPayload,
         @Body() body: KeyImportDto,
     ): Promise<{ id: string }> {
-        const id = await this.cryptoService.importKey(token.entity!, body);
+        const id = await this.keyService.import(token.entity!.id, body);
         return { id };
     }
 
@@ -79,7 +75,7 @@ export class KeyController {
         @Param("id") id: string,
         @Body() body: UpdateKeyDto,
     ): Promise<void> {
-        await this.cryptoService.updateCert(token.entity!.id, id, body);
+        await this.keyService.update(token.entity!.id, id, body);
     }
 
     /**
@@ -89,6 +85,6 @@ export class KeyController {
      */
     @Delete(":id")
     deleteKey(@Token() token: TokenPayload, @Param("id") id: string) {
-        return this.cryptoService.deleteKey(token.entity!.id, id);
+        return this.keyService.deleteKey(token.entity!.id, id);
     }
 }

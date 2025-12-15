@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ApiService } from '../api.service';
-import { RoleDto } from '../generated';
+import { ApiService, RoleDto } from '@eudiplo/sdk';
 
 export type Role = RoleDto['role'];
 

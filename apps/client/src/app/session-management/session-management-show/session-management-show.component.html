@@ -4,7 +4,7 @@
     <div fxLayout="row" fxLayoutAlign="space-between center">
       <h2>Session Details: {{ session.id }}</h2>
       <div>
-        <button mat-icon-button (click)="goBack()" matTooltip="Go back">
+        <button matIconButton (click)="goBack()" matTooltip="Go back">
           <mat-icon>arrow_back</mat-icon>
         </button>
       </div>
@@ -35,7 +35,7 @@
             <strong>Session ID:</strong>
             <span class="value-with-copy">
               {{ session.id }}
-              <button mat-icon-button (click)="copyToClipboard(session.id)" matTooltip="Copy ID">
+              <button matIconButton (click)="copyToClipboard(session.id)" matTooltip="Copy ID">
                 <mat-icon>content_copy</mat-icon>
               </button>
             </span>
@@ -47,7 +47,7 @@
               <span class="value-with-copy">
                 {{ session.requestId }}
                 <button
-                  mat-icon-button
+                  matIconButton
                   (click)="copyToClipboard(session.requestId)"
                   matTooltip="Copy Request ID"
                 >
@@ -63,7 +63,7 @@
               <span class="value-with-copy">
                 {{ session.authorization_code }}
                 <button
-                  mat-icon-button
+                  matIconButton
                   (click)="copyToClipboard(session.authorization_code)"
                   matTooltip="Copy Authorization Code"
                 >
@@ -79,25 +79,9 @@
               <span class="value-with-copy">
                 {{ session.request_uri }}
                 <button
-                  mat-icon-button
+                  matIconButton
                   (click)="copyToClipboard(session.request_uri)"
                   matTooltip="Copy Request URI"
-                >
-                  <mat-icon>content_copy</mat-icon>
-                </button>
-              </span>
-            </div>
-          }
-
-          @if (session.vp_nonce) {
-            <div class="info-item">
-              <strong>VP Nonce:</strong>
-              <span class="value-with-copy">
-                {{ session.vp_nonce }}
-                <button
-                  mat-icon-button
-                  (click)="copyToClipboard(session.vp_nonce)"
-                  matTooltip="Copy VP Nonce"
                 >
                   <mat-icon>content_copy</mat-icon>
                 </button>
@@ -112,16 +96,34 @@
     <mat-card class="qr-card">
       <mat-card-header>
         <mat-card-title>
-          <mat-icon>qr_code</mat-icon>
-          @if (isIssuanceSession()) {
-            Issuance Offer QR Code
+          @if (session.useDcApi) {
+            <mat-icon>api</mat-icon>
+            @if (isIssuanceSession()) {
+              Issuance Offer
+            } @else {
+              Presentation Request
+            }
           } @else {
-            Presentation Offer QR Code
+            <mat-icon>qr_code</mat-icon>
+            @if (isIssuanceSession()) {
+              Issuance Offer QR Code
+            } @else {
+              Presentation Offer QR Code
+            }
           }
         </mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        @if (getOfferUri()) {
+        @if (session.useDcApi) {
+          <!-- Show only DC API button when useDcApi is enabled -->
+          <div class="dc-api-section" fxLayout="row" fxLayoutAlign="center center">
+            <button mat-flat-button color="primary" (click)="getDcApiCall()">
+              <mat-icon>api</mat-icon>
+              DC API
+            </button>
+          </div>
+        } @else if (getOfferUri()) {
+          <!-- Show QR code and URI when useDcApi is not enabled -->
           <div class="qr-section">
             <!-- Offer URI -->
             <div class="info-item">
@@ -131,7 +133,7 @@
                   <a href="{{ getOfferUri() }}">{{ getOfferUri() }}</a>
                 </span>
                 <button
-                  mat-icon-button
+                  matIconButton
                   (click)="copyToClipboard(getOfferUri()!)"
                   matTooltip="Copy offer URI"
                 >
@@ -171,11 +173,6 @@
           </div>
         }
       </mat-card-content>
-      @if (getOfferUri() && qrCodeDataUrl) {
-        <mat-card-actions fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
-          <button mat-flat-button (click)="getDcApiCall()">DC API</button>
-        </mat-card-actions>
-      }
     </mat-card>
 
     <!-- Detailed information in tabs -->
@@ -190,7 +187,7 @@
                   <mat-card-title>Credential {{ $index + 1 }}</mat-card-title>
                   <div class="spacer"></div>
                   <button
-                    mat-icon-button
+                    matIconButton
                     (click)="copyToClipboard(formatJson(credential))"
                     matTooltip="Copy credential"
                   >
@@ -215,7 +212,7 @@
                 <mat-card-title>Credential Offer</mat-card-title>
                 <div class="spacer"></div>
                 <button
-                  mat-icon-button
+                  matIconButton
                   (click)="copyToClipboard(formatJson(session.offer))"
                   matTooltip="Copy offer"
                 >
@@ -236,7 +233,7 @@
                 <mat-card-title>Issuer Metadata</mat-card-title>
                 <div class="spacer"></div>
                 <button
-                  mat-icon-button
+                  matIconButton
                   (click)="copyToClipboard(formatJson(metadata))"
                   matTooltip="Copy issuer metadata"
                 >
@@ -259,7 +256,7 @@
                 <mat-card-title>Presentation Request</mat-card-title>
                 <div class="spacer"></div>
                 <button
-                  mat-icon-button
+                  matIconButton
                   (click)="copyToClipboard(formatJson(session.requestObject))"
                   matTooltip="Copy presentation request"
                 >
@@ -283,7 +280,7 @@
                 <mat-card-title>Credential Payload</mat-card-title>
                 <div class="spacer"></div>
                 <button
-                  mat-icon-button
+                  matIconButton
                   (click)="copyToClipboard(formatJson(session.credentialPayload))"
                   matTooltip="Copy payload"
                 >
@@ -307,7 +304,7 @@
                 <mat-card-title>Authorization Queries</mat-card-title>
                 <div class="spacer"></div>
                 <button
-                  mat-icon-button
+                  matIconButton
                   (click)="copyToClipboard(formatJson(session.auth_queries))"
                   matTooltip="Copy auth queries"
                 >
@@ -332,7 +329,7 @@
                   <mat-card-title>Main Webhook</mat-card-title>
                   <div class="spacer"></div>
                   <button
-                    mat-icon-button
+                    matIconButton
                     (click)="copyToClipboard(formatJson(session.claimsWebhook))"
                     matTooltip="Copy webhook config"
                   >
@@ -351,7 +348,7 @@
                   <mat-card-title>Notification Webhook</mat-card-title>
                   <div class="spacer"></div>
                   <button
-                    mat-icon-button
+                    matIconButton
                     (click)="copyToClipboard(formatJson(session.notifyWebhook))"
                     matTooltip="Copy notification webhook config"
                   >
@@ -377,7 +374,7 @@
                   <mat-card-title>Notification {{ $index + 1 }}</mat-card-title>
                   <div class="spacer"></div>
                   <button
-                    mat-icon-button
+                    matIconButton
                     (click)="copyToClipboard(formatJson(notification))"
                     matTooltip="Copy notification"
                   >

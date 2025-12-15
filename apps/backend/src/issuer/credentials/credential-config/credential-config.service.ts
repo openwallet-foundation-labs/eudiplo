@@ -7,6 +7,7 @@ import { Repository } from "typeorm";
 import { CryptoService } from "../../../crypto/crypto.service";
 import { FilesService } from "../../../storage/files.service";
 import { ConfigImportService } from "../../../utils/config-import/config-import.service";
+import { StatusListService } from "../../status-list/status-list.service";
 import { CredentialConfigCreate } from "../dto/credential-config-create.dto";
 import { CredentialConfig } from "../entities/credential.entity";
 
@@ -26,6 +27,7 @@ export class CredentialConfigService {
         private cryptoService: CryptoService,
         private filesService: FilesService,
         private configImportService: ConfigImportService,
+        private statusListService: StatusListService,
     ) {}
 
     /**
@@ -98,18 +100,27 @@ export class CredentialConfigService {
                     }),
                 );
 
-                // Check if keyId is provided and if the certificate exists
-                if (config.keyId) {
+                // Check if cetId is provided and if the certificate exists
+                if (config.certId) {
                     const cert = await this.cryptoService.getCertEntry(
                         tenantId,
-                        config.keyId,
+                        config.certId,
                     );
                     if (!cert) {
                         throw new Error(
-                            `Key ID ${config.keyId} must be defined in the crypto service`,
+                            `Cert ID ${config.certId} must be defined in the crypto service`,
                         );
                     }
-                    (config as CredentialConfig).key = cert;
+                    (config as CredentialConfig).cert = cert;
+                }
+
+                //check if status revocation is enabled and if yes, the revocation list exists
+                if (config.statusManagement) {
+                    await this.statusListService
+                        .hasStillFreeEntries(tenantId)
+                        .catch(() =>
+                            this.statusListService.createNewList(tenantId),
+                        );
                 }
 
                 await this.store(tenantId, config);
@@ -125,7 +136,6 @@ export class CredentialConfigService {
     get(tenantId: string) {
         return this.credentialConfigRepository.find({
             where: { tenantId },
-            relations: ["key"],
         });
     }
 

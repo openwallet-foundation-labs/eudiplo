@@ -39,18 +39,15 @@ export class WellKnownService {
             .credentialIssuer as unknown as CredentialIssuerMetadataDto;
 
         if (contentType === MediaType.APPLICATION_JWT) {
-            const keyId = await this.cryptoService.keyService.getKid(
+            const cert = await this.cryptoService.find({
                 tenantId,
-                "access",
-            );
+                type: "access",
+            });
             return this.cryptoService.signJwt(
                 {
                     typ: "openidvci-issuer-metadata+jwt",
                     alg: this.cryptoImplementationService.getAlg(),
-                    x5c: await this.cryptoService.getCertChain(
-                        "access",
-                        tenantId,
-                    ),
+                    x5c: await this.cryptoService.getCertChain(cert),
                 },
                 {
                     ...metadata,
@@ -61,7 +58,7 @@ export class WellKnownService {
                     //MM: the value makes sense when we cache the issuer metadata so it must not be signed on every request. Like when it is issued every hour, its lifetime is 1 hour and the jwt is in the cache.
                 },
                 tenantId,
-                keyId,
+                cert.keyId,
             );
         }
 

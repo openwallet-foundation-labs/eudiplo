@@ -1,13 +1,13 @@
 {
 	"name": "dcapi",
 	"version": "0.0.0",
-	"private": true,
+	"license": "Apache-2.0",
 	"scripts": {
 		"deploy": "wrangler deploy",
 		"dev": "wrangler dev",
 		"start": "wrangler dev"
 	},
 	"devDependencies": {
-		"wrangler": "^4.51.0"
+		"wrangler": "^4.52.1"
 	}
 }

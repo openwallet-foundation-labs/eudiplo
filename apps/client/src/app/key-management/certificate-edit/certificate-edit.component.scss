@@ -1,0 +1,36 @@
+.info-card {
+  margin-bottom: 16px;
+  background-color: #e3f2fd;
+}
+
+mat-card {
+  margin-bottom: 16px;
+}
+
+mat-error {
+  font-size: 12px;
+  margin-top: 8px;
+  display: block;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.loading-state {
+  padding: 48px 24px;
+  text-align: center;
+
+  .loading-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: rgba(0, 0, 0, 0.26);
+  }
+
+  p {
+    margin: 0;
+    font-size: 16px;
+    color: rgba(0, 0, 0, 0.54);
+  }
+}

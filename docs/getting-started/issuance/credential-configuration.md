@@ -36,7 +36,7 @@ For a complete configuration example, see the [Complete Configuration Example](#
   [VC Type Metadata](https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-09.html#name-sd-jwt-vc-type-metadata)
   provided via the `/{tenantId}/credentials-metadata/vct/{id}` endpoint. This link will
   automatically added into the credential.
-- `keyId`: **OPTIONAL** - Unique identifier for the key used to sign the credential. If not provided, the first key in the key set will be used. See [Signing Key](#signing-key) for details.
+- `certId`: **OPTIONAL** - Unique identifier for the certificate used to sign the credential. If not provided, the certificate in for the signing usage will be used. See [Signing Certificate](#signing-certificate) for details.
 - `lifeTime`: **OPTIONAL** - Credential expiration time in seconds. If
   specified, credentials will include an `exp` claim calculated as
   `iat + lifeTime`. See [Credential Expiration](#credential-expiration) for details.
@@ -240,21 +240,23 @@ The display configuration defines how the credential appears in wallets as defin
 
 ---
 
-## Signing Key
+## Signing Certificate
 
-The signing key is used to create the digital signature for the credential. It is essential for ensuring the integrity and authenticity of the credential. If none is provided, the first key in the key set will be used. The matching certificate will be included in the `x5c` field of the issued credential.
+The signing certificate is used to create the digital signature for the credential. It is essential for ensuring the integrity and authenticity of the credential. If none is provided, the first certificate in the certificate set will be used. The matching certificate will be included in the `x5c` field of the issued credential.
 
 ### Configuration
 
 ```json
 {
-    "keyId": "signing-key-1"
+    "certId": "signing-cert-1"
 }
 ```
 
+You can either generate a self signed certificate via the api or import your own certificate.
+
 !!! note
 
-    Keys can be managed through the `/keys` API endpoint.
+    Certificates can be managed through the `/certificates` API endpoint.
 
 ---
 

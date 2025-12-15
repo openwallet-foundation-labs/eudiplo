@@ -4,9 +4,6 @@
   "title": "Key",
   "type": "object",
   "properties": {
-    "kid": {
-      "type": "string"
-    },
     "kty": {
       "type": "string"
     },
@@ -27,7 +24,6 @@
     }
   },
   "required": [
-    "kid",
     "kty",
     "x",
     "y",

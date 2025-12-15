@@ -85,16 +85,13 @@ describe("OIDF", () => {
         const planId = "oid4vp-1final-verifier-test-plan";
         const variant = {
             credential_format: "sd_jwt_vc",
-            client_id_prefix: "x509_san_dns",
+            client_id_prefix: "x509_hash",
             request_method: "request_uri_signed",
             response_mode: "direct_post.jwt",
         };
         const body = {
             alias: "test-plan",
             description: "test plan created via e2e tests",
-            client: {
-                client_id: new URL(`https://${PUBLIC_DOMAIN}`).hostname,
-            },
             credential: {
                 signing_jwk: {
                     ...privateKeyJwk,
@@ -120,8 +117,8 @@ describe("OIDF", () => {
 
         // Enable HTTPS with self-signed certificate
         const httpsOptions = {
-            key: readFileSync(resolve(__dirname, "../../key.pem")),
-            cert: readFileSync(resolve(__dirname, "../../cert.pem")),
+            key: readFileSync(resolve(__dirname, "../key.pem")),
+            cert: readFileSync(resolve(__dirname, "../cert.pem")),
         };
 
         app = moduleFixture.createNestApplication<NestExpressApplication>({

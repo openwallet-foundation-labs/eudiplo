@@ -2,7 +2,7 @@
   <!-- Header -->
   <div fxLayout="row" fxLayoutAlign="space-between center">
     <h2>Generate Presentation Request</h2>
-    <button mat-icon-button [routerLink]="['../']" matTooltip="Back to Presentation">
+    <button matIconButton [routerLink]="['../']" matTooltip="Back to Presentation">
       <mat-icon>arrow_back</mat-icon>
     </button>
   </div>
@@ -35,7 +35,7 @@
             <!-- Presentation Configuration Selection -->
             <mat-form-field>
               <mat-label>Presentation Configuration</mat-label>
-              <mat-select formControlName="requestId" [disabled]="generatingOffer">
+              <mat-select formControlName="requestId">
                 <mat-option value="">Select a configuration</mat-option>
                 @for (config of configs; track config.id) {
                   <mat-option [value]="config.id">
@@ -48,6 +48,9 @@
                 <mat-error>Please select a presentation configuration</mat-error>
               }
             </mat-form-field>
+            <mat-slide-toggle formControlName="dcapi">
+              Use DC-API instead of QR-Code
+            </mat-slide-toggle>
           </mat-card-content>
           <mat-card-actions fxLayout="row" fxLayoutAlign="end center">
             <button

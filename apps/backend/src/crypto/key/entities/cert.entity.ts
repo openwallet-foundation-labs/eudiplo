@@ -1,3 +1,5 @@
+import { ApiProperty } from "@nestjs/swagger";
+import { IsBoolean, IsOptional, IsString, IsUUID } from "class-validator";
 import {
     Column,
     CreateDateColumn,
@@ -6,8 +8,7 @@ import {
     UpdateDateColumn,
 } from "typeorm";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
-
-export type CertificateType = "access" | "signing";
+import { KeyEntity } from "./keys.entity";
 
 /**
  * Entity to manage certificates for keys.
@@ -17,6 +18,7 @@ export class CertEntity {
     /**
      * Unique identifier for the key.
      */
+    @IsUUID()
     @Column("varchar", { primary: true })
     id!: string;
 
@@ -35,29 +37,66 @@ export class CertEntity {
     /**
      * Certificate in PEM format.
      */
+    @IsString()
     @Column("varchar")
     crt!: string;
 
     /**
-     * Type of the certificate (access or signing).
+     * Whether this certificate is used for access/authentication.
      */
-    @Column("varchar", { default: "signing", primary: true })
-    type!: CertificateType;
+    @ApiProperty({
+        description: "Certificate can be used for access/authentication",
+        example: false,
+    })
+    @IsBoolean()
+    @Column("boolean", { default: false })
+    isAccessCert!: boolean;
+
+    /**
+     * Whether this certificate is used for signing.
+     */
+    @ApiProperty({
+        description: "Certificate can be used for signing",
+        example: true,
+    })
+    @IsBoolean()
+    @Column("boolean", { default: false })
+    isSigningCert!: boolean;
 
     /**
      * Description of the key.
      */
+    @IsString()
+    @IsOptional()
     @Column("varchar", { nullable: true })
     description?: string;
 
     /**
-     * The timestamp when the VP request was created.
+     * The ID of the key this certificate is associated with.
+     */
+    @ApiProperty({
+        description: "The key ID this certificate is associated with",
+        example: "039af178-3ca0-48f4-a2e4-7b1209f30376",
+    })
+    @IsUUID()
+    @Column("varchar")
+    keyId!: string;
+
+    @ManyToOne(
+        () => KeyEntity,
+        (key) => key.certificates,
+        { onDelete: "CASCADE" },
+    )
+    key!: KeyEntity;
+
+    /**
+     * The timestamp when the certificate was created.
      */
     @CreateDateColumn()
     createdAt!: Date;
 
     /**
-     * The timestamp when the VP request was last updated.
+     * The timestamp when the certificate was last updated.
      */
     @UpdateDateColumn()
     updatedAt!: Date;
