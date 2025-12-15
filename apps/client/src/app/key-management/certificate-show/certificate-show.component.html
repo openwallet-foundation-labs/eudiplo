@@ -2,13 +2,13 @@
   <div fxLayout="row" fxLayoutAlign="space-between center">
     <h2>Certificate Configuration: {{ certificate.id }}</h2>
     <div>
-      <button mat-icon-button [routerLink]="['../']">
+      <button matIconButton [routerLink]="['../']">
         <mat-icon>arrow_back</mat-icon>
       </button>
-      <button mat-icon-button [routerLink]="['edit']">
+      <button matIconButton [routerLink]="['edit']">
         <mat-icon>edit</mat-icon>
       </button>
-      <button mat-icon-button (click)="delete()">
+      <button matIconButton (click)="delete()">
         <mat-icon>delete</mat-icon>
       </button>
     </div>
@@ -132,6 +132,14 @@
         <div class="info-section">
           <h3>Raw Certificate (PEM)</h3>
           <div class="pem-container">
+            <button
+              matIconButton
+              class="copy-button"
+              (click)="copyToClipboard(certificate.crt, 'PEM')"
+              matTooltip="Copy to clipboard"
+            >
+              <mat-icon>content_copy</mat-icon>
+            </button>
             <pre class="pem-certificate">{{ certificate.crt }}</pre>
           </div>
         </div>

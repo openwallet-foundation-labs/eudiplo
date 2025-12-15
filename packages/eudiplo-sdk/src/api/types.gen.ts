@@ -212,6 +212,14 @@ export type KeyEntity = {
    * Certificates associated with this key.
    */
   certificates: Array<CertEntity>;
+  /**
+   * The timestamp when the key was created.
+   */
+  createdAt: string;
+  /**
+   * The timestamp when the key was last updated.
+   */
+  updatedAt: string;
 };
 
 export type CertEntity = {
@@ -249,11 +257,11 @@ export type CertEntity = {
   description?: string;
   key: KeyEntity;
   /**
-   * The timestamp when the VP request was created.
+   * The timestamp when the certificate was created.
    */
   createdAt: string;
   /**
-   * The timestamp when the VP request was last updated.
+   * The timestamp when the certificate was last updated.
    */
   updatedAt: string;
 };

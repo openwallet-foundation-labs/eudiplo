@@ -4,23 +4,26 @@
   "title": "CertEntity",
   "type": "object",
   "properties": {
-    "type": {
-      "type": "array",
-      "description": "Certificate usage type(s)",
-      "example": [
-        "signing"
-      ],
-      "items": {
-        "type": "string",
-        "enum": [
-          "access",
-          "signing"
-        ]
-      }
+    "isAccessCert": {
+      "type": "boolean",
+      "description": "Certificate can be used for access/authentication",
+      "example": false
+    },
+    "isSigningCert": {
+      "type": "boolean",
+      "description": "Certificate can be used for signing",
+      "example": true
+    },
+    "keyId": {
+      "type": "string",
+      "description": "The key ID this certificate is associated with",
+      "format": "uuid",
+      "example": "039af178-3ca0-48f4-a2e4-7b1209f30376"
     },
     "id": {
       "type": "string",
-      "description": "Unique identifier for the key."
+      "description": "Unique identifier for the key.",
+      "format": "uuid"
     },
     "tenantId": {
       "type": "string",
@@ -42,31 +45,28 @@
       "type": "string",
       "description": "Description of the key."
     },
-    "keyId": {
-      "type": "string",
-      "description": "The ID of the key this certificate is associated with."
-    },
     "key": {
       "$ref": "./KeyEntity.schema.json"
     },
     "createdAt": {
       "format": "date-time",
       "type": "string",
-      "description": "The timestamp when the VP request was created."
+      "description": "The timestamp when the certificate was created."
     },
     "updatedAt": {
       "format": "date-time",
       "type": "string",
-      "description": "The timestamp when the VP request was last updated."
+      "description": "The timestamp when the certificate was last updated."
     }
   },
   "required": [
-    "type",
+    "isAccessCert",
+    "isSigningCert",
+    "keyId",
     "id",
     "tenantId",
     "tenant",
     "crt",
-    "keyId",
     "key",
     "createdAt",
     "updatedAt"

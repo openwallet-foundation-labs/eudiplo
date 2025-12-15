@@ -82,14 +82,14 @@
           <th mat-header-cell *matHeaderCellDef>Actions</th>
           <td mat-cell *matCellDef="let cert">
             <button
-              mat-icon-button
+              matIconButton
               [routerLink]="['/key-management', cert.key.id, 'certificate', cert.id, 'edit']"
               matTooltip="Edit certificate metadata"
             >
               <mat-icon>edit</mat-icon>
             </button>
             <button
-              mat-icon-button
+              matIconButton
               [routerLink]="['/key-management', cert.key.id, 'certificate', cert.id]"
               matTooltip="View certificate details"
             >

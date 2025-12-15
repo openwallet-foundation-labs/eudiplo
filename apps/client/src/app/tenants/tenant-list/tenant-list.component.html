@@ -1,6 +1,6 @@
 <div fxLayout="row" fxLayoutAlign="space-between center">
   <h2>Tenants</h2>
-  <button mat-icon-button [routerLink]="['create']" matTooltip="Create New Tenant">
+  <button matIconButton [routerLink]="['create']" matTooltip="Create New Tenant">
     <mat-icon>add</mat-icon>
   </button>
 </div>
@@ -29,10 +29,10 @@
   <ng-container matColumnDef="actions">
     <th mat-header-cell *matHeaderCellDef>Actions</th>
     <td mat-cell *matCellDef="let tenant">
-      <button [routerLink]="tenant.id" mat-icon-button matTooltip="View details">
+      <button [routerLink]="tenant.id" matIconButton matTooltip="View details">
         <mat-icon>visibility</mat-icon>
       </button>
-      <button mat-icon-button (click)="deleteTenant(tenant)" matTooltip="Delete tenant">
+      <button matIconButton (click)="deleteTenant(tenant)" matTooltip="Delete tenant">
         <mat-icon>delete</mat-icon>
       </button>
     </td>

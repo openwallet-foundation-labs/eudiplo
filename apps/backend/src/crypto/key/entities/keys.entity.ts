@@ -1,6 +1,13 @@
 import { IsOptional, IsString } from "class-validator";
 import { JWK } from "jose";
-import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    ManyToOne,
+    OneToMany,
+    UpdateDateColumn,
+} from "typeorm";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
 import { CertEntity } from "./cert.entity";
 
@@ -58,4 +65,16 @@ export class KeyEntity {
         (cert) => cert.key,
     )
     certificates: CertEntity[];
+
+    /**
+     * The timestamp when the key was created.
+     */
+    @CreateDateColumn()
+    createdAt!: Date;
+
+    /**
+     * The timestamp when the key was last updated.
+     */
+    @UpdateDateColumn()
+    updatedAt!: Date;
 }

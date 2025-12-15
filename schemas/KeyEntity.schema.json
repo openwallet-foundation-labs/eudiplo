@@ -38,6 +38,16 @@
       "items": {
         "$ref": "./CertEntity.schema.json"
       }
+    },
+    "createdAt": {
+      "format": "date-time",
+      "type": "string",
+      "description": "The timestamp when the key was created."
+    },
+    "updatedAt": {
+      "format": "date-time",
+      "type": "string",
+      "description": "The timestamp when the key was last updated."
     }
   },
   "required": [
@@ -46,6 +56,8 @@
     "tenant",
     "key",
     "usage",
-    "certificates"
+    "certificates",
+    "createdAt",
+    "updatedAt"
   ]
 }

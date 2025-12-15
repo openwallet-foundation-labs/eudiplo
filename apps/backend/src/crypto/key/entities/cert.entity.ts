@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsBoolean, IsUUID } from "class-validator";
+import { IsBoolean, IsOptional, IsString, IsUUID } from "class-validator";
 import {
     Column,
     CreateDateColumn,
@@ -18,6 +18,7 @@ export class CertEntity {
     /**
      * Unique identifier for the key.
      */
+    @IsUUID()
     @Column("varchar", { primary: true })
     id!: string;
 
@@ -36,6 +37,7 @@ export class CertEntity {
     /**
      * Certificate in PEM format.
      */
+    @IsString()
     @Column("varchar")
     crt!: string;
 
@@ -64,6 +66,8 @@ export class CertEntity {
     /**
      * Description of the key.
      */
+    @IsString()
+    @IsOptional()
     @Column("varchar", { nullable: true })
     description?: string;
 
@@ -86,13 +90,13 @@ export class CertEntity {
     key!: KeyEntity;
 
     /**
-     * The timestamp when the VP request was created.
+     * The timestamp when the certificate was created.
      */
     @CreateDateColumn()
     createdAt!: Date;
 
     /**
-     * The timestamp when the VP request was last updated.
+     * The timestamp when the certificate was last updated.
      */
     @UpdateDateColumn()
     updatedAt!: Date;

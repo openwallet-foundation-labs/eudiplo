@@ -45,13 +45,14 @@ describe("Key (e2e)", () => {
             alg: "ES256",
         };
 
+        const payload: KeyImportDto = {
+            id: privateKey.kid!,
+            key: privateKey,
+        };
         const creationResponse = await request(app.getHttpServer())
             .post("/key")
             .set("Authorization", `Bearer ${authToken}`)
-            .send({
-                id: privateKey.kid,
-                key: privateKey,
-            } as KeyImportDto)
+            .send(payload)
             .expect(201);
 
         expect(creationResponse.body.id).toBe(privateKey.kid);

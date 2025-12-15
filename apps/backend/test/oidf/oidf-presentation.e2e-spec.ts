@@ -85,16 +85,13 @@ describe("OIDF", () => {
         const planId = "oid4vp-1final-verifier-test-plan";
         const variant = {
             credential_format: "sd_jwt_vc",
-            client_id_prefix: "x509_san_dns",
+            client_id_prefix: "x509_hash",
             request_method: "request_uri_signed",
             response_mode: "direct_post.jwt",
         };
         const body = {
             alias: "test-plan",
             description: "test plan created via e2e tests",
-            client: {
-                client_id: new URL(`https://${PUBLIC_DOMAIN}`).hostname,
-            },
             credential: {
                 signing_jwk: {
                     ...privateKeyJwk,

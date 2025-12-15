@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import {
@@ -35,6 +36,7 @@ interface CertificateInfo {
     MatIconModule,
     MatButtonModule,
     MatChipsModule,
+    MatTooltipModule,
     RouterModule,
     FlexLayoutModule,
   ],
@@ -44,6 +46,8 @@ interface CertificateInfo {
 export class CertificateShowComponent implements OnInit {
   certificate?: CertEntity;
   certificateInfo?: CertificateInfo;
+  pemDer?: string;
+  pemBase64?: string;
   keyId?: string;
   certId?: string;
 
@@ -175,5 +179,14 @@ export class CertificateShowComponent implements OnInit {
       path: { certId: this.certId! },
     });
     this.router.navigate(['/key-management', this.keyId]);
+  }
+
+  async copyToClipboard(text: string, format: string): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(text);
+      console.log(`${format} copied to clipboard`);
+    } catch (error) {
+      console.error('Failed to copy to clipboard:', error);
+    }
   }
 }

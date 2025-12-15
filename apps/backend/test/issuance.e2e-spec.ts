@@ -114,6 +114,7 @@ describe("Issuance", () => {
                 "utf-8",
             ),
         );
+
         await request(app.getHttpServer())
             .post("/issuer-management/credentials")
             .trustLocalhost()
@@ -125,6 +126,7 @@ describe("Issuance", () => {
         const citizenPresentationConfiguration = JSON.parse(
             readFileSync(configFolder + "/root/presentation/pid.json", "utf-8"),
         );
+
         await request(app.getHttpServer())
             .post("/presentation-management")
             .trustLocalhost()

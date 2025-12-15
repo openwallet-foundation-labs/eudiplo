@@ -14,6 +14,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { OfferResponse, PresentationConfig, PresentationRequest } from '@eudiplo/sdk';
 import { PresentationManagementService } from '../presentation-config/presentation-management.service';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'app-presentation-offer',
@@ -31,6 +32,7 @@ import { PresentationManagementService } from '../presentation-config/presentati
     MatTooltipModule,
     FlexLayoutModule,
     RouterModule,
+    MatSlideToggleModule,
   ],
   templateUrl: './presentation-offer.component.html',
   styleUrl: './presentation-offer.component.scss',
@@ -51,6 +53,7 @@ export class PresentationOfferComponent implements OnInit {
   ) {
     this.form = new FormGroup({
       requestId: new FormControl('', Validators.required),
+      dcapi: new FormControl(false),
     });
   }
 
@@ -84,11 +87,6 @@ export class PresentationOfferComponent implements OnInit {
   }
 
   async onSubmit(): Promise<void> {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-
     this.generatingOffer = true;
     this.offerResult = null;
     this.qrCodeDataUrl = null;
@@ -97,7 +95,7 @@ export class PresentationOfferComponent implements OnInit {
       const formValue = this.form.value;
       const offerRequest: PresentationRequest = {
         requestId: formValue.requestId,
-        response_type: 'uri', // Always use URI
+        response_type: formValue.dcapi ? 'dc-api' : 'uri',
       };
 
       const result = await this.presentationManagementService.getOffer(offerRequest);

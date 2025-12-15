@@ -7,6 +7,7 @@ import { Repository } from "typeorm";
 import { CryptoService } from "../../../crypto/crypto.service";
 import { FilesService } from "../../../storage/files.service";
 import { ConfigImportService } from "../../../utils/config-import/config-import.service";
+import { StatusListService } from "../../status-list/status-list.service";
 import { CredentialConfigCreate } from "../dto/credential-config-create.dto";
 import { CredentialConfig } from "../entities/credential.entity";
 
@@ -26,6 +27,7 @@ export class CredentialConfigService {
         private cryptoService: CryptoService,
         private filesService: FilesService,
         private configImportService: ConfigImportService,
+        private statusListService: StatusListService,
     ) {}
 
     /**
@@ -98,8 +100,6 @@ export class CredentialConfigService {
                     }),
                 );
 
-                //config.schema = JSON.parse(JSON.stringify(config.schema));
-
                 // Check if cetId is provided and if the certificate exists
                 if (config.certId) {
                     const cert = await this.cryptoService.getCertEntry(
@@ -112,6 +112,15 @@ export class CredentialConfigService {
                         );
                     }
                     (config as CredentialConfig).cert = cert;
+                }
+
+                //check if status revocation is enabled and if yes, the revocation list exists
+                if (config.statusManagement) {
+                    await this.statusListService
+                        .hasStillFreeEntries(tenantId)
+                        .catch(() =>
+                            this.statusListService.createNewList(tenantId),
+                        );
                 }
 
                 await this.store(tenantId, config);

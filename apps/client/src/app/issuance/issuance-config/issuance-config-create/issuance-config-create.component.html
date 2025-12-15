@@ -8,7 +8,7 @@
         <mat-icon>code</mat-icon>
         JSON View
       </button>
-      <button mat-icon-button [routerLink]="['../']" matTooltip="Back to list">
+      <button matIconButton [routerLink]="['../']" matTooltip="Back to list">
         <mat-icon>arrow_back</mat-icon>
       </button>
     </div>
@@ -63,7 +63,7 @@
                 <h3>Display Entry {{ i + 1 }}</h3>
                 @if (displays.length > 1) {
                   <button
-                    mat-icon-button
+                    matIconButton
                     type="button"
                     color="warn"
                     (click)="removeDisplay(i)"

@@ -4,21 +4,23 @@
   "title": "CertUpdateDto",
   "type": "object",
   "properties": {
-    "type": {
-      "type": "array",
-      "description": "Certificate usage type(s)",
-      "minItems": 1,
-      "items": {
-        "type": "string",
-        "enum": [
-          "access",
-          "signing"
-        ]
-      }
+    "isAccessCert": {
+      "type": "boolean",
+      "description": "Certificate can be used for access/authentication",
+      "example": false
+    },
+    "isSigningCert": {
+      "type": "boolean",
+      "description": "Certificate can be used for signing",
+      "example": true
     },
     "description": {
       "type": "string",
-      "description": "Optional description of the certificate."
+      "description": "Description of the key."
     }
-  }
+  },
+  "required": [
+    "isAccessCert",
+    "isSigningCert"
+  ]
 }

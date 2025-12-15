@@ -3,13 +3,13 @@
     <div fxLayout="row" fxLayoutAlign="space-between center">
       <h2>Key Configuration: {{ key.id }}</h2>
       <div>
-        <button mat-icon-button [routerLink]="['../']">
+        <button matIconButton [routerLink]="['../']">
           <mat-icon>arrow_back</mat-icon>
         </button>
-        <button mat-icon-button [routerLink]="['edit']">
+        <button matIconButton [routerLink]="['edit']">
           <mat-icon>edit</mat-icon>
         </button>
-        <button mat-icon-button (click)="deleteKey()">
+        <button matIconButton (click)="deleteKey()">
           <mat-icon>delete</mat-icon>
         </button>
       </div>
@@ -27,7 +27,7 @@
             <div class="tab-content">
               <div class="tab-header">
                 <button
-                  mat-icon-button
+                  matIconButton
                   (click)="copyPublicKeyToClipboard()"
                   matTooltip="Copy JWK to clipboard"
                 >
@@ -43,7 +43,7 @@
             <div class="tab-content">
               <div class="tab-header">
                 <button
-                  mat-icon-button
+                  matIconButton
                   (click)="copyPublicKeyPemToClipboard()"
                   matTooltip="Copy PEM to clipboard"
                 >
@@ -69,7 +69,7 @@
         </mat-card-title>
         <div class="spacer"></div>
         <button
-          mat-icon-button
+          matIconButton
           color="primary"
           [routerLink]="['/certificates/new']"
           [queryParams]="{ keyId: key.id }"
@@ -144,14 +144,14 @@
               <th mat-header-cell *matHeaderCellDef>Actions</th>
               <td mat-cell *matCellDef="let cert">
                 <button
-                  mat-icon-button
+                  matIconButton
                   [routerLink]="['/key-management', key.id, 'certificate', cert.id]"
                   matTooltip="View certificate details"
                 >
                   <mat-icon>visibility</mat-icon>
                 </button>
                 <button
-                  mat-icon-button
+                  matIconButton
                   [routerLink]="['/key-management', key.id, 'certificate', cert.id, 'edit']"
                   matTooltip="Edit certificate metadata"
                 >

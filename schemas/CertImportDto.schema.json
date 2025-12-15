@@ -4,27 +4,26 @@
   "title": "CertImportDto",
   "type": "object",
   "properties": {
-    "type": {
-      "type": "array",
-      "description": "Certificate usage type(s)",
-      "example": [
-        "signing"
-      ],
-      "items": {
-        "type": "string",
-        "enum": [
-          "access",
-          "signing"
-        ]
-      }
+    "isAccessCert": {
+      "type": "boolean",
+      "description": "Certificate can be used for access/authentication",
+      "example": false
+    },
+    "isSigningCert": {
+      "type": "boolean",
+      "description": "Certificate can be used for signing",
+      "example": true
     },
     "keyId": {
       "type": "string",
-      "description": "Key ID of the certificate's private key."
+      "description": "The key ID this certificate is associated with",
+      "format": "uuid",
+      "example": "039af178-3ca0-48f4-a2e4-7b1209f30376"
     },
     "id": {
       "type": "string",
-      "description": "Unique identifier for the key."
+      "description": "Unique identifier for the key.",
+      "format": "uuid"
     },
     "crt": {
       "type": "string",
@@ -36,7 +35,8 @@
     }
   },
   "required": [
-    "type",
+    "isAccessCert",
+    "isSigningCert",
     "keyId",
     "id",
     "crt"

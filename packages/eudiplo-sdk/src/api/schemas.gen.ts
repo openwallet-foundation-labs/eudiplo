@@ -305,8 +305,27 @@ export const KeyEntitySchema = {
         $ref: "#/components/schemas/CertEntity",
       },
     },
+    createdAt: {
+      format: "date-time",
+      type: "string",
+      description: "The timestamp when the key was created.",
+    },
+    updatedAt: {
+      format: "date-time",
+      type: "string",
+      description: "The timestamp when the key was last updated.",
+    },
   },
-  required: ["id", "tenantId", "tenant", "key", "usage", "certificates"],
+  required: [
+    "id",
+    "tenantId",
+    "tenant",
+    "key",
+    "usage",
+    "certificates",
+    "createdAt",
+    "updatedAt",
+  ],
 } as const;
 
 export const CertEntitySchema = {
@@ -331,6 +350,7 @@ export const CertEntitySchema = {
     id: {
       type: "string",
       description: "Unique identifier for the key.",
+      format: "uuid",
     },
     tenantId: {
       type: "string",
@@ -358,12 +378,12 @@ export const CertEntitySchema = {
     createdAt: {
       format: "date-time",
       type: "string",
-      description: "The timestamp when the VP request was created.",
+      description: "The timestamp when the certificate was created.",
     },
     updatedAt: {
       format: "date-time",
       type: "string",
-      description: "The timestamp when the VP request was last updated.",
+      description: "The timestamp when the certificate was last updated.",
     },
   },
   required: [
@@ -465,6 +485,7 @@ export const CertImportDtoSchema = {
     id: {
       type: "string",
       description: "Unique identifier for the key.",
+      format: "uuid",
     },
     crt: {
       type: "string",

@@ -44,12 +44,16 @@ export class StatusListService {
         const bits =
             this.configService.getOrThrow<BitsPerStatus>("STATUS_BITS");
 
-        await this.statusListRepository.save({
+        const entry = await this.statusListRepository.save({
             tenantId,
             elements,
             stack,
             bits,
         });
+
+        console.log("Created new status list for tenant", tenantId);
+
+        await this.createListJWT(entry);
     }
 
     /**
@@ -108,6 +112,20 @@ export class StatusListService {
         return this.statusListRepository
             .findOneByOrFail({ tenantId })
             .then((file) => file.jwt);
+    }
+
+    hasStillFreeEntries(tenantId: string) {
+        return this.statusListRepository
+            .findOneByOrFail({ tenantId })
+            .then((file) => {
+                if (file.stack.length === 0) {
+                    throw new ConflictException(
+                        "No free entries left in the status list",
+                    );
+                } else {
+                    return true;
+                }
+            });
     }
 
     /**

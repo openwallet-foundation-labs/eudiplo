@@ -39,7 +39,10 @@ export class Oid4vciController {
         @Req() req: Request,
         @Param("tenantId") tenantId: string,
     ): Promise<CredentialResponse> {
-        return this.oid4vciService.getCredential(req, tenantId);
+        return this.oid4vciService.getCredential(req, tenantId).catch((err) => {
+            console.error("Error issuing credential:", err);
+            throw err;
+        });
     }
 
     /**

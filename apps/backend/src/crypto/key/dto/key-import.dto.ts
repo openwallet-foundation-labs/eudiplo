@@ -26,6 +26,8 @@ export class KeyImportDto extends OmitType(KeyEntity, [
     "tenantId",
     "tenant",
     "certificates",
+    "createdAt",
+    "updatedAt",
     "usage",
 ] as const) {
     /**

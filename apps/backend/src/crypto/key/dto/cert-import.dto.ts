@@ -2,6 +2,9 @@ import { OmitType } from "@nestjs/swagger";
 import { IsString } from "class-validator";
 import { CertEntity } from "../entities/cert.entity";
 
+/**
+ * DTO for importing a certificate.
+ */
 export class CertImportDto extends OmitType(CertEntity, [
     "tenantId",
     "tenant",
