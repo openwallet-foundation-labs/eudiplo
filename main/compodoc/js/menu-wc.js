@@ -181,13 +181,16 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="modules/CryptoModule.html" data-type="entity-link" >CryptoModule</a>
                                     <li class="chapter inner">
                                         <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ?
-                                            'data-bs-target="#controllers-links-module-CryptoModule-ace1ada325d8fa2cd20f3cd1bd6b1a1873b2f060d7813dd57e85f7834d566594ae1ea54ad69bab542a08c619a1f5ea3ddfa09d39f5700606d3ab17c99a43e053"' : 'data-bs-target="#xs-controllers-links-module-CryptoModule-ace1ada325d8fa2cd20f3cd1bd6b1a1873b2f060d7813dd57e85f7834d566594ae1ea54ad69bab542a08c619a1f5ea3ddfa09d39f5700606d3ab17c99a43e053"' }>
+                                            'data-bs-target="#controllers-links-module-CryptoModule-e6399de3d0919a9dff09284d6a63fb21c1e6821642168d890d3c7ed3fd673713f267e1453289ca6a0b941aaa9e46d9c24f68edd326ec78ee94bac73b20568286"' : 'data-bs-target="#xs-controllers-links-module-CryptoModule-e6399de3d0919a9dff09284d6a63fb21c1e6821642168d890d3c7ed3fd673713f267e1453289ca6a0b941aaa9e46d9c24f68edd326ec78ee94bac73b20568286"' }>
                                             <span class="icon ion-md-swap"></span>
                                             <span>Controllers</span>
                                             <span class="icon ion-ios-arrow-down"></span>
                                         </div>
-                                        <ul class="links collapse" ${ isNormalMode ? 'id="controllers-links-module-CryptoModule-ace1ada325d8fa2cd20f3cd1bd6b1a1873b2f060d7813dd57e85f7834d566594ae1ea54ad69bab542a08c619a1f5ea3ddfa09d39f5700606d3ab17c99a43e053"' :
-                                            'id="xs-controllers-links-module-CryptoModule-ace1ada325d8fa2cd20f3cd1bd6b1a1873b2f060d7813dd57e85f7834d566594ae1ea54ad69bab542a08c619a1f5ea3ddfa09d39f5700606d3ab17c99a43e053"' }>
+                                        <ul class="links collapse" ${ isNormalMode ? 'id="controllers-links-module-CryptoModule-e6399de3d0919a9dff09284d6a63fb21c1e6821642168d890d3c7ed3fd673713f267e1453289ca6a0b941aaa9e46d9c24f68edd326ec78ee94bac73b20568286"' :
+                                            'id="xs-controllers-links-module-CryptoModule-e6399de3d0919a9dff09284d6a63fb21c1e6821642168d890d3c7ed3fd673713f267e1453289ca6a0b941aaa9e46d9c24f68edd326ec78ee94bac73b20568286"' }>
+                                            <li class="link">
+                                                <a href="controllers/CertController.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >CertController</a>
+                                            </li>
                                             <li class="link">
                                                 <a href="controllers/KeyController.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >KeyController</a>
                                             </li>
@@ -195,13 +198,16 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                     </li>
                                 <li class="chapter inner">
                                     <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ?
-                                        'data-bs-target="#injectables-links-module-CryptoModule-ace1ada325d8fa2cd20f3cd1bd6b1a1873b2f060d7813dd57e85f7834d566594ae1ea54ad69bab542a08c619a1f5ea3ddfa09d39f5700606d3ab17c99a43e053"' : 'data-bs-target="#xs-injectables-links-module-CryptoModule-ace1ada325d8fa2cd20f3cd1bd6b1a1873b2f060d7813dd57e85f7834d566594ae1ea54ad69bab542a08c619a1f5ea3ddfa09d39f5700606d3ab17c99a43e053"' }>
+                                        'data-bs-target="#injectables-links-module-CryptoModule-e6399de3d0919a9dff09284d6a63fb21c1e6821642168d890d3c7ed3fd673713f267e1453289ca6a0b941aaa9e46d9c24f68edd326ec78ee94bac73b20568286"' : 'data-bs-target="#xs-injectables-links-module-CryptoModule-e6399de3d0919a9dff09284d6a63fb21c1e6821642168d890d3c7ed3fd673713f267e1453289ca6a0b941aaa9e46d9c24f68edd326ec78ee94bac73b20568286"' }>
                                         <span class="icon ion-md-arrow-round-down"></span>
                                         <span>Injectables</span>
                                         <span class="icon ion-ios-arrow-down"></span>
                                     </div>
-                                    <ul class="links collapse" ${ isNormalMode ? 'id="injectables-links-module-CryptoModule-ace1ada325d8fa2cd20f3cd1bd6b1a1873b2f060d7813dd57e85f7834d566594ae1ea54ad69bab542a08c619a1f5ea3ddfa09d39f5700606d3ab17c99a43e053"' :
-                                        'id="xs-injectables-links-module-CryptoModule-ace1ada325d8fa2cd20f3cd1bd6b1a1873b2f060d7813dd57e85f7834d566594ae1ea54ad69bab542a08c619a1f5ea3ddfa09d39f5700606d3ab17c99a43e053"' }>
+                                    <ul class="links collapse" ${ isNormalMode ? 'id="injectables-links-module-CryptoModule-e6399de3d0919a9dff09284d6a63fb21c1e6821642168d890d3c7ed3fd673713f267e1453289ca6a0b941aaa9e46d9c24f68edd326ec78ee94bac73b20568286"' :
+                                        'id="xs-injectables-links-module-CryptoModule-e6399de3d0919a9dff09284d6a63fb21c1e6821642168d890d3c7ed3fd673713f267e1453289ca6a0b941aaa9e46d9c24f68edd326ec78ee94bac73b20568286"' }>
+                                        <li class="link">
+                                            <a href="injectables/CertService.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >CertService</a>
+                                        </li>
                                         <li class="link">
                                             <a href="injectables/CryptoService.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >CryptoService</a>
                                         </li>
@@ -623,6 +629,18 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             </li>
                             <li class="link">
                                 <a href="classes/AuthorizeQueries.html" data-type="entity-link" >AuthorizeQueries</a>
+                            </li>
+                            <li class="link">
+                                <a href="classes/CertImportDto.html" data-type="entity-link" >CertImportDto</a>
+                            </li>
+                            <li class="link">
+                                <a href="classes/CertResponseDto.html" data-type="entity-link" >CertResponseDto</a>
+                            </li>
+                            <li class="link">
+                                <a href="classes/CertSelfSignedDto.html" data-type="entity-link" >CertSelfSignedDto</a>
+                            </li>
+                            <li class="link">
+                                <a href="classes/CertUpdateDto.html" data-type="entity-link" >CertUpdateDto</a>
                             </li>
                             <li class="link">
                                 <a href="classes/Claim.html" data-type="entity-link" >Claim</a>

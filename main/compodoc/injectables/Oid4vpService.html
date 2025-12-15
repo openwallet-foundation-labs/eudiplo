@@ -435,8 +435,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="214"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:214</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="207"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:207</a></div>
                         </td>
                     </tr>
 
@@ -554,8 +554,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="296"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:296</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="292"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:292</a></div>
                         </td>
                     </tr>
 
@@ -726,16 +726,19 @@ export class Oid4vpService {
                     : 1,
             });
 
-            const hostname &#x3D; new URL(
-                this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;),
-            ).hostname;
-
             const lifeTime &#x3D; 60 * 60;
+
+            const cert &#x3D; await this.cryptoService.find({
+                tenantId: session.tenantId,
+                type: &quot;access&quot;,
+            });
+
+            const certHash &#x3D; await this.cryptoService.getCertHash(cert);
 
             const request &#x3D; {
                 payload: {
                     response_type: &quot;vp_token&quot;,
-                    client_id: &quot;x509_san_dns:&quot; + hostname,
+                    client_id: &quot;x509_hash:&quot; + certHash,
                     response_uri: !session.useDcApi
                         ? &#x60;${host}/${session.id}/oid4vp&#x60;
                         : undefined,
@@ -786,34 +789,24 @@ export class Oid4vpService {
                 },
             };
 
-            const accessCert &#x3D; await this.cryptoService.getCertChain(
-                &quot;access&quot;,
-                session.tenantId,
-            );
-
             const header &#x3D; {
                 ...request.header,
                 alg: &quot;ES256&quot;,
-                x5c: accessCert,
+                x5c: this.cryptoService.getCertChain(cert),
             };
 
-            const keyId &#x3D; await this.cryptoService.keyService.getKid(
-                session.tenantId,
-                &quot;access&quot;,
-            );
             const signedJwt &#x3D; await this.cryptoService.signJwt(
                 header,
                 request.payload,
                 session.tenantId,
-                keyId,
+                cert.keyId,
             );
 
             this.sessionLogger.logSession(
                 logContext,
                 &quot;Authorization request created successfully&quot;,
                 {
-                    signedJwtLength: signedJwt.length,
-                    certificateChainLength: accessCert?.length || 0,
+                    certificateId: cert.id,
                 },
             );
 
@@ -849,14 +842,17 @@ export class Oid4vpService {
         const fresh &#x3D; values.session &#x3D;&#x3D;&#x3D; undefined;
         values.session &#x3D; values.session || v4();
 
-        const hostname &#x3D; new URL(
-            this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;),
-        ).hostname;
-
         const request_uri_method: &quot;get&quot; | &quot;post&quot; &#x3D; &quot;get&quot;;
 
+        const cert &#x3D; await this.cryptoService.find({
+            tenantId: tenantId,
+            type: &quot;access&quot;,
+        });
+
+        const certHash &#x3D; await this.cryptoService.getCertHash(cert);
+
         const params &#x3D; {
-            client_id: &#x60;x509_san_dns:${hostname}&#x60;,
+            client_id: &quot;x509_hash:&quot; + certHash,
             request_uri: &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/${values.session}/oid4vp/request&#x60;,
             request_uri_method,
         };
@@ -992,6 +988,7 @@ export class Oid4vpService {
 
             return {};
         } catch (error: any) {
+            console.log(error);
             this.sessionLogger.logFlowError(logContext, error as Error, {
                 action: &quot;process_presentation_response&quot;,
             });

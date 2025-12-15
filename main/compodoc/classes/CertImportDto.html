@@ -94,7 +94,7 @@
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
-               <div class="content module">
+               <div class="content class">
                    <div class="content-data">
 
 
@@ -103,172 +103,180 @@
 
 
 
+
+
+
+
+
+
+
+
+
 <ol class="breadcrumb">
-    <li class="breadcrumb-item">Modules</li>
-    <li class="breadcrumb-item" >KeyModule</li>
+  <li class="breadcrumb-item">Classes</li>
+  <li class="breadcrumb-item" >CertImportDto</li>
 </ol>
 
-
 <ul class="nav nav-tabs" role="tablist">
-    <li class="nav-item">
-        <a href="#info" 
-            class="nav-link"
-            class="nav-link active"
-            role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
-    </li>
-    <li class="nav-item">
-        <a href="#source" 
-            class="nav-link"
-            
-            role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
-    </li>
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
 </ul>
 
 <div class="tab-content">
     <div class="tab-pane fade active in" id="info">
-
         <p class="comment">
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/crypto/key/key.module.ts</code>
+            <code>src/crypto/key/dto/cert-import.dto.ts</code>
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>DTO for importing a certificate.</p>
+
+            </p>
+
+            <p class="comment">
+                <h3>Extends</h3>
+            </p>
+            <p class="comment">
+                            <code><a href="../entitys/CertEntity.html" target="_self" >OmitType(CertEntity, [
+    &quot;tenantId&quot;,
+    &quot;tenant&quot;,
+    &quot;key&quot;,
+    &quot;createdAt&quot;,
+    &quot;updatedAt&quot;,
+] as const)</a></code>
+            </p>
 
 
 
-        <div class="container-fluid module">
-            <div class="row">
-            </div>
-        </div>
+            <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier"></span>
+                                <a href="#keyId" >keyId</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
 
-        <section data-compodoc="block-methods">
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+
+            <section data-compodoc="block-properties">
     
-    <h3 id="methods">
-        Methods
+    <h3 id="inputs">
+        Properties
     </h3>
     <table class="table table-sm table-bordered">
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="forRoot"></a>
+                    <a name="keyId"></a>
                     <span class="name">
-                            <span class="modifier">Static</span>
-                        <span ><b>forRoot</b></span>
-                        <a href="#forRoot"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier"></span>
+                        <span ><b>keyId</b></span>
+                        <a href="#keyId"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>forRoot()</code>
-                </td>
-            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
 
-
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @IsString()<br />
+                        </code>
+                    </td>
+                </tr>
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="18"
-                                    class="link-to-prism">src/crypto/key/key.module.ts:18</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/crypto/key/dto/cert-import.dto.ts:19</a></div>
                         </td>
                     </tr>
 
-
             <tr>
                 <td class="col-md-4">
-
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>DynamicModule</code>
-
-                        </div>
+                    <div class="io-description"><p>Key ID of the certificate&#39;s private key.</p>
+</div>
                 </td>
             </tr>
+
         </tbody>
     </table>
 </section>
+
+
+
+
+
+
+
     </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { HttpModule, HttpService } from &quot;@nestjs/axios&quot;;
-import { DynamicModule, Global, Module } from &quot;@nestjs/common&quot;;
-import { ConfigModule, ConfigService } from &quot;@nestjs/config&quot;;
-import { getRepositoryToken, TypeOrmModule } from &quot;@nestjs/typeorm&quot;;
-import { Repository } from &quot;typeorm&quot;;
-import { TenantEntity } from &quot;../../auth/tenant/entitites/tenant.entity&quot;;
-import { DBKeyService } from &quot;./adapters/db-key.service&quot;;
-import { VaultKeyService } from &quot;./adapters/vault-key.service&quot;;
-import { CertService } from &quot;./cert/cert.service&quot;;
-import { CryptoImplementatationModule } from &quot;./crypto-implementation/crypto-implementation.module&quot;;
-import { CryptoImplementationService } from &quot;./crypto-implementation/crypto-implementation.service&quot;;
-import { CertEntity } from &quot;./entities/cert.entity&quot;;
-import { KeyEntity } from &quot;./entities/keys.entity&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { OmitType } from &quot;@nestjs/swagger&quot;;
+import { IsString } from &quot;class-validator&quot;;
+import { CertEntity } from &quot;../entities/cert.entity&quot;;
 
-@Global()
-@Module({})
-export class KeyModule {
-    static forRoot(): DynamicModule {
-        return {
-            module: KeyModule,
-            imports: [
-                HttpModule,
-                ConfigModule,
-                CryptoImplementatationModule,
-                TypeOrmModule.forFeature([CertEntity, KeyEntity, TenantEntity]),
-            ],
-            providers: [
-                CertService,
-                {
-                    provide: &quot;KeyService&quot;,
-                    useFactory: (
-                        configService: ConfigService,
-                        httpService: HttpService,
-                        cryptoService: CryptoImplementationService,
-                        keyRepository: Repository&lt;KeyEntity&gt;,
-                    ) &#x3D;&gt; {
-                        const kmType &#x3D; configService.get&lt;&quot;vault&quot; | &quot;file&quot;&gt;(
-                            &quot;KM_TYPE&quot;,
-                        );
-                        if (kmType &#x3D;&#x3D;&#x3D; &quot;vault&quot;) {
-                            return new VaultKeyService(
-                                httpService,
-                                configService,
-                                cryptoService,
-                                keyRepository,
-                            );
-                        }
-
-                        return new DBKeyService(
-                            configService,
-                            cryptoService,
-                            keyRepository,
-                        );
-                    },
-                    inject: [
-                        ConfigService,
-                        HttpService,
-                        CryptoImplementationService,
-                        getRepositoryToken(KeyEntity),
-                    ],
-                },
-            ],
-            exports: [&quot;KeyService&quot;, CertService],
-        };
-    }
+/**
+ * DTO for importing a certificate.
+ */
+export class CertImportDto extends OmitType(CertEntity, [
+    &quot;tenantId&quot;,
+    &quot;tenant&quot;,
+    &quot;key&quot;,
+    &quot;createdAt&quot;,
+    &quot;updatedAt&quot;,
+] as const) {
+    /**
+     * Key ID of the certificate&#x27;s private key.
+     */
+    @IsString()
+    keyId: string;
 }
 </code></pre>
     </div>
 </div>
-
-
-
-
-
-
-
-
 
 
 
@@ -303,8 +311,8 @@ export class KeyModule {
 
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'module';
-            var COMPODOC_CURRENT_PAGE_URL = 'KeyModule.html';
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
+            var COMPODOC_CURRENT_PAGE_URL = 'CertImportDto.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

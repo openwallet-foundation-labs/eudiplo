@@ -322,8 +322,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="63"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.controller.ts:63</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="66"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.controller.ts:66</a></div>
                         </td>
                     </tr>
 
@@ -399,8 +399,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="52"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.controller.ts:52</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="55"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.controller.ts:55</a></div>
                         </td>
                     </tr>
 
@@ -517,7 +517,10 @@ export class Oid4vciController {
         @Req() req: Request,
         @Param(&quot;tenantId&quot;) tenantId: string,
     ): Promise&lt;CredentialResponse&gt; {
-        return this.oid4vciService.getCredential(req, tenantId);
+        return this.oid4vciService.getCredential(req, tenantId).catch((err) &#x3D;&gt; {
+            console.error(&quot;Error issuing credential:&quot;, err);
+            throw err;
+        });
     }
 
     /**

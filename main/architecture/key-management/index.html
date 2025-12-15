@@ -1348,10 +1348,65 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#certificate-generation" class="md-nav__link">
+  <a href="#certificate-management" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Certificate Generation
+        Certificate Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#certificate-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Certificate Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#self-signed-certificate-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Signed Certificate Generation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#certificate-import-via-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Certificate Import via Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#certificate-chain-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Certificate Chain Support
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#certificate-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Certificate Validation
       
     </span>
   </a>
@@ -2098,10 +2153,65 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#certificate-generation" class="md-nav__link">
+  <a href="#certificate-management" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Certificate Generation
+        Certificate Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#certificate-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Certificate Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#self-signed-certificate-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Signed Certificate Generation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#certificate-import-via-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Certificate Import via Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#certificate-chain-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Certificate Chain Support
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#certificate-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Certificate Validation
       
     </span>
   </a>
@@ -2292,13 +2402,13 @@ ways, depending on the selected key management type (<code>KM_TYPE</code>).</p>
 <p>Each tenant can manage multiple cryptographic keys simultaneously. Each key has a unique key id and is also isolated via the <code>tenant_id</code> field.</p>
 <p>Each key file contains the private key in JWK format:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">"kty"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EC"</span><span class="p">,</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">"x"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho"</span><span class="p">,</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">"y"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o"</span><span class="p">,</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="nt">"crv"</span><span class="p">:</span><span class="w"> </span><span class="s2">"P-256"</span><span class="p">,</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="nt">"d"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU"</span><span class="p">,</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="nt">"kid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"039af178-3ca0-48f4-a2e4-7b1209f30376"</span><span class="p">,</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span><span class="nt">"alg"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ES256"</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="nt">"kty"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EC"</span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nt">"x"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho"</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="nt">"y"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o"</span><span class="p">,</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="nt">"crv"</span><span class="p">:</span><span class="w"> </span><span class="s2">"P-256"</span><span class="p">,</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="nt">"d"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU"</span><span class="p">,</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nt">"kid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"039af178-3ca0-48f4-a2e4-7b1209f30376"</span><span class="p">,</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nt">"alg"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ES256"</span>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">}</span>
 </code></pre></div>
 <h3 id="automatic-key-generation">Automatic Key Generation<a class="headerlink" href="#automatic-key-generation" title="Permanent link">¶</a></h3>
@@ -2347,15 +2457,77 @@ other key management backends such as:</p>
 contact the maintainers.</p>
 <hr>
 <h2 id="certificates">Certificates<a class="headerlink" href="#certificates" title="Permanent link">¶</a></h2>
-<p>EUDIPLO supports the use of X.509 certificates for key management. Certificates can be used to verify the authenticity of public keys and establish trust between parties.</p>
-<h3 id="certificate-generation">Certificate Generation<a class="headerlink" href="#certificate-generation" title="Permanent link">¶</a></h3>
-<p>When a new key pair is generated, a self-signed certificate is also created. This certificate includes the public key and is stored alongside the key files. The certificate can be overwritten any time via the api.</p>
+<p>EUDIPLO supports comprehensive management of X.509 certificates that are linked to cryptographic keys. Certificates can be used to verify the authenticity of public keys and establish trust between parties.</p>
+<h3 id="certificate-management">Certificate Management<a class="headerlink" href="#certificate-management" title="Permanent link">¶</a></h3>
+<p>Certificates are managed separately from keys and can be associated with any imported key. Each certificate has a unique identifier and is linked to a key via the <code>keyId</code> field.</p>
+<p><strong>Certificate Types</strong>:</p>
+<ul>
+<li><strong>Access Certificates</strong> (<code>isAccessCert</code>): Used for authenticating access to protected resources</li>
+<li><strong>Signing Certificates</strong> (<code>isSigningCert</code>): Used for signing credentials and tokens</li>
+</ul>
+<p>A single certificate can serve both purposes by setting both flags to <code>true</code>.</p>
+<h3 id="certificate-operations">Certificate Operations<a class="headerlink" href="#certificate-operations" title="Permanent link">¶</a></h3>
+<p>The certificate management API provides endpoints for creating, reading, updating, and deleting certificates. For detailed endpoint specifications, parameters, and request/response schemas, see:</p>
+<p><strong>API Reference</strong>: <a href="../../api/openapi/#tag/cert">Certificate API Endpoints</a></p>
+<p>Available operations:</p>
+<ul>
+<li>List all certificates for a tenant</li>
+<li>Get certificate details by ID</li>
+<li>Create/Import certificate for a specific key</li>
+<li>Update certificate metadata and type flags</li>
+<li>Delete certificate</li>
+<li>Generate self-signed certificate for a key</li>
+</ul>
+<h3 id="self-signed-certificate-generation">Self-Signed Certificate Generation<a class="headerlink" href="#self-signed-certificate-generation" title="Permanent link">¶</a></h3>
+<p>Generate a self-signed certificate for an existing key using the dedicated endpoint. This automatically creates a certificate with:</p>
+<ul>
+<li>Subject: Common Name based on tenant configuration</li>
+<li>Validity: 1 year from generation</li>
+<li>Algorithm: Matches the key algorithm (ES256)</li>
+<li>Extensions: Subject Alternative Name (SAN) for localhost</li>
+</ul>
+<p><strong>API Reference</strong>: <a href="../../api/openapi/#tag/cert/POST/cert/{keyId}/self-signed">Self-Signed Certificate Generation</a></p>
+<h3 id="certificate-import-via-configuration">Certificate Import via Configuration<a class="headerlink" href="#certificate-import-via-configuration" title="Permanent link">¶</a></h3>
+<p>Certificates can be imported during application startup using the configuration system.</p>
+<p><strong>Directory Structure</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>assets/config/
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>└──<span class="w"> </span>tenant-1/
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span>└──<span class="w"> </span>certs/
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">        </span>├──<span class="w"> </span>signing-cert.json
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">        </span>└──<span class="w"> </span>access-cert.json
+</code></pre></div>
+<p><strong>Certificate File Format</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="nt">"keyId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"039af178-3ca0-48f4-a2e4-7b1209f30376"</span><span class="p">,</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="nt">"isAccessCert"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="nt">"isSigningCert"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Production certificate"</span><span class="p">,</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="nt">"crt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"-----BEGIN CERTIFICATE-----\nMIIBYTCCAQigAwIB...\n-----END CERTIFICATE-----"</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="p">}</span>
+</code></pre></div>
+<p>See <a href="../configuration-import/#certificates">Configuration Import</a> for more details.</p>
+<h3 id="certificate-chain-support">Certificate Chain Support<a class="headerlink" href="#certificate-chain-support" title="Permanent link">¶</a></h3>
+<p>EUDIPLO supports certificate chains for establishing trust hierarchies. Import multiple certificates and link them to the same key to build a chain from leaf to root certificate.</p>
+<h3 id="certificate-validation">Certificate Validation<a class="headerlink" href="#certificate-validation" title="Permanent link">¶</a></h3>
+<p>Certificates are validated during import:</p>
+<ul>
+<li>PEM format verification</li>
+<li>Public key matching with associated key</li>
+<li>Certificate expiration checking</li>
+<li>X.509 standard compliance</li>
+</ul>
+<h3 id="certificate-format">Certificate Format<a class="headerlink" href="#certificate-format" title="Permanent link">¶</a></h3>
+<p>Certificates must be in PEM format with proper line breaks:</p>
+<ul>
+<li>Use <code>\n</code> escape sequences in JSON</li>
+<li>Include both <code>-----BEGIN CERTIFICATE-----</code> and <code>-----END CERTIFICATE-----</code> headers</li>
+<li>Base64-encoded DER content between headers</li>
+</ul>
+<p>When a new key pair is generated, a self-signed certificate is also created. This certificate includes the public key and is stored alongside the key files. The certificate can be overwritten any time via the API.</p>
 <p>When using the <a href="../../getting-started/registrar/">Registrar</a>, it will generate a certificate for the public key that can be used to secure the OID4VCI and OID4VP requests. Each tenant will only have one access certificate.</p>
 <blockquote>
 <p>Note: In the future the access certificate generation will follow the official standard that is under development right now.</p>
 </blockquote>
-<h3 id="certificate-format">Certificate Format<a class="headerlink" href="#certificate-format" title="Permanent link">¶</a></h3>
-<p>Certificates are stored in PEM format and can be included in key import requests.</p>
 <hr>
 <h2 id="multi-tenant-key-management">Multi-Tenant Key Management<a class="headerlink" href="#multi-tenant-key-management" title="Permanent link">¶</a></h2>
 <h3 id="automatic-key-generation_1">Automatic Key Generation<a class="headerlink" href="#automatic-key-generation_1" title="Permanent link">¶</a></h3>
@@ -2374,62 +2546,61 @@ different deployment scenarios and security requirements.</p>
 <p>Import keys through the REST API using authenticated requests:</p>
 <p><strong>Endpoint</strong>: <code>POST /key</code></p>
 <p><strong>Request Body</strong>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">"privateKey"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="nt">"kty"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EC"</span><span class="p">,</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="nt">"x"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho"</span><span class="p">,</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="nt">"y"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o"</span><span class="p">,</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="nt">"crv"</span><span class="p">:</span><span class="w"> </span><span class="s2">"P-256"</span><span class="p">,</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="nt">"d"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU"</span><span class="p">,</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="nt">"kid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"039af178-3ca0-48f4-a2e4-7b1209f30376"</span><span class="p">,</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span><span class="nt">"alg"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ES256"</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span><span class="p">},</span>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">  </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional key description"</span><span class="p">,</span>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">  </span><span class="nt">"crt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"-----BEGIN CERTIFICATE-----\n...optional certificate...\n-----END CERTIFICATE-----"</span>
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="nt">"privateKey"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">        </span><span class="nt">"kty"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EC"</span><span class="p">,</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">        </span><span class="nt">"x"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho"</span><span class="p">,</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">        </span><span class="nt">"y"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o"</span><span class="p">,</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">        </span><span class="nt">"crv"</span><span class="p">:</span><span class="w"> </span><span class="s2">"P-256"</span><span class="p">,</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">        </span><span class="nt">"d"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU"</span><span class="p">,</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">        </span><span class="nt">"kid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"039af178-3ca0-48f4-a2e4-7b1209f30376"</span><span class="p">,</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">        </span><span class="nt">"alg"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ES256"</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional key description"</span><span class="p">,</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">    </span><span class="nt">"crt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"-----BEGIN CERTIFICATE-----\n...optional certificate...\n-----END CERTIFICATE-----"</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="p">}</span>
 </code></pre></div>
 <p><strong>Response</strong>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"039af178-3ca0-48f4-a2e4-7b1209f30376"</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"039af178-3ca0-48f4-a2e4-7b1209f30376"</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="p">}</span>
 </code></pre></div>
 <h3 id="configuration-based-key-import">Configuration-Based Key Import<a class="headerlink" href="#configuration-based-key-import" title="Permanent link">¶</a></h3>
 <p>Import keys automatically during application startup using the configuration
 import system.</p>
 <p><strong>Environment Variables</strong>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nv">CONFIG_IMPORT</span><span class="o">=</span><span class="nb">true</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="nv">CONFIG_IMPORT_FORCE</span><span class="o">=</span><span class="nb">false</span><span class="w">  </span><span class="c1"># Set to true to overwrite existing keys</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nv">CONFIG_IMPORT</span><span class="o">=</span><span class="nb">true</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="nv">CONFIG_IMPORT_FORCE</span><span class="o">=</span><span class="nb">false</span><span class="w">  </span><span class="c1"># Set to true to overwrite existing keys</span>
 </code></pre></div>
 <p><strong>Directory Structure</strong>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>assets/config/
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>├──<span class="w"> </span>tenant-1/
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>│<span class="w">   </span>└──<span class="w"> </span>keys/
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>│<span class="w">       </span>├──<span class="w"> </span>primary-key.json
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>│<span class="w">       </span>├──<span class="w"> </span>backup-key.json
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>│<span class="w">       </span>└──<span class="w"> </span>legacy-key.json
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>└──<span class="w"> </span>tenant-2/
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span>└──<span class="w"> </span>keys/
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">        </span>└──<span class="w"> </span>signing-key.json
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>assets/config/
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>├──<span class="w"> </span>tenant-1/
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>│<span class="w">   </span>└──<span class="w"> </span>keys/
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>│<span class="w">       </span>├──<span class="w"> </span>primary-key.json
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>│<span class="w">       </span>├──<span class="w"> </span>backup-key.json
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>│<span class="w">       </span>└──<span class="w"> </span>legacy-key.json
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>└──<span class="w"> </span>tenant-2/
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">    </span>└──<span class="w"> </span>keys/
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">        </span>└──<span class="w"> </span>signing-key.json
 </code></pre></div>
 <p><strong>Key File Format</strong>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="p">{</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="nt">"privateKey"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="nt">"kty"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EC"</span><span class="p">,</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="nt">"x"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="p">,</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">    </span><span class="nt">"y"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="p">,</span>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">    </span><span class="nt">"crv"</span><span class="p">:</span><span class="w"> </span><span class="s2">"P-256"</span><span class="p">,</span>
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">    </span><span class="nt">"d"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="p">,</span>
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">    </span><span class="nt">"kid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unique-key-identifier"</span><span class="p">,</span>
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">    </span><span class="nt">"alg"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ES256"</span>
-<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">  </span><span class="p">},</span>
-<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">  </span><span class="nt">"crt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"</span>
-<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p">{</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span><span class="nt">"privateKey"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">        </span><span class="nt">"kty"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EC"</span><span class="p">,</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">        </span><span class="nt">"x"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="p">,</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">        </span><span class="nt">"y"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="p">,</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">        </span><span class="nt">"crv"</span><span class="p">:</span><span class="w"> </span><span class="s2">"P-256"</span><span class="p">,</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">        </span><span class="nt">"d"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="p">,</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">        </span><span class="nt">"kid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unique-key-identifier"</span><span class="p">,</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">        </span><span class="nt">"alg"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ES256"</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">    </span><span class="nt">"crt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="p">}</span>
 </code></pre></div>
 <h3 id="key-management-operations">Key Management Operations<a class="headerlink" href="#key-management-operations" title="Permanent link">¶</a></h3>
-<p><strong>List All Keys</strong>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>GET<span class="w"> </span>/key
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>Authorization:<span class="w"> </span>Bearer<span class="w"> </span>&lt;tenant-token&gt;
-</code></pre></div>
+<p>For detailed key management endpoints, parameters, and request/response schemas, see:</p>
+<p><strong>API Reference</strong>: <a href="../../api/openapi/#tag/key">Key Management API Endpoints</a></p>
+<p>Available operations include listing keys, importing keys, and managing key metadata.</p>
 <h3 id="supported-key-formats">Supported Key Formats<a class="headerlink" href="#supported-key-formats" title="Permanent link">¶</a></h3>
 <ul>
 <li><strong>Algorithm Support</strong>: ES256 (ECDSA P-256)</li>

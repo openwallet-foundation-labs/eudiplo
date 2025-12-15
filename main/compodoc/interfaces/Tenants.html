@@ -268,9 +268,7 @@ import { existsSync, readdirSync, readFileSync } from &quot;fs&quot;;
 import { PinoLogger } from &quot;nestjs-pino&quot;;
 import { Gauge } from &quot;prom-client&quot;;
 import { Repository } from &quot;typeorm&quot;;
-import { CryptoService } from &quot;../../crypto/crypto.service&quot;;
 import { EncryptionService } from &quot;../../crypto/encryption/encryption.service&quot;;
-import { StatusListService } from &quot;../../issuer/status-list/status-list.service&quot;;
 import { RegistrarService } from &quot;../../registrar/registrar.service&quot;;
 import { FilesService } from &quot;../../storage/files.service&quot;;
 import { CLIENTS_PROVIDER, ClientsProvider } from &quot;../client/client.provider&quot;;
@@ -289,9 +287,7 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
     constructor(
         @Inject(CLIENTS_PROVIDER) private clients: ClientsProvider,
         private configService: ConfigService,
-        private cryptoService: CryptoService,
         private encryptionService: EncryptionService,
-        private statusListService: StatusListService,
         private registrarService: RegistrarService,
         @InjectRepository(TenantEntity)
         private tenantRepository: Repository&lt;TenantEntity&gt;,
@@ -408,9 +404,7 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
      * @param tenant
      */
     async setUpTenant(tenant: TenantEntity) {
-        await this.cryptoService.onTenantInit(tenant);
         await this.encryptionService.onTenantInit(tenant.id);
-        await this.statusListService.onTenantInit(tenant.id);
         await this.registrarService.onTenantInit(tenant);
         await this.tenantRepository.update(
             { id: tenant.id },

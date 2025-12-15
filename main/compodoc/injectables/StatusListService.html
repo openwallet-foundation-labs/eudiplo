@@ -160,14 +160,17 @@
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#createList" >createList</a>
+                                <a href="#createListJWT" >createListJWT</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#createNewList" >createNewList</a>
                             </li>
                             <li>
                                 <a href="#getList" >getList</a>
                             </li>
                             <li>
-                                    <span class="modifier">Async</span>
-                                <a href="#onTenantInit" >onTenantInit</a>
+                                <a href="#hasStillFreeEntries" >hasStillFreeEntries</a>
                             </li>
                             <li>
                                     <span class="modifier">Private</span>
@@ -302,8 +305,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="119"
-                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:119</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="135"
+                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:135</a></div>
                         </td>
                     </tr>
 
@@ -367,26 +370,26 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="createList"></a>
+                    <a name="createListJWT"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
-                        <span ><b>createList</b></span>
-                        <a href="#createList"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>createListJWT</b></span>
+                        <a href="#createListJWT"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>createList(entry: <a href="../entitys/StatusListEntity.html" target="_self">StatusListEntity</a>)</code>
+                    <code>createListJWT(entry: <a href="../entitys/StatusListEntity.html" target="_self">StatusListEntity</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="63"
-                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:63</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="62"
+                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:62</a></div>
                         </td>
                     </tr>
 
@@ -438,6 +441,77 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="createNewList"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>createNewList</b></span>
+                        <a href="#createNewList"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>createNewList(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="34"
+                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:34</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Create a new status list and store it in the file</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="getList"></a>
                     <span class="name">
                         <span ><b>getList</b></span>
@@ -454,8 +528,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="109"
-                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:109</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="111"
+                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:111</a></div>
                         </td>
                     </tr>
 
@@ -513,37 +587,30 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="onTenantInit"></a>
+                    <a name="hasStillFreeEntries"></a>
                     <span class="name">
-                            <span class="modifier">Async</span>
-                        <span ><b>onTenantInit</b></span>
-                        <a href="#onTenantInit"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>hasStillFreeEntries</b></span>
+                        <a href="#hasStillFreeEntries"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>onTenantInit(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+<code>hasStillFreeEntries(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="37"
-                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:37</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="117"
+                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:117</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Initialize the status list service by checking if the status list file exists.
-If it does not exist, create a new status list with 10,000 entries and a stack
-of 10,000 indexes. The stack is shuffled to ensure randomness in the order of
-entries. The status list is stored in the file system as a JSON file.</p>
-</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -606,8 +673,8 @@ entries. The status list is stored in the file system as a JSON file.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="166"
-                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:166</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="182"
+                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:182</a></div>
                         </td>
                     </tr>
 
@@ -701,8 +768,8 @@ entries. The status list is stored in the file system as a JSON file.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="182"
-                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:182</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="198"
+                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:198</a></div>
                         </td>
                     </tr>
 
@@ -799,12 +866,9 @@ export class StatusListService {
     ) {}
 
     /**
-     * Initialize the status list service by checking if the status list file exists.
-     * If it does not exist, create a new status list with 10,000 entries and a stack
-     * of 10,000 indexes. The stack is shuffled to ensure randomness in the order of
-     * entries. The status list is stored in the file system as a JSON file.
+     * Create a new status list and store it in the file
      */
-    async onTenantInit(tenantId: string) {
+    async createNewList(tenantId: string) {
         const size &#x3D; this.configService.getOrThrow&lt;number&gt;(&quot;STATUS_LENGTH&quot;);
         // create an empty array with the size of 1000
         const elements &#x3D; new Array(size).fill(0).map(() &#x3D;&gt; 0);
@@ -824,13 +888,15 @@ export class StatusListService {
             bits,
         });
 
-        await this.createList(entry);
+        console.log(&quot;Created new status list for tenant&quot;, tenantId);
+
+        await this.createListJWT(entry);
     }
 
     /**
      * Create a new status list and stored it in the file
      */
-    async createList(entry: StatusListEntity) {
+    async createListJWT(entry: StatusListEntity) {
         const list &#x3D; new StatusList(entry.elements, entry.bits);
         const iss &#x3D; &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}&#x60;;
 
@@ -846,13 +912,16 @@ export class StatusListService {
             sub,
             iat: Math.floor(Date.now() / 1000),
         };
+        //TODO: maybe add a cert for status list management
+        const cert &#x3D; await this.cryptoService.find({
+            tenantId: entry.tenantId,
+            type: &quot;signing&quot;,
+        });
+
         const preHeader: StatusListJWTHeaderParameters &#x3D; {
             alg: &quot;ES256&quot;,
             typ: &quot;statuslist+jwt&quot;,
-            x5c: await this.cryptoService.getCertChain(
-                &quot;signing&quot;,
-                entry.tenantId,
-            ),
+            x5c: await this.cryptoService.getCertChain(cert),
         };
         const { header, payload } &#x3D; createHeaderAndPayload(
             list,
@@ -882,6 +951,20 @@ export class StatusListService {
             .then((file) &#x3D;&gt; file.jwt);
     }
 
+    hasStillFreeEntries(tenantId: string) {
+        return this.statusListRepository
+            .findOneByOrFail({ tenantId })
+            .then((file) &#x3D;&gt; {
+                if (file.stack.length &#x3D;&#x3D;&#x3D; 0) {
+                    throw new ConflictException(
+                        &quot;No free entries left in the status list&quot;,
+                    );
+                } else {
+                    return true;
+                }
+            });
+    }
+
     /**
      * Get the next free entry in the status list.
      * @returns
@@ -895,8 +978,8 @@ export class StatusListService {
                 tenantId: session.tenantId,
             })
             //if none if found, create one
-            .then(() &#x3D;&gt;
-                this.onTenantInit(session.tenantId).then(() &#x3D;&gt;
+            .catch(() &#x3D;&gt;
+                this.createNewList(session.tenantId).then(() &#x3D;&gt;
                     this.statusListRepository.findOneByOrFail({
                         tenantId: session.tenantId,
                     }),
@@ -942,7 +1025,7 @@ export class StatusListService {
             { tenantId },
             { elements: entry.elements },
         );
-        return this.createList(entry);
+        return this.createListJWT(entry);
     }
 
     /**

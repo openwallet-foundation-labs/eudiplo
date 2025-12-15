@@ -871,15 +871,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#signing-key" class="md-nav__link">
+  <a href="#signing-certificate" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Signing Key
+        Signing Certificate
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Signing Key">
+    <nav class="md-nav" aria-label="Signing Certificate">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2359,15 +2359,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#signing-key" class="md-nav__link">
+  <a href="#signing-certificate" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Signing Key
+        Signing Certificate
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Signing Key">
+    <nav class="md-nav" aria-label="Signing Certificate">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2759,7 +2759,7 @@ credentials. Each credential type has its own configuration file.</p>
   <a href="https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-09.html#name-sd-jwt-vc-type-metadata">VC Type Metadata</a>
   provided via the <code>/{tenantId}/credentials-metadata/vct/{id}</code> endpoint. This link will
   automatically added into the credential.</li>
-<li><code>keyId</code>: <strong>OPTIONAL</strong> - Unique identifier for the key used to sign the credential. If not provided, the first key in the key set will be used. See <a href="#signing-key">Signing Key</a> for details.</li>
+<li><code>certId</code>: <strong>OPTIONAL</strong> - Unique identifier for the certificate used to sign the credential. If not provided, the certificate in for the signing usage will be used. See <a href="#signing-certificate">Signing Certificate</a> for details.</li>
 <li><code>lifeTime</code>: <strong>OPTIONAL</strong> - Credential expiration time in seconds. If
   specified, credentials will include an <code>exp</code> claim calculated as
   <code>iat + lifeTime</code>. See <a href="#credential-expiration">Credential Expiration</a> for details.</li>
@@ -2933,16 +2933,17 @@ credentials. Each credential type has its own configuration file.</p>
 <p>When no uri is passed, EUDIPLO will resolve the image based the storage system, see the <a href="../../../architecture/configuration-import/#image-configuration">image configuration</a>. If the image cannot be found, the URI will be ignored.</p>
 </div>
 <hr>
-<h2 id="signing-key">Signing Key<a class="headerlink" href="#signing-key" title="Permanent link">¶</a></h2>
-<p>The signing key is used to create the digital signature for the credential. It is essential for ensuring the integrity and authenticity of the credential. If none is provided, the first key in the key set will be used. The matching certificate will be included in the <code>x5c</code> field of the issued credential.</p>
+<h2 id="signing-certificate">Signing Certificate<a class="headerlink" href="#signing-certificate" title="Permanent link">¶</a></h2>
+<p>The signing certificate is used to create the digital signature for the credential. It is essential for ensuring the integrity and authenticity of the credential. If none is provided, the first certificate in the certificate set will be used. The matching certificate will be included in the <code>x5c</code> field of the issued credential.</p>
 <h3 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="nt">"keyId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"signing-key-1"</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="nt">"certId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"signing-cert-1"</span>
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="p">}</span>
 </code></pre></div>
+<p>You can either generate a self signed certificate via the api or import your own certificate.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Keys can be managed through the <code>/keys</code> API endpoint.</p>
+<p>Certificates can be managed through the <code>/certificates</code> API endpoint.</p>
 </div>
 <hr>
 <h2 id="cryptographic-key-binding">Cryptographic Key Binding<a class="headerlink" href="#cryptographic-key-binding" title="Permanent link">¶</a></h2>
@@ -3241,7 +3242,7 @@ the <code>lifeTime</code> configuration option (specified in seconds).</p>
 <a id="__codelineno-13-77" name="__codelineno-13-77" href="#__codelineno-13-77"></a><span class="w">        </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PID credential"</span>
 <a id="__codelineno-13-78" name="__codelineno-13-78" href="#__codelineno-13-78"></a><span class="w">    </span><span class="p">},</span>
 <a id="__codelineno-13-79" name="__codelineno-13-79" href="#__codelineno-13-79"></a><span class="w">    </span><span class="nt">"keyBinding"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-13-80" name="__codelineno-13-80" href="#__codelineno-13-80"></a><span class="w">    </span><span class="nt">"keyId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"039af178-3ca0-48f4-a2e4-7b1209f30376"</span><span class="p">,</span>
+<a id="__codelineno-13-80" name="__codelineno-13-80" href="#__codelineno-13-80"></a><span class="w">    </span><span class="nt">"certId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"139af178-3ca0-48f4-a2e4-7b1209f30374"</span><span class="p">,</span>
 <a id="__codelineno-13-81" name="__codelineno-13-81" href="#__codelineno-13-81"></a><span class="w">    </span><span class="nt">"statusManagement"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
 <a id="__codelineno-13-82" name="__codelineno-13-82" href="#__codelineno-13-82"></a><span class="w">    </span><span class="nt">"lifeTime"</span><span class="p">:</span><span class="w"> </span><span class="mi">604800</span><span class="p">,</span>
 <a id="__codelineno-13-83" name="__codelineno-13-83" href="#__codelineno-13-83"></a><span class="w">    </span><span class="nt">"schema"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>

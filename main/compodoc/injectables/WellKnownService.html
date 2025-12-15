@@ -295,8 +295,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="75"
-                                    class="link-to-prism">src/well-known/well-known.service.ts:75</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="72"
+                                    class="link-to-prism">src/well-known/well-known.service.ts:72</a></div>
                         </td>
                     </tr>
 
@@ -452,8 +452,8 @@ The metadata can be returned in two formats:</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="83"
-                                    class="link-to-prism">src/well-known/well-known.service.ts:83</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="80"
+                                    class="link-to-prism">src/well-known/well-known.service.ts:80</a></div>
                         </td>
                     </tr>
 
@@ -548,18 +548,15 @@ export class WellKnownService {
             .credentialIssuer as unknown as CredentialIssuerMetadataDto;
 
         if (contentType &#x3D;&#x3D;&#x3D; MediaType.APPLICATION_JWT) {
-            const keyId &#x3D; await this.cryptoService.keyService.getKid(
+            const cert &#x3D; await this.cryptoService.find({
                 tenantId,
-                &quot;access&quot;,
-            );
+                type: &quot;access&quot;,
+            });
             return this.cryptoService.signJwt(
                 {
                     typ: &quot;openidvci-issuer-metadata+jwt&quot;,
                     alg: this.cryptoImplementationService.getAlg(),
-                    x5c: await this.cryptoService.getCertChain(
-                        &quot;access&quot;,
-                        tenantId,
-                    ),
+                    x5c: await this.cryptoService.getCertChain(cert),
                 },
                 {
                     ...metadata,
@@ -570,7 +567,7 @@ export class WellKnownService {
                     //MM: the value makes sense when we cache the issuer metadata so it must not be signed on every request. Like when it is issued every hour, its lifetime is 1 hour and the jwt is in the cache.
                 },
                 tenantId,
-                keyId,
+                cert.keyId,
             );
         }
 

@@ -495,25 +495,32 @@ export class AuthorizeService {
             });
             dpopValue &#x3D; dpop;
         }
+
         //const cNonce &#x3D; randomUUID();
-        return this.getAuthorizationServer(tenantId).createAccessTokenResponse({
-            audience: &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/${tenantId}&#x60;,
-            signer: {
-                method: &quot;jwk&quot;,
-                alg: &quot;ES256&quot;,
-                publicJwk: (await this.cryptoService.keyService.getPublicKey(
-                    &quot;jwk&quot;,
-                    tenantId,
-                )) as Jwk,
-            },
-            subject: session.id,
-            expiresInSeconds: 300,
-            authorizationServer: authorizationServerMetadata.issuer,
-            /* cNonce,
+        return this.getAuthorizationServer(tenantId)
+            .createAccessTokenResponse({
+                audience: &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/${tenantId}&#x60;,
+                signer: {
+                    method: &quot;jwk&quot;,
+                    alg: &quot;ES256&quot;,
+                    publicJwk:
+                        (await this.cryptoService.keyService.getPublicKey(
+                            &quot;jwk&quot;,
+                            tenantId,
+                        )) as Jwk,
+                },
+                subject: session.id,
+                expiresInSeconds: 300,
+                authorizationServer: authorizationServerMetadata.issuer,
+                /* cNonce,
             cNonceExpiresIn: 100, */
-            clientId: req.body.client_id,
-            dpop: dpopValue,
-        });
+                clientId: req.body.client_id,
+                dpop: dpopValue,
+            })
+            .catch((err) &#x3D;&gt; {
+                console.error(&quot;Error creating access token response:&quot;, err);
+                throw err;
+            });
     }
 
     parseChallengeRequest(
