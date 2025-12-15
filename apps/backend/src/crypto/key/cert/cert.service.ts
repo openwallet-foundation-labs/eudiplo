@@ -62,6 +62,7 @@ export class CertService {
                 tenantId,
                 key: { id: keyId },
             },
+            relations: ["key"],
         });
     }
 
@@ -270,17 +271,6 @@ export class CertService {
     }
 
     /**
-     * Get all certificates for a tenant.
-     * @param tenantId - The tenant ID
-     * @returns Array of certificates
-     */
-    getCerts(tenantId: string): Promise<CertEntity[]> {
-        return this.certRepository.findBy({
-            tenantId,
-        });
-    }
-
-    /**
      * Check if a certificate exists for the given tenant and certId.
      * @param tenantId - The tenant ID
      * @param certId - The certificate ID
@@ -290,28 +280,6 @@ export class CertService {
         return this.certRepository
             .findOneBy({ tenantId, id: certId })
             .then((cert) => !!cert);
-    }
-
-    /**
-     * Get a certificate entry by tenantId and certId.
-     * @param tenantId - The tenant ID
-     * @param certId - The certificate ID
-     * @returns The certificate entity
-     */
-    getCertEntry(tenantId: string, certId: string): Promise<CertEntity> {
-        return this.certRepository.findOneByOrFail({ tenantId, id: certId });
-    }
-
-    /**
-     * Get the certificate string for the given tenant and certId.
-     * @param tenantId - The tenant ID
-     * @param certId - The certificate ID
-     * @returns The certificate PEM string
-     */
-    getCert(tenantId: string, certId: string): Promise<string> {
-        return this.certRepository
-            .findOneBy({ tenantId, id: certId })
-            .then((cert) => cert!.crt);
     }
 
     /**
@@ -403,8 +371,13 @@ export class CertService {
                     await this.tenantRepository.findOneByOrFail({
                         id: tenantId,
                     });
-                this.certRepository.save({
+                const key = await this.keyService.getKey(
+                    tenantEntity.id,
+                    config.keyId,
+                );
+                await this.certRepository.save({
                     ...config,
+                    key,
                     tenantId: tenantEntity.id,
                 });
             },

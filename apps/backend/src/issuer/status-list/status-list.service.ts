@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from "@nestjs/common";
+import { ConflictException, Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import {
@@ -11,7 +11,8 @@ import {
 import { JwtPayload } from "@sd-jwt/types";
 import { join } from "path";
 import { Repository } from "typeorm";
-import { CryptoService } from "../../crypto/crypto.service";
+import { CertService } from "../../crypto/key/cert/cert.service";
+import { KeyService } from "../../crypto/key/key.service";
 import { Session } from "../../session/entities/session.entity";
 import { StatusUpdateDto } from "./dto/status-update.dto";
 import { StatusListEntity } from "./entities/status-list.entity";
@@ -21,7 +22,8 @@ import { StatusMapping } from "./entities/status-mapping.entity";
 export class StatusListService {
     constructor(
         private configService: ConfigService,
-        private cryptoService: CryptoService,
+        private certService: CertService,
+        @Inject("KeyService") public readonly keyService: KeyService,
         @InjectRepository(StatusMapping)
         private statusMappingRepository: Repository<StatusMapping>,
         @InjectRepository(StatusListEntity)
@@ -76,7 +78,7 @@ export class StatusListService {
             iat: Math.floor(Date.now() / 1000),
         };
         //TODO: maybe add a cert for status list management
-        const cert = await this.cryptoService.find({
+        const cert = await this.certService.find({
             tenantId: entry.tenantId,
             type: "signing",
         });
@@ -84,7 +86,7 @@ export class StatusListService {
         const preHeader: StatusListJWTHeaderParameters = {
             alg: "ES256",
             typ: "statuslist+jwt",
-            x5c: await this.cryptoService.getCertChain(cert),
+            x5c: await this.certService.getCertChain(cert),
         };
         const { header, payload } = createHeaderAndPayload(
             list,
@@ -92,9 +94,9 @@ export class StatusListService {
             preHeader,
         );
 
-        const jwt = await this.cryptoService.signJwt(
-            header,
+        const jwt = await this.keyService.signJWT(
             payload,
+            header,
             entry.tenantId,
         );
         await this.statusListRepository.update(

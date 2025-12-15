@@ -2,14 +2,18 @@ import { HttpService } from "@nestjs/axios";
 import { ConfigService } from "@nestjs/config";
 import { JwtPayload, Signer } from "@sd-jwt/types";
 import { exportJWK, importSPKI, JWK, JWTHeaderParameters } from "jose";
+import { PinoLogger } from "nestjs-pino/PinoLogger";
 import { firstValueFrom } from "rxjs";
 import { Repository } from "typeorm";
 import { v4 } from "uuid";
+import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
+import { ConfigImportService } from "../../../utils/config-import/config-import.service";
 import {
     CryptoImplementationService,
     CryptoType,
 } from "../crypto-implementation/crypto-implementation.service";
 import { KeyImportDto } from "../dto/key-import.dto";
+import { CertEntity } from "../entities/cert.entity";
 import { KeyEntity } from "../entities/keys.entity";
 import { KeyService } from "../key.service";
 
@@ -24,9 +28,19 @@ export class VaultKeyService extends KeyService {
         configService: ConfigService,
         private cryptoService: CryptoImplementationService,
         keyRepository: Repository<KeyEntity>,
+        configImportService: ConfigImportService,
+        certRepository: Repository<CertEntity>,
+        tenantRepository: Repository<TenantEntity>,
+        logger: PinoLogger,
     ) {
-        super(configService, keyRepository);
-
+        super(
+            configService,
+            keyRepository,
+            configImportService,
+            certRepository,
+            tenantRepository,
+            logger,
+        );
         this.vaultUrl = this.configService.get<string>("VAULT_URL") as string;
         this.headers = {
             headers: {

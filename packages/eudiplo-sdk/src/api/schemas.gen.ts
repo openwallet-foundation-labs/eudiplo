@@ -273,6 +273,7 @@ export const KeyEntitySchema = {
     id: {
       type: "string",
       description: "Unique identifier for the key.",
+      format: "uuid",
     },
     description: {
       type: "string",
@@ -439,6 +440,7 @@ export const KeyImportDtoSchema = {
     id: {
       type: "string",
       description: "Unique identifier for the key.",
+      format: "uuid",
     },
     description: {
       type: "string",
@@ -454,6 +456,7 @@ export const UpdateKeyDtoSchema = {
     id: {
       type: "string",
       description: "Unique identifier for the key.",
+      format: "uuid",
     },
     description: {
       type: "string",

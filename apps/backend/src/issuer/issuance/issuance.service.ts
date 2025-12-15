@@ -1,10 +1,11 @@
-import { Injectable, OnApplicationBootstrap } from "@nestjs/common";
+import { Inject, Injectable, OnApplicationBootstrap } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
 import { readFileSync } from "fs";
 import { PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm";
-import { CryptoService } from "../../crypto/crypto.service";
+import { CertService } from "../../crypto/key/cert/cert.service";
+import { KeyService } from "../../crypto/key/key.service";
 import { FilesService } from "../../storage/files.service";
 import { ConfigImportService } from "../../utils/config-import/config-import.service";
 import { CredentialConfigService } from "../credentials/credential-config/credential-config.service";
@@ -28,17 +29,18 @@ export class IssuanceService implements OnApplicationBootstrap {
         private issuanceConfigRepo: Repository<IssuanceConfig>,
         private credentialsConfigService: CredentialConfigService,
         private logger: PinoLogger,
-        private cryptoService: CryptoService,
         private filesService: FilesService,
         private configImportService: ConfigImportService,
+        private certService: CertService,
+        @Inject("KeyService") public readonly keyService: KeyService,
     ) {}
 
     /**
      * Import issuance configurations and the credential configurations from the configured folder.
      */
     async onApplicationBootstrap() {
-        await this.cryptoService.importKeys();
-        await this.cryptoService.importCerts();
+        await this.keyService.importKeys();
+        await this.certService.importCerts();
         // import first the issuance config to make sure it exists when credentials should be imported
         await this.import();
         await this.credentialsConfigService.import();

@@ -7,9 +7,8 @@ import { digest, generateSalt } from "@sd-jwt/crypto-nodejs";
 import { JWTwithStatusListPayload } from "@sd-jwt/jwt-status-list";
 import { SDJwtVcInstance } from "@sd-jwt/sd-jwt-vc";
 import Ajv from "ajv/dist/2020";
-
 import { Repository } from "typeorm";
-import { CryptoService } from "../../crypto/crypto.service";
+import { CertService } from "../../crypto/key/cert/cert.service";
 import { CryptoImplementationService } from "../../crypto/key/crypto-implementation/crypto-implementation.service";
 import { Session } from "../../session/entities/session.entity";
 import { VCT } from "../credentials-metadata/dto/vct.dto";
@@ -22,14 +21,14 @@ import { CredentialConfig } from "./entities/credential.entity";
 export class CredentialsService {
     /**
      * Constructor for CredentialsService.
-     * @param cryptoService
+     * @param certService
      * @param configService
      * @param statusListService
      * @param credentialConfigRepo
      * @param cryptoImplementationService
      */
     constructor(
-        private cryptoService: CryptoService,
+        private certService: CertService,
         private configService: ConfigService,
         private statusListService: StatusListService,
         @InjectRepository(CredentialConfig)
@@ -160,7 +159,7 @@ export class CredentialsService {
             credentialConfiguration.claims;
         const disclosureFrame = credentialConfiguration.disclosureFrame;
 
-        const certificate = await this.cryptoService.find({
+        const certificate = await this.certService.find({
             tenantId: session.tenantId,
             type: "signing",
             id: credentialConfiguration.certId,
@@ -169,7 +168,7 @@ export class CredentialsService {
         //at this point it is sd-jwt specific.
 
         const sdjwt = new SDJwtVcInstance({
-            signer: await this.cryptoService.keyService.signer(
+            signer: await this.certService.keyService.signer(
                 session.tenantId,
                 certificate.keyId,
             ),
@@ -210,6 +209,7 @@ export class CredentialsService {
                 iat,
                 exp,
                 vct: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${session.tenantId}/credentials-metadata/vct/${credentialConfigurationId}`,
+                iss: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${session.tenantId}`,
                 cnf,
                 ...usedClaims,
                 ...status,
@@ -217,7 +217,7 @@ export class CredentialsService {
             disclosureFrame,
             {
                 header: {
-                    x5c: await this.cryptoService.getCertChain(certificate),
+                    x5c: await this.certService.getCertChain(certificate),
                     alg: this.cryptoImplementationService.getAlg(),
                 },
             },

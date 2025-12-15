@@ -2,8 +2,10 @@ import { HttpModule, HttpService } from "@nestjs/axios";
 import { DynamicModule, Global, Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { getRepositoryToken, TypeOrmModule } from "@nestjs/typeorm";
+import { PinoLogger } from "nestjs-pino/PinoLogger";
 import { Repository } from "typeorm";
 import { TenantEntity } from "../../auth/tenant/entitites/tenant.entity";
+import { ConfigImportService } from "../../utils/config-import/config-import.service";
 import { DBKeyService } from "./adapters/db-key.service";
 import { VaultKeyService } from "./adapters/vault-key.service";
 import { CertService } from "./cert/cert.service";
@@ -33,6 +35,10 @@ export class KeyModule {
                         httpService: HttpService,
                         cryptoService: CryptoImplementationService,
                         keyRepository: Repository<KeyEntity>,
+                        configImportService: ConfigImportService,
+                        certRepository: Repository<CertEntity>,
+                        tenantRepository: Repository<TenantEntity>,
+                        logger: PinoLogger,
                     ) => {
                         const kmType = configService.get<"vault" | "file">(
                             "KM_TYPE",
@@ -43,6 +49,10 @@ export class KeyModule {
                                 configService,
                                 cryptoService,
                                 keyRepository,
+                                configImportService,
+                                certRepository,
+                                tenantRepository,
+                                logger,
                             );
                         }
 
@@ -50,6 +60,10 @@ export class KeyModule {
                             configService,
                             cryptoService,
                             keyRepository,
+                            configImportService,
+                            certRepository,
+                            tenantRepository,
+                            logger,
                         );
                     },
                     inject: [
@@ -57,6 +71,10 @@ export class KeyModule {
                         HttpService,
                         CryptoImplementationService,
                         getRepositoryToken(KeyEntity),
+                        ConfigImportService,
+                        getRepositoryToken(CertEntity),
+                        getRepositoryToken(TenantEntity),
+                        PinoLogger,
                     ],
                 },
             ],
