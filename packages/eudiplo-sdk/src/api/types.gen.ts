@@ -586,12 +586,6 @@ export type OfferRequestDto = {
    */
   response_type: "qrcode" | "uri" | "dc-api";
   /**
-   * Override the default values for the credential claims.
-   */
-  claims?: {
-    [key: string]: unknown;
-  };
-  /**
    * The flow type for the offer request.
    */
   flow: "authorization_code" | "pre_authorized_code";
@@ -604,9 +598,12 @@ export type OfferRequestDto = {
    */
   credentialConfigurationIds: Array<string>;
   /**
-   * Webhooks to fetch the claims dynamically.
+   * Credential claims configuration per credential.
+   * Each credential can have claims provided inline or fetched via webhook.
    */
-  claimWebhook?: WebhookConfig;
+  credentialClaims?: {
+    [key: string]: unknown;
+  };
   /**
    * Webhook to notify about the status of the issuance process.
    */
@@ -670,10 +667,6 @@ export type Session = {
    */
   credentialPayload?: OfferRequestDto;
   /**
-   * Webhook configuration to send result and may receive further information.
-   */
-  claimsWebhook?: WebhookConfig;
-  /**
    * Webhook configuration to send the result of the notification response.
    */
   notifyWebhook?: WebhookConfig;
@@ -706,6 +699,10 @@ export type Session = {
    * Redirect URI to which the user-agent should be redirected after the presentation is completed.
    */
   redirectUri?: string;
+  /**
+   * Where to send the claims webhook response.
+   */
+  parsedWebhook?: WebhookConfig;
 };
 
 export type AuthorizationResponse = {

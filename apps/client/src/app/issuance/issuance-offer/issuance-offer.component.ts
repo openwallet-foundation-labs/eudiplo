@@ -65,8 +65,8 @@ export class IssuanceOfferComponent implements OnInit {
 
   elements: {
     id: string;
-    claims?: any;
-    claimsWebhook?: any;
+    defaultClaims?: any; // Default claims from config for pre-filling
+    webhookConfig?: any; // Webhook config from credential config
     claimSource: string; // 'form' or 'webhook'
   }[] = [];
   credentialConfigs: CredentialConfig[] = [];
@@ -85,8 +85,7 @@ export class IssuanceOfferComponent implements OnInit {
       claims: new FormGroup({}),
       flow: new FormControl('authorization_code', Validators.required),
       tx_code: new FormControl(''),
-    } as { [k in keyof OfferRequestDto]: any });
-    //this.group = this.form.get('claims') as UntypedFormGroup;
+    } as { [k in keyof Omit<OfferRequestDto, 'response_type'>]: any });
   }
 
   async ngOnInit(): Promise<void> {
@@ -130,8 +129,8 @@ export class IssuanceOfferComponent implements OnInit {
 
       this.elements.push({
         id,
-        claims: config!.claims, // Optional default values for pre-filling the form
-        claimsWebhook: config!.claimsWebhook, // Optional webhook configuration
+        defaultClaims: config!.claims, // Optional default values for pre-filling the form
+        webhookConfig: config!.claimsWebhook, // Optional webhook configuration
         claimSource: defaultSource,
       });
 
@@ -187,22 +186,30 @@ export class IssuanceOfferComponent implements OnInit {
     try {
       const formValue = this.form.value;
 
-      // Process claims based on selected source
-      const processedClaims: any = {};
+      // Build credentialClaims using discriminated union structure
+      const credentialClaims: any = {};
+
       for (const element of this.elements) {
         if (element.claimSource === 'form') {
-          // Use form input data
-          processedClaims[element.id] = formValue.claims[element.id];
+          // Inline claims source
+          credentialClaims[element.id] = {
+            type: 'inline',
+            claims: formValue.claims[element.id],
+          };
+        } else if (element.claimSource === 'webhook') {
+          // Webhook claims source
+          credentialClaims[element.id] = {
+            type: 'webhook',
+            webhook: element.webhookConfig,
+          };
         }
-        // If claimSource is 'webhook', we don't include claims in the request
-        // The backend will fetch them from the webhook
       }
 
       const offerRequest: OfferRequestDto = {
         flow: formValue.flow || 'authorization_code',
         response_type: 'uri', // Always use URI
         credentialConfigurationIds: formValue.credentialConfigurationIds,
-        claims: Object.keys(processedClaims).length > 0 ? processedClaims : undefined,
+        credentialClaims: Object.keys(credentialClaims).length > 0 ? credentialClaims : undefined,
         ...(formValue.flow === 'pre_authorized_code' && formValue.tx_code
           ? { tx_code: formValue.tx_code }
           : {}),
@@ -233,7 +240,7 @@ export class IssuanceOfferComponent implements OnInit {
   }
 
   addPreConfigured(form: any) {
-    this.form.get('claims')?.patchValue({ [form.id]: form.claims });
+    this.form.get('claims')?.patchValue({ [form.id]: form.defaultClaims });
   }
 
   importClaims() {
