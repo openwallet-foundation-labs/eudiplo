@@ -1014,7 +1014,7 @@ export const OfferRequestDtoSchema = {
     credentialClaims: {
       type: "object",
       description:
-        "Credential claims configuration per credential.\nEach credential can have claims provided inline or fetched via webhook.",
+        "Credential claims configuration per credential.\nEach credential can have claims provided inline or fetched via webhook.\nKeys must be a subset of credentialConfigurationIds.",
     },
     notifyWebhook: {
       description:

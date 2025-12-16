@@ -165,7 +165,7 @@ export class CredentialsService {
                 .then((response) => response[credentialConfigurationId]);
         }
 
-        return undefined;
+        return Promise.resolve(undefined);
     }
 
     /**
