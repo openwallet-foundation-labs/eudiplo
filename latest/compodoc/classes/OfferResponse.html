@@ -202,7 +202,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="91" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:91</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="160" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:160</a></div>
                         </td>
                     </tr>
 
@@ -228,7 +228,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="90" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:90</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="159" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:159</a></div>
                         </td>
                     </tr>
 
@@ -248,14 +248,19 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiProperty } from &quot;@nestjs/swagger&quot;;
-import { Type } from &quot;class-transformer&quot;;
+import { plainToClass, Transform, Type } from &quot;class-transformer&quot;;
 import {
     IsArray,
     IsEnum,
+    IsIn,
     IsObject,
     IsOptional,
     IsString,
+    Validate,
     ValidateNested,
+    ValidationArguments,
+    ValidatorConstraint,
+    ValidatorConstraintInterface,
 } from &quot;class-validator&quot;;
 import { WebhookConfig } from &quot;../../../utils/webhook/webhook.dto&quot;;
 import { ResponseType } from &quot;../../../verifier/oid4vp/dto/presentation-request.dto&quot;;
@@ -263,6 +268,74 @@ import { ResponseType } from &quot;../../../verifier/oid4vp/dto/presentation-req
 export enum FlowType {
     AUTH_CODE &#x3D; &quot;authorization_code&quot;,
     PRE_AUTH_CODE &#x3D; &quot;pre_authorized_code&quot;,
+}
+
+/**
+ * Inline claims source - claims provided directly in the request.
+ */
+export class InlineClaimsSource {
+    @IsIn([&quot;inline&quot;])
+    type!: &quot;inline&quot;;
+
+    @IsObject()
+    claims!: Record&lt;string, any&gt;;
+}
+
+/**
+ * Webhook claims source - claims fetched dynamically via webhook.
+ */
+export class WebhookClaimsSource {
+    @IsIn([&quot;webhook&quot;])
+    type!: &quot;webhook&quot;;
+
+    @ValidateNested()
+    @Type(() &#x3D;&gt; WebhookConfig)
+    webhook!: WebhookConfig;
+}
+
+/**
+ * Custom validator to ensure credentialClaims keys are subset of credentialConfigurationIds
+ */
+@ValidatorConstraint({ name: &quot;credentialClaimsMatchIds&quot;, async: false })
+export class CredentialClaimsMatchIdsConstraint
+    implements ValidatorConstraintInterface
+{
+    validate(
+        credentialClaims: Record&lt;string, any&gt; | undefined,
+        args: ValidationArguments,
+    ) {
+        if (!credentialClaims) return true; // Optional field
+
+        const object &#x3D; args.object as OfferRequestDto;
+        const credentialConfigurationIds &#x3D; object.credentialConfigurationIds;
+
+        if (
+            !credentialConfigurationIds ||
+            !Array.isArray(credentialConfigurationIds)
+        ) {
+            return false;
+        }
+
+        // Check that all keys in credentialClaims exist in credentialConfigurationIds
+        const claimsKeys &#x3D; Object.keys(credentialClaims);
+        return claimsKeys.every((key) &#x3D;&gt;
+            credentialConfigurationIds.includes(key),
+        );
+    }
+
+    defaultMessage(args: ValidationArguments) {
+        const object &#x3D; args.object as OfferRequestDto;
+        const credentialClaims &#x3D; args.value as Record&lt;string, any&gt;;
+        const credentialConfigurationIds &#x3D;
+            object.credentialConfigurationIds || [];
+
+        const claimsKeys &#x3D; Object.keys(credentialClaims || {});
+        const invalidKeys &#x3D; claimsKeys.filter(
+            (key) &#x3D;&gt; !credentialConfigurationIds.includes(key),
+        );
+
+        return &#x60;credentialClaims contains keys [${invalidKeys.join(&quot;, &quot;)}] that are not in credentialConfigurationIds [${credentialConfigurationIds.join(&quot;, &quot;)}]&#x60;;
+    }
 }
 
 export class OfferRequestDto {
@@ -297,33 +370,29 @@ export class OfferRequestDto {
     credentialConfigurationIds!: string[];
 
     /**
-     * Override the default values for the credential claims.
+     * Credential claims configuration per credential.
+     * Each credential can have claims provided inline or fetched via webhook.
+     * Keys must be a subset of credentialConfigurationIds.
      */
-    @ApiProperty({
-        type: &quot;object&quot;,
-        description: &quot;Override the default values for the credential claims.&quot;,
-        properties: {},
-        examples: [
-            {
-                pid: {
-                    given_name: &quot;ERIKA&quot;,
-                    family_name: &quot;MUSTERMANN&quot;,
-                },
-            },
-        ],
+    @IsObject()
+    @IsOptional()
+    @ValidateNested({ each: true })
+    @Validate(CredentialClaimsMatchIdsConstraint)
+    @Transform(({ value }) &#x3D;&gt; {
+        if (!value) return value;
+        const result: Record&lt;string, InlineClaimsSource | WebhookClaimsSource&gt; &#x3D;
+            {};
+        for (const [key, val] of Object.entries(value)) {
+            const source &#x3D; val as any;
+            if (source.type &#x3D;&#x3D;&#x3D; &quot;inline&quot;) {
+                result[key] &#x3D; plainToClass(InlineClaimsSource, val);
+            } else if (source.type &#x3D;&#x3D;&#x3D; &quot;webhook&quot;) {
+                result[key] &#x3D; plainToClass(WebhookClaimsSource, val);
+            }
+        }
+        return result;
     })
-    @IsObject()
-    @IsOptional()
-    claims?: Record&lt;string, Record&lt;string, any&gt;&gt;;
-
-    /**
-     * Webhooks to fetch the claims dynamically.
-     */
-    @IsObject()
-    @IsOptional()
-    @ValidateNested()
-    @Type(() &#x3D;&gt; WebhookConfig)
-    claimWebhook?: WebhookConfig;
+    credentialClaims?: Record&lt;string, InlineClaimsSource | WebhookClaimsSource&gt;;
 
     /**
      * Webhook to notify about the status of the issuance process.

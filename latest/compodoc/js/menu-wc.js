@@ -661,6 +661,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/CreateTenantDto.html" data-type="entity-link" >CreateTenantDto</a>
                             </li>
                             <li class="link">
+                                <a href="classes/CredentialClaimsMatchIdsConstraint.html" data-type="entity-link" >CredentialClaimsMatchIdsConstraint</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/CredentialConfig.html" data-type="entity-link" >CredentialConfig</a>
                             </li>
                             <li class="link">
@@ -704,6 +707,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             </li>
                             <li class="link">
                                 <a href="classes/FileUploadDto.html" data-type="entity-link" >FileUploadDto</a>
+                            </li>
+                            <li class="link">
+                                <a href="classes/InlineClaimsSource.html" data-type="entity-link" >InlineClaimsSource</a>
                             </li>
                             <li class="link">
                                 <a href="classes/IssuanceConfig.html" data-type="entity-link" >IssuanceConfig</a>
@@ -809,6 +815,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             </li>
                             <li class="link">
                                 <a href="classes/WebHookAuthConfigNone.html" data-type="entity-link" >WebHookAuthConfigNone</a>
+                            </li>
+                            <li class="link">
+                                <a href="classes/WebhookClaimsSource.html" data-type="entity-link" >WebhookClaimsSource</a>
                             </li>
                             <li class="link">
                                 <a href="classes/WebhookConfig.html" data-type="entity-link" >WebhookConfig</a>

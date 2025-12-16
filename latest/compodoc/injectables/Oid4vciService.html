@@ -512,8 +512,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="290"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:290</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="294"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:294</a></div>
                         </td>
                     </tr>
 
@@ -745,8 +745,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="474"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:474</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="470"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:470</a></div>
                         </td>
                     </tr>
 
@@ -931,8 +931,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="277"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:277</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="281"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:281</a></div>
                         </td>
                     </tr>
 
@@ -972,8 +972,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="263"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:263</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="267"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:267</a></div>
                         </td>
                     </tr>
 
@@ -1270,13 +1270,18 @@ export class Oid4vciService {
         }
 
         //if claims are provided, check them against the schemas when provided
-        if (body.claims) {
+        if (body.credentialClaims) {
             Promise.all(
-                Object.keys(body.claims).map((credentialConfigId) &#x3D;&gt;
-                    this.credentialsService.validateClaimsForCredential(
-                        credentialConfigId,
-                        body.claims![credentialConfigId],
-                    ),
+                Object.entries(body.credentialClaims).map(
+                    ([credentialConfigId, claimSource]) &#x3D;&gt; {
+                        if (claimSource.type &#x3D;&#x3D;&#x3D; &quot;inline&quot;) {
+                            return this.credentialsService.validateClaimsForCredential(
+                                credentialConfigId,
+                                claimSource.claims,
+                            );
+                        }
+                        return Promise.resolve();
+                    },
                 ),
             );
         }
@@ -1286,7 +1291,6 @@ export class Oid4vciService {
             credentialPayload: body,
             tenantId: user.entity!.id,
             authorization_code,
-            claimsWebhook: body.claimWebhook,
             notifyWebhook: body.notifyWebhook,
         });
 
@@ -1430,20 +1434,12 @@ export class Oid4vciService {
 
         try {
             const credentials: { credential: string }[] &#x3D; [];
-            // if a webhook is provided, fetch the data from it.
 
-            const claims: Record&lt;string, Record&lt;string, unknown&gt;&gt; | undefined &#x3D;
-                undefined;
-            /*             if (
-                issuanceConfig.claimsWebhook &amp;&amp;
-                issuanceConfig.authenticationConfig.method !&#x3D;&#x3D;
-                    &quot;presentationDuringIssuance&quot;
-            ) {
-                claims &#x3D; await this.webhookService.sendWebhook(
-                    session,
-                    logContext,
-                );
-            } */
+            //get the claims from webhook if configured
+            const claims &#x3D; await this.credentialsService.getClaimsFromWebhook(
+                parsedCredentialRequest.credentialConfigurationId as string,
+                session,
+            );
 
             for (const jwt of parsedCredentialRequest.proofs.jwt) {
                 // check if the nonce was requested before and delete it

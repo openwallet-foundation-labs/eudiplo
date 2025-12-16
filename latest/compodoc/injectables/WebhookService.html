@@ -191,7 +191,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="20" class="link-to-prism">src/utils/webhook/webhook.service.ts:20</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="21" class="link-to-prism">src/utils/webhook/webhook.service.ts:21</a></div>
                             </td>
                         </tr>
 
@@ -273,15 +273,15 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>sendWebhook(session: <a href="../entitys/Session.html" target="_self">Session</a>, logContext: <a href="../interfaces/SessionLogContext.html" target="_self">SessionLogContext</a>, credentials?: any[], expectResponse: unknown)</code>
+<code>sendWebhook(values: literal type)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="40"
-                                    class="link-to-prism">src/utils/webhook/webhook.service.ts:40</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="37"
+                                    class="link-to-prism">src/utils/webhook/webhook.service.ts:37</a></div>
                         </td>
                     </tr>
 
@@ -300,77 +300,20 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
-                                                <td>Default value</td>
-                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>session</td>
+                                                <td>values</td>
                                             <td>
-                                                            <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
+                                                        <code>literal type</code>
                                             </td>
 
                                             <td>
                                                     No
                                             </td>
 
-                                            <td>
-                                            </td>
 
-                                            <td>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>logContext</td>
-                                            <td>
-                                                            <code><a href="../interfaces/SessionLogContext.html" target="_self" >SessionLogContext</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-                                            <td>
-                                            </td>
-
-                                            <td>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>credentials</td>
-                                            <td>
-                                                        <code>any[]</code>
-                                            </td>
-
-                                            <td>
-                                                    Yes
-                                            </td>
-
-                                            <td>
-                                            </td>
-
-                                            <td>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>expectResponse</td>
-                                            <td>
-                                                        <code>unknown</code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-                                            <td>
-                                                    <code>true</code>
-                                            </td>
-
-                                            <td>
-                                                    <p>Whether to expect a response from the webhook</p>
-
-                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -408,8 +351,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="115"
-                                    class="link-to-prism">src/utils/webhook/webhook.service.ts:115</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="111"
+                                    class="link-to-prism">src/utils/webhook/webhook.service.ts:111</a></div>
                         </td>
                     </tr>
 
@@ -494,6 +437,7 @@ import { Notification, Session } from &quot;../../session/entities/session.entit
 import { SessionService } from &quot;../../session/session.service&quot;;
 import { SessionLoggerService } from &quot;../logger/session-logger.service&quot;;
 import { SessionLogContext } from &quot;../logger/session-logger-context&quot;;
+import { WebhookConfig } from &quot;./webhook.dto&quot;;
 
 /**
  * Response from a webhook to receive credentials.
@@ -521,37 +465,31 @@ export class WebhookService {
 
     /**
      * Sends a webhook with the optional provided credentials, return the response data.
-     * @param session
-     * @param logContext
-     * @param credentials
-     * @param expectResponse Whether to expect a response from the webhook
      */
-    sendWebhook(
-        session: Session,
-        logContext: SessionLogContext,
-        credentials?: any[],
-        expectResponse &#x3D; true,
-    ) {
+    sendWebhook(values: {
+        webhook: WebhookConfig;
+        logContext: SessionLogContext;
+        session: Session;
+        credentials?: any[];
+        expectResponse: boolean;
+    }) {
         const headers: Record&lt;string, string&gt; &#x3D; {};
 
-        if (
-            session.claimsWebhook!.auth &amp;&amp;
-            session.claimsWebhook!.auth.type &#x3D;&#x3D;&#x3D; &quot;apiKey&quot;
-        ) {
-            headers[session.claimsWebhook!.auth.config.headerName] &#x3D;
-                session.claimsWebhook!.auth.config.value;
+        if (values.webhook.auth &amp;&amp; values.webhook.auth.type &#x3D;&#x3D;&#x3D; &quot;apiKey&quot;) {
+            headers[values.webhook.auth.config.headerName] &#x3D;
+                values.webhook.auth.config.value;
         }
-        this.sessionLogger.logSession(logContext, &quot;Sending webhook&quot;, {
-            webhookUrl: session.claimsWebhook!.url,
-            authType: session.claimsWebhook!.auth?.type || &quot;none&quot;,
+        this.sessionLogger.logSession(values.logContext, &quot;Sending webhook&quot;, {
+            webhookUrl: values.webhook.url,
+            authType: values.webhook.auth?.type || &quot;none&quot;,
         });
 
         return firstValueFrom(
             this.httpService.post(
-                session.claimsWebhook!.url,
+                values.webhook.url,
                 {
-                    credentials,
-                    session: session.id,
+                    credentials: values.credentials,
+                    session: values.session.id,
                 },
                 {
                     headers,
@@ -560,7 +498,7 @@ export class WebhookService {
         ).then(
             async (webhookResponse) &#x3D;&gt; {
                 this.sessionLogger.logSession(
-                    logContext,
+                    values.logContext,
                     &quot;Webhook sent successfully&quot;,
                     {
                         responseStatus: webhookResponse.status,
@@ -571,11 +509,12 @@ export class WebhookService {
                 //check if a redirect URI is passed, we either expect a redirect or claims, but never both.
                 if (webhookResponse.data?.redirectUri) {
                     //TODO: do we need to do something with it?
-                } else if (webhookResponse.data &amp;&amp; expectResponse) {
-                    session.credentialPayload!.claims &#x3D; webhookResponse.data;
+                } else if (webhookResponse.data &amp;&amp; values.expectResponse) {
+                    //TODO: update this for presentation during issuance
+                    //session.credentialPayload!.credentialClaims![&quot;id&quot;].claims &#x3D; webhookResponse.data;
                     //store received webhook response
-                    await this.sessionService.add(session.id, {
-                        credentialPayload: session.credentialPayload,
+                    await this.sessionService.add(values.session.id, {
+                        credentialPayload: values.session.credentialPayload,
                     });
                 }
 
@@ -583,11 +522,11 @@ export class WebhookService {
             },
             (err) &#x3D;&gt; {
                 this.sessionLogger.logSessionError(
-                    logContext,
+                    values.logContext,
                     err,
                     &quot;Error sending webhook&quot;,
                     {
-                        webhookUrl: session.claimsWebhook!.url,
+                        webhookUrl: values.webhook.url,
                     },
                 );
                 throw new Error(&#x60;Error sending webhook: ${err.message || err}&#x60;);
@@ -633,16 +572,8 @@ export class WebhookService {
                 },
             ),
         ).then(
-            async (webhookResponse) &#x3D;&gt; {
-                //TODO: better: just store it when it&#x27;s a presentation during issuance
-                if (webhookResponse.data) {
-                    session.credentialPayload!.claims &#x3D; webhookResponse.data;
-                    //store received webhook response
-                    await this.sessionService.add(session.id, {
-                        credentialPayload: session.credentialPayload,
-                    });
-                }
-
+            (webhookResponse) &#x3D;&gt; {
+                //TODO: update notification status based on response
                 this.sessionLogger.logSession(
                     logContext,
                     &quot;Webhook notification sent successfully&quot;,
@@ -658,7 +589,7 @@ export class WebhookService {
                     err,
                     &quot;Error sending webhook&quot;,
                     {
-                        webhookUrl: session.claimsWebhook!.url,
+                        webhookUrl: webhook.url,
                     },
                 );
                 throw new Error(&#x60;Error sending webhook: ${err.message || err}&#x60;);
