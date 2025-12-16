@@ -114,7 +114,7 @@
 
 <ol class="breadcrumb">
   <li class="breadcrumb-item">Classes</li>
-  <li class="breadcrumb-item" >OfferRequestDto</li>
+  <li class="breadcrumb-item" >InlineClaimsSource</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -142,6 +142,13 @@
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Inline claims source - claims provided directly in the request.</p>
+
+            </p>
 
 
 
@@ -160,39 +167,11 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier">Optional</span>
-                                <a href="#credentialClaims" >credentialClaims</a>
+                                <a href="#claims" >claims</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
-                                <a href="#credentialConfigurationIds" >credentialConfigurationIds</a>
-                            </li>
-                            <li>
-                                    <span class="modifier"></span>
-                                <a href="#flow" >flow</a>
-                            </li>
-                            <li>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier">Optional</span>
-                                <a href="#notifyWebhook" >notifyWebhook</a>
-                            </li>
-                            <li>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                <a href="#response_type" >response_type</a>
-                            </li>
-                            <li>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier">Optional</span>
-                                <a href="#tx_code" >tx_code</a>
+                                <a href="#type" >type</a>
                             </li>
                         </ul>
                     </td>
@@ -217,22 +196,17 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="credentialClaims"></a>
+                    <a name="claims"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier">Optional</span>
-                        <span ><b>credentialClaims</b></span>
-                        <a href="#credentialClaims"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>claims</b></span>
+                        <a href="#claims"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>    <code>Record&lt;string | InlineClaimsSource | WebhookClaimsSource&gt;</code>
+                        <i>Type : </i>    <code>Record&lt;string | any&gt;</code>
 
                     </td>
                 </tr>
@@ -241,188 +215,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsObject()<br />@IsOptional()<br />@ValidateNested({each: true})<br />@Validate(CredentialClaimsMatchIdsConstraint)<br />@Transform( &#x3D;&gt; )<br />
+                            @IsObject()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="146" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:146</a></div>
-                        </td>
-                    </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Credential claims configuration per credential.
-Each credential can have claims provided inline or fetched via webhook.
-Keys must be a subset of credentialConfigurationIds.</p>
-</div>
-                </td>
-            </tr>
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="credentialConfigurationIds"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                        <span ><b>credentialConfigurationIds</b></span>
-                        <a href="#credentialConfigurationIds"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>    <code>string[]</code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @IsArray()<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="121" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:121</a></div>
-                        </td>
-                    </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>List of credential configuration ids to be included in the offer.</p>
-</div>
-                </td>
-            </tr>
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="flow"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                        <span ><b>flow</b></span>
-                        <a href="#flow"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../miscellaneous/enumerations.html#FlowType" target="_self" >FlowType</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @IsEnum(FlowType)<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="108" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:108</a></div>
-                        </td>
-                    </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>The flow type for the offer request.</p>
-</div>
-                </td>
-            </tr>
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="notifyWebhook"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier">Optional</span>
-                        <span ><b>notifyWebhook</b></span>
-                        <a href="#notifyWebhook"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../classes/WebhookConfig.html" target="_self" >WebhookConfig</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @IsObject()<br />@IsOptional()<br />@ValidateNested()<br />@Type(undefined)<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="155" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:155</a></div>
-                        </td>
-                    </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Webhook to notify about the status of the issuance process.</p>
-</div>
-                </td>
-            </tr>
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="response_type"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                        <span ><b>response_type</b></span>
-                        <a href="#response_type"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../miscellaneous/enumerations.html#ResponseType" target="_self" >ResponseType</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @ApiProperty({examples: undefined, description: &#x27;The type of response expected for the offer request.&#x27;})<br />@IsEnum(ResponseType)<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="102" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:102</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="32" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:32</a></div>
                         </td>
                     </tr>
 
@@ -433,19 +232,17 @@ Keys must be a subset of credentialConfigurationIds.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="tx_code"></a>
+                    <a name="type"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier">Optional</span>
-                        <span ><b>tx_code</b></span>
-                        <a href="#tx_code"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>type</b></span>
+                        <a href="#type"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                        <i>Type : </i>    <code>unknown</code>
 
                     </td>
                 </tr>
@@ -454,22 +251,16 @@ Keys must be a subset of credentialConfigurationIds.</p>
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsString()<br />@IsOptional()<br />
+                            @IsIn([&#x27;inline&#x27;])<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="115" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:115</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="29" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:29</a></div>
                         </td>
                     </tr>
 
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Transaction code for pre-authorized code flow.</p>
-</div>
-                </td>
-            </tr>
 
         </tbody>
     </table>
@@ -684,7 +475,7 @@ export class OfferResponse {
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
-            var COMPODOC_CURRENT_PAGE_URL = 'OfferRequestDto.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'InlineClaimsSource.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 
