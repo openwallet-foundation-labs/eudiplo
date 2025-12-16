@@ -994,19 +994,6 @@ export const OfferRequestDtoSchema = {
       ],
       description: "The type of response expected for the offer request.",
     },
-    claims: {
-      type: "object",
-      description: "Override the default values for the credential claims.",
-      properties: {},
-      examples: [
-        {
-          pid: {
-            given_name: "ERIKA",
-            family_name: "MUSTERMANN",
-          },
-        },
-      ],
-    },
     flow: {
       description: "The flow type for the offer request.",
       enum: ["authorization_code", "pre_authorized_code"],
@@ -1024,13 +1011,10 @@ export const OfferRequestDtoSchema = {
         type: "string",
       },
     },
-    claimWebhook: {
-      description: "Webhooks to fetch the claims dynamically.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/WebhookConfig",
-        },
-      ],
+    credentialClaims: {
+      type: "object",
+      description:
+        "Credential claims configuration per credential.\nEach credential can have claims provided inline or fetched via webhook.\nKeys must be a subset of credentialConfigurationIds.",
     },
     notifyWebhook: {
       description:
@@ -1121,15 +1105,6 @@ export const SessionSchema = {
         },
       ],
     },
-    claimsWebhook: {
-      description:
-        "Webhook configuration to send result and may receive further information.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/WebhookConfig",
-        },
-      ],
-    },
     notifyWebhook: {
       description:
         "Webhook configuration to send the result of the notification response.",
@@ -1172,6 +1147,14 @@ export const SessionSchema = {
       type: "string",
       description:
         "Redirect URI to which the user-agent should be redirected after the presentation is completed.",
+    },
+    parsedWebhook: {
+      description: "Where to send the claims webhook response.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/WebhookConfig",
+        },
+      ],
     },
   },
   required: [

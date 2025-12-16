@@ -139,11 +139,6 @@ export class Session {
     @Column("json", { nullable: true })
     credentialPayload?: OfferRequestDto;
     /**
-     * Webhook configuration to send result and may receive further information.
-     */
-    @Column("json", { nullable: true })
-    claimsWebhook?: WebhookConfig;
-    /**
      * Webhook configuration to send the result of the notification response.
      */
     @Column("json", { nullable: true })
@@ -191,4 +186,10 @@ export class Session {
      */
     @Column("varchar", { nullable: true })
     redirectUri?: string;
+
+    /**
+     * Where to send the claims webhook response.
+     */
+    @Column("json", { nullable: true })
+    parsedWebhook?: WebhookConfig;
 }

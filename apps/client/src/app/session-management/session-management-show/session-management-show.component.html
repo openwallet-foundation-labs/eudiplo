@@ -320,24 +320,24 @@
       }
 
       <!-- Webhooks Tab -->
-      @if (session.claimsWebhook || session.notifyWebhook) {
+      @if (session.parsedWebhook || session.notifyWebhook) {
         <mat-tab label="Webhooks">
           <div class="tab-content">
-            @if (session.claimsWebhook) {
+            @if (session.parsedWebhook) {
               <mat-card class="webhook-card">
                 <mat-card-header>
                   <mat-card-title>Main Webhook</mat-card-title>
                   <div class="spacer"></div>
                   <button
                     matIconButton
-                    (click)="copyToClipboard(formatJson(session.claimsWebhook))"
+                    (click)="copyToClipboard(formatJson(session.parsedWebhook))"
                     matTooltip="Copy webhook config"
                   >
                     <mat-icon>content_copy</mat-icon>
                   </button>
                 </mat-card-header>
                 <mat-card-content>
-                  <pre class="json-display">{{ formatJson(session.claimsWebhook) }}</pre>
+                  <pre class="json-display">{{ formatJson(session.parsedWebhook) }}</pre>
                 </mat-card-content>
               </mat-card>
             }

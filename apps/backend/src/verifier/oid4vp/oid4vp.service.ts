@@ -249,7 +249,7 @@ export class Oid4vpService {
         if (fresh) {
             const session = await this.sessionService.create({
                 id: values.session,
-                claimsWebhook: values.webhook ?? presentationConfig.webhook,
+                parsedWebhook: values.webhook,
                 redirectUri:
                     values.redirectUri ?? presentationConfig.redirectUri,
                 tenantId,
@@ -273,7 +273,7 @@ export class Oid4vpService {
             }
         } else {
             await this.sessionService.add(values.session, {
-                claimsWebhook: values.webhook ?? presentationConfig.webhook,
+                //claimsWebhook: values.webhook ?? presentationConfig.webhook,
                 requestUrl: `openid4vp://?${queryString}`,
                 expiresAt,
                 useDcApi,
@@ -307,9 +307,16 @@ export class Oid4vpService {
             stage: "response_processing",
         };
 
+        const presentationConfig =
+            await this.presentationsService.getPresentationConfig(
+                session.requestId!,
+                session.tenantId,
+            );
+        const webhook = session.parsedWebhook || presentationConfig.webhook;
+
         this.sessionLogger.logFlowStart(logContext, {
             action: "process_presentation_response",
-            hasWebhook: !!session.claimsWebhook,
+            hasWebhook: !!webhook,
         });
 
         try {
@@ -335,14 +342,15 @@ export class Oid4vpService {
                 credentials: credentials as any,
                 status: SessionStatus.Completed,
             });
-            // if there a a webook URL, send the response there
-            //TODO: move to dedicated service to reuse it also in the oid4vci flow.
-            if (session.claimsWebhook) {
-                const response = await this.webhookService.sendWebhook(
-                    session,
+            // if there a a webhook passed in the session, use it
+            if (webhook) {
+                const response = await this.webhookService.sendWebhook({
+                    webhook,
                     logContext,
+                    session,
                     credentials,
-                );
+                    expectResponse: false,
+                });
                 //override it when a redirect URI is returned by the webhook
                 if (response?.redirectUri) {
                     session.redirectUri = response.redirectUri;
@@ -351,7 +359,7 @@ export class Oid4vpService {
 
             this.sessionLogger.logFlowComplete(logContext, {
                 credentialCount: credentials?.length || 0,
-                webhookSent: !!session.claimsWebhook,
+                webhookSent: !!webhook,
             });
 
             //check if a redirect URI is defined and return it to the caller. If so, sendResponse is ignored

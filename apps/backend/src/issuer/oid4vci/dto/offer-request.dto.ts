@@ -1,12 +1,17 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Type } from "class-transformer";
+import { plainToClass, Transform, Type } from "class-transformer";
 import {
     IsArray,
     IsEnum,
+    IsIn,
     IsObject,
     IsOptional,
     IsString,
+    Validate,
     ValidateNested,
+    ValidationArguments,
+    ValidatorConstraint,
+    ValidatorConstraintInterface,
 } from "class-validator";
 import { WebhookConfig } from "../../../utils/webhook/webhook.dto";
 import { ResponseType } from "../../../verifier/oid4vp/dto/presentation-request.dto";
@@ -14,6 +19,74 @@ import { ResponseType } from "../../../verifier/oid4vp/dto/presentation-request.
 export enum FlowType {
     AUTH_CODE = "authorization_code",
     PRE_AUTH_CODE = "pre_authorized_code",
+}
+
+/**
+ * Inline claims source - claims provided directly in the request.
+ */
+export class InlineClaimsSource {
+    @IsIn(["inline"])
+    type!: "inline";
+
+    @IsObject()
+    claims!: Record<string, any>;
+}
+
+/**
+ * Webhook claims source - claims fetched dynamically via webhook.
+ */
+export class WebhookClaimsSource {
+    @IsIn(["webhook"])
+    type!: "webhook";
+
+    @ValidateNested()
+    @Type(() => WebhookConfig)
+    webhook!: WebhookConfig;
+}
+
+/**
+ * Custom validator to ensure credentialClaims keys are subset of credentialConfigurationIds
+ */
+@ValidatorConstraint({ name: "credentialClaimsMatchIds", async: false })
+export class CredentialClaimsMatchIdsConstraint
+    implements ValidatorConstraintInterface
+{
+    validate(
+        credentialClaims: Record<string, any> | undefined,
+        args: ValidationArguments,
+    ) {
+        if (!credentialClaims) return true; // Optional field
+
+        const object = args.object as OfferRequestDto;
+        const credentialConfigurationIds = object.credentialConfigurationIds;
+
+        if (
+            !credentialConfigurationIds ||
+            !Array.isArray(credentialConfigurationIds)
+        ) {
+            return false;
+        }
+
+        // Check that all keys in credentialClaims exist in credentialConfigurationIds
+        const claimsKeys = Object.keys(credentialClaims);
+        return claimsKeys.every((key) =>
+            credentialConfigurationIds.includes(key),
+        );
+    }
+
+    defaultMessage(args: ValidationArguments) {
+        const object = args.object as OfferRequestDto;
+        const credentialClaims = args.value as Record<string, any>;
+        const credentialConfigurationIds =
+            object.credentialConfigurationIds || [];
+
+        const claimsKeys = Object.keys(credentialClaims || {});
+        const invalidKeys = claimsKeys.filter(
+            (key) => !credentialConfigurationIds.includes(key),
+        );
+
+        return `credentialClaims contains keys [${invalidKeys.join(", ")}] that are not in credentialConfigurationIds [${credentialConfigurationIds.join(", ")}]`;
+    }
 }
 
 export class OfferRequestDto {
@@ -48,33 +121,29 @@ export class OfferRequestDto {
     credentialConfigurationIds!: string[];
 
     /**
-     * Override the default values for the credential claims.
+     * Credential claims configuration per credential.
+     * Each credential can have claims provided inline or fetched via webhook.
+     * Keys must be a subset of credentialConfigurationIds.
      */
-    @ApiProperty({
-        type: "object",
-        description: "Override the default values for the credential claims.",
-        properties: {},
-        examples: [
-            {
-                pid: {
-                    given_name: "ERIKA",
-                    family_name: "MUSTERMANN",
-                },
-            },
-        ],
+    @IsObject()
+    @IsOptional()
+    @ValidateNested({ each: true })
+    @Validate(CredentialClaimsMatchIdsConstraint)
+    @Transform(({ value }) => {
+        if (!value) return value;
+        const result: Record<string, InlineClaimsSource | WebhookClaimsSource> =
+            {};
+        for (const [key, val] of Object.entries(value)) {
+            const source = val as any;
+            if (source.type === "inline") {
+                result[key] = plainToClass(InlineClaimsSource, val);
+            } else if (source.type === "webhook") {
+                result[key] = plainToClass(WebhookClaimsSource, val);
+            }
+        }
+        return result;
     })
-    @IsObject()
-    @IsOptional()
-    claims?: Record<string, Record<string, any>>;
-
-    /**
-     * Webhooks to fetch the claims dynamically.
-     */
-    @IsObject()
-    @IsOptional()
-    @ValidateNested()
-    @Type(() => WebhookConfig)
-    claimWebhook?: WebhookConfig;
+    credentialClaims?: Record<string, InlineClaimsSource | WebhookClaimsSource>;
 
     /**
      * Webhook to notify about the status of the issuance process.

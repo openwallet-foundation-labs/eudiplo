@@ -5,6 +5,7 @@ import { Notification, Session } from "../../session/entities/session.entity";
 import { SessionService } from "../../session/session.service";
 import { SessionLoggerService } from "../logger/session-logger.service";
 import { SessionLogContext } from "../logger/session-logger-context";
+import { WebhookConfig } from "./webhook.dto";
 
 /**
  * Response from a webhook to receive credentials.
@@ -32,37 +33,31 @@ export class WebhookService {
 
     /**
      * Sends a webhook with the optional provided credentials, return the response data.
-     * @param session
-     * @param logContext
-     * @param credentials
-     * @param expectResponse Whether to expect a response from the webhook
      */
-    sendWebhook(
-        session: Session,
-        logContext: SessionLogContext,
-        credentials?: any[],
-        expectResponse = true,
-    ) {
+    sendWebhook(values: {
+        webhook: WebhookConfig;
+        logContext: SessionLogContext;
+        session: Session;
+        credentials?: any[];
+        expectResponse: boolean;
+    }) {
         const headers: Record<string, string> = {};
 
-        if (
-            session.claimsWebhook!.auth &&
-            session.claimsWebhook!.auth.type === "apiKey"
-        ) {
-            headers[session.claimsWebhook!.auth.config.headerName] =
-                session.claimsWebhook!.auth.config.value;
+        if (values.webhook.auth && values.webhook.auth.type === "apiKey") {
+            headers[values.webhook.auth.config.headerName] =
+                values.webhook.auth.config.value;
         }
-        this.sessionLogger.logSession(logContext, "Sending webhook", {
-            webhookUrl: session.claimsWebhook!.url,
-            authType: session.claimsWebhook!.auth?.type || "none",
+        this.sessionLogger.logSession(values.logContext, "Sending webhook", {
+            webhookUrl: values.webhook.url,
+            authType: values.webhook.auth?.type || "none",
         });
 
         return firstValueFrom(
             this.httpService.post(
-                session.claimsWebhook!.url,
+                values.webhook.url,
                 {
-                    credentials,
-                    session: session.id,
+                    credentials: values.credentials,
+                    session: values.session.id,
                 },
                 {
                     headers,
@@ -71,7 +66,7 @@ export class WebhookService {
         ).then(
             async (webhookResponse) => {
                 this.sessionLogger.logSession(
-                    logContext,
+                    values.logContext,
                     "Webhook sent successfully",
                     {
                         responseStatus: webhookResponse.status,
@@ -82,11 +77,12 @@ export class WebhookService {
                 //check if a redirect URI is passed, we either expect a redirect or claims, but never both.
                 if (webhookResponse.data?.redirectUri) {
                     //TODO: do we need to do something with it?
-                } else if (webhookResponse.data && expectResponse) {
-                    session.credentialPayload!.claims = webhookResponse.data;
+                } else if (webhookResponse.data && values.expectResponse) {
+                    //TODO: update this for presentation during issuance
+                    //session.credentialPayload!.credentialClaims!["id"].claims = webhookResponse.data;
                     //store received webhook response
-                    await this.sessionService.add(session.id, {
-                        credentialPayload: session.credentialPayload,
+                    await this.sessionService.add(values.session.id, {
+                        credentialPayload: values.session.credentialPayload,
                     });
                 }
 
@@ -94,11 +90,11 @@ export class WebhookService {
             },
             (err) => {
                 this.sessionLogger.logSessionError(
-                    logContext,
+                    values.logContext,
                     err,
                     "Error sending webhook",
                     {
-                        webhookUrl: session.claimsWebhook!.url,
+                        webhookUrl: values.webhook.url,
                     },
                 );
                 throw new Error(`Error sending webhook: ${err.message || err}`);
@@ -144,16 +140,8 @@ export class WebhookService {
                 },
             ),
         ).then(
-            async (webhookResponse) => {
-                //TODO: better: just store it when it's a presentation during issuance
-                if (webhookResponse.data) {
-                    session.credentialPayload!.claims = webhookResponse.data;
-                    //store received webhook response
-                    await this.sessionService.add(session.id, {
-                        credentialPayload: session.credentialPayload,
-                    });
-                }
-
+            (webhookResponse) => {
+                //TODO: update notification status based on response
                 this.sessionLogger.logSession(
                     logContext,
                     "Webhook notification sent successfully",
@@ -169,7 +157,7 @@ export class WebhookService {
                     err,
                     "Error sending webhook",
                     {
-                        webhookUrl: session.claimsWebhook!.url,
+                        webhookUrl: webhook.url,
                     },
                 );
                 throw new Error(`Error sending webhook: ${err.message || err}`);

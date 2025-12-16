@@ -72,7 +72,7 @@ async function handleRequest(request: Request): Promise<Response> {
             console.log(JSON.stringify(presented, null, 2));
             const res: ProcessResponse = {
                 citizen: {
-                    town: "Berlin",
+                    town: "Köln",
                 },
             };
             return Response.json(res, { status: 200 });

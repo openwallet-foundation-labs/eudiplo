@@ -207,13 +207,18 @@ export class Oid4vciService {
         }
 
         //if claims are provided, check them against the schemas when provided
-        if (body.claims) {
+        if (body.credentialClaims) {
             Promise.all(
-                Object.keys(body.claims).map((credentialConfigId) =>
-                    this.credentialsService.validateClaimsForCredential(
-                        credentialConfigId,
-                        body.claims![credentialConfigId],
-                    ),
+                Object.entries(body.credentialClaims).map(
+                    ([credentialConfigId, claimSource]) => {
+                        if (claimSource.type === "inline") {
+                            return this.credentialsService.validateClaimsForCredential(
+                                credentialConfigId,
+                                claimSource.claims,
+                            );
+                        }
+                        return Promise.resolve();
+                    },
                 ),
             );
         }
@@ -223,7 +228,6 @@ export class Oid4vciService {
             credentialPayload: body,
             tenantId: user.entity!.id,
             authorization_code,
-            claimsWebhook: body.claimWebhook,
             notifyWebhook: body.notifyWebhook,
         });
 
@@ -367,20 +371,12 @@ export class Oid4vciService {
 
         try {
             const credentials: { credential: string }[] = [];
-            // if a webhook is provided, fetch the data from it.
 
-            const claims: Record<string, Record<string, unknown>> | undefined =
-                undefined;
-            /*             if (
-                issuanceConfig.claimsWebhook &&
-                issuanceConfig.authenticationConfig.method !==
-                    "presentationDuringIssuance"
-            ) {
-                claims = await this.webhookService.sendWebhook(
-                    session,
-                    logContext,
-                );
-            } */
+            //get the claims from webhook if configured
+            const claims = await this.credentialsService.getClaimsFromWebhook(
+                parsedCredentialRequest.credentialConfigurationId as string,
+                session,
+            );
 
             for (const jwt of parsedCredentialRequest.proofs.jwt) {
                 // check if the nonce was requested before and delete it

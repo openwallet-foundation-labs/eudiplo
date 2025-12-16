@@ -11,6 +11,8 @@ import { Repository } from "typeorm";
 import { CertService } from "../../crypto/key/cert/cert.service";
 import { CryptoImplementationService } from "../../crypto/key/crypto-implementation/crypto-implementation.service";
 import { Session } from "../../session/entities/session.entity";
+import { SessionLogContext } from "../../utils/logger/session-logger-context";
+import { WebhookService } from "../../utils/webhook/webhook.service";
 import { VCT } from "../credentials-metadata/dto/vct.dto";
 import { StatusListService } from "../status-list/status-list.service";
 import { CredentialConfig } from "./entities/credential.entity";
@@ -34,6 +36,7 @@ export class CredentialsService {
         @InjectRepository(CredentialConfig)
         private credentialConfigRepo: Repository<CredentialConfig>,
         private cryptoImplementationService: CryptoImplementationService,
+        private webhookService: WebhookService,
     ) {}
 
     /**
@@ -130,17 +133,54 @@ export class CredentialsService {
     }
 
     /**
+     * Fetches claims for a credential configuration from webhook if configured.
+     * This should be called once before batch processing to avoid redundant webhook calls.
+     * @param credentialConfigurationId
+     * @param session
+     * @returns The fetched claims or undefined if no webhook is configured
+     */
+    getClaimsFromWebhook(
+        credentialConfigurationId: string,
+        session: Session,
+    ): Promise<Record<string, any> | undefined> {
+        const claimsSource =
+            session.credentialPayload?.credentialClaims?.[
+                credentialConfigurationId
+            ];
+
+        if (claimsSource && claimsSource.type === "webhook") {
+            const logContext: SessionLogContext = {
+                sessionId: session.id,
+                tenantId: session.tenantId,
+                flowType: "OID4VCI",
+                stage: "fetching-claims-webhook",
+            };
+            return this.webhookService
+                .sendWebhook({
+                    webhook: claimsSource.webhook,
+                    logContext,
+                    session,
+                    expectResponse: true,
+                })
+                .then((response) => response[credentialConfigurationId]);
+        }
+
+        return Promise.resolve(undefined);
+    }
+
+    /**
      * Issues a credential based on the provided configuration and session.
      * @param credentialConfigurationId
      * @param holderCnf
      * @param session
+     * @param preloadedClaims Optional claims fetched from webhook (to avoid redundant calls in batch)
      * @returns
      */
     async getCredential(
         credentialConfigurationId: string,
         holderCnf: Jwk,
         session: Session,
-        claims?: Record<string, Record<string, unknown>>,
+        preloadedClaims?: Record<string, any>,
     ) {
         const credentialConfiguration =
             await this.credentialConfigRepo.findOneByOrFail({
@@ -152,11 +192,48 @@ export class CredentialsService {
             throw new ConflictException(
                 `Credential configuration with id ${credentialConfigurationId} not found`,
             );
-        //use passed claims, if not provided try the ones stored in the session and the use default ones from the config is provided
-        const usedClaims =
-            claims?.[credentialConfigurationId] ??
-            session.credentialPayload?.claims?.[credentialConfigurationId] ??
-            credentialConfiguration.claims;
+
+        /**
+         * Priority of the claims
+         * 1. fetched via passed webhook (preloadedClaims)
+         * 2. inline claims stored in the session
+         * 3. webhook from the credential configuration
+         * 4. static claims from the credential configuration
+         */
+        // Extract claims from the session's credentialClaims (discriminated union)
+        let usedClaims = credentialConfiguration.claims; // default fallback
+
+        // Use preloaded claims if provided (from webhook or inline)
+        if (preloadedClaims) {
+            usedClaims = preloadedClaims;
+        } else {
+            // Fallback: check if inline claims are in the session
+            const claimsSource =
+                session.credentialPayload?.credentialClaims?.[
+                    credentialConfigurationId
+                ];
+            if (claimsSource && claimsSource.type === "inline") {
+                usedClaims = claimsSource.claims;
+            } else if (credentialConfiguration.claimsWebhook) {
+                const logContext: SessionLogContext = {
+                    sessionId: session.id,
+                    tenantId: session.tenantId,
+                    flowType: "OID4VCI",
+                    stage: "fetching-claims-webhook",
+                };
+                usedClaims = await this.webhookService
+                    .sendWebhook({
+                        webhook: credentialConfiguration.claimsWebhook,
+                        logContext,
+                        session,
+                        expectResponse: true,
+                    })
+                    .then(
+                        (response) => response?.data[credentialConfigurationId],
+                    );
+            }
+        }
+
         const disclosureFrame = credentialConfiguration.disclosureFrame;
 
         const certificate = await this.certService.find({
