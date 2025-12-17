@@ -11,7 +11,7 @@ importers:
     devDependencies:
       '@adobe/jsonschema2md':
         specifier: ^8.0.8
-        version: 8.0.8
+        version: 8.0.9
       '@apidevtools/json-schema-ref-parser':
         specifier: ^15.1.3
         version: 15.1.3(@types/json-schema@7.0.15)
@@ -607,8 +607,8 @@ packages:
   '@actions/io@2.0.0':
     resolution: {integrity: sha512-Jv33IN09XLO+0HS79aaODsvIRyduiF7NY/F6LYeK5oeUmrsz7aFdRphQjFoESF4jS7lMauDOttKALcpapVDIAg==}
 
-  '@adobe/jsonschema2md@8.0.8':
-    resolution: {integrity: sha512-KqYjZxjvCj7/AlvVtXVKz1AJk+5f3LFnuWi8B2N1sRsJX3oCKNI/XXkns5uChaEL+qAazkvbh7AQd8kANtbjLA==}
+  '@adobe/jsonschema2md@8.0.9':
+    resolution: {integrity: sha512-WEneGkXy+uThbv3xRahVleNu6Pgzj2s7s5ft01GlDs0FH7idkl/3PhYsLbW1RHFZb35jQKxbEh9LAUnhwZf/fw==}
     engines: {node: ^18.0.0 || >= 20.0.0}
     hasBin: true
 
@@ -8619,6 +8619,10 @@ packages:
     resolution: {integrity: sha512-GDhwkLfywWL2s6vEjyhri+eXmfH6j1L7JE27WhqLeYzoh/A3DBaYGEj2H/HFZCn/kMfim73FXxEJTw06WtxQwg==}
     engines: {node: '>= 14.18.0'}
 
+  readdirp@5.0.0:
+    resolution: {integrity: sha512-9u/XQ1pvrQtYyMpZe7DXKv2p5CNvyVwzUB6uhLAnQwHMSgKMBR62lc7AHljaeteeHXn11XTAaLLUVZYVZyuRBQ==}
+    engines: {node: '>= 20.19.0'}
+
   real-require@0.2.0:
     resolution: {integrity: sha512-57frrGM/OCTLqLOAh0mhVA9VBMHd+9U7Zb2THMGdBUoZVOtGbJzjxsYGDJ3A9AYYCP4hn6y1TVbaOfzWtm5GFg==}
     engines: {node: '>= 12.13.0'}
@@ -10203,7 +10207,7 @@ snapshots:
 
   '@actions/io@2.0.0': {}
 
-  '@adobe/jsonschema2md@8.0.8':
+  '@adobe/jsonschema2md@8.0.9':
     dependencies:
       '@types/json-schema': 7.0.15
       '@types/mdast': 4.0.4
@@ -10216,7 +10220,7 @@ snapshots:
       json-schema: 0.4.0
       mdast-builder: 1.1.1
       mdast-util-to-string: 4.0.0
-      readdirp: 4.1.2
+      readdirp: 5.0.0
       remark-gfm: 4.0.1
       remark-parse: 11.0.0
       remark-stringify: 11.0.0
@@ -19400,6 +19404,8 @@ snapshots:
       picomatch: 2.3.1
 
   readdirp@4.1.2: {}
+
+  readdirp@5.0.0: {}
 
   real-require@0.2.0: {}
 
