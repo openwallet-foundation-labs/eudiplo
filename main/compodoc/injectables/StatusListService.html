@@ -334,8 +334,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="137"
-                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:137</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="136"
+                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:136</a></div>
                         </td>
                     </tr>
 
@@ -417,8 +417,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="64"
-                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:64</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="62"
+                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:62</a></div>
                         </td>
                     </tr>
 
@@ -557,8 +557,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="113"
-                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:113</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="112"
+                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:112</a></div>
                         </td>
                     </tr>
 
@@ -632,8 +632,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="119"
-                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:119</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="118"
+                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:118</a></div>
                         </td>
                     </tr>
 
@@ -702,8 +702,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="184"
-                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:184</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="183"
+                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:183</a></div>
                         </td>
                     </tr>
 
@@ -797,8 +797,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="200"
-                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:200</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="199"
+                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:199</a></div>
                         </td>
                     </tr>
 
@@ -963,8 +963,6 @@ export class StatusListService {
             bits,
         });
 
-        console.log(&quot;Created new status list for tenant&quot;, tenantId);
-
         await this.createListJWT(entry);
     }
 
@@ -1008,6 +1006,7 @@ export class StatusListService {
             payload,
             header,
             entry.tenantId,
+            cert.keyId,
         );
         await this.statusListRepository.update(
             { tenantId: entry.tenantId },

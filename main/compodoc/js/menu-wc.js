@@ -844,9 +844,6 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <li class="link">
                                     <a href="injectables/KeycloakClientsProvider.html" data-type="entity-link" >KeycloakClientsProvider</a>
                                 </li>
-                                <li class="link">
-                                    <a href="injectables/SessionPipe.html" data-type="entity-link" >SessionPipe</a>
-                                </li>
                             </ul>
                         </li>
                     <li class="chapter">

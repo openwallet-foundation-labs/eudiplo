@@ -221,8 +221,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="46"
-                                    class="link-to-prism">src/session/session.controller.ts:46</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="45"
+                                    class="link-to-prism">src/session/session.controller.ts:45</a></div>
                         </td>
                     </tr>
 
@@ -297,7 +297,7 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getAllSessions()</code>
+                    <code>getAllSessions(token: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
                 </td>
             </tr>
 
@@ -311,8 +311,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="25"
-                                    class="link-to-prism">src/session/session.controller.ts:25</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="24"
+                                    class="link-to-prism">src/session/session.controller.ts:24</a></div>
                         </td>
                     </tr>
 
@@ -322,10 +322,40 @@
                         <div class="io-description"><p>Retrieves all sessions.</p>
 </div>
 
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>token</td>
+                                            <td>
+                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         <div class="io-description">
                             <b>Returns : </b>        <code><a href="../entitys/Session.html" target="_self" >Promise&lt;Session[]&gt;</a></code>
 
                         </div>
+                            <div class="io-description">
+                                
+                            </div>
                 </td>
             </tr>
         </tbody>
@@ -346,7 +376,7 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getSession(session: <a href="../entitys/Session.html" target="_self">Session</a>)</code>
+                    <code>getSession(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
@@ -360,8 +390,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="35"
-                                    class="link-to-prism">src/session/session.controller.ts:35</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="34"
+                                    class="link-to-prism">src/session/session.controller.ts:34</a></div>
                         </td>
                     </tr>
 
@@ -380,13 +410,14 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
+                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>session</td>
+                                                <td>id</td>
                                             <td>
-                                                            <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
 
                                             <td>
@@ -394,12 +425,18 @@
                                             </td>
 
 
+                                            <td>
+                                                    <ul>
+<li>The identifier of the session.</li>
+</ul>
+
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
+                            <b>Returns : </b>        <code><a href="../entitys/Session.html" target="_self" >Promise&lt;Session&gt;</a></code>
 
                         </div>
                             <div class="io-description">
@@ -438,8 +475,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="59"
-                                    class="link-to-prism">src/session/session.controller.ts:59</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="58"
+                                    class="link-to-prism">src/session/session.controller.ts:58</a></div>
                         </td>
                     </tr>
 
@@ -511,7 +548,6 @@ import { Token, TokenPayload } from &quot;../auth/token.decorator&quot;;
 import { StatusUpdateDto } from &quot;../issuer/status-list/dto/status-update.dto&quot;;
 import { StatusListService } from &quot;../issuer/status-list/status-list.service&quot;;
 import { Session } from &quot;./entities/session.entity&quot;;
-import { SessionPipe } from &quot;./session.pipe&quot;;
 import { SessionService } from &quot;./session.service&quot;;
 
 @ApiTags(&quot;Session management&quot;)
@@ -527,8 +563,8 @@ export class SessionController {
      * Retrieves all sessions.
      */
     @Get()
-    getAllSessions(): Promise&lt;Session[]&gt; {
-        return this.sessionService.getAll();
+    getAllSessions(@Token() token: TokenPayload): Promise&lt;Session[]&gt; {
+        return this.sessionService.getAll(token.entity!.id);
     }
 
     /**
@@ -537,8 +573,8 @@ export class SessionController {
      */
     @ApiParam({ name: &quot;id&quot;, description: &quot;The session ID&quot;, type: String })
     @Get(&quot;:id&quot;)
-    getSession(@Param(&quot;id&quot;, SessionPipe) session: Session): Session {
-        return session;
+    getSession(@Param(&quot;id&quot;) id: string): Promise&lt;Session&gt; {
+        return this.sessionService.get(id);
     }
 
     /**
