@@ -4,14 +4,13 @@ import {
     Get,
     HttpCode,
     HttpStatus,
+    Param,
     Post,
     Req,
     UseInterceptors,
 } from "@nestjs/common";
 import { ApiExcludeController, ApiParam } from "@nestjs/swagger";
 import { Request } from "express";
-import { Session } from "../../session/entities/session.entity";
-import { SessionEntity } from "../../session/session.decorator";
 import { SessionLogger } from "../../utils/logger/session-logger.decorator";
 import { SessionLoggerInterceptor } from "../../utils/logger/session-logger.interceptor";
 import { AuthorizationResponse } from "./dto/authorization-response.dto";
@@ -40,28 +39,27 @@ export class Oid4vpController {
     @Get("request")
     @SessionLogger("session", "OID4VP")
     getRequestWithSession(
-        @SessionEntity() session: Session,
+        @Param("session") sessionId: string,
         @Req() req: Request,
     ) {
         const origin = req.get("origin") as string;
-        return this.oid4vpService.createAuthorizationRequest(session, origin);
+        return this.oid4vpService.createAuthorizationRequest(sessionId, origin);
     }
 
     /**
      * Returns the authorization request for a given requestId and session.
-     * @param session
+     * @param sessionId
      * @param req
      * @returns
      */
     @Post("request")
     @SessionLogger("session", "OID4VP")
     getPostRequestWithSession(
-        @SessionEntity() session: Session,
+        @Param("session") sessionId: string,
         @Req() req: Request,
-        @Body() body: AuthorizationResponse,
     ) {
         const origin = req.get("origin") as string;
-        return this.oid4vpService.createAuthorizationRequest(session, origin);
+        return this.oid4vpService.createAuthorizationRequest(sessionId, origin);
     }
 
     /**
@@ -74,9 +72,9 @@ export class Oid4vpController {
     @SessionLogger("session", "OID4VP")
     getResponse(
         @Body() body: AuthorizationResponse,
-        @SessionEntity() session: Session,
+        @Param("session") sessionId: string,
     ) {
-        return this.oid4vpService.getResponse(body, session).catch((err) => {
+        return this.oid4vpService.getResponse(body, sessionId).catch((err) => {
             console.error(err);
             throw err;
         });

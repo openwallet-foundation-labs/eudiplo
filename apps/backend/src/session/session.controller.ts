@@ -6,7 +6,6 @@ import { Token, TokenPayload } from "../auth/token.decorator";
 import { StatusUpdateDto } from "../issuer/status-list/dto/status-update.dto";
 import { StatusListService } from "../issuer/status-list/status-list.service";
 import { Session } from "./entities/session.entity";
-import { SessionPipe } from "./session.pipe";
 import { SessionService } from "./session.service";
 
 @ApiTags("Session management")
@@ -22,8 +21,8 @@ export class SessionController {
      * Retrieves all sessions.
      */
     @Get()
-    getAllSessions(): Promise<Session[]> {
-        return this.sessionService.getAll();
+    getAllSessions(@Token() token: TokenPayload): Promise<Session[]> {
+        return this.sessionService.getAll(token.entity!.id);
     }
 
     /**
@@ -32,8 +31,8 @@ export class SessionController {
      */
     @ApiParam({ name: "id", description: "The session ID", type: String })
     @Get(":id")
-    getSession(@Param("id", SessionPipe) session: Session): Session {
-        return session;
+    getSession(@Param("id") id: string): Promise<Session> {
+        return this.sessionService.get(id);
     }
 
     /**
