@@ -109,17 +109,17 @@ importers:
         specifier: ^11.0.0
         version: 11.0.0(@nestjs/common@11.1.9(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.9)(reflect-metadata@0.2.2)(rxjs@7.8.2)(typeorm@0.3.28(mysql2@3.15.3)(pg@8.16.3)(sqlite3@5.1.7)(ts-node@10.9.2(@swc/core@1.15.4)(@types/node@25.0.2)(typescript@5.9.3)))
       '@openid4vc/oauth2':
-        specifier: 0.4.1
-        version: 0.4.1
+        specifier: 0.4.3
+        version: 0.4.3
       '@openid4vc/openid4vci':
-        specifier: 0.4.1
-        version: 0.4.1
+        specifier: 0.4.3
+        version: 0.4.3
       '@openid4vc/openid4vp':
-        specifier: 0.4.1
-        version: 0.4.1
+        specifier: 0.4.3
+        version: 0.4.3
       '@openid4vc/utils':
-        specifier: 0.4.1
-        version: 0.4.1
+        specifier: 0.4.3
+        version: 0.4.3
       '@peculiar/x509':
         specifier: ^1.14.2
         version: 1.14.2
@@ -170,7 +170,7 @@ importers:
         version: 4.5.0(@nestjs/common@11.1.9(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(pino-http@11.0.0)(pino@10.1.0)(rxjs@7.8.2)
       nestjs-zod:
         specifier: ^5.0.1
-        version: 5.0.1(@nestjs/common@11.1.9(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/swagger@11.2.3(@nestjs/common@11.1.9(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.9)(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2))(rxjs@7.8.2)(zod@4.1.13)
+        version: 5.0.1(@nestjs/common@11.1.9(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/swagger@11.2.3(@nestjs/common@11.1.9(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.9)(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2))(rxjs@7.8.2)(zod@4.2.1)
       passport-jwt:
         specifier: ^4.0.1
         version: 4.0.1
@@ -3417,17 +3417,17 @@ packages:
     engines: {node: '>=14.0.0'}
     hasBin: true
 
-  '@openid4vc/oauth2@0.4.1':
-    resolution: {integrity: sha512-x2y7VF0fc02LBHrJWeEtNIgfXDt9X6w0bKUhn/aJ8aKueE/E74n+aEpW5qRMMnAKlMCryCzs5MUaoBvELZ84Lw==}
+  '@openid4vc/oauth2@0.4.3':
+    resolution: {integrity: sha512-XIcb6TayV7TJkkpUvEVdY1rqtz6etXje0pRcJqV0H2FdXlU/TfMkcrZOniS9lmjUBQXDShHerMgVHxLREIiYrA==}
 
-  '@openid4vc/openid4vci@0.4.1':
-    resolution: {integrity: sha512-abmIdog9TtjejxpKCpxKMl47qHVUEI1RO3OG3NZwsItpAxDJCnQ8CTEYuleX7dTcAtRghc0V08rNgIo+6Pf4PA==}
+  '@openid4vc/openid4vci@0.4.3':
+    resolution: {integrity: sha512-/r3l5rAaMBs76UEjl5rg68yzLaBvQqx173/VZa8VZy751YDlcJiTbhyXyWz4GmmxyTt0blitAkMvTeDSn1DPaw==}
 
-  '@openid4vc/openid4vp@0.4.1':
-    resolution: {integrity: sha512-6d6GpoiyIRcTa+VOqZN8F4qw/jPLLeXRaCd/znlelMTWgb7wrf64WOzCy5mS7phw3SIDYPw7SDxeGKZ0Ek+OUQ==}
+  '@openid4vc/openid4vp@0.4.3':
+    resolution: {integrity: sha512-f9KKgeVekqpBwhHFmNc5V9n0kb0HvnmHcbMsqfWfMuJSc1VH8sibfYq2i7mUTdzdkCroO7iHrktI6CXGAkB4RA==}
 
-  '@openid4vc/utils@0.4.1':
-    resolution: {integrity: sha512-kxEtmnzjmq1TX+RtfFZ1myGIdOO9EgPKp7cRbnhzWus//dUa+qV5zhLzLZcK0S2r9IP9QpTEd8ilCUWh9Aia+g==}
+  '@openid4vc/utils@0.4.3':
+    resolution: {integrity: sha512-5HVZ30yWvZJk6k7cmIGuXlqdwzyVb23wosjLa7PDbjg3cU917zgAxgr/5ksiA3ny3huy3TEF3dTrfyTC5sjvYg==}
 
   '@opentelemetry/api@1.9.0':
     resolution: {integrity: sha512-3giAOQvZiH5F9bMlMiv8+GSPMeqg0dbaeo58/0SlA9sxSqZhnUtxzX9/2FzyhS9sWQf5S0GJE0AKBrFqjpeYcg==}
@@ -10157,6 +10157,9 @@ packages:
   zod@4.1.13:
     resolution: {integrity: sha512-AvvthqfqrAhNH9dnfmrfKzX5upOdjUVJYFqNSlkmGf64gRaTzlPwz99IHYnVs28qYAybvAlBV+H7pn0saFY4Ig==}
 
+  zod@4.2.1:
+    resolution: {integrity: sha512-0wZ1IRqGGhMP76gLqz8EyfBXKk0J2qo2+H3fi4mcUP/KtTocoX08nmIAHl1Z2kJIZbZee8KOpBCSNPRgauucjw==}
+
   zone.js@0.16.0:
     resolution: {integrity: sha512-LqLPpIQANebrlxY6jKcYKdgN5DTXyyHAKnnWWjE5pPfEQ4n7j5zn7mOEEpwNZVKGqx3kKKmvplEmoBrvpgROTA==}
 
@@ -13372,27 +13375,27 @@ snapshots:
       openapi-typescript: 5.4.2
       yargs: 17.7.2
 
-  '@openid4vc/oauth2@0.4.1':
+  '@openid4vc/oauth2@0.4.3':
     dependencies:
-      '@openid4vc/utils': 0.4.1
-      zod: 4.1.13
+      '@openid4vc/utils': 0.4.3
+      zod: 4.2.1
 
-  '@openid4vc/openid4vci@0.4.1':
+  '@openid4vc/openid4vci@0.4.3':
     dependencies:
-      '@openid4vc/oauth2': 0.4.1
-      '@openid4vc/utils': 0.4.1
-      zod: 4.1.13
+      '@openid4vc/oauth2': 0.4.3
+      '@openid4vc/utils': 0.4.3
+      zod: 4.2.1
 
-  '@openid4vc/openid4vp@0.4.1':
+  '@openid4vc/openid4vp@0.4.3':
     dependencies:
-      '@openid4vc/oauth2': 0.4.1
-      '@openid4vc/utils': 0.4.1
-      zod: 4.1.13
+      '@openid4vc/oauth2': 0.4.3
+      '@openid4vc/utils': 0.4.3
+      zod: 4.2.1
 
-  '@openid4vc/utils@0.4.1':
+  '@openid4vc/utils@0.4.3':
     dependencies:
       buffer: 6.0.3
-      zod: 4.1.13
+      zod: 4.2.1
 
   '@opentelemetry/api@1.9.0': {}
 
@@ -18494,12 +18497,12 @@ snapshots:
       pino-http: 11.0.0
       rxjs: 7.8.2
 
-  nestjs-zod@5.0.1(@nestjs/common@11.1.9(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/swagger@11.2.3(@nestjs/common@11.1.9(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.9)(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2))(rxjs@7.8.2)(zod@4.1.13):
+  nestjs-zod@5.0.1(@nestjs/common@11.1.9(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/swagger@11.2.3(@nestjs/common@11.1.9(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.9)(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2))(rxjs@7.8.2)(zod@4.2.1):
     dependencies:
       '@nestjs/common': 11.1.9(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       deepmerge: 4.3.1
       rxjs: 7.8.2
-      zod: 4.1.13
+      zod: 4.2.1
     optionalDependencies:
       '@nestjs/swagger': 11.2.3(@nestjs/common@11.1.9(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.9)(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)
 
@@ -21122,6 +21125,8 @@ snapshots:
   zod@3.25.76: {}
 
   zod@4.1.13: {}
+
+  zod@4.2.1: {}
 
   zone.js@0.16.0: {}
 
