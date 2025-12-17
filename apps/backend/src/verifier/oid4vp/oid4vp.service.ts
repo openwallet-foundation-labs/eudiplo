@@ -8,7 +8,7 @@ import { CryptoImplementationService } from "../../crypto/key/crypto-implementat
 import { KeyService } from "../../crypto/key/key.service";
 import { OfferResponse } from "../../issuer/oid4vci/dto/offer-request.dto";
 import { RegistrarService } from "../../registrar/registrar.service";
-import { Session, SessionStatus } from "../../session/entities/session.entity";
+import { SessionStatus } from "../../session/entities/session.entity";
 import { SessionService } from "../../session/session.service";
 import { SessionLoggerService } from "../../utils/logger/session-logger.service";
 import { SessionLogContext } from "../../utils/logger/session-logger-context";
@@ -42,9 +42,11 @@ export class Oid4vpService {
      * @returns
      */
     async createAuthorizationRequest(
-        session: Session,
+        sessionId: string,
         origin: string,
     ): Promise<string> {
+        const session = await this.sessionService.get(sessionId);
+
         // Create session logging context
         const logContext: SessionLogContext = {
             sessionId: session.id,
@@ -260,11 +262,8 @@ export class Oid4vpService {
             });
 
             if (request_uri_method === "get") {
-                // load the session to get nested object like tenant
-                const loadedSession = await this.sessionService.get(session.id);
-
                 const signedJwt = await this.createAuthorizationRequest(
-                    loadedSession,
+                    session.id,
                     origin,
                 );
                 this.sessionService.add(values.session, {
@@ -291,7 +290,8 @@ export class Oid4vpService {
      * @param body
      * @param tenantId
      */
-    async getResponse(body: AuthorizationResponse, session: Session) {
+    async getResponse(body: AuthorizationResponse, sessionId: string) {
+        const session = await this.sessionService.get(sessionId);
         const res = await this.encryptionService.decryptJwe<AuthResponse>(
             body.response,
             session.tenantId,
