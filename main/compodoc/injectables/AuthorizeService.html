@@ -206,7 +206,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="37" class="link-to-prism">src/issuer/authorize/authorize.service.ts:37</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">src/issuer/authorize/authorize.service.ts:41</a></div>
                             </td>
                         </tr>
 
@@ -307,8 +307,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="253"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:253</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="270"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:270</a></div>
                         </td>
                     </tr>
 
@@ -410,8 +410,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="54"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:54</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="58"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:58</a></div>
                         </td>
                     </tr>
 
@@ -477,8 +477,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="47"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:47</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="51"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:51</a></div>
                         </td>
                     </tr>
 
@@ -544,8 +544,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="226"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:226</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="243"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:243</a></div>
                         </td>
                     </tr>
 
@@ -650,8 +650,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="316"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:316</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="333"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:333</a></div>
                         </td>
                     </tr>
 
@@ -729,8 +729,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="83"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:83</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="87"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:87</a></div>
                         </td>
                     </tr>
 
@@ -810,8 +810,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="323"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:323</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="340"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:340</a></div>
                         </td>
                     </tr>
 
@@ -879,14 +879,17 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="110"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:110</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="121"
+                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:121</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Validate the token request.
+This endpoint is used to exchange the authorization code for an access token.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -957,7 +960,11 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { randomUUID } from &quot;node:crypto&quot;;
-import { ConflictException, Injectable } from &quot;@nestjs/common&quot;;
+import {
+    BadRequestException,
+    ConflictException,
+    Injectable,
+} from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import {
     type AuthorizationCodeGrantIdentifier,
@@ -1065,11 +1072,19 @@ export class AuthorizeService {
         }
     }
 
+    /**
+     * Validate the token request.
+     * This endpoint is used to exchange the authorization code for an access token.
+     * @param body
+     * @param req
+     * @returns
+     */
     async validateTokenRequest(
         body: any,
         req: Request,
         tenantId: string,
     ): Promise&lt;any&gt; {
+        //TODO: check if all the error cases are covered: https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-token-error-response
         const url &#x3D; &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}${req.url}&#x60;;
         const parsedAccessTokenRequest &#x3D; this.getAuthorizationServer(
             tenantId,
@@ -1101,29 +1116,34 @@ export class AuthorizeService {
             parsedAccessTokenRequest.grant.grantType &#x3D;&#x3D;&#x3D;
             preAuthorizedCodeGrantIdentifier
         ) {
-            const { dpop } &#x3D; await this.getAuthorizationServer(
-                tenantId,
-            ).verifyPreAuthorizedCodeAccessTokenRequest({
-                grant: parsedAccessTokenRequest.grant as ParsedAccessTokenPreAuthorizedCodeRequestGrant,
-                accessTokenRequest: parsedAccessTokenRequest.accessTokenRequest,
-                request: {
-                    method: req.method as HttpMethod,
-                    url,
-                    headers: getHeadersFromRequest(req),
-                },
-                dpop: {
-                    required: issuanceConfig.dPopRequired,
-                    allowedSigningAlgs:
-                        authorizationServerMetadata.dpop_signing_alg_values_supported,
-                    jwt: parsedAccessTokenRequest.dpop?.jwt,
-                },
+            const { dpop } &#x3D; await this.getAuthorizationServer(tenantId)
+                .verifyPreAuthorizedCodeAccessTokenRequest({
+                    grant: parsedAccessTokenRequest.grant as ParsedAccessTokenPreAuthorizedCodeRequestGrant,
+                    accessTokenRequest:
+                        parsedAccessTokenRequest.accessTokenRequest,
+                    request: {
+                        method: req.method as HttpMethod,
+                        url,
+                        headers: getHeadersFromRequest(req),
+                    },
+                    dpop: {
+                        required: issuanceConfig.dPopRequired,
+                        allowedSigningAlgs:
+                            authorizationServerMetadata.dpop_signing_alg_values_supported,
+                        jwt: parsedAccessTokenRequest.dpop?.jwt,
+                    },
 
-                authorizationServerMetadata,
+                    authorizationServerMetadata,
 
-                expectedPreAuthorizedCode:
-                    parsedAccessTokenRequest.grant.preAuthorizedCode,
-                expectedTxCode: parsedAccessTokenRequest.grant.txCode,
-            });
+                    expectedPreAuthorizedCode: session.authorization_code!,
+                    expectedTxCode: session.credentialPayload?.tx_code,
+                })
+                .catch((err) &#x3D;&gt; {
+                    throw new BadRequestException(err.error, {
+                        cause: err,
+                        description: err.error_description,
+                    });
+                });
             dpopValue &#x3D; dpop;
         }
 
