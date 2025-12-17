@@ -53,8 +53,6 @@ export class StatusListService {
             bits,
         });
 
-        console.log("Created new status list for tenant", tenantId);
-
         await this.createListJWT(entry);
     }
 
@@ -98,6 +96,7 @@ export class StatusListService {
             payload,
             header,
             entry.tenantId,
+            cert.keyId,
         );
         await this.statusListRepository.update(
             { tenantId: entry.tenantId },
