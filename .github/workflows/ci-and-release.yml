@@ -205,7 +205,7 @@ jobs:
         run: pnpm run doc:generate && pnpm run compodoc && mkdocs build --strict
 
       - name: Upload built documentation
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: generated-docs
           path: site/
@@ -264,7 +264,7 @@ jobs:
 
       - name: Upload OIDF test results
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: oidf-test-results
           path: apps/backend/logs/
