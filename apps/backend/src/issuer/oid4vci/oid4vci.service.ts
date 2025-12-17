@@ -192,10 +192,20 @@ export class Oid4vciService {
         let grants: any;
         const issuer_state = v4();
         if (body.flow === FlowType.PRE_AUTH_CODE) {
+            //check if tx_code is a number
             authorization_code = v4();
             grants = {
                 [preAuthorizedCodeGrantIdentifier]: {
                     "pre-authorized_code": authorization_code,
+                    tx_code: body.tx_code
+                        ? {
+                              input_mode: Number(body.tx_code)
+                                  ? "numeric"
+                                  : "text",
+                              length: body.tx_code.length,
+                              //TODO: should give the possiblity to pass a description
+                          }
+                        : undefined,
                 },
             };
         } else {
@@ -311,8 +321,7 @@ export class Oid4vciService {
                 issuerMetadata,
                 credentialRequest: req.body as Record<string, unknown>,
             });
-        } catch (error) {
-            console.log(error);
+        } catch {
             throw new ConflictException("Invalid credential request");
         }
 

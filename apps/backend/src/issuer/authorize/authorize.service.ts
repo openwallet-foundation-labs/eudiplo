@@ -1,5 +1,9 @@
 import { randomUUID } from "node:crypto";
-import { ConflictException, Injectable } from "@nestjs/common";
+import {
+    BadRequestException,
+    ConflictException,
+    Injectable,
+} from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import {
     type AuthorizationCodeGrantIdentifier,
@@ -107,11 +111,19 @@ export class AuthorizeService {
         }
     }
 
+    /**
+     * Validate the token request.
+     * This endpoint is used to exchange the authorization code for an access token.
+     * @param body
+     * @param req
+     * @returns
+     */
     async validateTokenRequest(
         body: any,
         req: Request,
         tenantId: string,
     ): Promise<any> {
+        //TODO: check if all the error cases are covered: https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-token-error-response
         const url = `${this.configService.getOrThrow<string>("PUBLIC_URL")}${req.url}`;
         const parsedAccessTokenRequest = this.getAuthorizationServer(
             tenantId,
@@ -143,29 +155,34 @@ export class AuthorizeService {
             parsedAccessTokenRequest.grant.grantType ===
             preAuthorizedCodeGrantIdentifier
         ) {
-            const { dpop } = await this.getAuthorizationServer(
-                tenantId,
-            ).verifyPreAuthorizedCodeAccessTokenRequest({
-                grant: parsedAccessTokenRequest.grant as ParsedAccessTokenPreAuthorizedCodeRequestGrant,
-                accessTokenRequest: parsedAccessTokenRequest.accessTokenRequest,
-                request: {
-                    method: req.method as HttpMethod,
-                    url,
-                    headers: getHeadersFromRequest(req),
-                },
-                dpop: {
-                    required: issuanceConfig.dPopRequired,
-                    allowedSigningAlgs:
-                        authorizationServerMetadata.dpop_signing_alg_values_supported,
-                    jwt: parsedAccessTokenRequest.dpop?.jwt,
-                },
+            const { dpop } = await this.getAuthorizationServer(tenantId)
+                .verifyPreAuthorizedCodeAccessTokenRequest({
+                    grant: parsedAccessTokenRequest.grant as ParsedAccessTokenPreAuthorizedCodeRequestGrant,
+                    accessTokenRequest:
+                        parsedAccessTokenRequest.accessTokenRequest,
+                    request: {
+                        method: req.method as HttpMethod,
+                        url,
+                        headers: getHeadersFromRequest(req),
+                    },
+                    dpop: {
+                        required: issuanceConfig.dPopRequired,
+                        allowedSigningAlgs:
+                            authorizationServerMetadata.dpop_signing_alg_values_supported,
+                        jwt: parsedAccessTokenRequest.dpop?.jwt,
+                    },
 
-                authorizationServerMetadata,
+                    authorizationServerMetadata,
 
-                expectedPreAuthorizedCode:
-                    parsedAccessTokenRequest.grant.preAuthorizedCode,
-                expectedTxCode: parsedAccessTokenRequest.grant.txCode,
-            });
+                    expectedPreAuthorizedCode: session.authorization_code!,
+                    expectedTxCode: session.credentialPayload?.tx_code,
+                })
+                .catch((err) => {
+                    throw new BadRequestException(err.error, {
+                        cause: err,
+                        description: err.error_description,
+                    });
+                });
             dpopValue = dpop;
         }
 

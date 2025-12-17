@@ -6,16 +6,18 @@ import { MatSelectModule } from '@angular/material/select';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { MatAnchor } from '@angular/material/button';
 
-export const fbWebhook = new FormGroup({
-  url: new FormControl(''),
-  auth: new FormGroup({
-    type: new FormControl(''),
-    config: new FormGroup({
-      headerName: new FormControl(''),
-      value: new FormControl(''),
+export function createWebhookFormGroup(): FormGroup {
+  return new FormGroup({
+    url: new FormControl(''),
+    auth: new FormGroup({
+      type: new FormControl(''),
+      config: new FormGroup({
+        headerName: new FormControl(''),
+        value: new FormControl(''),
+      }),
     }),
-  }),
-});
+  });
+}
 
 @Component({
   selector: 'app-webhook-config-edit',

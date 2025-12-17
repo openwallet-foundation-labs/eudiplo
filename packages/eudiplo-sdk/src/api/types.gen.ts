@@ -586,6 +586,24 @@ export type OfferRequestDto = {
    */
   response_type: "qrcode" | "uri" | "dc-api";
   /**
+   * Credential claims configuration per credential. Keys must match credentialConfigurationIds.
+   */
+  credentialClaims?: {
+    additionalProperties?:
+      | {
+          type: "inline";
+          claims: {
+            [key: string]: unknown;
+          };
+        }
+      | {
+          type: "webhook";
+          webhook: {
+            [key: string]: unknown;
+          };
+        };
+  };
+  /**
    * The flow type for the offer request.
    */
   flow: "authorization_code" | "pre_authorized_code";
@@ -597,14 +615,6 @@ export type OfferRequestDto = {
    * List of credential configuration ids to be included in the offer.
    */
   credentialConfigurationIds: Array<string>;
-  /**
-   * Credential claims configuration per credential.
-   * Each credential can have claims provided inline or fetched via webhook.
-   * Keys must be a subset of credentialConfigurationIds.
-   */
-  credentialClaims?: {
-    [key: string]: unknown;
-  };
   /**
    * Webhook to notify about the status of the issuance process.
    */

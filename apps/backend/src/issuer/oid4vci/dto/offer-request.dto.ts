@@ -125,9 +125,44 @@ export class OfferRequestDto {
      * Each credential can have claims provided inline or fetched via webhook.
      * Keys must be a subset of credentialConfigurationIds.
      */
+    @ApiProperty({
+        description:
+            "Credential claims configuration per credential. Keys must match credentialConfigurationIds.",
+        type: "object",
+        properties: {
+            additionalProperties: {
+                oneOf: [
+                    {
+                        type: "object",
+                        properties: {
+                            type: { type: "string", enum: ["inline"] },
+                            claims: {
+                                type: "object",
+                                additionalProperties: true,
+                            },
+                        },
+                        required: ["type", "claims"],
+                    },
+                    {
+                        type: "object",
+                        properties: {
+                            type: { type: "string", enum: ["webhook"] },
+                            webhook: { type: "object" },
+                        },
+                        required: ["type", "webhook"],
+                    },
+                ],
+            },
+        },
+        example: {
+            citizen: {
+                type: "inline",
+                claims: { given_name: "John", family_name: "Doe" },
+            },
+        },
+    })
     @IsObject()
     @IsOptional()
-    @ValidateNested({ each: true })
     @Validate(CredentialClaimsMatchIdsConstraint)
     @Transform(({ value }) => {
         if (!value) return value;
@@ -136,9 +171,13 @@ export class OfferRequestDto {
         for (const [key, val] of Object.entries(value)) {
             const source = val as any;
             if (source.type === "inline") {
-                result[key] = plainToClass(InlineClaimsSource, val);
+                result[key] = plainToClass(InlineClaimsSource, val, {
+                    enableImplicitConversion: true,
+                });
             } else if (source.type === "webhook") {
-                result[key] = plainToClass(WebhookClaimsSource, val);
+                result[key] = plainToClass(WebhookClaimsSource, val, {
+                    enableImplicitConversion: true,
+                });
             }
         }
         return result;
