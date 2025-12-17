@@ -231,8 +231,8 @@ This controller handles the authorization requests, token requests.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="101"
-                                    class="link-to-prism">src/issuer/authorize/authorize.controller.ts:101</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="96"
+                                    class="link-to-prism">src/issuer/authorize/authorize.controller.ts:96</a></div>
                         </td>
                     </tr>
 
@@ -691,12 +691,7 @@ export class AuthorizeController {
         @Req() req: Request,
         @Param(&quot;tenantId&quot;) tenantId: string,
     ): Promise&lt;any&gt; {
-        return this.authorizeService
-            .validateTokenRequest(body, req, tenantId)
-            .catch((error) &#x3D;&gt; {
-                console.error(&quot;Error in token endpoint:&quot;, error);
-                throw error;
-            });
+        return this.authorizeService.validateTokenRequest(body, req, tenantId);
     }
 
     /**

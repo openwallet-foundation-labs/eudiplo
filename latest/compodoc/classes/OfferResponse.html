@@ -202,7 +202,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="160" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:160</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="199" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:199</a></div>
                         </td>
                     </tr>
 
@@ -228,7 +228,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="159" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:159</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="198" class="link-to-prism">src/issuer/oid4vci/dto/offer-request.dto.ts:198</a></div>
                         </td>
                     </tr>
 
@@ -374,9 +374,44 @@ export class OfferRequestDto {
      * Each credential can have claims provided inline or fetched via webhook.
      * Keys must be a subset of credentialConfigurationIds.
      */
+    @ApiProperty({
+        description:
+            &quot;Credential claims configuration per credential. Keys must match credentialConfigurationIds.&quot;,
+        type: &quot;object&quot;,
+        properties: {
+            additionalProperties: {
+                oneOf: [
+                    {
+                        type: &quot;object&quot;,
+                        properties: {
+                            type: { type: &quot;string&quot;, enum: [&quot;inline&quot;] },
+                            claims: {
+                                type: &quot;object&quot;,
+                                additionalProperties: true,
+                            },
+                        },
+                        required: [&quot;type&quot;, &quot;claims&quot;],
+                    },
+                    {
+                        type: &quot;object&quot;,
+                        properties: {
+                            type: { type: &quot;string&quot;, enum: [&quot;webhook&quot;] },
+                            webhook: { type: &quot;object&quot; },
+                        },
+                        required: [&quot;type&quot;, &quot;webhook&quot;],
+                    },
+                ],
+            },
+        },
+        example: {
+            citizen: {
+                type: &quot;inline&quot;,
+                claims: { given_name: &quot;John&quot;, family_name: &quot;Doe&quot; },
+            },
+        },
+    })
     @IsObject()
     @IsOptional()
-    @ValidateNested({ each: true })
     @Validate(CredentialClaimsMatchIdsConstraint)
     @Transform(({ value }) &#x3D;&gt; {
         if (!value) return value;
@@ -385,9 +420,13 @@ export class OfferRequestDto {
         for (const [key, val] of Object.entries(value)) {
             const source &#x3D; val as any;
             if (source.type &#x3D;&#x3D;&#x3D; &quot;inline&quot;) {
-                result[key] &#x3D; plainToClass(InlineClaimsSource, val);
+                result[key] &#x3D; plainToClass(InlineClaimsSource, val, {
+                    enableImplicitConversion: true,
+                });
             } else if (source.type &#x3D;&#x3D;&#x3D; &quot;webhook&quot;) {
-                result[key] &#x3D; plainToClass(WebhookClaimsSource, val);
+                result[key] &#x3D; plainToClass(WebhookClaimsSource, val, {
+                    enableImplicitConversion: true,
+                });
             }
         }
         return result;

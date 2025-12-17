@@ -512,8 +512,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="294"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:294</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="304"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:304</a></div>
                         </td>
                     </tr>
 
@@ -745,8 +745,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="470"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:470</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="479"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:479</a></div>
                         </td>
                     </tr>
 
@@ -931,8 +931,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="281"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:281</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="291"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:291</a></div>
                         </td>
                     </tr>
 
@@ -972,8 +972,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="267"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:267</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="277"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:277</a></div>
                         </td>
                     </tr>
 
@@ -1255,10 +1255,20 @@ export class Oid4vciService {
         let grants: any;
         const issuer_state &#x3D; v4();
         if (body.flow &#x3D;&#x3D;&#x3D; FlowType.PRE_AUTH_CODE) {
+            //check if tx_code is a number
             authorization_code &#x3D; v4();
             grants &#x3D; {
                 [preAuthorizedCodeGrantIdentifier]: {
                     &quot;pre-authorized_code&quot;: authorization_code,
+                    tx_code: body.tx_code
+                        ? {
+                              input_mode: Number(body.tx_code)
+                                  ? &quot;numeric&quot;
+                                  : &quot;text&quot;,
+                              length: body.tx_code.length,
+                              //TODO: should give the possiblity to pass a description
+                          }
+                        : undefined,
                 },
             };
         } else {
@@ -1374,8 +1384,7 @@ export class Oid4vciService {
                 issuerMetadata,
                 credentialRequest: req.body as Record&lt;string, unknown&gt;,
             });
-        } catch (error) {
-            console.log(error);
+        } catch {
             throw new ConflictException(&quot;Invalid credential request&quot;);
         }
 
