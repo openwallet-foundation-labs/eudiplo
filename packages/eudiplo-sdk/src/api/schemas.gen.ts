@@ -994,6 +994,53 @@ export const OfferRequestDtoSchema = {
       ],
       description: "The type of response expected for the offer request.",
     },
+    credentialClaims: {
+      type: "object",
+      description:
+        "Credential claims configuration per credential. Keys must match credentialConfigurationIds.",
+      properties: {
+        additionalProperties: {
+          oneOf: [
+            {
+              type: "object",
+              properties: {
+                type: {
+                  type: "string",
+                  enum: ["inline"],
+                },
+                claims: {
+                  type: "object",
+                  additionalProperties: true,
+                },
+              },
+              required: ["type", "claims"],
+            },
+            {
+              type: "object",
+              properties: {
+                type: {
+                  type: "string",
+                  enum: ["webhook"],
+                },
+                webhook: {
+                  type: "object",
+                },
+              },
+              required: ["type", "webhook"],
+            },
+          ],
+        },
+      },
+      example: {
+        citizen: {
+          type: "inline",
+          claims: {
+            given_name: "John",
+            family_name: "Doe",
+          },
+        },
+      },
+    },
     flow: {
       description: "The flow type for the offer request.",
       enum: ["authorization_code", "pre_authorized_code"],
@@ -1010,11 +1057,6 @@ export const OfferRequestDtoSchema = {
       items: {
         type: "string",
       },
-    },
-    credentialClaims: {
-      type: "object",
-      description:
-        "Credential claims configuration per credential.\nEach credential can have claims provided inline or fetched via webhook.\nKeys must be a subset of credentialConfigurationIds.",
     },
     notifyWebhook: {
       description:

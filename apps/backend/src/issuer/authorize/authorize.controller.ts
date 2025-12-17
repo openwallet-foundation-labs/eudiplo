@@ -83,12 +83,7 @@ export class AuthorizeController {
         @Req() req: Request,
         @Param("tenantId") tenantId: string,
     ): Promise<any> {
-        return this.authorizeService
-            .validateTokenRequest(body, req, tenantId)
-            .catch((error) => {
-                console.error("Error in token endpoint:", error);
-                throw error;
-            });
+        return this.authorizeService.validateTokenRequest(body, req, tenantId);
     }
 
     /**

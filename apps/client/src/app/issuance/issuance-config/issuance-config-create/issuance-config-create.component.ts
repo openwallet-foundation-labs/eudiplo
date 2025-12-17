@@ -20,7 +20,7 @@ import { issuanceConfigSchema } from '../../../utils/schemas';
 import { JsonViewDialogComponent } from '../../credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import {
-  fbWebhook,
+  createWebhookFormGroup,
   WebhookConfigEditComponent,
 } from '../../../utils/webhook-config-edit/webhook-config-edit.component';
 import { MatSlideToggle, MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -69,7 +69,7 @@ export class IssuanceConfigCreateComponent implements OnInit {
       display: this.fb.array([]),
       batchSize: new FormControl(1, [Validators.min(1)]),
       dPopRequired: new FormControl(true),
-      notifyWebhook: fbWebhook,
+      notifyWebhook: createWebhookFormGroup(),
     } as { [k in keyof IssuanceDto]: any });
   }
 

@@ -29,7 +29,7 @@ import {
 import { EditorComponent, extractSchema } from '../../../utils/editor/editor.component';
 import { ImageFieldComponent } from '../../../utils/image-field/image-field.component';
 import {
-  fbWebhook,
+  createWebhookFormGroup,
   WebhookConfigEditComponent,
 } from '../../../utils/webhook-config-edit/webhook-config-edit.component';
 
@@ -93,8 +93,8 @@ export class CredentialConfigCreateComponent implements OnInit {
       schema: new FormControl(''),
       displayConfigs: new FormArray([this.createDisplayConfigGroup()]),
       embeddedDisclosurePolicy: new FormControl(''),
-      claimsWebhook: fbWebhook,
-      notificationWebhook: fbWebhook,
+      claimsWebhook: createWebhookFormGroup(),
+      notificationWebhook: createWebhookFormGroup(),
     } as { [k in keyof Omit<CredentialConfigCreate, 'config'>]: any });
 
     if (this.route.snapshot.params['id']) {
@@ -195,12 +195,14 @@ export class CredentialConfigCreateComponent implements OnInit {
       keyBinding: config.keyBinding ?? true,
       statusManagement: config.statusManagement ?? true,
       claims: this.stringifyField(config.claims),
+      claimsWebhook: config.claimsWebhook,
+      notificationWebhook: config.notificationWebhook,
       disclosureFrame: this.stringifyField(config.disclosureFrame),
       vct: this.stringifyField(config.vct),
       schema: this.stringifyField(config.schema),
       displayConfigs: config.config?.display || [],
       embeddedDisclosurePolicy: this.stringifyField(config.embeddedDisclosurePolicy),
-    });
+    } as { [k in keyof Omit<CredentialConfigCreate, 'config'>]: any });
   }
 
   private markFormGroupTouched(): void {
