@@ -10,15 +10,19 @@ import { SDJwtVcInstance } from "@sd-jwt/sd-jwt-vc";
 import { KbVerifier, Verifier } from "@sd-jwt/types";
 import { plainToClass } from "class-transformer";
 import { readFileSync } from "fs";
-import { JWK, JWTPayload } from "jose";
+import { decodeJwt, JWK, JWTPayload } from "jose";
 import { firstValueFrom } from "rxjs";
 import { Repository } from "typeorm";
 import { CryptoImplementationService } from "../../crypto/key/crypto-implementation/crypto-implementation.service";
+import { Session } from "../../session/entities/session.entity";
 import { ConfigImportService } from "../../utils/config-import/config-import.service";
 import { ResolverService } from "../resolver/resolver.service";
 import { AuthResponse } from "./dto/auth-response.dto";
 import { PresentationConfigCreateDto } from "./dto/presentation-config-create.dto";
 import { PresentationConfig } from "./entities/presentation-config.entity";
+import { verifyMDoc } from "./mdl";
+
+type CredentialType = "dc+sd-jwt" | "mso_mdoc";
 
 /**
  * Service for managing Verifiable Presentations (VPs) and handling SD-JWT-VCs.
@@ -237,35 +241,58 @@ export class PresentationsService implements OnApplicationBootstrap {
     parseResponse(
         res: AuthResponse,
         requiredFields: string[],
-        keyBindingNonce: string,
+        session: Session,
     ) {
+        //get the type based on the configuration id to know how to parse the vp_token
         const attestations = Object.keys(res.vp_token);
-        const att = attestations.map(async (att) => ({
-            id: att,
-            values: await Promise.all(
-                (res.vp_token[att] as unknown as string[]).map(
-                    (cred) =>
-                        this.sdjwtInstance
-                            .verify(cred, {
-                                requiredClaimKeys: requiredFields,
-                                keyBindingNonce,
-                            })
-                            .then((result) => ({
-                                ...result.payload,
-                                cnf: undefined, // remove cnf for simplicity
-                                status: undefined, // remove status for simplicity
-                            })),
-                    /* (err) => {
-                        throw new Error
-                        //(console.log(err);
-                        return {
-                            id: att,
-                            error: err.message,
-                        };
-                    }, */
+        const att = attestations.map(async (att) => {
+            const type = this.getType(session.requestObject!, att);
+
+            return {
+                id: att,
+                values: await Promise.all(
+                    (res.vp_token[att] as unknown as string[]).map((cred) => {
+                        if (type === "mso_mdoc") {
+                            return verifyMDoc(cred, {
+                                nonce: session.vp_nonce as string,
+                                origin: "https://dcapi-test.vercel.app",
+                                protocol: "openid4vp",
+                                response_mode: session.useDcApi
+                                    ? "dc_api.jwt"
+                                    : "direct_post.jwt",
+                            }).then((result) => ({
+                                ...result.claims,
+                                payload: result.payload,
+                            }));
+                        } else if (type === "dc+sd-jwt") {
+                            return this.sdjwtInstance
+                                .verify(cred, {
+                                    requiredClaimKeys: requiredFields,
+                                    keyBindingNonce: session.vp_nonce as string,
+                                })
+                                .then((result) => ({
+                                    ...result.payload,
+                                    cnf: undefined, // remove cnf for simplicity
+                                    status: undefined, // remove status for simplicity
+                                }));
+                        }
+                    }),
                 ),
-            ),
-        }));
+            };
+        });
         return Promise.all(att);
+    }
+
+    /**
+     * Get the credential type based on the configuration id.
+     * @param jwt
+     * @param att
+     * @returns
+     */
+    getType(jwt: string, att: string): CredentialType {
+        const payload = decodeJwt<any>(jwt);
+        return payload.dcql_query.credentials.find(
+            (credential) => credential.id === att,
+        ).format;
     }
 }
