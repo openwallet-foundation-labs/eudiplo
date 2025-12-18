@@ -324,7 +324,7 @@ export class Oid4vpService {
             const credentials = await this.presentationsService.parseResponse(
                 res,
                 presentationConfig,
-                session.vp_nonce as string,
+                session,
             );
 
             this.sessionLogger.logCredentialVerification(

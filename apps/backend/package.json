@@ -33,6 +33,7 @@
         "registrar": "npx @hey-api/openapi-ts -i https://funke-wallet.de/-json -o ./src/registrar/generated -c @hey-api/client-fetch"
     },
     "dependencies": {
+        "@animo-id/mdoc": "0.6.0-alpha-20251209053057",
         "@aws-sdk/client-s3": "^3.943.0",
         "@aws-sdk/s3-request-presigner": "^3.943.0",
         "@badgateway/oauth2-client": "^3.3.1",
@@ -92,6 +93,8 @@
         "@nestjs/cli": "^11.0.14",
         "@nestjs/schematics": "^11.0.9",
         "@nestjs/testing": "^11.1.9",
+        "@noble/curves": "^2.0.1",
+        "@panva/hkdf": "^1.2.1",
         "@swc/cli": "^0.7.9",
         "@swc/core": "^1.15.3",
         "@testcontainers/postgresql": "^11.9.0",

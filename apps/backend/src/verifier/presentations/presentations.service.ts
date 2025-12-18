@@ -7,8 +7,10 @@ import {
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
+import { decodeJwt } from "jose";
 import { Repository } from "typeorm";
 import { ServiceTypeIdentifier } from "../../issuer/trustlist/trustlist.service";
+import { Session } from "../../session/entities/session.entity";
 import { ConfigImportService } from "../../shared/utils/config-import/config-import.service";
 import { VerifierOptions } from "../resolver/trust/types";
 import { SdjwtvcverifierService } from "./credential/sdjwtvcverifier/sdjwtvcverifier.service";
@@ -18,6 +20,9 @@ import {
     PresentationConfig,
     TrustedAuthorityType,
 } from "./entities/presentation-config.entity";
+import { verifyMDoc } from "./mdl";
+
+type CredentialType = "dc+sd-jwt" | "mso_mdoc";
 
 /**
  * Service for managing Verifiable Presentations (VPs) and handling SD-JWT-VCs.
@@ -184,8 +189,9 @@ export class PresentationsService implements OnApplicationBootstrap {
     parseResponse(
         res: AuthResponse,
         presentationConfig: PresentationConfig,
-        keyBindingNonce: string,
+        session: Session,
     ) {
+        //get the type based on the configuration id to know how to parse the vp_token
         const attestations = Object.keys(res.vp_token);
         const att = attestations.map(async (att) => ({
             id: att,
@@ -232,25 +238,52 @@ export class PresentationsService implements OnApplicationBootstrap {
                             requireX5c: true,
                         },
                     };
-
-                    // Pass trusted authorities to the verify function
-                    return this.sdjwtvcverifierService
-                        .verify(cred, {
-                            //TODO: get required fields from the dcql query to check if they got passed
-                            requiredClaimKeys: [],
-                            keyBindingNonce,
-                            ...verifyOptions,
-                        } as any)
-                        .then((result) => {
-                            return {
-                                ...result.payload,
-                                cnf: undefined, // remove cnf for simplicity
-                                status: undefined, // remove status for simplicity
-                            };
-                        });
+                    const type = this.getType(session.requestObject!, att);
+                    if (type === "mso_mdoc") {
+                        return verifyMDoc(cred, {
+                            nonce: session.vp_nonce as string,
+                            origin: "https://dcapi-test.vercel.app",
+                            protocol: "openid4vp",
+                            response_mode: session.useDcApi
+                                ? "dc_api.jwt"
+                                : "direct_post.jwt",
+                        }).then((result) => ({
+                            ...result.claims,
+                            payload: result.payload,
+                        }));
+                    } else if (type === "dc+sd-jwt") {
+                        // Pass trusted authorities to the verify function
+                        return this.sdjwtvcverifierService
+                            .verify(cred, {
+                                //TODO: get required fields from the dcql query to check if they got passed
+                                requiredClaimKeys: [],
+                                keyBindingNonce: session.vp_nonce!,
+                                ...verifyOptions,
+                            } as any)
+                            .then((result) => {
+                                return {
+                                    ...result.payload,
+                                    cnf: undefined, // remove cnf for simplicity
+                                    status: undefined, // remove status for simplicity
+                                };
+                            });
+                    }
                 }),
             ),
         }));
         return Promise.all(att);
+    }
+
+    /**
+     * Get the credential type based on the configuration id.
+     * @param jwt
+     * @param att
+     * @returns
+     */
+    getType(jwt: string, att: string): CredentialType {
+        const payload = decodeJwt<any>(jwt);
+        return payload.dcql_query.credentials.find(
+            (credential) => credential.id === att,
+        ).format;
     }
 }

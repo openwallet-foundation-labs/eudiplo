@@ -68,6 +68,9 @@ importers:
 
   apps/backend:
     dependencies:
+      '@animo-id/mdoc':
+        specifier: 0.6.0-alpha-20251209053057
+        version: 0.6.0-alpha-20251209053057
       '@aws-sdk/client-s3':
         specifier: ^3.943.0
         version: 3.957.0
@@ -240,6 +243,12 @@ importers:
       '@nestjs/testing':
         specifier: ^11.1.9
         version: 11.1.9(@nestjs/common@11.1.9(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.9)(@nestjs/platform-express@11.1.9)
+      '@noble/curves':
+        specifier: ^2.0.1
+        version: 2.0.1
+      '@panva/hkdf':
+        specifier: ^1.2.1
+        version: 1.2.1
       '@swc/cli':
         specifier: ^0.7.9
         version: 0.7.9(@swc/core@1.15.4)(chokidar@4.0.3)
@@ -938,6 +947,9 @@ packages:
       '@angular/core': 21.0.5
       '@angular/platform-browser': 21.0.5
       rxjs: ^6.5.3 || ^7.4.0
+
+  '@animo-id/mdoc@0.6.0-alpha-20251209053057':
+    resolution: {integrity: sha512-CJnOo7vWbVjrbGhx2cM9mKAHDr6r7QKLpKISO1EkU/mexdjwc93Mb/+RsyyTeVPWAC/JNp+kctQiTv8ozY5ZdA==}
 
   '@apidevtools/json-schema-ref-parser@15.1.3':
     resolution: {integrity: sha512-XvEitlOaU8S+hOrMPuGyCjp6vC51K+syUN4HHrSUdSDLLWRWQJYjInU6xlSoRGCVBCfcoHxbRm+yiaYq2yFR5w==}
@@ -3258,9 +3270,17 @@ packages:
       '@angular/material': '>=16.0.0'
       '@ngx-formly/core': 7.0.1
 
+  '@noble/curves@2.0.1':
+    resolution: {integrity: sha512-vs1Az2OOTBiP4q0pwjW5aF0xp9n4MxVrmkFBxc6EKZc6ddYx5gaZiAsZoq0uRRXWbi3AT/sBqn05eRPtn1JCPw==}
+    engines: {node: '>= 20.19.0'}
+
   '@noble/hashes@1.8.0':
     resolution: {integrity: sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A==}
     engines: {node: ^14.21.3 || >=16}
+
+  '@noble/hashes@2.0.1':
+    resolution: {integrity: sha512-XlOlEbQcE9fmuXxrVTXCTlG2nlRXa9Rj3rr5Ue/+tX+nmkgbX720YHh0VR3hBF9xDvwnb8D2shVGOwNx+ulArw==}
+    engines: {node: '>= 20.19.0'}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -3459,6 +3479,9 @@ packages:
 
   '@oxc-project/types@0.96.0':
     resolution: {integrity: sha512-r/xkmoXA0xEpU6UGtn18CNVjXH6erU3KCpCDbpLmbVxBFor1U9MqN5Z2uMmCHJuXjJzlnDR+hWY+yPoLo8oHDw==}
+
+  '@panva/hkdf@1.2.1':
+    resolution: {integrity: sha512-6oclG6Y3PiDFcoyk8srjLfVKyMfVCKJ27JwNPViuXziFpmdz+MZnZN/aKY0JGXgYuO/VghU0jcOAZgWXZ1Dmrw==}
 
   '@paralleldrive/cuid2@2.3.1':
     resolution: {integrity: sha512-XO7cAxhnTZl0Yggq6jOgjiOHhbgcO4NqFqwSmQpjK3b6TEE6Uj/jfSk6wzYyemh3+I0sHirKSetjQwn5cZktFw==}
@@ -10686,6 +10709,8 @@ snapshots:
       rxjs: 7.8.2
       tslib: 2.8.1
 
+  '@animo-id/mdoc@0.6.0-alpha-20251209053057': {}
+
   '@apidevtools/json-schema-ref-parser@15.1.3(@types/json-schema@7.0.15)':
     dependencies:
       '@types/json-schema': 7.0.15
@@ -13186,7 +13211,13 @@ snapshots:
       '@ngx-formly/core': 7.0.1(@angular/forms@21.0.5(@angular/common@21.0.5(@angular/core@21.0.5(@angular/compiler@21.0.5)(rxjs@7.8.2)(zone.js@0.16.0))(rxjs@7.8.2))(@angular/core@21.0.5(@angular/compiler@21.0.5)(rxjs@7.8.2)(zone.js@0.16.0))(@angular/platform-browser@21.0.5(@angular/animations@21.0.5(@angular/core@21.0.5(@angular/compiler@21.0.5)(rxjs@7.8.2)(zone.js@0.16.0)))(@angular/common@21.0.5(@angular/core@21.0.5(@angular/compiler@21.0.5)(rxjs@7.8.2)(zone.js@0.16.0))(rxjs@7.8.2))(@angular/core@21.0.5(@angular/compiler@21.0.5)(rxjs@7.8.2)(zone.js@0.16.0)))(@standard-schema/spec@1.0.0)(rxjs@7.8.2))(rxjs@7.8.2)
       tslib: 2.8.1
 
+  '@noble/curves@2.0.1':
+    dependencies:
+      '@noble/hashes': 2.0.1
+
   '@noble/hashes@1.8.0': {}
+
+  '@noble/hashes@2.0.1': {}
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -13442,6 +13473,8 @@ snapshots:
   '@opentelemetry/api@1.9.0': {}
 
   '@oxc-project/types@0.96.0': {}
+
+  '@panva/hkdf@1.2.1': {}
 
   '@paralleldrive/cuid2@2.3.1':
     dependencies:
