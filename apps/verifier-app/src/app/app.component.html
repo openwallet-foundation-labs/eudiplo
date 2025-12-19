@@ -1,11 +1,14 @@
-<mat-toolbar color="primary">
-  <span routerLink="/import" class="title">Verifier</span>
+<mat-toolbar>
+  <a mat-button routerLink="/verify" routerLinkActive="active" class="nav-link"
+    >Verify</a
+  >
   <span class="spacer"></span>
-  <a routerLink="/import" routerLinkActive="active" class="nav-link"
+  <a mat-button routerLink="/import" routerLinkActive="active" class="nav-link"
     >Credentials</a
   >
-  <a routerLink="/config" routerLinkActive="active" class="nav-link">Config</a>
-  <a routerLink="/verify" routerLinkActive="active" class="nav-link">Verify</a>
+  <a mat-button routerLink="/config" routerLinkActive="active" class="nav-link"
+    >Config</a
+  >
 </mat-toolbar>
 
 <router-outlet></router-outlet>

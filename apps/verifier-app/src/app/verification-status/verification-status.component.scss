@@ -129,6 +129,100 @@
         color: rgba(0, 0, 0, 0.87);
       }
 
+      .credential-card {
+        margin-bottom: 16px;
+      }
+
+      .credential-title {
+        mat-icon {
+          vertical-align: middle;
+          margin-right: 8px;
+        }
+      }
+
+      .credential-value {
+        margin-bottom: 12px;
+      }
+
+      .validity-badge {
+        margin-bottom: 16px;
+        padding: 8px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        &.valid {
+          background-color: #e8f5e9;
+          color: #4caf50;
+
+          mat-icon {
+            color: #4caf50;
+          }
+        }
+
+        &.expired {
+          background-color: #ffebee;
+          color: #f44336;
+
+          mat-icon {
+            color: #f44336;
+          }
+        }
+
+        mat-icon {
+          vertical-align: middle;
+        }
+      }
+
+      .credential-data {
+        margin-top: 8px;
+
+        .field-object,
+        .field-array,
+        .field-value {
+          margin-bottom: 8px;
+
+          &[data-depth="0"] { margin-left: 0; }
+          &[data-depth="1"] { margin-left: 20px; }
+          &[data-depth="2"] { margin-left: 40px; }
+          &[data-depth="3"] { margin-left: 60px; }
+          &[data-depth="4"] { margin-left: 80px; }
+        }
+
+        .field-nested {
+          margin-left: 20px;
+        }
+
+        .field-key {
+          color: #1976d2;
+        }
+
+        .field-data {
+          color: #424242;
+        }
+
+        .field-value {
+          margin-bottom: 4px;
+        }
+
+        .array-index {
+          margin-bottom: 4px;
+
+          em {
+            color: #666;
+          }
+        }
+
+        .array-item {
+          &[data-depth="1"] { margin-left: 20px; }
+          &[data-depth="2"] { margin-left: 40px; }
+          &[data-depth="3"] { margin-left: 60px; }
+          &[data-depth="4"] { margin-left: 80px; }
+          &[data-depth="5"] { margin-left: 100px; }
+        }
+      }
+
       mat-list-item {
         margin-bottom: 8px;
       }

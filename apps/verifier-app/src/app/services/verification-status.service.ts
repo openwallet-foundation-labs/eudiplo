@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
+import { presentationManagementControllerGetOffer, sessionControllerGetSession } from '@eudiplo/sdk';
 
 export interface VerificationResult {
   sessionId: string;
-  status: 'pending' | 'success' | 'failed' | 'expired';
+  status: 'active' | 'completed' | 'failed' | 'expired';
   presentedCredentials: PresentedCredential[];
+  rawCredentials?: any[];
   message?: string;
   timestamp: number;
 }
@@ -23,15 +25,45 @@ export class VerificationStatusService {
   private verificationResultSubject = new BehaviorSubject<VerificationResult | null>(null);
   public verificationResult$ = this.verificationResultSubject.asObservable();
 
-  private pollIntervalMs = 1000; // Poll every 1 second
+  private pollIntervalMs = 2000; // Poll every 2 seconds
   private pollTimeoutId?: any;
+  private sessionId?: string;
 
   constructor() {}
 
   /**
+   * Start verification flow - creates offer and starts polling
+   */
+  async start(presentationId: string): Promise<string> {
+    this.clearResult();
+
+    const response = await presentationManagementControllerGetOffer({
+      body: {
+        response_type: 'uri',
+        requestId: presentationId,
+      }
+    });
+
+    this.sessionId = response.data.session;
+
+    // Initialize with pending status
+    this.verificationResultSubject.next({
+      sessionId: this.sessionId,
+      status: 'active',
+      presentedCredentials: [],
+      timestamp: Date.now(),
+    });
+
+    // Start polling
+    this.startPolling(this.sessionId);
+
+    return response.data.uri;
+  }
+
+  /**
    * Start polling for verification result
    */
-  startPolling(sessionId: string): void {
+  private startPolling(sessionId: string): void {
     this.stopPolling();
     this.poll(sessionId);
   }
@@ -54,59 +86,78 @@ export class VerificationStatusService {
   }
 
   /**
-   * Simulate verification result (mock for now, will integrate with backend)
+   * Poll for verification status from backend
    */
   private async poll(sessionId: string): Promise<void> {
     try {
-      // TODO: Replace with actual backend call to fetch verification status
-      // For now, we simulate polling behavior
-      const result = await this.fetchVerificationStatus(sessionId);
+      const response = await sessionControllerGetSession({
+        path: { id: sessionId }
+      });
 
-      if (result) {
-        this.verificationResultSubject.next(result);
+      console.log('Session status:', response.data.status);
 
-        // Stop polling if verification is complete
-        if (result.status !== 'pending') {
-          return;
-        }
+      const status = response.data.status as 'active' | 'completed' | 'failed' | 'expired';
+
+      console.log(response.data);
+
+      // Map credentials to PresentedCredential format
+      const presentedCredentials: PresentedCredential[] = (response.data.credentials || []).map((cred: any) => ({
+        type: cred.type || 'Unknown',
+        issuer: cred.issuer,
+        expiryDate: cred.expiryDate,
+        verified: true, // Assume verified if returned by backend
+      }));
+
+      const result: VerificationResult = {
+        sessionId,
+        status,
+        presentedCredentials,
+        rawCredentials: response.data.credentials || [],
+        timestamp: Date.now(),
+        message: this.getStatusMessage(status),
+      };
+
+      this.verificationResultSubject.next(result);
+
+      // Continue polling if status is pending
+      if (status === 'active') {
+        this.pollTimeoutId = setTimeout(() => this.poll(sessionId), this.pollIntervalMs);
+      } else {
+        // Stop polling when complete
+        console.log('Verification complete with status:', status);
+        this.stopPolling();
       }
-
-      // Schedule next poll
-      this.pollTimeoutId = setTimeout(() => this.poll(sessionId), this.pollIntervalMs);
     } catch (err) {
       console.warn('Polling error:', err);
-      // Retry on error
+      // Retry on error with exponential backoff
       this.pollTimeoutId = setTimeout(() => this.poll(sessionId), this.pollIntervalMs * 2);
     }
   }
 
   /**
-   * Fetch verification status from backend (stub)
+   * Get user-friendly status message
    */
-  private async fetchVerificationStatus(sessionId: string): Promise<VerificationResult | null> {
-    // TODO: Call backend API endpoint
-    // For now, return mock successful result after 5 seconds
-    const currentResult = this.verificationResultSubject.value;
-    if (!currentResult || currentResult.status === 'pending') {
-      // Simulate delay and eventual success
-      return null; // Keep polling
+  private getStatusMessage(status: string): string {
+    switch (status) {
+      case 'completed':
+        return 'Credentials successfully verified';
+      case 'failed':
+        return 'Verification failed';
+      case 'expired':
+        return 'Verification request expired';
+      case 'pending':
+      default:
+        return 'Waiting for credential presentation...';
     }
-    return currentResult;
   }
 
   /**
-   * Manually set a verification result (for testing/demo)
-   */
-  setMockResult(result: VerificationResult): void {
-    this.verificationResultSubject.next(result);
-  }
-
-  /**
-   * Clear result
+   * Clear result and stop polling
    */
   clearResult(): void {
     this.verificationResultSubject.next(null);
     this.stopPolling();
+    this.sessionId = undefined;
   }
 
   /**

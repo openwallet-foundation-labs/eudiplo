@@ -22,6 +22,5 @@ export const routes: Routes = [
         (m) => m.VerificationStatusComponent
       ),
   },
-  { path: 'verify-qr', loadComponent: () => import('./verify-qr/verify-qr.component').then(m => m.VerifyQrComponent) },
   { path: '', redirectTo: 'import', pathMatch: 'full' },
 ];

@@ -1,7 +1,6 @@
 import { ApplicationConfig, provideZoneChangeDetection, APP_INITIALIZER, inject, provideAppInitializer } from '@angular/core';
 import { ApiService } from '@eudiplo/sdk';
 import { environment } from '../environments/environment';
-import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/http';
@@ -11,7 +10,6 @@ import { authInterceptor } from '@eudiplo/sdk';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideAnimations(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(withInterceptors([authInterceptor]), withFetch()),

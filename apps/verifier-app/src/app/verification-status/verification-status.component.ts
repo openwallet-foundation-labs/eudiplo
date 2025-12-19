@@ -9,9 +9,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { VerifyService } from '../verify-qr/verify.service';
 import { VerificationStatusService, VerificationResult } from '../services/verification-status.service';
 import { CredentialsService } from '../services/credentials.service';
+import { FlexLayoutModule } from 'ngx-flexible-layout';
 
 @Component({
   standalone: true,
@@ -25,6 +25,7 @@ import { CredentialsService } from '../services/credentials.service';
     MatListModule,
     MatBadgeModule,
     MatSnackBarModule,
+    FlexLayoutModule
   ],
   templateUrl: './verification-status.component.html',
   styleUrls: ['./verification-status.component.scss'],
@@ -34,10 +35,8 @@ export class VerificationStatusComponent implements OnInit, OnDestroy {
   url?: string;
   loading = true;
   error?: string;
-  sessionId?: string;
 
   constructor(
-    private verifyService: VerifyService,
     public verificationStatusService: VerificationStatusService,
     private credentialsService: CredentialsService,
     private router: Router,
@@ -58,42 +57,26 @@ export class VerificationStatusComponent implements OnInit, OnDestroy {
    */
   private async startVerification(): Promise<void> {
     try {
-      // Get selected credential requirements
-      const selectedTypes = this.credentialsService.getSelectedCredentialTypes();
-      if (selectedTypes.length === 0) {
-        this.error = 'No credential types configured. Please go back and configure.';
+      // Get credential configuration
+      const credential = this.credentialsService.getCredential();
+      if (!credential) {
+        this.error = 'No connection configuration found. Please go back and import configuration.';
         this.loading = false;
         return;
       }
 
-      // Call backend to create verification request
-      const offerUri = await this.verifyService.start();
+      // Start verification and get offer URI
+      const offerUri = await this.verificationStatusService.start(credential.presentationId);
       this.url = offerUri;
-
-      // Extract session ID from the URI (format: openid://?request_uri=...)
-      this.sessionId = this.extractSessionId(offerUri);
 
       // Generate QR code
       this.qrSrc = await QRCode.toDataURL(offerUri, { width: 300 });
-
-      // Start polling for verification results
-      if (this.sessionId) {
-        this.verificationStatusService.startPolling(this.sessionId);
-      }
 
       this.loading = false;
     } catch (err: any) {
       this.error = `Failed to start verification: ${err?.message || String(err)}`;
       this.loading = false;
     }
-  }
-
-  /**
-   * Extract session ID from offer URI (mock implementation)
-   */
-  private extractSessionId(uri: string): string {
-    // TODO: Implement proper extraction based on actual URI format
-    return `session_${Date.now()}`;
   }
 
   /**
@@ -119,7 +102,7 @@ export class VerificationStatusComponent implements OnInit, OnDestroy {
    * Check if verification is successful
    */
   isVerificationSuccess(result: VerificationResult | null): boolean {
-    return result?.status === 'success' && (result?.presentedCredentials || []).length > 0;
+    return result?.status === 'completed' && (result?.presentedCredentials || []).length > 0;
   }
 
   /**
@@ -151,6 +134,71 @@ export class VerificationStatusComponent implements OnInit, OnDestroy {
         return 'warn';
       default:
         return 'primary'; // blue
+    }
+  }
+
+  /**
+   * Get credential data keys (excluding standard JWT fields)
+   */
+  getCredentialDataKeys(value: any): string[] {
+    if (!value) return [];
+    const standardKeys = ['iat', 'exp', 'vct', 'iss', 'nbf', 'jti', 'sub', 'aud'];
+    return Object.keys(value).filter(key => !standardKeys.includes(key));
+  }
+
+  /**
+   * Check if a value is an object
+   */
+  isObject(value: any): boolean {
+    return value !== null && typeof value === 'object';
+  }
+
+  /**
+   * Check if credential is still valid based on expiration timestamp
+   */
+  isCredentialValid(value: any): boolean {
+    if (!value || !value.exp) return true; // If no expiration, assume valid
+    const now = Math.floor(Date.now() / 1000); // Current time in seconds
+    return value.exp > now;
+  }
+
+  /**
+   * Recursively render credential field with nested structures
+   */
+  renderCredentialField(key: string, value: any, depth: number = 0): string {
+    const isArray = Array.isArray(value);
+    const isObj = this.isObject(value) && !isArray;
+
+    if (isObj) {
+      let html = `<div class="field-object" data-depth="${depth}">`;
+      html += `<strong class="field-key">${key}:</strong>`;
+      html += '<div class="field-nested">';
+      Object.keys(value).forEach(subKey => {
+        html += this.renderCredentialField(subKey, value[subKey], depth + 1);
+      });
+      html += '</div></div>';
+      return html;
+    } else if (isArray) {
+      let html = `<div class="field-array" data-depth="${depth}">`;
+      html += `<strong class="field-key">${key}:</strong>`;
+      html += '<div class="field-nested">';
+      value.forEach((item: any, index: number) => {
+        if (this.isObject(item)) {
+          html += `<div class="array-index"><em>[${index}]</em></div>`;
+          Object.keys(item).forEach(subKey => {
+            html += this.renderCredentialField(subKey, item[subKey], depth + 1);
+          });
+        } else {
+          html += `<div class="array-item" data-depth="${depth + 1}">[${index}]: ${item}</div>`;
+        }
+      });
+      html += '</div></div>';
+      return html;
+    } else {
+      return `<div class="field-value" data-depth="${depth}">
+        <strong class="field-key">${key}:</strong>
+        <span class="field-data">${value}</span>
+      </div>`;
     }
   }
 }

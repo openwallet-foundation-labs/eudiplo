@@ -7,7 +7,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatListModule } from '@angular/material/list';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
-import { CredentialsService, CredentialType, StoredCredential } from '../services/credentials.service';
+import { CredentialsService, StoredCredential } from '../services/credentials.service';
 
 @Component({
   standalone: true,
@@ -25,9 +25,7 @@ import { CredentialsService, CredentialType, StoredCredential } from '../service
   styleUrls: ['./presentation-config.component.scss'],
 })
 export class PresentationConfigComponent implements OnInit {
-  availableCredentials: StoredCredential[] = [];
-  selectedCredentialTypes: CredentialType[] = [];
-  credentialTypeMap: Map<string, boolean> = new Map();
+  credential: StoredCredential | null = null;
 
   constructor(
     private credentialsService: CredentialsService,
@@ -36,57 +34,35 @@ export class PresentationConfigComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.availableCredentials = this.credentialsService.getCredentials();
-    const selected = this.credentialsService.getSelectedCredentialTypes();
-    this.selectedCredentialTypes = selected;
-
-    // Initialize checkbox map
-    this.availableCredentials.forEach((cred) => {
-      const isSelected = selected.some((t) => t.format === cred.format);
-      this.credentialTypeMap.set(cred.format, isSelected);
-    });
+    this.credential = this.credentialsService.getCredential();
   }
 
   /**
-   * Handle credential type selection
+   * Handle credential configuration selection
    */
-  onCredentialTypeChange(credential: StoredCredential, checked: boolean): void {
-    const existingType = this.selectedCredentialTypes.find((t) => t.format === credential.format);
-
-    if (checked && !existingType) {
-      const credType: CredentialType = {
-        id: credential.id,
-        format: credential.format,
-        name: credential.name,
-      };
-      this.selectedCredentialTypes.push(credType);
-      this.credentialTypeMap.set(credential.format, true);
-    } else if (!checked && existingType) {
-      this.selectedCredentialTypes = this.selectedCredentialTypes.filter(
-        (t) => t.format !== credential.format
-      );
-      this.credentialTypeMap.set(credential.format, false);
-    }
+  onCredentialSelect(credential: StoredCredential): void {
+    this.credential = credential;
   }
 
   /**
-   * Check if a credential type is selected
+   * Check if a credential is selected
    */
-  isCredentialTypeSelected(format: string): boolean {
-    return this.credentialTypeMap.get(format) || false;
+  isCredentialSelected(credential: StoredCredential): boolean {
+    return this.credential?.id === credential.id;
   }
 
   /**
    * Proceed to verification/QR generation
    */
   continueToVerification(): void {
-    if (this.selectedCredentialTypes.length === 0) {
-      this.snackBar.open('Please select at least one credential type', 'Close', { duration: 3000 });
+    if (!this.credential) {
+      this.snackBar.open('Please select a connection configuration', 'Close', { duration: 3000 });
       return;
     }
 
-    this.credentialsService.setRequiredCredentialTypes(this.selectedCredentialTypes);
-    this.router.navigate(['/verify']);
+    this.router.navigate(['/verify'], {
+      state: { credential: this.credential }
+    });
   }
 
   /**

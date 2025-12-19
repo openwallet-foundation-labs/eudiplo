@@ -1,35 +1,34 @@
 <div class="container">
   <mat-card>
-    <mat-card-title>Select Required Credentials</mat-card-title>
+    <mat-card-title>Verification Configuration</mat-card-title>
     <mat-card-content>
       <p class="subtitle">
-        Select which credential types must be presented for verification.
+        Review the connection configuration for verification.
       </p>
 
-      <div class="credential-types">
+      <div class="credential-info" *ngIf="credential">
         <mat-list>
-          <mat-list-item
-            *ngFor="let cred of availableCredentials"
-            class="credential-item"
-          >
-            <mat-checkbox
-              matListItemIcon
-              [checked]="isCredentialTypeSelected(cred.format)"
-              (change)="onCredentialTypeChange(cred, $event.checked)"
-            ></mat-checkbox>
-            <div matListItemTitle>{{ cred.name }}</div>
-            <div matListItemLine>{{ cred.format }} • {{ cred.issuer }}</div>
+          <mat-list-item>
+            <div matListItemTitle>Endpoint</div>
+            <div matListItemLine>{{ credential.endpoint }}</div>
+          </mat-list-item>
+          <mat-list-item>
+            <div matListItemTitle>Client ID</div>
+            <div matListItemLine>{{ credential.clientId }}</div>
+          </mat-list-item>
+          <mat-list-item>
+            <div matListItemTitle>Presentation Configuration</div>
+            <div matListItemLine>{{ credential.presentationId }}</div>
           </mat-list-item>
         </mat-list>
       </div>
 
       <div class="summary">
-        <p *ngIf="selectedCredentialTypes.length === 0" class="info-text">
-          No credential types selected
+        <p *ngIf="!credential" class="info-text">
+          No connection configuration found. Please import configuration first.
         </p>
-        <p *ngIf="selectedCredentialTypes.length > 0" class="success-text">
-          ✓ {{ selectedCredentialTypes.length }} credential type(s) will be
-          required
+        <p *ngIf="credential" class="success-text">
+          ✓ Ready to start verification
         </p>
       </div>
 
@@ -38,6 +37,7 @@
         <button
           mat-raised-button
           color="primary"
+          [disabled]="!credential"
           (click)="continueToVerification()"
         >
           Generate QR & Start Verification

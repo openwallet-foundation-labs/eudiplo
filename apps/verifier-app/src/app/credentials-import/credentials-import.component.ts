@@ -7,7 +7,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { CredentialsService, StoredCredential } from '../services/credentials.service';
+import { CredentialsService } from '../services/credentials.service';
 
 @Component({
   standalone: true,
@@ -25,7 +25,7 @@ import { CredentialsService, StoredCredential } from '../services/credentials.se
   styleUrls: ['./credentials-import.component.scss'],
 })
 export class CredentialsImportComponent {
-  credentials$;
+  credential$;
   loading = false;
   dragActive = false;
 
@@ -34,7 +34,7 @@ export class CredentialsImportComponent {
     private router: Router,
     private snackBar: MatSnackBar
   ) {
-    this.credentials$ = this.credentialsService.credentials$;
+    this.credential$ = this.credentialsService.credential$;
   }
 
   /**
@@ -74,29 +74,29 @@ export class CredentialsImportComponent {
    */
   private async handleFiles(files: FileList): Promise<void> {
     this.loading = true;
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      if (file.type === 'application/json' || file.name.endsWith('.json')) {
-        try {
-          await this.credentialsService.addCredential(file);
-          this.snackBar.open(`✓ ${file.name} imported`, 'Close', { duration: 3000 });
-        } catch (err: any) {
-          this.snackBar.open(`✗ Failed to import ${file.name}: ${err.message}`, 'Close', {
-            duration: 5000,
-          });
-        }
-      } else {
-        this.snackBar.open(`✗ Skipped ${file.name} (JSON only)`, 'Close', { duration: 3000 });
+    const file = files[0];
+
+    if (file && (file.type === 'application/json' || file.name.endsWith('.json'))) {
+      try {
+        await this.credentialsService.importFromFile(file);
+        this.snackBar.open(`✓ ${file.name} imported`, 'Close', { duration: 3000 });
+      } catch (err: any) {
+        this.snackBar.open(`✗ Failed to import: ${err.message}`, 'Close', {
+          duration: 5000,
+        });
       }
+    } else {
+      this.snackBar.open(`✗ Please select a JSON file`, 'Close', { duration: 3000 });
     }
+
     this.loading = false;
   }
 
   /**
    * Remove credential
    */
-  removeCredential(id: string): void {
-    this.credentialsService.removeCredential(id);
+  removeCredential(): void {
+    this.credentialsService.removeCredential();
     this.snackBar.open('Credential removed', 'Close', { duration: 2000 });
   }
 
@@ -104,10 +104,10 @@ export class CredentialsImportComponent {
    * Navigate to next step
    */
   continueToConfig(): void {
-    if (this.credentialsService.getCredentials().length > 0) {
+    if (this.credentialsService.getCredential()) {
       this.router.navigate(['/config']);
     } else {
-      this.snackBar.open('Please import at least one credential', 'Close', { duration: 3000 });
+      this.snackBar.open('Please import a connection configuration', 'Close', { duration: 3000 });
     }
   }
 }
