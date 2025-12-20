@@ -1,31 +1,24 @@
-import {
-    ApiExtraModels,
-    ApiHideProperty,
-    ApiProperty,
-    getSchemaPath,
-} from "@nestjs/swagger";
+import { ApiExtraModels, ApiHideProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import {
+    IsArray,
     IsBoolean,
     IsNumber,
     IsOptional,
-    IsString,
     ValidateNested,
 } from "class-validator";
 import {
     Column,
     CreateDateColumn,
     Entity,
-    JoinTable,
-    ManyToMany,
     ManyToOne,
+    PrimaryColumn,
     UpdateDateColumn,
 } from "typeorm";
-import { TenantEntity } from "../../../auth/entitites/tenant.entity";
+import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
 import { WebhookConfig } from "../../../utils/webhook/webhook.dto";
-import { CredentialConfig } from "../../credentials/entities/credential.entity";
+import { DisplayInfo } from "../../display/dto/display.dto";
 import {
-    AuthenticationMethod,
     AuthenticationMethodAuth,
     AuthenticationMethodNone,
     AuthenticationMethodPresentation,
@@ -42,100 +35,25 @@ import {
 @Entity()
 export class IssuanceConfig {
     /**
-     * Unique identifier for the issuance configuration.
-     */
-    @IsString()
-    @Column("varchar", { primary: true })
-    id: string;
-
-    /**
      * Tenant ID for the issuance configuration.
      */
     @ApiHideProperty()
-    @Column("varchar", { primary: true })
-    tenantId: string;
+    @PrimaryColumn()
+    tenantId!: string;
 
     /**
      * The tenant that owns this object.
      */
     @ManyToOne(() => TenantEntity, { cascade: true, onDelete: "CASCADE" })
-    tenant: TenantEntity;
+    tenant!: TenantEntity;
 
     /**
-     * Description of the issuance configuration.
+     * Authentication server URL for the issuance process.
      */
-    @IsString()
+    @IsArray()
     @IsOptional()
-    @Column("varchar", { nullable: true })
-    description?: string;
-
-    /**
-     * Links to all credential config bindings that are included in this issuance config.
-     */
-    @ManyToMany(
-        () => CredentialConfig,
-        (credential) => credential.issuanceConfigs,
-    )
-    @JoinTable()
-    credentialConfigs: CredentialConfig[];
-
-    /**
-     * Authentication configuration for the issuance process.
-     */
-    @Column("json")
-    @ValidateNested()
-    @ApiProperty({
-        oneOf: [
-            { $ref: getSchemaPath(AuthenticationMethodNone) },
-            { $ref: getSchemaPath(AuthenticationMethodAuth) },
-            { $ref: getSchemaPath(AuthenticationMethodPresentation) },
-        ],
-    })
-    @Type(() => AuthenticationMethodNone, {
-        discriminator: {
-            property: "method",
-            subTypes: [
-                {
-                    name: AuthenticationMethod.NONE,
-                    value: AuthenticationMethodNone,
-                },
-                {
-                    name: AuthenticationMethod.AUTH,
-                    value: AuthenticationMethodAuth,
-                },
-                {
-                    name: AuthenticationMethod.PRESENTATION_DURING_ISSUANCE,
-                    value: AuthenticationMethodPresentation,
-                },
-            ],
-        },
-        keepDiscriminatorProperty: true,
-    })
-    authenticationConfig:
-        | AuthenticationMethodNone
-        | AuthenticationMethodAuth
-        | AuthenticationMethodPresentation;
-
-    /**
-     * The timestamp when the VP request was created.
-     */
-    @CreateDateColumn()
-    createdAt: Date;
-
-    /**
-     * The timestamp when the VP request was last updated.
-     */
-    @UpdateDateColumn()
-    updatedAt: Date;
-
-    /**
-     * Webhook to receive claims for the issuance process.
-     */
-    @IsOptional()
-    @ValidateNested()
-    @Type(() => WebhookConfig)
-    @Column("json", { nullable: true })
-    claimsWebhook?: WebhookConfig;
+    @Column({ type: "json", nullable: true })
+    authServers?: string[];
 
     /**
      * Webhook to send the result of the notification response
@@ -162,4 +80,21 @@ export class IssuanceConfig {
     @IsOptional()
     @Column("boolean", { default: true })
     dPopRequired?: boolean;
+
+    @ValidateNested({ each: true })
+    @Type(() => DisplayInfo)
+    @Column("json", { nullable: true })
+    display!: DisplayInfo[];
+
+    /**
+     * The timestamp when the VP request was created.
+     */
+    @CreateDateColumn()
+    createdAt!: Date;
+
+    /**
+     * The timestamp when the VP request was last updated.
+     */
+    @UpdateDateColumn()
+    updatedAt!: Date;
 }

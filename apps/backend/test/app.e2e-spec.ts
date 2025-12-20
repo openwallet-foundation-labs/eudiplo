@@ -23,9 +23,12 @@ describe("Home", () => {
         return request(app.getHttpServer())
             .get("/")
             .expect(200)
-            .expect("Content-Type", /text\/html/)
             .expect((res) => {
-                expect(res.text).toContain("EUDIPLO");
+                expect(res.body).toEqual({
+                    service: "EUDIPLO",
+                    version: expect.any(String),
+                    documentation: expect.any(String),
+                });
             });
     });
 });

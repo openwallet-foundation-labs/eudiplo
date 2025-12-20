@@ -1,5 +1,5 @@
 import { Component, type OnDestroy, type OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -11,18 +11,13 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { ApiService } from '../api.service';
 import { EnvironmentService } from '../services/environment.service';
-import {
-  tenantControllerGetTenantStatus,
-  tenantControllerInitTenant,
-  TenantEntity,
-} from '../generated';
+import { ApiService, appControllerMain } from '@eudiplo/sdk';
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [
-    CommonModule,
     FlexLayoutModule,
     MatCardModule,
     MatButtonModule,
@@ -40,6 +35,7 @@ import {
 export class DashboardComponent implements OnInit, OnDestroy {
   private refreshInterval?: NodeJS.Timeout;
   private tokenCheckInterval?: NodeJS.Timeout;
+  backendVersion: string | null = null;
 
   constructor(
     public apiService: ApiService,
@@ -56,7 +52,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // Initial check
     this.checkTokenStatus();
-    this.getTenantStatus();
+
+    // Fetch backend version
+    this.fetchBackendVersion();
   }
 
   ngOnDestroy(): void {
@@ -66,24 +64,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (this.tokenCheckInterval) {
       clearInterval(this.tokenCheckInterval);
     }
-  }
-
-  /**
-   * Get the status of the tenant. When there is none, hit the endpoint.
-   */
-  getTenantStatus() {
-    tenantControllerGetTenantStatus()
-      .then((res) => res.data)
-      .then((res) => {
-        if (!res) return;
-        if (!res.status) {
-          tenantControllerInitTenant({ body: { id: res.id } })
-            .then((res) => res.data)
-            .then((res) => {
-              console.log('Initialized tenant:', res);
-            });
-        }
-      });
   }
 
   /**
@@ -159,6 +139,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   navigateToSessionManagement(): void {
     this.router.navigate(['/session-management']);
+  }
+
+  /**
+   * Fetch backend version from the API
+   */
+  private async fetchBackendVersion(): Promise<void> {
+    try {
+      const response = await appControllerMain();
+      if (response.data && typeof response.data === 'object' && 'version' in response.data) {
+        this.backendVersion = (response.data as any).version;
+      }
+    } catch (error) {
+      console.error('Failed to fetch backend version:', error);
+      this.backendVersion = 'Unknown';
+    }
   }
 
   /**

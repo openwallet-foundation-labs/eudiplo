@@ -3,23 +3,23 @@
     <div fxLayout="row" fxLayoutAlign="space-between center">
       <h2>Presentation Configuration: {{ config.id }}</h2>
       <div>
-        <button mat-icon-button [routerLink]="['../']">
+        <button matIconButton [routerLink]="['../']">
           <mat-icon>arrow_back</mat-icon>
         </button>
         <button
-          mat-icon-button
+          matIconButton
           [routerLink]="['/offer/presentation', config.id]"
           matTooltip="Create offer"
         >
           <mat-icon>add</mat-icon>
         </button>
-        <button mat-icon-button [routerLink]="['edit']">
+        <button matIconButton [routerLink]="['edit']">
           <mat-icon>edit</mat-icon>
         </button>
-        <button mat-icon-button (click)="downloadConfig()" [matTooltip]="'Download configuration'">
+        <button matIconButton (click)="downloadConfig()" [matTooltip]="'Download configuration'">
           <mat-icon>download</mat-icon>
         </button>
-        <button mat-icon-button (click)="deletePresentation()" class="delete-button">
+        <button matIconButton (click)="deletePresentation()" class="delete-button">
           <mat-icon>delete</mat-icon>
         </button>
       </div>
@@ -27,6 +27,7 @@
     <p><strong>Created At:</strong> {{ config.createdAt | date }}</p>
     <p><strong>Lifetime of the request:</strong> {{ config.lifeTime }} seconds</p>
     <p><strong>Description:</strong> {{ config.description }}</p>
+    <p><strong>Redirect URI:</strong> {{ config.redirectUri }}</p>
     <mat-card>
       <mat-card-header>
         <mat-card-title>DCQL</mat-card-title>

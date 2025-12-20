@@ -9,7 +9,8 @@
       "description": "The type of response expected from the presentation request.",
       "enum": [
         "qrcode",
-        "uri"
+        "uri",
+        "dc-api"
       ]
     },
     "requestId": {
@@ -23,6 +24,10 @@
           "$ref": "./WebhookConfig.schema.json"
         }
       ]
+    },
+    "redirectUri": {
+      "type": "string",
+      "description": "Optional redirect URI to which the user-agent should be redirected after the presentation is completed."
     }
   },
   "required": [

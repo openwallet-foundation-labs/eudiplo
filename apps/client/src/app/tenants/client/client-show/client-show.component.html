@@ -1,0 +1,27 @@
+<div fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px" class="mb-2">
+  <button matIconButton routerLink="../" matTooltip="Back to Clients List">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+</div>
+@if (client) {
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ client.clientId }}</mat-card-title>
+      <mat-card-subtitle>{{ client.description }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <h3>Roles</h3>
+      <mat-chip-set>
+        @for (role of client.roles; track role) {
+          <span>
+            <mat-chip>{{ role }}</mat-chip>
+          </span>
+        }
+      </mat-chip-set>
+    </mat-card-content>
+    <mat-card-actions fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
+      <button mat-button routerLink="edit">Edit</button>
+      <button mat-button color="warn">Delete</button>
+    </mat-card-actions>
+  </mat-card>
+}

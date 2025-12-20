@@ -1,12 +1,9 @@
 import { OAuth2Client } from "@badgateway/oauth2-client";
-import {
-    Injectable,
-    OnApplicationBootstrap,
-    OnModuleInit,
-} from "@nestjs/common";
+import { Injectable, OnModuleInit } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { TenantEntity } from "../auth/tenant/entitites/tenant.entity";
 import { CryptoService } from "../crypto/crypto.service";
 import { RegistrationCertificateRequest } from "../verifier/presentations/dto/vp-request.dto";
 import { PresentationsService } from "../verifier/presentations/presentations.service";
@@ -25,20 +22,19 @@ import { client } from "./generated/client.gen";
  * including adding relying parties, access certificates, and registration certificates.
  */
 @Injectable()
-export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
+export class RegistrarService implements OnModuleInit {
     /**
      * OAuth2 client for interacting with the OIDC provider.
      */
-    private oauth2Client: OAuth2Client;
+    private oauth2Client!: OAuth2Client;
     /**
      * Client for interacting with the registrar API.
      */
-    private client: typeof client;
+    private client!: typeof client;
     /**
      * Access token for authenticating requests to the registrar.
      */
-    private accessToken: string;
-
+    private accessToken!: string;
     /**
      * Constructor for the RegistrarService.
      * @param configService - Instance of ConfigService for accessing configuration values.
@@ -56,7 +52,7 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
     /**
      * Initializes the OAuth2 client and registrar client with the necessary configurations.
      */
-    onModuleInit() {
+    async onModuleInit() {
         //when not set, we will not use the registrar
         if (!this.isEnabled()) {
             return;
@@ -83,6 +79,13 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
             baseUrl: this.configService.getOrThrow<string>("REGISTRAR_URL"),
             auth: () => this.accessToken,
         });
+
+        if (!this.configService.get<string>("REGISTRAR_URL")) {
+            return;
+        }
+        await this.refreshAccessToken();
+
+        //TODO: there may be the case that the registrar is activated after the tenant was created. For this action, the registrar would need to include the tenantservice, causing a circular dependency.
     }
 
     /**
@@ -94,44 +97,24 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
     }
 
     /**
-     * This function is called when the application starts.
-     * It will refresh the access token for the registrar.
-     */
-    async onApplicationBootstrap() {
-        if (!this.configService.get<string>("REGISTRAR_URL")) {
-            return;
-        }
-        await this.refreshAccessToken();
-    }
-
-    /**
      * This function is called when a tenant is initialized.
-     * @param tenantId
+     * @param tenant
      */
-    async onTenantInit(tenantId: string) {
+    async onTenantInit(tenant: TenantEntity) {
         if (!this.isEnabled()) {
             return;
         }
-        //TODO: pass name by call
-        const name = this.configService.getOrThrow<string>("RP_NAME");
+        const name = tenant.name;
         const relyingPartyId = await this.addRp(name);
         const accessCertificateId = await this.addAccessCertificate(
-            tenantId,
+            tenant.id,
             relyingPartyId,
         );
         await this.registrarRepository.save({
-            tenantId,
+            tenantId: tenant.id,
             relyingPartyId,
             accessCertificateId,
         });
-    }
-
-    /**
-     * Deletes all registrar entries for a specific tenant.
-     * @param tenantId
-     */
-    async onTenantDelete(tenantId: string) {
-        await this.registrarRepository.delete({ tenantId });
     }
 
     /**
@@ -199,7 +182,10 @@ export class RegistrarService implements OnApplicationBootstrap, OnModuleInit {
         tenantId: string,
         relyingPartyId: string,
     ): Promise<string> {
-        const keyId = await this.cryptoService.keyService.getKid(tenantId);
+        const keyId = await this.cryptoService.keyService.getKid(
+            tenantId,
+            "sign",
+        );
         const host = this.configService
             .getOrThrow<string>("PUBLIC_URL")
             .replace("https://", "");

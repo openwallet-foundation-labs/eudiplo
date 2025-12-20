@@ -1,0 +1,43 @@
+<div fxLayout="row" fxLayoutAlign="space-between center">
+  <h2>Tenants</h2>
+  <button matIconButton [routerLink]="['create']" matTooltip="Create New Tenant">
+    <mat-icon>add</mat-icon>
+  </button>
+</div>
+
+<table mat-table [dataSource]="tenants" class="mat-elevation-z8">
+  <ng-container matColumnDef="id">
+    <th mat-header-cell *matHeaderCellDef>ID</th>
+    <td mat-cell *matCellDef="let tenant">{{ tenant.id }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="name">
+    <th mat-header-cell *matHeaderCellDef>Name</th>
+    <td mat-cell *matCellDef="let tenant">{{ tenant.name }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="description">
+    <th mat-header-cell *matHeaderCellDef>Description</th>
+    <td mat-cell *matCellDef="let tenant">{{ tenant.description || 'No description' }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="status">
+    <th mat-header-cell *matHeaderCellDef>Status</th>
+    <td mat-cell *matCellDef="let tenant">{{ tenant.status }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef>Actions</th>
+    <td mat-cell *matCellDef="let tenant">
+      <button [routerLink]="tenant.id" matIconButton matTooltip="View details">
+        <mat-icon>visibility</mat-icon>
+      </button>
+      <button matIconButton (click)="deleteTenant(tenant)" matTooltip="Delete tenant">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+</table>

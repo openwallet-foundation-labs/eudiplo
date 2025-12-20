@@ -4,23 +4,9 @@ This service supports flexible file storage options, allowing you to choose betw
 
 > 💡 Storage configuration is dynamic and can be switched between local and S3 by setting the appropriate environment variables.
 
----
+## Configuration
 
-## Configuration Overview
-
-| Variable               | Description                                       | Required for | Default            |
-| ---------------------- | ------------------------------------------------- | ------------ | ------------------ |
-| `STORAGE_DRIVER`       | Storage backend (`local` or `s3`)                 | All          | `local`            |
-| `LOCAL_STORAGE_DIR`    | Directory for local file storage                  | `local`      | `<FOLDER>/uploads` |
-| `S3_REGION`            | AWS region for S3                                 | `s3`         | –                  |
-| `S3_BUCKET`            | S3 bucket name                                    | `s3`         | –                  |
-| `S3_ACCESS_KEY_ID`     | AWS access key ID                                 | `s3`         | –                  |
-| `S3_SECRET_ACCESS_KEY` | AWS secret access key                             | `s3`         | –                  |
-| `S3_ENDPOINT`          | Custom S3 endpoint (optional, e.g. MinIO)         | `s3`         | –                  |
-| `S3_FORCE_PATH_STYLE`  | Use path-style URLs for S3 (for custom endpoints) | `s3`         | `false`            |
-| `S3_PUBLIC_BASE_URL`   | Public base URL for accessing files in S3         | `s3`         | –                  |
-
-> ✅ For local storage, only `LOCAL_STORAGE_DIR` is needed. For S3, all `S3_*` variables must be provided.
+--8<-- "docs/generated/config-storage.md"
 
 ---
 

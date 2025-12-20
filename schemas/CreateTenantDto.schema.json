@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CreateTenantDto.schema.json",
+  "title": "CreateTenantDto",
+  "type": "object",
+  "properties": {
+    "roles": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "presentation:manage",
+          "presentation:offer",
+          "issuance:manage",
+          "issuance:offer",
+          "clients:manage",
+          "tenants:manage"
+        ]
+      }
+    },
+    "id": {
+      "type": "string",
+      "description": "The unique identifier for the tenant."
+    },
+    "name": {
+      "type": "string",
+      "description": "The name of the tenant."
+    },
+    "description": {
+      "type": "string",
+      "description": "The description of the tenant."
+    }
+  },
+  "required": [
+    "id",
+    "name"
+  ]
+}

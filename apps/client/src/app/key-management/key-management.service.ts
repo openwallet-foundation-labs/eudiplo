@@ -1,38 +1,66 @@
 import { Injectable } from '@angular/core';
 import {
-  type CertEntity,
   type KeyImportDto,
   UpdateKeyDto,
   keyControllerAddKey,
   keyControllerDeleteKey,
+  keyControllerGetKey,
   keyControllerGetKeys,
   keyControllerUpdateKey,
-} from '../generated';
-import { client } from '../generated/client.gen';
+} from '@eudiplo/sdk';
+
+interface JWKwithKey extends JsonWebKey {
+  kid?: string;
+  alg: string;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class KeyManagementService {
-  loadKeys(): Promise<CertEntity[]> {
-    return keyControllerGetKeys({ client }).then((response) => response.data || []);
-  }
-
-  getKey(id: string) {
-    return this.loadKeys().then((keys) => keys.find((key) => key.id === id));
-  }
-
-  importKey(keyData: KeyImportDto): Promise<void> {
-    return keyControllerAddKey({ client, body: keyData })
-      .then(() => undefined)
-      .catch((error) => {
-        console.error('Failed to import key:', error);
-        throw new Error('Failed to import key');
+  /**
+   * Generate a new key with the webcrypto API.
+   */
+  generateKey() {
+    return window.crypto.subtle
+      .generateKey(
+        {
+          name: 'ECDSA',
+          namedCurve: 'P-256',
+        },
+        true,
+        ['sign', 'verify']
+      )
+      .then((keyPair) => window.crypto.subtle.exportKey('jwk', keyPair.privateKey))
+      .then((jwk) => {
+        const jwkWithAlg = jwk as JWKwithKey;
+        // Remove kid if present - server will generate it
+        delete jwkWithAlg.kid;
+        jwkWithAlg.alg = 'ES256';
+        return jwk;
       });
   }
 
+  loadKeys() {
+    return keyControllerGetKeys().then((response) => response.data || []);
+  }
+
+  getKey(id: string) {
+    return keyControllerGetKey({ path: { id } }).then((response) => response.data);
+  }
+
+  async importKey(keyData: KeyImportDto): Promise<{ id: string }> {
+    try {
+      const response = await keyControllerAddKey({ body: keyData });
+      return response.data as { id: string };
+    } catch (error) {
+      console.error('Failed to import key:', error);
+      throw new Error('Failed to import key');
+    }
+  }
+
   updateKey(keyId: string, keyData: UpdateKeyDto): Promise<void> {
-    return keyControllerUpdateKey({ client, body: keyData, path: { id: keyId } })
+    return keyControllerUpdateKey({ body: keyData, path: { id: keyId } })
       .then(() => undefined)
       .catch((error) => {
         console.error('Failed to update key:', error);
@@ -41,7 +69,7 @@ export class KeyManagementService {
   }
 
   deleteKey(keyId: string): Promise<void> {
-    return keyControllerDeleteKey({ client, path: { id: keyId } })
+    return keyControllerDeleteKey({ path: { id: keyId } })
       .then(() => undefined)
       .catch((error) => {
         console.error('Failed to delete key:', error);

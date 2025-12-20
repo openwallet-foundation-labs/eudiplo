@@ -5,6 +5,7 @@ export const configs = [
     icon: 'badge',
     config: {
       id: 'pid', // Short, simple identifier
+      description: 'German Personal Identity Document configuration',
       config: {
         format: 'dc+sd-jwt',
         scope: 'pid',
@@ -14,13 +15,11 @@ export const configs = [
             background_color: '#FFFF00',
             background_image: {
               uri: '<PUBLIC_URL>/bdr/credential.png',
-              url: '<PUBLIC_URL>/bdr/credential.png',
             },
             description: 'PID Credential',
             locale: 'en-US',
             logo: {
               uri: '<PUBLIC_URL>/issuer.png',
-              url: '<PUBLIC_URL>/issuer.png',
             },
             text_color: '#000000',
           },
@@ -84,6 +83,7 @@ export const configs = [
     icon: 'school',
     config: {
       id: 'diploma', // Short, simple identifier
+      description: 'University academic diploma credential',
       config: {
         format: 'dc+sd-jwt',
         display: [

@@ -8,14 +8,6 @@
       "type": "string",
       "description": "Unique identifier for the VP request."
     },
-    "tenant": {
-      "description": "The tenant that owns this object.",
-      "allOf": [
-        {
-          "$ref": "./TenantEntity.schema.json"
-        }
-      ]
-    },
     "description": {
       "type": "string",
       "description": "Description of the presentation configuration."
@@ -54,11 +46,14 @@
       "items": {
         "$ref": "./PresentationAttachment.schema.json"
       }
+    },
+    "redirectUri": {
+      "type": "string",
+      "description": "Redirect URI to which the user-agent should be redirected after the presentation is completed."
     }
   },
   "required": [
     "id",
-    "tenant",
     "dcql_query"
   ]
 }

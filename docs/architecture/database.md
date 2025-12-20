@@ -5,25 +5,9 @@ default, a local **SQLite** database is used, but the system also supports
 **PostgreSQL** and can be extended to work with other engines such as **MySQL**
 thanks to TypeORM’s flexible architecture.
 
-> 💡 Database configuration is fully dynamic and can be defined via environment
-> variables.
+## Configuration
 
----
-
-## Configuration Overview
-
-| Variable      | Description                                                   | Required for | Default  |
-| ------------- | ------------------------------------------------------------- | ------------ | -------- |
-| `DB_TYPE`     | Database engine (`sqlite` or `postgres`)                      | All          | `sqlite` |
-| `FOLDER`      | Path for local SQLite database. Will be extended by tenant id | `sqlite`     | `./tmp`  |
-| `DB_HOST`     | Hostname for PostgreSQL                                       | `postgres`   | –        |
-| `DB_PORT`     | Port for PostgreSQL                                           | `postgres`   | –        |
-| `DB_USERNAME` | PostgreSQL username                                           | `postgres`   | –        |
-| `DB_PASSWORD` | PostgreSQL password                                           | `postgres`   | –        |
-| `DB_DATABASE` | PostgreSQL database name                                      | `postgres`   | –        |
-
-> ✅ If `DB_TYPE=sqlite`, only the `FOLDER` variable is needed. For `postgres`,
-> all `DB_*` variables must be provided.
+--8<-- "docs/generated/config-database.md"
 
 ---
 

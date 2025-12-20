@@ -13,7 +13,7 @@
   "editor.codeActionsOnSave": {
     "quickfix.biome": "explicit",
     "source.organizeImports.biome": "explicit",
-    "source.fixAll.markdownlint": true
+    "source.fixAll.markdownlint": "explicit"
   },
   "files.associations": {
     "*.json": "json"
@@ -34,7 +34,7 @@
   "json.schemas": [
     {
       "fileMatch": [
-        "/assets/config/*/issuance/issuance/*.json"
+        "/assets/config/*/issuance/issuance.json"
       ],
       "url": "./schemas/IssuanceDto.schema.json"
     },
@@ -52,9 +52,21 @@
     },
     {
       "fileMatch": [
+        "/assets/config/*/certs/*.json"
+      ],
+      "url": "./schemas/CertImportDto.schema.json"
+    },
+    {
+      "fileMatch": [
         "/assets/config/*/presentation/*.json"
       ],
       "url": "./schemas/PresentationConfigCreateDto.schema.json"
+    },
+    {
+      "fileMatch": [
+        "/assets/config/*/clients/*.json"
+      ],
+      "url": "./schemas/ClientEntity.schema.json"
     }
   ]
 }

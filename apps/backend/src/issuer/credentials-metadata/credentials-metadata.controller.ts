@@ -15,14 +15,4 @@ export class CredentialsMetadataController {
     vct(@Param("id") id: string, @Param("tenantId") tenantId: string) {
         return this.credentialsService.getVCT(id, tenantId);
     }
-
-    /**
-     * Retrieves the schema for a specific credential
-     * @param id
-     * @returns
-     */
-    @Get("schema/:id")
-    schema(@Param("id") id: string, @Param("tenantId") tenantId: string) {
-        return this.credentialsService.getSchema(id, tenantId);
-    }
 }

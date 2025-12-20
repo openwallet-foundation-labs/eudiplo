@@ -5,19 +5,14 @@ import {
     Get,
     Param,
     Post,
+    Req,
     Res,
-    UseGuards,
 } from "@nestjs/common";
-import {
-    ApiBody,
-    ApiProduces,
-    ApiResponse,
-    ApiSecurity,
-    ApiTags,
-} from "@nestjs/swagger";
-import { Response } from "express";
+import { ApiBody, ApiProduces, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { Request, Response } from "express";
 import * as QRCode from "qrcode";
-import { JwtAuthGuard } from "../../auth/auth.guard";
+import { Role } from "../../auth/roles/role.enum";
+import { Secured } from "../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../auth/token.decorator";
 import { OfferResponse } from "../../issuer/oid4vci/dto/offer-request.dto";
 import {
@@ -29,8 +24,6 @@ import { PresentationConfigCreateDto } from "./dto/presentation-config-create.dt
 import { PresentationsService } from "./presentations.service";
 
 @ApiTags("Presentation management")
-@UseGuards(JwtAuthGuard)
-@ApiSecurity("oauth2", ["api:read", "api:write"])
 @Controller("presentation-management")
 export class PresentationManagementController {
     constructor(
@@ -54,8 +47,6 @@ export class PresentationManagementController {
         },
     })
     @ApiProduces("application/json", "image/png")
-    @UseGuards(JwtAuthGuard)
-    @ApiSecurity("oauth2")
     @ApiBody({
         type: PresentationRequest,
         examples: {
@@ -73,10 +64,19 @@ export class PresentationManagementController {
                     requestId: "pid",
                 },
             },
+            "dc-api": {
+                summary: "DC API",
+                value: {
+                    response_type: ResponseType.DC_API,
+                    requestId: "pid",
+                },
+            },
         },
     })
+    @Secured([Role.PresentationOffer, Role.Presentations])
     @Post("request")
     async getOffer(
+        @Req() req: Request,
         @Res() res: Response,
         @Body() body: PresentationRequest,
         @Token() user: TokenPayload,
@@ -85,12 +85,15 @@ export class PresentationManagementController {
             body.requestId,
             {
                 webhook: body.webhook,
+                redirectUri: body.redirectUri,
             },
-            user.sub,
+            user.entity!.id,
+            body.response_type === ResponseType.DC_API,
+            req.get("origin") || req.get("host") || "",
         );
         values.uri = `openid4vp://?${values.uri}`;
         if (body.response_type === ResponseType.QRCode) {
-            // Generate QR code as a PNG buffer
+            // Generate QR code as a PNG buffer.
             const qrCodeBuffer = await QRCode.toBuffer(values.uri);
 
             // Set the response content type to image/png
@@ -107,9 +110,12 @@ export class PresentationManagementController {
      * Returns the presentation request configurations.
      * @returns
      */
+    @Secured([Role.Presentations])
     @Get()
     configuration(@Token() user: TokenPayload) {
-        return this.presentationsService.getPresentationConfigs(user.sub);
+        return this.presentationsService.getPresentationConfigs(
+            user.entity!.id,
+        );
     }
 
     /**
@@ -117,13 +123,14 @@ export class PresentationManagementController {
      * @param config
      * @returns
      */
+    @Secured([Role.Presentations])
     @Post()
     storePresentationConfig(
         @Body() config: PresentationConfigCreateDto,
         @Token() user: TokenPayload,
     ) {
         return this.presentationsService.storePresentationConfig(
-            user.sub,
+            user.entity!.id,
             config,
         );
     }
@@ -133,8 +140,12 @@ export class PresentationManagementController {
      * @param id
      * @returns
      */
+    @Secured([Role.Presentations])
     @Delete(":id")
     deleteConfiguration(@Param("id") id: string, @Token() user: TokenPayload) {
-        return this.presentationsService.deletePresentationConfig(id, user.sub);
+        return this.presentationsService.deletePresentationConfig(
+            id,
+            user.entity!.id,
+        );
     }
 }

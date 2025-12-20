@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -24,7 +23,6 @@ export interface JsonViewDialogData {
   selector: 'app-json-view-dialog',
   standalone: true,
   imports: [
-    CommonModule,
     MatDialogModule,
     MatButtonModule,
     MatIconModule,
@@ -76,6 +74,10 @@ export class JsonViewDialogComponent {
   save(): void {
     if (this.jsonControl.valid && this.jsonControl.value) {
       try {
+        if (typeof this.jsonControl.value !== 'string') {
+          this.dialogRef.close(this.jsonControl.value);
+          return;
+        }
         const parsedJson = JSON.parse(this.jsonControl.value);
         this.dialogRef.close(parsedJson);
       } catch {

@@ -1,0 +1,102 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>badge</mat-icon>
+      Certificates (Multiple)
+    </mat-card-title>
+    <mat-card-subtitle> X.509 certificates for public key verification </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content fxLayout="column" fxLayoutGap="16px">
+    @if (!createMode) {
+      <mat-card class="info-card">
+        <mat-card-content>
+          <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
+            <mat-icon class="info-icon">info</mat-icon>
+            <div>
+              <strong>Certificate Management</strong>
+              <p class="info-text">
+                Import an existing certificate (signed by a CA) or generate a self-signed
+                certificate for this key. You can have multiple certificates for different purposes.
+              </p>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <div [formArray]="certificatesArray">
+      @if (certificatesArray.length > 0) {
+        @for (cert of certificatesArray.controls; let i = $index; track i) {
+          <div [formGroupName]="i" fxLayout="column" fxLayoutGap="16px" class="certificate-item">
+            <div fxLayout="row" fxLayoutAlign="space-between center">
+              <h5 class="cert-header">Certificate {{ i + 1 }}</h5>
+              <button
+                matIconButton
+                type="button"
+                (click)="removeCertificate(i)"
+                color="warn"
+                title="Remove certificate"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+
+            <div>
+              <h5 class="cert-pem-header">Usage Types</h5>
+              <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="start center">
+                @for (type of certificateTypes; track type.value) {
+                  <mat-checkbox [formControlName]="type.value">
+                    {{ type.label }}
+                  </mat-checkbox>
+                }
+              </div>
+            </div>
+
+            <div>
+              <h5 class="cert-pem-header">Certificate (PEM Format)</h5>
+              <app-editor
+                formControlName="crt"
+                [editorOptions]="editorOptionsPem"
+                [errors]="cert.get('crt')?.errors"
+              ></app-editor>
+            </div>
+          </div>
+          @if (i < certificatesArray.length - 1) {
+            <mat-divider class="cert-divider"></mat-divider>
+          }
+        }
+      } @else {
+        <p class="info-text">No certificates added. Add one to associate with this key.</p>
+      }
+    </div>
+
+    <div fxLayout="row" fxLayoutGap="8px">
+      <button mat-stroked-button type="button" (click)="addCertificate()">
+        <mat-icon>upload</mat-icon>
+        Import Certificate
+      </button>
+
+      @if (!createMode) {
+        <button mat-stroked-button type="button" color="primary" [matMenuTriggerFor]="certTypeMenu">
+          <mat-icon>verified</mat-icon>
+          Generate Self-Signed
+        </button>
+        <mat-menu #certTypeMenu="matMenu">
+          <button mat-menu-item (click)="generateSelfSignedCert(['signing'])">
+            <mat-icon>edit</mat-icon>
+            <span>Signing Only</span>
+          </button>
+          <button mat-menu-item (click)="generateSelfSignedCert(['access'])">
+            <mat-icon>vpn_key</mat-icon>
+            <span>Access Only</span>
+          </button>
+          <button mat-menu-item (click)="generateSelfSignedCert(['signing', 'access'])">
+            <mat-icon>verified</mat-icon>
+            <span>Both Signing & Access</span>
+          </button>
+        </mat-menu>
+      }
+    </div>
+  </mat-card-content>
+</mat-card>

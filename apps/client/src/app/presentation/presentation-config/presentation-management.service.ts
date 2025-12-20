@@ -1,25 +1,19 @@
 import { Injectable } from '@angular/core';
-import { OfferResponse, PresentationConfig, PresentationRequest } from '../../generated';
-import { client } from '../../generated/client.gen';
+import { OfferResponse, PresentationConfig, PresentationRequest } from '@eudiplo/sdk';
 import {
   presentationManagementControllerConfiguration,
   presentationManagementControllerDeleteConfiguration,
   presentationManagementControllerGetOffer,
   presentationManagementControllerStorePresentationConfig,
-} from '../../generated/sdk.gen';
+} from '@eudiplo/sdk';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PresentationManagementService {
   createConfiguration(value: PresentationConfig) {
-    return presentationManagementControllerStorePresentationConfig({ client, body: value }).then(
-      (response) => {
-        if (response.error) {
-          throw new Error((response.error as any).message);
-        }
-        return response.data as PresentationConfig;
-      }
+    return presentationManagementControllerStorePresentationConfig({ body: value }).then(
+      (response) => response.data as PresentationConfig
     );
   }
   getPresentationById(presentationId: string) {
@@ -28,26 +22,20 @@ export class PresentationManagementService {
     });
   }
   loadConfigurations(): PromiseLike<PresentationConfig[]> {
-    return presentationManagementControllerConfiguration({ client }).then((response) => {
+    return presentationManagementControllerConfiguration().then((response) => {
       return response.data || [];
     });
   }
 
   deleteConfiguration(id: string) {
     return presentationManagementControllerDeleteConfiguration({
-      client,
       path: { id },
     });
   }
 
   getOffer(offerRequest: PresentationRequest): Promise<OfferResponse> {
-    return presentationManagementControllerGetOffer({ client, body: offerRequest }).then(
-      (response) => {
-        if (response.error) {
-          throw new Error((response.error as any).message);
-        }
-        return response.data as OfferResponse;
-      }
+    return presentationManagementControllerGetOffer({ body: offerRequest }).then(
+      (response) => response.data as OfferResponse
     );
   }
 }

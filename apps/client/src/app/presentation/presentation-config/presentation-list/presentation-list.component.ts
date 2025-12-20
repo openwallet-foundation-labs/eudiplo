@@ -6,7 +6,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { PresentationConfig } from '../../../generated';
+import { PresentationConfig } from '@eudiplo/sdk';
 import { PresentationManagementService } from '../presentation-management.service';
 
 @Component({

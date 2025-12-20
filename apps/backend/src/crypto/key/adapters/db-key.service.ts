@@ -11,13 +11,16 @@ import {
     JWTPayload,
     SignJWT,
 } from "jose";
-import { Repository } from "typeorm/repository/Repository";
+import { PinoLogger } from "nestjs-pino";
+import { Repository } from "typeorm";
 import { v4 } from "uuid";
+import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
+import { ConfigImportService } from "../../../utils/config-import/config-import.service";
 import { EC_Public } from "../../../well-known/dto/jwks-response.dto";
 import { CryptoImplementation } from "../crypto-implementation/crypto-implementation";
 import { CryptoImplementationService } from "../crypto-implementation/crypto-implementation.service";
 import { KeyImportDto } from "../dto/key-import.dto";
-import { CertEntity, CertificateType } from "../entities/cert.entity";
+import { CertEntity } from "../entities/cert.entity";
 import { KeyEntity } from "../entities/keys.entity";
 import { KeyService } from "../key.service";
 
@@ -30,10 +33,20 @@ export class DBKeyService extends KeyService {
     constructor(
         configService: ConfigService,
         private cryptoService: CryptoImplementationService,
+        keyRepository: Repository<KeyEntity>,
+        configImportService: ConfigImportService,
         certRepository: Repository<CertEntity>,
-        private keyRepository: Repository<KeyEntity>,
+        tenantRepository: Repository<TenantEntity>,
+        logger: PinoLogger,
     ) {
-        super(configService, certRepository);
+        super(
+            configService,
+            keyRepository,
+            configImportService,
+            certRepository,
+            tenantRepository,
+            logger,
+        );
         this.crypto = cryptoService.getCrypto();
     }
 
@@ -44,14 +57,13 @@ export class DBKeyService extends KeyService {
      * @returns
      */
     import(tenantId: string, body: KeyImportDto): Promise<string> {
-        const privateKey = body.privateKey;
         return this.keyRepository
             .save({
-                id: privateKey.kid,
+                id: body.id,
                 tenantId,
-                key: privateKey,
+                key: body.key,
             })
-            .then(() => privateKey.kid);
+            .then(() => body.id);
     }
 
     /**
@@ -66,6 +78,10 @@ export class DBKeyService extends KeyService {
             ext: _ext,
             ...publicKey
         } = privateKey;
+        // Ensure alg is set if not present
+        if (!publicKey.alg) {
+            publicKey.alg = this.cryptoService.getAlg();
+        }
         return publicKey as EC_Public;
     }
 
@@ -133,16 +149,12 @@ export class DBKeyService extends KeyService {
      * If no key exists, it will throw an error.
      * @returns
      */
-    getKid(
-        tenantId: string,
-        type: CertificateType = "signing",
-    ): Promise<string> {
-        return this.certRepository
+    getKid(tenantId: string): Promise<string> {
+        return this.keyRepository
             .findOneByOrFail({
                 tenantId,
-                type,
             })
-            .then((cert) => cert.id);
+            .then((key) => key.id);
     }
 
     /**
@@ -199,9 +211,16 @@ export class DBKeyService extends KeyService {
         keyId?: string,
     ): Promise<string> {
         const privateKey = await this.getPrivateKey(tenantId, keyId);
-        const privateKeyInstance = (await importJWK(privateKey)) as CryptoKey;
+        const privateKeyInstance = (await importJWK(
+            privateKey,
+            this.cryptoService.getAlg(),
+        )) as CryptoKey;
         return new SignJWT(payload)
             .setProtectedHeader(header)
             .sign(privateKeyInstance);
+    }
+
+    async deleteKey(tenantId: string, keyId: string): Promise<void> {
+        await this.keyRepository.delete({ tenantId, id: keyId });
     }
 }

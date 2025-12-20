@@ -49,6 +49,40 @@
   }
 }
 
+.display-entry-card {
+  margin: 8px 0;
+  border-left: 4px solid #2196f3;
+
+  mat-card-content {
+    padding: 16px !important;
+  }
+}
+
+.locale-icon {
+  vertical-align: middle;
+  font-size: 18px;
+  margin-right: 4px;
+}
+
+.logo-container {
+  margin-top: 8px;
+}
+
+.logo-image {
+  max-width: 200px;
+  max-height: 100px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  display: block;
+}
+
+.logo-url {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+  word-break: break-all;
+}
+
 mat-card-header {
   margin-bottom: 16px;
 

@@ -40,14 +40,14 @@
     <th mat-header-cell *matHeaderCellDef>Actions</th>
     <td mat-cell *matCellDef="let config">
       <button
-        mat-icon-button
+        matIconButton
         [routerLink]="[config.id]"
         routerLinkActive="router-link-active"
         matTooltip="View Configuration"
       >
         <mat-icon>visibility</mat-icon>
       </button>
-      <button mat-icon-button [routerLink]="[config.id, 'edit']" matTooltip="Edit Configuration">
+      <button matIconButton [routerLink]="[config.id, 'edit']" matTooltip="Edit Configuration">
         <mat-icon>edit</mat-icon>
       </button>
     </td>

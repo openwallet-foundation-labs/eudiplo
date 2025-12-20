@@ -1,45 +1,45 @@
 services:
-    eudiplo:
-        image: ghcr.io/openwallet-foundation-labs/eudiplo:latest
-        restart: always
-        env_file:
-            - .env
-        ports:
-            - '3000:3000'
-        volumes:
-            - ./config:/app/config
-        networks:
-            - eudiplo-network
-        healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
-            interval: 30s
-            timeout: 10s
-            retries: 3
-            start_period: 40s
+  eudiplo:
+    image: ghcr.io/openwallet-foundation-labs/eudiplo:latest
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./config:/app/config
+    networks:
+      - eudiplo-network
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
-    eudiplo-client:
-        image: ghcr.io/openwallet-foundation-labs/eudiplo-client:latest
-        restart: always
-        ports:
-            - '4200:80'
-        depends_on:
-            eudiplo:
-                condition: service_healthy
-        networks:
-            - eudiplo-network
-        environment:
-            - API_BASE_URL=http://eudiplo:3000
-        healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:80"]
-            interval: 30s
-            timeout: 10s
-            retries: 3
-            start_period: 10s
+  eudiplo-client:
+    image: ghcr.io/openwallet-foundation-labs/eudiplo-client:latest
+    restart: always
+    ports:
+      - '4200:80'
+    depends_on:
+      eudiplo:
+        condition: service_healthy
+    networks:
+      - eudiplo-network
+    environment:
+      - API_BASE_URL=http://eudiplo:3000
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:80']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
 networks:
-    eudiplo-network:
-        driver: bridge
+  eudiplo-network:
+    driver: bridge
 
 volumes:
-    eudiplo-config:
-        driver: local
+  eudiplo-config:
+    driver: local

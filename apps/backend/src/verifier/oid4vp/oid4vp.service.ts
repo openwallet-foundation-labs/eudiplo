@@ -1,12 +1,14 @@
 import { randomUUID } from "node:crypto";
-import { ConflictException, Injectable } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { v4 } from "uuid";
-import { CryptoService } from "../../crypto/crypto.service";
 import { EncryptionService } from "../../crypto/encryption/encryption.service";
+import { CertService } from "../../crypto/key/cert/cert.service";
+import { CryptoImplementationService } from "../../crypto/key/crypto-implementation/crypto-implementation.service";
+import { KeyService } from "../../crypto/key/key.service";
 import { OfferResponse } from "../../issuer/oid4vci/dto/offer-request.dto";
 import { RegistrarService } from "../../registrar/registrar.service";
-import { Session } from "../../session/entities/session.entity";
+import { SessionStatus } from "../../session/entities/session.entity";
 import { SessionService } from "../../session/session.service";
 import { SessionLoggerService } from "../../utils/logger/session-logger.service";
 import { SessionLogContext } from "../../utils/logger/session-logger-context";
@@ -19,7 +21,8 @@ import { PresentationRequestOptions } from "./dto/presentation-request-options.d
 @Injectable()
 export class Oid4vpService {
     constructor(
-        private cryptoService: CryptoService,
+        private certService: CertService,
+        @Inject("KeyService") public readonly keyService: KeyService,
         private encryptionService: EncryptionService,
         private configService: ConfigService,
         private registrarService: RegistrarService,
@@ -27,18 +30,23 @@ export class Oid4vpService {
         private sessionService: SessionService,
         private sessionLogger: SessionLoggerService,
         private webhookService: WebhookService,
+        private cryptoImplementationService: CryptoImplementationService,
     ) {}
 
     /**
      * Creates an authorization request for the OID4VP flow.
      * This method generates a JWT that includes the necessary parameters for the authorization request.
      * It initializes the session logging context and logs the start of the flow.
-     * @param requestId
-     * @param tenantId
-     * @param auth_session
+     * @param session
+     * @param origin
      * @returns
      */
-    async createAuthorizationRequest(session: Session): Promise<string> {
+    async createAuthorizationRequest(
+        sessionId: string,
+        origin: string,
+    ): Promise<string> {
+        const session = await this.sessionService.get(sessionId);
+
         // Create session logging context
         const logContext: SessionLogContext = {
             sessionId: session.id,
@@ -99,19 +107,27 @@ export class Oid4vpService {
                     : 1,
             });
 
-            const hostname = new URL(
-                this.configService.getOrThrow<string>("PUBLIC_URL"),
-            ).hostname;
-
             const lifeTime = 60 * 60;
+
+            const cert = await this.certService.find({
+                tenantId: session.tenantId,
+                type: "access",
+            });
+
+            const certHash = await this.certService.getCertHash(cert);
 
             const request = {
                 payload: {
                     response_type: "vp_token",
-                    client_id: "x509_san_dns:" + hostname,
-                    response_uri: `${host}/${session.id}/oid4vp`,
-                    response_mode: "direct_post.jwt",
+                    client_id: "x509_hash:" + certHash,
+                    response_uri: !session.useDcApi
+                        ? `${host}/${session.id}/oid4vp`
+                        : undefined,
+                    response_mode: !session.useDcApi
+                        ? "direct_post.jwt"
+                        : "dc_api.jwt",
                     nonce,
+                    expected_origins: session.useDcApi ? [origin] : undefined,
                     dcql_query,
                     client_metadata: {
                         jwks: {
@@ -121,23 +137,23 @@ export class Oid4vpService {
                                 ),
                             ],
                         },
-                        vp_formats: {
-                            mso_mdoc: {
-                                alg: ["ES256"],
-                            },
+                        vp_formats_supported: {
+                            //MDOC not supported yet
+                            /* mso_mdoc: {
+                                alg: ["ES256", "Ed25519"],
+                            }, */
                             "dc+sd-jwt": {
-                                "kb-jwt_alg_values": ["ES256"],
-                                "sd-jwt_alg_values": ["ES256"],
+                                "kb-jwt_alg_values":
+                                    this.cryptoImplementationService.getSupportedAlgorithms(),
+                                "sd-jwt_alg_values":
+                                    this.cryptoImplementationService.getSupportedAlgorithms(),
                             },
                         },
-                        authorization_encrypted_response_alg: "ECDH-ES",
-                        authorization_encrypted_response_enc: "A128GCM",
-                        client_name:
-                            this.configService.getOrThrow<string>("RP_NAME"),
-                        response_types_supported: ["vp_token"],
+                        encrypted_response_enc_values_supported: ["A128GCM"],
                     },
-                    state: session.id,
-                    aud: host,
+                    state: !session.useDcApi ? session.id : undefined,
+                    //TODO: check if this value is correct accroding to https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-aud-of-a-request-object
+                    aud: "https://self-issued.me/v2",
                     exp: Math.floor(Date.now() / 1000) + lifeTime,
                     iat: Math.floor(new Date().getTime() / 1000),
                     verifier_attestations: regCert
@@ -154,34 +170,24 @@ export class Oid4vpService {
                 },
             };
 
-            const accessCert = await this.cryptoService.getCertChain(
-                "access",
-                session.tenantId,
-            );
-
             const header = {
                 ...request.header,
                 alg: "ES256",
-                x5c: accessCert,
+                x5c: this.certService.getCertChain(cert),
             };
 
-            const keyId = await this.cryptoService.keyService.getKid(
-                session.tenantId,
-                "access",
-            );
-            const signedJwt = await this.cryptoService.signJwt(
-                header,
+            const signedJwt = await this.keyService.signJWT(
                 request.payload,
+                header,
                 session.tenantId,
-                keyId,
+                cert.keyId,
             );
 
             this.sessionLogger.logSession(
                 logContext,
                 "Authorization request created successfully",
                 {
-                    signedJwtLength: signedJwt.length,
-                    certificateChainLength: accessCert?.length || 0,
+                    certificateId: cert.id,
                 },
             );
 
@@ -206,6 +212,8 @@ export class Oid4vpService {
         requestId: string,
         values: PresentationRequestOptions,
         tenantId: string,
+        useDcApi: boolean,
+        origin: string,
     ): Promise<OfferResponse> {
         const presentationConfig =
             await this.presentationsService.getPresentationConfig(
@@ -215,12 +223,19 @@ export class Oid4vpService {
         const fresh = values.session === undefined;
         values.session = values.session || v4();
 
-        const hostname = new URL(
-            this.configService.getOrThrow<string>("PUBLIC_URL"),
-        ).hostname;
+        const request_uri_method: "get" | "post" = "get";
+
+        const cert = await this.certService.find({
+            tenantId: tenantId,
+            type: "access",
+        });
+
+        const certHash = await this.certService.getCertHash(cert);
+
         const params = {
-            client_id: `x509_san_dns:${hostname}`,
-            request_uri: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${values.session}/oid4vp`,
+            client_id: "x509_hash:" + certHash,
+            request_uri: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${values.session}/oid4vp/request`,
+            request_uri_method,
         };
         const queryString = Object.entries(params)
             .map(
@@ -234,19 +249,33 @@ export class Oid4vpService {
         );
 
         if (fresh) {
-            await this.sessionService.create({
+            const session = await this.sessionService.create({
                 id: values.session,
-                claimsWebhook: values.webhook ?? presentationConfig.webhook,
+                parsedWebhook: values.webhook,
+                redirectUri:
+                    values.redirectUri ?? presentationConfig.redirectUri,
                 tenantId,
                 requestId,
                 requestUrl: `openid4vp://?${queryString}`,
                 expiresAt,
+                useDcApi,
             });
+
+            if (request_uri_method === "get") {
+                const signedJwt = await this.createAuthorizationRequest(
+                    session.id,
+                    origin,
+                );
+                this.sessionService.add(values.session, {
+                    requestObject: signedJwt,
+                });
+            }
         } else {
             await this.sessionService.add(values.session, {
-                claimsWebhook: values.webhook ?? presentationConfig.webhook,
+                //claimsWebhook: values.webhook ?? presentationConfig.webhook,
                 requestUrl: `openid4vp://?${queryString}`,
                 expiresAt,
+                useDcApi,
             });
         }
 
@@ -261,26 +290,33 @@ export class Oid4vpService {
      * @param body
      * @param tenantId
      */
-    async getResponse(body: AuthorizationResponse, session: Session) {
+    async getResponse(body: AuthorizationResponse, sessionId: string) {
+        const session = await this.sessionService.get(sessionId);
         const res = await this.encryptionService.decryptJwe<AuthResponse>(
             body.response,
             session.tenantId,
         );
-        if (!res.state) {
-            throw new ConflictException("No state found in the response");
-        }
+
+        //for dc api the state is no longer included in the res, see: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-request
 
         // Create session logging context
         const logContext: SessionLogContext = {
-            sessionId: res.state,
+            sessionId: session.id,
             tenantId: session.tenantId,
             flowType: "OID4VP",
             stage: "response_processing",
         };
 
+        const presentationConfig =
+            await this.presentationsService.getPresentationConfig(
+                session.requestId!,
+                session.tenantId,
+            );
+        const webhook = session.parsedWebhook || presentationConfig.webhook;
+
         this.sessionLogger.logFlowStart(logContext, {
             action: "process_presentation_response",
-            hasWebhook: !!session.claimsWebhook,
+            hasWebhook: !!webhook,
         });
 
         try {
@@ -304,27 +340,46 @@ export class Oid4vpService {
             await this.sessionService.add(res.state, {
                 //TODO: not clear why it has to be any
                 credentials: credentials as any,
+                status: SessionStatus.Completed,
             });
-            // if there a a webook URL, send the response there
-            //TODO: move to dedicated service to reuse it also in the oid4vci flow.
-            if (session.claimsWebhook) {
-                await this.webhookService.sendWebhook(
-                    session,
+            // if there a a webhook passed in the session, use it
+            if (webhook) {
+                const response = await this.webhookService.sendWebhook({
+                    webhook,
                     logContext,
+                    session,
                     credentials,
-                    false,
-                );
+                    expectResponse: false,
+                });
+                //override it when a redirect URI is returned by the webhook
+                if (response?.redirectUri) {
+                    session.redirectUri = response.redirectUri;
+                }
             }
 
             this.sessionLogger.logFlowComplete(logContext, {
                 credentialCount: credentials?.length || 0,
-                webhookSent: !!session.claimsWebhook,
+                webhookSent: !!webhook,
             });
-        } catch (error) {
+
+            //check if a redirect URI is defined and return it to the caller. If so, sendResponse is ignored
+            if (session.redirectUri) {
+                return {
+                    redirect_uri: session.redirectUri,
+                };
+            }
+
+            if (body.sendResponse) {
+                return credentials;
+            }
+
+            return {};
+        } catch (error: any) {
+            console.log(error);
             this.sessionLogger.logFlowError(logContext, error as Error, {
                 action: "process_presentation_response",
             });
-            throw error;
+            throw new BadRequestException(error.message);
         }
     }
 }

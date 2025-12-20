@@ -1,11 +1,11 @@
-import { IsIn, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsNumber, IsOptional, IsString } from "class-validator";
 
 export class StatusUpdateDto {
     /**
      * The session ID of the user
      */
     @IsString()
-    sessionId: string;
+    sessionId!: string;
 
     /**
      * The ID of the credential configuration
@@ -17,9 +17,8 @@ export class StatusUpdateDto {
 
     /**
      * The status of the credential
-     * 0 = valid, 1 = revoked
+     * 0 = valid, 1 = revoked, 2 = suspended
      */
     @IsNumber()
-    @IsIn([0, 1])
-    status: number;
+    status!: number;
 }

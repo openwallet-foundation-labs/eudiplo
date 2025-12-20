@@ -2,16 +2,19 @@ import { HttpService } from "@nestjs/axios";
 import { ConfigService } from "@nestjs/config";
 import { JwtPayload, Signer } from "@sd-jwt/types";
 import { exportJWK, importSPKI, JWK, JWTHeaderParameters } from "jose";
+import { PinoLogger } from "nestjs-pino/PinoLogger";
 import { firstValueFrom } from "rxjs";
-import { Repository } from "typeorm/repository/Repository";
+import { Repository } from "typeorm";
 import { v4 } from "uuid";
+import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
+import { ConfigImportService } from "../../../utils/config-import/config-import.service";
 import {
     CryptoImplementationService,
     CryptoType,
 } from "../crypto-implementation/crypto-implementation.service";
 import { KeyImportDto } from "../dto/key-import.dto";
-import { KeyObj } from "../dto/key-object.dto";
 import { CertEntity } from "../entities/cert.entity";
+import { KeyEntity } from "../entities/keys.entity";
 import { KeyService } from "../key.service";
 
 export class VaultKeyService extends KeyService {
@@ -24,10 +27,20 @@ export class VaultKeyService extends KeyService {
         private httpService: HttpService,
         configService: ConfigService,
         private cryptoService: CryptoImplementationService,
+        keyRepository: Repository<KeyEntity>,
+        configImportService: ConfigImportService,
         certRepository: Repository<CertEntity>,
+        tenantRepository: Repository<TenantEntity>,
+        logger: PinoLogger,
     ) {
-        super(configService, certRepository);
-
+        super(
+            configService,
+            keyRepository,
+            configImportService,
+            certRepository,
+            tenantRepository,
+            logger,
+        );
         this.vaultUrl = this.configService.get<string>("VAULT_URL") as string;
         this.headers = {
             headers: {
@@ -38,22 +51,15 @@ export class VaultKeyService extends KeyService {
         };
     }
 
-    importFromFileSystem() {
-        throw new Error(
-            "VaultKeyService does not support importing from file system.",
-        );
-        return Promise.resolve();
-    }
-
     /**
      * Create a new transit for the tenant.
      * @param tenantId
      */
     async init(tenantId: string) {
-        //TODO: what to do when it throws an error e.g. when the transit already exists?
+        //TODO: what to do when it throws an error e.g. when the transit already exists
         await firstValueFrom(
             this.httpService.post(
-                `${this.vaultUrl}/v1/sys/mounts/keys/${tenantId}`,
+                `${this.vaultUrl}/v1/sys/mounts/${tenantId}`,
                 {
                     type: "transit",
                 },
@@ -67,10 +73,10 @@ export class VaultKeyService extends KeyService {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     import(tenantId: string, body: KeyImportDto): Promise<string> {
-        throw new Error("Method not implemented.");
+        throw new Error("Importing not supported by VaultKeyService");
     }
 
-    getKeys(tenantId: string): Promise<KeyObj[]> {
+    /* getKeys(tenantId: string): Promise<KeyObj[]> {
         return firstValueFrom(
             this.httpService.get<any>(
                 `${this.vaultUrl}/v1/${tenantId}/keys?list=true`,
@@ -94,7 +100,7 @@ export class VaultKeyService extends KeyService {
                 }),
             );
         });
-    }
+    } */
 
     /**
      * Get the signer for the key service
@@ -224,12 +230,11 @@ export class VaultKeyService extends KeyService {
                 `${this.vaultUrl}/v1/${tenantId}/sign/${keyId}`,
                 {
                     input: Buffer.from(value).toString("base64"),
+                    marshaling_algorithm: "jws",
                 },
                 this.headers,
             ),
-        ).then((res) =>
-            this.derToJwtSignature(res.data.data.signature.split(":")[2]),
-        );
+        ).then((res) => res.data.data.signature.split(":")[2]);
     }
 
     /**
@@ -262,50 +267,12 @@ export class VaultKeyService extends KeyService {
         }
     }
 
-    /**
-     * Converts a DER signature to a JWT signature.
-     * @param derSignature
-     * @returns
-     */
-    derToJwtSignature(derSignature: string) {
-        // Step 1: Extract r and s from DER signature
-        const der = Buffer.from(derSignature, "base64");
-        const sequence = der.slice(2); // Skip the sequence tag and length
-        const rLength = sequence[1];
-        const r = sequence.slice(2, 2 + rLength);
-        const s = sequence.slice(2 + rLength + 2); // Skip r, its tag and length byte, and s's tag and length byte
-
-        // Step 2: Ensure r and s are 32 bytes each (pad with zeros if necessary)
-        // Ensure r and s are 32 bytes each
-        let rPadded: Buffer;
-        let sPadded: Buffer;
-        if (r.length > 32) {
-            if (r.length === 33 && r[0] === 0x00) {
-                rPadded = r.slice(1);
-            } else {
-                throw new Error("Invalid r length in DER signature");
-            }
-        } else {
-            rPadded = Buffer.concat([Buffer.alloc(32 - r.length), r]);
-        }
-        if (s.length > 32) {
-            if (s.length === 33 && s[0] === 0x00) {
-                sPadded = s.slice(1);
-            } else {
-                throw new Error("Invalid s length in DER signature");
-            }
-        } else {
-            sPadded = Buffer.concat([Buffer.alloc(32 - s.length), s]);
-        }
-
-        // Step 3: Concatenate r and s to form the raw signature
-        const rawSignature = Buffer.concat([rPadded, sPadded]);
-
-        // Step 4: Base64url encode the raw signature
-        return rawSignature
-            .toString("base64")
-            .replace(/\+/g, "-")
-            .replace(/\//g, "_")
-            .replace(/=/g, "");
+    async deleteKey(tenantId: string, keyId: string): Promise<void> {
+        await firstValueFrom(
+            this.httpService.delete(
+                `${this.vaultUrl}/v1/${tenantId}/keys/${keyId}`,
+                this.headers,
+            ),
+        );
     }
 }

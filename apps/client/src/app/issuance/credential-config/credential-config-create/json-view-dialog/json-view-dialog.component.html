@@ -1,6 +1,6 @@
 <div mat-dialog-title fxLayout="row" fxLayoutAlign="space-between center">
   <h2>{{ data.title }}</h2>
-  <button mat-icon-button (click)="copyToClipboard()">
+  <button matIconButton (click)="copyToClipboard()">
     <mat-icon>content_copy</mat-icon>
   </button>
 </div>
@@ -18,7 +18,7 @@
 <mat-dialog-actions fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="end center">
   <button mat-button (click)="cancel()">Cancel</button>
   @if (!data.readonly) {
-    <button mat-raised-button (click)="save()" [disabled]="jsonControl.invalid">
+    <button mat-flat-button (click)="save()" [disabled]="jsonControl.invalid">
       <mat-icon>save</mat-icon>
       Apply Changes
     </button>

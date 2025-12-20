@@ -1,10 +1,16 @@
-import { ConflictException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Signer } from "@sd-jwt/types";
-import { JoseHeaderParameters, JWK, JWTPayload } from "jose";
+import { plainToClass } from "class-transformer";
+import { readFileSync } from "fs";
+import { JWK, JWSHeaderParameters, JWTPayload } from "jose";
+import { PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm";
+import { TenantEntity } from "../../auth/tenant/entitites/tenant.entity";
+import { ConfigImportService } from "../../utils/config-import/config-import.service";
 import { KeyImportDto } from "./dto/key-import.dto";
-import { CertEntity, CertificateType } from "./entities/cert.entity";
+import { UpdateKeyDto } from "./dto/key-update.dto";
+import { CertEntity } from "./entities/cert.entity";
+import { KeyEntity, KeyUsage } from "./entities/keys.entity";
 
 /**
  * Generic interface for a key service
@@ -12,7 +18,11 @@ import { CertEntity, CertificateType } from "./entities/cert.entity";
 export abstract class KeyService {
     constructor(
         protected configService: ConfigService,
-        protected certRepository: Repository<CertEntity>,
+        protected keyRepository: Repository<KeyEntity>,
+        protected configImportService: ConfigImportService,
+        private certRepository: Repository<CertEntity>,
+        private tenantRepository: Repository<TenantEntity>,
+        private logger: PinoLogger,
     ) {}
 
     /**
@@ -28,6 +38,17 @@ export abstract class KeyService {
      * @return key id of the generated key.
      */
     abstract create(tenantId): Promise<string>;
+
+    /**
+     * Update key metadata
+     * @param tenantId
+     * @param id
+     * @param body
+     * @returns
+     */
+    update(tenantId: string, id: string, body: UpdateKeyDto) {
+        return this.keyRepository.update({ tenantId, id }, body);
+    }
 
     /**
      * Import a key into the key service.
@@ -46,7 +67,7 @@ export abstract class KeyService {
      * Get the key id
      * @returns
      */
-    abstract getKid(tenantId: string, type?: CertificateType): Promise<string>;
+    abstract getKid(tenantId: string, usage: KeyUsage): Promise<string>;
 
     /**
      * Get the public key
@@ -71,28 +92,70 @@ export abstract class KeyService {
     //TODO: this can be handled via the signer callback
     abstract signJWT(
         payload: JWTPayload,
-        header: JoseHeaderParameters,
+        header: JWSHeaderParameters,
         tenantId: string,
         keyId?: string,
     ): Promise<string>;
 
-    /**
-     * Get the certificate for the given key id.
-     * @param tenantId
-     * @param keyId
-     * @returns
-     */
-    protected getCertificate(tenantId: string, keyId: string): Promise<string> {
-        return this.certRepository
-            .findOneByOrFail({
+    getKeys(id: string): Promise<KeyEntity[]> {
+        return this.keyRepository.findBy({ tenantId: id, usage: "sign" });
+    }
+
+    getKey(tenantId: string, keyId: string): Promise<KeyEntity> {
+        return this.keyRepository.findOneOrFail({
+            where: {
                 tenantId,
                 id: keyId,
-            })
-            .then(
-                (cert) => cert.crt,
-                () => {
-                    throw new ConflictException("Certificate not found");
-                },
-            );
+            },
+            relations: ["certificates"],
+        });
+    }
+
+    abstract deleteKey(tenantId: string, id: string): Promise<void>;
+
+    /**
+     * Imports keys from the file system into the key service.
+     */
+    async importKeys() {
+        await this.configImportService.importConfigs<KeyImportDto>({
+            subfolder: "keys",
+            fileExtension: ".json",
+            validationClass: KeyImportDto,
+            resourceType: "key",
+            loadData: (filePath) => {
+                const payload = JSON.parse(readFileSync(filePath, "utf8"));
+                return plainToClass(KeyImportDto, payload);
+            },
+            checkExists: async (tenantId, data) => {
+                // Get all keys and check if any match the key material
+                const keys = await this.getKeys(tenantId);
+                // Compare key material (x, y coordinates for EC keys)
+                return keys.some(
+                    (k) => k.key.x === data.key.x && k.key.y === data.key.y,
+                );
+            },
+            deleteExisting: async (tenantId, data) => {
+                // Find and delete matching key
+                const keys = await this.getKeys(tenantId);
+                const existingKey = keys.find(
+                    (k) => k.key.x === data.key.x && k.key.y === data.key.y,
+                );
+                if (existingKey) {
+                    await this.certRepository.delete({
+                        id: existingKey.id,
+                        tenantId,
+                    });
+                }
+            },
+            processItem: async (tenantId, config) => {
+                const tenantEntity =
+                    await this.tenantRepository.findOneByOrFail({
+                        id: tenantId,
+                    });
+                await this.import(tenantEntity.id, config).catch((err) => {
+                    this.logger.info(err.message);
+                });
+            },
+        });
     }
 }

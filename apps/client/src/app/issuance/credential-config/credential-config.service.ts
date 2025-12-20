@@ -1,19 +1,20 @@
 import { Injectable } from '@angular/core';
-import { client } from '../../generated/client.gen';
 import {
+  CredentialConfig,
+  CredentialConfigCreate,
   credentialsControllerDeleteIssuanceConfiguration,
+  credentialsControllerGetConfigById,
   credentialsControllerGetConfigs,
   credentialsControllerStoreCredentialConfiguration,
-} from '../../generated/sdk.gen';
-import { CredentialConfig, CredentialConfigCreate } from '../../generated/types.gen';
+} from '@eudiplo/sdk';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CredentialConfigService {
   getConfig(configId: string) {
-    return this.loadConfigurations().then((configs) =>
-      configs.find((config) => config.id === configId)
+    return credentialsControllerGetConfigById({ path: { id: configId } }).then(
+      (response) => response.data
     );
   }
 
@@ -21,37 +22,26 @@ export class CredentialConfigService {
    * Load all existing credential configurations
    */
   async loadConfigurations(): Promise<CredentialConfig[]> {
-    const response = await credentialsControllerGetConfigs({ client });
+    const response = await credentialsControllerGetConfigs();
     return response.data || [];
   }
 
   /**
    * Save or update a credential configuration
    */
-  async saveConfiguration(config: CredentialConfigCreate): Promise<void> {
+  async saveConfiguration(config: CredentialConfigCreate): Promise<any> {
     return credentialsControllerStoreCredentialConfiguration({
       body: config,
-    }).then((response) => {
-      if (response.error) {
-        throw new Error((response.error as any).message);
-      }
-      //return response.data;
     });
   }
 
   /**
    * Delete a credential configuration
    */
-  async deleteConfiguration(configId: string): Promise<void> {
-    try {
-      await credentialsControllerDeleteIssuanceConfiguration({
-        client,
-        path: { id: configId },
-      });
-    } catch (error) {
-      console.error('Failed to delete credential configuration:', error);
-      throw new Error('Failed to delete configuration');
-    }
+  async deleteConfiguration(configId: string): Promise<any> {
+    return credentialsControllerDeleteIssuanceConfiguration({
+      path: { id: configId },
+    });
   }
 
   /**

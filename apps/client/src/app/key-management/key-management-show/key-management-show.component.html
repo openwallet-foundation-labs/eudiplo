@@ -3,109 +3,168 @@
     <div fxLayout="row" fxLayoutAlign="space-between center">
       <h2>Key Configuration: {{ key.id }}</h2>
       <div>
-        <button mat-icon-button [routerLink]="['../']">
+        <button matIconButton [routerLink]="['../']">
           <mat-icon>arrow_back</mat-icon>
         </button>
-        <button mat-icon-button [routerLink]="['edit']">
+        <button matIconButton [routerLink]="['edit']">
           <mat-icon>edit</mat-icon>
         </button>
-        <button mat-icon-button (click)="deleteKey()">
+        <button matIconButton (click)="deleteKey()">
           <mat-icon>delete</mat-icon>
         </button>
       </div>
     </div>
     <p><strong>Description:</strong> {{ key.description }}</p>
 
-    @if (key.crt) {
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>Certificate Information</mat-card-title>
-          <div class="spacer"></div>
-          <button
-            mat-icon-button
-            (click)="copyCertificateToClipboard()"
-            matTooltip="Copy certificate to clipboard"
-          >
-            <mat-icon>content_copy</mat-icon>
-          </button>
-        </mat-card-header>
-        <mat-card-content>
-          @if (certificateInfo) {
-            <div class="cert-info">
-              <h4>Certificate Details:</h4>
-              <table class="cert-details-table">
-                <tr>
-                  <td><strong>Subject:</strong></td>
-                  <td>{{ certificateInfo.subject }}</td>
-                </tr>
-                <tr>
-                  <td><strong>Issuer:</strong></td>
-                  <td>{{ certificateInfo.issuer }}</td>
-                </tr>
-                <tr>
-                  <td><strong>Valid From:</strong></td>
-                  <td>{{ certificateInfo.validFrom }}</td>
-                </tr>
-                <tr>
-                  <td><strong>Valid To:</strong></td>
-                  <td>
-                    <span [class]="certificateInfo.isExpired ? 'expired' : 'valid'">
-                      {{ certificateInfo.validTo }}
-                      @if (certificateInfo.isExpired) {
-                        <mat-icon class="status-icon expired">warning</mat-icon>
-                        <span class="status-text">EXPIRED</span>
-                      } @else {
-                        <mat-icon class="status-icon valid">check_circle</mat-icon>
-                        <span class="status-text">VALID</span>
-                      }
-                    </span>
-                  </td>
-                </tr>
-                <tr>
-                  <td><strong>Serial Number:</strong></td>
-                  <td>{{ certificateInfo.serialNumber }}</td>
-                </tr>
-                <tr>
-                  <td><strong>Signature Algorithm:</strong></td>
-                  <td>{{ certificateInfo.algorithm }}</td>
-                </tr>
-                <tr>
-                  <td><strong>Public Key Algorithm:</strong></td>
-                  <td>{{ certificateInfo.publicKeyAlgorithm }}</td>
-                </tr>
-                <tr>
-                  <td><strong>Key Usage:</strong></td>
-                  <td>
-                    @for (usage of certificateInfo.keyUsage; track usage) {
-                      <span class="key-usage-tag">{{ usage }}</span>
-                    }
-                  </td>
-                </tr>
-                <tr>
-                  <td><strong>Fingerprint (SHA-1):</strong></td>
-                  <td class="fingerprint">{{ certificateInfo.fingerprint }}</td>
-                </tr>
-              </table>
+    <!-- Public Key Section -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Public Key</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-tab-group>
+          <mat-tab label="JWK">
+            <div class="tab-content">
+              <div class="tab-header">
+                <button
+                  matIconButton
+                  (click)="copyPublicKeyToClipboard()"
+                  matTooltip="Copy JWK to clipboard"
+                >
+                  <mat-icon>content_copy</mat-icon>
+                </button>
+              </div>
+              <div class="pem-container">
+                <pre class="pem-certificate">{{ getPublicKeyJson() }}</pre>
+              </div>
             </div>
-          }
+          </mat-tab>
+          <mat-tab label="PEM">
+            <div class="tab-content">
+              <div class="tab-header">
+                <button
+                  matIconButton
+                  (click)="copyPublicKeyPemToClipboard()"
+                  matTooltip="Copy PEM to clipboard"
+                >
+                  <mat-icon>content_copy</mat-icon>
+                </button>
+              </div>
+              <div class="pem-container">
+                <pre class="pem-certificate">{{ publicKeyPem }}</pre>
+              </div>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+      </mat-card-content>
+    </mat-card>
 
-          <div class="cert-pem-section">
-            <h4>PEM Certificate:</h4>
-            <div class="pem-container">
-              <pre class="pem-certificate">{{ formatPemCertificate(key.crt) }}</pre>
-            </div>
+    <!-- Certificates List -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>
+          <div fxLayout="row" fxLayoutAlign="space-between center">
+            <span>Certificates</span>
           </div>
-        </mat-card-content>
-      </mat-card>
-    } @else {
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>Certificate</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <p class="no-cert-message">No certificate available for this key.</p>
-        </mat-card-content>
-      </mat-card>
-    }
+        </mat-card-title>
+        <div class="spacer"></div>
+        <button
+          matIconButton
+          color="primary"
+          [routerLink]="['/certificates/new']"
+          [queryParams]="{ keyId: key.id }"
+          matTooltip="Add Certificate"
+        >
+          <mat-icon>add</mat-icon>
+        </button>
+      </mat-card-header>
+      <mat-card-content>
+        @if (key.certificates.length > 0) {
+          <table mat-table [dataSource]="key.certificates" class="certificates-table">
+            <!-- ID Column -->
+            <ng-container matColumnDef="id">
+              <th mat-header-cell *matHeaderCellDef>Certificate ID</th>
+              <td mat-cell *matCellDef="let cert">
+                <code>{{ cert.id }}</code>
+              </td>
+            </ng-container>
+
+            <!-- Usage Types Column -->
+            <ng-container matColumnDef="types">
+              <th mat-header-cell *matHeaderCellDef>Usage Types</th>
+              <td mat-cell *matCellDef="let cert">
+                <div fxLayout="row" fxLayoutGap="8px">
+                  @if (cert.isSigningCert) {
+                    <mat-chip color="primary">
+                      <mat-icon>edit</mat-icon>
+                      Signing
+                    </mat-chip>
+                  }
+                  @if (cert.isAccessCert) {
+                    <mat-chip color="accent">
+                      <mat-icon>vpn_key</mat-icon>
+                      Access
+                    </mat-chip>
+                  }
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Description Column -->
+            <ng-container matColumnDef="description">
+              <th mat-header-cell *matHeaderCellDef>Description</th>
+              <td mat-cell *matCellDef="let cert">
+                {{ cert.description || '-' }}
+              </td>
+            </ng-container>
+
+            <!-- Status Column -->
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <td mat-cell *matCellDef="let cert">
+                @let certInfo = certificateInfoMap.get(cert.id);
+                @if (certInfo) {
+                  @if (certInfo.isExpired) {
+                    <mat-chip color="warn">
+                      <mat-icon>warning</mat-icon>
+                      Expired
+                    </mat-chip>
+                  } @else {
+                    <mat-chip color="accent">
+                      <mat-icon>check_circle</mat-icon>
+                      Valid
+                    </mat-chip>
+                  }
+                }
+              </td>
+            </ng-container>
+
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Actions</th>
+              <td mat-cell *matCellDef="let cert">
+                <button
+                  matIconButton
+                  [routerLink]="['/key-management', key.id, 'certificate', cert.id]"
+                  matTooltip="View certificate details"
+                >
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                <button
+                  matIconButton
+                  [routerLink]="['/key-management', key.id, 'certificate', cert.id, 'edit']"
+                  matTooltip="Edit certificate metadata"
+                >
+                  <mat-icon>edit</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns" class="cert-row"></tr>
+          </table>
+        }
+      </mat-card-content>
+    </mat-card>
   </div>
 }

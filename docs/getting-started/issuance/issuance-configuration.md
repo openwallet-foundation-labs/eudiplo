@@ -9,25 +9,17 @@ Issuance configurations define the parameters and settings for the issuance of c
 **Example Issuance Configuration:**
 
 ```json
-{
-  "id": "pid",
-  "description": "PID issuance with pre auth flow",
-  "authenticationConfig": {
-    "method": "none"
-  },
-  "credentialConfigIds": ["pid"],
-  "batchSize": 10,
-  "dPopRequired": false
-}
+--8<-- "assets/config/root/issuance/issuance.json"
 ```
+
+!!! Info
+
+    The auto generated schema reference can be found in the [API Documentation](../../../api/openapi/#issuancedto)
 
 ## Configuration Fields
 
-- `id` (string, required): Unique identifier for the issuance configuration.
-- `description` (string, required): Description of the issuance configuration.
-- `authenticationConfig` (object, required): Configuration for [authentication methods](./authentication.md).
-- `credentialConfigIds` (array of strings, required): List of [credential configuration](./credential-configuration.md) IDs to be issued.
-- `batchSize` (integer, optional): Number of credentials to issue in a batch (default is 1).
-- `dPopRequired` (boolean, optional): Indicates whether DPoP (Demonstration of Proof-of-Possession) is required for this issuance configuration (default is true).
-- `claimsWebhook`: (object, optional), webhook configuration for dynamic claims retrieval. See [Webhooks](../../architecture/webhooks.md#claims-webhook).
-- `notifyWebhook`: (object, optional), webhook configuration for issuance status notifications. See [Webhooks](../../architecture/webhooks.md#notification-webhook).
+- `authServers` (array of strings, optional): Authentication server URL for the issuance process.
+- `notifyWebhook` (object, optional): Webhook to send the result of the notification response. See [Webhooks](../../architecture/webhooks.md#notification-webhook).
+- `batchSize` (number, optional): Value to determine the amount of credentials that are issued in a batch. Default is 1.
+- `dPopRequired` (boolean, optional): Indicates whether DPoP is required for the issuance process. Default value is true.
+- `display` (array of objects, required): The display information from the [OID4VCI spec](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-credential-issuer-metadata:~:text=2%20or%20greater.-,display,-%3A%20OPTIONAL.%20A%20non). To host images or logos, you can use the [storage](../../architecture/storage.md) system provided by EUDIPLO.

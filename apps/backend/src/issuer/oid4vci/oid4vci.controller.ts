@@ -1,10 +1,18 @@
-import { Body, Controller, Post, Req, UseInterceptors } from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    Header,
+    HttpCode,
+    HttpStatus,
+    Param,
+    Post,
+    Req,
+    UseInterceptors,
+} from "@nestjs/common";
 import { ApiExcludeController, ApiParam } from "@nestjs/swagger";
 import type { CredentialResponse } from "@openid4vc/openid4vci";
 import type { Request } from "express";
 import { Oid4vciService } from "../../issuer/oid4vci/oid4vci.service";
-import { Session } from "../../session/entities/session.entity";
-import { SessionEntity } from "../../session/session.decorator";
 import { SessionLogger } from "../../utils/logger//session-logger.decorator";
 import { SessionLoggerInterceptor } from "../../utils/logger/session-logger.interceptor";
 import { NotificationRequestDto } from "./dto/notification-request.dto";
@@ -12,9 +20,9 @@ import { NotificationRequestDto } from "./dto/notification-request.dto";
 /**
  * Controller for handling OID4VCI (OpenID for Verifiable Credential Issuance) requests.
  */
-@ApiParam({ name: "session", required: true })
+@ApiParam({ name: "tenantId", required: true })
 @ApiExcludeController(process.env.SWAGGER_ALL !== "true")
-@Controller(":session/vci")
+@Controller(":tenantId/vci")
 @UseInterceptors(SessionLoggerInterceptor)
 export class Oid4vciController {
     constructor(private readonly oid4vciService: Oid4vciService) {}
@@ -26,11 +34,15 @@ export class Oid4vciController {
      */
     @Post("credential")
     @SessionLogger("session", "OID4VCI")
+    @HttpCode(HttpStatus.OK)
     credential(
         @Req() req: Request,
-        @SessionEntity() session: Session,
+        @Param("tenantId") tenantId: string,
     ): Promise<CredentialResponse> {
-        return this.oid4vciService.getCredential(req, session);
+        return this.oid4vciService.getCredential(req, tenantId).catch((err) => {
+            console.error("Error issuing credential:", err);
+            throw err;
+        });
     }
 
     /**
@@ -43,25 +55,18 @@ export class Oid4vciController {
     notifications(
         @Body() body: NotificationRequestDto,
         @Req() req: Request,
-        @SessionEntity() session: Session,
+        @Param("tenantId") tenantId: string,
     ) {
-        return this.oid4vciService.handleNotification(req, body, session);
+        return this.oid4vciService.handleNotification(req, body, tenantId);
     }
 
     @Post("nonce")
-    @SessionLogger("nonce", "OID4VCI")
-    nonce(@SessionEntity() session: Session) {
-        return this.oid4vciService.nonceRequest(session);
+    @HttpCode(HttpStatus.OK)
+    @Header("Cache-Control", "no-store")
+    nonce(@Param("tenantId") tenantId: string) {
+        //TODO: maybe also add it into the header, see https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-nonce-response
+        return this.oid4vciService.nonceRequest(tenantId).then((nonce) => ({
+            c_nonce: nonce,
+        }));
     }
-
-    //TODO: this endpoint may be relevant for the wallet attestation.
-    /* @Get('session')
-  session() {
-    console.log('Session requested');
-    //TODO store session and created at
-    const session = randomUUID();
-    return {
-      session_id: session,
-    };
-  } */
 }

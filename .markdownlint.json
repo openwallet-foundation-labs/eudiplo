@@ -1,7 +1,11 @@
 {
+    "MD007": {
+        "indent": 4
+    },
     "MD013": false,
     "MD024": false,
     "MD041": false,
     "MD040": false,
-    "MD046": false
+    "MD046": false,
+    "MD060": false
 }

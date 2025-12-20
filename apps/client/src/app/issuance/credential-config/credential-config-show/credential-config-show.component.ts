@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, type OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -10,13 +9,13 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { CredentialConfig } from '../../../generated';
+import { CredentialConfig } from '@eudiplo/sdk';
 import { CredentialConfigService } from '../credential-config.service';
+import { WebhookConfigShowComponent } from '../../../utils/webhook-config-show/webhook-config-show.component';
 
 @Component({
   selector: 'app-credential-config-show',
   imports: [
-    CommonModule,
     MatIconModule,
     MatCardModule,
     MatButtonModule,
@@ -26,6 +25,7 @@ import { CredentialConfigService } from '../credential-config.service';
     MatDividerModule,
     FlexLayoutModule,
     RouterModule,
+    WebhookConfigShowComponent,
   ],
   templateUrl: './credential-config-show.component.html',
   styleUrl: './credential-config-show.component.scss',
@@ -117,6 +117,8 @@ export class CredentialConfigShowComponent implements OnInit {
    */
   downloadConfig() {
     if (this.config) {
+      console.log(this.config);
+
       const blob = new Blob([JSON.stringify(this.config, null, 2)], {
         type: 'application/json',
       });

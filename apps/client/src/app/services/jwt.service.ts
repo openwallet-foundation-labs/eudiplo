@@ -1,4 +1,19 @@
 import { Injectable } from '@angular/core';
+import { ApiService, RoleDto } from '@eudiplo/sdk';
+
+export type Role = RoleDto['role'];
+
+export const roles: Role[] = [
+  'clients:manage',
+  'issuance:manage',
+  'issuance:offer',
+  'presentation:manage',
+  'presentation:offer',
+];
+
+export function getRole(role: Role) {
+  return role;
+}
 
 export interface JWTPayload {
   iss?: string;
@@ -20,12 +35,15 @@ export interface JWTPayload {
   preferred_username?: string;
   email?: string;
   name?: string;
+  roles: string[];
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class JwtService {
+  constructor(private apiService: ApiService) {}
+
   /**
    * Decode a JWT token without verification
    * @param token JWT token string
@@ -33,6 +51,7 @@ export class JwtService {
    */
   decodeToken(token: string): JWTPayload | null {
     try {
+      if (!token) return null;
       const parts = token.split('.');
       if (parts.length !== 3) {
         return null;
@@ -48,36 +67,20 @@ export class JwtService {
   }
 
   /**
-   * Check if user has a specific role in realm access
-   * @param token JWT token string
-   * @param role Role to check for
-   * @returns True if user has the role
+   * Checks if a specific role is inside the jwt.
+   * @param role
+   * @returns
    */
-  hasRealmRole(token: string, role: string): boolean {
-    const payload = this.decodeToken(token);
-    return payload?.realm_access?.roles?.includes(role) || false;
-  }
+  hasRole(role: Role): boolean {
+    const jwt = this.decodeToken(this.apiService.accessToken);
+    if (!jwt) return false;
 
-  /**
-   * Check if user has a specific role in a client's resource access
-   * @param token JWT token string
-   * @param clientId Client ID to check roles for
-   * @param role Role to check for
-   * @returns True if user has the role in the specified client
-   */
-  hasClientRole(token: string, clientId: string, role: string): boolean {
-    const payload = this.decodeToken(token);
-    return payload?.resource_access?.[clientId]?.roles?.includes(role) || false;
-  }
-
-  /**
-   * Get all realm roles for the user
-   * @param token JWT token string
-   * @returns Array of realm roles
-   */
-  getRealmRoles(token: string): string[] {
-    const payload = this.decodeToken(token);
-    return payload?.realm_access?.roles || [];
+    if (jwt.roles) {
+      return jwt.roles.includes(role);
+    } else if (jwt.realm_access?.roles) {
+      return jwt.realm_access.roles.includes(role);
+    }
+    return false;
   }
 
   /**

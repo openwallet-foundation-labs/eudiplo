@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,7 +10,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { PresentationConfig } from '../../../generated';
+import { PresentationConfig } from '@eudiplo/sdk';
 import { PresentationManagementService } from '../presentation-management.service';
 import { MatDialog } from '@angular/material/dialog';
 import { JsonViewDialogComponent } from '../../../issuance/credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
@@ -20,14 +19,17 @@ import { MatDividerModule } from '@angular/material/divider';
 import { configs } from './pre-config';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { EditorComponent, extractSchema } from '../../../utils/editor/editor.component';
-import { WebhookConfigComponent } from '../../../utils/webhook-config/webhook-config.component';
-import { DCQLSchema, registrationCertificateRequestSchema } from '../../../utils/schemas';
+import { WebhookConfigEditComponent } from '../../../utils/webhook-config-edit/webhook-config-edit.component';
+import {
+  DCQLSchema,
+  presentationConfigSchema,
+  registrationCertificateRequestSchema,
+} from '../../../utils/schemas';
 import { CredentialIdsComponent } from '../../credential-ids/credential-ids.component';
 
 @Component({
   selector: 'app-presentation-create',
   imports: [
-    CommonModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
@@ -43,7 +45,7 @@ import { CredentialIdsComponent } from '../../credential-ids/credential-ids.comp
     MatDividerModule,
     MonacoEditorModule,
     EditorComponent,
-    WebhookConfigComponent,
+    WebhookConfigEditComponent,
     CredentialIdsComponent,
   ],
   templateUrl: './presentation-create.component.html',
@@ -69,7 +71,8 @@ export class PresentationCreateComponent {
     this.form = new FormGroup({
       id: new FormControl(undefined, [Validators.required]),
       description: new FormControl(undefined, [Validators.required]),
-      dcql_query: new FormControl(undefined, [Validators.required, this.jsonValidator]),
+      redirectUri: new FormControl(undefined),
+      dcql_query: new FormControl(undefined, [Validators.required]),
       lifeTime: new FormControl(300, [Validators.required, Validators.min(1)]),
       registrationCert: new FormControl(undefined), // Optional field
       attached: new FormArray([]),
@@ -142,24 +145,7 @@ export class PresentationCreateComponent {
     return value as FormGroup;
   }
 
-  // Custom validator for JSON format
-  jsonValidator(control: any) {
-    if (!control.value) return null; // Allow empty value
-
-    try {
-      JSON.parse(control.value);
-      return null; // Valid JSON
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      return { invalidJson: true }; // Invalid JSON
-    }
-  }
-
   createOrUpdatePresentation(): void {
-    Object.entries(this.form.controls).forEach(([key, control]) => {
-      console.log(key, control.invalid, control.errors);
-    });
-
     if (this.form.valid) {
       // Parse the JSON string to an object for dcql_query
       const formValue = { ...this.form.value };
@@ -230,8 +216,10 @@ export class PresentationCreateComponent {
         title: 'Presentation Configuration JSON',
         jsonData: currentConfig,
         readonly: false,
+        schema: presentationConfigSchema,
       },
-      disableClose: false,
+      disableClose: true,
+      minWidth: '60vw',
       maxWidth: '95vw',
       maxHeight: '95vh',
     });
@@ -256,6 +244,21 @@ export class PresentationCreateComponent {
       } catch {
         // Ignore JSON parse errors
       }
+    }
+    if (!formValue.webhook?.url) {
+      formValue.webhook = undefined;
+    }
+    if (!formValue.registrationCert) {
+      formValue.registrationCert = undefined; // Remove registrationCert if not provided
+    }
+
+    if (!formValue.redirectUri) {
+      formValue.redirectUri = undefined;
+    }
+
+    // Clean up empty optional fields
+    if (formValue.attached && formValue.attached.length === 0) {
+      formValue.attached = undefined;
     }
     return formValue;
   }

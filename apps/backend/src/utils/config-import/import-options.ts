@@ -1,0 +1,49 @@
+import { ClassConstructor } from "class-transformer";
+import { ValidationError } from "class-validator";
+
+export interface ImportOptions<T extends object> {
+    /**
+     * Subfolder within each tenant directory (e.g., "issuance", "keys", "images")
+     */
+    subfolder: string;
+
+    /**
+     * File extension filter (e.g., ".json", ".png"). If not provided, all files are processed.
+     */
+    fileExtension?: string;
+
+    /**
+     * Class constructor for validation (if applicable)
+     */
+    validationClass?: ClassConstructor<T>;
+
+    /**
+     * Check if item already exists
+     */
+    checkExists: (tenantId: string, data: T, file: string) => Promise<boolean>;
+
+    /**
+     * Delete existing item if force is enabled
+     */
+    deleteExisting?: (tenantId: string, data: T, file: string) => Promise<void>;
+
+    /**
+     * Process and store the item
+     */
+    processItem: (tenantId: string, data: T, file: string) => Promise<void>;
+
+    /**
+     * Custom data loader (e.g., for JSON files vs binary files)
+     */
+    loadData?: (filePath: string) => T | Promise<T>;
+
+    /**
+     * Custom validation error formatter
+     */
+    formatValidationError?: (error: ValidationError) => any;
+
+    /**
+     * Resource type name for logging (e.g., "credential config", "key", "image")
+     */
+    resourceType: string;
+}

@@ -47,6 +47,7 @@ can run yourself, integrate over HTTP, and configure via JSON.
 | 🖥️ **Web Client Included**  | Comes with a ready-to-use web interface for easy testing and interaction                      |
 | ⚙️ **JSON Configurable**    | Set up templates, trust roots, and issuers through JSON files                                 |
 | 🇪🇺 **Wallet Compatible**    | Works with multiple [wallets](./getting-started/wallet-compatibility.md)                      |
+| ✅ **OIDF Conformant**      | Tested against the OpenID Foundation conformance suite for OID4VCI and OID4VP                 |
 | 👥 **Multi-Tenant Support** | Isolate configurations for different tenants or clients                                       |
 
 ---
@@ -59,6 +60,16 @@ Here’s how EUDIPLO fits into your infrastructure:
 
 ---
 
+## 📺 Watch the Webinar
+
+Learn more about EUDIPLO in our recorded webinar (September 17, 2025), featuring a deep dive into features, architecture, and live Q&A:
+
+[![EUDIPLO Webinar](https://img.youtube.com/vi/GQlvHK-EFlU/0.jpg)](https://www.youtube.com/watch?v=GQlvHK-EFlU)
+
+[Watch on YouTube](https://www.youtube.com/watch?v=GQlvHK-EFlU)
+
+---
+
 ## How Do I Use It?
 
 EUDIPLO is distributed as a Docker container and can be configured in minutes.
@@ -67,15 +78,20 @@ EUDIPLO is distributed as a Docker container and can be configured in minutes.
 docker run -p 3000:3000 \
   -e PUBLIC_URL=https://example.com \
   -e JWT_SECRET=your-secret-key-here-minimum-32-characters \
-  -e AUTH_CLIENT_ID=your-tenant-id \
-  -e AUTH_CLIENT_SECRET=your-tenant-secret \
-  -v $(pwd)/config:/app/config \
   ghcr.io/openwallet-foundation-labs/eudiplo:latest
 ```
 
-➡️ Read the [Quickstart Guide](./getting-started/quick-start.md)  
-📘 Learn how to [configure credentials](./getting-started/issuance/index.md) or
-[verify them](./getting-started/presentation/index.md)
+- `-p 3000:3000` exposes EUDIPLO locally on port 3000.
+- `PUBLIC_URL` should be the public-facing URL where your instance is reachable (used for callbacks and wallet redirects).
+
+➡️ For step-by-step instructions, see the [Quickstart Guide](./getting-started/quick-start.md).  
+⚙️ For production deployment and advanced configuration, see [Production Setup](./architecture/index.md).
+
+---
+
+For more details on credential issuance and verification, check out:  
+📘 [Configure credentials](./getting-started/issuance/index.md)  
+📘 [Verify credentials](./getting-started/presentation/index.md)
 
 ---
 

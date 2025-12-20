@@ -30,7 +30,7 @@ jobs:
           echo "Release name: ${{ github.event.release.name }}"
 
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0 # Fetch full history for mike versioning
 
@@ -43,7 +43,7 @@ jobs:
           run_install: false
 
       - name: Install Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: 'pnpm'
@@ -55,7 +55,7 @@ jobs:
         run: pnpm run lint
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -70,7 +70,7 @@ jobs:
       - name: Build and deploy main branch docs
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
-          pnpm run swagger
+          pnpm run doc:generate
           pnpm run compodoc
           mike deploy --push --update-aliases main
           mike set-default --push main
@@ -79,7 +79,7 @@ jobs:
         if: github.event_name == 'release' && (github.event.action ==
           'published' || github.event.action == 'released')
         run: |
-          pnpm run swagger
+          pnpm run doc:generate
           pnpm run compodoc
           # Deploy to latest and set as default
           mike deploy --push --update-aliases latest
@@ -88,7 +88,7 @@ jobs:
       - name: Manual deployment
         if: github.event_name == 'workflow_dispatch'
         run: |
-          pnpm run swagger
+          pnpm run doc:generate
           pnpm run compodoc
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             mike deploy --push --update-aliases main

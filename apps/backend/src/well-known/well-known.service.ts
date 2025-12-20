@@ -1,13 +1,12 @@
-import { Injectable } from "@nestjs/common";
-import { CryptoService } from "../crypto/crypto.service";
+import { Inject, Injectable } from "@nestjs/common";
+import { CertService } from "../crypto/key/cert/cert.service";
 import { CryptoImplementationService } from "../crypto/key/crypto-implementation/crypto-implementation.service";
+import { KeyService } from "../crypto/key/key.service";
 import { AuthorizeService } from "../issuer/authorize/authorize.service";
 import { Oid4vciService } from "../issuer/oid4vci/oid4vci.service";
-import { Session } from "../session/entities/session.entity";
 import { MediaType } from "../utils/mediaType/media-type.enum";
 import { CredentialIssuerMetadataDto } from "./dto/credential-issuer-metadata.dto";
-import { JwksResponseDto } from "./dto/jwks-response.dto";
-import { Oauth2AuthorizationServerResponse } from "./dto/oauth-authorization-server-response.dto";
+import { EC_Public, JwksResponseDto } from "./dto/jwks-response.dto";
 
 /**
  * Service to handle well-known endpoints and metadata retrieval.
@@ -17,12 +16,13 @@ export class WellKnownService {
     /**
      * Constructor for WellKnownService.
      * @param oid4vciService
-     * @param cryptoService
+     * @param certService
      * @param authorizeService
      */
     constructor(
         private readonly oid4vciService: Oid4vciService,
-        private readonly cryptoService: CryptoService,
+        private readonly certService: CertService,
+        @Inject("KeyService") public readonly keyService: KeyService,
         private readonly authorizeService: AuthorizeService,
         private readonly cryptoImplementationService: CryptoImplementationService,
     ) {}
@@ -36,24 +36,16 @@ export class WellKnownService {
      * @param contentType
      * @returns
      */
-    async getIssuerMetadata(session: Session, contentType: MediaType) {
-        const metadata = (await this.oid4vciService.issuerMetadata(session))
+    async getIssuerMetadata(tenantId: string, contentType: MediaType) {
+        const metadata = (await this.oid4vciService.issuerMetadata(tenantId))
             .credentialIssuer as unknown as CredentialIssuerMetadataDto;
 
         if (contentType === MediaType.APPLICATION_JWT) {
-            const keyId = await this.cryptoService.keyService.getKid(
-                session.tenantId,
-                "access",
-            );
-            return this.cryptoService.signJwt(
-                {
-                    typ: "openidvci-issuer-metadata+jwt",
-                    alg: this.cryptoImplementationService.getAlg(),
-                    x5c: await this.cryptoService.getCertChain(
-                        "access",
-                        session.tenantId,
-                    ),
-                },
+            const cert = await this.certService.find({
+                tenantId,
+                type: "access",
+            });
+            return this.keyService.signJWT(
                 {
                     ...metadata,
                     iss: metadata.credential_issuer,
@@ -62,8 +54,13 @@ export class WellKnownService {
                     // [Review]: should we add `exp` value here?
                     //MM: the value makes sense when we cache the issuer metadata so it must not be signed on every request. Like when it is issued every hour, its lifetime is 1 hour and the jwt is in the cache.
                 },
-                session.tenantId,
-                keyId,
+                {
+                    typ: "openidvci-issuer-metadata+jwt",
+                    alg: this.cryptoImplementationService.getAlg(),
+                    x5c: await this.certService.getCertChain(cert),
+                },
+                tenantId,
+                cert.keyId,
             );
         }
 
@@ -74,10 +71,8 @@ export class WellKnownService {
      * Returns the OAuth 2.0 Authorization Server metadata for a given tenant.
      * @returns
      */
-    getAuthzMetadata(session: Session): Oauth2AuthorizationServerResponse {
-        return this.authorizeService.authzMetadata(
-            session,
-        ) as Oauth2AuthorizationServerResponse;
+    getAuthzMetadata(tenantId: string) {
+        return this.authorizeService.authzMetadata(tenantId);
     }
 
     /**
@@ -85,8 +80,8 @@ export class WellKnownService {
      * @returns
      */
     getJwks(tenantId: string): Promise<JwksResponseDto> {
-        return this.cryptoService.getJwks(tenantId).then((key) => ({
-            keys: [key],
+        return this.keyService.getPublicKey("jwk", tenantId).then((key) => ({
+            keys: [key as EC_Public],
         }));
     }
 }

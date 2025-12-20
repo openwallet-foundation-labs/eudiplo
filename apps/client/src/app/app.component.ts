@@ -14,8 +14,8 @@ import { NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/rout
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { ApiService } from './api.service';
-import { JwtService } from './services/jwt.service';
+import { JwtService, Role } from './services/jwt.service';
+import { ApiService } from '@eudiplo/sdk';
 
 @Component({
   selector: 'app-root',
@@ -107,16 +107,11 @@ export class AppComponent implements OnInit, OnDestroy {
   /**
    * Check if user has permission to manage Keycloak clients
    */
-  hasClientManagementPermission(): boolean {
-    const token = this.apiService.accessToken;
-    if (!token) {
-      return false;
+  hasRole(role: Role | Role[]): boolean {
+    if (Array.isArray(role)) {
+      return role.some((r) => this.jwtService.hasRole(r));
+    } else {
+      return this.jwtService.hasRole(role);
     }
-
-    return (
-      this.jwtService.hasRealmRole(token, 'admin') ||
-      this.jwtService.hasRealmRole(token, 'client-admin') ||
-      this.jwtService.hasClientRole(token, 'realm-management', 'manage-clients')
-    );
   }
 }

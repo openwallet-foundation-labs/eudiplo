@@ -332,3 +332,124 @@
     transform: rotate(360deg);
   }
 }
+
+// New styles for credential claims configuration
+.credential-section {
+  padding: 16px;
+  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.02);
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+}
+
+.credential-header {
+  margin-bottom: 8px;
+}
+
+.credential-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0;
+  color: rgba(0, 0, 0, 0.87);
+
+  mat-icon {
+    color: #1976d2;
+  }
+}
+
+.claim-source-selection {
+  padding: 16px;
+  border-radius: 4px;
+  background-color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+
+  .source-label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 12px;
+    color: rgba(0, 0, 0, 0.87);
+  }
+
+  mat-radio-group {
+    margin-bottom: 8px;
+  }
+
+  ::ng-deep mat-radio-button {
+    .mat-radio-label-content {
+      display: flex;
+      align-items: center;
+    }
+
+    mat-icon {
+      vertical-align: middle;
+      margin-right: 4px;
+      font-size: 20px;
+      height: 20px;
+      width: 20px;
+    }
+  }
+}
+
+.help-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 0 0;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+
+  mat-icon {
+    font-size: 18px;
+    height: 18px;
+    width: 18px;
+    flex-shrink: 0;
+  }
+
+  &.info {
+    background-color: #e3f2fd;
+    color: #1565c0;
+    border-left: 3px solid #1976d2;
+
+    mat-icon {
+      color: #1976d2;
+    }
+  }
+
+  &.warning {
+    background-color: #fff3e0;
+    color: #e65100;
+    border-left: 3px solid #ff9800;
+
+    mat-icon {
+      color: #ff9800;
+    }
+  }
+}
+
+.webhook-info {
+  padding: 16px;
+  background-color: #fff;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.form-input {
+  padding: 16px;
+  background-color: #fff;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.pre-config-button {
+  margin-top: 16px;
+
+  mat-icon {
+    margin-right: 8px;
+  }
+}

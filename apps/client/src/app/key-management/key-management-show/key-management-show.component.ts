@@ -1,24 +1,43 @@
-import { CommonModule } from '@angular/common';
 import { Component, type OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTableModule } from '@angular/material/table';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { X509Certificate } from '@peculiar/x509';
+import { X509Certificate, SubjectAlternativeNameExtension } from '@peculiar/x509';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { CertEntity } from '../../generated';
+import { KeyEntity } from '@eudiplo/sdk';
 import { KeyManagementService } from '../key-management.service';
+
+interface CertificateInfo {
+  subject?: string;
+  issuer?: string;
+  validFrom?: string;
+  validTo?: string;
+  serialNumber?: string;
+  algorithm?: string;
+  publicKeyAlgorithm?: string;
+  keyUsage?: string[];
+  isExpired?: boolean;
+  fingerprint?: string;
+  sans?: string[];
+  usages?: string[];
+}
 
 @Component({
   selector: 'app-key-management-show',
   imports: [
-    CommonModule,
     MatIconModule,
     MatCardModule,
     MatButtonModule,
+    MatChipsModule,
+    MatTableModule,
     MatTooltipModule,
+    MatTabsModule,
     FlexLayoutModule,
     RouterModule,
   ],
@@ -26,20 +45,10 @@ import { KeyManagementService } from '../key-management.service';
   styleUrl: './key-management-show.component.scss',
 })
 export class KeyManagementShowComponent implements OnInit {
-  key?: CertEntity;
-
-  certificateInfo?: {
-    subject?: string;
-    issuer?: string;
-    validFrom?: string;
-    validTo?: string;
-    serialNumber?: string;
-    algorithm?: string;
-    publicKeyAlgorithm?: string;
-    keyUsage?: string[];
-    isExpired?: boolean;
-    fingerprint?: string;
-  };
+  key?: KeyEntity;
+  certificateInfoMap = new Map<string, CertificateInfo>();
+  publicKeyPem = '';
+  displayedColumns: string[] = ['id', 'types', 'description', 'status', 'actions'];
 
   constructor(
     private keyManagementService: KeyManagementService,
@@ -56,10 +65,19 @@ export class KeyManagementShowComponent implements OnInit {
     const keyId = this.route.snapshot.paramMap.get('id');
     if (keyId) {
       this.keyManagementService.getKey(keyId).then(
-        (key) => {
+        async (key) => {
           this.key = key;
-          if (key?.crt) {
-            this.parseCertificateInfo(key.crt);
+          // Compute PEM format for public key
+          this.publicKeyPem = await this.computePublicKeyPem();
+          // Parse all certificates if they exist
+          if (key?.certificates && Array.isArray(key.certificates)) {
+            key.certificates.forEach((cert) => {
+              // Build usages array from boolean fields
+              const usages: string[] = [];
+              if (cert.isSigningCert) usages.push('signing');
+              if (cert.isAccessCert) usages.push('access');
+              this.parseCertificateInfo(cert.id, cert.crt, usages);
+            });
           }
         },
         (error) => {
@@ -72,7 +90,11 @@ export class KeyManagementShowComponent implements OnInit {
     }
   }
 
-  private async parseCertificateInfo(pemCert: string): Promise<void> {
+  private async parseCertificateInfo(
+    certId: string,
+    pemCert: string,
+    usages?: string[]
+  ): Promise<void> {
     try {
       // Parse the PEM certificate using @peculiar/x509
       const cert = new X509Certificate(pemCert);
@@ -111,7 +133,15 @@ export class KeyManagementShowComponent implements OnInit {
         fingerprint = 'Unable to compute';
       }
 
-      this.certificateInfo = {
+      const sanExt = cert.getExtension<SubjectAlternativeNameExtension>('2.5.29.17');
+
+      let sans: string[] = [];
+      if (sanExt) {
+        const names = sanExt.names;
+        sans = names.items.filter((name) => name.type === 'dns').map((name) => name.value);
+      }
+
+      this.certificateInfoMap.set(certId, {
         subject: cert.subject,
         issuer: cert.issuer,
         validFrom: cert.notBefore.toLocaleDateString() + ' ' + cert.notBefore.toLocaleTimeString(),
@@ -122,10 +152,12 @@ export class KeyManagementShowComponent implements OnInit {
         keyUsage: keyUsage.length > 0 ? keyUsage : ['Not specified'],
         isExpired: isExpired,
         fingerprint: fingerprint || 'Computing...',
-      };
+        sans,
+        usages: usages || [],
+      });
     } catch (error) {
       console.warn('Could not parse certificate:', error);
-      this.certificateInfo = {
+      this.certificateInfoMap.set(certId, {
         subject: 'Error parsing certificate',
         issuer: 'Certificate parsing failed',
         validFrom: 'N/A',
@@ -136,7 +168,8 @@ export class KeyManagementShowComponent implements OnInit {
         keyUsage: ['N/A'],
         isExpired: false,
         fingerprint: 'N/A',
-      };
+        usages: usages || [],
+      });
     }
   }
 
@@ -154,21 +187,103 @@ export class KeyManagementShowComponent implements OnInit {
   }
 
   // Helper method to copy certificate to clipboard
-  copyCertificateToClipboard(): void {
-    if (this.key?.crt) {
-      navigator.clipboard
-        .writeText(this.key.crt)
-        .then(() => {
-          this.snackBar.open('Certificate copied to clipboard', 'Close', {
-            duration: 2000,
-          });
-        })
-        .catch(() => {
-          this.snackBar.open('Failed to copy certificate', 'Close', {
-            duration: 2000,
-          });
+  copyCertificateToClipboard(pem: string): void {
+    navigator.clipboard
+      .writeText(pem)
+      .then(() => {
+        this.snackBar.open('Certificate copied to clipboard', 'Close', {
+          duration: 2000,
         });
+      })
+      .catch(() => {
+        this.snackBar.open('Failed to copy certificate', 'Close', {
+          duration: 2000,
+        });
+      });
+  }
+
+  copyPublicKeyToClipboard(): void {
+    const publicKey = this.getPublicKey();
+    navigator.clipboard
+      .writeText(JSON.stringify(publicKey, null, 2))
+      .then(() => {
+        this.snackBar.open('Public key (JWK) copied to clipboard', 'Close', {
+          duration: 2000,
+        });
+      })
+      .catch(() => {
+        this.snackBar.open('Failed to copy public key', 'Close', {
+          duration: 2000,
+        });
+      });
+  }
+
+  copyPublicKeyPemToClipboard(): void {
+    navigator.clipboard
+      .writeText(this.publicKeyPem)
+      .then(() => {
+        this.snackBar.open('Public key (PEM) copied to clipboard', 'Close', {
+          duration: 2000,
+        });
+      })
+      .catch(() => {
+        this.snackBar.open('Failed to copy public key', 'Close', {
+          duration: 2000,
+        });
+      });
+  }
+
+  getPublicKey(): any {
+    if (!this.key?.key) {
+      return null;
     }
+
+    // Extract public key properties from JWK (remove private key material)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { d, p, q, dp, dq, qi, ...publicKey } = this.key.key as any;
+    return publicKey;
+  }
+
+  getPublicKeyJson(): string {
+    const publicKey = this.getPublicKey();
+    return publicKey ? JSON.stringify(publicKey, null, 2) : 'No public key available';
+  }
+
+  async computePublicKeyPem(): Promise<string> {
+    try {
+      const publicKey = this.getPublicKey();
+      if (!publicKey) return 'No public key available';
+
+      // Import the JWK as a CryptoKey
+      const cryptoKey = await crypto.subtle.importKey(
+        'jwk',
+        publicKey,
+        { name: 'ECDSA', namedCurve: publicKey.crv },
+        true,
+        ['verify']
+      );
+
+      // Export as SPKI (SubjectPublicKeyInfo) format
+      const exported = await crypto.subtle.exportKey('spki', cryptoKey);
+
+      // Convert to PEM format
+      const exportedAsString = this.arrayBufferToBase64(exported);
+      const pemKey = `-----BEGIN PUBLIC KEY-----\n${exportedAsString.match(/.{1,64}/g)?.join('\n')}\n-----END PUBLIC KEY-----`;
+
+      return pemKey;
+    } catch (error) {
+      console.error('Failed to convert JWK to PEM:', error);
+      return 'Failed to convert public key to PEM format';
+    }
+  }
+
+  private arrayBufferToBase64(buffer: ArrayBuffer): string {
+    const bytes = new Uint8Array(buffer);
+    let binary = '';
+    for (let i = 0; i < bytes.byteLength; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
   }
 
   deleteKey() {

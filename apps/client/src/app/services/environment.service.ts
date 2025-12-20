@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 
 export interface OidcConfig {
-  oidcUrl: string;
   clientId: string;
   clientSecret: string;
 }
@@ -22,20 +21,6 @@ export interface AppEnvironment {
 })
 export class EnvironmentService {
   private readonly env: AppEnvironment = environment;
-
-  constructor() {}
-
-  get production(): boolean {
-    return this.env.production;
-  }
-
-  get oidcConfig(): OidcConfig {
-    return this.env.oidc;
-  }
-
-  get apiConfig(): ApiConfig {
-    return this.env.api;
-  }
 
   /**
    * Gets the complete environment configuration

@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { INestApplication } from "@nestjs/common";
 import { CallbackContext, Jwk, SignJwtCallback } from "@openid4vc/oauth2";
 import { digest, ES256 } from "@sd-jwt/crypto-nodejs";
 import { SDJwtVcInstance } from "@sd-jwt/sd-jwt-vc";
@@ -12,18 +13,20 @@ import {
     jwtVerify,
     SignJWT,
 } from "jose";
+import request from "supertest";
+import { Role } from "../src/auth/roles/role.enum";
 
 export async function preparePresentation(kb: Omit<kbPayload, "sd_hash">) {
     const credential = {
         privateKey: {
             kty: "EC",
-            x: "pv6VuyKohSPc_hXjsprf7JY6rKmzibk40v5Dlrd6-A0",
-            y: "foM8SQPpA3f0gK-KnU_1PsJ99xKt014OjGACMhtivo4",
+            x: "G4EhWbF85dr81MKcKMm9s4aytmfRneCFL37Q1PjB734",
+            y: "TK04sjmKHeLniUAEuezWieV254IVWwGryTfDGOT_L7I",
             crv: "P-256",
-            d: "KD7JHa_Mt1AX3peUJRySjJzr3dtdCy552y8HBYjEurw",
+            d: "dD9hF_qxh4Gulcg4NXvr-_WpHBOrQVAEIaBKUvrcUfM",
         },
         credential:
-            "eyJ0eXAiOiJkYytzZC1qd3QiLCJ4NWMiOlsiTUlJQmZUQ0NBU1NnQXdJQkFnSVVSWU5HbkI2eGlicTNLS2cwaEVMa2ZYbFdURjh3Q2dZSUtvWkl6ajBFQXdJd0VqRVFNQTRHQTFVRUF3d0hSVlZFU1ZCTVR6QWVGdzB5TlRBM01qVXlNVFU1TURCYUZ3MHlOakEzTWpVeU1UVTVNREJhTUJJeEVEQU9CZ05WQkFNTUIwVlZSRWxRVEU4d1dUQVRCZ2NxaGtqT1BRSUJCZ2dxaGtqT1BRTUJCd05DQUFRRE05Uk80U3BjZS90N2FIREEwV1lHL3BmeGM2OHlBM3E4eDBsa0dEbzAwWTBXOE9yRVAweXJHTUozMHpLSGVuNytoRSs2NkV4Vk1wRitRRi9JTWJRc28xZ3dWakFVQmdOVkhSRUVEVEFMZ2dsc2IyTmhiR2h2YzNRd0hRWURWUjBPQkJZRUZOUms5Y3VtUm1kdXBGZDJhWGtDTlhMcnhDVFBNQjhHQTFVZEl3UVlNQmFBRkZET1A1dmtXdkplQmlpeU1iUUNDQmVOT0ZaVE1Bb0dDQ3FHU000OUJBTUNBMGNBTUVRQ0lDRWNwTVhhbURmdWFBWWRVYnZBWHFsc2xkMjFPd3JxSkdBaWlUSCtqaGZEQWlBTnh1dmJzZlZtWE84aHN4QnpaZ0FxQVJnZGZKaWtYOUNHbnZ2cDlVdjU3QT09Il0sImFsZyI6IkVTMjU2In0.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjMwMDAiLCJpYXQiOjE3NTM0ODExNDAsInZjdCI6Imh0dHA6Ly9sb2NhbGhvc3Q6MzAwMC9yb290L2NyZWRlbnRpYWxzL3ZjdC9waWQiLCJjbmYiOnsiandrIjp7Imt0eSI6IkVDIiwiY3J2IjoiUC0yNTYiLCJ4IjoicHY2VnV5S29oU1BjX2hYanNwcmY3Slk2ckttemliazQwdjVEbHJkNi1BMCIsInkiOiJmb004U1FQcEEzZjBnSy1LblVfMVBzSjk5eEt0MDE0T2pHQUNNaHRpdm80In19LCJzdGF0dXMiOnsic3RhdHVzX2xpc3QiOnsiaWR4Ijo2NTA2LCJ1cmkiOiJodHRwOi9sb2NhbGhvc3Q6MzAwMC9yb290L3N0YXR1cy1tYW5hZ2VtZW50L3N0YXR1cy1saXN0In19LCJfc2QiOlsiLW1NMUI5azRnbjljX3B0aGlWSy0tX0RJN3lMZ3EzUVJaeDc1LW1LbTgxOCIsIjFlUms0bHYzVUpWN3V4N25NNU5uU3hrU0FDeHc4c2xPMjFkSGFRcXZxQjQiLCI0Z1A0YnJJbmt1ei1ZM2ROaWEwb1Y4U3o3ZVFJY1Z1RGpVdFU3UW9FczdNIiwiODVsRGVHeU5VSGRUSjE5cUlfOHZ4R3d1Sms3ejFMMldsM2syZlNjTnNXayIsIjlteDlta2ZESlhpNXJLVUtpMG11SHJtcDdGRURIczJIazNmbktFcTd5aFEiLCJNMl8yelI2a3JwMHNaWThOT0puTFp3Z0ducE1wMGEyUXZFNXhmNWRCSUJVIiwiUkZhbVpmVlVDZDVlOUplQU5rUHFHM21IaThBdTY0WnBQNGw1ZnNrdnJpayIsImF6OXRvSGFMNXlNVXd6cThQVE96enVkV1F6bjBVX0g4Q0xjOE11ZVJYRVkiLCJiUVQwWm1QNXE2OGsybmRfZThDb1AxbW5PX1BDMG43NTU2Sl9zNnExR3FjIiwiZDMxaU05UDNqNWxtQ28tSkZBeGVkZ19KOXpzOHJUWmhUNXVsWEN1YVVxNCIsInJPOW56cmNEQkYwTm5Fc0pScTA5bzg5Yk0xNG1RRUd6bEU4Y1FrX3JrSEUiLCJzLW9UdGhkTVd4TmJEQm9fbVlPWmdyYXdtNnpZMFRPT0hmallmOE45c0JZIl0sIl9zZF9hbGciOiJzaGEtMjU2In0.bJofefUpxRRPTX8X6kUh8Bw1ke0pBwiqxEnxD52rGFhPrvPFUkdW10wH3Gd8w2q8L7Vab7whqh71IL2hDy67Bg~WyJhZjlmNTZhNWUyY2UzMzc5IiwibG9jYWxpdHkiLCJLw5ZMTiJd~WyJiMTE3YTAyZTFjN2MyNDJmIiwicG9zdGFsX2NvZGUiLCI1MTE0NyJd~WyJiMTcyYTY0Y2IwYzMzZmU4Iiwic3RyZWV0X2FkZHJlc3MiLCJIRUlERVNUUkHhup5FIDE3Il0~WyIzMmZlZjQwNDNiODgzNzAwIiwiaXNzdWluZ19jb3VudHJ5IiwiREUiXQ~WyI5NDA2MTc1OWYxOTMxYTQ1IiwiaXNzdWluZ19hdXRob3JpdHkiLCJERSJd~WyI5NGE3ZjMyZTU5NmJkMmU0IiwiZ2l2ZW5fbmFtZSIsIkVSSUtBIl0~WyIwNGQzMGY2ODlkOTE5MGJkIiwiZmFtaWx5X25hbWUiLCJNVVNURVJNQU5OIl0~WyJkNDA1YmVmMzZhMWI1Yzc4IiwiYmlydGhfZmFtaWx5X25hbWUiLCJHQUJMRVIiXQ~WyIyZTA5YzFmYTc1OGNmYjczIiwiYmlydGhkYXRlIiwiMTk2NC0wOC0xMiJd~WyJkMGI5ODEwZThmMDNiZTE4IiwiYWdlX2JpcnRoX3llYXIiLDE5NjRd~WyI1OWRjY2VhYTZlNDFjOWIxIiwiYWdlX2luX3llYXJzIiw1OV0~WyJiMmEwN2QyYjhiZjVhZTA2IiwiYWdlX2VxdWFsX29yX292ZXIiLHsiMTIiOnRydWUsIjE0Ijp0cnVlLCIxNiI6dHJ1ZSwiMTgiOnRydWUsIjIxIjp0cnVlLCI2NSI6ZmFsc2V9XQ~WyIyN2RlYzE5Yzc4Mzk4NTdlIiwicGxhY2Vfb2ZfYmlydGgiLHsibG9jYWxpdHkiOiJCRVJMSU4ifV0~WyJkYTgzMzg4NDU1ZWYwMThmIiwiYWRkcmVzcyIseyJfc2QiOlsiVS1yUkJvTmlhdS16dktEeDJXaFAwTjVnOFZ1WC11OGJMYXlZVWU1bUF5byIsIlhTblpFb0M3SXItUmJNa3lCWXJPeVFKS1NVMF9zZlJJdnJfYW1lMVpJNDQiLCJ6TDJzLWZTTmNZN3RvZmxrZUd4cDdScGJQWFRJYm03WnZVRmQyU3JoOUdzIl19XQ~WyIxMjdkZDBhMWNmMjRhNDk3IiwibmF0aW9uYWxpdGllcyIsWyJERSJdXQ~",
+            "eyJ0eXAiOiJkYytzZC1qd3QiLCJ4NWMiOlsiTUlJQllqQ0NBUWlnQXdJQkFnSUJBVEFLQmdncWhrak9QUVFEQWpBV01SUXdFZ1lEVlFRREV3dFNiMjkwSUZSbGJtRnVkREFlRncweU5URXlNVFF5TWpFek5ESmFGdzB5TmpFeU1UUXlNakV6TkRKYU1CWXhGREFTQmdOVkJBTVRDMUp2YjNRZ1ZHVnVZVzUwTUZrd0V3WUhLb1pJemowQ0FRWUlLb1pJemowREFRY0RRZ0FFcG1uOFNLUUtaMHQyekZsclVYekphSnd3UTBXblF4Y1NZb1MvRDZaU0docXN4MzBsTUNpOXc0ajg2ODVkWUpablhKVm1KNVZnclpTQzhIWWcrNUtUYXFOSE1FVXdGQVlEVlIwUkJBMHdDNElKYkc5allXeG9iM04wTUE0R0ExVWREd0VCL3dRRUF3SUZvREFkQmdOVkhRNEVGZ1FVZDhoenFhME5HV0hmUDlVZjNMY2REWjVlR0dFd0NnWUlLb1pJemowRUF3SURTQUF3UlFJaEFQT0pyQVVkZzFvNlJOcUhGQzNjekJVbElMU1haRjU0Z2JQMVJtTlRzc0xjQWlBKzZKYzh6bmdaLzJZa1QwbUZpQ3diTFhuUUtqZW9zVGUvaWZzNXBXRVBGdz09Il0sImFsZyI6IkVTMjU2In0.eyJpYXQiOjE3NjU3NTA0MjMsImV4cCI6MTc2NjM1NTIyMywidmN0IjoiaHR0cDovL2xvY2FsaG9zdDozMDAwL3Jvb3QvY3JlZGVudGlhbHMtbWV0YWRhdGEvdmN0L3BpZCIsImNuZiI6eyJqd2siOnsia3R5IjoiRUMiLCJjcnYiOiJQLTI1NiIsIngiOiJHNEVoV2JGODVkcjgxTUtjS01tOXM0YXl0bWZSbmVDRkwzN1ExUGpCNzM0IiwieSI6IlRLMDRzam1LSGVMbmlVQUV1ZXpXaWVWMjU0SVZXd0dyeVRmREdPVF9MN0kifX0sIl9zZCI6WyI4M0VSUHVEUWtKTmlpM2dNNll0a1lLMFhXdlNTU0p6N05UZ2JqcW92VWk4IiwiQTFfUHloVWNleGdZQkNYdDMtcVc1Y0pYbnFBMUFwZlN5ZjJQb084VVB0dyIsIkE2SHJlalRRbU5lZkRSSU1iZ0FNWnlCQ0hOdVY3N2YzLTB5Sk01dG5uZ1EiLCJGckdpVHVGQzI2a2RnYjZ4RWtsUlZZLXhfQlVkd3lTWFpUU1M4R1hWWTVvIiwiRnQ4amxXYlRLTHZJc1h1dmMycGhhVF9vWjRxckpWdWxWSEQ5dTFvTnNvayIsIkxJWWNiNDVBYzFoVy14cEJ2RVVnU1RzaXQtSFFFRnUtcDJEdk9KYVV4aU0iLCJNQy0xLUx6bnJIa0JhVzZRaktMSWNBN0VtYnBNUjc4WWJ4N05vWXBpZ3dFIiwiVVJxSGtYSXhBRHVNZGtHX1drbm9oSE1BaWQyWlJyaXAzeHFVN0NzcWNWUSIsImZfYUc3cUxQSHIwTjZnX3M0Rk5kYzVoZUJ1YUd2d2RCbW05dmpoVm10VjgiLCJoOGZCVFFkUWdLSm9YZUY5QldnbGdQMVIzNU1LLWI3aDc4ckEydEtzd2hZIiwidWVkV01uZjBnZ3dKYWdrR2JqVkFZYWg1RDZBdXZTX2s1TlhkeXJpN3BiWSIsInZaZC1SOUFGdG9veWdFSmltUmVzeEJIVEw2SGsyWnFrUjNvQTZJZ3VIWHciXSwiX3NkX2FsZyI6InNoYS0yNTYifQ.lb7QleBAHwUkpO5HkZtd4-rrD6xr4Ze1sN0sHuLeDgPpx4Nx8INnZ5c-iU5irFe-bIxi-LfRToSb28yXYFlbew~WyI2ODgzOWExYTYwOTM1YzZjIiwibG9jYWxpdHkiLCJLw5ZMTiJd~WyI3NGY5N2RkYTJhMzI1M2QwIiwicG9zdGFsX2NvZGUiLCI1MTE0NyJd~WyIxOTkyMDg0MmFhMTY5M2I4Iiwic3RyZWV0X2FkZHJlc3MiLCJIRUlERVNUUkHhup5FIDE3Il0~WyJiM2E0MzlhNTc4YzliN2UwIiwiaXNzdWluZ19jb3VudHJ5IiwiREUiXQ~WyIwYTg3M2U3MTYxODY0YjAyIiwiaXNzdWluZ19hdXRob3JpdHkiLCJERSJd~WyJlMmI1Yzc4MTlkYTMzMTA1IiwiZ2l2ZW5fbmFtZSIsIkVSSUtBIl0~WyI3NmUyMTg0OGMyN2NmOThkIiwiZmFtaWx5X25hbWUiLCJNVVNURVJNQU5OIl0~WyJlYWViOGIyOWRjZjUyN2YwIiwiYmlydGhfZmFtaWx5X25hbWUiLCJHQUJMRVIiXQ~WyI4MjE2YjMxZjJlZWRiNTNjIiwiYmlydGhkYXRlIiwiMTk2NC0wOC0xMiJd~WyI3NTMzYWE2MDMwYWZhOTQzIiwiYWdlX2JpcnRoX3llYXIiLDE5NjRd~WyJiODVlNmU5ZGJiYjk5YzU2IiwiYWdlX2luX3llYXJzIiw1OV0~WyIzZTFjYmEyNWI3YWE3MDdmIiwiYWdlX2VxdWFsX29yX292ZXIiLHsiMTIiOnRydWUsIjE0Ijp0cnVlLCIxNiI6dHJ1ZSwiMTgiOnRydWUsIjIxIjp0cnVlLCI2NSI6ZmFsc2V9XQ~WyJkODYxZjIzODY0OGVlYTFkIiwicGxhY2Vfb2ZfYmlydGgiLHsibG9jYWxpdHkiOiJCRVJMSU4ifV0~WyI0OTNjODA4MjE5MTBmY2FjIiwiYWRkcmVzcyIseyJfc2QiOlsiZ3k5dFg1cHBfdE5iMzM4OWdfN3phZEJLQkRKNnNkZS1kTmg4ZUdQMXBMVSIsImhXMENVVFFuNlhMaXc2R3FpQ2RaQThiUTRMeUthUExiYktMLUloTGhFYTQiLCJ2NVZUZndsMGZueUh6QWZ2M1BvT2JsUk9VREJVall2QVhBdER2cUpHZ0dzIl19XQ~WyI5ZWExM2E3MDBlMTlkOGUwIiwibmF0aW9uYWxpdGllcyIsWyJERSJdXQ~",
     };
 
     const sdjwt = new SDJwtVcInstance({
@@ -156,3 +159,80 @@ export const getSignJwtCallback = (privateJwks: Jwk[]): SignJwtCallback => {
         };
     };
 };
+
+/**
+ * Creates a root tenant and returns the access token for a client.
+ * @param app
+ * @param clientId
+ * @param clientSecret
+ * @returns
+ */
+export async function getToken(
+    app: INestApplication,
+    clientId: string,
+    clientSecret: string,
+) {
+    // Get JWT token using client credentials
+    const tokenResponse = await request(app.getHttpServer())
+        .post("/oauth2/token")
+        .trustLocalhost()
+        .send({
+            client_id: clientId,
+            client_secret: clientSecret,
+            grant_type: "client_credentials",
+        })
+        .expect(201);
+    const authToken = tokenResponse.body.access_token;
+    expect(authToken).toBeDefined();
+
+    // create tenant
+    await request(app.getHttpServer())
+        .post("/tenant")
+        .trustLocalhost()
+        .set("Authorization", `Bearer ${authToken}`)
+        .send({
+            id: "root",
+            name: "Root Tenant",
+            roles: [
+                Role.Clients,
+                Role.IssuanceOffer,
+                Role.Issuances,
+                Role.PresentationOffer,
+                Role.Presentations,
+            ],
+        })
+        .expect(201);
+
+    // get the admin of the tenant
+    const client = await request(app.getHttpServer())
+        .get("/tenant/root")
+        .trustLocalhost()
+        .set("Authorization", `Bearer ${authToken}`)
+        .send()
+        .then((res) =>
+            res.body.clients.find((client) =>
+                client.clientId.includes("admin"),
+            ),
+        );
+
+    return request(app.getHttpServer())
+        .post("/oauth2/token")
+        .trustLocalhost()
+        .send({
+            client_id: client.clientId,
+            client_secret: client.secret,
+            grant_type: "client_credentials",
+        })
+        .expect(201)
+        .then((res) => res.body.access_token);
+}
+
+export function getDefaultSecret(input: string): string {
+    const pattern = /\$\{([A-Z0-9_]+)(?::([^}]*))?\}/g;
+    return input.replace(
+        pattern,
+        (fullMatch, varName: string, defVal: string) => {
+            return defVal;
+        },
+    );
+}

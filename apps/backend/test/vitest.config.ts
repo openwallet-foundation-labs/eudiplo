@@ -5,29 +5,11 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
     test: {
         include: ["**/*.e2e-spec.ts"],
+        exclude: process.env.VITEST_SKIP_OIDF ? ["**/oidf/**"] : [],
         globals: true,
         root: "./",
-        reporters: [
-            "default",
-            ["junit", { outputFile: "test-report.junit.xml" }],
-        ],
-        coverage: {
-            provider: "v8",
-            reporter: ["json", "html"],
-            reportsDirectory: "./coverage-e2e",
-            exclude: [
-                "node_modules/",
-                "test/",
-                "dist/",
-                "**/*.d.ts",
-                "**/*.config.ts",
-                "**/*.config.js",
-                "**/main.ts",
-            ],
-            include: ["**/src/**/*.ts"],
-            all: true,
-        },
         fileParallelism: false,
+        globalSetup: ["./test/global-setup.ts"],
     },
     plugins: [
         swc.vite(), // Put the Codecov vite plugin after all other plugins

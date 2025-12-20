@@ -1,7 +1,16 @@
-import { Body, Controller, Get, Post, UseInterceptors } from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    Get,
+    HttpCode,
+    HttpStatus,
+    Param,
+    Post,
+    Req,
+    UseInterceptors,
+} from "@nestjs/common";
 import { ApiExcludeController, ApiParam } from "@nestjs/swagger";
-import { Session } from "../../session/entities/session.entity";
-import { SessionEntity } from "../../session/session.decorator";
+import { Request } from "express";
 import { SessionLogger } from "../../utils/logger/session-logger.decorator";
 import { SessionLoggerInterceptor } from "../../utils/logger/session-logger.interceptor";
 import { AuthorizationResponse } from "./dto/authorization-response.dto";
@@ -23,14 +32,34 @@ export class Oid4vpController {
 
     /**
      * Returns the authorization request for a given requestId and session.
-     * @param requestId
      * @param session
+     * @param req
      * @returns
      */
-    @Get()
+    @Get("request")
     @SessionLogger("session", "OID4VP")
-    getRequestWithSession(@SessionEntity() session: Session) {
-        return this.oid4vpService.createAuthorizationRequest(session);
+    getRequestWithSession(
+        @Param("session") sessionId: string,
+        @Req() req: Request,
+    ) {
+        const origin = req.get("origin") as string;
+        return this.oid4vpService.createAuthorizationRequest(sessionId, origin);
+    }
+
+    /**
+     * Returns the authorization request for a given requestId and session.
+     * @param sessionId
+     * @param req
+     * @returns
+     */
+    @Post("request")
+    @SessionLogger("session", "OID4VP")
+    getPostRequestWithSession(
+        @Param("session") sessionId: string,
+        @Req() req: Request,
+    ) {
+        const origin = req.get("origin") as string;
+        return this.oid4vpService.createAuthorizationRequest(sessionId, origin);
     }
 
     /**
@@ -39,11 +68,15 @@ export class Oid4vpController {
      * @returns
      */
     @Post()
+    @HttpCode(HttpStatus.OK)
     @SessionLogger("session", "OID4VP")
     getResponse(
         @Body() body: AuthorizationResponse,
-        @SessionEntity() session: Session,
+        @Param("session") sessionId: string,
     ) {
-        return this.oid4vpService.getResponse(body, session);
+        return this.oid4vpService.getResponse(body, sessionId).catch((err) => {
+            console.error(err);
+            throw err;
+        });
     }
 }

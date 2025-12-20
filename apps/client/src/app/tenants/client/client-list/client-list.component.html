@@ -1,0 +1,59 @@
+<div fxLayout="row" fxLayoutAlign="space-between center">
+  <h2>Clients</h2>
+  @if (!loadedClients) {
+    <button matIconButton [routerLink]="['create']" matTooltip="Create New Client">
+      <mat-icon>add</mat-icon>
+    </button>
+  }
+</div>
+
+@if (!loading) {
+  <table mat-table [dataSource]="clients" class="mat-elevation-z8">
+    <ng-container matColumnDef="clientId">
+      <th mat-header-cell *matHeaderCellDef>Client ID</th>
+      <td mat-cell *matCellDef="let client">{{ client.clientId }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="description">
+      <th mat-header-cell *matHeaderCellDef>Description</th>
+      <td mat-cell *matCellDef="let client">{{ client.description || 'No description' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="roles">
+      <th mat-header-cell *matHeaderCellDef>Roles</th>
+      <td mat-cell *matCellDef="let client">
+        <mat-chip-set>
+          @for (role of client.roles; track role) {
+            <span>
+              <mat-chip>{{ role }}</mat-chip>
+            </span>
+          }
+        </mat-chip-set>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let client">
+        @if (!loadedClients) {
+          <button matIconButton [routerLink]="client.clientId" matTooltip="View Client Details">
+            <mat-icon>visibility</mat-icon>
+          </button>
+
+          <button matIconButton [routerLink]="[client.clientId, 'edit']" matTooltip="Edit Client">
+            <mat-icon>edit</mat-icon>
+          </button>
+        }
+        <button matIconButton matTooltip="Copy login url" (click)="copyLoginUrl(client)">
+          <mat-icon>link</mat-icon>
+        </button>
+        <button matIconButton (click)="deleteClient(client)" matTooltip="Delete Client">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+}

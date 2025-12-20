@@ -1,0 +1,48 @@
+<div class="container">
+  <mat-card>
+    <mat-card-title>Select Required Credentials</mat-card-title>
+    <mat-card-content>
+      <p class="subtitle">
+        Select which credential types must be presented for verification.
+      </p>
+
+      <div class="credential-types">
+        <mat-list>
+          <mat-list-item
+            *ngFor="let cred of availableCredentials"
+            class="credential-item"
+          >
+            <mat-checkbox
+              matListItemIcon
+              [checked]="isCredentialTypeSelected(cred.format)"
+              (change)="onCredentialTypeChange(cred, $event.checked)"
+            ></mat-checkbox>
+            <div matListItemTitle>{{ cred.name }}</div>
+            <div matListItemLine>{{ cred.format }} • {{ cred.issuer }}</div>
+          </mat-list-item>
+        </mat-list>
+      </div>
+
+      <div class="summary">
+        <p *ngIf="selectedCredentialTypes.length === 0" class="info-text">
+          No credential types selected
+        </p>
+        <p *ngIf="selectedCredentialTypes.length > 0" class="success-text">
+          ✓ {{ selectedCredentialTypes.length }} credential type(s) will be
+          required
+        </p>
+      </div>
+
+      <div class="actions">
+        <button mat-stroked-button (click)="goBack()">Back</button>
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="continueToVerification()"
+        >
+          Generate QR & Start Verification
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

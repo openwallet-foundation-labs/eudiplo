@@ -7,7 +7,7 @@
 [![codecov](https://codecov.io/github/openwallet-foundation-labs/eudiplo/graph/badge.svg?token=pt4TLHJYrO)](https://codecov.io/github/openwallet-foundation-labs/eudiplo)
 [![Join our Discord](https://img.shields.io/discord/1022962884864643214?label=Join%20our%20Discord&logo=discord&color=7289DA&labelColor=2C2F33)](https://discord.gg/58ys8XfXDu)
 
-**Your Diplomatic Layer for EUDI Wallet Integration**
+# Your Diplomatic Layer for EUDI Wallet Integration
 
 EUDIPLO is an open-source middleware that bridges your backend and EUDI Wallets
 using a unified API and standardized protocols.
@@ -39,6 +39,7 @@ management, scalable database support, and clean API boundaries.
 
 - ✅ Supports **OID4VCI**, **OID4VP**, **SD-JWT VC**, and **OAuth Token Status
   List**
+- ✅ **OIDF conformance tested** for OID4VCI and OID4VP protocols
 - ✅ JSON-based credential configuration
 - ✅ Client credentials authentication for easy service integration
 - ✅ Runs via Docker with `.env` config
@@ -47,6 +48,14 @@ management, scalable database support, and clean API boundaries.
 - ✅ Privacy-friendly: no external calls, no long-term storage
 
 ---
+
+## 📺 Watch the Webinar
+
+Curious about EUDIPLO? Check out our recorded webinar (September 17, 2025) for a deep dive into features, architecture, and live Q&A:
+
+[![EUDIPLO Webinar](https://img.youtube.com/vi/GQlvHK-EFlU/0.jpg)](https://www.youtube.com/watch?v=GQlvHK-EFlU)
+
+[Watch on YouTube](https://www.youtube.com/watch?v=GQlvHK-EFlU)
 
 ## 🚀 Quick Start
 
@@ -67,7 +76,7 @@ docker compose up -d
 # Client UI: http://localhost:4200
 ```
 
-⚠️  **Demo mode uses default credentials** - perfect for testing, but change them for production!
+⚠️ **Demo mode uses default credentials** - perfect for testing, but change them for production!
 
 ### Option 1: Using Docker Compose (Recommended for Production)
 

@@ -1,24 +1,93 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, OnApplicationBootstrap } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { randomUUID } from "crypto";
-import { extname } from "path";
+import { readFileSync } from "fs";
 import { Repository } from "typeorm";
 import {
     FILE_STORAGE,
     FileStorage,
     StoredObject,
 } from "../storage/storage.types";
+import { ConfigImportService } from "../utils/config-import/config-import.service";
 import { FileEntity } from "./entities/files.entity";
 
 @Injectable()
-export class FilesService {
+export class FilesService implements OnApplicationBootstrap {
     constructor(
         @Inject(FILE_STORAGE) private storage: FileStorage,
         @InjectRepository(FileEntity)
         private fileRepository: Repository<FileEntity>,
         private configService: ConfigService,
+        private configImportService: ConfigImportService,
     ) {}
+
+    /**
+     * On application bootstrap, import images from the config folder
+     * @returns
+     */
+    onApplicationBootstrap() {
+        return this.import();
+    }
+
+    /**
+     * Import images from the config folder
+     */
+    async import() {
+        interface FileImportData {
+            filename: string;
+            content: Buffer;
+        }
+
+        await this.configImportService.importConfigs<FileImportData>({
+            subfolder: "images",
+            resourceType: "image",
+            loadData: (filePath) => {
+                const filename = filePath.split("/").pop() || "";
+                return {
+                    filename,
+                    content: readFileSync(filePath),
+                };
+            },
+            checkExists: async (tenantId, data) => {
+                const exists = await this.fileRepository.findOneBy({
+                    filename: data.filename,
+                    tenantId,
+                });
+                return !!exists;
+            },
+            processItem: async (tenantId, data) => {
+                const key = randomUUID();
+                await this.storage.put(key, data.content, {
+                    contentType: "application/octet-stream",
+                    acl: "public",
+                    metadata: { originalName: data.filename },
+                });
+                await this.fileRepository.save({
+                    id: key,
+                    filename: data.filename,
+                    tenantId,
+                });
+            },
+        });
+    }
+
+    /**
+     * Replaces a file name with the actual public URL if it is not already a URL
+     * @param tenantId
+     * @param fileName
+     * @returns
+     */
+    replaceUriWithPublicUrl(tenantId: string, fileName: string) {
+        if (fileName.startsWith("http")) return fileName;
+        return this.fileRepository
+            .findOneBy({ tenantId, filename: fileName })
+            .then((file) =>
+                file
+                    ? `${this.configService.get<string>("PUBLIC_URL")}/storage/${file.id}`
+                    : undefined,
+            );
+    }
 
     /**
      * Saves a user-uploaded file to the storage.
@@ -32,14 +101,7 @@ export class FilesService {
         file: Express.Multer.File,
         isPublic = false,
     ): Promise<StoredObject> {
-        const safeExt = extname(file.originalname || "")
-            .toLowerCase()
-            .slice(1);
-        const key = `${new Date().toISOString().slice(0, 10)}-${randomUUID()}${safeExt ? "." + safeExt : ""}`;
-
-        // TODO: add checksum if you want tamper detection:
-        // const checksum = createHash('sha256').update(bufferOrStreamToBuffer(body)).digest('base64');
-
+        const key = randomUUID();
         const response = await this.storage.put(key, file.buffer, {
             contentType: file.mimetype,
             acl: isPublic ? "public" : "private",
@@ -47,6 +109,7 @@ export class FilesService {
         });
         await this.fileRepository.save({
             id: key,
+            filename: file.originalname,
             tenantId,
         });
         const url = await this.getDownloadUrl(response.key);

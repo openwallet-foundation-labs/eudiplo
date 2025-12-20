@@ -60,17 +60,9 @@ The web client is designed for intuitive and robust configuration management:
 - **OpenAPI Specification:** An OpenAPI spec is generated from these DTOs and entities, providing a standardized interface for backend interaction.
 - **SDK Integration:** The web client uses an SDK generated from the OpenAPI spec for seamless and type-safe communication with the backend.
 - **Editing Experience:**
-
-  - Simple variables (strings, numbers, booleans) are edited via text inputs, select options, or checkboxes.
-  - Complex data structures are managed using an integrated JSON editor (Monaco Editor), which leverages JSON schemas for each variable.
-
+  
+    - Simple variables (strings, numbers, booleans) are edited via text inputs, select options, or checkboxes.
+    - Complex data structures are managed using an integrated JSON editor (Monaco Editor), which leverages JSON schemas for each variable.
+  
 - **Client-Side Validation & Guidance:** The JSON editor uses the provided JSON schemas to offer inline descriptions, auto-completion, and validation directly in the browser.
 - **Direct JSON Access:** Each configuration can be viewed and edited as raw JSON for advanced use cases.
-
----
-
-## Next Steps
-
-- [API Documentation](../api/index.md): For programmatic integration
-- [Configuration](../architecture/overview.md): Advanced setup options
-- [Architecture](../architecture/overview.md): System

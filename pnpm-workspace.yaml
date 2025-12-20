@@ -1,8 +1,9 @@
 packages:
-  - 'apps/*'
-syncInjectedDepsAfterScripts:
-- build
-injectWorkspacePackages: true  
+  - apps/*
+  - packages/*
+
+injectWorkspacePackages: true
+
 onlyBuiltDependencies:
   - '@compodoc/compodoc'
   - '@nestjs/core'
@@ -10,3 +11,6 @@ onlyBuiltDependencies:
   - '@swc/core'
   - esbuild
   - sqlite3
+
+syncInjectedDepsAfterScripts:
+  - build

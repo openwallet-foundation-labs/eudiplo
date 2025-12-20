@@ -1,27 +1,20 @@
-import { Controller, Get, Header } from "@nestjs/common";
+import { Controller, Get, Header, Param } from "@nestjs/common";
 import {
     ApiExcludeController,
     ApiOperation,
-    ApiParam,
     ApiProduces,
 } from "@nestjs/swagger";
-import { Session } from "../session/entities/session.entity";
-import { SessionEntity } from "../session/session.decorator";
 import { ContentType } from "../utils/mediaType/media-type.decorator";
 import { MediaType } from "../utils/mediaType/media-type.enum";
 import { JwksResponseDto } from "./dto/jwks-response.dto";
-import { Oauth2AuthorizationServerResponse } from "./dto/oauth-authorization-server-response.dto";
+//import { Oauth2AuthorizationServerResponseDto } from "./dto/oauth-authorization-server-response.dto";
 import { WellKnownService } from "./well-known.service";
 
 /**
  * Controller for the OpenID4VCI well-known endpoints.
  */
 @ApiExcludeController(process.env.SWAGGER_ALL !== "true")
-@ApiParam({
-    name: "session",
-    required: true,
-})
-@Controller(":session/.well-known")
+@Controller()
 export class WellKnownController {
     /**
      * Constructor for WellKnownController.
@@ -41,23 +34,32 @@ export class WellKnownController {
     })
     //we can not set the accept in the apiheader via swagger.
     @ApiProduces(MediaType.APPLICATION_JSON, MediaType.APPLICATION_JWT)
-    @Get("openid-credential-issuer")
+    @Get([
+        ".well-known/openid-credential-issuer/:tenantId",
+        ":tenantId/.well-known/openid-credential-issuer",
+    ])
     issuerMetadata(
-        @SessionEntity() session: Session,
         @ContentType() contentType: MediaType,
+        @Param("tenantId") tenantId: string,
     ) {
-        return this.wellKnownService.getIssuerMetadata(session, contentType);
+        return this.wellKnownService
+            .getIssuerMetadata(tenantId, contentType)
+            .catch((err) => {
+                console.error("Error in issuerMetadata:", err);
+                throw err;
+            });
     }
 
     /**
      * Authorization Server Metadata
      * @returns
      */
-    @Get("oauth-authorization-server")
-    authzMetadata(
-        @SessionEntity() session: Session,
-    ): Oauth2AuthorizationServerResponse {
-        return this.wellKnownService.getAuthzMetadata(session);
+    @Get([
+        ".well-known/oauth-authorization-server/:tenantId",
+        ":tenantId/.well-known/oauth-authorization-server",
+    ])
+    authzMetadata(@Param("tenantId") tenantId: string) {
+        return this.wellKnownService.getAuthzMetadata(tenantId);
     }
 
     /**
@@ -65,8 +67,8 @@ export class WellKnownController {
      * @returns
      */
     @Header("Content-Type", "application/jwk-set+json")
-    @Get("jwks.json")
-    getJwks(@SessionEntity() session: Session): Promise<JwksResponseDto> {
-        return this.wellKnownService.getJwks(session.tenantId);
+    @Get([".well-known/jwks.json/:tenantId", ":tenantId/.well-known/jwks.json"])
+    getJwks(@Param("tenantId") tenantId: string): Promise<JwksResponseDto> {
+        return this.wellKnownService.getJwks(tenantId);
     }
 }

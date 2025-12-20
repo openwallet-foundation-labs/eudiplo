@@ -7,28 +7,22 @@ import {
     Param,
     Post,
     Put,
-    UseGuards,
 } from "@nestjs/common";
-import { ApiSecurity } from "@nestjs/swagger";
-import { JwtAuthGuard } from "../../auth/auth.guard";
+import { Role } from "../../auth/roles/role.enum";
+import { Secured } from "../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../auth/token.decorator";
-import { CryptoService } from "../crypto.service";
 import { KeyImportDto } from "./dto/key-import.dto";
 import { UpdateKeyDto } from "./dto/key-update.dto";
-import { CertEntity } from "./entities/cert.entity";
+import { KeyEntity } from "./entities/keys.entity";
 import { KeyService } from "./key.service";
 
 /**
  * KeyController is responsible for managing keys in the system.
  */
-@UseGuards(JwtAuthGuard)
-@ApiSecurity("oauth2")
+@Secured([Role.Issuances, Role.Presentations])
 @Controller("key")
 export class KeyController {
-    constructor(
-        @Inject("KeyService") public readonly keyService: KeyService,
-        private cryptoService: CryptoService,
-    ) {}
+    constructor(@Inject("KeyService") public readonly keyService: KeyService) {}
 
     /**
      * Get all keys for the tenant.
@@ -36,9 +30,22 @@ export class KeyController {
      * @returns
      */
     @Get()
-    getKeys(@Token() token: TokenPayload): Promise<CertEntity[]> {
-        const tenantId = token.sub;
-        return this.cryptoService.getCerts(tenantId);
+    getKeys(@Token() token: TokenPayload): Promise<KeyEntity[]> {
+        return this.keyService.getKeys(token.entity!.id);
+    }
+
+    /**
+     * Get a specific key by ID
+     * @param token
+     * @param id
+     * @returns
+     */
+    @Get(":id")
+    getKey(
+        @Token() token: TokenPayload,
+        @Param("id") id: string,
+    ): Promise<KeyEntity> {
+        return this.keyService.getKey(token.entity!.id, id);
     }
 
     /**
@@ -52,8 +59,7 @@ export class KeyController {
         @Token() token: TokenPayload,
         @Body() body: KeyImportDto,
     ): Promise<{ id: string }> {
-        const tenantId = token.sub;
-        const id = await this.cryptoService.importKey(tenantId, body);
+        const id = await this.keyService.import(token.entity!.id, body);
         return { id };
     }
 
@@ -69,8 +75,7 @@ export class KeyController {
         @Param("id") id: string,
         @Body() body: UpdateKeyDto,
     ): Promise<void> {
-        const tenantId = token.sub;
-        await this.cryptoService.updateCert(tenantId, id, body);
+        await this.keyService.update(token.entity!.id, id, body);
     }
 
     /**
@@ -80,6 +85,6 @@ export class KeyController {
      */
     @Delete(":id")
     deleteKey(@Token() token: TokenPayload, @Param("id") id: string) {
-        return this.cryptoService.deleteKey(token.sub, id);
+        return this.keyService.deleteKey(token.entity!.id, id);
     }
 }

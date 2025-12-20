@@ -1,50 +1,44 @@
-import {
-    Body,
-    ConflictException,
-    Controller,
-    Delete,
-    Get,
-    Param,
-    Post,
-    UseGuards,
-} from "@nestjs/common";
-import { ApiSecurity } from "@nestjs/swagger";
-import { AdminAuthGuard } from "../admin.guard";
-import { ClientInitDto } from "../dto/client-init.dto";
-import { TenantService } from "../tenant.service";
-import { Token, TokenPayload } from "../token.decorator";
+import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
+import { Role } from "../roles/role.enum";
+import { Secured } from "../secure.decorator";
+import { CreateTenantDto } from "./dto/create-tenant.dto";
+import { TenantService } from "./tenant.service";
 
 /**
  * Tenant management controller
  */
-@UseGuards(AdminAuthGuard)
-@ApiSecurity("oauth2")
+@Secured([Role.Tenants])
 @Controller("tenant")
 export class TenantController {
     constructor(private readonly tenantService: TenantService) {}
 
     /**
-     * Initialize a tenant for the given user.
-     * @param user The user to initialize the tenant for
+     * Get all tenants
      * @returns
      */
-    @Post()
-    initTenant(@Token() user: TokenPayload, @Body() values: ClientInitDto) {
-        //only the admin is allowed to init new users. Or the user by itself.
-        if (values.id && !user.admin) {
-            throw new ConflictException("User is not an admin");
-        }
-        return this.tenantService.initTenant(values.id || user.sub);
+    @Get()
+    getTenants() {
+        return this.tenantService.getAll();
     }
 
     /**
-     * Get the status of a tenant
-     * @param id The ID of the tenant
-     * @returns The status of the tenant
+     * Initialize a tenant
+     * @param data
+     * @returns
      */
-    @Get("status")
-    getTenantStatus(@Token() user: TokenPayload) {
-        return this.tenantService.getTenantStatus(user.sub);
+    @Post()
+    initTenant(@Body() data: CreateTenantDto) {
+        return this.tenantService.createTenant(data);
+    }
+
+    /**
+     * Get a tenant by ID
+     * @param id The ID of the tenant
+     * @returns The tenant
+     */
+    @Get(":id")
+    getTenant(@Param("id") id: string) {
+        return this.tenantService.getTenant(id);
     }
 
     /**
@@ -52,14 +46,7 @@ export class TenantController {
      * @param id The ID of the tenant to delete
      */
     @Delete(":id")
-    deleteTenant(@Param("id") id: string, @Token() user: TokenPayload) {
-        // either self delete or the user needs to be an admin.
-        if (id !== user.sub && !user.admin) {
-            throw new ConflictException(
-                "User is not allowed to delete this tenant",
-            );
-        }
-
-        return this.tenantService.deleteTenant(id, user);
+    deleteTenant(@Param("id") id: string) {
+        return this.tenantService.deleteTenant(id);
     }
 }

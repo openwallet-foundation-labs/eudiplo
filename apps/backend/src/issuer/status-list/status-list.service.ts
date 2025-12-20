@@ -1,16 +1,19 @@
-import { ConflictException, Injectable } from "@nestjs/common";
+import { ConflictException, Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import {
+    BitsPerStatus,
     createHeaderAndPayload,
     JWTwithStatusListPayload,
     StatusList,
     StatusListJWTHeaderParameters,
 } from "@sd-jwt/jwt-status-list";
 import { JwtPayload } from "@sd-jwt/types";
+import { randomInt } from "crypto";
 import { join } from "path";
 import { Repository } from "typeorm";
-import { CryptoService } from "../../crypto/crypto.service";
+import { CertService } from "../../crypto/key/cert/cert.service";
+import { KeyService } from "../../crypto/key/key.service";
 import { Session } from "../../session/entities/session.entity";
 import { StatusUpdateDto } from "./dto/status-update.dto";
 import { StatusListEntity } from "./entities/status-list.entity";
@@ -20,7 +23,8 @@ import { StatusMapping } from "./entities/status-mapping.entity";
 export class StatusListService {
     constructor(
         private configService: ConfigService,
-        private cryptoService: CryptoService,
+        private certService: CertService,
+        @Inject("KeyService") public readonly keyService: KeyService,
         @InjectRepository(StatusMapping)
         private statusMappingRepository: Repository<StatusMapping>,
         @InjectRepository(StatusListEntity)
@@ -28,44 +32,46 @@ export class StatusListService {
     ) {}
 
     /**
-     * Initialize the status list service by checking if the status list file exists.
-     * If it does not exist, create a new status list with 10,000 entries and a stack
-     * of 10,000 indexes. The stack is shuffled to ensure randomness in the order of
-     * entries. The status list is stored in the file system as a JSON file.
+     * Cryptographically secure Fisher-Yates shuffle
      */
-    async onTenantInit(tenantId: string) {
-        const size = 10000;
+    private shuffleArray<T>(array: T[]): T[] {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = randomInt(0, i + 1);
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    }
+
+    /**
+     * Create a new status list and store it in the file
+     */
+    async createNewList(tenantId: string) {
+        const size = this.configService.getOrThrow<number>("STATUS_LENGTH");
         // create an empty array with the size of 1000
         const elements = new Array(size).fill(0).map(() => 0);
-        // create a list of 1000 indexes and shuffel them
-        const stack = new Array(size)
-            .fill(0)
-            .map((_, i) => i)
-            .sort(() => 0.5 - Math.random());
+        // create a list of 1000 indexes and shuffle them using crypto-secure randomness
+        const stack = this.shuffleArray(
+            new Array(size).fill(0).map((_, i) => i),
+        );
+
+        const bits =
+            this.configService.getOrThrow<BitsPerStatus>("STATUS_BITS");
 
         const entry = await this.statusListRepository.save({
             tenantId,
             elements,
             stack,
-            bits: 1,
+            bits,
         });
 
-        await this.createList(entry);
-    }
-
-    /**
-     * Delete the status list for a specific tenant.
-     * @param tenantId The ID of the tenant.
-     */
-    onTenantDelete(tenantId: string) {
-        this.statusListRepository.delete({ tenantId });
-        this.statusMappingRepository.delete({ tenantId });
+        await this.createListJWT(entry);
     }
 
     /**
      * Create a new status list and stored it in the file
      */
-    async createList(entry: StatusListEntity) {
+    async createListJWT(entry: StatusListEntity) {
         const list = new StatusList(entry.elements, entry.bits);
         const iss = `${this.configService.getOrThrow<string>("PUBLIC_URL")}`;
 
@@ -81,13 +87,16 @@ export class StatusListService {
             sub,
             iat: Math.floor(Date.now() / 1000),
         };
+        //TODO: maybe add a cert for status list management
+        const cert = await this.certService.find({
+            tenantId: entry.tenantId,
+            type: "signing",
+        });
+
         const preHeader: StatusListJWTHeaderParameters = {
             alg: "ES256",
             typ: "statuslist+jwt",
-            x5c: await this.cryptoService.getCertChain(
-                "signing",
-                entry.tenantId,
-            ),
+            x5c: await this.certService.getCertChain(cert),
         };
         const { header, payload } = createHeaderAndPayload(
             list,
@@ -95,10 +104,11 @@ export class StatusListService {
             preHeader,
         );
 
-        const jwt = await this.cryptoService.signJwt(
-            header,
+        const jwt = await this.keyService.signJWT(
             payload,
+            header,
             entry.tenantId,
+            cert.keyId,
         );
         await this.statusListRepository.update(
             { tenantId: entry.tenantId },
@@ -117,6 +127,20 @@ export class StatusListService {
             .then((file) => file.jwt);
     }
 
+    hasStillFreeEntries(tenantId: string) {
+        return this.statusListRepository
+            .findOneByOrFail({ tenantId })
+            .then((file) => {
+                if (file.stack.length === 0) {
+                    throw new ConflictException(
+                        "No free entries left in the status list",
+                    );
+                } else {
+                    return true;
+                }
+            });
+    }
+
     /**
      * Get the next free entry in the status list.
      * @returns
@@ -130,8 +154,8 @@ export class StatusListService {
                 tenantId: session.tenantId,
             })
             //if none if found, create one
-            .then(() =>
-                this.onTenantInit(session.tenantId).then(() =>
+            .catch(() =>
+                this.createNewList(session.tenantId).then(() =>
                     this.statusListRepository.findOneByOrFail({
                         tenantId: session.tenantId,
                     }),
@@ -143,12 +167,7 @@ export class StatusListService {
         if (idx === undefined) {
             throw new Error("Stack for status list is empty!!!");
         }
-        const sub = join(
-            this.configService.getOrThrow<string>("PUBLIC_URL"),
-            session.tenantId,
-            "status-management",
-            "status-list",
-        );
+        const sub = `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${session.tenantId}/status-management/status-list`;
         // store the index in the status mapping
         await this.statusMappingRepository.save({
             tenantId: session.tenantId,
@@ -182,7 +201,7 @@ export class StatusListService {
             { tenantId },
             { elements: entry.elements },
         );
-        return this.createList(entry);
+        return this.createListJWT(entry);
     }
 
     /**

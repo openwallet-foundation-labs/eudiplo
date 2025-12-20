@@ -29,7 +29,7 @@
           <mat-label>API Base URL</mat-label>
           <input matInput [value]="currentBaseUrl" readonly />
           <button
-            mat-icon-button
+            matIconButton
             matSuffix
             (click)="copyToClipboard(currentBaseUrl, 'API Base URL')"
             matTooltip="Copy to clipboard"
@@ -44,7 +44,7 @@
           <mat-label>OAuth URL</mat-label>
           <input matInput [value]="currentOidcUrl" readonly />
           <button
-            mat-icon-button
+            matIconButton
             matSuffix
             (click)="copyToClipboard(currentOidcUrl, 'OAuth URL')"
             matTooltip="Copy to clipboard"
@@ -59,7 +59,7 @@
           <mat-label>Client ID</mat-label>
           <input matInput [value]="currentClientId" readonly />
           <button
-            mat-icon-button
+            matIconButton
             matSuffix
             (click)="copyToClipboard(currentClientId, 'Client ID')"
             matTooltip="Copy to clipboard"
@@ -74,7 +74,7 @@
           <mat-label>Client Secret</mat-label>
           <input matInput [value]="currentClientSecret" readonly type="password" />
           <button
-            mat-icon-button
+            matIconButton
             matSuffix
             (click)="copyToClipboard(currentClientSecret, 'Client Secret')"
             matTooltip="Copy to clipboard"
@@ -90,63 +90,13 @@
           {{ canAutoRefresh ? 'Available' : 'Not Available' }}
         </mat-chip>
       </div>
-    </mat-card-content>
-  </mat-card>
 
-  <!-- Quick Navigation -->
-  <mat-card fxFlex="none" fxLayout="column" fxLayoutGap="16px" class="navigation-card">
-    <mat-card-header>
-      <mat-card-title>Quick Navigation</mat-card-title>
-      <mat-card-subtitle>Access different features</mat-card-subtitle>
-    </mat-card-header>
-    <mat-card-content>
-      <div fxLayout="row wrap" fxLayout.xs="column" fxLayoutGap="16px" class="quick-nav">
-        <mat-card class="nav-card" (click)="navigateToCredentialConfig()">
-          <mat-card-content fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="8px">
-            <mat-icon class="nav-icon">settings</mat-icon>
-            <span>Credential Configurations</span>
-          </mat-card-content>
-        </mat-card>
-
-        <mat-card class="nav-card" (click)="navigateToKeyManagement()">
-          <mat-card-content fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="8px">
-            <mat-icon class="nav-icon">vpn_key</mat-icon>
-            <span>Key Management</span>
-          </mat-card-content>
-        </mat-card>
-
-        <mat-card class="nav-card" (click)="navigateToIssuanceConfig()">
-          <mat-card-content fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="8px">
-            <mat-icon class="nav-icon">badge</mat-icon>
-            <span>Issuance Configuration</span>
-          </mat-card-content>
-        </mat-card>
-
-        <mat-card class="nav-card" (click)="navigateToPresentationConfig()">
-          <mat-card-content fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="8px">
-            <mat-icon class="nav-icon">verified</mat-icon>
-            <span>Presentation Configuration</span>
-          </mat-card-content>
-        </mat-card>
-
-        <mat-card class="nav-card" (click)="navigateToSessionManagement()">
-          <mat-card-content fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="8px">
-            <mat-icon class="nav-icon">history</mat-icon>
-            <span>Session Management</span>
-          </mat-card-content>
-        </mat-card>
+      <div fxLayout="row" fxLayoutAlign="space-between center" class="config-item">
+        <span class="config-label">Backend Version:</span>
+        <mat-chip>
+          {{ backendVersion || 'Loading...' }}
+        </mat-chip>
       </div>
-
-      <!-- Token Status (only show if there are issues) -->
-      @if (!canAutoRefresh) {
-        <div fxLayout="row" fxLayoutGap="8px" class="alert-section">
-          <mat-icon class="warning-icon">info</mat-icon>
-          <span fxFlex
-            >Automatic token refresh is not available after page reload. You'll need to login again
-            when your token expires.</span
-          >
-        </div>
-      }
     </mat-card-content>
   </mat-card>
 </div>

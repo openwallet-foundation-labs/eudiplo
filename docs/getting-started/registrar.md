@@ -8,32 +8,9 @@ To interact with an EUDI Wallet, two types of certificates are required:
 You can still use EUDIPLO without these certificates, but it can end up into
 warnings when making requests to the EUDI Wallet.
 
-## Registrar Settings
+## Configuration
 
-These values are used to request access and registration certificates from the
-Registrar.
-
-| Variable        | Description          |
-| --------------- | -------------------- |
-| `REGISTRAR_URL` | URL of the registrar |
-
-Used to authenticate against the Registrar using any OIDC-compliant provider.
-
-| Variable                       | Description                                              |
-| ------------------------------ | -------------------------------------------------------- |
-| `REGISTRAR_OIDC_URL`           | OIDC URL (e.g., <https://auth.example.com/realms/myrealm>) |
-| `REGISTRAR_OIDC_CLIENT_ID`     | Client ID as configured in the OIDC provider             |
-| `REGISTRAR_OIDC_CLIENT_SECRET` | Secret associated with the OIDC client                   |
-
-### Example Configurations
-
-**Keycloak:**
-
-```env
-REGISTRAR_OIDC_URL=https://keycloak.example.com/realms/registrar
-REGISTRAR_OIDC_CLIENT_ID=eudiplo-client
-REGISTRAR_OIDC_CLIENT_SECRET=your-client-secret
-```
+--8<-- "docs/generated/config-registrar.md"
 
 ## Accessing the Registrar
 
@@ -43,7 +20,7 @@ necessary environment variables.
 On startup, EUDIPLO checks whether a Relying Party (RP) is already registered
 using the `config/registrar.json` file. If no ID is specified, EUDIPLO will
 automatically register a new Relying Party with the registrar using the
-`RP_NAME` value.
+`name` from the tenant entity stored in the database.
 
 ## Access Certificate
 

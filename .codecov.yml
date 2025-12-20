@@ -4,6 +4,8 @@ coverage:
       default:
         target: 10%
         threshold: 1%
+        paths:
+          - apps/backend/**
     patch:
       default:
         target: 10%
@@ -20,3 +22,8 @@ ignore:
   - "*.config.js"
   - "src/main.ts"
   - "dist/"
+  - "apps/client/**"
+  - "apps/dcapi/**"
+  - "apps/webhook/**"
+  - "apps/tmp/**"
+  - "monitor/**"

@@ -3,8 +3,6 @@ import { forwardRef, Module } from "@nestjs/common";
 import { CryptoModule } from "../../crypto/crypto.module";
 import { RegistrarModule } from "../../registrar/registrar.module";
 import { SessionModule } from "../../session/session.module";
-import { SessionLoggerInterceptor } from "../../utils/logger/session-logger.interceptor";
-import { SessionLoggerService } from "../../utils/logger/session-logger.service";
 import { WebhookService } from "../../utils/webhook/webhook.service";
 import { PresentationsModule } from "../presentations/presentations.module";
 import { Oid4vpController } from "./oid4vp.controller";
@@ -19,12 +17,7 @@ import { Oid4vpService } from "./oid4vp.service";
         HttpModule,
     ],
     controllers: [Oid4vpController],
-    providers: [
-        Oid4vpService,
-        SessionLoggerService,
-        SessionLoggerInterceptor,
-        WebhookService,
-    ],
+    providers: [Oid4vpService, WebhookService],
     exports: [Oid4vpService],
 })
 export class Oid4vpModule {}

@@ -5,18 +5,9 @@ ways, depending on the selected key management type (`KM_TYPE`).
 
 > 💡 **Encryption operations** are always proceed with database stored keys for not and independent from the used KeyManagement Module.
 
----
+## Configuration
 
-## Configuration Overview
-
-| Variable              | Description                                              | Required for | Default |
-| --------------------- | -------------------------------------------------------- | ------------ | ------- |
-| `KM_TYPE`             | Key management engine type (`db` or `vault`)             | All          | `db`    |
-| `CRYPTO_ALG`          | Cryptographic algorithm (`ES256`)                        | All          | `ES256` |
-| `VAULT_URL`           | Vault API URL to vault instance like `http://vault:8200` | `vault`      | –       |
-| `VAULT_TOKEN`         | Authentication token for Vault                           | `vault`      | –       |
-| `CONFIG_IMPORT`       | Enable automatic key import from config files            | Optional     | `false` |
-| `CONFIG_IMPORT_FORCE` | Overwrite existing keys during import                    | Optional     | `false` |
+--8<-- "docs/generated/config-key.md"
 
 ---
 
@@ -32,13 +23,13 @@ Each key file contains the private key in JWK format:
 
 ```json
 {
-  "kty": "EC",
-  "x": "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
-  "y": "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
-  "crv": "P-256",
-  "d": "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
-  "kid": "039af178-3ca0-48f4-a2e4-7b1209f30376",
-  "alg": "ES256"
+    "kty": "EC",
+    "x": "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
+    "y": "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
+    "crv": "P-256",
+    "d": "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
+    "kid": "039af178-3ca0-48f4-a2e4-7b1209f30376",
+    "alg": "ES256"
 }
 ```
 
@@ -105,19 +96,99 @@ contact the maintainers.
 
 ## Certificates
 
-EUDIPLO supports the use of X.509 certificates for key management. Certificates can be used to verify the authenticity of public keys and establish trust between parties.
+EUDIPLO supports comprehensive management of X.509 certificates that are linked to cryptographic keys. Certificates can be used to verify the authenticity of public keys and establish trust between parties.
 
-### Certificate Generation
+### Certificate Management
 
-When a new key pair is generated, a self-signed certificate is also created. This certificate includes the public key and is stored alongside the key files. The certificate can be overwritten any time via the api.
+Certificates are managed separately from keys and can be associated with any imported key. Each certificate has a unique identifier and is linked to a key via the `keyId` field.
+
+**Certificate Types**:
+
+- **Access Certificates** (`isAccessCert`): Used for authenticating access to protected resources
+- **Signing Certificates** (`isSigningCert`): Used for signing credentials and tokens
+
+A single certificate can serve both purposes by setting both flags to `true`.
+
+### Certificate Operations
+
+The certificate management API provides endpoints for creating, reading, updating, and deleting certificates. For detailed endpoint specifications, parameters, and request/response schemas, see:
+
+**API Reference**: [Certificate API Endpoints](../api/openapi.md#tag/cert)
+
+Available operations:
+
+- List all certificates for a tenant
+- Get certificate details by ID
+- Create/Import certificate for a specific key
+- Update certificate metadata and type flags
+- Delete certificate
+- Generate self-signed certificate for a key
+
+### Self-Signed Certificate Generation
+
+Generate a self-signed certificate for an existing key using the dedicated endpoint. This automatically creates a certificate with:
+
+- Subject: Common Name based on tenant configuration
+- Validity: 1 year from generation
+- Algorithm: Matches the key algorithm (ES256)
+- Extensions: Subject Alternative Name (SAN) for localhost
+
+**API Reference**: [Self-Signed Certificate Generation](../api/openapi.md#tag/cert/POST/cert/{keyId}/self-signed)
+
+### Certificate Import via Configuration
+
+Certificates can be imported during application startup using the configuration system.
+
+**Directory Structure**:
+
+```shell
+assets/config/
+└── tenant-1/
+    └── certs/
+        ├── signing-cert.json
+        └── access-cert.json
+```
+
+**Certificate File Format**:
+
+```json
+{
+    "keyId": "039af178-3ca0-48f4-a2e4-7b1209f30376",
+    "isAccessCert": true,
+    "isSigningCert": true,
+    "description": "Production certificate",
+    "crt": "-----BEGIN CERTIFICATE-----\nMIIBYTCCAQigAwIB...\n-----END CERTIFICATE-----"
+}
+```
+
+See [Configuration Import](configuration-import.md#certificates) for more details.
+
+### Certificate Chain Support
+
+EUDIPLO supports certificate chains for establishing trust hierarchies. Import multiple certificates and link them to the same key to build a chain from leaf to root certificate.
+
+### Certificate Validation
+
+Certificates are validated during import:
+
+- PEM format verification
+- Public key matching with associated key
+- Certificate expiration checking
+- X.509 standard compliance
+
+### Certificate Format
+
+Certificates must be in PEM format with proper line breaks:
+
+- Use `\n` escape sequences in JSON
+- Include both `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----` headers
+- Base64-encoded DER content between headers
+
+When a new key pair is generated, a self-signed certificate is also created. This certificate includes the public key and is stored alongside the key files. The certificate can be overwritten any time via the API.
 
 When using the [Registrar](../getting-started/registrar.md), it will generate a certificate for the public key that can be used to secure the OID4VCI and OID4VP requests. Each tenant will only have one access certificate.
 
 > Note: In the future the access certificate generation will follow the official standard that is under development right now.
-
-### Certificate Format
-
-Certificates are stored in PEM format and can be included in key import requests.
 
 ---
 
@@ -149,17 +220,17 @@ Import keys through the REST API using authenticated requests:
 
 ```json
 {
-  "privateKey": {
-    "kty": "EC",
-    "x": "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
-    "y": "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
-    "crv": "P-256",
-    "d": "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
-    "kid": "039af178-3ca0-48f4-a2e4-7b1209f30376",
-    "alg": "ES256"
-  },
-  "description": "Optional key description",
-  "crt": "-----BEGIN CERTIFICATE-----\n...optional certificate...\n-----END CERTIFICATE-----"
+    "privateKey": {
+        "kty": "EC",
+        "x": "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
+        "y": "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
+        "crv": "P-256",
+        "d": "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
+        "kid": "039af178-3ca0-48f4-a2e4-7b1209f30376",
+        "alg": "ES256"
+    },
+    "description": "Optional key description",
+    "crt": "-----BEGIN CERTIFICATE-----\n...optional certificate...\n-----END CERTIFICATE-----"
 }
 ```
 
@@ -167,7 +238,7 @@ Import keys through the REST API using authenticated requests:
 
 ```json
 {
-  "id": "039af178-3ca0-48f4-a2e4-7b1209f30376"
+    "id": "039af178-3ca0-48f4-a2e4-7b1209f30376"
 }
 ```
 
@@ -201,27 +272,26 @@ assets/config/
 
 ```json
 {
-  "privateKey": {
-    "kty": "EC",
-    "x": "...",
-    "y": "...",
-    "crv": "P-256",
-    "d": "...",
-    "kid": "unique-key-identifier",
-    "alg": "ES256"
-  },
-  "crt": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
+    "privateKey": {
+        "kty": "EC",
+        "x": "...",
+        "y": "...",
+        "crv": "P-256",
+        "d": "...",
+        "kid": "unique-key-identifier",
+        "alg": "ES256"
+    },
+    "crt": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
 }
 ```
 
 ### Key Management Operations
 
-**List All Keys**:
+For detailed key management endpoints, parameters, and request/response schemas, see:
 
-```bash
-GET /key
-Authorization: Bearer <tenant-token>
-```
+**API Reference**: [Key Management API Endpoints](../api/openapi.md#tag/key)
+
+Available operations include listing keys, importing keys, and managing key metadata.
 
 ### Supported Key Formats
 

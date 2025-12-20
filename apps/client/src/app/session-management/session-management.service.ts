@@ -1,12 +1,10 @@
 import { Injectable } from '@angular/core';
-import { client } from '../generated/client.gen';
 import {
   sessionControllerDeleteSession,
   sessionControllerGetAllSessions,
   sessionControllerGetSession,
-} from '../generated/sdk.gen';
-import { Session } from '../generated/types.gen';
-
+  Session,
+} from '@eudiplo/sdk';
 @Injectable({
   providedIn: 'root',
 })
@@ -18,7 +16,7 @@ export class SessionManagementService {
    */
   async getAllSessions(): Promise<Session[]> {
     try {
-      const response = await sessionControllerGetAllSessions({ client });
+      const response = await sessionControllerGetAllSessions();
       return response.data || [];
     } catch (error) {
       console.error('Error fetching sessions:', error);
@@ -31,7 +29,6 @@ export class SessionManagementService {
    */
   async getSession(id: string): Promise<Session> {
     return sessionControllerGetSession({
-      client,
       path: { id },
     }).then((response) => {
       if (response.data) {
@@ -65,26 +62,11 @@ export class SessionManagementService {
   }
 
   /**
-   * Get session type based on available fields
-   */
-  getSessionType(session: Session): string {
-    if (session.issuanceId) {
-      return 'Issuance';
-    } else if (session.requestId) {
-      return 'Presentation';
-    } else if (session.credentials && session.credentials.length > 0) {
-      return 'Verification';
-    }
-    return 'Unknown';
-  }
-
-  /**
    * Revoke/delete a session by ID
    */
   async deleteSession(sessionId: string): Promise<void> {
     try {
       await sessionControllerDeleteSession({
-        client,
         path: { id: sessionId },
       });
     } catch (error) {

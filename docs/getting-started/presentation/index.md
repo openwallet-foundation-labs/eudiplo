@@ -30,16 +30,14 @@ business requirements.
 EUDIPLO supports multiple presentation scenarios:
 
 - Standard Presentation Flow
-
-  - Direct credential verification requests
-  - Used for access control and identity verification
-  - Returns verified claims to the requesting service
+    - Direct credential verification requests
+    - Used for access control and identity verification
+    - Returns verified claims to the requesting service
 
 - Presentation During Issuance
-
-  - Credentials presented as prerequisites for new credential issuance
-  - Enables qualification-based credential issuance
-  - Supports complex identity verification workflows
+    - Credentials presented as prerequisites for new credential issuance
+    - Enables qualification-based credential issuance
+    - Supports complex identity verification workflows
 
 ### DCQL (Digital Credentials Query Language)
 
@@ -94,72 +92,23 @@ For a quick start, follow these steps:
 
 ### 1. Create a Presentation Configuration
 
-```json
-{
-  "id": "identity-verification",
-  "dcql_query": {
-    "credentials": [
-      {
-        "id": "pid",
-        "format": "dc+sd-jwt",
-        "meta": {
-          "vct_values": ["https://your-domain.com/credentials/vct/pid"]
-        },
-        "claims": [
-          {
-            "path": ["given_name"]
-          },
-          {
-            "path": ["family_name"]
-          }
-        ]
-      }
-    ]
-  },
-  "registrationCert": {
-    "body": {
-      "privacy_policy": "https://your-domain.com/privacy-policy",
-      "purpose": [
-        {
-          "locale": "en-US",
-          "name": "Identity verification for service access"
-        }
-      ],
-      "contact": {
-        "website": "https://your-domain.com/contact",
-        "email": "privacy@your-domain.com",
-        "phone": "+1234567890"
-      }
-    }
-  },
-  "webhook": {
-    "url": "https://your-backend.com/presentation-webhook"
-  }
-}
-```
+See [Presentation Configuration](presentation-configuration.md) for detailed instructions on creating and managing presentation configurations.
 
 ### 2. Store the Configuration
 
-```bash
-curl -X 'POST' \
-  'http://localhost:3000/presentation-management' \
-  -H 'Authorization: Bearer eyJhb...npoNk' \
-  -H 'Content-Type: application/json' \
-  -d '@presentation-config.json'
-```
+Use the presentation management API to store the configuration. For detailed endpoint specifications, see:
+
+**API Reference**: [Create Presentation Configuration](../../api/openapi.md#tag/presentation-management/POST/presentation-management)
 
 ### 3. Request a Presentation
 
-```bash
-curl -X 'POST' \
-  'http://localhost:3000/presentation-management/request' \
-  -H 'Authorization: Bearer eyJhb...npoNk' \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "response_type": "uri",
-    "requestId": "identity-verification"
-  }'
-```
+Initiate a presentation request using the stored configuration. For detailed endpoint specifications, see:
+
+**API Reference**: [Request Presentation](../../api/openapi.md#tag/presentation-management/POST/presentation-management/request)
+
+!!! Info
+
+    In this request you need to specify if the flow should use the DC API or not.
 
 ### 4. Present to User
 
@@ -167,8 +116,8 @@ The response includes a URI that can be presented to the user:
 
 ```json
 {
-  "uri": "openid4vp://?request_uri=https://your-domain.com/oid4vp/request/abc123&session_id=session-456",
-  "session_id": "session-456"
+    "uri": "openid4vp://?request_uri=https://your-domain.com/oid4vp/request/abc123&session_id=session-456",
+    "session_id": "session-456"
 }
 ```
 
@@ -198,6 +147,10 @@ sequenceDiagram
 ```
 
 ### Presentation During Issuance
+
+!!! Info
+
+    Presentation during issuance is temporarily removed to be aligned with the latest OID4VCI spec. It will be reintroduced in a future release.
 
 ```mermaid
 sequenceDiagram
@@ -241,15 +194,3 @@ sequenceDiagram
 - **Cryptographic validation** of presented credentials
 - **Issuer verification** against trusted registries
 - **Revocation status checking** for active credentials
-
----
-
-## Next Steps
-
-Explore the detailed guides for implementing presentation flows:
-
-- [Presentation Configuration](presentation-configuration.md) - Configure
-  presentation requests
-- [Authentication](authentication.md) - Secure your presentation endpoints
-- [API Guide](api-guide.md) - Practical implementation examples
-- [Integration Examples](integration-examples.md) - Real-world scenarios

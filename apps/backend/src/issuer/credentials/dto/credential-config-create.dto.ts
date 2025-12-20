@@ -4,6 +4,5 @@ import { CredentialConfig } from "../entities/credential.entity";
 export class CredentialConfigCreate extends OmitType(CredentialConfig, [
     "tenantId",
     "tenant",
-    "issuanceConfigs",
-    "key",
+    "cert",
 ]) {}

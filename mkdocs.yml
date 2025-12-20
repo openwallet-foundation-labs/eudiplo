@@ -78,12 +78,17 @@ markdown_extensions:
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.tilde
+  - pymdownx.snippets:
+      base_path: .
 plugins:
     - search
     - glightbox
     - neoteroi.mkdocsoad:
         use_pymdownx: true
     - privacy
+    - exclude:
+        glob:
+          - generated/*.md
 
 extra:
   version:
@@ -108,21 +113,14 @@ nav:
           - Overview: getting-started/issuance/index.md
           - Credential Configuration: getting-started/issuance/credential-configuration.md
           - Issuance Configuration: getting-started/issuance/issuance-configuration.md
-          - Advanced Features: getting-started/issuance/advanced-features.md
-          - Authentication: getting-started/issuance/authentication.md
-          - API Guide: getting-started/issuance/api-guide.md
-          - Revocation: getting-started/issuance/revocation.md          
         - Presentation:
           - Overview: getting-started/presentation/index.md
-          - Presentation Configuration: getting-started/presentation/presentation-configuration.md
-          - Authentication: getting-started/presentation/authentication.md
-          - API Guide: getting-started/presentation/api-guide.md
-          - Integration Examples: getting-started/presentation/integration-examples.md          
+          - Presentation Configuration: getting-started/presentation/presentation-configuration.md                
       - Advanced:
         - Registrar: getting-started/registrar.md
         - Monitor: getting-started/monitor.md        
   - Architecture:
-      - Overview: architecture/overview.md      
+      - Overview: architecture/index.md      
       - Supported Protocols: architecture/supported-protocols.md
       - Tenant-Based: architecture/tenant.md
       - Sessions: architecture/sessions.md

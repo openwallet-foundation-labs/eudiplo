@@ -5,6 +5,8 @@ import request from "supertest";
 import { v4 } from "uuid";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../src/app.module";
+import { KeyImportDto } from "../src/crypto/key/dto/key-import.dto";
+import { getToken } from "./utils";
 
 describe("Key (e2e)", () => {
     let app: INestApplication;
@@ -25,18 +27,7 @@ describe("Key (e2e)", () => {
         clientId = configService.getOrThrow<string>("AUTH_CLIENT_ID");
         clientSecret = configService.getOrThrow<string>("AUTH_CLIENT_SECRET");
 
-        // Get JWT token using client credentials
-        const tokenResponse = await request(app.getHttpServer())
-            .post("/oauth2/token")
-            .trustLocalhost()
-            .send({
-                client_id: clientId,
-                client_secret: clientSecret,
-                grant_type: "client_credentials",
-            })
-            .expect(201);
-        authToken = tokenResponse.body.access_token;
-        expect(authToken).toBeDefined();
+        authToken = await getToken(app, clientId, clientSecret);
     });
 
     afterAll(async () => {
@@ -54,12 +45,14 @@ describe("Key (e2e)", () => {
             alg: "ES256",
         };
 
+        const payload: KeyImportDto = {
+            id: privateKey.kid!,
+            key: privateKey,
+        };
         const creationResponse = await request(app.getHttpServer())
             .post("/key")
             .set("Authorization", `Bearer ${authToken}`)
-            .send({
-                privateKey,
-            })
+            .send(payload)
             .expect(201);
 
         expect(creationResponse.body.id).toBe(privateKey.kid);

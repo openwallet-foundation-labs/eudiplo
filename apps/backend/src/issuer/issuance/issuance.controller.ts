@@ -1,21 +1,13 @@
-import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    Param,
-    Post,
-    UseGuards,
-} from "@nestjs/common";
-import { ApiSecurity, ApiTags } from "@nestjs/swagger";
-import { JwtAuthGuard } from "../../auth/auth.guard";
+import { Body, Controller, Get, Post } from "@nestjs/common";
+import { ApiTags } from "@nestjs/swagger";
+import { Role } from "../../auth/roles/role.enum";
+import { Secured } from "../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../auth/token.decorator";
 import { IssuanceDto } from "./dto/issuance.dto";
 import { IssuanceService } from "./issuance.service";
 
 @ApiTags("Issuer management")
-@UseGuards(JwtAuthGuard)
-@ApiSecurity("oauth2")
+@Secured([Role.Issuances])
 @Controller("issuer-management/issuance")
 export class IssuanceController {
     constructor(private readonly issuanceService: IssuanceService) {}
@@ -26,7 +18,7 @@ export class IssuanceController {
      */
     @Get()
     getIssuanceConfigurations(@Token() user: TokenPayload) {
-        return this.issuanceService.getIssuanceConfiguration(user.sub);
+        return this.issuanceService.getIssuanceConfiguration(user.entity!.id);
     }
 
     /**
@@ -40,21 +32,8 @@ export class IssuanceController {
         @Token() user: TokenPayload,
     ) {
         return this.issuanceService.storeIssuanceConfiguration(
-            user.sub,
+            user.entity!.id,
             config,
         );
-    }
-
-    /**
-     * Deletes an issuance configuration.
-     * @param id
-     * @returns
-     */
-    @Delete(":id")
-    deleteIssuanceConfiguration(
-        @Param("id") id: string,
-        @Token() user: TokenPayload,
-    ) {
-        return this.issuanceService.deleteIssuanceConfiguration(user.sub, id);
     }
 }

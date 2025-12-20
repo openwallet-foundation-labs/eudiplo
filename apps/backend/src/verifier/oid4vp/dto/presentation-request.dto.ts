@@ -13,6 +13,10 @@ export enum ResponseType {
      * Response type indicating a URI will be returned.
      */
     URI = "uri",
+    /**
+     * Response type indicating a DC API response will be used.
+     */
+    DC_API = "dc-api",
 }
 
 /**
@@ -23,13 +27,13 @@ export class PresentationRequest {
      * The type of response expected from the presentation request.
      */
     @IsEnum(ResponseType)
-    response_type: ResponseType;
+    response_type!: ResponseType;
 
     /**
      * Identifier of the presentation configuration
      */
     @IsString()
-    requestId: string;
+    requestId!: string;
 
     /**
      * Webhook configuration to receive the response.
@@ -38,4 +42,11 @@ export class PresentationRequest {
     @IsObject()
     @IsOptional()
     webhook?: WebhookConfig;
+
+    /**
+     * Optional redirect URI to which the user-agent should be redirected after the presentation is completed.
+     */
+    @IsOptional()
+    @IsString()
+    redirectUri?: string;
 }

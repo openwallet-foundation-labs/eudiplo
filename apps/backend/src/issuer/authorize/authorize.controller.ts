@@ -1,9 +1,16 @@
 import { randomUUID } from "node:crypto";
-import { Body, Controller, Get, Post, Query, Req, Res } from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    Get,
+    Param,
+    Post,
+    Query,
+    Req,
+    Res,
+} from "@nestjs/common";
 import { ApiBody, ApiExcludeController } from "@nestjs/swagger";
 import type { Request, Response } from "express";
-import { Session } from "../../session/entities/session.entity";
-import { SessionEntity } from "../../session/session.decorator";
 import { SessionService } from "../../session/session.service";
 import { AuthorizeService } from "./authorize.service";
 import { AuthorizeQueries } from "./dto/authorize-request.dto";
@@ -14,7 +21,7 @@ import { ParResponseDto } from "./dto/par-response.dto";
  * This controller handles the authorization requests, token requests.
  */
 @ApiExcludeController(process.env.SWAGGER_ALL !== "true")
-@Controller(":session/authorize")
+@Controller(":tenantId/authorize")
 export class AuthorizeController {
     constructor(
         private readonly authorizeService: AuthorizeService,
@@ -27,8 +34,17 @@ export class AuthorizeController {
      * @param res
      */
     @Get()
-    authorize(@Query() queries: AuthorizeQueries, @Res() res: Response) {
-        return this.authorizeService.sendAuthorizationResponse(queries, res);
+    async authorize(
+        @Query() queries: AuthorizeQueries,
+        @Res() res: Response,
+        @Param("tenantId") tenantId: string,
+    ) {
+        const redirectUrl =
+            await this.authorizeService.sendAuthorizationResponse(
+                queries,
+                tenantId,
+            );
+        res.redirect(redirectUrl);
     }
 
     /**
@@ -65,10 +81,9 @@ export class AuthorizeController {
     token(
         @Body() body: any,
         @Req() req: Request,
-        @SessionEntity() session: Session,
+        @Param("tenantId") tenantId: string,
     ): Promise<any> {
-        //TODO: define body
-        return this.authorizeService.validateTokenRequest(body, req, session);
+        return this.authorizeService.validateTokenRequest(body, req, tenantId);
     }
 
     /**
@@ -79,14 +94,17 @@ export class AuthorizeController {
      */
     @Post("challenge")
     authorizationChallengeEndpoint(
+        @Req() req: Request,
         @Res() res: Response,
         @Body() body: AuthorizeQueries,
-        @SessionEntity() session: Session,
+        @Param("tenantId") tenantId: string,
     ) {
+        const origin = req.headers.origin || `https://${req.headers.host}`;
         return this.authorizeService.authorizationChallengeEndpoint(
             res,
             body,
-            session,
+            tenantId,
+            origin,
         );
     }
 }

@@ -47,7 +47,20 @@ const OUT_SPEC = join(OUT_ROOT, "openapi.json");
 const OUT_SCHEMAS = join(OUT_ROOT);
 
 function sanitize(name: string) {
-  return String(name).replace(/[^\w.-]+/g, "_").replace(/^_+|_+$/g, "");
+  // Replace non-word characters with underscore
+  let sanitized = String(name).replace(/[^\w.-]+/g, "_");
+  
+  // Remove leading underscores
+  while (sanitized.startsWith("_")) {
+    sanitized = sanitized.slice(1);
+  }
+  
+  // Remove trailing underscores
+  while (sanitized.endsWith("_")) {
+    sanitized = sanitized.slice(0, -1);
+  }
+  
+  return sanitized;
 }
 
 async function fetchOpenAPI(url: string, dest: string) {
@@ -199,9 +212,9 @@ async function main() {
   // 2) bundle (avoid circular JSON on stringify)
   const { bundled, isOAS31 } = await loadAndBundle(OUT_SPEC);
 
-  // 3) emit JSON Schemas (components + operations)
+  // 3) emit JSON Schemas (components only, skip operations)
   await emitComponentSchemas(bundled, isOAS31);
-  await emitOperationSchemas(bundled, isOAS31);
+  // await emitOperationSchemas(bundled, isOAS31); // Disabled: only store object schemas
   
   writeFile('apps/client/src/app/utils/schemas.json', JSON.stringify(schemas, null, 2));
 
