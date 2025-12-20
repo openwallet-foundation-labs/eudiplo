@@ -63,15 +63,30 @@ RUN chmod +x /docker-entrypoint.sh
 # Environment variables with defaults
 ENV API_BASE_URL=http://localhost:3000
 
+# --- Security: Run as non-root user ---
+# Create nginx user/group and fix permissions
+RUN addgroup -g 101 -S nginx || true && \
+    adduser -S -D -H -u 101 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx || true && \
+    chown -R nginx:nginx /usr/share/nginx/html && \
+    chown -R nginx:nginx /var/cache/nginx && \
+    chown -R nginx:nginx /var/log/nginx && \
+    chown -R nginx:nginx /etc/nginx/conf.d && \
+    touch /var/run/nginx.pid && \
+    chown -R nginx:nginx /var/run/nginx.pid
+
+USER nginx
+
 # Expose port 80
 EXPOSE 80
 
 # --- Healthcheck dependencies ---
+USER root
 RUN apk add --no-cache curl
+USER nginx
 
 # --- HEALTHCHECK (Client / Nginx) ---
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
-  CMD curl -f http://localhost/ || exit 
+  CMD curl -f http://localhost/ || exit 1
 
 # Use our custom entrypoint script
 ENTRYPOINT ["/docker-entrypoint.sh"]
@@ -91,11 +106,26 @@ RUN chmod +x /docker-entrypoint.sh
 # Environment variables with defaults
 ENV API_BASE_URL=http://localhost:3000
 
+# --- Security: Run as non-root user ---
+# Create nginx user/group and fix permissions
+RUN addgroup -g 101 -S nginx || true && \
+    adduser -S -D -H -u 101 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx || true && \
+    chown -R nginx:nginx /usr/share/nginx/html && \
+    chown -R nginx:nginx /var/cache/nginx && \
+    chown -R nginx:nginx /var/log/nginx && \
+    chown -R nginx:nginx /etc/nginx/conf.d && \
+    touch /var/run/nginx.pid && \
+    chown -R nginx:nginx /var/run/nginx.pid
+
+USER nginx
+
 # Expose port 80
 EXPOSE 80
 
 # --- Healthcheck dependencies ---
+USER root
 RUN apk add --no-cache curl
+USER nginx
 
 # --- HEALTHCHECK (Verifier / Nginx) ---
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
