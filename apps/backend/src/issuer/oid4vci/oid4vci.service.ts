@@ -145,7 +145,7 @@ export class Oid4vciService {
                 await this.authzService.authzMetadata(tenantId);
         }
         const credentialIssuer = issuer.createCredentialIssuerMetadata({
-            //credential_issuer,
+            credential_issuer,
             credential_configurations_supported:
                 await this.credentialsService.getCredentialConfigurationSupported(
                     tenantId,
@@ -161,7 +161,7 @@ export class Oid4vciService {
                       batch_size: issuanceConfig?.batchSize,
                   }
                 : undefined,
-        } as any);
+        });
         return {
             credentialIssuer,
             authorizationServers: [authorizationServerMetadata],
