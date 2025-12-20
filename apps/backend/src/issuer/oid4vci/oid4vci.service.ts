@@ -18,8 +18,8 @@ import {
 import {
     type CredentialResponse,
     type IssuerMetadataResult,
-    Openid4vciDraftVersion,
     Openid4vciIssuer,
+    Openid4vciVersion,
 } from "@openid4vc/openid4vci";
 import type { Request } from "express";
 import { decodeJwt } from "jose";
@@ -120,7 +120,7 @@ export class Oid4vciService {
                 ),
             ).then(
                 (response) => response.data,
-                async (err) => {
+                async () => {
                     // Retry fetching from OIDC metadata endpoint
                     return await firstValueFrom(
                         this.httpService.get(
@@ -144,34 +144,29 @@ export class Oid4vciService {
             authorizationServerMetadata =
                 await this.authzService.authzMetadata(tenantId);
         }
-        try {
-            const credentialIssuer = issuer.createCredentialIssuerMetadata({
-                credential_issuer,
-                credential_configurations_supported:
-                    await this.credentialsService.getCredentialConfigurationSupported(
-                        tenantId,
-                    ),
-                credential_endpoint: `${credential_issuer}/vci/credential`,
-                authorization_servers: authServers,
-                authorization_server: authServers[0],
-                notification_endpoint: `${credential_issuer}/vci/notification`,
-                nonce_endpoint: `${credential_issuer}/vci/nonce`,
-                display: issuanceConfig.display as any,
-                batch_credential_issuance: issuanceConfig?.batchSize
-                    ? {
-                          batch_size: issuanceConfig?.batchSize,
-                      }
-                    : undefined,
-            });
-            return {
-                credentialIssuer,
-                authorizationServers: [authorizationServerMetadata],
-                originalDraftVersion: Openid4vciDraftVersion.Draft15,
-            } as IssuerMetadataResult;
-        } catch (error) {
-            console.log("Error creating credential issuer metadata", error);
-            throw error;
-        }
+        const credentialIssuer = issuer.createCredentialIssuerMetadata({
+            //credential_issuer,
+            credential_configurations_supported:
+                await this.credentialsService.getCredentialConfigurationSupported(
+                    tenantId,
+                ),
+            credential_endpoint: `${credential_issuer}/vci/credential`,
+            authorization_servers: authServers,
+            authorization_server: authServers[0],
+            notification_endpoint: `${credential_issuer}/vci/notification`,
+            nonce_endpoint: `${credential_issuer}/vci/nonce`,
+            display: issuanceConfig.display as any,
+            batch_credential_issuance: issuanceConfig?.batchSize
+                ? {
+                      batch_size: issuanceConfig?.batchSize,
+                  }
+                : undefined,
+        } as any);
+        return {
+            credentialIssuer,
+            authorizationServers: [authorizationServerMetadata],
+            originalDraftVersion: Openid4vciVersion.V1,
+        } as IssuerMetadataResult;
     }
 
     /**
