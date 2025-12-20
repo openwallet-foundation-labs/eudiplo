@@ -1,8 +1,8 @@
 import { ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
+import { NestExpressApplication } from "@nestjs/platform-express";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
-import { json, urlencoded } from "express";
 import { writeFileSync } from "fs";
 import { cleanupOpenApiDoc } from "nestjs-zod";
 import { AppModule } from "./app.module";
@@ -12,15 +12,13 @@ import { ValidationErrorFilter } from "./common/filters/validation-error.filter"
  * Bootstrap function to initialize the NestJS application.
  */
 async function bootstrap() {
-    const app = await NestFactory.create(AppModule, {
+    const app = await NestFactory.create<NestExpressApplication>(AppModule, {
         bufferLogs: true,
         snapshot: true,
     });
 
     // Set explicit body size limits (security best practice)
-    app.use(json({ limit: "10mb" }));
-    app.use(urlencoded({ extended: true, limit: "10mb" }));
-
+    app.useBodyParser("json", { limit: "10mb" });
     app.enableCors();
 
     // Global exception filter for ValidationError
