@@ -24,13 +24,13 @@
 <title>cluster_ConfigImportModule</title>
 <polygon fill="none" stroke="black" stroke-dasharray="1,5" points="139,-70 139,-268 357,-268 357,-70 139,-70"/>
 </g>
-<g id="clust4" class="cluster">
-<title>cluster_ConfigImportModule_exports</title>
-<polygon fill="none" stroke="black" points="171,-208 171,-260 325,-260 325,-208 171,-208"/>
-</g>
 <g id="clust6" class="cluster">
 <title>cluster_ConfigImportModule_providers</title>
 <polygon fill="none" stroke="black" points="147,-78 147,-130 349,-130 349,-78 147,-78"/>
+</g>
+<g id="clust4" class="cluster">
+<title>cluster_ConfigImportModule_exports</title>
+<polygon fill="none" stroke="black" points="171,-208 171,-260 325,-260 325,-208 171,-208"/>
 </g>
 <!-- ConfigImportService  -->
 <g id="node1" class="node">
