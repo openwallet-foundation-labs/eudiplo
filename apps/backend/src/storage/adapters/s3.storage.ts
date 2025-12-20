@@ -17,6 +17,14 @@ export class S3FileStorage implements FileStorage {
         private publicBaseUrl?: string, // e.g. CloudFront URL (optional)
     ) {}
 
+    private removeTrailingSlashes(url: string): string {
+        // Remove trailing slashes without regex (avoids ReDoS warnings)
+        while (url.endsWith("/")) {
+            url = url.slice(0, -1);
+        }
+        return url;
+    }
+
     async put(
         key: string,
         body: Buffer | Readable,
@@ -40,7 +48,7 @@ export class S3FileStorage implements FileStorage {
         const url =
             opts?.acl === "public"
                 ? this.publicBaseUrl
-                    ? `${this.publicBaseUrl.replace(/\/+$/, "")}/${encodeURI(key)}`
+                    ? `${this.removeTrailingSlashes(this.publicBaseUrl)}/${encodeURI(key)}`
                     : `https://${this.bucket}.s3.amazonaws.com/${encodeURI(key)}`
                 : undefined;
 
