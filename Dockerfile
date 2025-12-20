@@ -27,8 +27,9 @@ COPY --from=build-backend /usr/src/app/dist/backend /app/dist
 ARG VERSION=latest
 ENV VERSION=$VERSION
 
-# Set production environment
-ENV NODE_ENV=production
+# Default to production but allow override at build or runtime
+ARG NODE_ENV=production
+ENV NODE_ENV=$NODE_ENV
 
 # Set the default FOLDER environment variable
 ENV FOLDER=/app/config
