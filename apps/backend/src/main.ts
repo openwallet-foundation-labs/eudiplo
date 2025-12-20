@@ -2,6 +2,7 @@ import { ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import { json, urlencoded } from "express";
 import { writeFileSync } from "fs";
 import { cleanupOpenApiDoc } from "nestjs-zod";
 import { AppModule } from "./app.module";
@@ -15,6 +16,11 @@ async function bootstrap() {
         bufferLogs: true,
         snapshot: true,
     });
+
+    // Set explicit body size limits (security best practice)
+    app.use(json({ limit: "10mb" }));
+    app.use(urlencoded({ extended: true, limit: "10mb" }));
+
     app.enableCors();
 
     // Global exception filter for ValidationError
