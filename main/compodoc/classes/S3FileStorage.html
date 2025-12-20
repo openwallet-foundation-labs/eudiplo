@@ -184,6 +184,10 @@
                                     <span class="modifier">Async</span>
                                 <a href="#put" >put</a>
                             </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#removeTrailingSlashes" >removeTrailingSlashes</a>
+                            </li>
                         </ul>
                     </td>
                 </tr>
@@ -297,8 +301,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="68"
-                                    class="link-to-prism">src/storage/adapters/s3.storage.ts:68</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="76"
+                                    class="link-to-prism">src/storage/adapters/s3.storage.ts:76</a></div>
                         </td>
                     </tr>
 
@@ -366,8 +370,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="74"
-                                    class="link-to-prism">src/storage/adapters/s3.storage.ts:74</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="82"
+                                    class="link-to-prism">src/storage/adapters/s3.storage.ts:82</a></div>
                         </td>
                     </tr>
 
@@ -433,8 +437,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="85"
-                                    class="link-to-prism">src/storage/adapters/s3.storage.ts:85</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="93"
+                                    class="link-to-prism">src/storage/adapters/s3.storage.ts:93</a></div>
                         </td>
                     </tr>
 
@@ -502,8 +506,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="56"
-                                    class="link-to-prism">src/storage/adapters/s3.storage.ts:56</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="64"
+                                    class="link-to-prism">src/storage/adapters/s3.storage.ts:64</a></div>
                         </td>
                     </tr>
 
@@ -571,8 +575,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="20"
-                                    class="link-to-prism">src/storage/adapters/s3.storage.ts:20</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="28"
+                                    class="link-to-prism">src/storage/adapters/s3.storage.ts:28</a></div>
                         </td>
                     </tr>
 
@@ -642,6 +646,75 @@
             </tr>
         </tbody>
     </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="removeTrailingSlashes"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>removeTrailingSlashes</b></span>
+                        <a href="#removeTrailingSlashes"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>removeTrailingSlashes(url: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="20"
+                                    class="link-to-prism">src/storage/adapters/s3.storage.ts:20</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>url</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </section>
 
 
@@ -670,6 +743,14 @@ export class S3FileStorage implements FileStorage {
         private publicBaseUrl?: string, // e.g. CloudFront URL (optional)
     ) {}
 
+    private removeTrailingSlashes(url: string): string {
+        // Remove trailing slashes without regex (avoids ReDoS warnings)
+        while (url.endsWith(&quot;/&quot;)) {
+            url &#x3D; url.slice(0, -1);
+        }
+        return url;
+    }
+
     async put(
         key: string,
         body: Buffer | Readable,
@@ -693,7 +774,7 @@ export class S3FileStorage implements FileStorage {
         const url &#x3D;
             opts?.acl &#x3D;&#x3D;&#x3D; &quot;public&quot;
                 ? this.publicBaseUrl
-                    ? &#x60;${this.publicBaseUrl.replace(/\/+$/, &quot;&quot;)}/${encodeURI(key)}&#x60;
+                    ? &#x60;${this.removeTrailingSlashes(this.publicBaseUrl)}/${encodeURI(key)}&#x60;
                     : &#x60;https://${this.bucket}.s3.amazonaws.com/${encodeURI(key)}&#x60;
                 : undefined;
 
