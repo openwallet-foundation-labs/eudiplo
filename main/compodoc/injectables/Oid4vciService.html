@@ -403,8 +403,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="179"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:179</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="180"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:180</a></div>
                         </td>
                     </tr>
 
@@ -512,8 +512,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="299"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:299</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="300"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:300</a></div>
                         </td>
                     </tr>
 
@@ -745,8 +745,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="474"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:474</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="475"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:475</a></div>
                         </td>
                     </tr>
 
@@ -931,8 +931,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="286"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:286</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="287"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:287</a></div>
                         </td>
                     </tr>
 
@@ -972,8 +972,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="272"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:272</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="273"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:273</a></div>
                         </td>
                     </tr>
 
@@ -1219,11 +1219,12 @@ export class Oid4vciService {
             notification_endpoint: &#x60;${credential_issuer}/vci/notification&#x60;,
             nonce_endpoint: &#x60;${credential_issuer}/vci/nonce&#x60;,
             display: issuanceConfig.display as any,
-            batch_credential_issuance: issuanceConfig?.batchSize
-                ? {
-                      batch_size: issuanceConfig?.batchSize,
-                  }
-                : undefined,
+            batch_credential_issuance:
+                issuanceConfig?.batchSize &amp;&amp; issuanceConfig?.batchSize &gt; 1
+                    ? {
+                          batch_size: issuanceConfig?.batchSize,
+                      }
+                    : undefined,
         });
         return {
             credentialIssuer,

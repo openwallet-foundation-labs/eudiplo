@@ -202,8 +202,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="8"
-                                    class="link-to-prism">src/app/app.controller.ts:8</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="6"
+                                    class="link-to-prism">src/app/app.controller.ts:6</a></div>
                         </td>
                     </tr>
 
@@ -212,7 +212,7 @@
                 <td class="col-md-4">
 
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                            <b>Returns : </b>    <code>{ service: string; version: any; documentation: string; }</code>
 
                         </div>
                 </td>
@@ -224,14 +224,17 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Controller, Get } from &quot;@nestjs/common&quot;;
-import { ApiExcludeController } from &quot;@nestjs/swagger&quot;;
 
-@ApiExcludeController()
 @Controller()
 export class AppController {
     @Get()
-    main(): string {
-        return &#x27;EUDIPLO is up and running, more information at &lt;a href&#x3D;&quot;https://openwallet-foundation-labs.github.io/eudiplo/latest/&quot;&gt;https://openwallet-foundation-labs.github.io/eudiplo/latest/&lt;/a&gt;&#x27;;
+    main() {
+        return {
+            service: &quot;EUDIPLO&quot;,
+            version: process.env.VERSION ?? &quot;main&quot;,
+            documentation:
+                &quot;https://openwallet-foundation-labs.github.io/eudiplo/latest/&quot;,
+        };
     }
 }
 </code></pre>
