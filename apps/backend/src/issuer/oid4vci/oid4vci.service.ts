@@ -156,11 +156,12 @@ export class Oid4vciService {
             notification_endpoint: `${credential_issuer}/vci/notification`,
             nonce_endpoint: `${credential_issuer}/vci/nonce`,
             display: issuanceConfig.display as any,
-            batch_credential_issuance: issuanceConfig?.batchSize
-                ? {
-                      batch_size: issuanceConfig?.batchSize,
-                  }
-                : undefined,
+            batch_credential_issuance:
+                issuanceConfig?.batchSize && issuanceConfig?.batchSize > 1
+                    ? {
+                          batch_size: issuanceConfig?.batchSize,
+                      }
+                    : undefined,
         });
         return {
             credentialIssuer,
