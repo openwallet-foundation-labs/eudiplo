@@ -47,7 +47,20 @@ const OUT_SPEC = join(OUT_ROOT, "openapi.json");
 const OUT_SCHEMAS = join(OUT_ROOT);
 
 function sanitize(name: string) {
-  return String(name).replace(/[^\w.-]+/g, "_").replace(/^_+|_+$/g, "");
+  // Replace non-word characters with underscore
+  let sanitized = String(name).replace(/[^\w.-]+/g, "_");
+  
+  // Remove leading underscores
+  while (sanitized.startsWith("_")) {
+    sanitized = sanitized.slice(1);
+  }
+  
+  // Remove trailing underscores
+  while (sanitized.endsWith("_")) {
+    sanitized = sanitized.slice(0, -1);
+  }
+  
+  return sanitized;
 }
 
 async function fetchOpenAPI(url: string, dest: string) {

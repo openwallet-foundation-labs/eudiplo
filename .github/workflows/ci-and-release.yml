@@ -279,8 +279,19 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Build Backend Docker image
-        run: docker build -t ghcr.io/openwallet-foundation-labs/eudiplo:main --build-arg VERSION=main . --target eudiplo
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Backend Docker image (for testing)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: eudiplo
+          load: true
+          tags: ghcr.io/openwallet-foundation-labs/eudiplo:main
+          build-args: VERSION=main
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       # --- HEALTH TEST ---
       - name: Run container (detached)
@@ -319,11 +330,23 @@ jobs:
 
       - name: Log in to GitHub Container Registry
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Push Backend Docker image
+      - name: Build and push Backend Docker image
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: docker push ghcr.io/openwallet-foundation-labs/eudiplo:main
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: eudiplo
+          push: true
+          tags: ghcr.io/openwallet-foundation-labs/eudiplo:main
+          build-args: VERSION=main
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   docker-client:
     name: Build & Push Client Docker Image
@@ -335,16 +358,26 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Build Client Docker image
-        run: docker build -t ghcr.io/openwallet-foundation-labs/eudiplo-client:main . --target client
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Log in to GitHub Container Registry
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Push Client Docker image
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: docker push ghcr.io/openwallet-foundation-labs/eudiplo-client:main
+      - name: Build and push Client Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: client
+          push: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
+          tags: ghcr.io/openwallet-foundation-labs/eudiplo-client:main
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   docker-verifier:
     name: Build & Push Verifier Docker Image
@@ -356,13 +389,23 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Build Verifier Docker image
-        run: docker build -t ghcr.io/openwallet-foundation-labs/eudiplo-verifier:main . --target verifier
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Log in to GitHub Container Registry
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Push Verifier Docker image
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: docker push ghcr.io/openwallet-foundation-labs/eudiplo-verifier:main
+      - name: Build and push Verifier Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: verifier
+          push: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
+          tags: ghcr.io/openwallet-foundation-labs/eudiplo-verifier:main
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
