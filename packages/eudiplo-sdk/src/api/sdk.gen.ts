@@ -8,6 +8,8 @@ import {
 } from "./client";
 import { client } from "./client.gen";
 import type {
+  AppControllerMainData,
+  AppControllerMainResponses,
   AuthControllerGetGlobalJwksData,
   AuthControllerGetGlobalJwksResponses,
   AuthControllerGetOAuth2TokenData,
@@ -238,6 +240,15 @@ export const wellKnownControllerGetJwks1 = <
     unknown,
     ThrowOnError
   >({ url: "/{tenantId}/.well-known/jwks.json", ...options });
+
+export const appControllerMain = <ThrowOnError extends boolean = true>(
+  options?: Options<AppControllerMainData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AppControllerMainResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/", ...options });
 
 /**
  * OAuth2 Token endpoint - supports client credentials flow only
@@ -810,14 +821,7 @@ export const oid4VpControllerGetPostRequestWithSession = <
     Oid4VpControllerGetPostRequestWithSessionResponses,
     unknown,
     ThrowOnError
-  >({
-    url: "/{session}/oid4vp/request",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
+  >({ url: "/{session}/oid4vp/request", ...options });
 
 /**
  * Endpoint to receive the response from the wallet.

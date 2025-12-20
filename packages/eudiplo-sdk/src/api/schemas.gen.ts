@@ -939,6 +939,22 @@ export const PresentationConfigCreateDtoSchema = {
   required: ["id", "dcql_query"],
 } as const;
 
+export const AuthorizationResponseSchema = {
+  type: "object",
+  properties: {
+    response: {
+      type: "string",
+      description: "The response string containing the authorization details.",
+    },
+    sendResponse: {
+      type: "boolean",
+      description:
+        "When set to true, the authorization response will be sent to the client.",
+    },
+  },
+  required: ["response"],
+} as const;
+
 export const AuthorizeQueriesSchema = {
   type: "object",
   properties: {
@@ -1209,22 +1225,6 @@ export const SessionSchema = {
     "tenant",
     "notifications",
   ],
-} as const;
-
-export const AuthorizationResponseSchema = {
-  type: "object",
-  properties: {
-    response: {
-      type: "string",
-      description: "The response string containing the authorization details.",
-    },
-    sendResponse: {
-      type: "boolean",
-      description:
-        "When set to true, the authorization response will be sent to the client.",
-    },
-  },
-  required: ["response"],
 } as const;
 
 export const StatusUpdateDtoSchema = {

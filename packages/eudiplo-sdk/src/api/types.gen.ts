@@ -565,6 +565,17 @@ export type PresentationConfigCreateDto = {
   redirectUri?: string;
 };
 
+export type AuthorizationResponse = {
+  /**
+   * The response string containing the authorization details.
+   */
+  response: string;
+  /**
+   * When set to true, the authorization response will be sent to the client.
+   */
+  sendResponse?: boolean;
+};
+
 export type AuthorizeQueries = {
   issuer_state?: string;
   response_type?: string;
@@ -714,17 +725,6 @@ export type Session = {
    * Where to send the claims webhook response.
    */
   parsedWebhook?: WebhookConfig;
-};
-
-export type AuthorizationResponse = {
-  /**
-   * The response string containing the authorization details.
-   */
-  response: string;
-  /**
-   * When set to true, the authorization response will be sent to the client.
-   */
-  sendResponse?: boolean;
 };
 
 export type StatusUpdateDto = {
@@ -1104,6 +1104,17 @@ export type WellKnownControllerGetJwks1Responses = {
 
 export type WellKnownControllerGetJwks1Response =
   WellKnownControllerGetJwks1Responses[keyof WellKnownControllerGetJwks1Responses];
+
+export type AppControllerMainData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/";
+};
+
+export type AppControllerMainResponses = {
+  200: unknown;
+};
 
 export type AuthControllerGetOAuth2TokenData = {
   body: ClientCredentialsDto;
@@ -1535,7 +1546,7 @@ export type PresentationManagementControllerDeleteConfigurationResponses = {
 export type Oid4VpControllerGetRequestWithSessionData = {
   body?: never;
   path: {
-    session: Session;
+    session: string;
   };
   query?: never;
   url: "/{session}/oid4vp/request";
@@ -1549,9 +1560,9 @@ export type Oid4VpControllerGetRequestWithSessionResponse =
   Oid4VpControllerGetRequestWithSessionResponses[keyof Oid4VpControllerGetRequestWithSessionResponses];
 
 export type Oid4VpControllerGetPostRequestWithSessionData = {
-  body: AuthorizationResponse;
+  body?: never;
   path: {
-    session: Session;
+    session: string;
   };
   query?: never;
   url: "/{session}/oid4vp/request";
@@ -1567,7 +1578,7 @@ export type Oid4VpControllerGetPostRequestWithSessionResponse =
 export type Oid4VpControllerGetResponseData = {
   body: AuthorizationResponse;
   path: {
-    session: Session;
+    session: string;
   };
   query?: never;
   url: "/{session}/oid4vp";

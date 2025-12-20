@@ -90,6 +90,13 @@
           {{ canAutoRefresh ? 'Available' : 'Not Available' }}
         </mat-chip>
       </div>
+
+      <div fxLayout="row" fxLayoutAlign="space-between center" class="config-item">
+        <span class="config-label">Backend Version:</span>
+        <mat-chip>
+          {{ backendVersion || 'Loading...' }}
+        </mat-chip>
+      </div>
     </mat-card-content>
   </mat-card>
 </div>
