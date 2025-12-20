@@ -1,0 +1,52 @@
+{
+  "id": "pid-de",
+  "description": "Presentation ID Germany",
+  "dcql_query": {
+    "credentials": [
+      {
+        "id": "pid-sd-jwt",
+        "format": "dc+sd-jwt",
+        "meta": {
+          "vct_values": [
+            "https://demo.pid-provider.bundesdruckerei.de/credentials/pid/1.0"
+          ]
+        },
+        "claims": [
+          {
+            "path": [
+              "given_name"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "pid-mso-mdoc",
+        "format": "mso_mdoc",
+        "meta": {
+          "doctype_value": "eu.europa.ec.eudi.pid.1"
+        },
+        "claims": [
+          {
+            "path": [
+              "eu.europa.ec.eudi.pid.1",
+              "given_name"
+            ],
+            "intent_to_retain": false
+          }
+        ]
+      }
+    ],
+    "credential_set": [
+      {
+        "options": [
+          [
+            "pid-de"
+          ],
+          [
+            "pid-mso-mdoc"
+          ]
+        ]
+      }
+    ]
+  }
+}

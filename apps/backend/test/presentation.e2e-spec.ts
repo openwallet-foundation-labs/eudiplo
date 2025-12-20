@@ -19,7 +19,12 @@ import {
     PresentationRequest,
     ResponseType,
 } from "../src/verifier/oid4vp/dto/presentation-request.dto";
-import { callbacks, getToken, preparePresentation } from "./utils";
+import {
+    callbacks,
+    getToken,
+    prepareMdocPresentation,
+    preparePresentation,
+} from "./utils";
 
 describe("Presentation", () => {
     let app: INestApplication<App>;
@@ -73,6 +78,7 @@ describe("Presentation", () => {
      */
     async function encryptVpToken(
         vp_token: string,
+        credentialId: string,
         resolved: any,
     ): Promise<string> {
         const key = (await importJWK(
@@ -82,7 +88,7 @@ describe("Presentation", () => {
         )) as CryptoKey;
 
         return new EncryptJWT({
-            vp_token: { pid: [vp_token] },
+            vp_token: { [credentialId]: [vp_token] },
             state: resolved.authorizationRequestPayload.state!,
         })
             .setProtectedHeader({
@@ -97,13 +103,17 @@ describe("Presentation", () => {
     /**
      * Helper function to submit a complete presentation flow
      */
-    async function submitPresentation(requestId: string, webhookUrl?: string) {
+    async function submitPresentation(values: {
+        requestId: string;
+        webhookUrl?: string;
+        credentialId?: string;
+    }) {
         const requestBody: PresentationRequest = {
             response_type: ResponseType.URI,
-            requestId,
-            ...(webhookUrl && {
+            requestId: values.requestId,
+            ...(values.webhookUrl && {
                 webhook: {
-                    url: webhookUrl,
+                    url: values.webhookUrl,
                     auth: { type: AuthConfig.NONE },
                 },
             }),
@@ -119,13 +129,24 @@ describe("Presentation", () => {
             authorizationRequestPayload: authRequest.params,
         });
 
-        const vp_token = await preparePresentation({
-            iat: Math.floor(Date.now() / 1000),
-            aud: resolved.authorizationRequestPayload.aud as string,
-            nonce: resolved.authorizationRequestPayload.nonce,
-        });
+        let vp_token: string;
+        if (values.credentialId === "pid-mso-mdoc") {
+            vp_token = await prepareMdocPresentation(
+                resolved.authorizationRequestPayload.nonce,
+            );
+        } else {
+            vp_token = await preparePresentation({
+                iat: Math.floor(Date.now() / 1000),
+                aud: resolved.authorizationRequestPayload.aud as string,
+                nonce: resolved.authorizationRequestPayload.nonce,
+            });
+        }
 
-        const jwt = await encryptVpToken(vp_token, resolved);
+        const jwt = await encryptVpToken(
+            vp_token,
+            values.credentialId || "pid",
+            resolved,
+        );
 
         const authorizationResponse =
             await client.createOpenid4vpAuthorizationResponse({
@@ -212,6 +233,21 @@ describe("Presentation", () => {
             .expect(201);
 
         //import the pid credential configuration
+        const pidMdocCredentialConfiguration = JSON.parse(
+            readFileSync(
+                join(configFolder, "root/presentation/pid-de.json"),
+                "utf-8",
+            ),
+        );
+
+        await request(app.getHttpServer())
+            .post("/presentation-management")
+            .trustLocalhost()
+            .set("Authorization", `Bearer ${authToken}`)
+            .send(pidMdocCredentialConfiguration)
+            .expect(201);
+
+        //import the pid credential configuration
         const pidCredentialConfiguration = JSON.parse(
             readFileSync(
                 join(configFolder, "root/presentation/pid.json"),
@@ -265,8 +301,20 @@ describe("Presentation", () => {
             });
     });
 
-    test("present credential", async () => {
-        const { submitRes } = await submitPresentation("pid-no-hook");
+    test("present sd jwt credential", async () => {
+        const { submitRes } = await submitPresentation({
+            requestId: "pid-no-hook",
+        });
+
+        expect(submitRes).toBeDefined();
+        expect(submitRes.response.status).toBe(200);
+    });
+
+    test("present mso mdoc credential", async () => {
+        const { submitRes } = await submitPresentation({
+            requestId: "pid-de",
+            credentialId: "pid-mso-mdoc",
+        });
 
         expect(submitRes).toBeDefined();
         expect(submitRes.response.status).toBe(200);
@@ -285,7 +333,9 @@ describe("Presentation", () => {
             })
             .reply(200);
 
-        const { submitRes } = await submitPresentation("pid");
+        const { submitRes } = await submitPresentation({
+            requestId: "pid",
+        });
 
         expect(submitRes).toBeDefined();
         expect(submitRes.response.status).toBe(200);
@@ -305,10 +355,10 @@ describe("Presentation", () => {
             })
             .reply(200);
 
-        const { submitRes } = await submitPresentation(
-            "pid",
-            "http://localhost:8787/custom",
-        );
+        const { submitRes } = await submitPresentation({
+            requestId: "pid",
+            webhookUrl: "http://localhost:8787/custom",
+        });
 
         expect(submitRes).toBeDefined();
         expect(submitRes.response.status).toBe(200);
