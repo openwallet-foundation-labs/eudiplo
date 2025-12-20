@@ -9,6 +9,7 @@ import {
     StatusListJWTHeaderParameters,
 } from "@sd-jwt/jwt-status-list";
 import { JwtPayload } from "@sd-jwt/types";
+import { randomInt } from "crypto";
 import { join } from "path";
 import { Repository } from "typeorm";
 import { CertService } from "../../crypto/key/cert/cert.service";
@@ -31,17 +32,28 @@ export class StatusListService {
     ) {}
 
     /**
+     * Cryptographically secure Fisher-Yates shuffle
+     */
+    private shuffleArray<T>(array: T[]): T[] {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = randomInt(0, i + 1);
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    }
+
+    /**
      * Create a new status list and store it in the file
      */
     async createNewList(tenantId: string) {
         const size = this.configService.getOrThrow<number>("STATUS_LENGTH");
         // create an empty array with the size of 1000
         const elements = new Array(size).fill(0).map(() => 0);
-        // create a list of 1000 indexes and shuffel them
-        const stack = new Array(size)
-            .fill(0)
-            .map((_, i) => i)
-            .sort(() => 0.5 - Math.random());
+        // create a list of 1000 indexes and shuffle them using crypto-secure randomness
+        const stack = this.shuffleArray(
+            new Array(size).fill(0).map((_, i) => i),
+        );
 
         const bits =
             this.configService.getOrThrow<BitsPerStatus>("STATUS_BITS");
