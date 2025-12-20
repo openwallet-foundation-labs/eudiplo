@@ -173,7 +173,45 @@ async function bootstrap() {
             warnSecurityDefaults();
         }
 
-        await app.listen(process.env.PORT ?? 3000);
+        await app.listen(process.env.PORT ?? 3000).then(() => {
+            const port = process.env.PORT ?? 3000;
+            const publicUrl = configService.get<string>("PUBLIC_URL");
+            const version = process.env.VERSION ?? "main";
+            const nodeEnv = process.env.NODE_ENV ?? "development";
+
+            logger.log("");
+            logger.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            logger.log("🚀 EUDIPLO Service Started Successfully");
+            logger.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            logger.log(`📦 Version:        ${version}`);
+            logger.log(`🌍 Environment:    ${nodeEnv}`);
+            logger.log(`🔌 Port:           ${port}`);
+            logger.log(`🌐 Public URL:     ${publicUrl || "Not configured"}`);
+            logger.log("");
+            logger.log("📚 API Documentation:");
+            logger.log(
+                `   → Swagger UI:   ${publicUrl || `http://localhost:${port}`}/api`,
+            );
+            logger.log(
+                `   → Full Docs:    https://openwallet-foundation-labs.github.io/eudiplo/latest/`,
+            );
+            logger.log("");
+            logger.log("🏥 Health Check:");
+            logger.log(
+                `   → Endpoint:     ${publicUrl || `http://localhost:${port}`}/health`,
+            );
+            logger.log("");
+            logger.log("🔐 Authentication:");
+            if (oidc) {
+                logger.log(`   → Mode:         External OIDC`);
+                logger.log(`   → Provider:     ${oidc}`);
+            } else {
+                logger.log(
+                    `   → Mode:         Integrated OAuth2 (Client Credentials)`,
+                );
+                logger.log(`   → Token URL:    ${publicUrl}/oauth2/token`);
+            }
+        });
     }
 }
 void bootstrap();
