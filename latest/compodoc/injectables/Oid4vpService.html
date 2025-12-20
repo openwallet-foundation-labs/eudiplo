@@ -372,7 +372,7 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>createAuthorizationRequest(session: <a href="../entitys/Session.html" target="_self">Session</a>, origin: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>createAuthorizationRequest(sessionId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, origin: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
@@ -405,9 +405,9 @@ It initializes the session logging context and logs the start of the flow.</p>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>session</td>
+                                                <td>sessionId</td>
                                             <td>
-                                                            <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
 
                                             <td>
@@ -464,8 +464,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="209"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:209</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="211"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:211</a></div>
                         </td>
                     </tr>
 
@@ -576,15 +576,15 @@ It initializes the session logging context and logs the start of the flow.</p>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getResponse(body: <a href="../classes/AuthorizationResponse.html" target="_self">AuthorizationResponse</a>, session: <a href="../entitys/Session.html" target="_self">Session</a>)</code>
+                    <code>getResponse(body: <a href="../classes/AuthorizationResponse.html" target="_self">AuthorizationResponse</a>, sessionId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="294"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:294</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="293"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:293</a></div>
                         </td>
                     </tr>
 
@@ -619,9 +619,9 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                                         </tr>
                                         <tr>
-                                                <td>session</td>
+                                                <td>sessionId</td>
                                             <td>
-                                                            <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
 
                                             <td>
@@ -704,7 +704,7 @@ import { CryptoImplementationService } from &quot;../../crypto/key/crypto-implem
 import { KeyService } from &quot;../../crypto/key/key.service&quot;;
 import { OfferResponse } from &quot;../../issuer/oid4vci/dto/offer-request.dto&quot;;
 import { RegistrarService } from &quot;../../registrar/registrar.service&quot;;
-import { Session, SessionStatus } from &quot;../../session/entities/session.entity&quot;;
+import { SessionStatus } from &quot;../../session/entities/session.entity&quot;;
 import { SessionService } from &quot;../../session/session.service&quot;;
 import { SessionLoggerService } from &quot;../../utils/logger/session-logger.service&quot;;
 import { SessionLogContext } from &quot;../../utils/logger/session-logger-context&quot;;
@@ -738,9 +738,11 @@ export class Oid4vpService {
      * @returns
      */
     async createAuthorizationRequest(
-        session: Session,
+        sessionId: string,
         origin: string,
     ): Promise&lt;string&gt; {
+        const session &#x3D; await this.sessionService.get(sessionId);
+
         // Create session logging context
         const logContext: SessionLogContext &#x3D; {
             sessionId: session.id,
@@ -956,11 +958,8 @@ export class Oid4vpService {
             });
 
             if (request_uri_method &#x3D;&#x3D;&#x3D; &quot;get&quot;) {
-                // load the session to get nested object like tenant
-                const loadedSession &#x3D; await this.sessionService.get(session.id);
-
                 const signedJwt &#x3D; await this.createAuthorizationRequest(
-                    loadedSession,
+                    session.id,
                     origin,
                 );
                 this.sessionService.add(values.session, {
@@ -987,7 +986,8 @@ export class Oid4vpService {
      * @param body
      * @param tenantId
      */
-    async getResponse(body: AuthorizationResponse, session: Session) {
+    async getResponse(body: AuthorizationResponse, sessionId: string) {
+        const session &#x3D; await this.sessionService.get(sessionId);
         const res &#x3D; await this.encryptionService.decryptJwe&lt;AuthResponse&gt;(
             body.response,
             session.tenantId,

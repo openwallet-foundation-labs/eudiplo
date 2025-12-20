@@ -94,7 +94,7 @@
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
-               <div class="content injectable">
+               <div class="content class">
                    <div class="content-data">
 
 
@@ -108,9 +108,13 @@
 
 
 
+
+
+
+
 <ol class="breadcrumb">
-  <li class="breadcrumb-item">Injectables</li>
-  <li class="breadcrumb-item" >SessionPipe</li>
+  <li class="breadcrumb-item">Classes</li>
+  <li class="breadcrumb-item" >ValidationErrorFilter</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -134,17 +138,48 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/session/session.pipe.ts</code>
+            <code>src/common/filters/validation-error.filter.ts</code>
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Global exception filter for handling ValidationError from @openid4vc/utils.
+Catches all ValidationError instances, formats them consistently, and returns proper HTTP responses.</p>
 
+            </p>
+
+
+            <p class="comment">
+                <h3>Implements</h3>
+            </p>
+            <p class="comment">
+                        <code>ExceptionFilter</code>
+            </p>
 
 
             <section data-compodoc="block-index">
     <h3 id="index">Index</h3>
     <table class="table table-sm table-bordered index-table">
         <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Readonly</span>
+                                <a href="#logger" >logger</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
 
                 <tr>
                     <td class="col-md-4">
@@ -155,7 +190,7 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
-                                <a href="#transform" >transform</a>
+                                <a href="#catch" >catch</a>
                             </li>
                         </ul>
                     </td>
@@ -169,53 +204,45 @@
     </table>
 </section>
 
-            <section data-compodoc="block-constructor">
-    <h3 id="constructor">Constructor</h3>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-<code>constructor(sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>)</code>
-                    </td>
-                </tr>
-                        <tr>
-                            <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="6" class="link-to-prism">src/session/session.pipe.ts:6</a></div>
-                            </td>
-                        </tr>
 
+            <section data-compodoc="block-properties">
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="logger"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Readonly</span>
+                        <span ><b>logger</b></span>
+                        <a href="#logger"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
                 <tr>
                     <td class="col-md-4">
-                            <div>
-                                    <b>Parameters :</b>
-                                    <table class="params">
-                                        <thead>
-                                            <tr>
-                                                <td>Name</td>
-                                                    <td>Type</td>
-                                                <td>Optional</td>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                                <tr>
-                                                        <td>sessionService</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../injectables/SessionService.html" target="_self" >SessionService</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                        </tbody>
-                                    </table>
-                            </div>
+                        <i>Type : </i>    <code>unknown</code>
+
                     </td>
                 </tr>
-            </tbody>
-        </table>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>new Logger(ValidationErrorFilter.name)</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="17" class="link-to-prism">src/common/filters/validation-error.filter.ts:17</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
 </section>
 
             <section data-compodoc="block-methods">
@@ -227,24 +254,24 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="transform"></a>
+                    <a name="catch"></a>
                     <span class="name">
-                        <span ><b>transform</b></span>
-                        <a href="#transform"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>catch</b></span>
+                        <a href="#catch"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>transform(sessionId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+<code>catch(exception: ValidationError, host: ArgumentsHost)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="9"
-                                    class="link-to-prism">src/session/session.pipe.ts:9</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="19"
+                                    class="link-to-prism">src/common/filters/validation-error.filter.ts:19</a></div>
                         </td>
                     </tr>
 
@@ -265,9 +292,21 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>sessionId</td>
+                                                <td>exception</td>
                                             <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                                        <code>ValidationError</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>host</td>
+                                            <td>
+                                                        <code>ArgumentsHost</code>
                                             </td>
 
                                             <td>
@@ -280,7 +319,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../entitys/Session.html" target="_self" >Promise&lt;Session&gt;</a></code>
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
 
                         </div>
                             <div class="io-description">
@@ -292,40 +331,56 @@
     </table>
 </section>
 
+
+
+
+
     </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, NotFoundException, PipeTransform } from &quot;@nestjs/common&quot;;
-import { Session } from &quot;./entities/session.entity&quot;;
-import { SessionService } from &quot;./session.service&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+    ArgumentsHost,
+    Catch,
+    ExceptionFilter,
+    HttpStatus,
+    Logger,
+} from &quot;@nestjs/common&quot;;
+import { ValidationError } from &quot;@openid4vc/utils&quot;;
+import { Response } from &quot;express&quot;;
 
-@Injectable()
-export class SessionPipe implements PipeTransform&lt;string, Promise&lt;Session&gt;&gt; {
-    constructor(private readonly sessionService: SessionService) {}
+/**
+ * Global exception filter for handling ValidationError from @openid4vc/utils.
+ * Catches all ValidationError instances, formats them consistently, and returns proper HTTP responses.
+ */
+@Catch(ValidationError)
+export class ValidationErrorFilter implements ExceptionFilter {
+    private readonly logger &#x3D; new Logger(ValidationErrorFilter.name);
 
-    transform(sessionId: string): Promise&lt;Session&gt; {
-        if (!sessionId) {
-            throw new NotFoundException(
-                &quot;Session ID not found in request parameters&quot;,
-            );
-        }
+    catch(exception: ValidationError, host: ArgumentsHost) {
+        const ctx &#x3D; host.switchToHttp();
+        const response &#x3D; ctx.getResponse&lt;Response&gt;();
 
-        return this.sessionService.get(sessionId).catch(() &#x3D;&gt; {
-            throw new NotFoundException(
-                &#x60;Session with ID ${sessionId} not found&#x60;,
-            );
+        // Format Zod validation errors for better readability
+        const issues &#x3D; exception.zodError?.issues;
+
+        // Log with full details (no [Array] truncation)
+        this.logger.error(
+            &#x60;Validation error: ${JSON.stringify(issues, null, 2)}&#x60;,
+        );
+
+        // Return formatted error response
+        response.status(HttpStatus.BAD_REQUEST).json({
+            statusCode: HttpStatus.BAD_REQUEST,
+            message: &quot;Validation failed&quot;,
+            errors: issues,
+            timestamp: new Date().toISOString(),
         });
     }
 }
 </code></pre>
     </div>
-
 </div>
-
-
-
-
 
 
 
@@ -360,8 +415,8 @@ export class SessionPipe implements PipeTransform&lt;string, Promise&lt;Session&
 
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'injectable';
-            var COMPODOC_CURRENT_PAGE_URL = 'SessionPipe.html';
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
+            var COMPODOC_CURRENT_PAGE_URL = 'ValidationErrorFilter.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

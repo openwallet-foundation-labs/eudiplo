@@ -403,8 +403,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="184"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:184</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="179"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:179</a></div>
                         </td>
                     </tr>
 
@@ -512,8 +512,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="304"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:304</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="299"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:299</a></div>
                         </td>
                     </tr>
 
@@ -745,8 +745,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="479"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:479</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="474"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:474</a></div>
                         </td>
                     </tr>
 
@@ -931,8 +931,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="291"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:291</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="286"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:286</a></div>
                         </td>
                     </tr>
 
@@ -972,8 +972,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="277"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:277</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="272"
+                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:272</a></div>
                         </td>
                     </tr>
 
@@ -1081,8 +1081,8 @@ import {
 import {
     type CredentialResponse,
     type IssuerMetadataResult,
-    Openid4vciDraftVersion,
     Openid4vciIssuer,
+    Openid4vciVersion,
 } from &quot;@openid4vc/openid4vci&quot;;
 import type { Request } from &quot;express&quot;;
 import { decodeJwt } from &quot;jose&quot;;
@@ -1183,7 +1183,7 @@ export class Oid4vciService {
                 ),
             ).then(
                 (response) &#x3D;&gt; response.data,
-                async (err) &#x3D;&gt; {
+                async () &#x3D;&gt; {
                     // Retry fetching from OIDC metadata endpoint
                     return await firstValueFrom(
                         this.httpService.get(
@@ -1207,34 +1207,29 @@ export class Oid4vciService {
             authorizationServerMetadata &#x3D;
                 await this.authzService.authzMetadata(tenantId);
         }
-        try {
-            const credentialIssuer &#x3D; issuer.createCredentialIssuerMetadata({
-                credential_issuer,
-                credential_configurations_supported:
-                    await this.credentialsService.getCredentialConfigurationSupported(
-                        tenantId,
-                    ),
-                credential_endpoint: &#x60;${credential_issuer}/vci/credential&#x60;,
-                authorization_servers: authServers,
-                authorization_server: authServers[0],
-                notification_endpoint: &#x60;${credential_issuer}/vci/notification&#x60;,
-                nonce_endpoint: &#x60;${credential_issuer}/vci/nonce&#x60;,
-                display: issuanceConfig.display as any,
-                batch_credential_issuance: issuanceConfig?.batchSize
-                    ? {
-                          batch_size: issuanceConfig?.batchSize,
-                      }
-                    : undefined,
-            });
-            return {
-                credentialIssuer,
-                authorizationServers: [authorizationServerMetadata],
-                originalDraftVersion: Openid4vciDraftVersion.Draft15,
-            } as IssuerMetadataResult;
-        } catch (error) {
-            console.log(&quot;Error creating credential issuer metadata&quot;, error);
-            throw error;
-        }
+        const credentialIssuer &#x3D; issuer.createCredentialIssuerMetadata({
+            credential_issuer,
+            credential_configurations_supported:
+                await this.credentialsService.getCredentialConfigurationSupported(
+                    tenantId,
+                ),
+            credential_endpoint: &#x60;${credential_issuer}/vci/credential&#x60;,
+            authorization_servers: authServers,
+            authorization_server: authServers[0],
+            notification_endpoint: &#x60;${credential_issuer}/vci/notification&#x60;,
+            nonce_endpoint: &#x60;${credential_issuer}/vci/nonce&#x60;,
+            display: issuanceConfig.display as any,
+            batch_credential_issuance: issuanceConfig?.batchSize
+                ? {
+                      batch_size: issuanceConfig?.batchSize,
+                  }
+                : undefined,
+        });
+        return {
+            credentialIssuer,
+            authorizationServers: [authorizationServerMetadata],
+            originalDraftVersion: Openid4vciVersion.V1,
+        } as IssuerMetadataResult;
     }
 
     /**

@@ -458,8 +458,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="175"
-                                    class="link-to-prism">src/session/session.service.ts:175</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="176"
+                                    class="link-to-prism">src/session/session.service.ts:176</a></div>
                         </td>
                     </tr>
 
@@ -539,8 +539,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="146"
-                                    class="link-to-prism">src/session/session.service.ts:146</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="147"
+                                    class="link-to-prism">src/session/session.service.ts:147</a></div>
                         </td>
                     </tr>
 
@@ -601,7 +601,7 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>getAll()</code>
+<code>getAll(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
@@ -619,6 +619,33 @@
                         <div class="io-description"><p>Get all sessions.</p>
 </div>
 
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         <div class="io-description">
                             <b>Returns : </b>        <code><a href="../entitys/Session.html" target="_self" >Promise&lt;Session[]&gt;</a></code>
 
@@ -650,8 +677,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="155"
-                                    class="link-to-prism">src/session/session.service.ts:155</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="156"
+                                    class="link-to-prism">src/session/session.service.ts:156</a></div>
                         </td>
                     </tr>
 
@@ -847,8 +874,8 @@ This will run every hour by default, but can be configured via the <code>SESSION
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="162"
-                                    class="link-to-prism">src/session/session.service.ts:162</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="163"
+                                    class="link-to-prism">src/session/session.service.ts:163</a></div>
                         </td>
                     </tr>
 
@@ -1006,8 +1033,9 @@ export class SessionService implements OnApplicationBootstrap {
      * Get all sessions.
      * @returns
      */
-    getAll(): Promise&lt;Session[]&gt; {
+    getAll(tenantId: string): Promise&lt;Session[]&gt; {
         return this.sessionRepository.find({
+            where: { tenantId },
             order: { updatedAt: &quot;DESC&quot; },
         });
     }

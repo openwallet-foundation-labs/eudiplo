@@ -214,7 +214,7 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getPostRequestWithSession(session: <a href="../entitys/Session.html" target="_self">Session</a>, req: Request, body: <a href="../classes/AuthorizationResponse.html" target="_self">AuthorizationResponse</a>)</code>
+                    <code>getPostRequestWithSession(sessionId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, req: Request)</code>
                 </td>
             </tr>
 
@@ -228,8 +228,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="58"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:58</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="57"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:57</a></div>
                         </td>
                     </tr>
 
@@ -252,9 +252,9 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>session</td>
+                                                <td>sessionId</td>
                                             <td>
-                                                            <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
 
                                             <td>
@@ -267,18 +267,6 @@
                                                 <td>req</td>
                                             <td>
                                                         <code>Request</code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>body</td>
-                                            <td>
-                                                            <code><a href="../classes/AuthorizationResponse.html" target="_self" >AuthorizationResponse</a></code>
                                             </td>
 
                                             <td>
@@ -317,7 +305,7 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getRequestWithSession(session: <a href="../entitys/Session.html" target="_self">Session</a>, req: Request)</code>
+                    <code>getRequestWithSession(sessionId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, req: Request)</code>
                 </td>
             </tr>
 
@@ -331,8 +319,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="42"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:42</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="41"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:41</a></div>
                         </td>
                     </tr>
 
@@ -355,9 +343,9 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>session</td>
+                                                <td>sessionId</td>
                                             <td>
-                                                            <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
 
                                             <td>
@@ -409,7 +397,7 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getResponse(body: <a href="../classes/AuthorizationResponse.html" target="_self">AuthorizationResponse</a>, session: <a href="../entitys/Session.html" target="_self">Session</a>)</code>
+                    <code>getResponse(body: <a href="../classes/AuthorizationResponse.html" target="_self">AuthorizationResponse</a>, sessionId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
@@ -423,8 +411,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="75"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:75</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="73"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:73</a></div>
                         </td>
                     </tr>
 
@@ -459,9 +447,9 @@
 
                                         </tr>
                                         <tr>
-                                                <td>session</td>
+                                                <td>sessionId</td>
                                             <td>
-                                                            <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
 
                                             <td>
@@ -494,14 +482,13 @@
     Get,
     HttpCode,
     HttpStatus,
+    Param,
     Post,
     Req,
     UseInterceptors,
 } from &quot;@nestjs/common&quot;;
 import { ApiExcludeController, ApiParam } from &quot;@nestjs/swagger&quot;;
 import { Request } from &quot;express&quot;;
-import { Session } from &quot;../../session/entities/session.entity&quot;;
-import { SessionEntity } from &quot;../../session/session.decorator&quot;;
 import { SessionLogger } from &quot;../../utils/logger/session-logger.decorator&quot;;
 import { SessionLoggerInterceptor } from &quot;../../utils/logger/session-logger.interceptor&quot;;
 import { AuthorizationResponse } from &quot;./dto/authorization-response.dto&quot;;
@@ -530,28 +517,27 @@ export class Oid4vpController {
     @Get(&quot;request&quot;)
     @SessionLogger(&quot;session&quot;, &quot;OID4VP&quot;)
     getRequestWithSession(
-        @SessionEntity() session: Session,
+        @Param(&quot;session&quot;) sessionId: string,
         @Req() req: Request,
     ) {
         const origin &#x3D; req.get(&quot;origin&quot;) as string;
-        return this.oid4vpService.createAuthorizationRequest(session, origin);
+        return this.oid4vpService.createAuthorizationRequest(sessionId, origin);
     }
 
     /**
      * Returns the authorization request for a given requestId and session.
-     * @param session
+     * @param sessionId
      * @param req
      * @returns
      */
     @Post(&quot;request&quot;)
     @SessionLogger(&quot;session&quot;, &quot;OID4VP&quot;)
     getPostRequestWithSession(
-        @SessionEntity() session: Session,
+        @Param(&quot;session&quot;) sessionId: string,
         @Req() req: Request,
-        @Body() body: AuthorizationResponse,
     ) {
         const origin &#x3D; req.get(&quot;origin&quot;) as string;
-        return this.oid4vpService.createAuthorizationRequest(session, origin);
+        return this.oid4vpService.createAuthorizationRequest(sessionId, origin);
     }
 
     /**
@@ -564,9 +550,9 @@ export class Oid4vpController {
     @SessionLogger(&quot;session&quot;, &quot;OID4VP&quot;)
     getResponse(
         @Body() body: AuthorizationResponse,
-        @SessionEntity() session: Session,
+        @Param(&quot;session&quot;) sessionId: string,
     ) {
-        return this.oid4vpService.getResponse(body, session).catch((err) &#x3D;&gt; {
+        return this.oid4vpService.getResponse(body, sessionId).catch((err) &#x3D;&gt; {
             console.error(err);
             throw err;
         });
