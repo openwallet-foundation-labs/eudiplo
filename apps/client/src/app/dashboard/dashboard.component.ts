@@ -12,7 +12,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { EnvironmentService } from '../services/environment.service';
-import { ApiService } from '@eudiplo/sdk';
+import { ApiService, appControllerMain } from '@eudiplo/sdk';
 
 @Component({
   selector: 'app-dashboard',
@@ -35,6 +35,7 @@ import { ApiService } from '@eudiplo/sdk';
 export class DashboardComponent implements OnInit, OnDestroy {
   private refreshInterval?: NodeJS.Timeout;
   private tokenCheckInterval?: NodeJS.Timeout;
+  backendVersion: string | null = null;
 
   constructor(
     public apiService: ApiService,
@@ -51,6 +52,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // Initial check
     this.checkTokenStatus();
+
+    // Fetch backend version
+    this.fetchBackendVersion();
   }
 
   ngOnDestroy(): void {
@@ -135,6 +139,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   navigateToSessionManagement(): void {
     this.router.navigate(['/session-management']);
+  }
+
+  /**
+   * Fetch backend version from the API
+   */
+  private async fetchBackendVersion(): Promise<void> {
+    try {
+      const response = await appControllerMain();
+      if (response.data && typeof response.data === 'object' && 'version' in response.data) {
+        this.backendVersion = (response.data as any).version;
+      }
+    } catch (error) {
+      console.error('Failed to fetch backend version:', error);
+      this.backendVersion = 'Unknown';
+    }
   }
 
   /**
