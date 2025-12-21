@@ -7,12 +7,12 @@ This directory contains deployment configurations for EUDIPLO.
 
 ## Quick Reference
 
-| Deployment | Path | Documentation | Use Case |
-|------------|------|---------------|----------|
-| **Quick Start** | `../docker-compose.yml` | [Docker Compose Guide](https://openwallet-foundation-labs.github.io/eudiplo/latest/deployment/docker-compose/) | Quick testing |
-| **Minimal** | `minimal/` | [Docker Compose Guide](https://openwallet-foundation-labs.github.io/eudiplo/latest/deployment/docker-compose/#minimal-deployment) | Development |
-| **Full** | `full/` | [Docker Compose Guide](https://openwallet-foundation-labs.github.io/eudiplo/latest/deployment/docker-compose/#full-deployment-production) | Production |
-| **Kubernetes** | `k8s/` | [Kubernetes Guide](https://openwallet-foundation-labs.github.io/eudiplo/latest/deployment/kubernetes/) | Production |
+| Deployment      | Path                    | Documentation                                                                                                                             | Use Case      |
+| --------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+| **Quick Start** | `../docker-compose.yml` | [Docker Compose Guide](https://openwallet-foundation-labs.github.io/eudiplo/latest/deployment/docker-compose/)                            | Quick testing |
+| **Minimal**     | `minimal/`              | [Docker Compose Guide](https://openwallet-foundation-labs.github.io/eudiplo/latest/deployment/docker-compose/#minimal-deployment)         | Development   |
+| **Full**        | `full/`                 | [Docker Compose Guide](https://openwallet-foundation-labs.github.io/eudiplo/latest/deployment/docker-compose/#full-deployment-production) | Production    |
+| **Kubernetes**  | `k8s/`                  | [Kubernetes Guide](https://openwallet-foundation-labs.github.io/eudiplo/latest/deployment/kubernetes/)                                    | Production    |
 
 ## Quick Start Commands
 

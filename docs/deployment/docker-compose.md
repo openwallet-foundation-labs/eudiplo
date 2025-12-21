@@ -6,11 +6,11 @@ Deploy EUDIPLO using Docker Compose for local development, testing, and small-sc
 
 EUDIPLO offers three Docker Compose deployment options:
 
-| Deployment | Use Case | Database | Key Storage | Production Ready |
-|------------|----------|----------|-------------|------------------|
-| **Quick Start** | Quick testing, demos | None (ephemeral) | Ephemeral | ❌ No |
-| **Minimal** | Development, testing | SQLite | Filesystem | ⚠️ Limited |
-| **Full** | Production, staging | PostgreSQL | Vault | ✅ Yes |
+| Deployment      | Use Case             | Database         | Key Storage | Production Ready |
+| --------------- | -------------------- | ---------------- | ----------- | ---------------- |
+| **Quick Start** | Quick testing, demos | None (ephemeral) | Ephemeral   | ❌ No            |
+| **Minimal**     | Development, testing | SQLite           | Filesystem  | ⚠️ Limited       |
+| **Full**        | Production, staging  | PostgreSQL       | Vault       | ✅ Yes           |
 
 ## Prerequisites
 
@@ -57,7 +57,7 @@ docker compose down
 ```
 
 !!! warning "Ephemeral Storage"
-    This deployment uses default in-memory storage. **All data is lost when containers stop.** Use Minimal or Full deployment for persistent storage.
+This deployment uses default in-memory storage. **All data is lost when containers stop.** Use Minimal or Full deployment for persistent storage.
 
 ## Minimal Deployment
 
@@ -218,7 +218,7 @@ LOG_LEVEL=info
 ```
 
 !!! danger "Security Warning"
-    **Never use default credentials in production!** Change all passwords, tokens, and secrets before deploying.
+**Never use default credentials in production!** Change all passwords, tokens, and secrets before deploying.
 
 ### Deploy
 
@@ -310,13 +310,13 @@ Expected response:
 
 ```json
 {
-  "status": "ok",
-  "info": {
-    "database": {
-      "status": "up"
-    }
-  },
-  "version": "main"
+    "status": "ok",
+    "info": {
+        "database": {
+            "status": "up"
+        }
+    },
+    "version": "main"
 }
 ```
 
@@ -381,27 +381,29 @@ docker compose logs <service-name>
 Common issues:
 
 1. **Port already in use:**
-   ```bash
-   # Find process using port
-   lsof -i :3000
-   
-   # Kill process or change port in docker-compose.yml
-   ```
+
+    ```bash
+    # Find process using port
+    lsof -i :3000
+
+    # Kill process or change port in docker-compose.yml
+    ```
 
 2. **Database not ready:**
-   ```bash
-   # Check database health
-   docker compose exec database pg_isready -U eudiplo_user
-   
-   # Restart backend after database is ready
-   docker compose restart eudiplo
-   ```
+
+    ```bash
+    # Check database health
+    docker compose exec database pg_isready -U eudiplo_user
+
+    # Restart backend after database is ready
+    docker compose restart eudiplo
+    ```
 
 3. **Permission errors:**
-   ```bash
-   # Fix volume permissions
-   sudo chown -R $(id -u):$(id -g) ./config
-   ```
+    ```bash
+    # Fix volume permissions
+    sudo chown -R $(id -u):$(id -g) ./config
+    ```
 
 ### Connection Refused Errors
 
@@ -448,20 +450,20 @@ docker compose exec vault vault status
 
 Common environment variables:
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `PUBLIC_URL` | Public URL for OAuth redirects | `http://localhost:3000` |
-| `NODE_ENV` | Environment (development/production) | `development` |
-| `DB_TYPE` | Database type (postgres/sqlite) | `postgres` |
-| `DB_HOST` | Database hostname | `database` |
-| `DB_PORT` | Database port | `5432` |
-| `DB_USERNAME` | Database username | - |
-| `DB_PASSWORD` | Database password | - |
-| `DB_DATABASE` | Database name | `eudiplo` |
-| `VAULT_TOKEN` | Vault root token | - |
-| `VAULT_ADDR` | Vault address | `http://vault:8200` |
-| `JWT_SECRET` | JWT signing secret | - |
-| `LOG_LEVEL` | Logging level | `info` |
+| Variable      | Description                          | Default                 |
+| ------------- | ------------------------------------ | ----------------------- |
+| `PUBLIC_URL`  | Public URL for OAuth redirects       | `http://localhost:3000` |
+| `NODE_ENV`    | Environment (development/production) | `development`           |
+| `DB_TYPE`     | Database type (postgres/sqlite)      | `postgres`              |
+| `DB_HOST`     | Database hostname                    | `database`              |
+| `DB_PORT`     | Database port                        | `5432`                  |
+| `DB_USERNAME` | Database username                    | -                       |
+| `DB_PASSWORD` | Database password                    | -                       |
+| `DB_DATABASE` | Database name                        | `eudiplo`               |
+| `VAULT_TOKEN` | Vault root token                     | -                       |
+| `VAULT_ADDR`  | Vault address                        | `http://vault:8200`     |
+| `JWT_SECRET`  | JWT signing secret                   | -                       |
+| `LOG_LEVEL`   | Logging level                        | `info`                  |
 
 See [Configuration Documentation](../architecture/index.md) for complete list.
 
@@ -471,13 +473,13 @@ Edit `docker-compose.yml` to change exposed ports:
 
 ```yaml
 services:
-  eudiplo:
-    ports:
-      - '8080:3000'  # Change 3000 to 8080
-  
-  eudiplo-client:
-    ports:
-      - '8081:80'    # Change 4200 to 8081
+    eudiplo:
+        ports:
+            - '8080:3000' # Change 3000 to 8080
+
+    eudiplo-client:
+        ports:
+            - '8081:80' # Change 4200 to 8081
 ```
 
 ### Resource Limits
@@ -486,15 +488,15 @@ Add resource limits to prevent resource exhaustion:
 
 ```yaml
 services:
-  eudiplo:
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 512M
-        reservations:
-          cpus: '0.5'
-          memory: 256M
+    eudiplo:
+        deploy:
+            resources:
+                limits:
+                    cpus: '1.0'
+                    memory: 512M
+                reservations:
+                    cpus: '0.5'
+                    memory: 256M
 ```
 
 ## Updating
@@ -519,11 +521,11 @@ Edit `docker-compose.yml`:
 
 ```yaml
 services:
-  eudiplo:
-    image: ghcr.io/openwallet-foundation-labs/eudiplo:v1.2.3
-  
-  eudiplo-client:
-    image: ghcr.io/openwallet-foundation-labs/eudiplo-client:v1.2.3
+    eudiplo:
+        image: ghcr.io/openwallet-foundation-labs/eudiplo:v1.2.3
+
+    eudiplo-client:
+        image: ghcr.io/openwallet-foundation-labs/eudiplo-client:v1.2.3
 ```
 
 Then:
@@ -642,7 +644,7 @@ For production with HA requirements, use:
 ### Vault Production Setup
 
 !!! danger "Vault Dev Mode"
-    The full deployment uses Vault in **dev mode**, which is **NOT production-safe**. Data is ephemeral and unsealing is automatic.
+The full deployment uses Vault in **dev mode**, which is **NOT production-safe**. Data is ephemeral and unsealing is automatic.
 
 For production Vault:
 
@@ -674,21 +676,21 @@ Configure centralized logging:
 
 ```yaml
 services:
-  eudiplo:
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+    eudiplo:
+        logging:
+            driver: 'json-file'
+            options:
+                max-size: '10m'
+                max-file: '3'
 ```
 
 Or use external logging (Loki, ELK):
 
 ```yaml
 logging:
-  driver: "loki"
-  options:
-    loki-url: "http://loki:3100/loki/api/v1/push"
+    driver: 'loki'
+    options:
+        loki-url: 'http://loki:3100/loki/api/v1/push'
 ```
 
 ## When to Use Docker Compose vs Kubernetes
@@ -722,12 +724,12 @@ Edit `docker-compose.yml`:
 
 ```yaml
 services:
-  eudiplo:
-    environment:
-      - DB_HOST=your-database-host.com
-      - DB_PORT=5432
-      - DB_SSL=true  # Enable SSL for external DB
-    # Remove database service and dependency
+    eudiplo:
+        environment:
+            - DB_HOST=your-database-host.com
+            - DB_PORT=5432
+            - DB_SSL=true # Enable SSL for external DB
+        # Remove database service and dependency
 ```
 
 Remove database service from `docker-compose.yml`.
@@ -738,9 +740,9 @@ Connect to existing Docker network:
 
 ```yaml
 networks:
-  eudiplo-network:
-    external: true
-    name: my-existing-network
+    eudiplo-network:
+        external: true
+        name: my-existing-network
 ```
 
 ### Build from Source
@@ -749,12 +751,12 @@ Instead of using pre-built images:
 
 ```yaml
 services:
-  eudiplo:
-    build:
-      context: ../..
-      dockerfile: Dockerfile
-      target: eudiplo
-    # Remove 'image' line
+    eudiplo:
+        build:
+            context: ../..
+            dockerfile: Dockerfile
+            target: eudiplo
+        # Remove 'image' line
 ```
 
 Build and start:
