@@ -1,59 +1,67 @@
-# EUDIPLO + PostgreSQL + MinIO on Kubernetes (Docker Desktop)
+# Kubernetes Deployment
 
-This adds **PostgreSQL** and **MinIO** (S3-compatible) with persistent storage, and wires the backend to both.
+📚 **Full documentation can be found here:**
 
-## .env keys required (Secret: `eudiplo-env`)
+**[https://openwallet-foundation-labs.github.io/eudiplo/latest/deployment/kubernetes/](https://openwallet-foundation-labs.github.io/eudiplo/latest/deployment/kubernetes/)**
 
-```
-# Postgres
-DB_USERNAME=...
-DB_PASSWORD=...
-DB_DATABASE=...
+The comprehensive Kubernetes deployment guide includes:
 
-# MinIO root creds + bucket for bootstrap Job
-MINIO_ROOT_USER=...
-MINIO_ROOT_PASSWORD=...
-MINIO_BUCKET=uploads
+- ✅ Prerequisites and setup instructions
+- ✅ Step-by-step deployment guide
+- ✅ Access methods (Ingress and port-forwarding)
+- ✅ Testing and verification procedures
+- ✅ Comprehensive troubleshooting
+- ✅ Production considerations
+- ✅ Advanced configuration options
 
-# (Optional) If your app expects these:
-# S3_ACCESS_KEY_ID=...
-# S3_SECRET_ACCESS_KEY=...
-# S3_BUCKET=uploads
-# S3_REGION=us-east-1
-# S3_SSL=false
-```
+## Quick Reference
 
-Backend defaults (can be overridden by `.env`):
+This directory contains Kubernetes manifests for deploying EUDIPLO with PostgreSQL and MinIO.
 
-- `DB_HOST=postgres`, `DB_PORT=5432`
-- `S3_ENDPOINT=http://minio:9000`
-
-## Apply
+### Quick Start
 
 ```bash
+# 1. Enable Kubernetes in Docker Desktop
+# 2. Install ingress-nginx (see docs above)
+
+# 3. Configure and deploy
+cd deployment/k8s
+cp .env.example .env
+# Edit .env with your values
+
 kubectl create namespace eudiplo
 kubectl -n eudiplo create secret generic eudiplo-env --from-env-file=.env
 kubectl apply -k .
-kubectl -n eudiplo get pods,svc,ingress
+
+# 4. Verify
+kubectl -n eudiplo get pods -w
 ```
 
-## Local access
+### Access
 
-- **Port-forward (quick):**
+- **Backend API:** <http://eudiplo.localtest.me/api>i>
+- **Client UI:** <http://eudiplo-client.localtest.me/>/>
+- **MinIO Console:** <http://minio-console.localtest.me/>/>
 
-  ```bash
-  kubectl -n eudiplo port-forward svc/eudiplo 3000:3000
-  kubectl -n eudiplo port-forward svc/eudiplo-client 4200:80
-  kubectl -n eudiplo port-forward svc/minio 9001:9001   # Console
-  ```
+### Manifest Files
 
-- **Ingress (with ingress-nginx):**
-  - <http://eudiplo.localtest.me/health>
-  - <http://eudiplo-client.localtest.me/>
-  - <http://minio-console.localtest.me/>
+| File                             | Purpose                 |
+| -------------------------------- | ----------------------- |
+| `namespace.yaml`                 | Namespace definition    |
+| `postgres-statefulset.yaml`      | PostgreSQL database     |
+| `postgres-service.yaml`          | Database service        |
+| `minio-statefulset.yaml`         | MinIO object storage    |
+| `minio-service.yaml`             | MinIO service           |
+| `minio-bucket-job.yaml`          | Bucket creation job     |
+| `eudiplo-deployment.yaml`        | Backend deployment      |
+| `eudiplo-service.yaml`           | Backend service         |
+| `eudiplo-client-deployment.yaml` | Web client deployment   |
+| `eudiplo-client-service.yaml`    | Client service          |
+| `ingress.yaml`                   | Ingress routing         |
+| `kustomization.yaml`             | Kustomize configuration |
 
-## Notes
+## Support
 
-- PVCs use the cluster's default StorageClass (Docker Desktop normally has one).
-- The bucket Job is idempotent; it will succeed even if the bucket already exists.
-- If you prefer NodePort or TLS, tweak the Services/Ingress; I can supply variants on request.
+For detailed instructions, troubleshooting, and production guidance:
+
+👉 **[Read the full documentation](https://openwallet-foundation-labs.github.io/eudiplo/latest/deployment/kubernetes/)**

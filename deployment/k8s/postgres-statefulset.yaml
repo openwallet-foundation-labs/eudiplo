@@ -14,12 +14,22 @@ spec:
       labels:
         app: postgres
     spec:
+      securityContext:
+        fsGroup: 999
+        runAsUser: 999
+        runAsNonRoot: true
       containers:
         - name: postgres
           image: postgres:16
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5432
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: false
           env:
             - name: POSTGRES_USER
               valueFrom:
@@ -38,13 +48,19 @@ spec:
                   key: DB_DATABASE
           readinessProbe:
             exec:
-              command: ["sh","-c","pg_isready -h 127.0.0.1 -p 5432 -U "$POSTGRES_USER" -d "$POSTGRES_DB""]
+              command:
+                - sh
+                - -c
+                - pg_isready -h 127.0.0.1 -p 5432 -U $POSTGRES_USER -d $POSTGRES_DB
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 5
           livenessProbe:
             exec:
-              command: ["sh","-c","pg_isready -h 127.0.0.1 -p 5432 -U "$POSTGRES_USER" -d "$POSTGRES_DB""]
+              command:
+                - sh
+                - -c
+                - pg_isready -h 127.0.0.1 -p 5432 -U $POSTGRES_USER -d $POSTGRES_DB
             initialDelaySeconds: 30
             periodSeconds: 20
             timeoutSeconds: 5

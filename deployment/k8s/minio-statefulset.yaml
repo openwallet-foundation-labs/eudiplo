@@ -14,11 +14,21 @@ spec:
       labels:
         app: minio
     spec:
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+        runAsNonRoot: true
       containers:
         - name: minio
-          image: quay.io/minio/minio:RELEASE.2025-02-28T09-20-48Z
+          image: quay.io/minio/minio:RELEASE.2024-12-18T13-15-44Z
           imagePullPolicy: IfNotPresent
           args: ["server", "/data", "--console-address", ":9001"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: false
           ports:
             - containerPort: 9000
             - containerPort: 9001
