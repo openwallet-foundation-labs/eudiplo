@@ -85,41 +85,7 @@ Presentation flows create sessions that:
 
 ## Quick Start
 
-For a quick start, follow these steps:
-
-1. **Create a presentation configuration** - Define the presentation requirements using DCQL.
-2. **Presentation request** - Initiate a presentation request using the created configuration.
-
-### 1. Create a Presentation Configuration
-
-See [Presentation Configuration](presentation-configuration.md) for detailed instructions on creating and managing presentation configurations.
-
-### 2. Store the Configuration
-
-Use the presentation management API to store the configuration. For detailed endpoint specifications, see:
-
-**API Reference**: [Create Presentation Configuration](../../api/openapi.md#tag/presentation-management/POST/presentation-management)
-
-### 3. Request a Presentation
-
-Initiate a presentation request using the stored configuration. For detailed endpoint specifications, see:
-
-**API Reference**: [Request Presentation](../../api/openapi.md#tag/presentation-management/POST/presentation-management/request)
-
-!!! Info
-
-    In this request you need to specify if the flow should use the DC API or not.
-
-### 4. Present to User
-
-The response includes a URI that can be presented to the user:
-
-```json
-{
-    "uri": "openid4vp://?request_uri=https://your-domain.com/oid4vp/request/abc123&session_id=session-456",
-    "session_id": "session-456"
-}
-```
+To manage presentation configurations, have a look at the [API Documentation](../api/index.md#verifier) about the verifier. There you will find the endpoints to manage presentation configs and also to create presentation requests.
 
 ---
 

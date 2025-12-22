@@ -3,8 +3,8 @@ import { OfferResponse, PresentationConfig, PresentationRequest } from '@eudiplo
 import {
   presentationManagementControllerConfiguration,
   presentationManagementControllerDeleteConfiguration,
-  presentationManagementControllerGetOffer,
   presentationManagementControllerStorePresentationConfig,
+  verifierOfferControllerGetOffer,
 } from '@eudiplo/sdk';
 
 @Injectable({
@@ -34,7 +34,7 @@ export class PresentationManagementService {
   }
 
   getOffer(offerRequest: PresentationRequest): Promise<OfferResponse> {
-    return presentationManagementControllerGetOffer({ body: offerRequest }).then(
+    return verifierOfferControllerGetOffer({ body: offerRequest }).then(
       (response) => response.data as OfferResponse
     );
   }

@@ -1,12 +1,12 @@
 import { resolve } from "node:path";
 import Joi from "joi";
-import { VALIDATION_SCHEMA } from "../apps/backend/src/utils/config-printer/combined.schema";
 import { buildModelFromSchema } from "./config-docs/model";
 import {
     renderGroupPage,    
     slugify,
     writeFileSafely,
 } from "./config-docs/render";
+import { VALIDATION_SCHEMA } from "../apps/backend/src/shared/utils/config-printer/combined.schema";
 
 async function main() {
     const model = buildModelFromSchema(VALIDATION_SCHEMA as Joi.ObjectSchema);

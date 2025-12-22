@@ -5,7 +5,7 @@ import { getRepositoryToken, TypeOrmModule } from "@nestjs/typeorm";
 import { PinoLogger } from "nestjs-pino/PinoLogger";
 import { Repository } from "typeorm";
 import { TenantEntity } from "../../auth/tenant/entitites/tenant.entity";
-import { ConfigImportService } from "../../utils/config-import/config-import.service";
+import { ConfigImportService } from "../../shared/utils/config-import/config-import.service";
 import { DBKeyService } from "./adapters/db-key.service";
 import { VaultKeyService } from "./adapters/vault-key.service";
 import { CertService } from "./cert/cert.service";

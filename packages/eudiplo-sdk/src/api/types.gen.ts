@@ -365,6 +365,21 @@ export type CertUpdateDto = {
   description?: string;
 };
 
+export type AuthorizeQueries = {
+  issuer_state?: string;
+  response_type?: string;
+  client_id?: string;
+  redirect_uri?: string;
+  resource?: string;
+  scope?: string;
+  code_challenge?: string;
+  code_challenge_method?: string;
+  dpop_jkt?: string;
+  request_uri?: string;
+  auth_session?: string;
+  state?: string;
+};
+
 export type WebHookAuthConfigNone = {
   /**
    * The type of authentication used for the webhook.
@@ -405,190 +420,6 @@ export type WebhookConfig = {
    * The URL to which the webhook will send notifications.
    */
   url: string;
-};
-
-export type PresentationRequest = {
-  /**
-   * The type of response expected from the presentation request.
-   */
-  response_type: "qrcode" | "uri" | "dc-api";
-  /**
-   * Identifier of the presentation configuration
-   */
-  requestId: string;
-  /**
-   * Webhook configuration to receive the response.
-   * If not provided, the configured webhook from the configuration will be used.
-   */
-  webhook?: WebhookConfig;
-  /**
-   * Optional redirect URI to which the user-agent should be redirected after the presentation is completed.
-   */
-  redirectUri?: string;
-};
-
-export type OfferResponse = {
-  uri: string;
-  session: string;
-};
-
-export type Claim = {
-  path: Array<string>;
-};
-
-export type TrustedAuthorityQuery = {
-  type: "aki" | "etsi_tl" | "openid_federation";
-  values: Array<string>;
-};
-
-export type CredentialQuery = {
-  id: string;
-  format: string;
-  multiple?: boolean;
-  claims?: Array<Claim>;
-  meta: {
-    [key: string]: unknown;
-  };
-  trusted_authorities?: Array<TrustedAuthorityQuery>;
-};
-
-export type CredentialSetQuery = {
-  options: Array<Array<string>>;
-  required?: boolean;
-};
-
-export type Dcql = {
-  credentials: Array<CredentialQuery>;
-  credential_set?: Array<CredentialSetQuery>;
-};
-
-export type RegistrationCertificateRequest = {
-  /**
-   * Identifier of the registration certificate that got issued.
-   */
-  id?: string;
-  /**
-   * The body of the registration certificate request containing the necessary details.
-   */
-  body: {
-    [key: string]: unknown;
-  };
-};
-
-export type PresentationAttachment = {
-  format: string;
-  data: {
-    [key: string]: unknown;
-  };
-  credential_ids?: Array<string>;
-};
-
-export type PresentationConfig = {
-  /**
-   * Unique identifier for the VP request.
-   */
-  id: string;
-  /**
-   * The tenant that owns this object.
-   */
-  tenant: TenantEntity;
-  /**
-   * Description of the presentation configuration.
-   */
-  description?: string;
-  /**
-   * Lifetime how long the presentation request is valid after creation, in seconds.
-   */
-  lifeTime?: number;
-  /**
-   * The DCQL query to be used for the VP request.
-   */
-  dcql_query: Dcql;
-  /**
-   * The registration certificate request containing the necessary details.
-   */
-  registrationCert?: RegistrationCertificateRequest;
-  /**
-   * Optional webhook URL to receive the response.
-   */
-  webhook?: WebhookConfig;
-  /**
-   * The timestamp when the VP request was created.
-   */
-  createdAt: string;
-  /**
-   * The timestamp when the VP request was last updated.
-   */
-  updatedAt: string;
-  /**
-   * Attestation that should be attached
-   */
-  attached?: Array<PresentationAttachment>;
-  /**
-   * Redirect URI to which the user-agent should be redirected after the presentation is completed.
-   */
-  redirectUri?: string;
-};
-
-export type PresentationConfigCreateDto = {
-  /**
-   * Unique identifier for the VP request.
-   */
-  id: string;
-  /**
-   * Description of the presentation configuration.
-   */
-  description?: string;
-  /**
-   * Lifetime how long the presentation request is valid after creation, in seconds.
-   */
-  lifeTime?: number;
-  /**
-   * The DCQL query to be used for the VP request.
-   */
-  dcql_query: Dcql;
-  /**
-   * The registration certificate request containing the necessary details.
-   */
-  registrationCert?: RegistrationCertificateRequest;
-  /**
-   * Optional webhook URL to receive the response.
-   */
-  webhook?: WebhookConfig;
-  /**
-   * Attestation that should be attached
-   */
-  attached?: Array<PresentationAttachment>;
-  /**
-   * Redirect URI to which the user-agent should be redirected after the presentation is completed.
-   */
-  redirectUri?: string;
-};
-
-export type AuthorizationResponse = {
-  /**
-   * The response string containing the authorization details.
-   */
-  response: string;
-  /**
-   * When set to true, the authorization response will be sent to the client.
-   */
-  sendResponse?: boolean;
-};
-
-export type AuthorizeQueries = {
-  issuer_state?: string;
-  response_type?: string;
-  client_id?: string;
-  redirect_uri?: string;
-  resource?: string;
-  scope?: string;
-  code_challenge?: string;
-  code_challenge_method?: string;
-  dpop_jkt?: string;
-  request_uri?: string;
-  auth_session?: string;
-  state?: string;
 };
 
 export type OfferRequestDto = {
@@ -744,22 +575,102 @@ export type StatusUpdateDto = {
   status: number;
 };
 
-export type NotificationRequestDto = {
-  notification_id: string;
-  event: {
-    [key: string]: unknown;
-  };
+export type AuthenticationMethodNone = {
+  method: "none";
 };
 
-export type ParResponseDto = {
+export type AuthenticationUrlConfig = {
   /**
-   * The request URI for the Pushed Authorization Request.
+   * The URL used in the OID4VCI authorized code flow.
+   * This URL is where users will be redirected for authentication.
    */
-  request_uri: string;
+  url: string;
   /**
-   * The expiration time for the request URI in seconds.
+   * Optional webhook configuration for authentication callbacks
    */
-  expires_in: number;
+  webhook?: WebhookConfig;
+};
+
+export type AuthenticationMethodAuth = {
+  method: "auth";
+  config: AuthenticationUrlConfig;
+};
+
+export type PresentationDuringIssuanceConfig = {
+  /**
+   * Link to the presentation configuration that is relevant for the issuance process
+   */
+  type: string;
+};
+
+export type AuthenticationMethodPresentation = {
+  method: "presentationDuringIssuance";
+  config: PresentationDuringIssuanceConfig;
+};
+
+export type DisplayLogo = {
+  uri: string;
+  alt_text?: string;
+};
+
+export type DisplayInfo = {
+  name?: string;
+  locale?: string;
+  logo?: DisplayLogo;
+};
+
+export type IssuanceConfig = {
+  /**
+   * The tenant that owns this object.
+   */
+  tenant: TenantEntity;
+  /**
+   * Authentication server URL for the issuance process.
+   */
+  authServers?: Array<string>;
+  /**
+   * Webhook to send the result of the notification response
+   */
+  notifyWebhook?: WebhookConfig;
+  /**
+   * Value to determine the amount of credentials that are issued in a batch.
+   * Default is 1.
+   */
+  batchSize?: number;
+  /**
+   * Indicates whether DPoP is required for the issuance process. Default value is true.
+   */
+  dPopRequired?: boolean;
+  display: Array<DisplayInfo>;
+  /**
+   * The timestamp when the VP request was created.
+   */
+  createdAt: string;
+  /**
+   * The timestamp when the VP request was last updated.
+   */
+  updatedAt: string;
+};
+
+export type IssuanceDto = {
+  /**
+   * Authentication server URL for the issuance process.
+   */
+  authServers?: Array<string>;
+  /**
+   * Webhook to send the result of the notification response
+   */
+  notifyWebhook?: WebhookConfig;
+  /**
+   * Value to determine the amount of credentials that are issued in a batch.
+   * Default is 1.
+   */
+  batchSize?: number;
+  /**
+   * Indicates whether DPoP is required for the issuance process. Default value is true.
+   */
+  dPopRequired?: boolean;
+  display: Array<DisplayInfo>;
 };
 
 export type ClaimsQuery = {
@@ -768,6 +679,31 @@ export type ClaimsQuery = {
   values?: Array<{
     [key: string]: unknown;
   }>;
+};
+
+export type Claim = {
+  path: Array<string>;
+};
+
+export type TrustedAuthorityQuery = {
+  type: "aki" | "etsi_tl" | "openid_federation";
+  values: Array<string>;
+};
+
+export type CredentialQuery = {
+  id: string;
+  format: string;
+  multiple?: boolean;
+  claims?: Array<Claim>;
+  meta: {
+    [key: string]: unknown;
+  };
+  trusted_authorities?: Array<TrustedAuthorityQuery>;
+};
+
+export type CredentialSetQuery = {
+  options: Array<Array<string>>;
+  required?: boolean;
 };
 
 export type PolicyCredential = {
@@ -909,73 +845,95 @@ export type CredentialConfigCreate = {
   schema?: SchemaResponse;
 };
 
-export type AuthenticationMethodNone = {
-  method: "none";
+export type NotificationRequestDto = {
+  notification_id: string;
+  event: {
+    [key: string]: unknown;
+  };
 };
 
-export type AuthenticationUrlConfig = {
+export type ParResponseDto = {
   /**
-   * The URL used in the OID4VCI authorized code flow.
-   * This URL is where users will be redirected for authentication.
+   * The request URI for the Pushed Authorization Request.
    */
-  url: string;
+  request_uri: string;
   /**
-   * Optional webhook configuration for authentication callbacks
+   * The expiration time for the request URI in seconds.
    */
-  webhook?: WebhookConfig;
+  expires_in: number;
 };
 
-export type AuthenticationMethodAuth = {
-  method: "auth";
-  config: AuthenticationUrlConfig;
-};
-
-export type PresentationDuringIssuanceConfig = {
-  /**
-   * Link to the presentation configuration that is relevant for the issuance process
-   */
-  type: string;
-};
-
-export type AuthenticationMethodPresentation = {
-  method: "presentationDuringIssuance";
-  config: PresentationDuringIssuanceConfig;
-};
-
-export type DisplayLogo = {
+export type OfferResponse = {
   uri: string;
-  alt_text?: string;
+  session: string;
 };
 
-export type DisplayInfo = {
-  name?: string;
-  locale?: string;
-  logo?: DisplayLogo;
+export type AuthorizationResponse = {
+  /**
+   * The response string containing the authorization details.
+   */
+  response: string;
+  /**
+   * When set to true, the authorization response will be sent to the client.
+   */
+  sendResponse?: boolean;
 };
 
-export type IssuanceConfig = {
+export type Dcql = {
+  credentials: Array<CredentialQuery>;
+  credential_set?: Array<CredentialSetQuery>;
+};
+
+export type RegistrationCertificateRequest = {
+  /**
+   * Identifier of the registration certificate that got issued.
+   */
+  id?: string;
+  /**
+   * The body of the registration certificate request containing the necessary details.
+   */
+  body: {
+    [key: string]: unknown;
+  };
+};
+
+export type PresentationAttachment = {
+  format: string;
+  data: {
+    [key: string]: unknown;
+  };
+  credential_ids?: Array<string>;
+};
+
+export type PresentationConfig = {
+  /**
+   * Unique identifier for the VP request.
+   */
+  id: string;
   /**
    * The tenant that owns this object.
    */
   tenant: TenantEntity;
   /**
-   * Authentication server URL for the issuance process.
+   * Description of the presentation configuration.
    */
-  authServers?: Array<string>;
+  description?: string;
   /**
-   * Webhook to send the result of the notification response
+   * Lifetime how long the presentation request is valid after creation, in seconds.
    */
-  notifyWebhook?: WebhookConfig;
+  lifeTime?: number;
   /**
-   * Value to determine the amount of credentials that are issued in a batch.
-   * Default is 1.
+   * The DCQL query to be used for the VP request.
    */
-  batchSize?: number;
+  dcql_query: Dcql;
   /**
-   * Indicates whether DPoP is required for the issuance process. Default value is true.
+   * The registration certificate request containing the necessary details.
    */
-  dPopRequired?: boolean;
-  display: Array<DisplayInfo>;
+  registrationCert?: RegistrationCertificateRequest;
+  /**
+   * Optional webhook URL to receive the response.
+   */
+  webhook?: WebhookConfig;
   /**
    * The timestamp when the VP request was created.
    */
@@ -984,34 +942,76 @@ export type IssuanceConfig = {
    * The timestamp when the VP request was last updated.
    */
   updatedAt: string;
+  /**
+   * Attestation that should be attached
+   */
+  attached?: Array<PresentationAttachment>;
+  /**
+   * Redirect URI to which the user-agent should be redirected after the presentation is completed.
+   */
+  redirectUri?: string;
 };
 
-export type IssuanceDto = {
+export type PresentationConfigCreateDto = {
   /**
-   * Authentication server URL for the issuance process.
+   * Unique identifier for the VP request.
    */
-  authServers?: Array<string>;
+  id: string;
   /**
-   * Webhook to send the result of the notification response
+   * Description of the presentation configuration.
    */
-  notifyWebhook?: WebhookConfig;
+  description?: string;
   /**
-   * Value to determine the amount of credentials that are issued in a batch.
-   * Default is 1.
+   * Lifetime how long the presentation request is valid after creation, in seconds.
    */
-  batchSize?: number;
+  lifeTime?: number;
   /**
-   * Indicates whether DPoP is required for the issuance process. Default value is true.
+   * The DCQL query to be used for the VP request.
    */
-  dPopRequired?: boolean;
-  display: Array<DisplayInfo>;
+  dcql_query: Dcql;
+  /**
+   * The registration certificate request containing the necessary details.
+   */
+  registrationCert?: RegistrationCertificateRequest;
+  /**
+   * Optional webhook URL to receive the response.
+   */
+  webhook?: WebhookConfig;
+  /**
+   * Attestation that should be attached
+   */
+  attached?: Array<PresentationAttachment>;
+  /**
+   * Redirect URI to which the user-agent should be redirected after the presentation is completed.
+   */
+  redirectUri?: string;
+};
+
+export type PresentationRequest = {
+  /**
+   * The type of response expected from the presentation request.
+   */
+  response_type: "qrcode" | "uri" | "dc-api";
+  /**
+   * Identifier of the presentation configuration
+   */
+  requestId: string;
+  /**
+   * Webhook configuration to receive the response.
+   * If not provided, the configured webhook from the configuration will be used.
+   */
+  webhook?: WebhookConfig;
+  /**
+   * Optional redirect URI to which the user-agent should be redirected after the presentation is completed.
+   */
+  redirectUri?: string;
 };
 
 export type FileUploadDto = {
   file: Blob | File;
 };
 
-export type WellKnownControllerIssuerMetadata0Data = {
+export type WellKnownControllerIssuerMetadataData = {
   body?: never;
   path: {
     tenantId: string;
@@ -1020,34 +1020,16 @@ export type WellKnownControllerIssuerMetadata0Data = {
   url: "/.well-known/openid-credential-issuer/{tenantId}";
 };
 
-export type WellKnownControllerIssuerMetadata0Responses = {
+export type WellKnownControllerIssuerMetadataResponses = {
   200: {
     [key: string]: unknown;
   };
 };
 
-export type WellKnownControllerIssuerMetadata0Response =
-  WellKnownControllerIssuerMetadata0Responses[keyof WellKnownControllerIssuerMetadata0Responses];
+export type WellKnownControllerIssuerMetadataResponse =
+  WellKnownControllerIssuerMetadataResponses[keyof WellKnownControllerIssuerMetadataResponses];
 
-export type WellKnownControllerIssuerMetadata1Data = {
-  body?: never;
-  path: {
-    tenantId: string;
-  };
-  query?: never;
-  url: "/{tenantId}/.well-known/openid-credential-issuer";
-};
-
-export type WellKnownControllerIssuerMetadata1Responses = {
-  200: {
-    [key: string]: unknown;
-  };
-};
-
-export type WellKnownControllerIssuerMetadata1Response =
-  WellKnownControllerIssuerMetadata1Responses[keyof WellKnownControllerIssuerMetadata1Responses];
-
-export type WellKnownControllerAuthzMetadata0Data = {
+export type WellKnownControllerAuthzMetadataData = {
   body?: never;
   path: {
     tenantId: string;
@@ -1056,24 +1038,11 @@ export type WellKnownControllerAuthzMetadata0Data = {
   url: "/.well-known/oauth-authorization-server/{tenantId}";
 };
 
-export type WellKnownControllerAuthzMetadata0Responses = {
+export type WellKnownControllerAuthzMetadataResponses = {
   200: unknown;
 };
 
-export type WellKnownControllerAuthzMetadata1Data = {
-  body?: never;
-  path: {
-    tenantId: string;
-  };
-  query?: never;
-  url: "/{tenantId}/.well-known/oauth-authorization-server";
-};
-
-export type WellKnownControllerAuthzMetadata1Responses = {
-  200: unknown;
-};
-
-export type WellKnownControllerGetJwks0Data = {
+export type WellKnownControllerGetJwksData = {
   body?: never;
   path: {
     tenantId: string;
@@ -1082,28 +1051,12 @@ export type WellKnownControllerGetJwks0Data = {
   url: "/.well-known/jwks.json/{tenantId}";
 };
 
-export type WellKnownControllerGetJwks0Responses = {
+export type WellKnownControllerGetJwksResponses = {
   200: JwksResponseDto;
 };
 
-export type WellKnownControllerGetJwks0Response =
-  WellKnownControllerGetJwks0Responses[keyof WellKnownControllerGetJwks0Responses];
-
-export type WellKnownControllerGetJwks1Data = {
-  body?: never;
-  path: {
-    tenantId: string;
-  };
-  query?: never;
-  url: "/{tenantId}/.well-known/jwks.json";
-};
-
-export type WellKnownControllerGetJwks1Responses = {
-  200: JwksResponseDto;
-};
-
-export type WellKnownControllerGetJwks1Response =
-  WellKnownControllerGetJwks1Responses[keyof WellKnownControllerGetJwks1Responses];
+export type WellKnownControllerGetJwksResponse =
+  WellKnownControllerGetJwksResponses[keyof WellKnownControllerGetJwksResponses];
 
 export type AppControllerMainData = {
   body?: never;
@@ -1483,116 +1436,6 @@ export type StatusListControllerGetListResponses = {
 export type StatusListControllerGetListResponse =
   StatusListControllerGetListResponses[keyof StatusListControllerGetListResponses];
 
-export type PresentationManagementControllerGetOfferData = {
-  body: PresentationRequest;
-  path?: never;
-  query?: never;
-  url: "/presentation-management/request";
-};
-
-export type PresentationManagementControllerGetOfferResponses = {
-  /**
-   * JSON response
-   */
-  201: OfferResponse;
-};
-
-export type PresentationManagementControllerGetOfferResponse =
-  PresentationManagementControllerGetOfferResponses[keyof PresentationManagementControllerGetOfferResponses];
-
-export type PresentationManagementControllerConfigurationData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/presentation-management";
-};
-
-export type PresentationManagementControllerConfigurationResponses = {
-  200: Array<PresentationConfig>;
-};
-
-export type PresentationManagementControllerConfigurationResponse =
-  PresentationManagementControllerConfigurationResponses[keyof PresentationManagementControllerConfigurationResponses];
-
-export type PresentationManagementControllerStorePresentationConfigData = {
-  body: PresentationConfigCreateDto;
-  path?: never;
-  query?: never;
-  url: "/presentation-management";
-};
-
-export type PresentationManagementControllerStorePresentationConfigResponses = {
-  201: {
-    [key: string]: unknown;
-  };
-};
-
-export type PresentationManagementControllerStorePresentationConfigResponse =
-  PresentationManagementControllerStorePresentationConfigResponses[keyof PresentationManagementControllerStorePresentationConfigResponses];
-
-export type PresentationManagementControllerDeleteConfigurationData = {
-  body?: never;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/presentation-management/{id}";
-};
-
-export type PresentationManagementControllerDeleteConfigurationResponses = {
-  200: unknown;
-};
-
-export type Oid4VpControllerGetRequestWithSessionData = {
-  body?: never;
-  path: {
-    session: string;
-  };
-  query?: never;
-  url: "/{session}/oid4vp/request";
-};
-
-export type Oid4VpControllerGetRequestWithSessionResponses = {
-  200: string;
-};
-
-export type Oid4VpControllerGetRequestWithSessionResponse =
-  Oid4VpControllerGetRequestWithSessionResponses[keyof Oid4VpControllerGetRequestWithSessionResponses];
-
-export type Oid4VpControllerGetPostRequestWithSessionData = {
-  body?: never;
-  path: {
-    session: string;
-  };
-  query?: never;
-  url: "/{session}/oid4vp/request";
-};
-
-export type Oid4VpControllerGetPostRequestWithSessionResponses = {
-  201: string;
-};
-
-export type Oid4VpControllerGetPostRequestWithSessionResponse =
-  Oid4VpControllerGetPostRequestWithSessionResponses[keyof Oid4VpControllerGetPostRequestWithSessionResponses];
-
-export type Oid4VpControllerGetResponseData = {
-  body: AuthorizationResponse;
-  path: {
-    session: string;
-  };
-  query?: never;
-  url: "/{session}/oid4vp";
-};
-
-export type Oid4VpControllerGetResponseResponses = {
-  200: {
-    [key: string]: unknown;
-  };
-};
-
-export type Oid4VpControllerGetResponseResponse =
-  Oid4VpControllerGetResponseResponses[keyof Oid4VpControllerGetResponseResponses];
-
 export type SessionControllerGetAllSessionsData = {
   body?: never;
   path?: never;
@@ -1649,6 +1492,95 @@ export type SessionControllerRevokeAllData = {
 export type SessionControllerRevokeAllResponses = {
   201: unknown;
 };
+
+export type IssuanceConfigControllerGetIssuanceConfigurationsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/issuer/config";
+};
+
+export type IssuanceConfigControllerGetIssuanceConfigurationsResponses = {
+  200: IssuanceConfig;
+};
+
+export type IssuanceConfigControllerGetIssuanceConfigurationsResponse =
+  IssuanceConfigControllerGetIssuanceConfigurationsResponses[keyof IssuanceConfigControllerGetIssuanceConfigurationsResponses];
+
+export type IssuanceConfigControllerStoreIssuanceConfigurationData = {
+  body: IssuanceDto;
+  path?: never;
+  query?: never;
+  url: "/issuer/config";
+};
+
+export type IssuanceConfigControllerStoreIssuanceConfigurationResponses = {
+  201: {
+    [key: string]: unknown;
+  };
+};
+
+export type IssuanceConfigControllerStoreIssuanceConfigurationResponse =
+  IssuanceConfigControllerStoreIssuanceConfigurationResponses[keyof IssuanceConfigControllerStoreIssuanceConfigurationResponses];
+
+export type CredentialConfigControllerGetConfigsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/issuer/credentials";
+};
+
+export type CredentialConfigControllerGetConfigsResponses = {
+  200: Array<CredentialConfig>;
+};
+
+export type CredentialConfigControllerGetConfigsResponse =
+  CredentialConfigControllerGetConfigsResponses[keyof CredentialConfigControllerGetConfigsResponses];
+
+export type CredentialConfigControllerStoreCredentialConfigurationData = {
+  body: CredentialConfigCreate;
+  path?: never;
+  query?: never;
+  url: "/issuer/credentials";
+};
+
+export type CredentialConfigControllerStoreCredentialConfigurationResponses = {
+  201: {
+    [key: string]: unknown;
+  };
+};
+
+export type CredentialConfigControllerStoreCredentialConfigurationResponse =
+  CredentialConfigControllerStoreCredentialConfigurationResponses[keyof CredentialConfigControllerStoreCredentialConfigurationResponses];
+
+export type CredentialConfigControllerDeleteIssuanceConfigurationData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/issuer/credentials/{id}";
+};
+
+export type CredentialConfigControllerDeleteIssuanceConfigurationResponses = {
+  200: unknown;
+};
+
+export type CredentialConfigControllerGetConfigByIdData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/issuer/credentials/{id}";
+};
+
+export type CredentialConfigControllerGetConfigByIdResponses = {
+  200: CredentialConfig;
+};
+
+export type CredentialConfigControllerGetConfigByIdResponse =
+  CredentialConfigControllerGetConfigByIdResponses[keyof CredentialConfigControllerGetConfigByIdResponses];
 
 export type Oid4VciControllerCredentialData = {
   body?: never;
@@ -1763,113 +1695,24 @@ export type AuthorizeControllerAuthorizationChallengeEndpointResponses = {
   201: unknown;
 };
 
-export type CredentialsControllerGetConfigsData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/issuer-management/credentials";
-};
-
-export type CredentialsControllerGetConfigsResponses = {
-  200: Array<CredentialConfig>;
-};
-
-export type CredentialsControllerGetConfigsResponse =
-  CredentialsControllerGetConfigsResponses[keyof CredentialsControllerGetConfigsResponses];
-
-export type CredentialsControllerStoreCredentialConfigurationData = {
-  body: CredentialConfigCreate;
-  path?: never;
-  query?: never;
-  url: "/issuer-management/credentials";
-};
-
-export type CredentialsControllerStoreCredentialConfigurationResponses = {
-  201: {
-    [key: string]: unknown;
-  };
-};
-
-export type CredentialsControllerStoreCredentialConfigurationResponse =
-  CredentialsControllerStoreCredentialConfigurationResponses[keyof CredentialsControllerStoreCredentialConfigurationResponses];
-
-export type CredentialsControllerDeleteIssuanceConfigurationData = {
-  body?: never;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/issuer-management/credentials/{id}";
-};
-
-export type CredentialsControllerDeleteIssuanceConfigurationResponses = {
-  200: unknown;
-};
-
-export type CredentialsControllerGetConfigByIdData = {
-  body?: never;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/issuer-management/credentials/{id}";
-};
-
-export type CredentialsControllerGetConfigByIdResponses = {
-  200: CredentialConfig;
-};
-
-export type CredentialsControllerGetConfigByIdResponse =
-  CredentialsControllerGetConfigByIdResponses[keyof CredentialsControllerGetConfigByIdResponses];
-
-export type IssuerManagementControllerGetOfferData = {
+export type CredentialOfferControllerGetOfferData = {
   body: OfferRequestDto;
   path?: never;
   query?: never;
-  url: "/issuer-management/offer";
+  url: "/issuer/offer";
 };
 
-export type IssuerManagementControllerGetOfferResponses = {
+export type CredentialOfferControllerGetOfferResponses = {
   /**
    * JSON response
    */
   201: OfferResponse;
 };
 
-export type IssuerManagementControllerGetOfferResponse =
-  IssuerManagementControllerGetOfferResponses[keyof IssuerManagementControllerGetOfferResponses];
+export type CredentialOfferControllerGetOfferResponse =
+  CredentialOfferControllerGetOfferResponses[keyof CredentialOfferControllerGetOfferResponses];
 
-export type IssuanceControllerGetIssuanceConfigurationsData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/issuer-management/issuance";
-};
-
-export type IssuanceControllerGetIssuanceConfigurationsResponses = {
-  200: IssuanceConfig;
-};
-
-export type IssuanceControllerGetIssuanceConfigurationsResponse =
-  IssuanceControllerGetIssuanceConfigurationsResponses[keyof IssuanceControllerGetIssuanceConfigurationsResponses];
-
-export type IssuanceControllerStoreIssuanceConfigurationData = {
-  body: IssuanceDto;
-  path?: never;
-  query?: never;
-  url: "/issuer-management/issuance";
-};
-
-export type IssuanceControllerStoreIssuanceConfigurationResponses = {
-  201: {
-    [key: string]: unknown;
-  };
-};
-
-export type IssuanceControllerStoreIssuanceConfigurationResponse =
-  IssuanceControllerStoreIssuanceConfigurationResponses[keyof IssuanceControllerStoreIssuanceConfigurationResponses];
-
-export type CredentialsMetadataControllerVctData = {
+export type Oid4VciMetadataControllerVctData = {
   body?: never;
   path: {
     id: string;
@@ -1879,12 +1722,122 @@ export type CredentialsMetadataControllerVctData = {
   url: "/{tenantId}/credentials-metadata/vct/{id}";
 };
 
-export type CredentialsMetadataControllerVctResponses = {
+export type Oid4VciMetadataControllerVctResponses = {
   200: Vct;
 };
 
-export type CredentialsMetadataControllerVctResponse =
-  CredentialsMetadataControllerVctResponses[keyof CredentialsMetadataControllerVctResponses];
+export type Oid4VciMetadataControllerVctResponse =
+  Oid4VciMetadataControllerVctResponses[keyof Oid4VciMetadataControllerVctResponses];
+
+export type Oid4VpControllerGetRequestWithSessionData = {
+  body?: never;
+  path: {
+    session: string;
+  };
+  query?: never;
+  url: "/{session}/oid4vp/request";
+};
+
+export type Oid4VpControllerGetRequestWithSessionResponses = {
+  200: string;
+};
+
+export type Oid4VpControllerGetRequestWithSessionResponse =
+  Oid4VpControllerGetRequestWithSessionResponses[keyof Oid4VpControllerGetRequestWithSessionResponses];
+
+export type Oid4VpControllerGetPostRequestWithSessionData = {
+  body?: never;
+  path: {
+    session: string;
+  };
+  query?: never;
+  url: "/{session}/oid4vp/request";
+};
+
+export type Oid4VpControllerGetPostRequestWithSessionResponses = {
+  201: string;
+};
+
+export type Oid4VpControllerGetPostRequestWithSessionResponse =
+  Oid4VpControllerGetPostRequestWithSessionResponses[keyof Oid4VpControllerGetPostRequestWithSessionResponses];
+
+export type Oid4VpControllerGetResponseData = {
+  body: AuthorizationResponse;
+  path: {
+    session: string;
+  };
+  query?: never;
+  url: "/{session}/oid4vp";
+};
+
+export type Oid4VpControllerGetResponseResponses = {
+  200: {
+    [key: string]: unknown;
+  };
+};
+
+export type Oid4VpControllerGetResponseResponse =
+  Oid4VpControllerGetResponseResponses[keyof Oid4VpControllerGetResponseResponses];
+
+export type PresentationManagementControllerConfigurationData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/verifier/config";
+};
+
+export type PresentationManagementControllerConfigurationResponses = {
+  200: Array<PresentationConfig>;
+};
+
+export type PresentationManagementControllerConfigurationResponse =
+  PresentationManagementControllerConfigurationResponses[keyof PresentationManagementControllerConfigurationResponses];
+
+export type PresentationManagementControllerStorePresentationConfigData = {
+  body: PresentationConfigCreateDto;
+  path?: never;
+  query?: never;
+  url: "/verifier/config";
+};
+
+export type PresentationManagementControllerStorePresentationConfigResponses = {
+  201: {
+    [key: string]: unknown;
+  };
+};
+
+export type PresentationManagementControllerStorePresentationConfigResponse =
+  PresentationManagementControllerStorePresentationConfigResponses[keyof PresentationManagementControllerStorePresentationConfigResponses];
+
+export type PresentationManagementControllerDeleteConfigurationData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/verifier/config/{id}";
+};
+
+export type PresentationManagementControllerDeleteConfigurationResponses = {
+  200: unknown;
+};
+
+export type VerifierOfferControllerGetOfferData = {
+  body: PresentationRequest;
+  path?: never;
+  query?: never;
+  url: "/verifier/offer";
+};
+
+export type VerifierOfferControllerGetOfferResponses = {
+  /**
+   * JSON response
+   */
+  201: OfferResponse;
+};
+
+export type VerifierOfferControllerGetOfferResponse =
+  VerifierOfferControllerGetOfferResponses[keyof VerifierOfferControllerGetOfferResponses];
 
 export type HealthControllerCheckData = {
   body?: never;

@@ -7,7 +7,7 @@ import { firstValueFrom } from "rxjs";
 import { Repository } from "typeorm";
 import { v4 } from "uuid";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
-import { ConfigImportService } from "../../../utils/config-import/config-import.service";
+import { ConfigImportService } from "../../../shared/utils/config-import/config-import.service";
 import {
     CryptoImplementationService,
     CryptoType,

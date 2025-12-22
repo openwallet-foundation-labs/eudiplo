@@ -81,14 +81,6 @@
         }
       ]
     },
-    "claimsWebhook": {
-      "description": "Webhook configuration to send result and may receive further information.",
-      "allOf": [
-        {
-          "$ref": "./WebhookConfig.schema.json"
-        }
-      ]
-    },
     "notifyWebhook": {
       "description": "Webhook configuration to send the result of the notification response.",
       "allOf": [
@@ -129,6 +121,14 @@
     "redirectUri": {
       "type": "string",
       "description": "Redirect URI to which the user-agent should be redirected after the presentation is completed."
+    },
+    "parsedWebhook": {
+      "description": "Where to send the claims webhook response.",
+      "allOf": [
+        {
+          "$ref": "./WebhookConfig.schema.json"
+        }
+      ]
     }
   },
   "required": [

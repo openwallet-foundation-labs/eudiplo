@@ -6,7 +6,7 @@ import { JWK, JWSHeaderParameters, JWTPayload } from "jose";
 import { PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm";
 import { TenantEntity } from "../../auth/tenant/entitites/tenant.entity";
-import { ConfigImportService } from "../../utils/config-import/config-import.service";
+import { ConfigImportService } from "../../shared/utils/config-import/config-import.service";
 import { KeyImportDto } from "./dto/key-import.dto";
 import { UpdateKeyDto } from "./dto/key-update.dto";
 import { CertEntity } from "./entities/cert.entity";

@@ -20,7 +20,7 @@ import { UpdateClientDto } from "./dto/update-client.dto";
 /**
  * Controller to manage clients.
  */
-@ApiTags("client")
+@ApiTags("Client")
 @Secured([Role.Clients, Role.Tenants])
 @Controller("client")
 export class ClientController {
@@ -47,6 +47,12 @@ export class ClientController {
         return this.clients.getClient(user.entity!.id, id);
     }
 
+    /**
+     * Get a client's secret by its id
+     * @param id
+     * @param user
+     * @returns
+     */
     @Get(":id/secret")
     getClientSecret(
         @Param("id") id: string,

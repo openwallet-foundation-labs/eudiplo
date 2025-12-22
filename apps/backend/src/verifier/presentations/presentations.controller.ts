@@ -1,110 +1,15 @@
-import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    Param,
-    Post,
-    Req,
-    Res,
-} from "@nestjs/common";
-import { ApiBody, ApiProduces, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { Request, Response } from "express";
-import * as QRCode from "qrcode";
+import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
+import { ApiTags } from "@nestjs/swagger";
 import { Role } from "../../auth/roles/role.enum";
 import { Secured } from "../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../auth/token.decorator";
-import { OfferResponse } from "../../issuer/oid4vci/dto/offer-request.dto";
-import {
-    PresentationRequest,
-    ResponseType,
-} from "../oid4vp/dto/presentation-request.dto";
-import { Oid4vpService } from "../oid4vp/oid4vp.service";
 import { PresentationConfigCreateDto } from "./dto/presentation-config-create.dto";
 import { PresentationsService } from "./presentations.service";
 
-@ApiTags("Presentation management")
-@Controller("presentation-management")
+@ApiTags("Verifier")
+@Controller("verifier/config")
 export class PresentationManagementController {
-    constructor(
-        private readonly presentationsService: PresentationsService,
-        private readonly oid4vpService: Oid4vpService,
-    ) {}
-
-    /**
-     * Create an presentation request that can be sent to the user
-     * @param res
-     * @param body
-     */
-    @ApiResponse({
-        description: "JSON response",
-        status: 201,
-        //TODO: do not use type, otherwhise the response can not deal with both JSON and PNG.
-        type: OfferResponse,
-        content: {
-            "application/json": { schema: { type: "object" } },
-            "image/png": { schema: { type: "string", format: "binary" } },
-        },
-    })
-    @ApiProduces("application/json", "image/png")
-    @ApiBody({
-        type: PresentationRequest,
-        examples: {
-            qrcode: {
-                summary: "QR-Code Example",
-                value: {
-                    response_type: ResponseType.QRCode,
-                    requestId: "pid",
-                },
-            },
-            uri: {
-                summary: "URI",
-                value: {
-                    response_type: ResponseType.URI,
-                    requestId: "pid",
-                },
-            },
-            "dc-api": {
-                summary: "DC API",
-                value: {
-                    response_type: ResponseType.DC_API,
-                    requestId: "pid",
-                },
-            },
-        },
-    })
-    @Secured([Role.PresentationOffer, Role.Presentations])
-    @Post("request")
-    async getOffer(
-        @Req() req: Request,
-        @Res() res: Response,
-        @Body() body: PresentationRequest,
-        @Token() user: TokenPayload,
-    ) {
-        const values = await this.oid4vpService.createRequest(
-            body.requestId,
-            {
-                webhook: body.webhook,
-                redirectUri: body.redirectUri,
-            },
-            user.entity!.id,
-            body.response_type === ResponseType.DC_API,
-            req.get("origin") || req.get("host") || "",
-        );
-        values.uri = `openid4vp://?${values.uri}`;
-        if (body.response_type === ResponseType.QRCode) {
-            // Generate QR code as a PNG buffer.
-            const qrCodeBuffer = await QRCode.toBuffer(values.uri);
-
-            // Set the response content type to image/png
-            res.setHeader("Content-Type", "image/png");
-
-            // Send the QR code image as the response
-            res.send(qrCodeBuffer);
-        } else {
-            res.send(values);
-        }
-    }
+    constructor(private readonly presentationsService: PresentationsService) {}
 
     /**
      * Returns the presentation request configurations.

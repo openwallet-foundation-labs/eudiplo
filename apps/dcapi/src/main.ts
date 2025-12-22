@@ -27,7 +27,7 @@ export default {
       const { access_token } = await tokenRes.json();
 
       // 3. Create presentation request
-      const pmReq = await fetch(`${instance}/presentation-management/request`, {
+      const pmReq = await fetch(`${instance}/verifier/offer`, {
         method: "POST",
         headers: { authorization: `Bearer ${access_token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ requestId: presentationId, response_type: "dc-api" })

@@ -1,9 +1,8 @@
-import { EC_Public } from "../../../well-known/dto/jwks-response.dto";
+import { EC_Public } from "../../../issuer/issuance/oid4vci/well-known/dto/jwks-response.dto";
 
 /**
  * Represents a key entity with its unique identifier, public key, and certificate.
  */
-
 export class KeyObj {
     /**
      * Unique identifier for the key.

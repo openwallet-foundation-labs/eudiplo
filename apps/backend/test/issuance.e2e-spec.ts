@@ -102,7 +102,7 @@ describe("Issuance", () => {
             ),
         );
         await request(app.getHttpServer())
-            .post("/issuer-management/issuance")
+            .post("/issuer/config")
             .trustLocalhost()
             .set("Authorization", `Bearer ${authToken}`)
             .send(issuerConfiguration)
@@ -117,7 +117,7 @@ describe("Issuance", () => {
         );
 
         await request(app.getHttpServer())
-            .post("/issuer-management/credentials")
+            .post("/issuer/credentials")
             .trustLocalhost()
             .set("Authorization", `Bearer ${authToken}`)
             .send(pidCredentialConfiguration)
@@ -129,7 +129,7 @@ describe("Issuance", () => {
         );
 
         await request(app.getHttpServer())
-            .post("/presentation-management")
+            .post("/verifier/config")
             .trustLocalhost()
             .set("Authorization", `Bearer ${authToken}`)
             .send(citizenPresentationConfiguration)
@@ -143,7 +143,7 @@ describe("Issuance", () => {
             ),
         );
         await request(app.getHttpServer())
-            .post("/issuer-management/credentials")
+            .post("/issuer/credentials")
             .trustLocalhost()
             .set("Authorization", `Bearer ${authToken}`)
             .send(citizenCredentialConfiguration)
@@ -201,7 +201,7 @@ describe("Issuance", () => {
 
     test("create oid4vci offer", async () => {
         const res = await request(app.getHttpServer())
-            .post("/issuer-management/offer")
+            .post("/issuer/offer")
             .trustLocalhost()
             .set("Authorization", `Bearer ${authToken}`)
             .send({
@@ -227,7 +227,7 @@ describe("Issuance", () => {
 
     test("ask for an invalid oid4vci offer", async () => {
         await request(app.getHttpServer())
-            .post("/issuer-management/offer")
+            .post("/issuer/offer")
             .trustLocalhost()
             .set("Authorization", `Bearer ${authToken}`)
             .send({
@@ -238,7 +238,7 @@ describe("Issuance", () => {
 
     test("pre authorized code flow", async () => {
         const offerResponse = await request(app.getHttpServer())
-            .post("/issuer-management/offer")
+            .post("/issuer/offer")
             .trustLocalhost()
             .set("Authorization", `Bearer ${authToken}`)
             .send({
@@ -333,7 +333,7 @@ describe("Issuance", () => {
             });
 
         const offerResponse = await request(app.getHttpServer())
-            .post("/issuer-management/offer")
+            .post("/issuer/offer")
             .trustLocalhost()
             .set("Authorization", `Bearer ${authToken}`)
             .send({
@@ -364,7 +364,7 @@ describe("Issuance", () => {
         const town = "Hamburg";
 
         const offerResponse = await request(app.getHttpServer())
-            .post("/issuer-management/offer")
+            .post("/issuer/offer")
             .trustLocalhost()
             .set("Authorization", `Bearer ${authToken}`)
             .send({
@@ -449,7 +449,7 @@ describe("Issuance", () => {
 
     test("authorized code flow", async () => {
         const offerResponse = await request(app.getHttpServer())
-            .post("/issuer-management/offer")
+            .post("/issuer/offer")
             .trustLocalhost()
             .set("Authorization", `Bearer ${authToken}`)
             .send({
@@ -594,7 +594,7 @@ describe("Issuance", () => {
     //TODO: excluded since the new approach should be implemented
     /* test("presentation during issuance", async () => {
         const offerResponse = await request(app.getHttpServer())
-            .post("/issuer-management/offer")
+            .post("/issuer/offer")
             .trustLocalhost()
             .set("Authorization", `Bearer ${authToken}`)
             .send({
