@@ -14,7 +14,7 @@ import { App } from "supertest/types";
 import { beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../src/app.module";
 import { KeyImportDto } from "../src/crypto/key/dto/key-import.dto";
-import { AuthConfig } from "../src/utils/webhook/webhook.dto";
+import { AuthConfig } from "../src/shared/utils/webhook/webhook.dto";
 import {
     PresentationRequest,
     ResponseType,
@@ -62,7 +62,7 @@ describe("Presentation", () => {
      */
     function createPresentationRequest(requestBody: PresentationRequest) {
         return request(app.getHttpServer())
-            .post("/presentation-management/request")
+            .post("/verifier/offer")
             .trustLocalhost()
             .set("Authorization", `Bearer ${authToken}`)
             .send(requestBody);
@@ -205,7 +205,7 @@ describe("Presentation", () => {
         );
 
         await request(app.getHttpServer())
-            .post("/presentation-management")
+            .post("/verifier/config")
             .trustLocalhost()
             .set("Authorization", `Bearer ${authToken}`)
             .send(pidWithNoWebhookCredentialConfiguration)
@@ -220,7 +220,7 @@ describe("Presentation", () => {
         );
 
         await request(app.getHttpServer())
-            .post("/presentation-management")
+            .post("/verifier/config")
             .trustLocalhost()
             .set("Authorization", `Bearer ${authToken}`)
             .send(pidCredentialConfiguration)
@@ -250,7 +250,7 @@ describe("Presentation", () => {
 
     test("ask for an invalid oid4vp offer", async () => {
         await request(app.getHttpServer())
-            .post("/presentation-management/request")
+            .post("/verifier/offer")
             .trustLocalhost()
             .set("Authorization", `Bearer ${authToken}`)
             .send({

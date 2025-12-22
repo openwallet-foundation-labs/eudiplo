@@ -20,7 +20,7 @@ import {
     UpdateDateColumn,
 } from "typeorm";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
-import { WebhookConfig } from "../../../utils/webhook/webhook.dto";
+import { WebhookConfig } from "../../../shared/utils/webhook/webhook.dto";
 import { RegistrationCertificateRequest } from "../dto/vp-request.dto";
 
 /**

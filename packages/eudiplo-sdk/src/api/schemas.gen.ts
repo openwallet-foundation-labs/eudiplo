@@ -557,6 +557,48 @@ export const CertUpdateDtoSchema = {
   required: ["isAccessCert", "isSigningCert"],
 } as const;
 
+export const AuthorizeQueriesSchema = {
+  type: "object",
+  properties: {
+    issuer_state: {
+      type: "string",
+    },
+    response_type: {
+      type: "string",
+    },
+    client_id: {
+      type: "string",
+    },
+    redirect_uri: {
+      type: "string",
+    },
+    resource: {
+      type: "string",
+    },
+    scope: {
+      type: "string",
+    },
+    code_challenge: {
+      type: "string",
+    },
+    code_challenge_method: {
+      type: "string",
+    },
+    dpop_jkt: {
+      type: "string",
+    },
+    request_uri: {
+      type: "string",
+    },
+    auth_session: {
+      type: "string",
+    },
+    state: {
+      type: "string",
+    },
+  },
+} as const;
+
 export const WebHookAuthConfigNoneSchema = {
   type: "object",
   properties: {
@@ -626,375 +668,6 @@ export const WebhookConfigSchema = {
     },
   },
   required: ["auth", "url"],
-} as const;
-
-export const PresentationRequestSchema = {
-  type: "object",
-  properties: {
-    response_type: {
-      type: "string",
-      description:
-        "The type of response expected from the presentation request.",
-      enum: ["qrcode", "uri", "dc-api"],
-    },
-    requestId: {
-      type: "string",
-      description: "Identifier of the presentation configuration",
-    },
-    webhook: {
-      description:
-        "Webhook configuration to receive the response.\nIf not provided, the configured webhook from the configuration will be used.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/WebhookConfig",
-        },
-      ],
-    },
-    redirectUri: {
-      type: "string",
-      description:
-        "Optional redirect URI to which the user-agent should be redirected after the presentation is completed.",
-    },
-  },
-  required: ["response_type", "requestId"],
-} as const;
-
-export const OfferResponseSchema = {
-  type: "object",
-  properties: {
-    uri: {
-      type: "string",
-    },
-    session: {
-      type: "string",
-    },
-  },
-  required: ["uri", "session"],
-} as const;
-
-export const ClaimSchema = {
-  type: "object",
-  properties: {
-    path: {
-      type: "array",
-      items: {
-        type: "string",
-      },
-    },
-  },
-  required: ["path"],
-} as const;
-
-export const TrustedAuthorityQuerySchema = {
-  type: "object",
-  properties: {
-    type: {
-      type: "string",
-      enum: ["aki", "etsi_tl", "openid_federation"],
-    },
-    values: {
-      type: "array",
-      items: {
-        type: "string",
-      },
-    },
-  },
-  required: ["type", "values"],
-} as const;
-
-export const CredentialQuerySchema = {
-  type: "object",
-  properties: {
-    id: {
-      type: "string",
-    },
-    format: {
-      type: "string",
-    },
-    multiple: {
-      type: "boolean",
-    },
-    claims: {
-      type: "array",
-      items: {
-        $ref: "#/components/schemas/Claim",
-      },
-    },
-    meta: {
-      type: "object",
-    },
-    trusted_authorities: {
-      type: "array",
-      items: {
-        $ref: "#/components/schemas/TrustedAuthorityQuery",
-      },
-    },
-  },
-  required: ["id", "format", "meta"],
-} as const;
-
-export const CredentialSetQuerySchema = {
-  type: "object",
-  properties: {
-    options: {
-      type: "array",
-      items: {
-        type: "array",
-        items: {
-          type: "string",
-        },
-      },
-    },
-    required: {
-      type: "boolean",
-    },
-  },
-  required: ["options"],
-} as const;
-
-export const DCQLSchema = {
-  type: "object",
-  properties: {
-    credentials: {
-      type: "array",
-      items: {
-        $ref: "#/components/schemas/CredentialQuery",
-      },
-    },
-    credential_set: {
-      type: "array",
-      items: {
-        $ref: "#/components/schemas/CredentialSetQuery",
-      },
-    },
-  },
-  required: ["credentials"],
-} as const;
-
-export const RegistrationCertificateRequestSchema = {
-  type: "object",
-  properties: {
-    id: {
-      type: "string",
-      description:
-        "Identifier of the registration certificate that got issued.",
-    },
-    body: {
-      type: "object",
-      description:
-        "The body of the registration certificate request containing the necessary details.",
-    },
-  },
-  required: ["body"],
-} as const;
-
-export const PresentationAttachmentSchema = {
-  type: "object",
-  properties: {
-    format: {
-      type: "string",
-    },
-    data: {
-      type: "object",
-    },
-    credential_ids: {
-      type: "array",
-      items: {
-        type: "string",
-      },
-    },
-  },
-  required: ["format", "data"],
-} as const;
-
-export const PresentationConfigSchema = {
-  type: "object",
-  properties: {
-    id: {
-      type: "string",
-      description: "Unique identifier for the VP request.",
-    },
-    tenant: {
-      description: "The tenant that owns this object.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/TenantEntity",
-        },
-      ],
-    },
-    description: {
-      type: "string",
-      description: "Description of the presentation configuration.",
-    },
-    lifeTime: {
-      type: "number",
-      description:
-        "Lifetime how long the presentation request is valid after creation, in seconds.",
-    },
-    dcql_query: {
-      description: "The DCQL query to be used for the VP request.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/DCQL",
-        },
-      ],
-    },
-    registrationCert: {
-      description:
-        "The registration certificate request containing the necessary details.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/RegistrationCertificateRequest",
-        },
-      ],
-    },
-    webhook: {
-      description: "Optional webhook URL to receive the response.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/WebhookConfig",
-        },
-      ],
-    },
-    createdAt: {
-      format: "date-time",
-      type: "string",
-      description: "The timestamp when the VP request was created.",
-    },
-    updatedAt: {
-      format: "date-time",
-      type: "string",
-      description: "The timestamp when the VP request was last updated.",
-    },
-    attached: {
-      description: "Attestation that should be attached",
-      type: "array",
-      items: {
-        $ref: "#/components/schemas/PresentationAttachment",
-      },
-    },
-    redirectUri: {
-      type: "string",
-      description:
-        "Redirect URI to which the user-agent should be redirected after the presentation is completed.",
-    },
-  },
-  required: ["id", "tenant", "dcql_query", "createdAt", "updatedAt"],
-} as const;
-
-export const PresentationConfigCreateDtoSchema = {
-  type: "object",
-  properties: {
-    id: {
-      type: "string",
-      description: "Unique identifier for the VP request.",
-    },
-    description: {
-      type: "string",
-      description: "Description of the presentation configuration.",
-    },
-    lifeTime: {
-      type: "number",
-      description:
-        "Lifetime how long the presentation request is valid after creation, in seconds.",
-    },
-    dcql_query: {
-      description: "The DCQL query to be used for the VP request.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/DCQL",
-        },
-      ],
-    },
-    registrationCert: {
-      description:
-        "The registration certificate request containing the necessary details.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/RegistrationCertificateRequest",
-        },
-      ],
-    },
-    webhook: {
-      description: "Optional webhook URL to receive the response.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/WebhookConfig",
-        },
-      ],
-    },
-    attached: {
-      description: "Attestation that should be attached",
-      type: "array",
-      items: {
-        $ref: "#/components/schemas/PresentationAttachment",
-      },
-    },
-    redirectUri: {
-      type: "string",
-      description:
-        "Redirect URI to which the user-agent should be redirected after the presentation is completed.",
-    },
-  },
-  required: ["id", "dcql_query"],
-} as const;
-
-export const AuthorizationResponseSchema = {
-  type: "object",
-  properties: {
-    response: {
-      type: "string",
-      description: "The response string containing the authorization details.",
-    },
-    sendResponse: {
-      type: "boolean",
-      description:
-        "When set to true, the authorization response will be sent to the client.",
-    },
-  },
-  required: ["response"],
-} as const;
-
-export const AuthorizeQueriesSchema = {
-  type: "object",
-  properties: {
-    issuer_state: {
-      type: "string",
-    },
-    response_type: {
-      type: "string",
-    },
-    client_id: {
-      type: "string",
-    },
-    redirect_uri: {
-      type: "string",
-    },
-    resource: {
-      type: "string",
-    },
-    scope: {
-      type: "string",
-    },
-    code_challenge: {
-      type: "string",
-    },
-    code_challenge_method: {
-      type: "string",
-    },
-    dpop_jkt: {
-      type: "string",
-    },
-    request_uri: {
-      type: "string",
-    },
-    auth_session: {
-      type: "string",
-    },
-    state: {
-      type: "string",
-    },
-  },
 } as const;
 
 export const OfferRequestDtoSchema = {
@@ -1248,32 +921,198 @@ export const StatusUpdateDtoSchema = {
   required: ["sessionId", "status"],
 } as const;
 
-export const NotificationRequestDtoSchema = {
+export const AuthenticationMethodNoneSchema = {
   type: "object",
   properties: {
-    notification_id: {
+    method: {
       type: "string",
-    },
-    event: {
-      type: "object",
+      enum: ["none"],
     },
   },
-  required: ["notification_id", "event"],
+  required: ["method"],
 } as const;
 
-export const ParResponseDtoSchema = {
+export const AuthenticationUrlConfigSchema = {
   type: "object",
   properties: {
-    request_uri: {
+    url: {
       type: "string",
-      description: "The request URI for the Pushed Authorization Request.",
+      description:
+        "The URL used in the OID4VCI authorized code flow.\nThis URL is where users will be redirected for authentication.",
     },
-    expires_in: {
-      type: "number",
-      description: "The expiration time for the request URI in seconds.",
+    webhook: {
+      description:
+        "Optional webhook configuration for authentication callbacks",
+      allOf: [
+        {
+          $ref: "#/components/schemas/WebhookConfig",
+        },
+      ],
     },
   },
-  required: ["request_uri", "expires_in"],
+  required: ["url"],
+} as const;
+
+export const AuthenticationMethodAuthSchema = {
+  type: "object",
+  properties: {
+    method: {
+      type: "string",
+      enum: ["auth"],
+    },
+    config: {
+      $ref: "#/components/schemas/AuthenticationUrlConfig",
+    },
+  },
+  required: ["method", "config"],
+} as const;
+
+export const PresentationDuringIssuanceConfigSchema = {
+  type: "object",
+  properties: {
+    type: {
+      type: "string",
+      description:
+        "Link to the presentation configuration that is relevant for the issuance process",
+    },
+  },
+  required: ["type"],
+} as const;
+
+export const AuthenticationMethodPresentationSchema = {
+  type: "object",
+  properties: {
+    method: {
+      type: "string",
+      enum: ["presentationDuringIssuance"],
+    },
+    config: {
+      $ref: "#/components/schemas/PresentationDuringIssuanceConfig",
+    },
+  },
+  required: ["method", "config"],
+} as const;
+
+export const DisplayLogoSchema = {
+  type: "object",
+  properties: {
+    uri: {
+      type: "string",
+    },
+    alt_text: {
+      type: "string",
+    },
+  },
+  required: ["uri"],
+} as const;
+
+export const DisplayInfoSchema = {
+  type: "object",
+  properties: {
+    name: {
+      type: "string",
+    },
+    locale: {
+      type: "string",
+    },
+    logo: {
+      $ref: "#/components/schemas/DisplayLogo",
+    },
+  },
+} as const;
+
+export const IssuanceConfigSchema = {
+  type: "object",
+  properties: {
+    tenant: {
+      description: "The tenant that owns this object.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/TenantEntity",
+        },
+      ],
+    },
+    authServers: {
+      description: "Authentication server URL for the issuance process.",
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
+    notifyWebhook: {
+      description: "Webhook to send the result of the notification response",
+      allOf: [
+        {
+          $ref: "#/components/schemas/WebhookConfig",
+        },
+      ],
+    },
+    batchSize: {
+      type: "number",
+      description:
+        "Value to determine the amount of credentials that are issued in a batch.\nDefault is 1.",
+    },
+    dPopRequired: {
+      type: "boolean",
+      description:
+        "Indicates whether DPoP is required for the issuance process. Default value is true.",
+    },
+    display: {
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/DisplayInfo",
+      },
+    },
+    createdAt: {
+      format: "date-time",
+      type: "string",
+      description: "The timestamp when the VP request was created.",
+    },
+    updatedAt: {
+      format: "date-time",
+      type: "string",
+      description: "The timestamp when the VP request was last updated.",
+    },
+  },
+  required: ["tenant", "display", "createdAt", "updatedAt"],
+} as const;
+
+export const IssuanceDtoSchema = {
+  type: "object",
+  properties: {
+    authServers: {
+      description: "Authentication server URL for the issuance process.",
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
+    notifyWebhook: {
+      description: "Webhook to send the result of the notification response",
+      allOf: [
+        {
+          $ref: "#/components/schemas/WebhookConfig",
+        },
+      ],
+    },
+    batchSize: {
+      type: "number",
+      description:
+        "Value to determine the amount of credentials that are issued in a batch.\nDefault is 1.",
+    },
+    dPopRequired: {
+      type: "boolean",
+      description:
+        "Indicates whether DPoP is required for the issuance process. Default value is true.",
+    },
+    display: {
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/DisplayInfo",
+      },
+    },
+  },
+  required: ["display"],
 } as const;
 
 export const ClaimsQuerySchema = {
@@ -1296,6 +1135,86 @@ export const ClaimsQuerySchema = {
     },
   },
   required: ["id", "path"],
+} as const;
+
+export const ClaimSchema = {
+  type: "object",
+  properties: {
+    path: {
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
+  },
+  required: ["path"],
+} as const;
+
+export const TrustedAuthorityQuerySchema = {
+  type: "object",
+  properties: {
+    type: {
+      type: "string",
+      enum: ["aki", "etsi_tl", "openid_federation"],
+    },
+    values: {
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
+  },
+  required: ["type", "values"],
+} as const;
+
+export const CredentialQuerySchema = {
+  type: "object",
+  properties: {
+    id: {
+      type: "string",
+    },
+    format: {
+      type: "string",
+    },
+    multiple: {
+      type: "boolean",
+    },
+    claims: {
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/Claim",
+      },
+    },
+    meta: {
+      type: "object",
+    },
+    trusted_authorities: {
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/TrustedAuthorityQuery",
+      },
+    },
+  },
+  required: ["id", "format", "meta"],
+} as const;
+
+export const CredentialSetQuerySchema = {
+  type: "object",
+  properties: {
+    options: {
+      type: "array",
+      items: {
+        type: "array",
+        items: {
+          type: "string",
+        },
+      },
+    },
+    required: {
+      type: "boolean",
+    },
+  },
+  required: ["options"],
 } as const;
 
 export const PolicyCredentialSchema = {
@@ -1673,109 +1592,125 @@ export const CredentialConfigCreateSchema = {
   required: ["id", "config"],
 } as const;
 
-export const AuthenticationMethodNoneSchema = {
+export const NotificationRequestDtoSchema = {
   type: "object",
   properties: {
-    method: {
+    notification_id: {
       type: "string",
-      enum: ["none"],
+    },
+    event: {
+      type: "object",
     },
   },
-  required: ["method"],
+  required: ["notification_id", "event"],
 } as const;
 
-export const AuthenticationUrlConfigSchema = {
+export const ParResponseDtoSchema = {
   type: "object",
   properties: {
-    url: {
+    request_uri: {
       type: "string",
-      description:
-        "The URL used in the OID4VCI authorized code flow.\nThis URL is where users will be redirected for authentication.",
+      description: "The request URI for the Pushed Authorization Request.",
     },
-    webhook: {
-      description:
-        "Optional webhook configuration for authentication callbacks",
-      allOf: [
-        {
-          $ref: "#/components/schemas/WebhookConfig",
-        },
-      ],
+    expires_in: {
+      type: "number",
+      description: "The expiration time for the request URI in seconds.",
     },
   },
-  required: ["url"],
+  required: ["request_uri", "expires_in"],
 } as const;
 
-export const AuthenticationMethodAuthSchema = {
-  type: "object",
-  properties: {
-    method: {
-      type: "string",
-      enum: ["auth"],
-    },
-    config: {
-      $ref: "#/components/schemas/AuthenticationUrlConfig",
-    },
-  },
-  required: ["method", "config"],
-} as const;
-
-export const PresentationDuringIssuanceConfigSchema = {
-  type: "object",
-  properties: {
-    type: {
-      type: "string",
-      description:
-        "Link to the presentation configuration that is relevant for the issuance process",
-    },
-  },
-  required: ["type"],
-} as const;
-
-export const AuthenticationMethodPresentationSchema = {
-  type: "object",
-  properties: {
-    method: {
-      type: "string",
-      enum: ["presentationDuringIssuance"],
-    },
-    config: {
-      $ref: "#/components/schemas/PresentationDuringIssuanceConfig",
-    },
-  },
-  required: ["method", "config"],
-} as const;
-
-export const DisplayLogoSchema = {
+export const OfferResponseSchema = {
   type: "object",
   properties: {
     uri: {
       type: "string",
     },
-    alt_text: {
+    session: {
       type: "string",
     },
   },
-  required: ["uri"],
+  required: ["uri", "session"],
 } as const;
 
-export const DisplayInfoSchema = {
+export const AuthorizationResponseSchema = {
   type: "object",
   properties: {
-    name: {
+    response: {
       type: "string",
+      description: "The response string containing the authorization details.",
     },
-    locale: {
-      type: "string",
-    },
-    logo: {
-      $ref: "#/components/schemas/DisplayLogo",
+    sendResponse: {
+      type: "boolean",
+      description:
+        "When set to true, the authorization response will be sent to the client.",
     },
   },
+  required: ["response"],
 } as const;
 
-export const IssuanceConfigSchema = {
+export const DCQLSchema = {
   type: "object",
   properties: {
+    credentials: {
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/CredentialQuery",
+      },
+    },
+    credential_set: {
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/CredentialSetQuery",
+      },
+    },
+  },
+  required: ["credentials"],
+} as const;
+
+export const RegistrationCertificateRequestSchema = {
+  type: "object",
+  properties: {
+    id: {
+      type: "string",
+      description:
+        "Identifier of the registration certificate that got issued.",
+    },
+    body: {
+      type: "object",
+      description:
+        "The body of the registration certificate request containing the necessary details.",
+    },
+  },
+  required: ["body"],
+} as const;
+
+export const PresentationAttachmentSchema = {
+  type: "object",
+  properties: {
+    format: {
+      type: "string",
+    },
+    data: {
+      type: "object",
+    },
+    credential_ids: {
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
+  },
+  required: ["format", "data"],
+} as const;
+
+export const PresentationConfigSchema = {
+  type: "object",
+  properties: {
+    id: {
+      type: "string",
+      description: "Unique identifier for the VP request.",
+    },
     tenant: {
       description: "The tenant that owns this object.",
       allOf: [
@@ -1784,36 +1719,39 @@ export const IssuanceConfigSchema = {
         },
       ],
     },
-    authServers: {
-      description: "Authentication server URL for the issuance process.",
-      type: "array",
-      items: {
-        type: "string",
-      },
+    description: {
+      type: "string",
+      description: "Description of the presentation configuration.",
     },
-    notifyWebhook: {
-      description: "Webhook to send the result of the notification response",
+    lifeTime: {
+      type: "number",
+      description:
+        "Lifetime how long the presentation request is valid after creation, in seconds.",
+    },
+    dcql_query: {
+      description: "The DCQL query to be used for the VP request.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/DCQL",
+        },
+      ],
+    },
+    registrationCert: {
+      description:
+        "The registration certificate request containing the necessary details.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/RegistrationCertificateRequest",
+        },
+      ],
+    },
+    webhook: {
+      description: "Optional webhook URL to receive the response.",
       allOf: [
         {
           $ref: "#/components/schemas/WebhookConfig",
         },
       ],
-    },
-    batchSize: {
-      type: "number",
-      description:
-        "Value to determine the amount of credentials that are issued in a batch.\nDefault is 1.",
-    },
-    dPopRequired: {
-      type: "boolean",
-      description:
-        "Indicates whether DPoP is required for the issuance process. Default value is true.",
-    },
-    display: {
-      type: "array",
-      items: {
-        $ref: "#/components/schemas/DisplayInfo",
-      },
     },
     createdAt: {
       format: "date-time",
@@ -1825,46 +1763,108 @@ export const IssuanceConfigSchema = {
       type: "string",
       description: "The timestamp when the VP request was last updated.",
     },
-  },
-  required: ["tenant", "display", "createdAt", "updatedAt"],
-} as const;
-
-export const IssuanceDtoSchema = {
-  type: "object",
-  properties: {
-    authServers: {
-      description: "Authentication server URL for the issuance process.",
+    attached: {
+      description: "Attestation that should be attached",
       type: "array",
       items: {
-        type: "string",
+        $ref: "#/components/schemas/PresentationAttachment",
       },
     },
-    notifyWebhook: {
-      description: "Webhook to send the result of the notification response",
+    redirectUri: {
+      type: "string",
+      description:
+        "Redirect URI to which the user-agent should be redirected after the presentation is completed.",
+    },
+  },
+  required: ["id", "tenant", "dcql_query", "createdAt", "updatedAt"],
+} as const;
+
+export const PresentationConfigCreateDtoSchema = {
+  type: "object",
+  properties: {
+    id: {
+      type: "string",
+      description: "Unique identifier for the VP request.",
+    },
+    description: {
+      type: "string",
+      description: "Description of the presentation configuration.",
+    },
+    lifeTime: {
+      type: "number",
+      description:
+        "Lifetime how long the presentation request is valid after creation, in seconds.",
+    },
+    dcql_query: {
+      description: "The DCQL query to be used for the VP request.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/DCQL",
+        },
+      ],
+    },
+    registrationCert: {
+      description:
+        "The registration certificate request containing the necessary details.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/RegistrationCertificateRequest",
+        },
+      ],
+    },
+    webhook: {
+      description: "Optional webhook URL to receive the response.",
       allOf: [
         {
           $ref: "#/components/schemas/WebhookConfig",
         },
       ],
     },
-    batchSize: {
-      type: "number",
-      description:
-        "Value to determine the amount of credentials that are issued in a batch.\nDefault is 1.",
-    },
-    dPopRequired: {
-      type: "boolean",
-      description:
-        "Indicates whether DPoP is required for the issuance process. Default value is true.",
-    },
-    display: {
+    attached: {
+      description: "Attestation that should be attached",
       type: "array",
       items: {
-        $ref: "#/components/schemas/DisplayInfo",
+        $ref: "#/components/schemas/PresentationAttachment",
       },
     },
+    redirectUri: {
+      type: "string",
+      description:
+        "Redirect URI to which the user-agent should be redirected after the presentation is completed.",
+    },
   },
-  required: ["display"],
+  required: ["id", "dcql_query"],
+} as const;
+
+export const PresentationRequestSchema = {
+  type: "object",
+  properties: {
+    response_type: {
+      type: "string",
+      description:
+        "The type of response expected from the presentation request.",
+      enum: ["qrcode", "uri", "dc-api"],
+    },
+    requestId: {
+      type: "string",
+      description: "Identifier of the presentation configuration",
+    },
+    webhook: {
+      description:
+        "Webhook configuration to receive the response.\nIf not provided, the configured webhook from the configuration will be used.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/WebhookConfig",
+        },
+      ],
+    },
+    redirectUri: {
+      type: "string",
+      description:
+        "Optional redirect URI to which the user-agent should be redirected after the presentation is completed.",
+    },
+  },
+  required: ["response_type", "requestId"],
 } as const;
 
 export const FileUploadDtoSchema = {

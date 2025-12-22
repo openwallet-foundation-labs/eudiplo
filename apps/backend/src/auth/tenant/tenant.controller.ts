@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
+import { ApiTags } from "@nestjs/swagger";
 import { Role } from "../roles/role.enum";
 import { Secured } from "../secure.decorator";
 import { CreateTenantDto } from "./dto/create-tenant.dto";
@@ -7,6 +8,7 @@ import { TenantService } from "./tenant.service";
 /**
  * Tenant management controller
  */
+@ApiTags("Tenant")
 @Secured([Role.Tenants])
 @Controller("tenant")
 export class TenantController {

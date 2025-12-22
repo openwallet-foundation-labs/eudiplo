@@ -3,7 +3,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { makeGaugeProvider } from "@willsoto/nestjs-prometheus";
 import { CryptoModule } from "../../crypto/crypto.module";
 import { IssuerModule } from "../../issuer/issuer.module";
-import { StatusListModule } from "../../issuer/status-list/status-list.module";
+import { StatusListModule } from "../../issuer/lifecycle/status/status-list.module";
 import { RegistrarModule } from "../../registrar/registrar.module";
 import { SessionModule } from "../../session/session.module";
 import { ClientModule } from "../client/client.module";
@@ -17,11 +17,11 @@ import { TenantService } from "./tenant.service";
         ClientModule,
         CryptoModule,
         StatusListModule,
-        RegistrarModule,
         SessionModule,
         ClientModule,
         TenantModule,
         IssuerModule,
+        RegistrarModule,
     ],
     providers: [
         TenantService,

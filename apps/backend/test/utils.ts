@@ -1,4 +1,6 @@
 import crypto from "node:crypto";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { INestApplication } from "@nestjs/common";
 import { CallbackContext, Jwk, SignJwtCallback } from "@openid4vc/oauth2";
 import { digest, ES256 } from "@sd-jwt/crypto-nodejs";
@@ -8,6 +10,7 @@ import {
     calculateJwkThumbprint,
     exportJWK,
     importJWK,
+    importPKCS8,
     importX509,
     JWK,
     jwtVerify,
@@ -16,18 +19,87 @@ import {
 import request from "supertest";
 import { Role } from "../src/auth/roles/role.enum";
 
-export async function preparePresentation(kb: Omit<kbPayload, "sd_hash">) {
-    const credential = {
-        privateKey: {
-            kty: "EC",
-            x: "G4EhWbF85dr81MKcKMm9s4aytmfRneCFL37Q1PjB734",
-            y: "TK04sjmKHeLniUAEuezWieV254IVWwGryTfDGOT_L7I",
-            crv: "P-256",
-            d: "dD9hF_qxh4Gulcg4NXvr-_WpHBOrQVAEIaBKUvrcUfM",
+// Load test certificate
+const TEST_CERT_PEM = readFileSync(join(__dirname, "cert.pem"), "utf-8");
+
+const TEST_PRIVATE_KEY_PEM = readFileSync(join(__dirname, "key.pem"), "utf-8");
+
+/**
+ * Converts a PEM certificate to x5c format (DER base64url encoded)
+ * @returns Array of base64url encoded certificate(s) for x5c header
+ */
+export function getTestX5c(): string[] {
+    // Remove PEM headers/footers and newlines
+    const base64Cert = TEST_CERT_PEM.replace(/-----BEGIN CERTIFICATE-----/, "")
+        .replace(/-----END CERTIFICATE-----/, "")
+        .replace(/\s/g, "");
+
+    // Convert base64 to base64url (DER format)
+    const base64url = base64Cert
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=/g, "");
+
+    return [base64url];
+}
+
+async function createCredential(options: { claims: any }) {
+    //create keypair for holder
+    const { privateKeyHolder, publicKeyHolder } =
+        await ES256.generateKeyPair().then((keyPair) => ({
+            privateKeyHolder: keyPair.privateKey,
+            publicKeyHolder: keyPair.publicKey,
+        }));
+
+    // Import the test private key once
+    const privateKey = await importPKCS8(TEST_PRIVATE_KEY_PEM, "ES256");
+
+    const sdjwt = new SDJwtVcInstance({
+        signer: async (data: string) => {
+            const encoder = new TextEncoder();
+            const signature = await globalThis.crypto.subtle.sign(
+                { name: "ECDSA", hash: "SHA-256" },
+                privateKey,
+                encoder.encode(data),
+            );
+
+            return btoa(String.fromCharCode(...new Uint8Array(signature)))
+                .replace(/\+/g, "-")
+                .replace(/\//g, "_")
+                .replace(/=+$/, ""); // Convert to base64url format
         },
-        credential:
-            "eyJ0eXAiOiJkYytzZC1qd3QiLCJ4NWMiOlsiTUlJQllqQ0NBUWlnQXdJQkFnSUJBVEFLQmdncWhrak9QUVFEQWpBV01SUXdFZ1lEVlFRREV3dFNiMjkwSUZSbGJtRnVkREFlRncweU5URXlNVFF5TWpFek5ESmFGdzB5TmpFeU1UUXlNakV6TkRKYU1CWXhGREFTQmdOVkJBTVRDMUp2YjNRZ1ZHVnVZVzUwTUZrd0V3WUhLb1pJemowQ0FRWUlLb1pJemowREFRY0RRZ0FFcG1uOFNLUUtaMHQyekZsclVYekphSnd3UTBXblF4Y1NZb1MvRDZaU0docXN4MzBsTUNpOXc0ajg2ODVkWUpablhKVm1KNVZnclpTQzhIWWcrNUtUYXFOSE1FVXdGQVlEVlIwUkJBMHdDNElKYkc5allXeG9iM04wTUE0R0ExVWREd0VCL3dRRUF3SUZvREFkQmdOVkhRNEVGZ1FVZDhoenFhME5HV0hmUDlVZjNMY2REWjVlR0dFd0NnWUlLb1pJemowRUF3SURTQUF3UlFJaEFQT0pyQVVkZzFvNlJOcUhGQzNjekJVbElMU1haRjU0Z2JQMVJtTlRzc0xjQWlBKzZKYzh6bmdaLzJZa1QwbUZpQ3diTFhuUUtqZW9zVGUvaWZzNXBXRVBGdz09Il0sImFsZyI6IkVTMjU2In0.eyJpYXQiOjE3NjU3NTA0MjMsImV4cCI6MTc2NjM1NTIyMywidmN0IjoiaHR0cDovL2xvY2FsaG9zdDozMDAwL3Jvb3QvY3JlZGVudGlhbHMtbWV0YWRhdGEvdmN0L3BpZCIsImNuZiI6eyJqd2siOnsia3R5IjoiRUMiLCJjcnYiOiJQLTI1NiIsIngiOiJHNEVoV2JGODVkcjgxTUtjS01tOXM0YXl0bWZSbmVDRkwzN1ExUGpCNzM0IiwieSI6IlRLMDRzam1LSGVMbmlVQUV1ZXpXaWVWMjU0SVZXd0dyeVRmREdPVF9MN0kifX0sIl9zZCI6WyI4M0VSUHVEUWtKTmlpM2dNNll0a1lLMFhXdlNTU0p6N05UZ2JqcW92VWk4IiwiQTFfUHloVWNleGdZQkNYdDMtcVc1Y0pYbnFBMUFwZlN5ZjJQb084VVB0dyIsIkE2SHJlalRRbU5lZkRSSU1iZ0FNWnlCQ0hOdVY3N2YzLTB5Sk01dG5uZ1EiLCJGckdpVHVGQzI2a2RnYjZ4RWtsUlZZLXhfQlVkd3lTWFpUU1M4R1hWWTVvIiwiRnQ4amxXYlRLTHZJc1h1dmMycGhhVF9vWjRxckpWdWxWSEQ5dTFvTnNvayIsIkxJWWNiNDVBYzFoVy14cEJ2RVVnU1RzaXQtSFFFRnUtcDJEdk9KYVV4aU0iLCJNQy0xLUx6bnJIa0JhVzZRaktMSWNBN0VtYnBNUjc4WWJ4N05vWXBpZ3dFIiwiVVJxSGtYSXhBRHVNZGtHX1drbm9oSE1BaWQyWlJyaXAzeHFVN0NzcWNWUSIsImZfYUc3cUxQSHIwTjZnX3M0Rk5kYzVoZUJ1YUd2d2RCbW05dmpoVm10VjgiLCJoOGZCVFFkUWdLSm9YZUY5QldnbGdQMVIzNU1LLWI3aDc4ckEydEtzd2hZIiwidWVkV01uZjBnZ3dKYWdrR2JqVkFZYWg1RDZBdXZTX2s1TlhkeXJpN3BiWSIsInZaZC1SOUFGdG9veWdFSmltUmVzeEJIVEw2SGsyWnFrUjNvQTZJZ3VIWHciXSwiX3NkX2FsZyI6InNoYS0yNTYifQ.lb7QleBAHwUkpO5HkZtd4-rrD6xr4Ze1sN0sHuLeDgPpx4Nx8INnZ5c-iU5irFe-bIxi-LfRToSb28yXYFlbew~WyI2ODgzOWExYTYwOTM1YzZjIiwibG9jYWxpdHkiLCJLw5ZMTiJd~WyI3NGY5N2RkYTJhMzI1M2QwIiwicG9zdGFsX2NvZGUiLCI1MTE0NyJd~WyIxOTkyMDg0MmFhMTY5M2I4Iiwic3RyZWV0X2FkZHJlc3MiLCJIRUlERVNUUkHhup5FIDE3Il0~WyJiM2E0MzlhNTc4YzliN2UwIiwiaXNzdWluZ19jb3VudHJ5IiwiREUiXQ~WyIwYTg3M2U3MTYxODY0YjAyIiwiaXNzdWluZ19hdXRob3JpdHkiLCJERSJd~WyJlMmI1Yzc4MTlkYTMzMTA1IiwiZ2l2ZW5fbmFtZSIsIkVSSUtBIl0~WyI3NmUyMTg0OGMyN2NmOThkIiwiZmFtaWx5X25hbWUiLCJNVVNURVJNQU5OIl0~WyJlYWViOGIyOWRjZjUyN2YwIiwiYmlydGhfZmFtaWx5X25hbWUiLCJHQUJMRVIiXQ~WyI4MjE2YjMxZjJlZWRiNTNjIiwiYmlydGhkYXRlIiwiMTk2NC0wOC0xMiJd~WyI3NTMzYWE2MDMwYWZhOTQzIiwiYWdlX2JpcnRoX3llYXIiLDE5NjRd~WyJiODVlNmU5ZGJiYjk5YzU2IiwiYWdlX2luX3llYXJzIiw1OV0~WyIzZTFjYmEyNWI3YWE3MDdmIiwiYWdlX2VxdWFsX29yX292ZXIiLHsiMTIiOnRydWUsIjE0Ijp0cnVlLCIxNiI6dHJ1ZSwiMTgiOnRydWUsIjIxIjp0cnVlLCI2NSI6ZmFsc2V9XQ~WyJkODYxZjIzODY0OGVlYTFkIiwicGxhY2Vfb2ZfYmlydGgiLHsibG9jYWxpdHkiOiJCRVJMSU4ifV0~WyI0OTNjODA4MjE5MTBmY2FjIiwiYWRkcmVzcyIseyJfc2QiOlsiZ3k5dFg1cHBfdE5iMzM4OWdfN3phZEJLQkRKNnNkZS1kTmg4ZUdQMXBMVSIsImhXMENVVFFuNlhMaXc2R3FpQ2RaQThiUTRMeUthUExiYktMLUloTGhFYTQiLCJ2NVZUZndsMGZueUh6QWZ2M1BvT2JsUk9VREJVall2QVhBdER2cUpHZ0dzIl19XQ~WyI5ZWExM2E3MDBlMTlkOGUwIiwibmF0aW9uYWxpdGllcyIsWyJERSJdXQ~",
-    };
+        signAlg: "ES256",
+        hasher: digest,
+        loadTypeMetadataFormat: true,
+        saltGenerator: (length: number) =>
+            crypto.randomBytes(length).toString("base64url"),
+    });
+
+    const x5c = getTestX5c();
+
+    return sdjwt
+        .issue(
+            {
+                ...options.claims,
+                cnf: { jwk: publicKeyHolder },
+            },
+            undefined,
+            {
+                header: {
+                    x5c,
+                },
+            },
+        )
+        .then((credential) => ({
+            credential: credential,
+            privateKey: privateKeyHolder,
+        }));
+}
+
+export async function preparePresentation(kb: Omit<kbPayload, "sd_hash">) {
+    const credential = await createCredential({
+        vct: "http://localhost:3000/root/credentials-metadata/vct/pid",
+    });
 
     const sdjwt = new SDJwtVcInstance({
         hasher: digest,

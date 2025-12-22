@@ -9,7 +9,7 @@ import {
     FileStorage,
     StoredObject,
 } from "../storage/storage.types";
-import { ConfigImportService } from "../utils/config-import/config-import.service";
+import { ConfigImportService } from "../shared/utils/config-import/config-import.service";
 import { FileEntity } from "./entities/files.entity";
 
 @Injectable()

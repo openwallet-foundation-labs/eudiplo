@@ -5,6 +5,7 @@ import { RegistrarModule } from "../registrar/registrar.module";
 import { SessionModule } from "../session/session.module";
 import { Oid4vpModule } from "./oid4vp/oid4vp.module";
 import { PresentationsModule } from "./presentations/presentations.module";
+import { VerifierOfferController } from "./verifier-offer/verifier-offer.controller";
 
 @Module({
     imports: [
@@ -15,5 +16,6 @@ import { PresentationsModule } from "./presentations/presentations.module";
         PresentationsModule,
         Oid4vpModule,
     ],
+    controllers: [VerifierOfferController],
 })
 export class VerifierModule {}

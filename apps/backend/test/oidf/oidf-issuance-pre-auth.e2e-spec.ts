@@ -8,6 +8,12 @@ import https from "https";
 import { join, resolve } from "path";
 import { beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../../src/app.module";
+import {
+    FlowType,
+    OfferRequestDto,
+    OfferResponse,
+} from "../../src/issuer/issuance/oid4vci/dto/offer-request.dto";
+import { ResponseType } from "../../src/verifier/oid4vp/dto/presentation-request.dto";
 import { getDefaultSecret } from "../utils";
 import { OIDFSuite } from "./oidf-suite";
 
@@ -32,6 +38,8 @@ describe("OIDF - issuance - pre auth", () => {
     });
 
     const oidfSuite = new OIDFSuite(OIDF_URL, OIDF_DEMO_TOKEN);
+
+    const tx_code = "1234";
 
     beforeAll(async () => {
         const planId = "oid4vci-1_0-issuer-test-plan";
@@ -124,7 +132,7 @@ describe("OIDF - issuance - pre auth", () => {
                 },
                 client_attestation_issuer:
                     "https://client-attester.example.org/",
-                static_tx_code: "1234",
+                static_tx_code: tx_code,
             },
         };
 
@@ -210,12 +218,17 @@ describe("OIDF - issuance - pre auth", () => {
         );
 
         // Request an issuance offer from the local backend
-        const offerResponse = await axiosBackendInstance.post<{ uri: string }>(
-            `/issuer-management/offer`,
+        const offerResponse = await axiosBackendInstance.post<
+            OfferResponse,
+            axios.AxiosResponse<OfferResponse, OfferRequestDto>,
+            OfferRequestDto
+        >(
+            "/issuer/offer",
             {
-                response_type: "uri",
+                response_type: ResponseType.URI,
                 credentialConfigurationIds: ["pid"],
-                flow: "pre_authorized_code",
+                flow: FlowType.PRE_AUTH_CODE,
+                tx_code,
             },
             {
                 headers: {
@@ -258,12 +271,17 @@ describe("OIDF - issuance - pre auth", () => {
         );
 
         // Request an issuance offer from the local backend
-        const offerResponse = await axiosBackendInstance.post<{ uri: string }>(
-            `/issuer-management/offer`,
+        const offerResponse = await axiosBackendInstance.post<
+            OfferResponse,
+            axios.AxiosResponse<OfferResponse, OfferRequestDto>,
+            OfferRequestDto
+        >(
+            "/issuer/offer",
             {
-                response_type: "uri",
+                response_type: ResponseType.URI,
                 credentialConfigurationIds: ["pid"],
-                flow: "pre_authorized_code",
+                flow: FlowType.PRE_AUTH_CODE,
+                tx_code,
             },
             {
                 headers: {

@@ -16,21 +16,20 @@ The system uses two separate endpoints for the two-layer configuration:
 ### Credential Configurations
 
 To manage individual credential configurations, use the
-`/issuer-management/credentials` endpoint. This endpoint handles the definition
+`/issuer/credentials` endpoint. This endpoint handles the definition
 of credential types, their formats, claims, and display properties.
 
 ### Issuance Configuration
 
-To manage the issuance flow, use the `/issuer-management/issuance` endpoint. This endpoint
-handles grouping credentials and defining authorization or webhooks.
+The endpoints to manage issuance configuration can be found in the [API documentation](../../api/openapi.md#issuer) section.
 
-Based on your passed access token, both endpoints will be scoped to the tenant ID of the
+Based on your passed access token, endpoints will be scoped to the tenant ID of the
 token. You also need the `issuance:manage` role to access these endpoints.
 The configurations are internally stored in a database.
 
 ### Creating Credential Offers
 
-Via the [credential offer endpoint](http://localhost:8000/api/openapi/#post-issuer-managementoffer) you can create a credential offer that can be presented to the user.
+Via the [credential offer endpoint](../../api/openapi.md#post-issueroffer) you can create a credential offer that can be presented to the user.
 When creating an offer, you can:
 
 1. **Define the flow** - Either go with the pre authorized flow or require user

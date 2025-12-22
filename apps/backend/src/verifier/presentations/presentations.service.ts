@@ -10,11 +10,11 @@ import { SDJwtVcInstance } from "@sd-jwt/sd-jwt-vc";
 import { KbVerifier, Verifier } from "@sd-jwt/types";
 import { plainToClass } from "class-transformer";
 import { readFileSync } from "fs";
-import { JWK, JWTPayload } from "jose";
+import { JWK } from "jose";
 import { firstValueFrom } from "rxjs";
 import { Repository } from "typeorm";
 import { CryptoImplementationService } from "../../crypto/key/crypto-implementation/crypto-implementation.service";
-import { ConfigImportService } from "../../utils/config-import/config-import.service";
+import { ConfigImportService } from "../../shared/utils/config-import/config-import.service";
 import { ResolverService } from "../resolver/resolver.service";
 import { AuthResponse } from "./dto/auth-response.dto";
 import { PresentationConfigCreateDto } from "./dto/presentation-config-create.dto";
@@ -184,12 +184,8 @@ export class PresentationsService implements OnApplicationBootstrap {
             hasher: digest,
         });
         const decodedVC = await instance.decode(`${data}.${signature}`);
-        const payload = decodedVC.jwt?.payload as JWTPayload;
         const header = decodedVC.jwt?.header as JWK;
-        const publicKey = await this.resolverService.resolvePublicKey(
-            payload,
-            header,
-        );
+        const publicKey = await this.resolverService.resolvePublicKey(header);
         const crypto = this.cryptoService.getCryptoFromJwk(publicKey); // just to check if we support the key
         const verify = await crypto.getVerifier(publicKey);
         return verify(data, signature).catch((err) => {

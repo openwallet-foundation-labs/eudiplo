@@ -6,7 +6,7 @@ import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { writeFileSync } from "fs";
 import { cleanupOpenApiDoc } from "nestjs-zod";
 import { AppModule } from "./app.module";
-import { ValidationErrorFilter } from "./common/filters/validation-error.filter";
+import { ValidationErrorFilter } from "./shared/common/filters/validation-error.filter";
 
 /**
  * Bootstrap function to initialize the NestJS application.

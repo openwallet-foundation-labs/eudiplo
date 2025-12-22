@@ -5,23 +5,19 @@ import { MulterModule } from "@nestjs/platform-express";
 import { ScheduleModule } from "@nestjs/schedule";
 import { memoryStorage } from "multer";
 import { LoggerModule } from "nestjs-pino";
-import { AppController } from "./app/app.controller";
 import { AuthModule } from "./auth/auth.module";
+import { CoreModule } from "./core/core.module";
 import { CryptoModule } from "./crypto/crypto.module";
 import { KeyModule } from "./crypto/key/key.module";
 import { DatabaseModule } from "./database/database.module";
-import { HealthModule } from "./health/health.module";
 import { IssuerModule } from "./issuer/issuer.module";
-import { MetricModule } from "./metric/metric.module";
 import { RegistrarModule } from "./registrar/registrar.module";
 import { SessionModule } from "./session/session.module";
+import { ConfigImportModule } from "./shared/utils/config-import/config-import.module";
+import { VALIDATION_SCHEMA } from "./shared/utils/config-printer/combined.schema";
+import { createLoggerOptions } from "./shared/utils/logger/logger.factory";
 import { StorageModule } from "./storage/storage.module";
-import { ConfigImportModule } from "./utils/config-import/config-import.module";
-import { VALIDATION_SCHEMA } from "./utils/config-printer/combined.schema";
-import { createLoggerOptions } from "./utils/logger/logger.factory";
 import { VerifierModule } from "./verifier/verifier.module";
-import { WellKnownController } from "./well-known/well-known.controller";
-import { WellKnownService } from "./well-known/well-known.service";
 
 @Module({
     imports: [
@@ -38,6 +34,7 @@ import { WellKnownService } from "./well-known/well-known.service";
             inject: [ConfigService],
             useFactory: createLoggerOptions,
         }),
+        CoreModule,
         AuthModule,
         KeyModule.forRoot(),
         MulterModule.register({
@@ -51,12 +48,10 @@ import { WellKnownService } from "./well-known/well-known.service";
         DatabaseModule,
         SessionModule,
         DatabaseModule,
-        HealthModule,
-        MetricModule,
         StorageModule.forRoot(),
         ConfigImportModule,
     ],
-    controllers: [WellKnownController, AppController],
-    providers: [WellKnownService],
+    controllers: [],
+    providers: [],
 })
 export class AppModule {}

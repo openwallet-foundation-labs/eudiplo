@@ -77,7 +77,6 @@ EUDIPLO is distributed as a Docker container and can be configured in minutes.
 ```shell
 docker run -p 3000:3000 \
   -e PUBLIC_URL=https://example.com \
-  -e JWT_SECRET=your-secret-key-here-minimum-32-characters \
   ghcr.io/openwallet-foundation-labs/eudiplo:latest
 ```
 

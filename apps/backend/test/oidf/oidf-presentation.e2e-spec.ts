@@ -180,7 +180,7 @@ describe("OIDF", () => {
             uri: string;
             session: string;
         }>(
-            `/presentation-management/request`,
+            `/verifier/offer`,
             {
                 response_type: "uri",
                 requestId: "pid-no-hook",
