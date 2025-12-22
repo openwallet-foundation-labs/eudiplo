@@ -3,12 +3,12 @@ import { ApiParam, ApiTags } from "@nestjs/swagger";
 import { Role } from "../auth/roles/role.enum";
 import { Secured } from "../auth/secure.decorator";
 import { Token, TokenPayload } from "../auth/token.decorator";
-import { StatusUpdateDto } from "../issuer/status-list/dto/status-update.dto";
-import { StatusListService } from "../issuer/status-list/status-list.service";
+import { StatusUpdateDto } from "../issuer/lifecycle/status/dto/status-update.dto";
+import { StatusListService } from "../issuer/lifecycle/status/status-list.service";
 import { Session } from "./entities/session.entity";
 import { SessionService } from "./session.service";
 
-@ApiTags("Session management")
+@ApiTags("Session")
 @Secured([Role.IssuanceOffer, Role.PresentationOffer])
 @Controller("session")
 export class SessionController {

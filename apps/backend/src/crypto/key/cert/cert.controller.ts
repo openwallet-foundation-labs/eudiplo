@@ -8,7 +8,7 @@ import {
     Post,
     Query,
 } from "@nestjs/common";
-import { ApiQuery } from "@nestjs/swagger";
+import { ApiQuery, ApiTags } from "@nestjs/swagger";
 import { Role } from "../../../auth/roles/role.enum";
 import { Secured } from "../../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../../auth/token.decorator";
@@ -22,6 +22,7 @@ import { CertService } from "./cert.service";
 /**
  * Controller for managing certificates.
  */
+@ApiTags("Certificate")
 @Secured([Role.Issuances, Role.Presentations])
 @Controller("certs")
 export class CertController {

@@ -1,9 +1,9 @@
 import { HttpModule } from "@nestjs/axios";
-import { forwardRef, Module } from "@nestjs/common";
+import { Module } from "@nestjs/common";
 import { CryptoModule } from "../../crypto/crypto.module";
 import { RegistrarModule } from "../../registrar/registrar.module";
 import { SessionModule } from "../../session/session.module";
-import { WebhookService } from "../../utils/webhook/webhook.service";
+import { WebhookService } from "../../shared/utils/webhook/webhook.service";
 import { PresentationsModule } from "../presentations/presentations.module";
 import { Oid4vpController } from "./oid4vp.controller";
 import { Oid4vpService } from "./oid4vp.service";
@@ -11,10 +11,10 @@ import { Oid4vpService } from "./oid4vp.service";
 @Module({
     imports: [
         CryptoModule,
-        forwardRef(() => RegistrarModule),
-        forwardRef(() => PresentationsModule),
+        RegistrarModule,
         SessionModule,
         HttpModule,
+        PresentationsModule,
     ],
     controllers: [Oid4vpController],
     providers: [Oid4vpService, WebhookService],

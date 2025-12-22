@@ -18,18 +18,61 @@
       ],
       "description": "The type of response expected for the offer request."
     },
-    "claims": {
+    "credentialClaims": {
       "type": "object",
-      "description": "Override the default values for the credential claims.",
-      "properties": {},
-      "examples": [
-        {
-          "pid": {
-            "given_name": "ERIKA",
-            "family_name": "MUSTERMANN"
+      "description": "Credential claims configuration per credential. Keys must match credentialConfigurationIds.",
+      "properties": {
+        "additionalProperties": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "inline"
+                  ]
+                },
+                "claims": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "required": [
+                "type",
+                "claims"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "webhook"
+                  ]
+                },
+                "webhook": {
+                  "type": "object"
+                }
+              },
+              "required": [
+                "type",
+                "webhook"
+              ]
+            }
+          ]
+        }
+      },
+      "example": {
+        "citizen": {
+          "type": "inline",
+          "claims": {
+            "given_name": "John",
+            "family_name": "Doe"
           }
         }
-      ]
+      }
     },
     "flow": {
       "description": "The flow type for the offer request.",
@@ -49,14 +92,6 @@
       "items": {
         "type": "string"
       }
-    },
-    "claimWebhook": {
-      "description": "Webhooks to fetch the claims dynamically.",
-      "allOf": [
-        {
-          "$ref": "./WebhookConfig.schema.json"
-        }
-      ]
     },
     "notifyWebhook": {
       "description": "Webhook to notify about the status of the issuance process.",

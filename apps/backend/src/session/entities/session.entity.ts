@@ -13,9 +13,9 @@ import {
     UpdateDateColumn,
 } from "typeorm";
 import { TenantEntity } from "../../auth/tenant/entitites/tenant.entity";
-import { AuthorizeQueries } from "../../issuer/authorize/dto/authorize-request.dto";
-import { OfferRequestDto } from "../../issuer/oid4vci/dto/offer-request.dto";
-import { WebhookConfig } from "../../utils/webhook/webhook.dto";
+import { AuthorizeQueries } from "../../issuer/issuance/oid4vci/authorize/dto/authorize-request.dto";
+import { OfferRequestDto } from "../../issuer/issuance/oid4vci/dto/offer-request.dto";
+import { WebhookConfig } from "../../shared/utils/webhook/webhook.dto";
 
 export enum SessionStatus {
     Active = "active",

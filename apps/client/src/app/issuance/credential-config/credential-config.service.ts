@@ -2,10 +2,10 @@ import { Injectable } from '@angular/core';
 import {
   CredentialConfig,
   CredentialConfigCreate,
-  credentialsControllerDeleteIssuanceConfiguration,
-  credentialsControllerGetConfigById,
-  credentialsControllerGetConfigs,
-  credentialsControllerStoreCredentialConfiguration,
+  credentialConfigControllerDeleteIssuanceConfiguration,
+  credentialConfigControllerGetConfigById,
+  credentialConfigControllerGetConfigs,
+  credentialConfigControllerStoreCredentialConfiguration,
 } from '@eudiplo/sdk';
 
 @Injectable({
@@ -13,7 +13,7 @@ import {
 })
 export class CredentialConfigService {
   getConfig(configId: string) {
-    return credentialsControllerGetConfigById({ path: { id: configId } }).then(
+    return credentialConfigControllerGetConfigById({ path: { id: configId } }).then(
       (response) => response.data
     );
   }
@@ -22,7 +22,7 @@ export class CredentialConfigService {
    * Load all existing credential configurations
    */
   async loadConfigurations(): Promise<CredentialConfig[]> {
-    const response = await credentialsControllerGetConfigs();
+    const response = await credentialConfigControllerGetConfigs();
     return response.data || [];
   }
 
@@ -30,7 +30,7 @@ export class CredentialConfigService {
    * Save or update a credential configuration
    */
   async saveConfiguration(config: CredentialConfigCreate): Promise<any> {
-    return credentialsControllerStoreCredentialConfiguration({
+    return credentialConfigControllerStoreCredentialConfiguration({
       body: config,
     });
   }
@@ -39,7 +39,7 @@ export class CredentialConfigService {
    * Delete a credential configuration
    */
   async deleteConfiguration(configId: string): Promise<any> {
-    return credentialsControllerDeleteIssuanceConfiguration({
+    return credentialConfigControllerDeleteIssuanceConfiguration({
       path: { id: configId },
     });
   }

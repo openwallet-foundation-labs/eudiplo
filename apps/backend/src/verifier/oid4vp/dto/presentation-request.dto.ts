@@ -1,5 +1,5 @@
 import { IsEnum, IsObject, IsOptional, IsString } from "class-validator";
-import { WebhookConfig } from "../../../utils/webhook/webhook.dto";
+import { WebhookConfig } from "../../../shared/utils/webhook/webhook.dto";
 
 /**
  * Enum for the type of response expected from the presentation request.

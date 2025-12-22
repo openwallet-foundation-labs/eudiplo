@@ -6,7 +6,6 @@ import { Repository } from "typeorm";
 import { TenantEntity } from "../auth/tenant/entitites/tenant.entity";
 import { CryptoService } from "../crypto/crypto.service";
 import { RegistrationCertificateRequest } from "../verifier/presentations/dto/vp-request.dto";
-import { PresentationsService } from "../verifier/presentations/presentations.service";
 import { RegistrarEntity } from "./entities/registrar.entity";
 import {
     accessCertificateControllerRegister,
@@ -44,7 +43,6 @@ export class RegistrarService implements OnModuleInit {
     constructor(
         private configService: ConfigService,
         private cryptoService: CryptoService,
-        private presentationsService: PresentationsService,
         @InjectRepository(RegistrarEntity)
         private registrarRepository: Repository<RegistrarEntity>,
     ) {}
@@ -259,7 +257,7 @@ export class RegistrarService implements OnModuleInit {
                 rp: entry.relyingPartyId,
             },
             body: req.body,
-        }).then(async (res) => {
+        }).then((res) => {
             if (res.error) {
                 console.error(
                     "Error adding registration certificate:",
@@ -269,11 +267,11 @@ export class RegistrarService implements OnModuleInit {
             }
 
             //TODO: write the ID to the config so its easier to use it. Easier than writing the comparison algorithm (any maybe someone wants to use a different one)
-            await this.presentationsService.storeRCID(
+            /*             await this.presentationsService.storeRCID(
                 res.data!["id"],
                 requestId,
                 tenantId,
-            );
+            ); */
             return res.data!["jwt"];
         });
     }

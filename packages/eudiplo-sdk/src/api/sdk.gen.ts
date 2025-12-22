@@ -49,25 +49,23 @@ import type {
   ClientControllerGetClientsResponses,
   ClientControllerUpdateClientData,
   ClientControllerUpdateClientResponses,
-  CredentialsControllerDeleteIssuanceConfigurationData,
-  CredentialsControllerDeleteIssuanceConfigurationResponses,
-  CredentialsControllerGetConfigByIdData,
-  CredentialsControllerGetConfigByIdResponses,
-  CredentialsControllerGetConfigsData,
-  CredentialsControllerGetConfigsResponses,
-  CredentialsControllerStoreCredentialConfigurationData,
-  CredentialsControllerStoreCredentialConfigurationResponses,
-  CredentialsMetadataControllerVctData,
-  CredentialsMetadataControllerVctResponses,
+  CredentialConfigControllerDeleteIssuanceConfigurationData,
+  CredentialConfigControllerDeleteIssuanceConfigurationResponses,
+  CredentialConfigControllerGetConfigByIdData,
+  CredentialConfigControllerGetConfigByIdResponses,
+  CredentialConfigControllerGetConfigsData,
+  CredentialConfigControllerGetConfigsResponses,
+  CredentialConfigControllerStoreCredentialConfigurationData,
+  CredentialConfigControllerStoreCredentialConfigurationResponses,
+  CredentialOfferControllerGetOfferData,
+  CredentialOfferControllerGetOfferResponses,
   HealthControllerCheckData,
   HealthControllerCheckErrors,
   HealthControllerCheckResponses,
-  IssuanceControllerGetIssuanceConfigurationsData,
-  IssuanceControllerGetIssuanceConfigurationsResponses,
-  IssuanceControllerStoreIssuanceConfigurationData,
-  IssuanceControllerStoreIssuanceConfigurationResponses,
-  IssuerManagementControllerGetOfferData,
-  IssuerManagementControllerGetOfferResponses,
+  IssuanceConfigControllerGetIssuanceConfigurationsData,
+  IssuanceConfigControllerGetIssuanceConfigurationsResponses,
+  IssuanceConfigControllerStoreIssuanceConfigurationData,
+  IssuanceConfigControllerStoreIssuanceConfigurationResponses,
   KeyControllerAddKeyData,
   KeyControllerAddKeyResponses,
   KeyControllerDeleteKeyData,
@@ -84,6 +82,8 @@ import type {
   Oid4VciControllerNonceResponses,
   Oid4VciControllerNotificationsData,
   Oid4VciControllerNotificationsResponses,
+  Oid4VciMetadataControllerVctData,
+  Oid4VciMetadataControllerVctResponses,
   Oid4VpControllerGetPostRequestWithSessionData,
   Oid4VpControllerGetPostRequestWithSessionResponses,
   Oid4VpControllerGetRequestWithSessionData,
@@ -94,8 +94,6 @@ import type {
   PresentationManagementControllerConfigurationResponses,
   PresentationManagementControllerDeleteConfigurationData,
   PresentationManagementControllerDeleteConfigurationResponses,
-  PresentationManagementControllerGetOfferData,
-  PresentationManagementControllerGetOfferResponses,
   PresentationManagementControllerStorePresentationConfigData,
   PresentationManagementControllerStorePresentationConfigResponses,
   PrometheusControllerIndexData,
@@ -122,18 +120,14 @@ import type {
   TenantControllerGetTenantsResponses,
   TenantControllerInitTenantData,
   TenantControllerInitTenantResponses,
-  WellKnownControllerAuthzMetadata0Data,
-  WellKnownControllerAuthzMetadata0Responses,
-  WellKnownControllerAuthzMetadata1Data,
-  WellKnownControllerAuthzMetadata1Responses,
-  WellKnownControllerGetJwks0Data,
-  WellKnownControllerGetJwks0Responses,
-  WellKnownControllerGetJwks1Data,
-  WellKnownControllerGetJwks1Responses,
-  WellKnownControllerIssuerMetadata0Data,
-  WellKnownControllerIssuerMetadata0Responses,
-  WellKnownControllerIssuerMetadata1Data,
-  WellKnownControllerIssuerMetadata1Responses,
+  VerifierOfferControllerGetOfferData,
+  VerifierOfferControllerGetOfferResponses,
+  WellKnownControllerAuthzMetadataData,
+  WellKnownControllerAuthzMetadataResponses,
+  WellKnownControllerGetJwksData,
+  WellKnownControllerGetJwksResponses,
+  WellKnownControllerIssuerMetadataData,
+  WellKnownControllerIssuerMetadataResponses,
 } from "./types.gen";
 
 export type Options<
@@ -158,89 +152,46 @@ export type Options<
  *
  * Returns the OpenID4VCI issuer metadata.
  */
-export const wellKnownControllerIssuerMetadata0 = <
+export const wellKnownControllerIssuerMetadata = <
   ThrowOnError extends boolean = true,
 >(
-  options: Options<WellKnownControllerIssuerMetadata0Data, ThrowOnError>,
+  options: Options<WellKnownControllerIssuerMetadataData, ThrowOnError>,
 ) =>
   (options.client ?? client).get<
-    WellKnownControllerIssuerMetadata0Responses,
+    WellKnownControllerIssuerMetadataResponses,
     unknown,
     ThrowOnError
   >({ url: "/.well-known/openid-credential-issuer/{tenantId}", ...options });
 
 /**
- * Get OpenID4VCI issuer metadata
- *
- * Returns the OpenID4VCI issuer metadata.
- */
-export const wellKnownControllerIssuerMetadata1 = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<WellKnownControllerIssuerMetadata1Data, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    WellKnownControllerIssuerMetadata1Responses,
-    unknown,
-    ThrowOnError
-  >({ url: "/{tenantId}/.well-known/openid-credential-issuer", ...options });
-
-/**
  * Authorization Server Metadata
  */
-export const wellKnownControllerAuthzMetadata0 = <
+export const wellKnownControllerAuthzMetadata = <
   ThrowOnError extends boolean = true,
 >(
-  options: Options<WellKnownControllerAuthzMetadata0Data, ThrowOnError>,
+  options: Options<WellKnownControllerAuthzMetadataData, ThrowOnError>,
 ) =>
   (options.client ?? client).get<
-    WellKnownControllerAuthzMetadata0Responses,
+    WellKnownControllerAuthzMetadataResponses,
     unknown,
     ThrowOnError
   >({ url: "/.well-known/oauth-authorization-server/{tenantId}", ...options });
 
 /**
- * Authorization Server Metadata
- */
-export const wellKnownControllerAuthzMetadata1 = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<WellKnownControllerAuthzMetadata1Data, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    WellKnownControllerAuthzMetadata1Responses,
-    unknown,
-    ThrowOnError
-  >({ url: "/{tenantId}/.well-known/oauth-authorization-server", ...options });
-
-/**
  * Returns the JSON Web Key Set (JWKS) for the authorization server.
  */
-export const wellKnownControllerGetJwks0 = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<WellKnownControllerGetJwks0Data, ThrowOnError>,
+export const wellKnownControllerGetJwks = <ThrowOnError extends boolean = true>(
+  options: Options<WellKnownControllerGetJwksData, ThrowOnError>,
 ) =>
   (options.client ?? client).get<
-    WellKnownControllerGetJwks0Responses,
+    WellKnownControllerGetJwksResponses,
     unknown,
     ThrowOnError
   >({ url: "/.well-known/jwks.json/{tenantId}", ...options });
 
 /**
- * Returns the JSON Web Key Set (JWKS) for the authorization server.
+ * Main endpoint providing service info
  */
-export const wellKnownControllerGetJwks1 = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<WellKnownControllerGetJwks1Data, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    WellKnownControllerGetJwks1Responses,
-    unknown,
-    ThrowOnError
-  >({ url: "/{tenantId}/.well-known/jwks.json", ...options });
-
 export const appControllerMain = <ThrowOnError extends boolean = true>(
   options?: Options<AppControllerMainData, ThrowOnError>,
 ) =>
@@ -468,6 +419,9 @@ export const clientControllerUpdateClient = <
     },
   });
 
+/**
+ * Get a client's secret by its id
+ */
 export const clientControllerGetClientSecret = <
   ThrowOnError extends boolean = true,
 >(
@@ -707,144 +661,6 @@ export const statusListControllerGetList = <
   >({ url: "/{tenantId}/status-management/status-list", ...options });
 
 /**
- * Create an presentation request that can be sent to the user
- */
-export const presentationManagementControllerGetOffer = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<PresentationManagementControllerGetOfferData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    PresentationManagementControllerGetOfferResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/presentation-management/request",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Returns the presentation request configurations.
- */
-export const presentationManagementControllerConfiguration = <
-  ThrowOnError extends boolean = true,
->(
-  options?: Options<
-    PresentationManagementControllerConfigurationData,
-    ThrowOnError
-  >,
-) =>
-  (options?.client ?? client).get<
-    PresentationManagementControllerConfigurationResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/presentation-management",
-    ...options,
-  });
-
-/**
- * Store a presentation request configuration. If it already exists, it will be updated.
- */
-export const presentationManagementControllerStorePresentationConfig = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<
-    PresentationManagementControllerStorePresentationConfigData,
-    ThrowOnError
-  >,
-) =>
-  (options.client ?? client).post<
-    PresentationManagementControllerStorePresentationConfigResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/presentation-management",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Deletes a presentation request configuration by its ID.
- */
-export const presentationManagementControllerDeleteConfiguration = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<
-    PresentationManagementControllerDeleteConfigurationData,
-    ThrowOnError
-  >,
-) =>
-  (options.client ?? client).delete<
-    PresentationManagementControllerDeleteConfigurationResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/presentation-management/{id}",
-    ...options,
-  });
-
-/**
- * Returns the authorization request for a given requestId and session.
- */
-export const oid4VpControllerGetRequestWithSession = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<Oid4VpControllerGetRequestWithSessionData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    Oid4VpControllerGetRequestWithSessionResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/{session}/oid4vp/request", ...options });
-
-/**
- * Returns the authorization request for a given requestId and session.
- */
-export const oid4VpControllerGetPostRequestWithSession = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<Oid4VpControllerGetPostRequestWithSessionData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    Oid4VpControllerGetPostRequestWithSessionResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/{session}/oid4vp/request", ...options });
-
-/**
- * Endpoint to receive the response from the wallet.
- */
-export const oid4VpControllerGetResponse = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<Oid4VpControllerGetResponseData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    Oid4VpControllerGetResponseResponses,
-    unknown,
-    ThrowOnError
-  >({
-    url: "/{session}/oid4vp",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
  * Retrieves all sessions.
  */
 export const sessionControllerGetAllSessions = <
@@ -916,6 +732,134 @@ export const sessionControllerRevokeAll = <ThrowOnError extends boolean = true>(
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * Returns the issuance configurations for this tenant.
+ */
+export const issuanceConfigControllerGetIssuanceConfigurations = <
+  ThrowOnError extends boolean = true,
+>(
+  options?: Options<
+    IssuanceConfigControllerGetIssuanceConfigurationsData,
+    ThrowOnError
+  >,
+) =>
+  (options?.client ?? client).get<
+    IssuanceConfigControllerGetIssuanceConfigurationsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/issuer/config",
+    ...options,
+  });
+
+/**
+ * Stores the issuance configuration for this tenant.
+ */
+export const issuanceConfigControllerStoreIssuanceConfiguration = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<
+    IssuanceConfigControllerStoreIssuanceConfigurationData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    IssuanceConfigControllerStoreIssuanceConfigurationResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/issuer/config",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Returns the credential configurations for this tenant.
+ */
+export const credentialConfigControllerGetConfigs = <
+  ThrowOnError extends boolean = true,
+>(
+  options?: Options<CredentialConfigControllerGetConfigsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    CredentialConfigControllerGetConfigsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/issuer/credentials",
+    ...options,
+  });
+
+/**
+ * Stores the credential configuration for this tenant.
+ */
+export const credentialConfigControllerStoreCredentialConfiguration = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<
+    CredentialConfigControllerStoreCredentialConfigurationData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    CredentialConfigControllerStoreCredentialConfigurationResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/issuer/credentials",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Deletes an credential configuration.
+ */
+export const credentialConfigControllerDeleteIssuanceConfiguration = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<
+    CredentialConfigControllerDeleteIssuanceConfigurationData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).delete<
+    CredentialConfigControllerDeleteIssuanceConfigurationResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/issuer/credentials/{id}",
+    ...options,
+  });
+
+/**
+ * Returns a specific credential configuration by ID.
+ */
+export const credentialConfigControllerGetConfigById = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<CredentialConfigControllerGetConfigByIdData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    CredentialConfigControllerGetConfigByIdResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/issuer/credentials/{id}",
+    ...options,
   });
 
 /**
@@ -1033,148 +977,20 @@ export const authorizeControllerAuthorizationChallengeEndpoint = <
   });
 
 /**
- * Returns the credential configurations for this tenant.
- */
-export const credentialsControllerGetConfigs = <
-  ThrowOnError extends boolean = true,
->(
-  options?: Options<CredentialsControllerGetConfigsData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    CredentialsControllerGetConfigsResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/issuer-management/credentials",
-    ...options,
-  });
-
-/**
- * Stores the credential configuration for this tenant.
- */
-export const credentialsControllerStoreCredentialConfiguration = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<
-    CredentialsControllerStoreCredentialConfigurationData,
-    ThrowOnError
-  >,
-) =>
-  (options.client ?? client).post<
-    CredentialsControllerStoreCredentialConfigurationResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/issuer-management/credentials",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Deletes an credential configuration.
- */
-export const credentialsControllerDeleteIssuanceConfiguration = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<
-    CredentialsControllerDeleteIssuanceConfigurationData,
-    ThrowOnError
-  >,
-) =>
-  (options.client ?? client).delete<
-    CredentialsControllerDeleteIssuanceConfigurationResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/issuer-management/credentials/{id}",
-    ...options,
-  });
-
-/**
- * Returns a specific credential configuration by ID.
- */
-export const credentialsControllerGetConfigById = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<CredentialsControllerGetConfigByIdData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    CredentialsControllerGetConfigByIdResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/issuer-management/credentials/{id}",
-    ...options,
-  });
-
-/**
  * Create an offer for a credential.
  */
-export const issuerManagementControllerGetOffer = <
+export const credentialOfferControllerGetOffer = <
   ThrowOnError extends boolean = true,
 >(
-  options: Options<IssuerManagementControllerGetOfferData, ThrowOnError>,
+  options: Options<CredentialOfferControllerGetOfferData, ThrowOnError>,
 ) =>
   (options.client ?? client).post<
-    IssuerManagementControllerGetOfferResponses,
+    CredentialOfferControllerGetOfferResponses,
     unknown,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/issuer-management/offer",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Returns the issuance configurations for this tenant.
- */
-export const issuanceControllerGetIssuanceConfigurations = <
-  ThrowOnError extends boolean = true,
->(
-  options?: Options<
-    IssuanceControllerGetIssuanceConfigurationsData,
-    ThrowOnError
-  >,
-) =>
-  (options?.client ?? client).get<
-    IssuanceControllerGetIssuanceConfigurationsResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/issuer-management/issuance",
-    ...options,
-  });
-
-/**
- * Stores the issuance configuration for this tenant.
- */
-export const issuanceControllerStoreIssuanceConfiguration = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<
-    IssuanceControllerStoreIssuanceConfigurationData,
-    ThrowOnError
-  >,
-) =>
-  (options.client ?? client).post<
-    IssuanceControllerStoreIssuanceConfigurationResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/issuer-management/issuance",
+    url: "/issuer/offer",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -1185,16 +1001,154 @@ export const issuanceControllerStoreIssuanceConfiguration = <
 /**
  * Retrieves the VCT (Verifiable Credential Type) from the credentials service.
  */
-export const credentialsMetadataControllerVct = <
+export const oid4VciMetadataControllerVct = <
   ThrowOnError extends boolean = true,
 >(
-  options: Options<CredentialsMetadataControllerVctData, ThrowOnError>,
+  options: Options<Oid4VciMetadataControllerVctData, ThrowOnError>,
 ) =>
   (options.client ?? client).get<
-    CredentialsMetadataControllerVctResponses,
+    Oid4VciMetadataControllerVctResponses,
     unknown,
     ThrowOnError
   >({ url: "/{tenantId}/credentials-metadata/vct/{id}", ...options });
+
+/**
+ * Returns the authorization request for a given requestId and session.
+ */
+export const oid4VpControllerGetRequestWithSession = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<Oid4VpControllerGetRequestWithSessionData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    Oid4VpControllerGetRequestWithSessionResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/{session}/oid4vp/request", ...options });
+
+/**
+ * Returns the authorization request for a given requestId and session.
+ */
+export const oid4VpControllerGetPostRequestWithSession = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<Oid4VpControllerGetPostRequestWithSessionData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    Oid4VpControllerGetPostRequestWithSessionResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/{session}/oid4vp/request", ...options });
+
+/**
+ * Endpoint to receive the response from the wallet.
+ */
+export const oid4VpControllerGetResponse = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<Oid4VpControllerGetResponseData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    Oid4VpControllerGetResponseResponses,
+    unknown,
+    ThrowOnError
+  >({
+    url: "/{session}/oid4vp",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Returns the presentation request configurations.
+ */
+export const presentationManagementControllerConfiguration = <
+  ThrowOnError extends boolean = true,
+>(
+  options?: Options<
+    PresentationManagementControllerConfigurationData,
+    ThrowOnError
+  >,
+) =>
+  (options?.client ?? client).get<
+    PresentationManagementControllerConfigurationResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/verifier/config",
+    ...options,
+  });
+
+/**
+ * Store a presentation request configuration. If it already exists, it will be updated.
+ */
+export const presentationManagementControllerStorePresentationConfig = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<
+    PresentationManagementControllerStorePresentationConfigData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    PresentationManagementControllerStorePresentationConfigResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/verifier/config",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Deletes a presentation request configuration by its ID.
+ */
+export const presentationManagementControllerDeleteConfiguration = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<
+    PresentationManagementControllerDeleteConfigurationData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).delete<
+    PresentationManagementControllerDeleteConfigurationResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/verifier/config/{id}",
+    ...options,
+  });
+
+/**
+ * Create an presentation request that can be sent to the user
+ */
+export const verifierOfferControllerGetOffer = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<VerifierOfferControllerGetOfferData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    VerifierOfferControllerGetOfferResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/verifier/offer",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
 
 /**
  * Endpoint to check the health of the service.

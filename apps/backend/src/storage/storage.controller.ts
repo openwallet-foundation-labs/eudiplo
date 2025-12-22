@@ -8,7 +8,7 @@ import {
     UseInterceptors,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { ApiBody, ApiConsumes } from "@nestjs/swagger";
+import { ApiBody, ApiConsumes, ApiTags } from "@nestjs/swagger";
 import { Role } from "../auth/roles/role.enum";
 import { Secured } from "../auth/secure.decorator";
 import { Token, TokenPayload } from "../auth/token.decorator";
@@ -18,6 +18,7 @@ import { FilesService } from "./files.service";
 /**
  * Storage Controller
  */
+@ApiTags("Storage")
 @Controller("storage")
 export class StorageController {
     /**

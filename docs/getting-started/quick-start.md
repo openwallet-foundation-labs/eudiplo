@@ -26,17 +26,17 @@ Choose how you want to run EUDIPLO:
 
     **For users who want the web interface:**
 
-    ```bash    
+    ```bash
     # Start the backend
     docker run -d \
-      --name eudiplo \      
+      --name eudiplo \
       -p 3000:3000 \
       ghcr.io/openwallet-foundation-labs/eudiplo:latest
 
     # Start the web client
     docker run -d \
-      --name eudiplo-client \      
-      -p 4200:80 \      
+      --name eudiplo-client \
+      -p 4200:80 \
       ghcr.io/openwallet-foundation-labs/eudiplo-client:latest
     ```
 
@@ -82,13 +82,13 @@ EUDIPLO provides two ways to interact with the system:
 
 === "🖥️ Web Client (Recommended for beginners)"
 
-    **Open the Web Interface**: 
-    
+    **Open the Web Interface**:
+
     - If you used **Full Setup**: http://localhost:4200
     - If you used **API-Only Setup**: Not available (web client not started)
 
     The web client provides a user-friendly interface for:
-    
+
     - 📋 Managing credential templates
     - 🎫 Issuing credentials to wallets
     - ✅ Verifying credential presentations
@@ -105,7 +105,7 @@ EUDIPLO provides two ways to interact with the system:
     **Open the API Documentation**: http://localhost:3000/api
 
     The Swagger UI provides direct API access for:
-    
+
     - 🔌 Integration testing
     - 📖 API documentation exploration
     - ⚡ Advanced automation workflows
@@ -122,12 +122,11 @@ Choose your preferred approach:
     1. **Open**: http://localhost:4200 (if you used Full Setup)
     2. **Log in** with the default credentials:
         - **EUDIPLO Instance**: `http://localhost:3000`
-        - **Authentication Server**: `http://localhost:3000`
         - **Client ID**: `root`
         - **Client Secret**: `root`
     3. **Explore** the dashboard to see:
-        - Available credential templates        
-        - Quick action buttons for common tasks    
+        - Available credential templates
+        - Quick action buttons for common tasks
 
     !!! tip "Learn More"
         For detailed web client features and workflows, see the **[Web Client Guide](./web-client.md)**.
@@ -147,8 +146,8 @@ Choose your preferred approach:
 
     ### Test Your First API Call
 
-    5. **Find the "Issuer Management" section** in Swagger UI
-    6. **Expand** `/issuer-management/credentials` → **GET**
+    5. **Find the "App" section** in Swagger UI
+    6. **Expand** `/` → **GET**
     7. **Click "Try it out"** → **"Execute"**
 
     You should see a successful response with available credential templates!

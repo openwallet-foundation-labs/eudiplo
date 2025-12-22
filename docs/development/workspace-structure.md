@@ -1,25 +1,4 @@
-# Workspace Structure
-
-EUDIPLO is organized as a **monorepo workspace** using pnpm workspaces. This structure allows us to manage multiple related applications in a single repository while maintaining clear separation of concerns.
-
-## 📁 Directory Structure
-
 ```
-eudiplo/
-├── apps/                          # Application packages
-│   ├── backend/                   # NestJS API server
-│   │   ├── src/                   # Backend source code
-│   │   ├── test/                  # Backend tests
-│   │   ├── package.json           # Backend dependencies
-│   │   └── Dockerfile            # Backend container definition
-│   ├── client/                    # Angular web interface
-│   │   ├── src/                   # Client source code
-│   │   ├── package.json           # Client dependencies
-│   │   └── Dockerfile            # Client container definition
-│   └── webhook/                   # Cloudflare Worker for testing
-│       ├── src/                   # Webhook source code
-│       └── package.json           # Webhook dependencies
-├── assets/                        # Configuration and assets
 ├── docs/                          # Documentation
 ├── deployment/                    # Docker Compose configurations
 ├── package.json                   # Root workspace configuration
@@ -69,39 +48,46 @@ The workspace provides several convenient commands:
 ```bash
 # Install all dependencies
 pnpm install
-
-# Start all applications
-pnpm run dev
-
-# Start specific application
-pnpm --filter @eudiplo/backend run start:dev
-pnpm --filter @eudiplo/client run dev
-pnpm --filter test-rp run dev
 ```
 
-### Building
+## 🏗️ Applications & Domains
 
-```bash
-# Build all applications
-pnpm run build
+### Backend (`@eudiplo/backend`)
 
-# Build specific application
-pnpm --filter @eudiplo/backend run build
-pnpm --filter @eudiplo/client run build
-```
+- **Technology**: NestJS with TypeScript
+- **Purpose**: Core API server for EUDI Wallet integration
+- **Port**: 3000
+- **Structure**: Domain-driven, modular
+    - **core/**: Platform infrastructure (health, metrics, app info)
+    - **shared/**: Utilities, guards, filters, helpers
+    - **issuer/**: Credential Issuer (configuration, issuance, lifecycle)
+    - **verifier/**: Presentation Verifier (presentation, offer, OID4VP)
+    - **registrar/**: Entity onboarding and registry
+    - **auth/**, **crypto/**, **database/**, **session/**, **storage/**: Infrastructure modules
 
-### Testing
+### Client (`@eudiplo/client`)
 
-```bash
-# Test all applications
-pnpm run test
+- **Technology**: Angular with TypeScript
+- **Purpose**: Web interface for EUDIPLO management
+- **Port**: 4200
+- **Features**: Credential config, presentation management, monitoring, admin dashboard
 
-# Test specific application
-pnpm --filter @eudiplo/backend run test
-pnpm --filter @eudiplo/client run test
-```
+### Webhook (`@eudiplo/webhook`)
 
-### Linting & Formatting
+- **Technology**: Cloudflare Worker
+- **Purpose**: Testing relying party implementation
+- **Features**: Webhook endpoints, presentation verification
+
+### SDK (`@eudiplo/eudiplo-sdk`)
+
+- **Technology**: TypeScript
+- **Purpose**: Programmatic access to EUDIPLO APIs
+
+### Other Packages
+
+- **schemas/**: JSON Schemas for API/data validation
+- **assets/**: Static configuration, root trust lists, uploads
+- **monitor/**: Prometheus/Grafana monitoring setup
 
 ```bash
 # Check code quality across workspace
@@ -113,14 +99,15 @@ pnpm run lint:fix
 pnpm run format
 ```
 
-## 🐳 Docker Integration
+## 🐳 Docker & Deployment
 
 Each application has its own optimized Dockerfile:
 
-- **Backend**: `apps/backend/Dockerfile` - Multi-stage build with workspace support
-- **Client**: `apps/client/Dockerfile` - Angular build with nginx serving
+- **Backend**: `apps/backend/Dockerfile` (multi-stage build)
+- **Client**: `apps/client/Dockerfile` (Angular build, nginx serving)
+- **Webhook**: `apps/webhook/Dockerfile` (Cloudflare Worker)
 
-The root `docker-compose.yml` orchestrates both services:
+The root `docker-compose.yml` orchestrates all main services:
 
 ```bash
 # Start both services
@@ -156,8 +143,9 @@ pnpm --filter @eudiplo/client add dependency-name
 
 This workspace structure provides:
 
-1. **Code Sharing**: Common utilities and types can be shared between applications
-2. **Unified Tooling**: Single configuration for linting, formatting, and testing
-3. **Atomic Changes**: Related changes across applications can be made in single commits
-4. **Efficient CI/CD**: Build and test processes can be optimized for the entire workspace
-5. **Developer Experience**: Single repository clone with all related code
+1. **Domain-driven clarity**: Business logic, infrastructure, and cross-cutting concerns are clearly separated
+2. **Code Sharing**: Common utilities and types can be shared between applications
+3. **Unified Tooling**: Single configuration for linting, formatting, and testing
+4. **Atomic Changes**: Related changes across applications can be made in single commits
+5. **Efficient CI/CD**: Build and test processes can be optimized for the entire workspace
+6. **Developer Experience**: Single repository clone with all related code

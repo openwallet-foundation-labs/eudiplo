@@ -9,16 +9,17 @@ import {
     Req,
     UseInterceptors,
 } from "@nestjs/common";
-import { ApiExcludeController, ApiParam } from "@nestjs/swagger";
+import { ApiExcludeController, ApiParam, ApiTags } from "@nestjs/swagger";
 import { Request } from "express";
-import { SessionLogger } from "../../utils/logger/session-logger.decorator";
-import { SessionLoggerInterceptor } from "../../utils/logger/session-logger.interceptor";
+import { SessionLogger } from "../../shared/utils/logger/session-logger.decorator";
+import { SessionLoggerInterceptor } from "../../shared/utils/logger/session-logger.interceptor";
 import { AuthorizationResponse } from "./dto/authorization-response.dto";
 import { Oid4vpService } from "./oid4vp.service";
 
 /**
  * Controller for handling OID4VP (OpenID for Verifiable Presentations) requests.
  */
+@ApiTags("OID4VP")
 @Controller(":session/oid4vp")
 @UseInterceptors(SessionLoggerInterceptor)
 @ApiParam({ name: "session", required: true })

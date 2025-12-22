@@ -1,0 +1,52 @@
+import { HttpModule } from "@nestjs/axios";
+import { Module } from "@nestjs/common";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { CryptoModule } from "../../crypto/crypto.module";
+import { SessionModule } from "../../session/session.module";
+import { WebhookService } from "../../shared/utils/webhook/webhook.service";
+import { Oid4vpModule } from "../../verifier/oid4vp/oid4vp.module";
+import { ConfigurationModule } from "../configuration/configuration.module";
+import { CredentialOfferController } from "./offer/credential-offer.controller";
+import { AuthorizeController } from "./oid4vci/authorize/authorize.controller";
+import { AuthorizeService } from "./oid4vci/authorize/authorize.service";
+import { NonceEntity } from "./oid4vci/entities/nonces.entity";
+import { Oid4vciMetadataController } from "./oid4vci/metadata/oid4vci-metadata.controller";
+import { Oid4vciController } from "./oid4vci/oid4vci.controller";
+import { Oid4vciService } from "./oid4vci/oid4vci.service";
+import { WellKnownController } from "./oid4vci/well-known/well-known.controller";
+import { WellKnownService } from "./oid4vci/well-known/well-known.service";
+
+/**
+ * Issuance Module - Handles credential issuance operations
+ *
+ * Responsibilities:
+ * - Creating credential offers
+ * - OID4VCI protocol implementation
+ * - Authorization and token management
+ * - Credential issuance workflows
+ */
+@Module({
+    imports: [
+        CryptoModule,
+        ConfigurationModule,
+        Oid4vpModule,
+        SessionModule,
+        HttpModule,
+        TypeOrmModule.forFeature([NonceEntity]),
+    ],
+    controllers: [
+        Oid4vciController,
+        AuthorizeController,
+        CredentialOfferController,
+        Oid4vciMetadataController,
+        WellKnownController,
+    ],
+    providers: [
+        AuthorizeService,
+        Oid4vciService,
+        WellKnownService,
+        WebhookService,
+    ],
+    exports: [AuthorizeService, Oid4vciService],
+})
+export class IssuanceModule {}

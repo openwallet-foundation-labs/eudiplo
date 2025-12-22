@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { presentationManagementControllerGetOffer, sessionControllerGetSession } from '@eudiplo/sdk';
+import { verifierOfferControllerGetOffer, sessionControllerGetSession } from '@eudiplo/sdk';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -14,7 +14,7 @@ export class VerifyService {
   }
 
   start() {
-    return presentationManagementControllerGetOffer({
+    return verifierOfferControllerGetOffer({
       body: {
         response_type: 'uri',
         requestId: environment.presentationId,

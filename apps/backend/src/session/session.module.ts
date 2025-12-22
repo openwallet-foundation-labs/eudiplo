@@ -1,8 +1,8 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { makeGaugeProvider } from "@willsoto/nestjs-prometheus";
-import { StatusListModule } from "../issuer/status-list/status-list.module";
-import { LoggerModule } from "../utils/logger/logger.module";
+import { StatusListModule } from "../issuer/lifecycle/status/status-list.module";
+import { LoggerModule } from "../shared/utils/logger/logger.module";
 import { Session } from "./entities/session.entity";
 import { SessionController } from "./session.controller";
 import { SessionService } from "./session.service";
