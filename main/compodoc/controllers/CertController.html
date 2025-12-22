@@ -238,8 +238,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="70"
-                                    class="link-to-prism">src/crypto/key/cert/cert.controller.ts:70</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="71"
+                                    class="link-to-prism">src/crypto/key/cert/cert.controller.ts:71</a></div>
                         </td>
                     </tr>
 
@@ -342,8 +342,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="87"
-                                    class="link-to-prism">src/crypto/key/cert/cert.controller.ts:87</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="88"
+                                    class="link-to-prism">src/crypto/key/cert/cert.controller.ts:88</a></div>
                         </td>
                     </tr>
 
@@ -446,8 +446,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="128"
-                                    class="link-to-prism">src/crypto/key/cert/cert.controller.ts:128</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="129"
+                                    class="link-to-prism">src/crypto/key/cert/cert.controller.ts:129</a></div>
                         </td>
                     </tr>
 
@@ -549,8 +549,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="56"
-                                    class="link-to-prism">src/crypto/key/cert/cert.controller.ts:56</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="57"
+                                    class="link-to-prism">src/crypto/key/cert/cert.controller.ts:57</a></div>
                         </td>
                     </tr>
 
@@ -654,8 +654,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="39"
-                                    class="link-to-prism">src/crypto/key/cert/cert.controller.ts:39</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="40"
+                                    class="link-to-prism">src/crypto/key/cert/cert.controller.ts:40</a></div>
                         </td>
                     </tr>
 
@@ -760,8 +760,8 @@ Can be filtered by keyId using query parameter.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="110"
-                                    class="link-to-prism">src/crypto/key/cert/cert.controller.ts:110</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="111"
+                                    class="link-to-prism">src/crypto/key/cert/cert.controller.ts:111</a></div>
                         </td>
                     </tr>
 
@@ -866,7 +866,7 @@ Can be filtered by keyId using query parameter.</p>
     Post,
     Query,
 } from &quot;@nestjs/common&quot;;
-import { ApiQuery } from &quot;@nestjs/swagger&quot;;
+import { ApiQuery, ApiTags } from &quot;@nestjs/swagger&quot;;
 import { Role } from &quot;../../../auth/roles/role.enum&quot;;
 import { Secured } from &quot;../../../auth/secure.decorator&quot;;
 import { Token, TokenPayload } from &quot;../../../auth/token.decorator&quot;;
@@ -880,6 +880,7 @@ import { CertService } from &quot;./cert.service&quot;;
 /**
  * Controller for managing certificates.
  */
+@ApiTags(&quot;Certificate&quot;)
 @Secured([Role.Issuances, Role.Presentations])
 @Controller(&quot;certs&quot;)
 export class CertController {

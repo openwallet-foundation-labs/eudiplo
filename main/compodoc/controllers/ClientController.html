@@ -235,8 +235,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="83"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:83</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="89"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:89</a></div>
                         </td>
                     </tr>
 
@@ -325,8 +325,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="97"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:97</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="103"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:103</a></div>
                         </td>
                     </tr>
 
@@ -583,14 +583,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="51"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:51</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="57"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:57</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Get a client&#39;s secret by its id</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -671,8 +673,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="68"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:68</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="74"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:74</a></div>
                         </td>
                     </tr>
 
@@ -770,7 +772,7 @@ import { UpdateClientDto } from &quot;./dto/update-client.dto&quot;;
 /**
  * Controller to manage clients.
  */
-@ApiTags(&quot;client&quot;)
+@ApiTags(&quot;Client&quot;)
 @Secured([Role.Clients, Role.Tenants])
 @Controller(&quot;client&quot;)
 export class ClientController {
@@ -797,6 +799,12 @@ export class ClientController {
         return this.clients.getClient(user.entity!.id, id);
     }
 
+    /**
+     * Get a client&#x27;s secret by its id
+     * @param id
+     * @param user
+     * @returns
+     */
     @Get(&quot;:id/secret&quot;)
     getClientSecret(
         @Param(&quot;id&quot;) id: string,

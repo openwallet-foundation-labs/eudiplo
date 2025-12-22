@@ -131,10 +131,17 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/app/app.controller.ts</code>
+            <code>src/core/app/app.controller.ts</code>
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Main application controller</p>
+
+            </p>
 
 
 
@@ -202,19 +209,24 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="6"
-                                    class="link-to-prism">src/app/app.controller.ts:6</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="15"
+                                    class="link-to-prism">src/core/app/app.controller.ts:15</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Main endpoint providing service info</p>
+</div>
 
                         <div class="io-description">
                             <b>Returns : </b>    <code>{ service: string; version: any; documentation: string; }</code>
 
                         </div>
+                            <div class="io-description">
+                                
+                            </div>
                 </td>
             </tr>
         </tbody>
@@ -224,9 +236,18 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Controller, Get } from &quot;@nestjs/common&quot;;
+import { ApiTags } from &quot;@nestjs/swagger&quot;;
 
+/**
+ * Main application controller
+ */
+@ApiTags(&quot;App&quot;)
 @Controller()
 export class AppController {
+    /**
+     * Main endpoint providing service info
+     * @returns
+     */
     @Get()
     main() {
         return {

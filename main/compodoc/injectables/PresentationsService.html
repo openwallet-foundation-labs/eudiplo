@@ -724,8 +724,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="237"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:237</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="233"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:233</a></div>
                         </td>
                     </tr>
 
@@ -1038,7 +1038,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="221" class="link-to-prism">src/verifier/presentations/presentations.service.ts:221</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="217" class="link-to-prism">src/verifier/presentations/presentations.service.ts:217</a></div>
                         </td>
                     </tr>
 
@@ -1133,7 +1133,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="206" class="link-to-prism">src/verifier/presentations/presentations.service.ts:206</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="202" class="link-to-prism">src/verifier/presentations/presentations.service.ts:202</a></div>
                         </td>
                     </tr>
 
@@ -1255,11 +1255,11 @@ import { SDJwtVcInstance } from &quot;@sd-jwt/sd-jwt-vc&quot;;
 import { KbVerifier, Verifier } from &quot;@sd-jwt/types&quot;;
 import { plainToClass } from &quot;class-transformer&quot;;
 import { readFileSync } from &quot;fs&quot;;
-import { JWK, JWTPayload } from &quot;jose&quot;;
+import { JWK } from &quot;jose&quot;;
 import { firstValueFrom } from &quot;rxjs&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import { CryptoImplementationService } from &quot;../../crypto/key/crypto-implementation/crypto-implementation.service&quot;;
-import { ConfigImportService } from &quot;../../utils/config-import/config-import.service&quot;;
+import { ConfigImportService } from &quot;../../shared/utils/config-import/config-import.service&quot;;
 import { ResolverService } from &quot;../resolver/resolver.service&quot;;
 import { AuthResponse } from &quot;./dto/auth-response.dto&quot;;
 import { PresentationConfigCreateDto } from &quot;./dto/presentation-config-create.dto&quot;;
@@ -1429,12 +1429,8 @@ export class PresentationsService implements OnApplicationBootstrap {
             hasher: digest,
         });
         const decodedVC &#x3D; await instance.decode(&#x60;${data}.${signature}&#x60;);
-        const payload &#x3D; decodedVC.jwt?.payload as JWTPayload;
         const header &#x3D; decodedVC.jwt?.header as JWK;
-        const publicKey &#x3D; await this.resolverService.resolvePublicKey(
-            payload,
-            header,
-        );
+        const publicKey &#x3D; await this.resolverService.resolvePublicKey(header);
         const crypto &#x3D; this.cryptoService.getCryptoFromJwk(publicKey); // just to check if we support the key
         const verify &#x3D; await crypto.getVerifier(publicKey);
         return verify(data, signature).catch((err) &#x3D;&gt; {

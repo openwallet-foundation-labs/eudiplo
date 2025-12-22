@@ -136,13 +136,13 @@
 <title>cluster_StatusListModule</title>
 <polygon fill="none" stroke="black" stroke-dasharray="1,5" points="92,-70 92,-268 404,-268 404,-70 92,-70"/>
 </g>
-<g id="clust3" class="cluster">
-<title>cluster_StatusListModule_imports</title>
-<polygon fill="none" stroke="black" points="282,-78 282,-130 396,-130 396,-78 282,-78"/>
-</g>
 <g id="clust4" class="cluster">
 <title>cluster_StatusListModule_exports</title>
 <polygon fill="none" stroke="black" points="191,-208 191,-260 325,-260 325,-208 191,-208"/>
+</g>
+<g id="clust3" class="cluster">
+<title>cluster_StatusListModule_imports</title>
+<polygon fill="none" stroke="black" points="282,-78 282,-130 396,-130 396,-78 282,-78"/>
 </g>
 <g id="clust6" class="cluster">
 <title>cluster_StatusListModule_providers</title>
@@ -226,7 +226,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/issuer/status-list/status-list.module.ts</code>
+            <code>src/issuer/lifecycle/status/status-list.module.ts</code>
         </p>
 
 
@@ -284,7 +284,7 @@
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &quot;@nestjs/common&quot;;
 import { TypeOrmModule } from &quot;@nestjs/typeorm&quot;;
-import { CryptoModule } from &quot;../../crypto/crypto.module&quot;;
+import { CryptoModule } from &quot;../../../crypto/crypto.module&quot;;
 import { StatusListEntity } from &quot;./entities/status-list.entity&quot;;
 import { StatusMapping } from &quot;./entities/status-mapping.entity&quot;;
 import { StatusListController } from &quot;./status-list.controller&quot;;

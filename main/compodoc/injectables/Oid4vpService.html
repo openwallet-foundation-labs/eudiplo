@@ -702,13 +702,13 @@ import { EncryptionService } from &quot;../../crypto/encryption/encryption.servi
 import { CertService } from &quot;../../crypto/key/cert/cert.service&quot;;
 import { CryptoImplementationService } from &quot;../../crypto/key/crypto-implementation/crypto-implementation.service&quot;;
 import { KeyService } from &quot;../../crypto/key/key.service&quot;;
-import { OfferResponse } from &quot;../../issuer/oid4vci/dto/offer-request.dto&quot;;
+import { OfferResponse } from &quot;../../issuer/issuance/oid4vci/dto/offer-request.dto&quot;;
 import { RegistrarService } from &quot;../../registrar/registrar.service&quot;;
 import { SessionStatus } from &quot;../../session/entities/session.entity&quot;;
 import { SessionService } from &quot;../../session/session.service&quot;;
-import { SessionLoggerService } from &quot;../../utils/logger/session-logger.service&quot;;
-import { SessionLogContext } from &quot;../../utils/logger/session-logger-context&quot;;
-import { WebhookService } from &quot;../../utils/webhook/webhook.service&quot;;
+import { SessionLoggerService } from &quot;../../shared/utils/logger/session-logger.service&quot;;
+import { SessionLogContext } from &quot;../../shared/utils/logger/session-logger-context&quot;;
+import { WebhookService } from &quot;../../shared/utils/webhook/webhook.service&quot;;
 import { AuthResponse } from &quot;../presentations/dto/auth-response.dto&quot;;
 import { PresentationsService } from &quot;../presentations/presentations.service&quot;;
 import { AuthorizationResponse } from &quot;./dto/authorization-response.dto&quot;;

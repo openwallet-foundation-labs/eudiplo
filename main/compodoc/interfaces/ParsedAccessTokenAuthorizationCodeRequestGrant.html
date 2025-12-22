@@ -141,7 +141,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/issuer/authorize/authorize.service.ts</code>
+            <code>src/issuer/issuance/oid4vci/authorize/authorize.service.ts</code>
         </p>
 
 
@@ -273,12 +273,12 @@ import {
 } from &quot;@openid4vc/oauth2&quot;;
 import type { Request, Response } from &quot;express&quot;;
 import { v4 } from &quot;uuid&quot;;
-import { CryptoService } from &quot;../../crypto/crypto.service&quot;;
-import { Session } from &quot;../../session/entities/session.entity&quot;;
-import { SessionService } from &quot;../../session/session.service&quot;;
-import { WebhookConfig } from &quot;../../utils/webhook/webhook.dto&quot;;
-import { IssuanceService } from &quot;../issuance/issuance.service&quot;;
-import { getHeadersFromRequest } from &quot;../oid4vci/util&quot;;
+import { CryptoService } from &quot;../../../../crypto/crypto.service&quot;;
+import { Session } from &quot;../../../../session/entities/session.entity&quot;;
+import { SessionService } from &quot;../../../../session/session.service&quot;;
+import { WebhookConfig } from &quot;../../../../shared/utils/webhook/webhook.dto&quot;;
+import { IssuanceService } from &quot;../../../configuration/issuance/issuance.service&quot;;
+import { getHeadersFromRequest } from &quot;../util&quot;;
 import { AuthorizeQueries } from &quot;./dto/authorize-request.dto&quot;;
 
 export interface ParsedAccessTokenAuthorizationCodeRequestGrant {

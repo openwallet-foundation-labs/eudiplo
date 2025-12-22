@@ -227,8 +227,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="49"
-                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:49</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="51"
+                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:51</a></div>
                         </td>
                     </tr>
 
@@ -310,8 +310,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="40"
-                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:40</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="42"
+                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:42</a></div>
                         </td>
                     </tr>
 
@@ -394,8 +394,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="20"
-                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:20</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="22"
+                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:22</a></div>
                         </td>
                     </tr>
 
@@ -445,8 +445,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="30"
-                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:30</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="32"
+                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:32</a></div>
                         </td>
                     </tr>
 
@@ -499,6 +499,7 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Body, Controller, Delete, Get, Param, Post } from &quot;@nestjs/common&quot;;
+import { ApiTags } from &quot;@nestjs/swagger&quot;;
 import { Role } from &quot;../roles/role.enum&quot;;
 import { Secured } from &quot;../secure.decorator&quot;;
 import { CreateTenantDto } from &quot;./dto/create-tenant.dto&quot;;
@@ -507,6 +508,7 @@ import { TenantService } from &quot;./tenant.service&quot;;
 /**
  * Tenant management controller
  */
+@ApiTags(&quot;Tenant&quot;)
 @Secured([Role.Tenants])
 @Controller(&quot;tenant&quot;)
 export class TenantController {

@@ -134,7 +134,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/issuer/oid4vci/oid4vci.service.ts</code>
+            <code>src/issuer/issuance/oid4vci/oid4vci.service.ts</code>
         </p>
 
 
@@ -230,7 +230,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="52" class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:52</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="52" class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:52</a></div>
                             </td>
                         </tr>
 
@@ -404,7 +404,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="180"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:180</a></div>
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:180</a></div>
                         </td>
                     </tr>
 
@@ -513,7 +513,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="300"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:300</a></div>
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:300</a></div>
                         </td>
                     </tr>
 
@@ -594,7 +594,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="72"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:72</a></div>
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:72</a></div>
                         </td>
                     </tr>
 
@@ -669,7 +669,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="84"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:84</a></div>
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:84</a></div>
                         </td>
                     </tr>
 
@@ -746,7 +746,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="475"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:475</a></div>
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:475</a></div>
                         </td>
                     </tr>
 
@@ -841,7 +841,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="96"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:96</a></div>
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:96</a></div>
                         </td>
                     </tr>
 
@@ -932,7 +932,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="287"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:287</a></div>
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:287</a></div>
                         </td>
                     </tr>
 
@@ -973,7 +973,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="273"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:273</a></div>
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:273</a></div>
                         </td>
                     </tr>
 
@@ -1048,7 +1048,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="56" class="link-to-prism">src/issuer/oid4vci/oid4vci.service.ts:56</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="56" class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:56</a></div>
                         </td>
                     </tr>
 
@@ -1089,16 +1089,16 @@ import { decodeJwt } from &quot;jose&quot;;
 import { firstValueFrom } from &quot;rxjs&quot;;
 import { LessThan, Repository } from &quot;typeorm&quot;;
 import { v4 } from &quot;uuid&quot;;
-import { TokenPayload } from &quot;../../auth/token.decorator&quot;;
-import { CryptoService } from &quot;../../crypto/crypto.service&quot;;
-import { SessionStatus } from &quot;../../session/entities/session.entity&quot;;
-import { SessionService } from &quot;../../session/session.service&quot;;
-import { SessionLoggerService } from &quot;../../utils/logger/session-logger.service&quot;;
-import { SessionLogContext } from &quot;../../utils/logger/session-logger-context&quot;;
-import { WebhookService } from &quot;../../utils/webhook/webhook.service&quot;;
-import { AuthorizeService } from &quot;../authorize/authorize.service&quot;;
-import { CredentialsService } from &quot;../credentials/credentials.service&quot;;
-import { IssuanceService } from &quot;../issuance/issuance.service&quot;;
+import { TokenPayload } from &quot;../../../auth/token.decorator&quot;;
+import { CryptoService } from &quot;../../../crypto/crypto.service&quot;;
+import { SessionStatus } from &quot;../../../session/entities/session.entity&quot;;
+import { SessionService } from &quot;../../../session/session.service&quot;;
+import { SessionLoggerService } from &quot;../../../shared/utils/logger/session-logger.service&quot;;
+import { SessionLogContext } from &quot;../../../shared/utils/logger/session-logger-context&quot;;
+import { WebhookService } from &quot;../../../shared/utils/webhook/webhook.service&quot;;
+import { CredentialsService } from &quot;../../configuration/credentials/credentials.service&quot;;
+import { IssuanceService } from &quot;../../configuration/issuance/issuance.service&quot;;
+import { AuthorizeService } from &quot;./authorize/authorize.service&quot;;
 import { NotificationRequestDto } from &quot;./dto/notification-request.dto&quot;;
 import {
     FlowType,

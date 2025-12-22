@@ -1969,8 +1969,7 @@ can run yourself, integrate over HTTP, and configure via JSON.</p>
 <p>EUDIPLO is distributed as a Docker container and can be configured in minutes.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>docker<span class="w"> </span>run<span class="w"> </span>-p<span class="w"> </span><span class="m">3000</span>:3000<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>-e<span class="w"> </span><span class="nv">PUBLIC_URL</span><span class="o">=</span>https://example.com<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>-e<span class="w"> </span><span class="nv">JWT_SECRET</span><span class="o">=</span>your-secret-key-here-minimum-32-characters<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span>ghcr.io/openwallet-foundation-labs/eudiplo:latest
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>ghcr.io/openwallet-foundation-labs/eudiplo:latest
 </code></pre></div>
 <ul>
 <li><code>-p 3000:3000</code> exposes EUDIPLO locally on port 3000.</li>

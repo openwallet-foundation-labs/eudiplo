@@ -2015,16 +2015,15 @@
 <p>The system uses two separate endpoints for the two-layer configuration:</p>
 <h3 id="credential-configurations">Credential Configurations<a class="headerlink" href="#credential-configurations" title="Permanent link">¶</a></h3>
 <p>To manage individual credential configurations, use the
-<code>/issuer-management/credentials</code> endpoint. This endpoint handles the definition
+<code>/issuer/credentials</code> endpoint. This endpoint handles the definition
 of credential types, their formats, claims, and display properties.</p>
 <h3 id="issuance-configuration">Issuance Configuration<a class="headerlink" href="#issuance-configuration" title="Permanent link">¶</a></h3>
-<p>To manage the issuance flow, use the <code>/issuer-management/issuance</code> endpoint. This endpoint
-handles grouping credentials and defining authorization or webhooks.</p>
-<p>Based on your passed access token, both endpoints will be scoped to the tenant ID of the
+<p>The endpoints to manage issuance configuration can be found in the <a href="../../api/openapi/#issuer">API documentation</a> section.</p>
+<p>Based on your passed access token, endpoints will be scoped to the tenant ID of the
 token. You also need the <code>issuance:manage</code> role to access these endpoints.
 The configurations are internally stored in a database.</p>
 <h3 id="creating-credential-offers">Creating Credential Offers<a class="headerlink" href="#creating-credential-offers" title="Permanent link">¶</a></h3>
-<p>Via the <a href="http://localhost:8000/api/openapi/#post-issuer-managementoffer">credential offer endpoint</a> you can create a credential offer that can be presented to the user.
+<p>Via the <a href="../../api/openapi/#post-issueroffer">credential offer endpoint</a> you can create a credential offer that can be presented to the user.
 When creating an offer, you can:</p>
 <ol>
 <li><strong>Define the flow</strong> - Either go with the pre authorized flow or require user

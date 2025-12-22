@@ -131,7 +131,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/issuer/oid4vci/oid4vci.controller.ts</code>
+            <code>src/issuer/issuance/oid4vci/oid4vci.controller.ts</code>
         </p>
             <p class="comment">
                 <h3>Prefix</h3>
@@ -230,8 +230,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="38"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.controller.ts:38</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="39"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:39</a></div>
                         </td>
                     </tr>
 
@@ -322,8 +322,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="66"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.controller.ts:66</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="67"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:67</a></div>
                         </td>
                     </tr>
 
@@ -399,8 +399,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="55"
-                                    class="link-to-prism">src/issuer/oid4vci/oid4vci.controller.ts:55</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="56"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:56</a></div>
                         </td>
                     </tr>
 
@@ -487,17 +487,18 @@
     Req,
     UseInterceptors,
 } from &quot;@nestjs/common&quot;;
-import { ApiExcludeController, ApiParam } from &quot;@nestjs/swagger&quot;;
+import { ApiExcludeController, ApiParam, ApiTags } from &quot;@nestjs/swagger&quot;;
 import type { CredentialResponse } from &quot;@openid4vc/openid4vci&quot;;
 import type { Request } from &quot;express&quot;;
-import { Oid4vciService } from &quot;../../issuer/oid4vci/oid4vci.service&quot;;
-import { SessionLogger } from &quot;../../utils/logger//session-logger.decorator&quot;;
-import { SessionLoggerInterceptor } from &quot;../../utils/logger/session-logger.interceptor&quot;;
+import { SessionLogger } from &quot;../../../shared/utils/logger/session-logger.decorator&quot;;
+import { SessionLoggerInterceptor } from &quot;../../../shared/utils/logger/session-logger.interceptor&quot;;
 import { NotificationRequestDto } from &quot;./dto/notification-request.dto&quot;;
+import { Oid4vciService } from &quot;./oid4vci.service&quot;;
 
 /**
  * Controller for handling OID4VCI (OpenID for Verifiable Credential Issuance) requests.
  */
+@ApiTags(&quot;OID4VCI&quot;)
 @ApiParam({ name: &quot;tenantId&quot;, required: true })
 @ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &quot;true&quot;)
 @Controller(&quot;:tenantId/vci&quot;)

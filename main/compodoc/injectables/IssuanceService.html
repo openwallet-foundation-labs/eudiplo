@@ -134,7 +134,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/issuer/issuance/issuance.service.ts</code>
+            <code>src/issuer/configuration/issuance/issuance.service.ts</code>
         </p>
 
 
@@ -223,7 +223,7 @@ It provides methods to get, store, and delete issuance configurations.</p>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="21" class="link-to-prism">src/issuer/issuance/issuance.service.ts:21</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="21" class="link-to-prism">src/issuer/configuration/issuance/issuance.service.ts:21</a></div>
                             </td>
                         </tr>
 
@@ -363,7 +363,7 @@ It provides methods to get, store, and delete issuance configurations.</p>
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="115"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:115</a></div>
+                                    class="link-to-prism">src/issuer/configuration/issuance/issuance.service.ts:115</a></div>
                         </td>
                     </tr>
 
@@ -435,7 +435,7 @@ It provides methods to get, store, and delete issuance configurations.</p>
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="52"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:52</a></div>
+                                    class="link-to-prism">src/issuer/configuration/issuance/issuance.service.ts:52</a></div>
                         </td>
                     </tr>
 
@@ -476,7 +476,7 @@ It provides methods to get, store, and delete issuance configurations.</p>
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="41"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:41</a></div>
+                                    class="link-to-prism">src/issuer/configuration/issuance/issuance.service.ts:41</a></div>
                         </td>
                     </tr>
 
@@ -517,7 +517,7 @@ It provides methods to get, store, and delete issuance configurations.</p>
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="85"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:85</a></div>
+                                    class="link-to-prism">src/issuer/configuration/issuance/issuance.service.ts:85</a></div>
                         </td>
                     </tr>
 
@@ -598,7 +598,7 @@ It provides methods to get, store, and delete issuance configurations.</p>
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="132"
-                                    class="link-to-prism">src/issuer/issuance/issuance.service.ts:132</a></div>
+                                    class="link-to-prism">src/issuer/configuration/issuance/issuance.service.ts:132</a></div>
                         </td>
                     </tr>
 
@@ -695,7 +695,7 @@ It provides methods to get, store, and delete issuance configurations.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="35" class="link-to-prism">src/issuer/issuance/issuance.service.ts:35</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="35" class="link-to-prism">src/issuer/configuration/issuance/issuance.service.ts:35</a></div>
                         </td>
                     </tr>
 
@@ -714,12 +714,12 @@ import { plainToClass } from &quot;class-transformer&quot;;
 import { readFileSync } from &quot;fs&quot;;
 import { PinoLogger } from &quot;nestjs-pino&quot;;
 import { Repository } from &quot;typeorm&quot;;
-import { CertService } from &quot;../../crypto/key/cert/cert.service&quot;;
-import { KeyService } from &quot;../../crypto/key/key.service&quot;;
-import { FilesService } from &quot;../../storage/files.service&quot;;
-import { ConfigImportService } from &quot;../../utils/config-import/config-import.service&quot;;
+import { CertService } from &quot;../../../crypto/key/cert/cert.service&quot;;
+import { KeyService } from &quot;../../../crypto/key/key.service&quot;;
+import { FilesService } from &quot;../../../storage/files.service&quot;;
+import { ConfigImportService } from &quot;../../../shared/utils/config-import/config-import.service&quot;;
 import { CredentialConfigService } from &quot;../credentials/credential-config/credential-config.service&quot;;
-import { DisplayInfo } from &quot;../display/dto/display.dto&quot;;
+import { DisplayInfo } from &quot;./dto/display.dto&quot;;
 import { IssuanceDto } from &quot;./dto/issuance.dto&quot;;
 import { IssuanceConfig } from &quot;./entities/issuance-config.entity&quot;;
 

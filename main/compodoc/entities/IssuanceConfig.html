@@ -132,7 +132,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/issuer/issuance/entities/issuance-config.entity.ts</code>
+            <code>src/issuer/configuration/issuance/entities/issuance-config.entity.ts</code>
         </p>
 
 
@@ -259,7 +259,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="56" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:56</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="56" class="link-to-prism">src/issuer/configuration/issuance/entities/issuance-config.entity.ts:56</a></div>
                         </td>
                     </tr>
 
@@ -304,7 +304,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="74" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:74</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="74" class="link-to-prism">src/issuer/configuration/issuance/entities/issuance-config.entity.ts:74</a></div>
                         </td>
                     </tr>
 
@@ -347,7 +347,7 @@ Default is 1.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="93" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:93</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="93" class="link-to-prism">src/issuer/configuration/issuance/entities/issuance-config.entity.ts:93</a></div>
                         </td>
                     </tr>
 
@@ -391,7 +391,7 @@ Default is 1.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="87" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:87</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="87" class="link-to-prism">src/issuer/configuration/issuance/entities/issuance-config.entity.ts:87</a></div>
                         </td>
                     </tr>
 
@@ -430,7 +430,7 @@ Default is 1.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="82" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:82</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="82" class="link-to-prism">src/issuer/configuration/issuance/entities/issuance-config.entity.ts:82</a></div>
                         </td>
                     </tr>
 
@@ -476,7 +476,7 @@ Default is 1.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="65" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:65</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="65" class="link-to-prism">src/issuer/configuration/issuance/entities/issuance-config.entity.ts:65</a></div>
                         </td>
                     </tr>
 
@@ -518,7 +518,7 @@ Default is 1.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="48" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:48</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="48" class="link-to-prism">src/issuer/configuration/issuance/entities/issuance-config.entity.ts:48</a></div>
                         </td>
                     </tr>
 
@@ -561,7 +561,7 @@ Default is 1.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:42</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/issuer/configuration/issuance/entities/issuance-config.entity.ts:42</a></div>
                         </td>
                     </tr>
 
@@ -603,7 +603,7 @@ Default is 1.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="99" class="link-to-prism">src/issuer/issuance/entities/issuance-config.entity.ts:99</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="99" class="link-to-prism">src/issuer/configuration/issuance/entities/issuance-config.entity.ts:99</a></div>
                         </td>
                     </tr>
 
@@ -638,14 +638,14 @@ import {
     PrimaryColumn,
     UpdateDateColumn,
 } from &quot;typeorm&quot;;
-import { TenantEntity } from &quot;../../../auth/tenant/entitites/tenant.entity&quot;;
-import { WebhookConfig } from &quot;../../../utils/webhook/webhook.dto&quot;;
-import { DisplayInfo } from &quot;../../display/dto/display.dto&quot;;
+import { TenantEntity } from &quot;../../../../auth/tenant/entitites/tenant.entity&quot;;
+import { WebhookConfig } from &quot;../../../../shared/utils/webhook/webhook.dto&quot;;
 import {
     AuthenticationMethodAuth,
     AuthenticationMethodNone,
     AuthenticationMethodPresentation,
 } from &quot;../dto/authentication-config.dto&quot;;
+import { DisplayInfo } from &quot;../dto/display.dto&quot;;
 
 /**
  * Entity to manage issuance configs
