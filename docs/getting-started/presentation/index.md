@@ -85,7 +85,7 @@ Presentation flows create sessions that:
 
 ## Quick Start
 
-To manage presentation configurations, have a look at the [API Documentation](../api/index.md#verifier) about the verifier. There you will find the endpoints to manage presentation configs and also to create presentation requests.
+To manage presentation configurations, have a look at the [API Documentation](../../api/openapi.md#verifier) about the verifier. There you will find the endpoints to manage presentation configs and also to create presentation requests.
 
 ---
 
