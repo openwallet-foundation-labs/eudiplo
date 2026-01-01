@@ -5,6 +5,7 @@ import { NestExpressApplication } from "@nestjs/platform-express";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { writeFileSync } from "fs";
 import { cleanupOpenApiDoc } from "nestjs-zod";
+import { AllExceptionsFilter } from "./all-exceptions.filter";
 import { AppModule } from "./app.module";
 import { ValidationErrorFilter } from "./shared/common/filters/validation-error.filter";
 
@@ -22,7 +23,10 @@ async function bootstrap() {
     app.enableCors();
 
     // Global exception filter for ValidationError
-    app.useGlobalFilters(new ValidationErrorFilter());
+    app.useGlobalFilters(
+        new ValidationErrorFilter(),
+        new AllExceptionsFilter(),
+    );
 
     app.useGlobalPipes(
         new ValidationPipe({

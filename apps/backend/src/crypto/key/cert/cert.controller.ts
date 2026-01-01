@@ -14,7 +14,6 @@ import { Secured } from "../../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../../auth/token.decorator";
 import { CertImportDto } from "../dto/cert-import.dto";
 import { CertResponseDto } from "../dto/cert-response.dto";
-import { CertSelfSignedDto } from "../dto/cert-self-signed.dto";
 import { CertUpdateDto } from "../dto/cert-update.dto";
 import { CertEntity } from "../entities/cert.entity";
 import { CertService } from "./cert.service";
@@ -62,7 +61,7 @@ export class CertController {
     }
 
     /**
-     * Add a new certificate to a key.
+     * Add a new certificate to a key. If no certificate is provided, a self-signed certificate will be generated.
      * @param token - Authentication token
      * @param body - Certificate data including keyId
      * @returns The created certificate ID
@@ -72,33 +71,14 @@ export class CertController {
         @Token() token: TokenPayload,
         @Body() body: CertImportDto,
     ): Promise<CertResponseDto> {
-        return this.certService.addCertificate(
-            token.entity!.id,
-            body.keyId,
-            body,
-        );
-    }
-
-    /**
-     * Generate and add a self-signed certificate.
-     * @param token - Authentication token
-     * @param dto - Certificate type and keyId
-     */
-    @Post("self-signed")
-    addSelfSignedCert(
-        @Token() token: TokenPayload,
-        @Body() dto: CertSelfSignedDto,
-    ): Promise<CertResponseDto> {
+        if (!body.crt) {
+            return this.certService
+                .addSelfSignedCert(token.entity!, body.keyId, body)
+                .then((id) => ({ id }));
+        }
         return this.certService
-            .addSelfSignedCert(
-                token.entity!,
-                dto.keyId,
-                dto.isAccessCert,
-                dto.isSigningCert,
-            )
-            .then((id) => ({
-                id,
-            }));
+            .addCertificate(token.entity!.id, body.keyId, body)
+            .then((id) => ({ id }));
     }
 
     /**

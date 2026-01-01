@@ -4,16 +4,6 @@
   "title": "CertEntity",
   "type": "object",
   "properties": {
-    "isAccessCert": {
-      "type": "boolean",
-      "description": "Certificate can be used for access/authentication",
-      "example": false
-    },
-    "isSigningCert": {
-      "type": "boolean",
-      "description": "Certificate can be used for signing",
-      "example": true
-    },
     "keyId": {
       "type": "string",
       "description": "The key ID this certificate is associated with",
@@ -41,6 +31,12 @@
       "type": "string",
       "description": "Certificate in PEM format."
     },
+    "usages": {
+      "type": "array",
+      "items": {
+        "$ref": "./CertUsageEntity.schema.json"
+      }
+    },
     "description": {
       "type": "string",
       "description": "Description of the key."
@@ -60,13 +56,12 @@
     }
   },
   "required": [
-    "isAccessCert",
-    "isSigningCert",
     "keyId",
     "id",
     "tenantId",
     "tenant",
     "crt",
+    "usages",
     "key",
     "createdAt",
     "updatedAt"

@@ -26,7 +26,7 @@ export class KeyManagementListComponent implements OnInit {
 
   displayedColumns: (keyof KeyEntity | 'actions')[] = ['id', 'description', 'actions'];
 
-  constructor(private keyManagementService: KeyManagementService) {}
+  constructor(private readonly keyManagementService: KeyManagementService) {}
   ngOnInit(): void {
     this.keyManagementService.loadKeys().then(
       (keys) => (this.keys = keys),

@@ -1,0 +1,14 @@
+{
+    "description": "PID trust list",
+    "data": {
+        "id": "foo"
+    },
+    "id": "039af178-3ca0-48f4-a2e4-7b1209f31376",
+    "certId": "139af178-3ca0-48f4-a2e4-7b1209f30374",
+    "entities": [
+        {
+            "issuerCertId": "139af178-3ca0-48f4-a2e4-7b1209f30374",
+            "revocationCertId": "139af178-3ca0-48f4-a2e4-7b1209f30374"
+        }
+    ]
+}

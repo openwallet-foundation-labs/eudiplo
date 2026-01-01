@@ -1,6 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { CertService } from "../../../../crypto/key/cert/cert.service";
 import { CryptoImplementationService } from "../../../../crypto/key/crypto-implementation/crypto-implementation.service";
+import { CertUsage } from "../../../../crypto/key/entities/cert-usage.entity";
 import { KeyService } from "../../../../crypto/key/key.service";
 import { MediaType } from "../../../../shared/utils/mediaType/media-type.enum";
 import { AuthorizeService } from "../authorize/authorize.service";
@@ -43,21 +44,21 @@ export class WellKnownService {
         if (contentType === MediaType.APPLICATION_JWT) {
             const cert = await this.certService.find({
                 tenantId,
-                type: "access",
+                type: CertUsage.Access,
             });
             return this.keyService.signJWT(
                 {
                     ...metadata,
                     iss: metadata.credential_issuer,
                     sub: metadata.credential_issuer,
-                    iat: Math.floor(new Date().getTime() / 1000),
+                    iat: Math.floor(Date.now() / 1000),
                     // [Review]: should we add `exp` value here?
                     //MM: the value makes sense when we cache the issuer metadata so it must not be signed on every request. Like when it is issued every hour, its lifetime is 1 hour and the jwt is in the cache.
                 },
                 {
                     typ: "openidvci-issuer-metadata+jwt",
                     alg: this.cryptoImplementationService.getAlg(),
-                    x5c: await this.certService.getCertChain(cert),
+                    x5c: this.certService.getCertChain(cert),
                 },
                 tenantId,
                 cert.keyId,

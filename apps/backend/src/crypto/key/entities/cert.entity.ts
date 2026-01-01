@@ -1,13 +1,15 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsBoolean, IsOptional, IsString, IsUUID } from "class-validator";
+import { IsOptional, IsString, IsUUID } from "class-validator";
 import {
     Column,
     CreateDateColumn,
     Entity,
     ManyToOne,
+    OneToMany,
     UpdateDateColumn,
 } from "typeorm";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
+import { CertUsageEntity } from "./cert-usage.entity";
 import { KeyEntity } from "./keys.entity";
 
 /**
@@ -41,27 +43,15 @@ export class CertEntity {
     @Column("varchar")
     crt!: string;
 
-    /**
-     * Whether this certificate is used for access/authentication.
-     */
-    @ApiProperty({
-        description: "Certificate can be used for access/authentication",
-        example: false,
-    })
-    @IsBoolean()
-    @Column("boolean", { default: false })
-    isAccessCert!: boolean;
-
-    /**
-     * Whether this certificate is used for signing.
-     */
-    @ApiProperty({
-        description: "Certificate can be used for signing",
-        example: true,
-    })
-    @IsBoolean()
-    @Column("boolean", { default: false })
-    isSigningCert!: boolean;
+    @OneToMany(
+        () => CertUsageEntity,
+        (u) => u.cert,
+        {
+            cascade: ["insert", "update", "remove"],
+            eager: true,
+        },
+    )
+    usages!: CertUsageEntity[];
 
     /**
      * Description of the key.

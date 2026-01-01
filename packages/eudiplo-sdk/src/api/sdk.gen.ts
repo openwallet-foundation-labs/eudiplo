@@ -27,8 +27,6 @@ import type {
   AuthorizeControllerTokenResponses,
   CertControllerAddCertificateData,
   CertControllerAddCertificateResponses,
-  CertControllerAddSelfSignedCertData,
-  CertControllerAddSelfSignedCertResponses,
   CertControllerDeleteCertificateData,
   CertControllerDeleteCertificateResponses,
   CertControllerGetCertificateData,
@@ -94,8 +92,12 @@ import type {
   PresentationManagementControllerConfigurationResponses,
   PresentationManagementControllerDeleteConfigurationData,
   PresentationManagementControllerDeleteConfigurationResponses,
+  PresentationManagementControllerGetConfigurationData,
+  PresentationManagementControllerGetConfigurationResponses,
   PresentationManagementControllerStorePresentationConfigData,
   PresentationManagementControllerStorePresentationConfigResponses,
+  PresentationManagementControllerUpdateConfigurationData,
+  PresentationManagementControllerUpdateConfigurationResponses,
   PrometheusControllerIndexData,
   PrometheusControllerIndexResponses,
   SessionControllerDeleteSessionData,
@@ -120,6 +122,18 @@ import type {
   TenantControllerGetTenantsResponses,
   TenantControllerInitTenantData,
   TenantControllerInitTenantResponses,
+  TrustListControllerCreateTrustListData,
+  TrustListControllerCreateTrustListResponses,
+  TrustListControllerDeleteTrustListData,
+  TrustListControllerDeleteTrustListResponses,
+  TrustListControllerGetAllTrustListsData,
+  TrustListControllerGetAllTrustListsResponses,
+  TrustListControllerGetTrustListData,
+  TrustListControllerGetTrustListResponses,
+  TrustListControllerUpdateTrustListData,
+  TrustListControllerUpdateTrustListResponses,
+  TrustListPublicControllerGetTrustListJwtData,
+  TrustListPublicControllerGetTrustListJwtResponses,
   VerifierOfferControllerGetOfferData,
   VerifierOfferControllerGetOfferResponses,
   WellKnownControllerAuthzMetadataData,
@@ -148,48 +162,6 @@ export type Options<
 };
 
 /**
- * Get OpenID4VCI issuer metadata
- *
- * Returns the OpenID4VCI issuer metadata.
- */
-export const wellKnownControllerIssuerMetadata = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<WellKnownControllerIssuerMetadataData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    WellKnownControllerIssuerMetadataResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/.well-known/openid-credential-issuer/{tenantId}", ...options });
-
-/**
- * Authorization Server Metadata
- */
-export const wellKnownControllerAuthzMetadata = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<WellKnownControllerAuthzMetadataData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    WellKnownControllerAuthzMetadataResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/.well-known/oauth-authorization-server/{tenantId}", ...options });
-
-/**
- * Returns the JSON Web Key Set (JWKS) for the authorization server.
- */
-export const wellKnownControllerGetJwks = <ThrowOnError extends boolean = true>(
-  options: Options<WellKnownControllerGetJwksData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    WellKnownControllerGetJwksResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/.well-known/jwks.json/{tenantId}", ...options });
-
-/**
  * Main endpoint providing service info
  */
 export const appControllerMain = <ThrowOnError extends boolean = true>(
@@ -200,6 +172,27 @@ export const appControllerMain = <ThrowOnError extends boolean = true>(
     unknown,
     ThrowOnError
   >({ url: "/", ...options });
+
+/**
+ * Endpoint to check the health of the service.
+ */
+export const healthControllerCheck = <ThrowOnError extends boolean = true>(
+  options?: Options<HealthControllerCheckData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    HealthControllerCheckResponses,
+    HealthControllerCheckErrors,
+    ThrowOnError
+  >({ url: "/health", ...options });
+
+export const prometheusControllerIndex = <ThrowOnError extends boolean = true>(
+  options?: Options<PrometheusControllerIndexData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    PrometheusControllerIndexResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/metrics", ...options });
 
 /**
  * OAuth2 Token endpoint - supports client credentials flow only
@@ -545,7 +538,7 @@ export const certControllerGetCertificates = <
   });
 
 /**
- * Add a new certificate to a key.
+ * Add a new certificate to a key. If no certificate is provided, a self-signed certificate will be generated.
  */
 export const certControllerAddCertificate = <
   ThrowOnError extends boolean = true,
@@ -617,28 +610,6 @@ export const certControllerUpdateCertificate = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/certs/{certId}",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Generate and add a self-signed certificate.
- */
-export const certControllerAddSelfSignedCert = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<CertControllerAddSelfSignedCertData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    CertControllerAddSelfSignedCertResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/certs/self-signed",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -1013,6 +984,48 @@ export const oid4VciMetadataControllerVct = <
   >({ url: "/{tenantId}/credentials-metadata/vct/{id}", ...options });
 
 /**
+ * Get OpenID4VCI issuer metadata
+ *
+ * Returns the OpenID4VCI issuer metadata.
+ */
+export const wellKnownControllerIssuerMetadata = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<WellKnownControllerIssuerMetadataData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    WellKnownControllerIssuerMetadataResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/.well-known/openid-credential-issuer/{tenantId}", ...options });
+
+/**
+ * Authorization Server Metadata
+ */
+export const wellKnownControllerAuthzMetadata = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<WellKnownControllerAuthzMetadataData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    WellKnownControllerAuthzMetadataResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/.well-known/oauth-authorization-server/{tenantId}", ...options });
+
+/**
+ * Returns the JSON Web Key Set (JWKS) for the authorization server.
+ */
+export const wellKnownControllerGetJwks = <ThrowOnError extends boolean = true>(
+  options: Options<WellKnownControllerGetJwksData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    WellKnownControllerGetJwksResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/.well-known/jwks.json/{tenantId}", ...options });
+
+/**
  * Returns the authorization request for a given requestId and session.
  */
 export const oid4VpControllerGetRequestWithSession = <
@@ -1129,6 +1142,160 @@ export const presentationManagementControllerDeleteConfiguration = <
   });
 
 /**
+ * Get a presentation request configuration by its ID.
+ */
+export const presentationManagementControllerGetConfiguration = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<
+    PresentationManagementControllerGetConfigurationData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).get<
+    PresentationManagementControllerGetConfigurationResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/verifier/config/{id}",
+    ...options,
+  });
+
+/**
+ * Update a presentation request configuration by its ID.
+ */
+export const presentationManagementControllerUpdateConfiguration = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<
+    PresentationManagementControllerUpdateConfigurationData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).patch<
+    PresentationManagementControllerUpdateConfigurationResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/verifier/config/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Returns all trust lists for the tenant
+ */
+export const trustListControllerGetAllTrustLists = <
+  ThrowOnError extends boolean = true,
+>(
+  options?: Options<TrustListControllerGetAllTrustListsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    TrustListControllerGetAllTrustListsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/trust-list",
+    ...options,
+  });
+
+/**
+ * Creates a new trust list for the tenant
+ */
+export const trustListControllerCreateTrustList = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<TrustListControllerCreateTrustListData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    TrustListControllerCreateTrustListResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/trust-list",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Deletes a trust list
+ */
+export const trustListControllerDeleteTrustList = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<TrustListControllerDeleteTrustListData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    TrustListControllerDeleteTrustListResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/trust-list/{id}",
+    ...options,
+  });
+
+/**
+ * Returns the trust list by id for the tenant
+ */
+export const trustListControllerGetTrustList = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<TrustListControllerGetTrustListData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    TrustListControllerGetTrustListResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/trust-list/{id}",
+    ...options,
+  });
+
+/**
+ * Updates a trust list
+ */
+export const trustListControllerUpdateTrustList = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<TrustListControllerUpdateTrustListData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    TrustListControllerUpdateTrustListResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/trust-list/{id}",
+    ...options,
+  });
+
+/**
+ * Returns the JWT of the trust list
+ */
+export const trustListPublicControllerGetTrustListJwt = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<TrustListPublicControllerGetTrustListJwtData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    TrustListPublicControllerGetTrustListJwtResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/{tenantId}/trust-list/{id}", ...options });
+
+/**
  * Create an presentation request that can be sent to the user
  */
 export const verifierOfferControllerGetOffer = <
@@ -1149,27 +1316,6 @@ export const verifierOfferControllerGetOffer = <
       ...options.headers,
     },
   });
-
-/**
- * Endpoint to check the health of the service.
- */
-export const healthControllerCheck = <ThrowOnError extends boolean = true>(
-  options?: Options<HealthControllerCheckData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    HealthControllerCheckResponses,
-    HealthControllerCheckErrors,
-    ThrowOnError
-  >({ url: "/health", ...options });
-
-export const prometheusControllerIndex = <ThrowOnError extends boolean = true>(
-  options?: Options<PrometheusControllerIndexData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    PrometheusControllerIndexResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/metrics", ...options });
 
 /**
  * Upload files that belong to a tenant like images

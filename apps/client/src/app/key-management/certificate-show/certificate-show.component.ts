@@ -57,6 +57,7 @@ export class CertificateShowComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
+    // Try to get keyId from route (legacy key-scoped route)
     this.keyId = this.route.snapshot.paramMap.get('keyId') || undefined;
     this.certId = this.route.snapshot.paramMap.get('certId') || undefined;
 
@@ -66,6 +67,11 @@ export class CertificateShowComponent implements OnInit {
           path: { certId: this.certId },
         });
         this.certificate = response.data;
+
+        // Get keyId from certificate if not from route
+        if (!this.keyId && this.certificate?.keyId) {
+          this.keyId = this.certificate.keyId;
+        }
 
         if (this.certificate?.crt) {
           await this.parseCertificateInfo(this.certificate.crt);
@@ -178,7 +184,7 @@ export class CertificateShowComponent implements OnInit {
     await certControllerDeleteCertificate({
       path: { certId: this.certId! },
     });
-    this.router.navigate(['/key-management', this.keyId]);
+    this.router.navigate(['/certificates']);
   }
 
   async copyToClipboard(text: string, format: string): Promise<void> {

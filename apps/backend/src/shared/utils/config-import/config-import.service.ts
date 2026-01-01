@@ -1,17 +1,17 @@
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { ClassConstructor, plainToClass } from "class-transformer";
 import { ValidationError, validate } from "class-validator";
-import { existsSync, readdirSync, readFileSync } from "fs";
 import { PinoLogger } from "nestjs-pino";
-import { join } from "path";
 import { ImportOptions } from "./import-options";
 
 @Injectable()
 export class ConfigImportService {
     constructor(
-        private configService: ConfigService,
-        private logger: PinoLogger,
+        private readonly configService: ConfigService,
+        private readonly logger: PinoLogger,
     ) {}
 
     /**
@@ -240,6 +240,7 @@ export class ConfigImportService {
             this.logger.error(
                 {
                     event: "ValidationError",
+                    //TODO: print the path to uniquely identify the file when two or more files have the same name in different folders
                     file,
                     tenant: tenant.name,
                     errors: validationErrors.map(formatter),

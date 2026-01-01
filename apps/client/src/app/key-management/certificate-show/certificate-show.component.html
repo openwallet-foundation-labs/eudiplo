@@ -28,17 +28,8 @@
             <div class="info-row">
               <span class="label">Usage Types:</span>
               <div fxLayout="row" fxLayoutGap="8px">
-                @if (certificate.isSigningCert) {
-                  <mat-chip color="primary">
-                    <mat-icon>edit</mat-icon>
-                    Signing
-                  </mat-chip>
-                }
-                @if (certificate.isAccessCert) {
-                  <mat-chip color="accent">
-                    <mat-icon>vpn_key</mat-icon>
-                    Access
-                  </mat-chip>
+                @for (usage of certificate.usages; track usage) {
+                  <mat-chip>{{ usage.usage }}</mat-chip>
                 }
               </div>
             </div>

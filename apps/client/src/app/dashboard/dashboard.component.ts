@@ -3,16 +3,21 @@ import { Component, type OnDestroy, type OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { EnvironmentService } from '../services/environment.service';
 import { ApiService, appControllerMain } from '@eudiplo/sdk';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { DashboardService } from './dashboard.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -21,27 +26,34 @@ import { ApiService, appControllerMain } from '@eudiplo/sdk';
     FlexLayoutModule,
     MatCardModule,
     MatButtonModule,
+    MatDividerModule,
     MatIconModule,
     MatChipsModule,
+    MatExpansionModule,
     MatFormFieldModule,
     MatInputModule,
+    MatProgressBarModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatTooltipModule,
+    MatGridListModule,
+    RouterModule,
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit, OnDestroy {
-  private refreshInterval?: NodeJS.Timeout;
+  private readonly refreshInterval?: NodeJS.Timeout;
   private tokenCheckInterval?: NodeJS.Timeout;
   backendVersion: string | null = null;
+  clientVersion: string | null = null;
 
   constructor(
     public apiService: ApiService,
     public environmentService: EnvironmentService,
-    private router: Router,
-    private snackBar: MatSnackBar
+    public dashboardService: DashboardService,
+    private readonly router: Router,
+    private readonly snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -53,8 +65,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // Initial check
     this.checkTokenStatus();
 
-    // Fetch backend version
+    // Fetch versions
     this.fetchBackendVersion();
+    this.fetchClientVersion();
+
+    // Fetch dashboard stats
+    this.dashboardService.getCounters();
   }
 
   ngOnDestroy(): void {
@@ -121,26 +137,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this.apiService.getOAuthConfiguration();
   }
 
-  navigateToCredentialConfig(): void {
-    this.router.navigate(['/credential-config']);
-  }
-
-  navigateToKeyManagement(): void {
-    this.router.navigate(['/key-management']);
-  }
-
-  navigateToIssuanceConfig(): void {
-    this.router.navigate(['/issuance-config']);
-  }
-
-  navigateToPresentationConfig(): void {
-    this.router.navigate(['/presentation-config']);
-  }
-
-  navigateToSessionManagement(): void {
-    this.router.navigate(['/session-management']);
-  }
-
   /**
    * Fetch backend version from the API
    */
@@ -154,6 +150,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
       console.error('Failed to fetch backend version:', error);
       this.backendVersion = 'Unknown';
     }
+  }
+
+  /**
+   * Fetch client version from runtime environment
+   */
+  private fetchClientVersion(): void {
+    const env = (window as any)['env'];
+    this.clientVersion = env?.version || 'dev';
   }
 
   /**

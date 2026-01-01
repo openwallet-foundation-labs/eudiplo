@@ -5,8 +5,9 @@ import { readFileSync } from "fs";
 import { PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm";
 import { CertService } from "../../../../crypto/key/cert/cert.service";
-import { FilesService } from "../../../../storage/files.service";
+import { CertUsage } from "../../../../crypto/key/entities/cert-usage.entity";
 import { ConfigImportService } from "../../../../shared/utils/config-import/config-import.service";
+import { FilesService } from "../../../../storage/files.service";
 import { StatusListService } from "../../../lifecycle/status/status-list.service";
 import { CredentialConfigCreate } from "../dto/credential-config-create.dto";
 import { CredentialConfig } from "../entities/credential.entity";
@@ -23,11 +24,11 @@ export class CredentialConfigService {
     constructor(
         @InjectRepository(CredentialConfig)
         private readonly credentialConfigRepository: Repository<CredentialConfig>,
-        private logger: PinoLogger,
-        private certService: CertService,
-        private filesService: FilesService,
-        private configImportService: ConfigImportService,
-        private statusListService: StatusListService,
+        private readonly logger: PinoLogger,
+        private readonly certService: CertService,
+        private readonly filesService: FilesService,
+        private readonly configImportService: ConfigImportService,
+        private readonly statusListService: StatusListService,
     ) {}
 
     /**
@@ -104,7 +105,7 @@ export class CredentialConfigService {
                 if (config.certId) {
                     const cert = await this.certService.find({
                         tenantId,
-                        type: "signing",
+                        type: CertUsage.Signing,
                         id: config.certId,
                     });
                     if (!cert) {

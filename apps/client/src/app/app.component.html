@@ -3,7 +3,8 @@
     <button matIconButton (click)="toggleSidenav()" fxHide.gt-sm>
       <mat-icon>menu</mat-icon>
     </button>
-    <span>eudiplo client</span>
+    <img src="logo.svg" alt="EUDIPLO" class="toolbar-logo" />
+    <span>eudiplo</span>
 
     <!-- Spacer -->
     <span fxFlex></span>
@@ -67,7 +68,6 @@
           <mat-list-item [routerLink]="['/certificates']" routerLinkActive="active-link">
             <span matListItemTitle>Certificates</span>
           </mat-list-item>
-
           <mat-divider></mat-divider>
         }
 
@@ -81,6 +81,10 @@
 
           <mat-list-item [routerLink]="['/credential-config']" routerLinkActive="active-link">
             <span matListItemTitle>Credential Configurations</span>
+          </mat-list-item>
+
+          <mat-list-item [routerLink]="['/trust-list']" routerLinkActive="active-link">
+            <span matListItemTitle>Trust Lists</span>
           </mat-list-item>
 
           <mat-divider></mat-divider>

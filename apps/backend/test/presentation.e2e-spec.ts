@@ -1,3 +1,5 @@
+import { readFileSync, rmSync } from "node:fs";
+import { join, resolve } from "node:path";
 import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
@@ -5,20 +7,21 @@ import {
     Openid4vpAuthorizationRequest,
     Openid4vpClient,
 } from "@openid4vc/openid4vp";
-import { readFileSync, rmSync } from "fs";
 import { CryptoKey, EncryptJWT, importJWK, JWK } from "jose";
 import nock from "nock";
-import { join, resolve } from "path";
 import request from "supertest";
 import { App } from "supertest/types";
 import { beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../src/app.module";
+import { CertImportDto } from "../src/crypto/key/dto/cert-import.dto";
 import { KeyImportDto } from "../src/crypto/key/dto/key-import.dto";
+import { TrustListCreateDto } from "../src/issuer/trustlist/dto/trust-list-create.dto";
 import { AuthConfig } from "../src/shared/utils/webhook/webhook.dto";
 import {
     PresentationRequest,
     ResponseType,
 } from "../src/verifier/oid4vp/dto/presentation-request.dto";
+import { PresentationConfigCreateDto } from "../src/verifier/presentations/dto/presentation-config-create.dto";
 import { callbacks, getToken, preparePresentation } from "./utils";
 
 describe("Presentation", () => {
@@ -27,6 +30,9 @@ describe("Presentation", () => {
     let host: string;
     let clientId: string;
     let clientSecret: string;
+
+    let privateIssuerKey: CryptoKey;
+    let x5c: string[];
 
     const client = new Openid4vpClient({
         callbacks: {
@@ -97,19 +103,27 @@ describe("Presentation", () => {
     /**
      * Helper function to submit a complete presentation flow
      */
-    async function submitPresentation(requestId: string, webhookUrl?: string) {
+    async function submitPresentation(values: {
+        requestId: string;
+        webhookUrl?: string;
+        privateKey: CryptoKey;
+        x5c: string[];
+    }) {
         const requestBody: PresentationRequest = {
             response_type: ResponseType.URI,
-            requestId,
-            ...(webhookUrl && {
+            requestId: values.requestId,
+            ...(values.webhookUrl && {
                 webhook: {
-                    url: webhookUrl,
+                    url: values.webhookUrl,
                     auth: { type: AuthConfig.NONE },
                 },
             }),
         };
 
         const res = await createPresentationRequest(requestBody);
+
+        console.log(values.requestId);
+        console.log(res.body);
 
         const authRequest = client.parseOpenid4vpAuthorizationRequest({
             authorizationRequest: res.body.uri,
@@ -119,11 +133,15 @@ describe("Presentation", () => {
             authorizationRequestPayload: authRequest.params,
         });
 
-        const vp_token = await preparePresentation({
-            iat: Math.floor(Date.now() / 1000),
-            aud: resolved.authorizationRequestPayload.aud as string,
-            nonce: resolved.authorizationRequestPayload.nonce,
-        });
+        const vp_token = await preparePresentation(
+            {
+                iat: Math.floor(Date.now() / 1000),
+                aud: resolved.authorizationRequestPayload.aud as string,
+                nonce: resolved.authorizationRequestPayload.nonce,
+            },
+            values.privateKey,
+            values.x5c,
+        );
 
         const jwt = await encryptVpToken(vp_token, resolved);
 
@@ -144,6 +162,10 @@ describe("Presentation", () => {
         });
 
         return { res, submitRes };
+    }
+
+    function readFile<T>(path: string): T {
+        return JSON.parse(readFileSync(path, "utf-8"));
     }
 
     beforeAll(async () => {
@@ -167,17 +189,14 @@ describe("Presentation", () => {
         await app.listen(3000);
         authToken = await getToken(app, clientId, clientSecret);
 
-        const privateKey: KeyImportDto = {
-            id: "039af178-3ca0-48f4-a2e4-7b1209f30376",
-            key: {
-                kty: "EC",
-                x: "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
-                y: "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
-                crv: "P-256",
-                d: "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
-                alg: "ES256",
-            },
-        };
+        const privateKey = readFile<KeyImportDto>(
+            join(configFolder, "root/keys/key.json"),
+        );
+
+        privateIssuerKey = (await importJWK(
+            privateKey.key,
+            "ES256",
+        )) as CryptoKey;
 
         await request(app.getHttpServer())
             .post("/key")
@@ -185,30 +204,43 @@ describe("Presentation", () => {
             .send(privateKey)
             .expect(201);
 
-        // create self signed certificate for the key
-        await request(app.getHttpServer())
-            .post(`/certs/self-signed`)
-            .set("Authorization", `Bearer ${authToken}`)
-            .send({
-                keyId: privateKey.id,
-                isSigningCert: true,
-                isAccessCert: true,
-            })
-            .expect(201);
+        // import cert
 
-        //import the pid credential configuration
-        const pidWithNoWebhookCredentialConfiguration = JSON.parse(
-            readFileSync(
-                join(configFolder, "root/presentation/pid-no-hook.json"),
-                "utf-8",
-            ),
+        const cert = readFile<CertImportDto>(
+            join(configFolder, "root/certs/self-signed.json"),
         );
+        x5c = [
+            cert
+                .crt!.replace("-----BEGIN CERTIFICATE-----", "")
+                .replace("-----END CERTIFICATE-----", "")
+                .replaceAll(/\r?\n|\r/g, ""),
+        ];
+        await request(app.getHttpServer())
+            .post("/certs")
+            .set("Authorization", `Bearer ${authToken}`)
+            .send(cert)
+            .expect(201);
 
         await request(app.getHttpServer())
             .post("/verifier/config")
             .trustLocalhost()
             .set("Authorization", `Bearer ${authToken}`)
-            .send(pidWithNoWebhookCredentialConfiguration)
+            .send(
+                readFile<PresentationConfigCreateDto>(
+                    join(configFolder, "root/presentation/pid-no-hook.json"),
+                ),
+            )
+            .expect(201);
+
+        await request(app.getHttpServer())
+            .post("/trust-list")
+            .trustLocalhost()
+            .set("Authorization", `Bearer ${authToken}`)
+            .send(
+                readFile<TrustListCreateDto>(
+                    join(configFolder, "root/trustlists/pid.json"),
+                ),
+            )
             .expect(201);
 
         //import the pid credential configuration
@@ -266,7 +298,11 @@ describe("Presentation", () => {
     });
 
     test("present credential", async () => {
-        const { submitRes } = await submitPresentation("pid-no-hook");
+        const { submitRes } = await submitPresentation({
+            requestId: "pid-no-hook",
+            privateKey: privateIssuerKey,
+            x5c,
+        });
 
         expect(submitRes).toBeDefined();
         expect(submitRes.response.status).toBe(200);
@@ -285,7 +321,11 @@ describe("Presentation", () => {
             })
             .reply(200);
 
-        const { submitRes } = await submitPresentation("pid");
+        const { submitRes } = await submitPresentation({
+            requestId: "pid",
+            privateKey: privateIssuerKey,
+            x5c,
+        });
 
         expect(submitRes).toBeDefined();
         expect(submitRes.response.status).toBe(200);
@@ -305,10 +345,12 @@ describe("Presentation", () => {
             })
             .reply(200);
 
-        const { submitRes } = await submitPresentation(
-            "pid",
-            "http://localhost:8787/custom",
-        );
+        const { submitRes } = await submitPresentation({
+            requestId: "pid",
+            privateKey: privateIssuerKey,
+            x5c,
+            webhookUrl: "http://localhost:8787/custom",
+        });
 
         expect(submitRes).toBeDefined();
         expect(submitRes.response.status).toBe(200);

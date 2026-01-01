@@ -18,42 +18,16 @@
               "locality"
             ]
           }
+        ],
+        "trusted_authorities": [
+          {
+            "type": "etsi_tl",
+            "values": [
+              "<PUBLIC_URL>/trust-list/039af178-3ca0-48f4-a2e4-7b1209f31376"
+            ]
+          }
         ]
       }
     ]
-  },
-  "registrationCert": {
-    "body": {
-      "privacy_policy": "https://example.com/privacy-policy",
-      "purpose": [
-        {
-          "locale": "en-US",
-          "name": "To register a new user"
-        }
-      ],
-      "contact": {
-        "website": "https://example.com/contact",
-        "e-mail": "privacy@example.com",
-        "phone": "+1234567890"
-      },
-      "credentials": [
-        {
-          "format": "dc+sd-jwt",
-          "meta": {
-            "vct_values": [
-              "<PUBLIC_URL>/credentials-metadata/vct/pid"
-            ]
-          },
-          "claims": [
-            {
-              "path": [
-                "address",
-                "locality"
-              ]
-            }
-          ]
-        }
-      ]
-    }
   }
 }

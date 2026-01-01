@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertUsageEntity.schema.json",
+  "title": "CertUsageEntity",
+  "type": "object",
+  "properties": {
+    "tenantId": {
+      "type": "string"
+    },
+    "certId": {
+      "type": "string"
+    },
+    "usage": {
+      "type": "string",
+      "enum": [
+        "access",
+        "signing",
+        "trustList",
+        "statusList"
+      ]
+    },
+    "cert": {
+      "$ref": "./CertEntity.schema.json"
+    }
+  },
+  "required": [
+    "tenantId",
+    "certId",
+    "usage",
+    "cert"
+  ]
+}

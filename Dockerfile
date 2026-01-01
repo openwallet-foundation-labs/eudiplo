@@ -60,6 +60,10 @@ COPY apps/client/nginx.conf /etc/nginx/nginx.conf
 COPY apps/client/docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
+# Accept VERSION as build argument and set as environment variable
+ARG VERSION=latest
+ENV VERSION=$VERSION
+
 # Environment variables with defaults
 ENV API_BASE_URL=http://localhost:3000
 
@@ -102,6 +106,10 @@ COPY apps/client/nginx.conf /etc/nginx/nginx.conf
 # Copy entrypoint script
 COPY apps/client/docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
+
+# Accept VERSION as build argument and set as environment variable
+ARG VERSION=latest
+ENV VERSION=$VERSION
 
 # Environment variables with defaults
 ENV API_BASE_URL=http://localhost:3000

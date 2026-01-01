@@ -267,7 +267,8 @@ export class PresentationCreateComponent {
    * Load a predefined configuration
    */
   loadPredefinedConfig(configTemplate: any): void {
-    const config = JSON.parse(JSON.stringify(configTemplate.config)); // Deep clone
+    console.log(configTemplate);
+    const config = structuredClone(configTemplate.config); // Deep clone
 
     this.loadConfigurationFromJson(config);
 

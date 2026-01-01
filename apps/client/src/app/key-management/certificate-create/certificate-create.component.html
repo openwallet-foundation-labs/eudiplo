@@ -102,37 +102,6 @@
                 Select the type of certificate to generate. The certificate will be created
                 automatically and added to your key.
               </p>
-
-              <div fxLayout="column" fxLayoutGap="12px" class="generate-buttons">
-                <button
-                  type="button"
-                  mat-raised-button
-                  color="primary"
-                  (click)="generateSelfSignedCert({ isSigningCert: true, isAccessCert: false })"
-                >
-                  <mat-icon>edit</mat-icon>
-                  Generate Signing Certificate
-                </button>
-
-                <button
-                  type="button"
-                  mat-raised-button
-                  color="accent"
-                  (click)="generateSelfSignedCert({ isSigningCert: false, isAccessCert: true })"
-                >
-                  <mat-icon>vpn_key</mat-icon>
-                  Generate Access Certificate
-                </button>
-
-                <button
-                  type="button"
-                  mat-raised-button
-                  (click)="generateSelfSignedCert({ isSigningCert: true, isAccessCert: true })"
-                >
-                  <mat-icon>star</mat-icon>
-                  Generate Both (Signing & Access)
-                </button>
-              </div>
             </div>
 
             <!-- Cancel Button for Generate Tab -->

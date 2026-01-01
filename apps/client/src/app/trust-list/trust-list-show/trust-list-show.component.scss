@@ -1,0 +1,68 @@
+:host {
+  display: block;
+}
+
+mat-card {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+mat-card-content {
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 16px;
+}
+
+h2 {
+  margin: 0 0 8px 0;
+}
+
+h3 {
+  margin: 12px 0 6px 0;
+}
+
+h4 {
+  margin: 10px 0 4px 0;
+}
+
+ul {
+  margin: 8px 0 16px 16px;
+  padding: 0;
+}
+
+mat-list-item {
+  padding: 6px 0;
+}
+
+strong {
+  display: inline-block;
+  min-width: 160px;
+  font-weight: 600;
+}
+
+a {
+  color: rgba(25, 118, 210, 1);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* make long cert strings break instead of forcing horizontal overflow */
+/* certificate value styling */
+.cert {
+  word-break: break-all;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;
+  font-size: 0.85em;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+@media (max-width: 600px) {
+  strong {
+    min-width: 120px;
+  }
+  mat-card-content {
+    padding: 12px;
+  }
+}

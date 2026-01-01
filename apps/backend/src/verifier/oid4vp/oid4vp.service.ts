@@ -5,6 +5,7 @@ import { v4 } from "uuid";
 import { EncryptionService } from "../../crypto/encryption/encryption.service";
 import { CertService } from "../../crypto/key/cert/cert.service";
 import { CryptoImplementationService } from "../../crypto/key/crypto-implementation/crypto-implementation.service";
+import { CertUsage } from "../../crypto/key/entities/cert-usage.entity";
 import { KeyService } from "../../crypto/key/key.service";
 import { OfferResponse } from "../../issuer/issuance/oid4vci/dto/offer-request.dto";
 import { RegistrarService } from "../../registrar/registrar.service";
@@ -21,16 +22,16 @@ import { PresentationRequestOptions } from "./dto/presentation-request-options.d
 @Injectable()
 export class Oid4vpService {
     constructor(
-        private certService: CertService,
+        private readonly certService: CertService,
         @Inject("KeyService") public readonly keyService: KeyService,
-        private encryptionService: EncryptionService,
-        private configService: ConfigService,
-        private registrarService: RegistrarService,
-        private presentationsService: PresentationsService,
-        private sessionService: SessionService,
-        private sessionLogger: SessionLoggerService,
-        private webhookService: WebhookService,
-        private cryptoImplementationService: CryptoImplementationService,
+        private readonly encryptionService: EncryptionService,
+        private readonly configService: ConfigService,
+        private readonly registrarService: RegistrarService,
+        private readonly presentationsService: PresentationsService,
+        private readonly sessionService: SessionService,
+        private readonly sessionLogger: SessionLoggerService,
+        private readonly webhookService: WebhookService,
+        private readonly cryptoImplementationService: CryptoImplementationService,
     ) {}
 
     /**
@@ -72,18 +73,17 @@ export class Oid4vpService {
             let regCert: string | undefined = undefined;
 
             const dcql_query = JSON.parse(
-                JSON.stringify(presentationConfig.dcql_query).replace(
-                    /<PUBLIC_URL>/g,
+                JSON.stringify(presentationConfig.dcql_query).replaceAll(
+                    "<PUBLIC_URL>",
                     tenantHost,
                 ),
             );
 
             if (this.registrarService.isEnabled()) {
                 const registrationCert = JSON.parse(
-                    JSON.stringify(presentationConfig.registrationCert).replace(
-                        /<PUBLIC_URL>/g,
-                        tenantHost,
-                    ),
+                    JSON.stringify(
+                        presentationConfig.registrationCert,
+                    ).replaceAll("<PUBLIC_URL>", tenantHost),
                 );
                 regCert =
                     await this.registrarService.addRegistrationCertificate(
@@ -111,21 +111,21 @@ export class Oid4vpService {
 
             const cert = await this.certService.find({
                 tenantId: session.tenantId,
-                type: "access",
+                type: CertUsage.Access,
             });
 
-            const certHash = await this.certService.getCertHash(cert);
+            const certHash = this.certService.getCertHash(cert);
 
             const request = {
                 payload: {
                     response_type: "vp_token",
                     client_id: "x509_hash:" + certHash,
-                    response_uri: !session.useDcApi
-                        ? `${host}/${session.id}/oid4vp`
-                        : undefined,
-                    response_mode: !session.useDcApi
-                        ? "direct_post.jwt"
-                        : "dc_api.jwt",
+                    response_uri: session.useDcApi
+                        ? undefined
+                        : `${host}/${session.id}/oid4vp`,
+                    response_mode: session.useDcApi
+                        ? "dc_api.jwt"
+                        : "direct_post.jwt",
                     nonce,
                     expected_origins: session.useDcApi ? [origin] : undefined,
                     dcql_query,
@@ -151,11 +151,11 @@ export class Oid4vpService {
                         },
                         encrypted_response_enc_values_supported: ["A128GCM"],
                     },
-                    state: !session.useDcApi ? session.id : undefined,
+                    state: session.useDcApi ? undefined : session.id,
                     //TODO: check if this value is correct accroding to https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-aud-of-a-request-object
                     aud: "https://self-issued.me/v2",
                     exp: Math.floor(Date.now() / 1000) + lifeTime,
-                    iat: Math.floor(new Date().getTime() / 1000),
+                    iat: Math.floor(Date.now() / 1000),
                     verifier_attestations: regCert
                         ? [
                               {
@@ -227,10 +227,10 @@ export class Oid4vpService {
 
         const cert = await this.certService.find({
             tenantId: tenantId,
-            type: "access",
+            type: CertUsage.Access,
         });
 
-        const certHash = await this.certService.getCertHash(cert);
+        const certHash = this.certService.getCertHash(cert);
 
         const params = {
             client_id: "x509_hash:" + certHash,
@@ -323,7 +323,7 @@ export class Oid4vpService {
             //TODO: load required fields from the config
             const credentials = await this.presentationsService.parseResponse(
                 res,
-                [],
+                presentationConfig,
                 session.vp_nonce as string,
             );
 
@@ -344,13 +344,23 @@ export class Oid4vpService {
             });
             // if there a a webhook passed in the session, use it
             if (webhook) {
-                const response = await this.webhookService.sendWebhook({
-                    webhook,
-                    logContext,
-                    session,
-                    credentials,
-                    expectResponse: false,
-                });
+                const response = await this.webhookService
+                    .sendWebhook({
+                        webhook,
+                        logContext,
+                        session,
+                        credentials,
+                        expectResponse: false,
+                    })
+                    .catch((error) => {
+                        this.sessionLogger.logFlowError(
+                            logContext,
+                            error as Error,
+                            {
+                                action: "webhook_callback",
+                            },
+                        );
+                    });
                 //override it when a redirect URI is returned by the webhook
                 if (response?.redirectUri) {
                     session.redirectUri = response.redirectUri;

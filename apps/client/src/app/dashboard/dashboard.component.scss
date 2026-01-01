@@ -8,116 +8,435 @@
   min-height: 0; // Allow flex item to shrink
 }
 
+// Global card avatar icon styling - center icons properly
+mat-icon[mat-card-avatar] {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 24px;
+}
+
 .dashboard-container {
   flex: 1;
-  padding: 20px;
-  min-height: 0; // Allow flex to work properly
+  padding: 24px;
+  min-height: 0;
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
+  gap: 24px;
 }
 
-.welcome-card {
-  max-width: 100%;
+// Welcome Header
+.welcome-header {
   width: 100%;
-  margin: 20px 0;
-}
+  margin-bottom: 8px;
 
-.config-card {
-  max-width: 100%;
-  width: 100%;
-  margin: 20px 0;
-
-  .config-item {
-    padding: 8px 0;
-  }
-
-  .config-label {
+  h1 {
+    margin: 0;
+    font-size: 28px;
     font-weight: 500;
+    color: #1976d2;
+  }
+
+  .subtitle {
+    margin: 4px 0 0;
     color: #666;
-    min-width: 140px;
-  }
-
-  .config-value {
-    font-family: 'Courier New', monospace;
-    background-color: #f5f5f5;
-    color: #333;
-    font-size: 12px;
-    max-width: 300px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-
-    &.enabled {
-      background-color: #c8e6c9;
-      color: #2e7d32;
-    }
-
-    &.disabled {
-      background-color: #ffcdd2;
-      color: #c62828;
-    }
+    font-size: 14px;
   }
 }
 
-.navigation-card {
-  max-width: 100%;
+// Setup Card
+.setup-card {
   width: 100%;
-  margin: 20px 0;
+  border-left: 4px solid #e65100;
+  background: linear-gradient(135deg, #fffbf0 0%, #ffffff 100%);
+
+  .setup-icon {
+    color: #bf360c;
+    background: #ffccbc;
+  }
+
+  .setup-section {
+    margin-bottom: 16px;
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 4px;
+      font-size: 16px;
+      font-weight: 500;
+      color: #333;
+
+      mat-icon {
+        color: #e65100;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    .section-description {
+      margin: 0 0 12px;
+      font-size: 13px;
+      color: #666;
+      padding-left: 28px;
+    }
+  }
+
+  .section-divider {
+    margin: 20px 0;
+  }
+
+  .tracks-container {
+    .setup-track {
+      padding: 16px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px dashed #e0e0e0;
+      transition: all 0.2s ease;
+
+      &.ready {
+        background: rgba(76, 175, 80, 0.05);
+        border: 1px solid rgba(76, 175, 80, 0.3);
+      }
+
+      .track-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0 0 12px;
+        font-size: 15px;
+        font-weight: 500;
+        color: #333;
+
+        mat-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+        }
+
+        mat-chip {
+          font-size: 11px;
+          min-height: 22px;
+        }
+      }
+    }
+  }
+
+  .setup-steps {
+    .setup-step {
+      padding: 12px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.7);
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.9);
+      }
+
+      &.completed {
+        background: rgba(76, 175, 80, 0.1);
+      }
+
+      &.disabled {
+        opacity: 0.5;
+        pointer-events: none;
+      }
+
+      mat-icon {
+        color: #bdbdbd;
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+
+        &.done {
+          color: #4caf50;
+        }
+      }
+
+      p {
+        margin: 4px 0 0;
+        font-size: 12px;
+        color: #666;
+      }
+
+      mat-chip {
+        font-size: 11px;
+        min-height: 24px;
+      }
+    }
+  }
 }
 
-.quick-nav {
-  .nav-card {
-    flex: 1;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-    border: 2px solid transparent;
+// Stats Grid
+.stats-grid {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
 
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      border-color: #1976d2;
-    }
+.stat-card-link {
+  // 4 cards per row with 16px gap: (100% - 3*16px) / 4
+  flex: 0 0 calc(25% - 12px);
+  text-decoration: none;
+  color: inherit;
+  display: block;
 
-    mat-card-content {
-      padding: 24px;
-      text-align: center;
-    }
+  @media (max-width: 959px) {
+    // 2 cards per row on medium screens
+    flex: 0 0 calc(50% - 8px);
+  }
 
-    .nav-icon {
-      font-size: 32px;
-      width: 32px;
-      height: 32px;
+  @media (max-width: 599px) {
+    // 1 card per row on small screens
+    flex: 0 0 100%;
+  }
+}
+
+.stat-card {
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  border: 2px solid transparent;
+  min-height: 120px;
+  height: 100%;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    border-color: #1976d2;
+  }
+
+  mat-card-content {
+    padding: 24px 16px;
+    height: 100%;
+  }
+
+  .stat-icon {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+    margin-bottom: 12px;
+
+    &.credential {
       color: #1976d2;
     }
 
-    span {
-      font-weight: 500;
-      font-size: 14px;
-      color: #333;
+    &.presentation {
+      color: #7b1fa2;
+    }
+
+    &.keys {
+      color: #f57c00;
+    }
+
+    &.sessions {
+      color: #388e3c;
+    }
+  }
+
+  .stat-value {
+    font-size: 32px;
+    font-weight: 600;
+    color: #333;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: #666;
+    margin-top: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+// Session Breakdown Card
+.session-breakdown-card {
+  width: 100%;
+
+  mat-icon[mat-card-avatar] {
+    background: #e3f2fd;
+    color: #0d47a1;
+  }
+
+  .session-stats {
+    padding: 8px 0;
+
+    .session-stat {
+      padding: 8px 16px;
+      background: #f5f5f5;
+      border-radius: 20px;
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+
+      .status-active {
+        color: #0d47a1;
+      }
+
+      .status-fetched {
+        color: #5d4037;
+      }
+
+      .status-completed {
+        color: #2e7d32;
+      }
+
+      .status-expired {
+        color: #e65100;
+      }
+
+      .status-failed {
+        color: #c62828;
+      }
     }
   }
 }
 
-.alert-section {
-  background-color: #fff3cd;
-  border: 1px solid #ffeeba;
-  border-radius: 4px;
-  padding: 12px;
-  color: #856404;
+// Quick Actions Card
+.quick-actions-card {
+  width: 100%;
+
+  mat-icon[mat-card-avatar] {
+    background: #ffccbc;
+    color: #bf360c;
+  }
+
+  .quick-actions {
+    padding: 8px 0;
+
+    a,
+    button {
+      margin: 4px;
+
+      &.disabled {
+        pointer-events: none;
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  .actions-hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 12px 16px;
+    background-color: #e3f2fd;
+    border-radius: 8px;
+    color: #1565c0;
+    font-size: 14px;
+
+    mat-icon {
+      color: #1976d2;
+      flex-shrink: 0;
+    }
+
+    a {
+      color: #1565c0;
+      font-weight: 500;
+      text-decoration: underline;
+      cursor: pointer;
+
+      &:hover {
+        color: #0d47a1;
+      }
+    }
+  }
 }
 
-.warning-icon {
-  color: #ff9800;
+// Resources Card
+.resources-card {
+  width: 100%;
+
+  mat-icon[mat-card-avatar] {
+    background: #e8f5e9;
+    color: #2e7d32;
+  }
+
+  .resource-links {
+    padding: 8px 0;
+
+    a {
+      margin: 4px;
+      text-decoration: none;
+    }
+  }
+}
+
+// Config Panel (Expansion Panel)
+.config-panel {
+  width: 100%;
+  margin-top: 8px;
+
+  mat-panel-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    mat-icon {
+      color: #666;
+    }
+  }
+
+  .config-content {
+    padding: 16px 0;
+  }
+
+  .config-row {
+    mat-form-field {
+      font-size: 14px;
+    }
+  }
 }
 
 // Mobile specific adjustments
 @media (max-width: 599px) {
   .dashboard-container {
-    padding: 10px;
+    padding: 16px;
+    gap: 16px;
   }
 
-  .welcome-card {
-    margin: 10px 0;
+  .welcome-header {
+    h1 {
+      font-size: 22px;
+    }
+  }
+
+  .stat-card {
+    min-height: 100px;
+
+    .stat-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+    }
+
+    .stat-value {
+      font-size: 24px;
+    }
+  }
+
+  .quick-actions {
+    button {
+      width: 100%;
+      margin: 4px 0 !important;
+    }
+  }
+
+  .resource-links {
+    a {
+      width: 100%;
+      margin: 4px 0 !important;
+    }
   }
 }

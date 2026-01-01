@@ -281,6 +281,32 @@
     }
   },
   {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertUsageEntity.schema.json",
+    "fileMatch": ["a://b/CertUsageEntity.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertUsageEntity.schema.json",
+      "title": "CertUsageEntity",
+      "type": "object",
+      "properties": {
+        "tenantId": {
+          "type": "string"
+        },
+        "certId": {
+          "type": "string"
+        },
+        "usage": {
+          "type": "string",
+          "enum": ["access", "signing", "trustList", "statusList"]
+        },
+        "cert": {
+          "$ref": "./CertEntity.schema.json"
+        }
+      },
+      "required": ["tenantId", "certId", "usage", "cert"]
+    }
+  },
+  {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/KeyEntity.schema.json",
     "fileMatch": ["a://b/KeyEntity.schema.json"],
     "schema": {
@@ -357,16 +383,6 @@
       "title": "CertEntity",
       "type": "object",
       "properties": {
-        "isAccessCert": {
-          "type": "boolean",
-          "description": "Certificate can be used for access/authentication",
-          "example": false
-        },
-        "isSigningCert": {
-          "type": "boolean",
-          "description": "Certificate can be used for signing",
-          "example": true
-        },
         "keyId": {
           "type": "string",
           "description": "The key ID this certificate is associated with",
@@ -394,6 +410,12 @@
           "type": "string",
           "description": "Certificate in PEM format."
         },
+        "usages": {
+          "type": "array",
+          "items": {
+            "$ref": "./CertUsageEntity.schema.json"
+          }
+        },
         "description": {
           "type": "string",
           "description": "Description of the key."
@@ -413,13 +435,12 @@
         }
       },
       "required": [
-        "isAccessCert",
-        "isSigningCert",
         "keyId",
         "id",
         "tenantId",
         "tenant",
         "crt",
+        "usages",
         "key",
         "createdAt",
         "updatedAt"
@@ -518,16 +539,6 @@
       "title": "CertImportDto",
       "type": "object",
       "properties": {
-        "isAccessCert": {
-          "type": "boolean",
-          "description": "Certificate can be used for access/authentication",
-          "example": false
-        },
-        "isSigningCert": {
-          "type": "boolean",
-          "description": "Certificate can be used for signing",
-          "example": true
-        },
         "keyId": {
           "type": "string",
           "description": "The key ID this certificate is associated with",
@@ -536,19 +547,26 @@
         },
         "id": {
           "type": "string",
-          "description": "Unique identifier for the key.",
           "format": "uuid"
+        },
+        "certUsageTypes": {
+          "type": "array",
+          "description": "Usage types for the certificate.",
+          "items": {
+            "type": "string",
+            "enum": ["access", "signing", "trustList", "statusList"]
+          }
         },
         "crt": {
           "type": "string",
-          "description": "Certificate in PEM format."
+          "description": "Certificate in PEM format, if not provided, a self-signed certificate will be generated."
         },
         "description": {
           "type": "string",
           "description": "Description of the key."
         }
       },
-      "required": ["isAccessCert", "isSigningCert", "keyId", "id", "crt"]
+      "required": ["keyId", "certUsageTypes"]
     }
   },
   {
@@ -569,35 +587,6 @@
     }
   },
   {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertSelfSignedDto.schema.json",
-    "fileMatch": ["a://b/CertSelfSignedDto.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertSelfSignedDto.schema.json",
-      "title": "CertSelfSignedDto",
-      "type": "object",
-      "properties": {
-        "isAccessCert": {
-          "type": "boolean",
-          "description": "Certificate can be used for access/authentication",
-          "example": false
-        },
-        "isSigningCert": {
-          "type": "boolean",
-          "description": "Certificate can be used for signing",
-          "example": true
-        },
-        "keyId": {
-          "type": "string",
-          "description": "The key ID this certificate is associated with",
-          "format": "uuid",
-          "example": "039af178-3ca0-48f4-a2e4-7b1209f30376"
-        }
-      },
-      "required": ["isAccessCert", "isSigningCert", "keyId"]
-    }
-  },
-  {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertUpdateDto.schema.json",
     "fileMatch": ["a://b/CertUpdateDto.schema.json"],
     "schema": {
@@ -606,22 +595,26 @@
       "title": "CertUpdateDto",
       "type": "object",
       "properties": {
-        "isAccessCert": {
-          "type": "boolean",
-          "description": "Certificate can be used for access/authentication",
-          "example": false
+        "certUsageTypes": {
+          "type": "array",
+          "description": "Usage types for the certificate.",
+          "items": {
+            "type": "string",
+            "enum": ["access", "signing", "trustList", "statusList"]
+          }
         },
-        "isSigningCert": {
-          "type": "boolean",
-          "description": "Certificate can be used for signing",
-          "example": true
+        "usages": {
+          "type": "array",
+          "items": {
+            "$ref": "./CertUsageEntity.schema.json"
+          }
         },
         "description": {
           "type": "string",
           "description": "Description of the key."
         }
       },
-      "required": ["isAccessCert", "isSigningCert"]
+      "required": ["certUsageTypes", "usages"]
     }
   },
   {
@@ -1324,7 +1317,7 @@
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["aki", "etsi_tl", "openid_federation"]
+          "enum": ["aki", "etsi_tl"]
         },
         "values": {
           "type": "array",
@@ -2012,16 +2005,12 @@
       "title": "RegistrationCertificateRequest",
       "type": "object",
       "properties": {
-        "id": {
+        "jwt": {
           "type": "string",
-          "description": "Identifier of the registration certificate that got issued."
-        },
-        "body": {
-          "type": "object",
           "description": "The body of the registration certificate request containing the necessary details."
         }
       },
-      "required": ["body"]
+      "required": ["jwt"]
     }
   },
   {
@@ -2185,6 +2174,98 @@
         }
       },
       "required": ["id", "dcql_query"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustListEntity.schema.json",
+    "fileMatch": ["a://b/TrustListEntity.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustListEntity.schema.json",
+      "title": "TrustListEntity",
+      "type": "object",
+      "properties": {
+        "issuerCertId": {
+          "type": "string"
+        },
+        "revocationCertId": {
+          "type": "string"
+        }
+      },
+      "required": ["issuerCertId", "revocationCertId"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustListCreateDto.schema.json",
+    "fileMatch": ["a://b/TrustListCreateDto.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustListCreateDto.schema.json",
+      "title": "TrustListCreateDto",
+      "type": "object",
+      "properties": {
+        "certId": {
+          "type": "string"
+        },
+        "entities": {
+          "type": "array",
+          "items": {
+            "$ref": "./TrustListEntity.schema.json"
+          }
+        },
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the trust list",
+          "format": "uuid"
+        },
+        "description": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object",
+          "description": "The full trust list JSON"
+        }
+      },
+      "required": ["entities", "id"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustList.schema.json",
+    "fileMatch": ["a://b/TrustList.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustList.schema.json",
+      "title": "TrustList",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the trust list",
+          "format": "uuid"
+        },
+        "description": {
+          "type": "string"
+        },
+        "tenant": {
+          "description": "The tenant that owns this object.",
+          "allOf": [
+            {
+              "$ref": "./TenantEntity.schema.json"
+            }
+          ]
+        },
+        "cert": {
+          "$ref": "./CertEntity.schema.json"
+        },
+        "data": {
+          "type": "object",
+          "description": "The full trust list JSON"
+        },
+        "jwt": {
+          "type": "string"
+        }
+      },
+      "required": ["id", "tenant", "cert", "jwt"]
     }
   },
   {

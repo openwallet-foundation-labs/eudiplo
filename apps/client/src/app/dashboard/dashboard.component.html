@@ -1,102 +1,505 @@
 <div fxLayout="column" fxLayoutAlign="start center" fxFill class="dashboard-container">
-  <!-- Welcome Card -->
-  <mat-card fxFlex="none" fxLayout="column" fxLayoutGap="16px" class="welcome-card">
-    <mat-card-header fxLayout="column" fxLayoutAlign="center start">
-      <mat-card-title>Welcome to eudiplo client</mat-card-title>
-      <mat-card-subtitle
-        >You are successfully authenticated and ready to manage credentials!</mat-card-subtitle
-      >
-    </mat-card-header>
-    <mat-card-content fxLayout="column" fxLayoutGap="16px">
-      <p>
-        Your authentication is active and the API client is configured. Use the navigation below to
-        access different features.
-      </p>
+  <!-- Welcome Header -->
+  <div class="welcome-header" fxLayout="row" fxLayoutAlign="space-between center" fxFill>
+    <div>
+      <h1>Welcome to EUDIPLO</h1>
+      <p class="subtitle">Your Diplomatic Layer for EUDI Wallet Integration</p>
+    </div>
+    <div class="version-chips" fxLayout="row" fxLayoutGap="8px">
+      <mat-chip color="primary" highlighted matTooltip="Backend version">
+        <mat-icon matChipAvatar>dns</mat-icon>
+        Backend: {{ backendVersion || '...' }}
+      </mat-chip>
+      <mat-chip color="accent" highlighted matTooltip="Client version">
+        <mat-icon matChipAvatar>web</mat-icon>
+        Client: {{ clientVersion || '...' }}
+      </mat-chip>
+    </div>
+  </div>
 
-      <p></p>
+  <!-- Setup Guide (shown if setup not complete) -->
+  @if (dashboardService.showSetupGuide && !dashboardService.isLoading) {
+    <mat-card class="setup-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="setup-icon">rocket_launch</mat-icon>
+        <mat-card-title>Getting Started</mat-card-title>
+        <mat-card-subtitle
+          >Complete the setup to start issuing or verifying credentials</mat-card-subtitle
+        >
+      </mat-card-header>
+      <mat-card-content>
+        <!-- Prerequisites Section -->
+        <div class="setup-section">
+          <h3 class="section-title">
+            <mat-icon>foundation</mat-icon>
+            Prerequisites
+          </h3>
+          <p class="section-description">Required for both issuance and verification</p>
+
+          <div class="setup-steps" fxLayout="column" fxLayoutGap="8px">
+            <!-- Step 1: Create Key -->
+            <div
+              class="setup-step"
+              [class.completed]="dashboardService.totalKeys > 0"
+              fxLayout="row"
+              fxLayoutAlign="start center"
+              fxLayoutGap="12px"
+            >
+              <mat-icon [class.done]="dashboardService.totalKeys > 0">
+                {{ dashboardService.totalKeys > 0 ? 'check_circle' : 'radio_button_unchecked' }}
+              </mat-icon>
+              <div fxFlex>
+                <strong>1. Create a Key</strong>
+                <p>Cryptographic keys are used to sign credentials and presentations</p>
+              </div>
+              @if (dashboardService.totalKeys === 0) {
+                <a mat-stroked-button color="primary" routerLink="/key-management/create">
+                  <mat-icon>add</mat-icon> Create Key
+                </a>
+              } @else {
+                <mat-chip>{{ dashboardService.totalKeys }} key(s)</mat-chip>
+              }
+            </div>
+
+            <!-- Step 2: Add Certificate -->
+            <div
+              class="setup-step"
+              [class.completed]="dashboardService.totalCertificates > 0"
+              [class.disabled]="dashboardService.totalKeys === 0"
+              fxLayout="row"
+              fxLayoutAlign="start center"
+              fxLayoutGap="12px"
+            >
+              <mat-icon [class.done]="dashboardService.totalCertificates > 0">
+                {{
+                  dashboardService.totalCertificates > 0 ? 'check_circle' : 'radio_button_unchecked'
+                }}
+              </mat-icon>
+              <div fxFlex>
+                <strong>2. Add a Certificate</strong>
+                <p>Self-sign or import a certificate from a registrar for your key</p>
+              </div>
+              @if (dashboardService.totalCertificates === 0 && dashboardService.totalKeys > 0) {
+                <a mat-stroked-button color="primary" routerLink="/certificates/create">
+                  <mat-icon>verified</mat-icon> Add Certificate
+                </a>
+              } @else if (dashboardService.totalCertificates > 0) {
+                <mat-chip>{{ dashboardService.totalCertificates }} cert(s)</mat-chip>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Two-track setup -->
+        @if (dashboardService.hasPrerequisites) {
+          <mat-divider class="section-divider"></mat-divider>
+
+          <div class="tracks-container" fxLayout="row" fxLayout.lt-md="column" fxLayoutGap="24px">
+            <!-- Issuance Track -->
+            <div class="setup-track" [class.ready]="dashboardService.isReadyToIssue" fxFlex>
+              <h3 class="track-title">
+                <mat-icon>card_giftcard</mat-icon>
+                Issue Credentials
+                @if (dashboardService.isReadyToIssue) {
+                  <mat-chip color="primary" highlighted>Ready</mat-chip>
+                }
+              </h3>
+
+              <div class="setup-steps" fxLayout="column" fxLayoutGap="8px">
+                <!-- Issuance Config -->
+                <div
+                  class="setup-step"
+                  [class.completed]="dashboardService.hasIssuanceConfig"
+                  fxLayout="row"
+                  fxLayoutAlign="start center"
+                  fxLayoutGap="12px"
+                >
+                  <mat-icon [class.done]="dashboardService.hasIssuanceConfig">
+                    {{
+                      dashboardService.hasIssuanceConfig ? 'check_circle' : 'radio_button_unchecked'
+                    }}
+                  </mat-icon>
+                  <div fxFlex>
+                    <strong>Issuance Config</strong>
+                    <p>Configure your issuer identity</p>
+                  </div>
+                  @if (!dashboardService.hasIssuanceConfig) {
+                    <a mat-stroked-button color="primary" routerLink="/issuance-config">
+                      <mat-icon>settings</mat-icon> Configure
+                    </a>
+                  }
+                </div>
+
+                <!-- Credential Config -->
+                <div
+                  class="setup-step"
+                  [class.completed]="dashboardService.credentialConfigs > 0"
+                  fxLayout="row"
+                  fxLayoutAlign="start center"
+                  fxLayoutGap="12px"
+                >
+                  <mat-icon [class.done]="dashboardService.credentialConfigs > 0">
+                    {{
+                      dashboardService.credentialConfigs > 0
+                        ? 'check_circle'
+                        : 'radio_button_unchecked'
+                    }}
+                  </mat-icon>
+                  <div fxFlex>
+                    <strong>Credential Config</strong>
+                    <p>Define credentials to issue</p>
+                  </div>
+                  @if (dashboardService.credentialConfigs === 0) {
+                    <a mat-stroked-button color="primary" routerLink="/credential-config/create">
+                      <mat-icon>add</mat-icon> Add
+                    </a>
+                  } @else {
+                    <mat-chip>{{ dashboardService.credentialConfigs }} config(s)</mat-chip>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- Verification Track -->
+            <div class="setup-track" [class.ready]="dashboardService.isReadyToVerify" fxFlex>
+              <h3 class="track-title">
+                <mat-icon>verified_user</mat-icon>
+                Verify Presentations
+                @if (dashboardService.isReadyToVerify) {
+                  <mat-chip color="accent" highlighted>Ready</mat-chip>
+                }
+              </h3>
+
+              <div class="setup-steps" fxLayout="column" fxLayoutGap="8px">
+                <!-- Presentation Config -->
+                <div
+                  class="setup-step"
+                  [class.completed]="dashboardService.presentationConfigs > 0"
+                  fxLayout="row"
+                  fxLayoutAlign="start center"
+                  fxLayoutGap="12px"
+                >
+                  <mat-icon [class.done]="dashboardService.presentationConfigs > 0">
+                    {{
+                      dashboardService.presentationConfigs > 0
+                        ? 'check_circle'
+                        : 'radio_button_unchecked'
+                    }}
+                  </mat-icon>
+                  <div fxFlex>
+                    <strong>Presentation Config</strong>
+                    <p>Define what credentials to request</p>
+                  </div>
+                  @if (dashboardService.presentationConfigs === 0) {
+                    <a mat-stroked-button color="primary" routerLink="/presentation-config/create">
+                      <mat-icon>add</mat-icon> Add
+                    </a>
+                  } @else {
+                    <mat-chip>{{ dashboardService.presentationConfigs }} config(s)</mat-chip>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <a
+      class="stat-card-link"
+      routerLink="/credential-config"
+      aria-label="View credential configurations"
+    >
+      <mat-card class="stat-card">
+        <mat-card-content fxLayout="column" fxLayoutAlign="center center">
+          <mat-icon class="stat-icon credential">badge</mat-icon>
+          <span class="stat-value">{{ dashboardService.credentialConfigs }}</span>
+          <span class="stat-label">Credential Configs</span>
+        </mat-card-content>
+      </mat-card>
+    </a>
+
+    <a
+      class="stat-card-link"
+      routerLink="/presentation-config"
+      aria-label="View presentation configurations"
+    >
+      <mat-card class="stat-card">
+        <mat-card-content fxLayout="column" fxLayoutAlign="center center">
+          <mat-icon class="stat-icon presentation">verified_user</mat-icon>
+          <span class="stat-value">{{ dashboardService.presentationConfigs }}</span>
+          <span class="stat-label">Presentation Configs</span>
+        </mat-card-content>
+      </mat-card>
+    </a>
+
+    <a class="stat-card-link" routerLink="/key-management" aria-label="View key management">
+      <mat-card class="stat-card">
+        <mat-card-content fxLayout="column" fxLayoutAlign="center center">
+          <mat-icon class="stat-icon keys">vpn_key</mat-icon>
+          <span class="stat-value">{{ dashboardService.totalKeys }}</span>
+          <span class="stat-label">Keys</span>
+        </mat-card-content>
+      </mat-card>
+    </a>
+
+    <a class="stat-card-link" routerLink="/session-management" aria-label="View session management">
+      <mat-card class="stat-card">
+        <mat-card-content fxLayout="column" fxLayoutAlign="center center">
+          <mat-icon class="stat-icon sessions">sync</mat-icon>
+          <span class="stat-value">{{
+            dashboardService.sessionActive +
+              dashboardService.sessionCompleted +
+              dashboardService.sessionFetched
+          }}</span>
+          <span class="stat-label">Total Sessions</span>
+        </mat-card-content>
+      </mat-card>
+    </a>
+  </div>
+
+  <!-- Session Status Breakdown -->
+  @if (
+    dashboardService.sessionActive +
+      dashboardService.sessionCompleted +
+      dashboardService.sessionFetched +
+      dashboardService.sessionFailed +
+      dashboardService.sessionExpired >
+    0
+  ) {
+    <mat-card class="session-breakdown-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>analytics</mat-icon>
+        <mat-card-title>Session Overview</mat-card-title>
+        <mat-card-subtitle>Current session status breakdown</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="session-stats" fxLayout="row wrap" fxLayoutGap="24px">
+          <div class="session-stat" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+            <mat-icon class="status-active">hourglass_empty</mat-icon>
+            <span
+              ><strong>{{ dashboardService.sessionActive }}</strong> Active</span
+            >
+          </div>
+          <div class="session-stat" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+            <mat-icon class="status-fetched">download</mat-icon>
+            <span
+              ><strong>{{ dashboardService.sessionFetched }}</strong> Fetched</span
+            >
+          </div>
+          <div class="session-stat" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+            <mat-icon class="status-completed">check_circle</mat-icon>
+            <span
+              ><strong>{{ dashboardService.sessionCompleted }}</strong> Completed</span
+            >
+          </div>
+          <div class="session-stat" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+            <mat-icon class="status-expired">schedule</mat-icon>
+            <span
+              ><strong>{{ dashboardService.sessionExpired }}</strong> Expired</span
+            >
+          </div>
+          <div class="session-stat" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+            <mat-icon class="status-failed">error</mat-icon>
+            <span
+              ><strong>{{ dashboardService.sessionFailed }}</strong> Failed</span
+            >
+          </div>
+        </div>
+      </mat-card-content>
+      <mat-card-actions>
+        <a mat-button color="primary" routerLink="/session-management">
+          <mat-icon>visibility</mat-icon> View All Sessions
+        </a>
+      </mat-card-actions>
+    </mat-card>
+  }
+
+  <!-- Quick Actions -->
+  <mat-card class="quick-actions-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>flash_on</mat-icon>
+      <mat-card-title>Quick Actions</mat-card-title>
+      <mat-card-subtitle>Common tasks to get you started</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="quick-actions" fxLayout="row wrap" fxLayoutGap="12px">
+        <a
+          mat-raised-button
+          color="primary"
+          routerLink="/offer/issuance"
+          [class.disabled]="dashboardService.credentialConfigs === 0"
+          [attr.tabindex]="dashboardService.credentialConfigs === 0 ? -1 : 0"
+          [matTooltip]="
+            dashboardService.credentialConfigs === 0
+              ? 'Create a credential configuration first'
+              : 'Create an issuance offer'
+          "
+        >
+          <mat-icon>card_giftcard</mat-icon> Issue Credential
+        </a>
+        <a
+          mat-raised-button
+          color="accent"
+          routerLink="/offer/presentation"
+          [class.disabled]="dashboardService.presentationConfigs === 0"
+          [attr.tabindex]="dashboardService.presentationConfigs === 0 ? -1 : 0"
+          [matTooltip]="
+            dashboardService.presentationConfigs === 0
+              ? 'Create a presentation configuration first'
+              : 'Request a presentation'
+          "
+        >
+          <mat-icon>fact_check</mat-icon> Request Presentation
+        </a>
+        <a mat-stroked-button routerLink="/credential-config/create">
+          <mat-icon>add_circle</mat-icon> New Credential Config
+        </a>
+        <a mat-stroked-button routerLink="/presentation-config/create">
+          <mat-icon>playlist_add</mat-icon> New Presentation Config
+        </a>
+      </div>
+      @if (dashboardService.credentialConfigs === 0 || dashboardService.presentationConfigs === 0) {
+        <div class="actions-hint">
+          <mat-icon>info</mat-icon>
+          <span>
+            @if (
+              dashboardService.credentialConfigs === 0 && dashboardService.presentationConfigs === 0
+            ) {
+              To issue credentials or request presentations, first create a
+              <a routerLink="/credential-config/create">credential configuration</a> or
+              <a routerLink="/presentation-config/create">presentation configuration</a>.
+            } @else if (dashboardService.credentialConfigs === 0) {
+              To issue credentials, first
+              <a routerLink="/credential-config/create">create a credential configuration</a>.
+            } @else {
+              To request presentations, first
+              <a routerLink="/presentation-config/create">create a presentation configuration</a>.
+            }
+          </span>
+        </div>
+      }
     </mat-card-content>
   </mat-card>
 
-  <!-- Current Configuration -->
-  <mat-card fxFlex="none" fxLayout="column" fxLayoutGap="8px" class="config-card">
+  <!-- Resources & Documentation -->
+  <mat-card class="resources-card">
     <mat-card-header>
-      <mat-card-title>Current Configuration</mat-card-title>
-      <mat-card-subtitle>Your active connection details</mat-card-subtitle>
+      <mat-icon mat-card-avatar>menu_book</mat-icon>
+      <mat-card-title>Documentation & Resources</mat-card-title>
+      <mat-card-subtitle>Learn more about EUDIPLO</mat-card-subtitle>
     </mat-card-header>
-    <mat-card-content fxLayout="column" fxLayoutGap="12px">
-      <div fxLayout="column" fxLayoutGap="8px" class="config-item">
+    <mat-card-content>
+      <div class="resource-links" fxLayout="row wrap" fxLayoutGap="16px">
+        <a
+          mat-stroked-button
+          href="https://openwallet-foundation-labs.github.io/eudiplo/latest/"
+          target="_blank"
+          rel="noopener"
+        >
+          <mat-icon>description</mat-icon> Documentation
+        </a>
+        <a mat-stroked-button [href]="currentBaseUrl + '/api-docs'" target="_blank" rel="noopener">
+          <mat-icon>api</mat-icon> API Reference
+        </a>
+        <a
+          mat-stroked-button
+          href="https://github.com/openwallet-foundation-labs/eudiplo"
+          target="_blank"
+          rel="noopener"
+        >
+          <mat-icon>code</mat-icon> GitHub
+        </a>
+        <a mat-stroked-button href="https://discord.gg/58ys8XfXDu" target="_blank" rel="noopener">
+          <mat-icon>forum</mat-icon> Discord Community
+        </a>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Current Configuration (Collapsible) -->
+  <mat-expansion-panel class="config-panel">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon>settings</mat-icon>
+        Connection Details
+      </mat-panel-title>
+      <mat-panel-description> View your current API configuration </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <div fxLayout="column" fxLayoutGap="12px" class="config-content">
+      <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px" class="config-row">
         <mat-form-field appearance="outline" fxFlex>
           <mat-label>API Base URL</mat-label>
-          <input matInput [value]="currentBaseUrl" readonly />
+          <input matInput [value]="currentBaseUrl" readonly aria-label="API Base URL" />
           <button
-            matIconButton
+            mat-icon-button
             matSuffix
             (click)="copyToClipboard(currentBaseUrl, 'API Base URL')"
             matTooltip="Copy to clipboard"
+            aria-label="Copy API Base URL to clipboard"
           >
             <mat-icon>content_copy</mat-icon>
           </button>
         </mat-form-field>
       </div>
 
-      <div fxLayout="column" fxLayoutGap="8px" class="config-item">
+      <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px" class="config-row">
         <mat-form-field appearance="outline" fxFlex>
           <mat-label>OAuth URL</mat-label>
-          <input matInput [value]="currentOidcUrl" readonly />
+          <input matInput [value]="currentOidcUrl" readonly aria-label="OAuth URL" />
           <button
-            matIconButton
+            mat-icon-button
             matSuffix
             (click)="copyToClipboard(currentOidcUrl, 'OAuth URL')"
             matTooltip="Copy to clipboard"
+            aria-label="Copy OAuth URL to clipboard"
           >
             <mat-icon>content_copy</mat-icon>
           </button>
         </mat-form-field>
       </div>
 
-      <div fxLayout="column" fxLayoutGap="8px" class="config-item">
+      <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px" class="config-row">
         <mat-form-field appearance="outline" fxFlex>
           <mat-label>Client ID</mat-label>
-          <input matInput [value]="currentClientId" readonly />
+          <input matInput [value]="currentClientId" readonly aria-label="Client ID" />
           <button
-            matIconButton
+            mat-icon-button
             matSuffix
             (click)="copyToClipboard(currentClientId, 'Client ID')"
             matTooltip="Copy to clipboard"
+            aria-label="Copy Client ID to clipboard"
           >
             <mat-icon>content_copy</mat-icon>
           </button>
         </mat-form-field>
       </div>
 
-      <div fxLayout="column" fxLayoutGap="8px" class="config-item">
+      <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px" class="config-row">
         <mat-form-field appearance="outline" fxFlex>
           <mat-label>Client Secret</mat-label>
-          <input matInput [value]="currentClientSecret" readonly type="password" />
+          <input
+            matInput
+            [value]="currentClientSecret"
+            readonly
+            type="password"
+            aria-label="Client Secret"
+          />
           <button
-            matIconButton
+            mat-icon-button
             matSuffix
             (click)="copyToClipboard(currentClientSecret, 'Client Secret')"
             matTooltip="Copy to clipboard"
+            aria-label="Copy Client Secret to clipboard"
           >
             <mat-icon>content_copy</mat-icon>
           </button>
         </mat-form-field>
       </div>
-
-      <div fxLayout="row" fxLayoutAlign="space-between center" class="config-item">
-        <span class="config-label">Auto-refresh:</span>
-        <mat-chip [class.enabled]="canAutoRefresh" [class.disabled]="!canAutoRefresh">
-          {{ canAutoRefresh ? 'Available' : 'Not Available' }}
-        </mat-chip>
-      </div>
-
-      <div fxLayout="row" fxLayoutAlign="space-between center" class="config-item">
-        <span class="config-label">Backend Version:</span>
-        <mat-chip>
-          {{ backendVersion || 'Loading...' }}
-        </mat-chip>
-      </div>
-    </mat-card-content>
-  </mat-card>
+    </div>
+  </mat-expansion-panel>
 </div>

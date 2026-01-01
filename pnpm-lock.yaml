@@ -5,6 +5,11 @@ settings:
   excludeLinksFromLockfile: false
   injectWorkspacePackages: true
 
+patchedDependencies:
+  '@sd-jwt/core':
+    hash: 37ce8c817429a32c0ac07924651dca327de4d72c55f80d7c5a7cbbb567a42ef2
+    path: patches/@sd-jwt__core.patch
+
 importers:
 
   .:
@@ -123,6 +128,12 @@ importers:
       '@openid4vc/utils':
         specifier: 0.4.3
         version: 0.4.3
+      '@peculiar/asn1-schema':
+        specifier: ^2.6.0
+        version: 2.6.0
+      '@peculiar/asn1-x509':
+        specifier: ^2.6.0
+        version: 2.6.0
       '@peculiar/x509':
         specifier: ^1.14.2
         version: 1.14.2
@@ -289,9 +300,6 @@ importers:
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
-      undici:
-        specifier: ^7.16.0
-        version: 7.16.0
       unplugin-swc:
         specifier: ^1.5.9
         version: 1.5.9(@swc/core@1.15.4)(rollup@4.53.3)
@@ -13774,7 +13782,7 @@ snapshots:
     transitivePeerDependencies:
       - chokidar
 
-  '@sd-jwt/core@0.17.0':
+  '@sd-jwt/core@0.17.0(patch_hash=37ce8c817429a32c0ac07924651dca327de4d72c55f80d7c5a7cbbb567a42ef2)':
     dependencies:
       '@sd-jwt/decode': 0.17.0
       '@sd-jwt/present': 0.17.0
@@ -13802,7 +13810,7 @@ snapshots:
 
   '@sd-jwt/sd-jwt-vc@0.17.1':
     dependencies:
-      '@sd-jwt/core': 0.17.0
+      '@sd-jwt/core': 0.17.0(patch_hash=37ce8c817429a32c0ac07924651dca327de4d72c55f80d7c5a7cbbb567a42ef2)
       '@sd-jwt/jwt-status-list': 0.17.1
       '@sd-jwt/utils': 0.17.0
 

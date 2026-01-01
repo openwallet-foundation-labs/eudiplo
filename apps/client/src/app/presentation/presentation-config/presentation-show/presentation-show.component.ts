@@ -28,10 +28,10 @@ export class PresentationShowComponent implements OnInit {
   config?: PresentationConfig;
 
   constructor(
-    private presentationService: PresentationManagementService,
-    private route: ActivatedRoute,
-    private snackBar: MatSnackBar,
-    private router: Router
+    private readonly presentationService: PresentationManagementService,
+    private readonly route: ActivatedRoute,
+    private readonly snackBar: MatSnackBar,
+    private readonly router: Router
   ) {}
 
   ngOnInit(): void {

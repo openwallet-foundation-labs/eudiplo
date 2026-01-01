@@ -1,0 +1,38 @@
+@if (trustList) {
+  <div fxLayout="column" fxFlex fxLayoutGap="24px">
+    <!-- Header -->
+    <div fxLayout="row" fxLayoutAlign="space-between center">
+      <h2>Credential Configuration</h2>
+      <div>
+        <button matIconButton [routerLink]="['../']" matTooltip="Back to list">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <button matIconButton [routerLink]="['edit']" matTooltip="Edit list">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button matIconButton matTooltip="Backup list" (click)="download()">
+          <mat-icon>download</mat-icon>
+        </button>
+        <button matIconButton (click)="delete()" matTooltip="Delete list" color="warn">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Trust List {{ trustList.id }}</mat-card-title>
+        <mat-card-subtitle>{{ trustList.description }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="form">
+          <app-editor
+            formControlName="payload"
+            readonly="true"
+            [editorOptions]="{ language: 'json', automaticLayout: true, readOnly: true }"
+          ></app-editor>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+}

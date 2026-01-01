@@ -1,20 +1,21 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import * as x509 from "@peculiar/x509";
 import { plainToClass } from "class-transformer";
-import { randomUUID } from "crypto";
 import { importJWK } from "jose";
 import { Repository } from "typeorm";
 import { v4 } from "uuid";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
 import { ConfigImportService } from "../../../shared/utils/config-import/config-import.service";
 import { CertImportDto } from "../dto/cert-import.dto";
+import { CertSelfSignedDto } from "../dto/cert-self-signed.dto";
 import { CertUpdateDto } from "../dto/cert-update.dto";
 import { UpdateKeyDto } from "../dto/key-update.dto";
 import { CertEntity } from "../entities/cert.entity";
+import { CertUsage, CertUsageEntity } from "../entities/cert-usage.entity";
 import { KeyService } from "../key.service";
 
 const ECDSA_P256 = {
@@ -23,19 +24,29 @@ const ECDSA_P256 = {
     hash: "SHA-256" as const,
 };
 
+export interface FindCertOptions {
+    tenantId: string;
+    type: CertUsage;
+    id?: string;
+}
+
 /**
  * Service for managing certificates associated with keys.
  */
 @Injectable()
 export class CertService {
+    private readonly logger = new Logger(CertService.name);
+
     constructor(
         @InjectRepository(CertEntity)
         private readonly certRepository: Repository<CertEntity>,
+        @InjectRepository(CertUsageEntity)
+        private readonly certUsageRepository: Repository<CertUsageEntity>,
         @Inject("KeyService") public readonly keyService: KeyService,
         private readonly configService: ConfigService,
         @InjectRepository(TenantEntity)
-        private tenantRepository: Repository<TenantEntity>,
-        private configImportService: ConfigImportService,
+        private readonly tenantRepository: Repository<TenantEntity>,
+        private readonly configImportService: ConfigImportService,
     ) {}
 
     /**
@@ -67,27 +78,6 @@ export class CertService {
     }
 
     /**
-     * Get a specific certificate by ID.
-     * @param tenantId - The tenant ID
-     * @param keyId - The key ID
-     * @param certId - The certificate ID
-     * @returns The certificate entity
-     */
-    getCertificate(
-        tenantId: string,
-        keyId: string,
-        certId: string,
-    ): Promise<CertEntity> {
-        return this.certRepository.findOneOrFail({
-            where: {
-                tenantId,
-                id: certId,
-                key: { id: keyId },
-            },
-        });
-    }
-
-    /**
      * Get a specific certificate by ID (without keyId requirement).
      * @param tenantId - The tenant ID
      * @param certId - The certificate ID
@@ -114,20 +104,23 @@ export class CertService {
         tenantId: string,
         keyId: string,
         dto: CertImportDto,
-    ): Promise<{ id: string }> {
-        const certId = v4();
+    ): Promise<string> {
+        const certId = dto.id ?? v4();
 
         await this.certRepository.save({
             id: certId,
             tenantId,
             crt: dto.crt,
-            isAccessCert: dto.isAccessCert,
-            isSigningCert: dto.isSigningCert,
             description: dto.description,
             key: { id: keyId, tenantId },
+            usages: dto.certUsageTypes.map((usage) => ({
+                certId,
+                usage,
+                tenantId,
+            })),
         });
 
-        return { id: certId };
+        return certId;
     }
 
     /**
@@ -136,8 +129,7 @@ export class CertService {
     async addSelfSignedCert(
         tenant: TenantEntity,
         keyId: string,
-        isAccessCert: boolean,
-        isSigningCert: boolean,
+        dto: CertSelfSignedDto,
     ) {
         // === Inputs/parameters (subject + SAN hostname) ===
         const subjectCN = tenant.name;
@@ -188,20 +180,12 @@ export class CertService {
 
         const crtPem = selfSignedCert.toString("pem"); // PEM-encoded certificate
 
-        // Persist the certificate with the specified types
-        const types: ("access" | "signing")[] = [];
-        if (isAccessCert) types.push("access");
-        if (isSigningCert) types.push("signing");
-        const certEntity = await this.certRepository.save({
-            id: randomUUID(),
-            tenantId: tenant.id,
+        return this.addCertificate(tenant.id, keyId, {
             crt: crtPem,
-            isAccessCert,
-            isSigningCert,
-            description: `Self-signed certificate (${types.join(", ")}) for tenant ${tenant.name}`,
-            key: { id: keyId, tenantId: tenant.id },
+            certUsageTypes: dto.certUsageTypes,
+            description: `Self-signed certificate (${dto.certUsageTypes.join(", ")}) for tenant ${tenant.name}`,
+            keyId,
         });
-        return certEntity.id;
     }
 
     /**
@@ -216,13 +200,31 @@ export class CertService {
         certId: string,
         updates: CertUpdateDto,
     ): Promise<void> {
+        // Update description or other simple fields (not usages)
         await this.certRepository.update(
             {
                 tenantId,
                 id: certId,
             },
-            updates,
+            {
+                description: updates.description,
+            },
         );
+
+        // Remove old usages
+        await this.certUsageRepository.delete({ tenantId, certId });
+
+        // Add new usages
+        if (updates.certUsageTypes && updates.certUsageTypes.length > 0) {
+            const newUsages = updates.certUsageTypes.map((usage) =>
+                this.certUsageRepository.create({
+                    certId,
+                    usage,
+                    tenantId,
+                }),
+            );
+            await this.certUsageRepository.save(newUsages);
+        }
     }
 
     /**
@@ -244,30 +246,55 @@ export class CertService {
 
     /**
      * Find a certificate by tenantId and type.
-     * @param value - Search criteria including tenantId, type, and optional id
+     * @param value - The search criteria
      * @returns The matching certificate
      */
-    find(value: {
-        tenantId: string;
-        type: "access" | "signing";
-        id?: string;
-    }): Promise<CertEntity> {
-        const whereClause: any = {
-            tenantId: value.tenantId,
-        };
+    /**
+     * Find a certificate by tenantId and usage type.
+     */
+    find(value: FindCertOptions): Promise<CertEntity> {
+        return this.certUsageRepository
+            .findOneOrFail({
+                where: {
+                    tenantId: value.tenantId,
+                    usage: value.type,
+                    certId: value.id || undefined,
+                },
+                relations: ["cert"],
+            })
+            .then((certUsage) => certUsage.cert);
+    }
 
-        // Map type to boolean field
-        if (value.type === "access") {
-            whereClause.isAccessCert = true;
-        } else if (value.type === "signing") {
-            whereClause.isSigningCert = true;
-        }
+    /**
+     * Find a certificate or create one if it does not exist.
+     * @param value
+     * @returns
+     */
+    findOrCreate(value: FindCertOptions): Promise<CertEntity> {
+        return this.find(value).catch(async () => {
+            // Create a new key
+            const keyId = await this.keyService.create(value.tenantId);
 
-        if (value.id) {
-            whereClause.id = value.id;
-        }
+            const dto: CertSelfSignedDto = {
+                certUsageTypes: [value.type],
+                keyId,
+            };
 
-        return this.certRepository.findOneByOrFail(whereClause);
+            // Create a self-signed certificate for the new key
+            const certId = await this.addSelfSignedCert(
+                await this.tenantRepository.findOneByOrFail({
+                    id: value.tenantId,
+                }),
+                keyId,
+                dto,
+            );
+
+            // Retrieve and return the newly created certificate
+            return this.certRepository.findOneByOrFail({
+                tenantId: value.tenantId,
+                id: certId,
+            });
+        });
     }
 
     /**
@@ -301,7 +328,7 @@ export class CertService {
         const chain = cert.crt
             .replace("-----BEGIN CERTIFICATE-----", "")
             .replace("-----END CERTIFICATE-----", "")
-            .replace(/\r?\n|\r/g, "");
+            .replaceAll(/\r?\n|\r/g, "");
         return [chain];
     }
 
@@ -332,7 +359,7 @@ export class CertService {
             cert.crt
                 .replace("-----BEGIN CERTIFICATE-----", "")
                 .replace("-----END CERTIFICATE-----", "")
-                .replace(/\r?\n|\r/g, ""),
+                .replaceAll(/\r?\n|\r/g, ""),
             "base64",
         );
         // Hash the DER and return as base64url
@@ -353,17 +380,31 @@ export class CertService {
                 return plainToClass(CertImportDto, payload);
             },
             checkExists: (tenantId, data) => {
-                return this.hasEntry(tenantId, data.id);
+                return data.id
+                    ? this.hasEntry(tenantId, data.id)
+                    : Promise.resolve(false);
             },
             deleteExisting: async (tenantId, data) => {
                 // Find and delete matching certs
                 const certs = await this.certRepository.findBy({ tenantId });
                 const existingCert = certs.find((c) => c.id === data.id);
                 if (existingCert) {
-                    await this.certRepository.delete({
-                        id: existingCert.id,
-                        tenantId,
-                    });
+                    await this.certRepository
+                        .delete({
+                            id: existingCert.id,
+                            tenantId,
+                        })
+                        .catch((err) => {
+                            this.logger.error(
+                                {
+                                    event: "ImportError",
+                                    tenant: tenantId,
+                                    certId: existingCert.id,
+                                },
+                                `Error deleting existing cert ${existingCert.id} for tenant ${tenantId}: ${err.message}`,
+                            );
+                            throw err;
+                        });
                 }
             },
             processItem: async (tenantId, config) => {
@@ -375,11 +416,8 @@ export class CertService {
                     tenantEntity.id,
                     config.keyId,
                 );
-                await this.certRepository.save({
-                    ...config,
-                    key,
-                    tenantId: tenantEntity.id,
-                });
+
+                this.addCertificate(tenantId, key.id, config);
             },
         });
     }

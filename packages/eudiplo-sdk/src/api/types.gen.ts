@@ -4,32 +4,6 @@ export type ClientOptions = {
   baseUrl: string;
 };
 
-export type EcPublic = {
-  /**
-   * The key type, which is always 'EC' for Elliptic Curve keys.
-   */
-  kty: string;
-  /**
-   * The algorithm intended for use with the key, such as 'ES256'.
-   */
-  crv: string;
-  /**
-   * The x coordinate of the EC public key.
-   */
-  x: string;
-  /**
-   * The y coordinate of the EC public key.
-   */
-  y: string;
-};
-
-export type JwksResponseDto = {
-  /**
-   * An array of EC public keys in JWK format.
-   */
-  keys: Array<EcPublic>;
-};
-
 export type RoleDto = {
   /**
    * OAuth2 roles
@@ -179,6 +153,13 @@ export type CreateClientDto = {
   >;
 };
 
+export type CertUsageEntity = {
+  tenantId: string;
+  certId: string;
+  usage: "access" | "signing" | "trustList" | "statusList";
+  cert: CertEntity;
+};
+
 export type KeyEntity = {
   /**
    * Unique identifier for the key.
@@ -224,14 +205,6 @@ export type KeyEntity = {
 
 export type CertEntity = {
   /**
-   * Certificate can be used for access/authentication
-   */
-  isAccessCert: boolean;
-  /**
-   * Certificate can be used for signing
-   */
-  isSigningCert: boolean;
-  /**
    * The key ID this certificate is associated with
    */
   keyId: string;
@@ -251,6 +224,7 @@ export type CertEntity = {
    * Certificate in PEM format.
    */
   crt: string;
+  usages: Array<CertUsageEntity>;
   /**
    * Description of the key.
    */
@@ -303,25 +277,18 @@ export type UpdateKeyDto = {
 
 export type CertImportDto = {
   /**
-   * Certificate can be used for access/authentication
-   */
-  isAccessCert: boolean;
-  /**
-   * Certificate can be used for signing
-   */
-  isSigningCert: boolean;
-  /**
    * The key ID this certificate is associated with
    */
   keyId: string;
+  id?: string;
   /**
-   * Unique identifier for the key.
+   * Usage types for the certificate.
    */
-  id: string;
+  certUsageTypes: Array<"access" | "signing" | "trustList" | "statusList">;
   /**
-   * Certificate in PEM format.
+   * Certificate in PEM format, if not provided, a self-signed certificate will be generated.
    */
-  crt: string;
+  crt?: string;
   /**
    * Description of the key.
    */
@@ -335,30 +302,12 @@ export type CertResponseDto = {
   id: string;
 };
 
-export type CertSelfSignedDto = {
-  /**
-   * Certificate can be used for access/authentication
-   */
-  isAccessCert: boolean;
-  /**
-   * Certificate can be used for signing
-   */
-  isSigningCert: boolean;
-  /**
-   * The key ID this certificate is associated with
-   */
-  keyId: string;
-};
-
 export type CertUpdateDto = {
   /**
-   * Certificate can be used for access/authentication
+   * Usage types for the certificate.
    */
-  isAccessCert: boolean;
-  /**
-   * Certificate can be used for signing
-   */
-  isSigningCert: boolean;
+  certUsageTypes: Array<"access" | "signing" | "trustList" | "statusList">;
+  usages: Array<CertUsageEntity>;
   /**
    * Description of the key.
    */
@@ -686,7 +635,7 @@ export type Claim = {
 };
 
 export type TrustedAuthorityQuery = {
-  type: "aki" | "etsi_tl" | "openid_federation";
+  type: "aki" | "etsi_tl";
   values: Array<string>;
 };
 
@@ -868,6 +817,32 @@ export type OfferResponse = {
   session: string;
 };
 
+export type EcPublic = {
+  /**
+   * The key type, which is always 'EC' for Elliptic Curve keys.
+   */
+  kty: string;
+  /**
+   * The algorithm intended for use with the key, such as 'ES256'.
+   */
+  crv: string;
+  /**
+   * The x coordinate of the EC public key.
+   */
+  x: string;
+  /**
+   * The y coordinate of the EC public key.
+   */
+  y: string;
+};
+
+export type JwksResponseDto = {
+  /**
+   * An array of EC public keys in JWK format.
+   */
+  keys: Array<EcPublic>;
+};
+
 export type AuthorizationResponse = {
   /**
    * The response string containing the authorization details.
@@ -886,15 +861,9 @@ export type Dcql = {
 
 export type RegistrationCertificateRequest = {
   /**
-   * Identifier of the registration certificate that got issued.
-   */
-  id?: string;
-  /**
    * The body of the registration certificate request containing the necessary details.
    */
-  body: {
-    [key: string]: unknown;
-  };
+  jwt: string;
 };
 
 export type PresentationAttachment = {
@@ -987,6 +956,47 @@ export type PresentationConfigCreateDto = {
   redirectUri?: string;
 };
 
+export type TrustListEntity = {
+  issuerCertId: string;
+  revocationCertId: string;
+};
+
+export type TrustListCreateDto = {
+  certId?: string;
+  entities: Array<TrustListEntity>;
+  /**
+   * Unique identifier for the trust list
+   */
+  id: string;
+  description?: string;
+  /**
+   * The full trust list JSON
+   */
+  data?: {
+    [key: string]: unknown;
+  };
+};
+
+export type TrustList = {
+  /**
+   * Unique identifier for the trust list
+   */
+  id: string;
+  description?: string;
+  /**
+   * The tenant that owns this object.
+   */
+  tenant: TenantEntity;
+  cert: CertEntity;
+  /**
+   * The full trust list JSON
+   */
+  data?: {
+    [key: string]: unknown;
+  };
+  jwt: string;
+};
+
 export type PresentationRequest = {
   /**
    * The type of response expected from the presentation request.
@@ -1011,53 +1021,6 @@ export type FileUploadDto = {
   file: Blob | File;
 };
 
-export type WellKnownControllerIssuerMetadataData = {
-  body?: never;
-  path: {
-    tenantId: string;
-  };
-  query?: never;
-  url: "/.well-known/openid-credential-issuer/{tenantId}";
-};
-
-export type WellKnownControllerIssuerMetadataResponses = {
-  200: {
-    [key: string]: unknown;
-  };
-};
-
-export type WellKnownControllerIssuerMetadataResponse =
-  WellKnownControllerIssuerMetadataResponses[keyof WellKnownControllerIssuerMetadataResponses];
-
-export type WellKnownControllerAuthzMetadataData = {
-  body?: never;
-  path: {
-    tenantId: string;
-  };
-  query?: never;
-  url: "/.well-known/oauth-authorization-server/{tenantId}";
-};
-
-export type WellKnownControllerAuthzMetadataResponses = {
-  200: unknown;
-};
-
-export type WellKnownControllerGetJwksData = {
-  body?: never;
-  path: {
-    tenantId: string;
-  };
-  query?: never;
-  url: "/.well-known/jwks.json/{tenantId}";
-};
-
-export type WellKnownControllerGetJwksResponses = {
-  200: JwksResponseDto;
-};
-
-export type WellKnownControllerGetJwksResponse =
-  WellKnownControllerGetJwksResponses[keyof WellKnownControllerGetJwksResponses];
-
 export type AppControllerMainData = {
   body?: never;
   path?: never;
@@ -1066,6 +1029,84 @@ export type AppControllerMainData = {
 };
 
 export type AppControllerMainResponses = {
+  200: unknown;
+};
+
+export type HealthControllerCheckData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/health";
+};
+
+export type HealthControllerCheckErrors = {
+  /**
+   * The Health Check is not successful
+   */
+  503: {
+    status?: string;
+    info?: {
+      [key: string]: {
+        status: string;
+        [key: string]: unknown | string;
+      };
+    };
+    error?: {
+      [key: string]: {
+        status: string;
+        [key: string]: unknown | string;
+      };
+    };
+    details?: {
+      [key: string]: {
+        status: string;
+        [key: string]: unknown | string;
+      };
+    };
+  };
+};
+
+export type HealthControllerCheckError =
+  HealthControllerCheckErrors[keyof HealthControllerCheckErrors];
+
+export type HealthControllerCheckResponses = {
+  /**
+   * The Health Check is successful
+   */
+  200: {
+    status?: string;
+    info?: {
+      [key: string]: {
+        status: string;
+        [key: string]: unknown | string;
+      };
+    };
+    error?: {
+      [key: string]: {
+        status: string;
+        [key: string]: unknown | string;
+      };
+    };
+    details?: {
+      [key: string]: {
+        status: string;
+        [key: string]: unknown | string;
+      };
+    };
+  };
+};
+
+export type HealthControllerCheckResponse =
+  HealthControllerCheckResponses[keyof HealthControllerCheckResponses];
+
+export type PrometheusControllerIndexData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/metrics";
+};
+
+export type PrometheusControllerIndexResponses = {
   200: unknown;
 };
 
@@ -1406,20 +1447,6 @@ export type CertControllerUpdateCertificateResponses = {
   200: unknown;
 };
 
-export type CertControllerAddSelfSignedCertData = {
-  body: CertSelfSignedDto;
-  path?: never;
-  query?: never;
-  url: "/certs/self-signed";
-};
-
-export type CertControllerAddSelfSignedCertResponses = {
-  201: CertResponseDto;
-};
-
-export type CertControllerAddSelfSignedCertResponse =
-  CertControllerAddSelfSignedCertResponses[keyof CertControllerAddSelfSignedCertResponses];
-
 export type StatusListControllerGetListData = {
   body?: never;
   path: {
@@ -1729,6 +1756,53 @@ export type Oid4VciMetadataControllerVctResponses = {
 export type Oid4VciMetadataControllerVctResponse =
   Oid4VciMetadataControllerVctResponses[keyof Oid4VciMetadataControllerVctResponses];
 
+export type WellKnownControllerIssuerMetadataData = {
+  body?: never;
+  path: {
+    tenantId: string;
+  };
+  query?: never;
+  url: "/.well-known/openid-credential-issuer/{tenantId}";
+};
+
+export type WellKnownControllerIssuerMetadataResponses = {
+  200: {
+    [key: string]: unknown;
+  };
+};
+
+export type WellKnownControllerIssuerMetadataResponse =
+  WellKnownControllerIssuerMetadataResponses[keyof WellKnownControllerIssuerMetadataResponses];
+
+export type WellKnownControllerAuthzMetadataData = {
+  body?: never;
+  path: {
+    tenantId: string;
+  };
+  query?: never;
+  url: "/.well-known/oauth-authorization-server/{tenantId}";
+};
+
+export type WellKnownControllerAuthzMetadataResponses = {
+  200: unknown;
+};
+
+export type WellKnownControllerGetJwksData = {
+  body?: never;
+  path: {
+    tenantId: string;
+  };
+  query?: never;
+  url: "/.well-known/jwks.json/{tenantId}";
+};
+
+export type WellKnownControllerGetJwksResponses = {
+  200: JwksResponseDto;
+};
+
+export type WellKnownControllerGetJwksResponse =
+  WellKnownControllerGetJwksResponses[keyof WellKnownControllerGetJwksResponses];
+
 export type Oid4VpControllerGetRequestWithSessionData = {
   body?: never;
   path: {
@@ -1822,6 +1896,125 @@ export type PresentationManagementControllerDeleteConfigurationResponses = {
   200: unknown;
 };
 
+export type PresentationManagementControllerGetConfigurationData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/verifier/config/{id}";
+};
+
+export type PresentationManagementControllerGetConfigurationResponses = {
+  200: PresentationConfig;
+};
+
+export type PresentationManagementControllerGetConfigurationResponse =
+  PresentationManagementControllerGetConfigurationResponses[keyof PresentationManagementControllerGetConfigurationResponses];
+
+export type PresentationManagementControllerUpdateConfigurationData = {
+  body: PresentationConfigCreateDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/verifier/config/{id}";
+};
+
+export type PresentationManagementControllerUpdateConfigurationResponses = {
+  200: unknown;
+};
+
+export type TrustListControllerGetAllTrustListsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/trust-list";
+};
+
+export type TrustListControllerGetAllTrustListsResponses = {
+  200: Array<TrustList>;
+};
+
+export type TrustListControllerGetAllTrustListsResponse =
+  TrustListControllerGetAllTrustListsResponses[keyof TrustListControllerGetAllTrustListsResponses];
+
+export type TrustListControllerCreateTrustListData = {
+  body: TrustListCreateDto;
+  path?: never;
+  query?: never;
+  url: "/trust-list";
+};
+
+export type TrustListControllerCreateTrustListResponses = {
+  201: TrustList;
+};
+
+export type TrustListControllerCreateTrustListResponse =
+  TrustListControllerCreateTrustListResponses[keyof TrustListControllerCreateTrustListResponses];
+
+export type TrustListControllerDeleteTrustListData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/trust-list/{id}";
+};
+
+export type TrustListControllerDeleteTrustListResponses = {
+  200: unknown;
+};
+
+export type TrustListControllerGetTrustListData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/trust-list/{id}";
+};
+
+export type TrustListControllerGetTrustListResponses = {
+  200: TrustList;
+};
+
+export type TrustListControllerGetTrustListResponse =
+  TrustListControllerGetTrustListResponses[keyof TrustListControllerGetTrustListResponses];
+
+export type TrustListControllerUpdateTrustListData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/trust-list/{id}";
+};
+
+export type TrustListControllerUpdateTrustListResponses = {
+  200: TrustList;
+};
+
+export type TrustListControllerUpdateTrustListResponse =
+  TrustListControllerUpdateTrustListResponses[keyof TrustListControllerUpdateTrustListResponses];
+
+export type TrustListPublicControllerGetTrustListJwtData = {
+  body?: never;
+  path: {
+    tenantId: string;
+    id: string;
+  };
+  query?: never;
+  url: "/{tenantId}/trust-list/{id}";
+};
+
+export type TrustListPublicControllerGetTrustListJwtResponses = {
+  200: string;
+};
+
+export type TrustListPublicControllerGetTrustListJwtResponse =
+  TrustListPublicControllerGetTrustListJwtResponses[keyof TrustListPublicControllerGetTrustListJwtResponses];
+
 export type VerifierOfferControllerGetOfferData = {
   body: PresentationRequest;
   path?: never;
@@ -1838,84 +2031,6 @@ export type VerifierOfferControllerGetOfferResponses = {
 
 export type VerifierOfferControllerGetOfferResponse =
   VerifierOfferControllerGetOfferResponses[keyof VerifierOfferControllerGetOfferResponses];
-
-export type HealthControllerCheckData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/health";
-};
-
-export type HealthControllerCheckErrors = {
-  /**
-   * The Health Check is not successful
-   */
-  503: {
-    status?: string;
-    info?: {
-      [key: string]: {
-        status: string;
-        [key: string]: unknown | string;
-      };
-    };
-    error?: {
-      [key: string]: {
-        status: string;
-        [key: string]: unknown | string;
-      };
-    };
-    details?: {
-      [key: string]: {
-        status: string;
-        [key: string]: unknown | string;
-      };
-    };
-  };
-};
-
-export type HealthControllerCheckError =
-  HealthControllerCheckErrors[keyof HealthControllerCheckErrors];
-
-export type HealthControllerCheckResponses = {
-  /**
-   * The Health Check is successful
-   */
-  200: {
-    status?: string;
-    info?: {
-      [key: string]: {
-        status: string;
-        [key: string]: unknown | string;
-      };
-    };
-    error?: {
-      [key: string]: {
-        status: string;
-        [key: string]: unknown | string;
-      };
-    };
-    details?: {
-      [key: string]: {
-        status: string;
-        [key: string]: unknown | string;
-      };
-    };
-  };
-};
-
-export type HealthControllerCheckResponse =
-  HealthControllerCheckResponses[keyof HealthControllerCheckResponses];
-
-export type PrometheusControllerIndexData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/metrics";
-};
-
-export type PrometheusControllerIndexResponses = {
-  200: unknown;
-};
 
 export type StorageControllerUploadData = {
   /**

@@ -41,12 +41,12 @@ export class LoginComponent implements OnInit {
   isDevelopmentMode = false;
 
   constructor(
-    private formBuilder: FormBuilder,
-    private apiService: ApiService,
-    private router: Router,
-    private route: ActivatedRoute,
-    private snackBar: MatSnackBar,
-    private environmentService: EnvironmentService
+    private readonly formBuilder: FormBuilder,
+    private readonly apiService: ApiService,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute,
+    private readonly snackBar: MatSnackBar,
+    private readonly environmentService: EnvironmentService
   ) {}
 
   ngOnInit(): void {

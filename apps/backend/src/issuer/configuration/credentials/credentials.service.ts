@@ -10,6 +10,7 @@ import Ajv from "ajv/dist/2020";
 import { Repository } from "typeorm";
 import { CertService } from "../../../crypto/key/cert/cert.service";
 import { CryptoImplementationService } from "../../../crypto/key/crypto-implementation/crypto-implementation.service";
+import { CertUsage } from "../../../crypto/key/entities/cert-usage.entity";
 import { Session } from "../../../session/entities/session.entity";
 import { SessionLogContext } from "../../../shared/utils/logger/session-logger-context";
 import { WebhookService } from "../../../shared/utils/webhook/webhook.service";
@@ -30,13 +31,13 @@ export class CredentialsService {
      * @param cryptoImplementationService
      */
     constructor(
-        private certService: CertService,
-        private configService: ConfigService,
-        private statusListService: StatusListService,
+        private readonly certService: CertService,
+        private readonly configService: ConfigService,
+        private readonly statusListService: StatusListService,
         @InjectRepository(CredentialConfig)
-        private credentialConfigRepo: Repository<CredentialConfig>,
-        private cryptoImplementationService: CryptoImplementationService,
-        private webhookService: WebhookService,
+        private readonly credentialConfigRepo: Repository<CredentialConfig>,
+        private readonly cryptoImplementationService: CryptoImplementationService,
+        private readonly webhookService: WebhookService,
     ) {}
 
     /**
@@ -238,7 +239,7 @@ export class CredentialsService {
 
         const certificate = await this.certService.find({
             tenantId: session.tenantId,
-            type: "signing",
+            type: CertUsage.Signing,
             id: credentialConfiguration.certId,
         });
 

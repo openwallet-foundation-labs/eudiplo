@@ -73,11 +73,11 @@ export class CredentialConfigCreateComponent implements OnInit {
   embeddedDisclosurePolicySchema = embeddedDisclosurePolicySchema;
 
   constructor(
-    private credentialConfigService: CredentialConfigService,
-    private router: Router,
-    private route: ActivatedRoute,
-    private snackBar: MatSnackBar,
-    private dialog: MatDialog
+    private readonly credentialConfigService: CredentialConfigService,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute,
+    private readonly snackBar: MatSnackBar,
+    private readonly dialog: MatDialog
   ) {
     this.form = new FormGroup({
       id: new FormControl('', [Validators.required]),
@@ -99,39 +99,44 @@ export class CredentialConfigCreateComponent implements OnInit {
 
     if (this.route.snapshot.params['id']) {
       this.create = false;
-      this.credentialConfigService.getConfig(this.route.snapshot.params['id']).then(
-        (config) => {
-          if (!config) {
-            this.snackBar.open('Config not found', 'Close', {
-              duration: 3000,
-            });
-            this.router.navigate(['../'], { relativeTo: this.route });
-            return;
-          }
-
-          this.patchFormFromConfig(config);
-          this.form.get('id')?.disable();
-        },
-        (error) => {
-          console.error('Error loading key:', error);
-          this.snackBar.open('Failed to load key', 'Close', {
-            duration: 3000,
-          });
-        }
-      );
     }
   }
-  async ngOnInit(): Promise<void> {
+  ngOnInit() {
     // Load all certificates directly
-    try {
-      const response = await certControllerGetCertificates({});
-      this.certificates = response.data || [];
-    } catch (error) {
-      console.error('Failed to load certificates:', error);
-      this.snackBar.open('Failed to load certificates', 'Close', {
-        duration: 3000,
-      });
+    certControllerGetCertificates({}).then(
+      (res) => (this.certificates = res.data || []),
+      (error) => {
+        console.error('Failed to load certificates:', error);
+        this.snackBar.open('Failed to load certificates', 'Close', {
+          duration: 3000,
+        });
+      }
+    );
+
+    const id = this.route.snapshot.params['id'];
+    if (!id) {
+      return;
     }
+    this.credentialConfigService.getConfig(id).then(
+      (config) => {
+        if (!config) {
+          this.snackBar.open('Config not found', 'Close', {
+            duration: 3000,
+          });
+          this.router.navigate(['../'], { relativeTo: this.route });
+          return;
+        }
+
+        this.patchFormFromConfig(config);
+        this.form.get('id')?.disable();
+      },
+      (error) => {
+        console.error('Error loading key:', error);
+        this.snackBar.open('Failed to load key', 'Close', {
+          duration: 3000,
+        });
+      }
+    );
   }
 
   onSubmit() {
@@ -347,7 +352,7 @@ export class CredentialConfigCreateComponent implements OnInit {
    * Load a predefined configuration
    */
   loadPredefinedConfig(configTemplate: any): void {
-    const config = JSON.parse(JSON.stringify(configTemplate.config)); // Deep clone
+    const config = structuredClone(configTemplate.config);
 
     this.loadConfigurationFromJson(config);
 
