@@ -1,3 +1,5 @@
+import { readFileSync, rmSync } from "node:fs";
+import { resolve } from "node:path";
 import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
@@ -12,16 +14,16 @@ import {
 } from "@openid4vc/openid4vci";
 import { digest } from "@sd-jwt/crypto-nodejs";
 import { SDJwtVcInstance } from "@sd-jwt/sd-jwt-vc";
-import { readFileSync, rmSync } from "fs";
 import { exportJWK, generateKeyPair, importX509, jwtVerify } from "jose";
 import nock from "nock";
-import { resolve } from "path";
 import request from "supertest";
 import { App } from "supertest/types";
 import { Agent, fetch, setGlobalDispatcher } from "undici";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../src/app.module";
+import { CertImportDto } from "../src/crypto/key/dto/cert-import.dto";
 import { KeyImportDto } from "../src/crypto/key/dto/key-import.dto";
+import { CertUsage } from "../src/crypto/key/entities/cert-usage.entity";
 import { callbacks, getSignJwtCallback, getToken } from "./utils";
 
 setGlobalDispatcher(
@@ -84,13 +86,12 @@ describe("Issuance", () => {
 
         // create self signed certificate for the key
         await request(app.getHttpServer())
-            .post(`/certs/self-signed`)
+            .post("/certs")
             .set("Authorization", `Bearer ${authToken}`)
             .send({
                 keyId: privateKey.id,
-                isSigningCert: true,
-                isAccessCert: true,
-            })
+                certUsageTypes: [CertUsage.Access, CertUsage.Signing],
+            } as CertImportDto)
             .expect(201);
 
         const configFolder = resolve(__dirname + "/../../../assets/config");

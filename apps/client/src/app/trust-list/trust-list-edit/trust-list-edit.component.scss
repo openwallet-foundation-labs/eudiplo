@@ -1,0 +1,164 @@
+.info-card {
+  background-color: #f5f5f5;
+  margin: 16px 0;
+
+  .info-icon {
+    color: #666;
+  }
+
+  mat-card-content {
+    padding: 12px !important;
+  }
+}
+
+.info-text {
+  color: #999;
+  font-style: italic;
+  margin: 0;
+
+  a {
+    color: #1976d2;
+  }
+}
+
+.title-icon {
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+mat-card-title {
+  display: flex;
+  align-items: center;
+}
+
+mat-error {
+  font-size: 12px;
+  margin-top: 8px;
+  display: block;
+}
+
+.loading-state {
+  padding: 48px 24px;
+  text-align: center;
+
+  .loading-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: rgba(0, 0, 0, 0.26);
+  }
+
+  p {
+    margin: 0;
+    font-size: 16px;
+    color: rgba(0, 0, 0, 0.54);
+  }
+}
+
+// Entity list styling
+.entity-panel {
+  margin-bottom: 8px;
+
+  &.internal-entity {
+    .mat-expansion-panel-header {
+      background-color: rgba(25, 118, 210, 0.04);
+    }
+  }
+
+  &.external-entity {
+    .mat-expansion-panel-header {
+      background-color: rgba(156, 39, 176, 0.04);
+    }
+  }
+
+  .entity-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+
+    .entity-type-badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: 500;
+
+      &.internal {
+        background-color: #1976d2;
+        color: white;
+      }
+
+      &.external {
+        background-color: #9c27b0;
+        color: white;
+      }
+    }
+
+    .entity-label {
+      flex: 1;
+      font-weight: 500;
+    }
+  }
+}
+
+.entity-content {
+  padding: 16px 0;
+}
+
+.entity-info-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+
+  h4 {
+    margin: 0 0 16px 0;
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
+
+// Empty state
+.no-entities-message {
+  padding: 32px;
+  text-align: center;
+  color: #999;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 8px;
+  }
+}
+
+// Form field adjustments
+mat-form-field {
+  &.full-width {
+    width: 100%;
+  }
+}
+
+textarea.pem-editor {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+// Action buttons
+.entity-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+// Add entity buttons
+.add-entity-buttons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+
+  button {
+    flex: 1;
+  }
+}

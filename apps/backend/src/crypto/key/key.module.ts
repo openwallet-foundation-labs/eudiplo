@@ -12,6 +12,7 @@ import { CertService } from "./cert/cert.service";
 import { CryptoImplementatationModule } from "./crypto-implementation/crypto-implementation.module";
 import { CryptoImplementationService } from "./crypto-implementation/crypto-implementation.service";
 import { CertEntity } from "./entities/cert.entity";
+import { CertUsageEntity } from "./entities/cert-usage.entity";
 import { KeyEntity } from "./entities/keys.entity";
 
 @Global()
@@ -24,7 +25,12 @@ export class KeyModule {
                 HttpModule,
                 ConfigModule,
                 CryptoImplementatationModule,
-                TypeOrmModule.forFeature([CertEntity, KeyEntity, TenantEntity]),
+                TypeOrmModule.forFeature([
+                    CertEntity,
+                    CertUsageEntity,
+                    KeyEntity,
+                    TenantEntity,
+                ]),
             ],
             providers: [
                 CertService,

@@ -67,7 +67,13 @@
         "/assets/config/*/clients/*.json"
       ],
       "url": "./schemas/ClientEntity.schema.json"
-    }
+    },
+    {
+      "fileMatch": [
+        "/assets/config/*/trustlists/*.json"
+      ],
+      "url": "./schemas/TrustListCreateDto.schema.json"
+    },
   ],
   "sonarlint.connectedMode.project": {
     "connectionId": "eudiplo",

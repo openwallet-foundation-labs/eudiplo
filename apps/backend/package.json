@@ -53,6 +53,8 @@
         "@openid4vc/openid4vci": "0.4.3",
         "@openid4vc/openid4vp": "0.4.3",
         "@openid4vc/utils": "0.4.3",
+        "@peculiar/asn1-schema": "^2.6.0",
+        "@peculiar/asn1-x509": "^2.6.0",
         "@peculiar/x509": "^1.14.2",
         "@sd-jwt/crypto-nodejs": "^0.17.0",
         "@sd-jwt/jwt-status-list": "^0.17.1",
@@ -110,7 +112,6 @@
         "tsconfig-paths": "^4.2.0",
         "tsx": "^4.21.0",
         "typescript": "^5.9.3",
-        "undici": "^7.16.0",
         "unplugin-swc": "^1.5.9",
         "vitest": "4.0.15"
     },

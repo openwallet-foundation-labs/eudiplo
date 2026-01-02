@@ -7,6 +7,30 @@
   }
 }
 
+.no-configs-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background-color: #e3f2fd;
+  border-radius: 8px;
+  color: #1565c0;
+
+  mat-icon {
+    color: #1976d2;
+  }
+
+  a {
+    color: #1565c0;
+    font-weight: 500;
+    text-decoration: underline;
+
+    &:hover {
+      color: #0d47a1;
+    }
+  }
+}
+
 .form-card {
   margin-bottom: 24px;
 }

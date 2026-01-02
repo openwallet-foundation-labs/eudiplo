@@ -3,7 +3,7 @@ import { Type } from "class-transformer";
 import {
     IsArray,
     IsBoolean,
-    IsIn,
+    IsEnum,
     IsNotEmpty,
     IsNumber,
     IsObject,
@@ -23,6 +23,11 @@ import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
 import { WebhookConfig } from "../../../shared/utils/webhook/webhook.dto";
 import { RegistrationCertificateRequest } from "../dto/vp-request.dto";
 
+export enum TrustedAuthorityType {
+    AKI = "aki",
+    ETSI_TL = "etsi_tl",
+}
+
 /**
  * Attached attestations
  */
@@ -40,8 +45,8 @@ export class PresentationAttachment {
 // TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-trusted-authorities-query
 export class TrustedAuthorityQuery {
     @IsString()
-    @IsIn(["aki", "etsi_tl", "openid_federation"])
-    type!: string;
+    @IsEnum(TrustedAuthorityType)
+    type!: TrustedAuthorityType;
 
     @IsArray()
     @IsString({ each: true })
@@ -54,7 +59,6 @@ export class Claim {
 }
 
 //TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-credential-query
-
 export class CredentialQuery {
     @IsString()
     id!: string;
@@ -177,6 +181,7 @@ export class PresentationConfig {
     @Type(() => RegistrationCertificateRequest)
     @Column("json", { nullable: true })
     registrationCert?: RegistrationCertificateRequest;
+
     /**
      * Optional webhook URL to receive the response.
      */

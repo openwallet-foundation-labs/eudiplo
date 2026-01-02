@@ -1,3 +1,5 @@
+import { randomInt } from "node:crypto";
+import { join } from "node:path";
 import { ConflictException, Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -9,10 +11,9 @@ import {
     StatusListJWTHeaderParameters,
 } from "@sd-jwt/jwt-status-list";
 import { JwtPayload } from "@sd-jwt/types";
-import { randomInt } from "crypto";
-import { join } from "path";
 import { Repository } from "typeorm";
 import { CertService } from "../../../crypto/key/cert/cert.service";
+import { CertUsage } from "../../../crypto/key/entities/cert-usage.entity";
 import { KeyService } from "../../../crypto/key/key.service";
 import { Session } from "../../../session/entities/session.entity";
 import { StatusUpdateDto } from "./dto/status-update.dto";
@@ -22,13 +23,13 @@ import { StatusMapping } from "./entities/status-mapping.entity";
 @Injectable()
 export class StatusListService {
     constructor(
-        private configService: ConfigService,
-        private certService: CertService,
+        private readonly configService: ConfigService,
+        private readonly certService: CertService,
         @Inject("KeyService") public readonly keyService: KeyService,
         @InjectRepository(StatusMapping)
-        private statusMappingRepository: Repository<StatusMapping>,
+        private readonly statusMappingRepository: Repository<StatusMapping>,
         @InjectRepository(StatusListEntity)
-        private statusListRepository: Repository<StatusListEntity>,
+        private readonly statusListRepository: Repository<StatusListEntity>,
     ) {}
 
     /**
@@ -87,16 +88,15 @@ export class StatusListService {
             sub,
             iat: Math.floor(Date.now() / 1000),
         };
-        //TODO: maybe add a cert for status list management
-        const cert = await this.certService.find({
+        const cert = await this.certService.findOrCreate({
             tenantId: entry.tenantId,
-            type: "signing",
+            type: CertUsage.StatusList,
         });
 
         const preHeader: StatusListJWTHeaderParameters = {
             alg: "ES256",
             typ: "statuslist+jwt",
-            x5c: await this.certService.getCertChain(cert),
+            x5c: this.certService.getCertChain(cert),
         };
         const { header, payload } = createHeaderAndPayload(
             list,

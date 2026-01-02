@@ -14,7 +14,6 @@ import { KeyManagementListComponent } from './key-management/key-management-list
 import { KeyManagementShowComponent } from './key-management/key-management-show/key-management-show.component';
 import { CertificatesOverviewComponent } from './key-management/certificates-overview/certificates-overview.component';
 import { CertificateShowComponent } from './key-management/certificate-show/certificate-show.component';
-import { CertificateCreateComponent } from './key-management/certificate-create/certificate-create.component';
 import { CertificateEditComponent } from './key-management/certificate-edit/certificate-edit.component';
 import { LoginComponent } from './login/login.component';
 import { PresentationCreateComponent } from './presentation/presentation-config/presentation-create/presentation-create.component';
@@ -29,6 +28,9 @@ import { TenantCreateComponent } from './tenants/tenant-create/tenant-create.com
 import { TenantListComponent } from './tenants/tenant-list/tenant-list.component';
 import { TenantShowComponent } from './tenants/tenant-show/tenant-show.component';
 import { ClientShowComponent } from './tenants/client/client-show/client-show.component';
+import { TrustListListComponent } from './trust-list/trust-list-list/trust-list-list.component';
+import { TrustListShowComponent } from './trust-list/trust-list-show/trust-list-show.component';
+import { TrustListEditComponent } from './trust-list/trust-list-edit/trust-list-edit.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -37,11 +39,7 @@ export const routes: Routes = [
     component: DashboardComponent,
     canActivate: [AuthGuard],
   },
-  {
-    path: 'offer',
-    redirectTo: 'dashboard',
-    pathMatch: 'full',
-  },
+  { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
   {
     path: 'clients',
     canActivate: [AuthGuard, RoleGuard],
@@ -155,6 +153,11 @@ export const routes: Routes = [
         component: KeyManagementCreateComponent,
       },
       {
+        path: ':keyId/certificate',
+        component: CertificateEditComponent,
+        data: { createMode: true },
+      },
+      {
         path: ':keyId/certificate/:certId',
         component: CertificateShowComponent,
       },
@@ -173,8 +176,17 @@ export const routes: Routes = [
         component: CertificatesOverviewComponent,
       },
       {
-        path: 'new',
-        component: CertificateCreateComponent,
+        path: 'create',
+        component: CertificateEditComponent,
+        data: { createMode: true },
+      },
+      {
+        path: ':certId',
+        component: CertificateShowComponent,
+      },
+      {
+        path: ':certId/edit',
+        component: CertificateEditComponent,
       },
     ],
   },
@@ -214,7 +226,6 @@ export const routes: Routes = [
       },
     ],
   },
-  { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
   {
     path: 'presentation-config',
     canActivate: [AuthGuard],
@@ -234,6 +245,28 @@ export const routes: Routes = [
       {
         path: ':id/edit',
         component: PresentationCreateComponent,
+      },
+    ],
+  },
+  {
+    path: 'trust-list',
+    canActivate: [AuthGuard],
+    children: [
+      {
+        path: '',
+        component: TrustListListComponent,
+      },
+      {
+        path: 'create',
+        component: TrustListEditComponent,
+      },
+      {
+        path: ':id',
+        component: TrustListShowComponent,
+      },
+      {
+        path: ':id/edit',
+        component: TrustListEditComponent,
       },
     ],
   },

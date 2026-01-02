@@ -1,0 +1,12 @@
+{
+    "id": "dae7553f-321b-419e-a5d6-eb0933936793",
+    "description": "key to sign the status list",
+    "key": {
+        "crv": "P-256",
+        "d": "cobw3q4KVqZNCFaK5mUxKsWpVk4Ly7AA0JzGjqmnaxk",
+        "kty": "EC",
+        "x": "jl97bi6xKezsht0gbbRpkprPE7Ib926KL7MCbnHtnoE",
+        "y": "jQhCZr3V7mmZvOhztUuk9PkIB_F8gvvBUTRrLBA8ZEA",
+        "alg": "ES256"
+    }
+}

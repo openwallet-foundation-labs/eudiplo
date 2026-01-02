@@ -4,15 +4,24 @@
   "title": "CertUpdateDto",
   "type": "object",
   "properties": {
-    "isAccessCert": {
-      "type": "boolean",
-      "description": "Certificate can be used for access/authentication",
-      "example": false
+    "certUsageTypes": {
+      "type": "array",
+      "description": "Usage types for the certificate.",
+      "items": {
+        "type": "string",
+        "enum": [
+          "access",
+          "signing",
+          "trustList",
+          "statusList"
+        ]
+      }
     },
-    "isSigningCert": {
-      "type": "boolean",
-      "description": "Certificate can be used for signing",
-      "example": true
+    "usages": {
+      "type": "array",
+      "items": {
+        "$ref": "./CertUsageEntity.schema.json"
+      }
     },
     "description": {
       "type": "string",
@@ -20,7 +29,7 @@
     }
   },
   "required": [
-    "isAccessCert",
-    "isSigningCert"
+    "certUsageTypes",
+    "usages"
   ]
 }

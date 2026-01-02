@@ -6,8 +6,8 @@ import { PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm";
 import { CertService } from "../../../crypto/key/cert/cert.service";
 import { KeyService } from "../../../crypto/key/key.service";
-import { FilesService } from "../../../storage/files.service";
 import { ConfigImportService } from "../../../shared/utils/config-import/config-import.service";
+import { FilesService } from "../../../storage/files.service";
 import { CredentialConfigService } from "../credentials/credential-config/credential-config.service";
 import { DisplayInfo } from "./dto/display.dto";
 import { IssuanceDto } from "./dto/issuance.dto";
@@ -26,12 +26,12 @@ export class IssuanceService implements OnApplicationBootstrap {
      */
     constructor(
         @InjectRepository(IssuanceConfig)
-        private issuanceConfigRepo: Repository<IssuanceConfig>,
-        private credentialsConfigService: CredentialConfigService,
-        private logger: PinoLogger,
-        private filesService: FilesService,
-        private configImportService: ConfigImportService,
-        private certService: CertService,
+        private readonly issuanceConfigRepo: Repository<IssuanceConfig>,
+        private readonly credentialsConfigService: CredentialConfigService,
+        private readonly logger: PinoLogger,
+        private readonly filesService: FilesService,
+        private readonly configImportService: ConfigImportService,
+        private readonly certService: CertService,
         @Inject("KeyService") public readonly keyService: KeyService,
     ) {}
 

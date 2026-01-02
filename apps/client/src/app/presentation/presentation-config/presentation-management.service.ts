@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
-import { OfferResponse, PresentationConfig, PresentationRequest } from '@eudiplo/sdk';
 import {
+  PresentationConfig,
+  presentationManagementControllerGetConfiguration,
+  PresentationRequest,
   presentationManagementControllerConfiguration,
   presentationManagementControllerDeleteConfiguration,
   presentationManagementControllerStorePresentationConfig,
@@ -17,11 +19,11 @@ export class PresentationManagementService {
     );
   }
   getPresentationById(presentationId: string) {
-    return this.loadConfigurations().then((configs) => {
-      return configs.find((config) => config.id === presentationId);
-    });
+    return presentationManagementControllerGetConfiguration({ path: { id: presentationId } }).then(
+      (response) => response.data
+    );
   }
-  loadConfigurations(): PromiseLike<PresentationConfig[]> {
+  loadConfigurations() {
     return presentationManagementControllerConfiguration().then((response) => {
       return response.data || [];
     });
@@ -33,9 +35,9 @@ export class PresentationManagementService {
     });
   }
 
-  getOffer(offerRequest: PresentationRequest): Promise<OfferResponse> {
+  getOffer(offerRequest: PresentationRequest) {
     return verifierOfferControllerGetOffer({ body: offerRequest }).then(
-      (response) => response.data as OfferResponse
+      (response) => response.data
     );
   }
 }

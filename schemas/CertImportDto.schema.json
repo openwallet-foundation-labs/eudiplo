@@ -4,16 +4,6 @@
   "title": "CertImportDto",
   "type": "object",
   "properties": {
-    "isAccessCert": {
-      "type": "boolean",
-      "description": "Certificate can be used for access/authentication",
-      "example": false
-    },
-    "isSigningCert": {
-      "type": "boolean",
-      "description": "Certificate can be used for signing",
-      "example": true
-    },
     "keyId": {
       "type": "string",
       "description": "The key ID this certificate is associated with",
@@ -22,12 +12,24 @@
     },
     "id": {
       "type": "string",
-      "description": "Unique identifier for the key.",
       "format": "uuid"
+    },
+    "certUsageTypes": {
+      "type": "array",
+      "description": "Usage types for the certificate.",
+      "items": {
+        "type": "string",
+        "enum": [
+          "access",
+          "signing",
+          "trustList",
+          "statusList"
+        ]
+      }
     },
     "crt": {
       "type": "string",
-      "description": "Certificate in PEM format."
+      "description": "Certificate in PEM format, if not provided, a self-signed certificate will be generated."
     },
     "description": {
       "type": "string",
@@ -35,10 +37,7 @@
     }
   },
   "required": [
-    "isAccessCert",
-    "isSigningCert",
     "keyId",
-    "id",
-    "crt"
+    "certUsageTypes"
   ]
 }

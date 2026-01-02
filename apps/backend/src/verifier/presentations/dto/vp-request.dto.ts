@@ -1,19 +1,18 @@
-import { IsObject, IsOptional, IsString } from "class-validator";
-import { RegistrationCertificateCreation } from "../../../registrar/generated";
+import { IsString } from "class-validator";
 
 /**
  * RegistrationCertificateRequest DTO
  */
 export class RegistrationCertificateRequest {
     /**
-     * Identifier of the registration certificate that got issued.
-     */
-    @IsOptional()
-    @IsString()
-    id?: string;
-    /**
      * The body of the registration certificate request containing the necessary details.
      */
-    @IsObject()
-    body!: RegistrationCertificateCreation;
+    //@IsObject()
+    //body!: RegistrationCertificateCreation;
+
+    /**
+     * Registration certificate JWT
+     */
+    @IsString()
+    jwt: string;
 }

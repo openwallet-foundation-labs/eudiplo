@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustList.schema.json",
+  "title": "TrustList",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for the trust list",
+      "format": "uuid"
+    },
+    "description": {
+      "type": "string"
+    },
+    "tenant": {
+      "description": "The tenant that owns this object.",
+      "allOf": [
+        {
+          "$ref": "./TenantEntity.schema.json"
+        }
+      ]
+    },
+    "certId": {
+      "type": "string"
+    },
+    "cert": {
+      "$ref": "./CertEntity.schema.json"
+    },
+    "data": {
+      "type": "object",
+      "description": "The full trust list JSON (generated LoTE structure)"
+    },
+    "entityConfig": {
+      "description": "The original entity configuration used to create this trust list.\nStored for round-tripping when editing.",
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "sequenceNumber": {
+      "type": "number",
+      "description": "The sequence number for versioning (incremented on updates)"
+    },
+    "jwt": {
+      "type": "string",
+      "description": "The signed JWT representation of this trust list"
+    },
+    "createdAt": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "updatedAt": {
+      "format": "date-time",
+      "type": "string"
+    }
+  },
+  "required": [
+    "tenant",
+    "certId",
+    "cert",
+    "sequenceNumber",
+    "jwt",
+    "createdAt",
+    "updatedAt"
+  ]
+}

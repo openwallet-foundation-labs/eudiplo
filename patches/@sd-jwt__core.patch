@@ -1,0 +1,13 @@
+diff --git a/dist/index.mjs b/dist/index.mjs
+index 34f9c3052d06ce5e7be642141f8fb267e96bbbb3..eb434486b03e49829202a88262fb1bcec6c2ab92 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -318,7 +318,7 @@ var Jwt = class _Jwt {
+         throw new SDJWTException3("Verify Error: no signature in JWT");
+       }
+       const data = this.getUnsignedToken();
+-      const verified = yield verifier(data, this.signature);
++      const verified = yield verifier(data, this.signature, options);
+       if (!verified) {
+         throw new SDJWTException3("Verify Error: Invalid JWT Signature");
+       }

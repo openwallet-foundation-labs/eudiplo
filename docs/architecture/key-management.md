@@ -133,7 +133,7 @@ Generate a self-signed certificate for an existing key using the dedicated endpo
 - Algorithm: Matches the key algorithm (ES256)
 - Extensions: Subject Alternative Name (SAN) for localhost
 
-**API Reference**: [Self-Signed Certificate Generation](../api/openapi.md#tag/cert/POST/cert/{keyId}/self-signed)
+**API Reference**: [Self-Signed Certificate Generation](../api/openapi.md#tag/cert/POST/cert/{keyId})
 
 ### Certificate Import via Configuration
 

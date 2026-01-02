@@ -7,7 +7,6 @@ import {
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
-
 import { MonacoEditorModule, NgxEditorModel } from 'ngx-monaco-editor-v2';
 import Ajv, { ValidateFunction } from 'ajv/dist/2020';
 import addFormats from 'ajv-formats';
@@ -51,7 +50,7 @@ export class EditorComponent implements ControlValueAccessor, Validator, OnChang
   value = '';
   disabled = false;
 
-  private ajv = new Ajv();
+  private readonly ajv = new Ajv();
   private validateFn?: ValidateFunction;
 
   constructor() {

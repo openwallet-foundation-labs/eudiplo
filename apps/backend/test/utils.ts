@@ -1,6 +1,4 @@
 import crypto from "node:crypto";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { INestApplication } from "@nestjs/common";
 import { CallbackContext, Jwk, SignJwtCallback } from "@openid4vc/oauth2";
 import { digest, ES256 } from "@sd-jwt/crypto-nodejs";
@@ -10,7 +8,6 @@ import {
     calculateJwkThumbprint,
     exportJWK,
     importJWK,
-    importPKCS8,
     importX509,
     JWK,
     jwtVerify,
@@ -18,32 +15,13 @@ import {
 } from "jose";
 import request from "supertest";
 import { Role } from "../src/auth/roles/role.enum";
+import { StatusListService } from "../src/issuer/lifecycle/status/status-list.service";
 
-// Load test certificate
-const TEST_CERT_PEM = readFileSync(join(__dirname, "cert.pem"), "utf-8");
-
-const TEST_PRIVATE_KEY_PEM = readFileSync(join(__dirname, "key.pem"), "utf-8");
-
-/**
- * Converts a PEM certificate to x5c format (DER base64url encoded)
- * @returns Array of base64url encoded certificate(s) for x5c header
- */
-export function getTestX5c(): string[] {
-    // Remove PEM headers/footers and newlines
-    const base64Cert = TEST_CERT_PEM.replace(/-----BEGIN CERTIFICATE-----/, "")
-        .replace(/-----END CERTIFICATE-----/, "")
-        .replace(/\s/g, "");
-
-    // Convert base64 to base64url (DER format)
-    const base64url = base64Cert
-        .replace(/\+/g, "-")
-        .replace(/\//g, "_")
-        .replace(/=/g, "");
-
-    return [base64url];
-}
-
-async function createCredential(options: { claims: any }) {
+async function createCredential(options: {
+    claims: any;
+    privateKey: CryptoKey;
+    x5c: string[];
+}) {
     //create keypair for holder
     const { privateKeyHolder, publicKeyHolder } =
         await ES256.generateKeyPair().then((keyPair) => ({
@@ -51,21 +29,18 @@ async function createCredential(options: { claims: any }) {
             publicKeyHolder: keyPair.publicKey,
         }));
 
-    // Import the test private key once
-    const privateKey = await importPKCS8(TEST_PRIVATE_KEY_PEM, "ES256");
-
     const sdjwt = new SDJwtVcInstance({
         signer: async (data: string) => {
             const encoder = new TextEncoder();
             const signature = await globalThis.crypto.subtle.sign(
                 { name: "ECDSA", hash: "SHA-256" },
-                privateKey,
+                options.privateKey,
                 encoder.encode(data),
             );
 
-            return btoa(String.fromCharCode(...new Uint8Array(signature)))
-                .replace(/\+/g, "-")
-                .replace(/\//g, "_")
+            return btoa(String.fromCodePoint(...new Uint8Array(signature)))
+                .replaceAll("+", "-")
+                .replaceAll("/", "_")
                 .replace(/=+$/, ""); // Convert to base64url format
         },
         signAlg: "ES256",
@@ -74,8 +49,6 @@ async function createCredential(options: { claims: any }) {
         saltGenerator: (length: number) =>
             crypto.randomBytes(length).toString("base64url"),
     });
-
-    const x5c = getTestX5c();
 
     return sdjwt
         .issue(
@@ -86,19 +59,36 @@ async function createCredential(options: { claims: any }) {
             undefined,
             {
                 header: {
-                    x5c,
+                    x5c: options.x5c,
                 },
             },
         )
         .then((credential) => ({
-            credential: credential,
+            credential,
             privateKey: privateKeyHolder,
         }));
 }
 
-export async function preparePresentation(kb: Omit<kbPayload, "sd_hash">) {
+export async function preparePresentation(
+    kb: Omit<kbPayload, "sd_hash">,
+    privateKey: CryptoKey,
+    x5c: string[],
+    statusListService: StatusListService,
+    credentialConfigId: string,
+) {
+    const status = await statusListService
+        .createEntry({ tenantId: "root", id: "1" } as any, credentialConfigId)
+        .catch((err) => {
+            console.log(err);
+        });
+
     const credential = await createCredential({
-        vct: "http://localhost:3000/root/credentials-metadata/vct/pid",
+        claims: {
+            vct: "http://localhost:3000/root/credentials-metadata/vct/pid",
+            status,
+        },
+        privateKey,
+        x5c,
     });
 
     const sdjwt = new SDJwtVcInstance({

@@ -1,0 +1,286 @@
+<div fxLayout="column" fxFlex fxLayoutGap="24px">
+  <!-- Header -->
+  <div fxLayout="row" fxLayoutAlign="space-between center">
+    <h2>{{ isEditMode ? 'Edit' : 'Create' }} Trust List</h2>
+    <button mat-icon-button routerLink="/trust-list" matTooltip="Back to Trust Lists">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+  </div>
+
+  @if (form) {
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" fxLayout="column" fxLayoutGap="24px">
+      <!-- Basic Information Card -->
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="title-icon">info</mat-icon>
+            Basic Information
+          </mat-card-title>
+          <mat-card-subtitle>Trust list identifier and description</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div fxLayout="column" fxLayoutGap="16px">
+            <mat-form-field appearance="outline">
+              <mat-label>Description</mat-label>
+              <input
+                matInput
+                formControlName="description"
+                placeholder="e.g., PID Trust List for authorized issuers"
+              />
+              <mat-icon matSuffix>description</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Signing Certificate</mat-label>
+              <mat-select formControlName="certId">
+                <mat-option value="">Auto-generate</mat-option>
+                @for (cert of trustListCerts; track cert.id) {
+                  <mat-option [value]="cert.id">
+                    {{ cert.description ? cert.description + ' (' + cert.id + ')' : cert.id }}
+                  </mat-option>
+                }
+              </mat-select>
+              <mat-icon matSuffix>verified</mat-icon>
+              <mat-hint>Certificate used to sign the trust list JWT</mat-hint>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Trusted Entities Card -->
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="title-icon">groups</mat-icon>
+            Trusted Entities
+          </mat-card-title>
+          <mat-card-subtitle
+            >Add issuers that are authorized to issue credentials</mat-card-subtitle
+          >
+        </mat-card-header>
+
+        <mat-card-content fxLayout="column" fxLayoutGap="16px">
+          <!-- Add Entity Buttons -->
+          <div fxLayout="row" fxLayoutGap="12px">
+            <button
+              mat-stroked-button
+              type="button"
+              color="primary"
+              (click)="addInternalEntity()"
+              matTooltip="Add entity using certificates already in the system"
+            >
+              <mat-icon>key</mat-icon>
+              Add Internal Entity
+            </button>
+            <button
+              mat-stroked-button
+              type="button"
+              color="accent"
+              (click)="addExternalEntity()"
+              matTooltip="Add entity using external PEM certificates"
+            >
+              <mat-icon>upload_file</mat-icon>
+              Add External Entity
+            </button>
+          </div>
+
+          @if (entitiesArray.length === 0) {
+            <mat-card class="info-card">
+              <mat-card-content>
+                <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
+                  <mat-icon class="info-icon">info</mat-icon>
+                  <div>
+                    <strong>No Entities Added</strong>
+                    <p class="info-text">
+                      Add at least one trusted entity. Use <strong>Internal</strong> for
+                      certificates already in your system, or <strong>External</strong> to paste PEM
+                      certificates from other issuers.
+                    </p>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+
+          <!-- Entity List -->
+          <mat-accordion formArrayName="entities">
+            @for (entity of entitiesArray.controls; track $index; let i = $index) {
+              <mat-expansion-panel [expanded]="i === entitiesArray.length - 1" [formGroupName]="i">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    @if (getEntityType(i) === 'internal') {
+                      <mat-icon class="entity-icon internal">key</mat-icon>
+                      Internal Entity #{{ i + 1 }}
+                    } @else {
+                      <mat-icon class="entity-icon external">upload_file</mat-icon>
+                      External Entity #{{ i + 1 }}
+                    }
+                  </mat-panel-title>
+                  <mat-panel-description>
+                    @if (getEntityType(i) === 'internal') {
+                      Using system certificates
+                    } @else {
+                      Using external PEM certificates
+                    }
+                  </mat-panel-description>
+                </mat-expansion-panel-header>
+
+                <div fxLayout="column" fxLayoutGap="16px">
+                  @if (getEntityType(i) === 'internal') {
+                    <!-- Internal Entity Form - Certificate Selection -->
+                    <mat-form-field appearance="outline">
+                      <mat-label>Issuer Certificate</mat-label>
+                      <mat-select formControlName="issuerCertId">
+                        @for (cert of signingCerts; track cert.id) {
+                          <mat-option [value]="cert.id">
+                            {{
+                              cert.description ? cert.description + ' (' + cert.id + ')' : cert.id
+                            }}
+                          </mat-option>
+                        }
+                      </mat-select>
+                      <mat-icon matSuffix>badge</mat-icon>
+                      <mat-hint>Certificate used for credential signing</mat-hint>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                      <mat-label>Revocation Certificate</mat-label>
+                      <mat-select formControlName="revocationCertId">
+                        @for (cert of statusListCerts; track cert.id) {
+                          <mat-option [value]="cert.id">
+                            {{
+                              cert.description ? cert.description + ' (' + cert.id + ')' : cert.id
+                            }}
+                          </mat-option>
+                        }
+                      </mat-select>
+                      <mat-icon matSuffix>gpp_maybe</mat-icon>
+                      <mat-hint>Certificate used for status list signing</mat-hint>
+                    </mat-form-field>
+
+                    <mat-divider></mat-divider>
+                  }
+
+                  <!-- Entity Information (common for both internal and external) -->
+                  <h4>Entity Information</h4>
+                  <div fxLayout="row" fxLayoutGap="16px">
+                    <mat-form-field appearance="outline" fxFlex>
+                      <mat-label>Entity Name *</mat-label>
+                      <input
+                        matInput
+                        formControlName="infoName"
+                        placeholder="e.g., Example Issuer GmbH"
+                      />
+                      <mat-icon matSuffix>business</mat-icon>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" fxFlex="120px">
+                      <mat-label>Language</mat-label>
+                      <input matInput formControlName="infoLang" placeholder="e.g., en" />
+                      <mat-icon matSuffix>language</mat-icon>
+                    </mat-form-field>
+                  </div>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Website URI</mat-label>
+                    <input
+                      matInput
+                      formControlName="infoUri"
+                      placeholder="e.g., https://issuer.example.com"
+                    />
+                    <mat-icon matSuffix>link</mat-icon>
+                  </mat-form-field>
+
+                  <div fxLayout="row" fxLayoutGap="16px">
+                    <mat-form-field appearance="outline" fxFlex>
+                      <mat-label>Country</mat-label>
+                      <input matInput formControlName="infoCountry" placeholder="e.g., DE" />
+                      <mat-icon matSuffix>flag</mat-icon>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" fxFlex>
+                      <mat-label>Locality</mat-label>
+                      <input matInput formControlName="infoLocality" placeholder="e.g., Berlin" />
+                      <mat-icon matSuffix>location_city</mat-icon>
+                    </mat-form-field>
+                  </div>
+
+                  <div fxLayout="row" fxLayoutGap="16px">
+                    <mat-form-field appearance="outline" fxFlex>
+                      <mat-label>Postal Code</mat-label>
+                      <input matInput formControlName="infoPostalCode" placeholder="e.g., 10117" />
+                      <mat-icon matSuffix>markunread_mailbox</mat-icon>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" fxFlex>
+                      <mat-label>Street Address</mat-label>
+                      <input
+                        matInput
+                        formControlName="infoStreetAddress"
+                        placeholder="e.g., Unter den Linden 1"
+                      />
+                      <mat-icon matSuffix>home</mat-icon>
+                    </mat-form-field>
+                  </div>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Contact URI</mat-label>
+                    <input
+                      matInput
+                      formControlName="infoContactUri"
+                      placeholder="e.g., https://issuer.example.com/contact"
+                    />
+                    <mat-icon matSuffix>contact_mail</mat-icon>
+                  </mat-form-field>
+
+                  @if (getEntityType(i) === 'external') {
+                    <!-- External Entity - PEM Certificates -->
+                    <mat-divider></mat-divider>
+
+                    <h4>Certificates (PEM Format)</h4>
+                    <div fxLayout="column" fxLayoutGap="16px">
+                      <div>
+                        <p class="editor-label">Issuer Certificate (for credential signing) *</p>
+                        <app-editor
+                          formControlName="issuerCertPem"
+                          [editorOptions]="editorOptionsPem"
+                        ></app-editor>
+                      </div>
+
+                      <div>
+                        <p class="editor-label">Revocation Certificate (for status list) *</p>
+                        <app-editor
+                          formControlName="revocationCertPem"
+                          [editorOptions]="editorOptionsPem"
+                        ></app-editor>
+                      </div>
+                    </div>
+                  }
+
+                  <div fxLayout="row" fxLayoutAlign="end center">
+                    <button mat-button type="button" color="warn" (click)="removeEntity(i)">
+                      <mat-icon>delete</mat-icon>
+                      Remove Entity
+                    </button>
+                  </div>
+                </div>
+              </mat-expansion-panel>
+            }
+          </mat-accordion>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Action Buttons -->
+      <div fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="12px">
+        <button mat-button type="button" routerLink="/trust-list">Cancel</button>
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          [disabled]="form.invalid || entitiesArray.length === 0"
+        >
+          <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+          {{ isEditMode ? 'Save Changes' : 'Create Trust List' }}
+        </button>
+      </div>
+    </form>
+  }
+</div>

@@ -65,6 +65,16 @@
               >Leave empty to use all configurations from the selected issuance config</mat-hint
             >
           </mat-form-field>
+
+          @if (credentialConfigs.length === 0) {
+            <div class="no-configs-hint">
+              <mat-icon>info</mat-icon>
+              <span
+                >No credential configurations available.
+                <a routerLink="/credential-config/create">Create one</a> to get started.</span
+              >
+            </div>
+          }
         </mat-card-content>
       </mat-card>
       @if (fields.length > 0) {

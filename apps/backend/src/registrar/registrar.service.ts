@@ -5,7 +5,6 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { TenantEntity } from "../auth/tenant/entitites/tenant.entity";
 import { CryptoService } from "../crypto/crypto.service";
-import { RegistrationCertificateRequest } from "../verifier/presentations/dto/vp-request.dto";
 import { RegistrarEntity } from "./entities/registrar.entity";
 import {
     accessCertificateControllerRegister,
@@ -222,7 +221,7 @@ export class RegistrarService implements OnModuleInit {
      * @returns
      */
     async addRegistrationCertificate(
-        req: RegistrationCertificateRequest,
+        req: any,
         //TODO: check if the dcql_query is covered by the registration certificate. If not, we need to throw an error since we do not know the new purpose for it.
         dcql_query: any,
         requestId: string,

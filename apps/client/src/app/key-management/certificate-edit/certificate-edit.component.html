@@ -1,96 +1,160 @@
-<mat-card>
-  <mat-card-header>
-    <mat-card-title>
-      <div fxLayout="row" fxLayoutAlign="space-between center">
-        <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
-          <mat-icon>edit</mat-icon>
-          <span>Edit Certificate Metadata</span>
-        </div>
-      </div>
-    </mat-card-title>
-    <mat-card-subtitle>Update certificate usage types and description</mat-card-subtitle>
-  </mat-card-header>
+<div fxLayout="column" fxFlex fxLayoutGap="24px">
+  <!-- Header -->
+  <div fxLayout="row" fxLayoutAlign="space-between center">
+    <h2>{{ certId ? 'Edit' : 'Create' }} Certificate</h2>
+    <button matIconButton [routerLink]="['../']" matTooltip="Back">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+  </div>
 
-  <mat-card-content>
-    @if (form) {
-      <form [formGroup]="form" (ngSubmit)="onSubmit()">
-        <!-- Info Card -->
-        <mat-card class="info-card">
-          <mat-card-content>
-            <div fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="8px">
-              <mat-icon color="primary">info</mat-icon>
-              <div>
-                <p>
-                  You can update the certificate's usage types and description. The certificate
-                  content (PEM) cannot be modified.
-                </p>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
-
-        <!-- Usage Types -->
+  @if (form) {
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" fxLayout="column" fxLayoutGap="24px">
+      <!-- Key Selection Card (only in standalone mode when creating) -->
+      @if (isStandaloneMode && !certId) {
         <mat-card>
           <mat-card-header>
-            <mat-card-title>Usage Types</mat-card-title>
+            <mat-card-title>
+              <mat-icon class="title-icon">key</mat-icon>
+              Key Selection
+            </mat-card-title>
+            <mat-card-subtitle>Select the key for this certificate</mat-card-subtitle>
           </mat-card-header>
+
           <mat-card-content>
-            <div fxLayout="column" fxLayoutGap="12px">
-              <mat-checkbox formControlName="signing">
-                <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
-                  <mat-icon>edit</mat-icon>
-                  <span>Signing Certificate</span>
-                </div>
-              </mat-checkbox>
+            <div fxLayout="column" fxLayoutGap="16px">
+              <mat-form-field appearance="outline">
+                <mat-label>Select Key</mat-label>
+                <mat-select formControlName="keyId">
+                  @for (key of availableKeys; track key.id) {
+                    <mat-option [value]="key.id">
+                      <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+                        <mat-icon>key</mat-icon>
+                        <span>{{ key.description }} ({{ key.id }})</span>
+                      </div>
+                    </mat-option>
+                  }
+                </mat-select>
+                <mat-icon matSuffix>vpn_key</mat-icon>
+                @if (form.get('keyId')?.hasError('required') && form.get('keyId')?.touched) {
+                  <mat-error>Please select a key</mat-error>
+                }
+              </mat-form-field>
 
-              <mat-checkbox formControlName="access">
-                <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
-                  <mat-icon>vpn_key</mat-icon>
-                  <span>Access Certificate</span>
-                </div>
-              </mat-checkbox>
-
-              @if (form.hasError('atLeastOneType') && form.touched) {
-                <mat-error>Please select at least one usage type</mat-error>
+              @if (availableKeys.length === 0) {
+                <mat-card class="info-card">
+                  <mat-card-content>
+                    <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
+                      <mat-icon class="info-icon">info</mat-icon>
+                      <div>
+                        <strong>No Keys Available</strong>
+                        <p class="info-text">
+                          You need to <a routerLink="/key-management/create">create a key</a> before
+                          adding certificates.
+                        </p>
+                      </div>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
               }
             </div>
           </mat-card-content>
         </mat-card>
+      }
 
-        <!-- Description -->
-        <mat-card>
-          <mat-card-header>
-            <mat-card-title>Description (Optional)</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <mat-form-field appearance="outline" class="full-width">
+      <!-- Basic Information Card -->
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="title-icon">info</mat-icon>
+            Basic Information
+          </mat-card-title>
+          <mat-card-subtitle>Certificate usage types and description</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div fxLayout="column" fxLayoutGap="16px">
+            @if (certId) {
+              <mat-form-field appearance="outline">
+                <mat-label>Certificate ID</mat-label>
+                <input matInput [value]="certId" readonly disabled />
+                <mat-icon matSuffix>tag</mat-icon>
+              </mat-form-field>
+            }
+
+            <mat-form-field appearance="outline">
+              <mat-label>Usage Types</mat-label>
+              <mat-select formControlName="certUsageTypes" multiple>
+                @for (type of certUsages; track type) {
+                  <mat-option [value]="type">{{ type }}</mat-option>
+                }
+              </mat-select>
+              <mat-icon matSuffix>category</mat-icon>
+              @if (
+                form.get('certUsageTypes')?.hasError('required') &&
+                form.get('certUsageTypes')?.touched
+              ) {
+                <mat-error>Please select at least one usage type</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
               <mat-label>Description</mat-label>
               <input
                 matInput
                 formControlName="description"
                 placeholder="e.g., Production signing certificate"
               />
+              <mat-icon matSuffix>description</mat-icon>
             </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Certificate PEM Card (only for create mode) -->
+      @if (!certId) {
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon class="title-icon">badge</mat-icon>
+              Certificate
+            </mat-card-title>
+            <mat-card-subtitle>X.509 certificate in PEM format</mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content fxLayout="column" fxLayoutGap="16px">
+            <mat-card class="info-card">
+              <mat-card-content>
+                <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
+                  <mat-icon class="info-icon">info</mat-icon>
+                  <div>
+                    <strong>Optional</strong>
+                    <p class="info-text">
+                      If no certificate is provided, a self-signed certificate will be generated
+                      automatically.
+                    </p>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <h4>Certificate (PEM Format)</h4>
+            <app-editor
+              formControlName="crt"
+              [editorOptions]="editorOptionsPem"
+              [errors]="form.get('crt')?.errors"
+            ></app-editor>
           </mat-card-content>
         </mat-card>
+      }
 
-        <!-- Action Buttons -->
-        <div fxLayout="row" fxLayoutGap="8px" fxLayoutAlign="end center">
-          <button type="button" mat-button (click)="onCancel()">
-            <mat-icon>cancel</mat-icon>
-            Cancel
-          </button>
-          <button type="submit" mat-raised-button color="primary" [disabled]="form.invalid">
-            <mat-icon>save</mat-icon>
-            Save Changes
-          </button>
-        </div>
-      </form>
-    } @else {
-      <div class="loading-state" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="16px">
-        <mat-icon class="loading-icon">hourglass_empty</mat-icon>
-        <p>Loading certificate...</p>
+      <!-- Action Buttons -->
+      <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="end center">
+        <button mat-button type="button" [routerLink]="['../']">Cancel</button>
+        <button mat-flat-button type="submit" [disabled]="form.invalid">
+          <mat-icon>{{ certId ? 'save' : 'add' }}</mat-icon>
+          {{ certId ? 'Save Changes' : 'Create Certificate' }}
+        </button>
       </div>
-    }
-  </mat-card-content>
-</mat-card>
+    </form>
+  }
+</div>

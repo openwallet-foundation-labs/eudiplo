@@ -1,7 +1,7 @@
+import { readFileSync } from "node:fs";
 import { ConfigService } from "@nestjs/config";
 import { Signer } from "@sd-jwt/types";
 import { plainToClass } from "class-transformer";
-import { readFileSync } from "fs";
 import { JWK, JWSHeaderParameters, JWTPayload } from "jose";
 import { PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm";
@@ -20,9 +20,9 @@ export abstract class KeyService {
         protected configService: ConfigService,
         protected keyRepository: Repository<KeyEntity>,
         protected configImportService: ConfigImportService,
-        private certRepository: Repository<CertEntity>,
-        private tenantRepository: Repository<TenantEntity>,
-        private logger: PinoLogger,
+        private readonly certRepository: Repository<CertEntity>,
+        private readonly tenantRepository: Repository<TenantEntity>,
+        private readonly logger: PinoLogger,
     ) {}
 
     /**

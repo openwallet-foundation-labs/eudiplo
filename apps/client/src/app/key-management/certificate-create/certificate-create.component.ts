@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -14,7 +14,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { certControllerAddCertificate, certControllerAddSelfSignedCert } from '@eudiplo/sdk';
+import { certControllerAddCertificate } from '@eudiplo/sdk';
 import { v4 } from 'uuid';
 
 @Component({
@@ -34,6 +34,7 @@ import { v4 } from 'uuid';
     MatTooltipModule,
     FlexLayoutModule,
     ReactiveFormsModule,
+    MatSelectModule,
   ],
   templateUrl: './certificate-create.component.html',
   styleUrl: './certificate-create.component.scss',
@@ -49,13 +50,12 @@ export class CertificateCreateComponent implements OnInit {
   };
 
   constructor(
-    private fb: FormBuilder,
-    private route: ActivatedRoute,
-    private router: Router,
-    private snackBar: MatSnackBar
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly snackBar: MatSnackBar
   ) {}
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit() {
     // Get keyId from query params
     this.keyId = this.route.snapshot.queryParams['keyId'];
 
@@ -68,21 +68,11 @@ export class CertificateCreateComponent implements OnInit {
     }
 
     // Initialize form
-    this.form = this.fb.group(
-      {
-        crt: ['', Validators.required],
-        signing: [false],
-        access: [false],
-        description: [''],
-      },
-      { validators: this.atLeastOneTypeValidator }
-    );
-  }
-
-  private atLeastOneTypeValidator(group: FormGroup) {
-    const signing = group.get('signing')?.value;
-    const access = group.get('access')?.value;
-    return signing || access ? null : { atLeastOneType: true };
+    this.form = new FormGroup({
+      crt: new FormControl('', Validators.required),
+      certUsageTypes: new FormControl<string[]>([], Validators.required),
+      description: new FormControl(''),
+    });
   }
 
   async onSubmit(): Promise<void> {
@@ -112,8 +102,7 @@ export class CertificateCreateComponent implements OnInit {
           id: v4(),
           keyId: this.keyId,
           crt: formValue.crt,
-          isAccessCert: formValue.access,
-          isSigningCert: formValue.signing,
+          certUsageTypes: formValue.certUsageTypes,
           description: formValue.description || undefined,
         },
       });
@@ -127,33 +116,6 @@ export class CertificateCreateComponent implements OnInit {
     } catch (error: any) {
       console.error('Failed to add certificate:', error);
       this.snackBar.open(error?.message || 'Failed to add certificate', 'Close', {
-        duration: 5000,
-      });
-    }
-  }
-
-  async generateSelfSignedCert(value: {
-    isSigningCert: boolean;
-    isAccessCert: boolean;
-  }): Promise<void> {
-    try {
-      const response = await certControllerAddSelfSignedCert({
-        body: {
-          keyId: this.keyId,
-          isAccessCert: value.isAccessCert,
-          isSigningCert: value.isSigningCert,
-        },
-      });
-
-      this.snackBar.open('Self-signed certificate generated successfully', 'Close', {
-        duration: 3000,
-      });
-
-      // Navigate back to the key detail page
-      this.router.navigate(['/key-management', this.keyId, 'certificate', response.data.id]);
-    } catch (error: any) {
-      console.error('Failed to generate certificate:', error);
-      this.snackBar.open(error?.message || 'Failed to generate certificate', 'Close', {
         duration: 5000,
       });
     }

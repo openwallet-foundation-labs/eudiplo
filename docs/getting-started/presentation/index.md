@@ -155,8 +155,12 @@ sequenceDiagram
 - **Tenant isolation** prevents cross-tenant data access
 - **Session-based security** with automatic cleanup
 
-### Verification
+### Trust Verification
 
 - **Cryptographic validation** of presented credentials
-- **Issuer verification** against trusted registries
-- **Revocation status checking** for active credentials
+- **Issuer verification** against trusted entities in trust lists
+- **Revocation status checking** using the correct revocation certificate from
+  the same trusted entity
+
+For detailed information on how trust verification works, see
+[Trust Framework](../../architecture/trust-framework.md).

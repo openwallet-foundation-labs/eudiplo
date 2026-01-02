@@ -34,10 +34,10 @@ export class CredentialConfigShowComponent implements OnInit {
   config: CredentialConfig | undefined;
 
   constructor(
-    private credentialConfigService: CredentialConfigService,
-    private route: ActivatedRoute,
-    private snackBar: MatSnackBar,
-    private router: Router
+    private readonly credentialConfigService: CredentialConfigService,
+    private readonly route: ActivatedRoute,
+    private readonly snackBar: MatSnackBar,
+    private readonly router: Router
   ) {}
 
   ngOnInit(): void {
@@ -135,6 +135,6 @@ export class CredentialConfigShowComponent implements OnInit {
   }
 
   asAny(obj: any) {
-    return obj as any;
+    return obj;
   }
 }

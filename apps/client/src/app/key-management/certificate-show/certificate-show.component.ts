@@ -10,9 +10,11 @@ import { FlexLayoutModule } from 'ngx-flexible-layout';
 import {
   certControllerDeleteCertificate,
   certControllerGetCertificate,
+  certControllerExportConfig,
   type CertEntity,
 } from '@eudiplo/sdk';
 import { X509Certificate, SubjectAlternativeNameExtension } from '@peculiar/x509';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 interface CertificateInfo {
   subject: string;
@@ -39,6 +41,7 @@ interface CertificateInfo {
     MatTooltipModule,
     RouterModule,
     FlexLayoutModule,
+    MatSnackBarModule,
   ],
   templateUrl: './certificate-show.component.html',
   styleUrl: './certificate-show.component.scss',
@@ -52,11 +55,13 @@ export class CertificateShowComponent implements OnInit {
   certId?: string;
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly snackBar: MatSnackBar
   ) {}
 
   async ngOnInit(): Promise<void> {
+    // Try to get keyId from route (legacy key-scoped route)
     this.keyId = this.route.snapshot.paramMap.get('keyId') || undefined;
     this.certId = this.route.snapshot.paramMap.get('certId') || undefined;
 
@@ -66,6 +71,11 @@ export class CertificateShowComponent implements OnInit {
           path: { certId: this.certId },
         });
         this.certificate = response.data;
+
+        // Get keyId from certificate if not from route
+        if (!this.keyId && this.certificate?.keyId) {
+          this.keyId = this.certificate.keyId;
+        }
 
         if (this.certificate?.crt) {
           await this.parseCertificateInfo(this.certificate.crt);
@@ -151,6 +161,22 @@ export class CertificateShowComponent implements OnInit {
     }
   }
 
+  async downloadConfig() {
+    const config = await certControllerExportConfig({
+      path: { certId: this.certId! },
+    }).then((res) => res.data);
+
+    const dataStr =
+      'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(config, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute('href', dataStr);
+    downloadAnchorNode.setAttribute('download', `certificate-${this.certId}-config.json`);
+    document.body.appendChild(downloadAnchorNode); // required for firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+    this.snackBar.open('Certificate configuration downloaded', 'Close', { duration: 3000 });
+  }
+
   navigateToKey(): void {
     if (this.keyId) {
       this.router.navigate(['/key-management', this.keyId]);
@@ -178,7 +204,7 @@ export class CertificateShowComponent implements OnInit {
     await certControllerDeleteCertificate({
       path: { certId: this.certId! },
     });
-    this.router.navigate(['/key-management', this.keyId]);
+    this.router.navigate(['/certificates']);
   }
 
   async copyToClipboard(text: string, format: string): Promise<void> {
