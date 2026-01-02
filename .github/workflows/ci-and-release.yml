@@ -313,6 +313,11 @@ jobs:
             fi
             if [ "$STATUS" = "unhealthy" ]; then
               echo "Container reported unhealthy ❌"
+              echo ""
+              echo "=== Health Check Log ==="
+              docker inspect --format='{{range .State.Health.Log}}{{.Output}}{{end}}' eudiplo-test || true
+              echo ""
+              echo "=== Container Logs ==="
               docker logs eudiplo-test || true
               exit 1
             fi
@@ -320,7 +325,11 @@ jobs:
           done
           echo "Timed out waiting for healthy ❌"
           docker ps
-          docker inspect eudiplo-test || true
+          echo ""
+          echo "=== Health Check Log ==="
+          docker inspect --format='{{range .State.Health.Log}}{{.Output}}{{end}}' eudiplo-test || true
+          echo ""
+          echo "=== Container Logs ==="
           docker logs eudiplo-test || true
           exit 1
 
