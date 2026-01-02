@@ -956,21 +956,18 @@ export type PresentationConfigCreateDto = {
   redirectUri?: string;
 };
 
-export type TrustListEntity = {
-  issuerCertId: string;
-  revocationCertId: string;
-};
-
 export type TrustListCreateDto = {
   certId?: string;
-  entities: Array<TrustListEntity>;
+  entities: Array<{
+    [key: string]: unknown;
+  }>;
   /**
    * Unique identifier for the trust list
    */
-  id: string;
+  id?: string;
   description?: string;
   /**
-   * The full trust list JSON
+   * The full trust list JSON (generated LoTE structure)
    */
   data?: {
     [key: string]: unknown;
@@ -981,20 +978,65 @@ export type TrustList = {
   /**
    * Unique identifier for the trust list
    */
-  id: string;
+  id?: string;
   description?: string;
   /**
    * The tenant that owns this object.
    */
   tenant: TenantEntity;
+  certId: string;
   cert: CertEntity;
   /**
-   * The full trust list JSON
+   * The full trust list JSON (generated LoTE structure)
    */
   data?: {
     [key: string]: unknown;
   };
+  /**
+   * The original entity configuration used to create this trust list.
+   * Stored for round-tripping when editing.
+   */
+  entityConfig?: Array<{
+    [key: string]: unknown;
+  }>;
+  /**
+   * The sequence number for versioning (incremented on updates)
+   */
+  sequenceNumber: number;
+  /**
+   * The signed JWT representation of this trust list
+   */
   jwt: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type TrustListVersion = {
+  id: string;
+  trustListId: string;
+  trustList: TrustList;
+  tenantId: string;
+  /**
+   * The sequence number at the time this version was created
+   */
+  sequenceNumber: number;
+  /**
+   * The full trust list JSON at this version
+   */
+  data: {
+    [key: string]: unknown;
+  };
+  /**
+   * The entity configuration at this version
+   */
+  entityConfig?: {
+    [key: string]: unknown;
+  };
+  /**
+   * The signed JWT at this version
+   */
+  jwt: string;
+  createdAt: string;
 };
 
 export type PresentationRequest = {
@@ -1983,7 +2025,7 @@ export type TrustListControllerGetTrustListResponse =
   TrustListControllerGetTrustListResponses[keyof TrustListControllerGetTrustListResponses];
 
 export type TrustListControllerUpdateTrustListData = {
-  body?: never;
+  body: TrustListCreateDto;
   path: {
     id: string;
   };
@@ -1997,6 +2039,39 @@ export type TrustListControllerUpdateTrustListResponses = {
 
 export type TrustListControllerUpdateTrustListResponse =
   TrustListControllerUpdateTrustListResponses[keyof TrustListControllerUpdateTrustListResponses];
+
+export type TrustListControllerGetTrustListVersionsData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/trust-list/{id}/versions";
+};
+
+export type TrustListControllerGetTrustListVersionsResponses = {
+  200: Array<TrustListVersion>;
+};
+
+export type TrustListControllerGetTrustListVersionsResponse =
+  TrustListControllerGetTrustListVersionsResponses[keyof TrustListControllerGetTrustListVersionsResponses];
+
+export type TrustListControllerGetTrustListVersionData = {
+  body?: never;
+  path: {
+    id: string;
+    versionId: string;
+  };
+  query?: never;
+  url: "/trust-list/{id}/versions/{versionId}";
+};
+
+export type TrustListControllerGetTrustListVersionResponses = {
+  200: TrustListVersion;
+};
+
+export type TrustListControllerGetTrustListVersionResponse =
+  TrustListControllerGetTrustListVersionResponses[keyof TrustListControllerGetTrustListVersionResponses];
 
 export type TrustListPublicControllerGetTrustListJwtData = {
   body?: never;

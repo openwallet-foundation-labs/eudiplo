@@ -5,8 +5,8 @@ import {
     Delete,
     Get,
     Param,
-    Patch,
     Post,
+    Put,
 } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { Role } from "../../auth/roles/role.enum";
@@ -66,19 +66,62 @@ export class TrustListController {
     }
 
     /**
-     * Updates a trust list
+     * Returns the version history for a trust list
+     * @param token
+     * @param id
+     * @returns
+     */
+    @Get(":id/versions")
+    getTrustListVersions(
+        @Token() token: TokenPayload,
+        @Param("id") id: string,
+    ) {
+        return this.trustListService
+            .getVersionHistory(token.entity!.id, id)
+            .catch(() => {
+                throw new ConflictException("Trust list not found");
+            });
+    }
+
+    /**
+     * Returns a specific version of a trust list
+     * @param token
+     * @param id
+     * @param versionId
+     * @returns
+     */
+    @Get(":id/versions/:versionId")
+    getTrustListVersion(
+        @Token() token: TokenPayload,
+        @Param("id") id: string,
+        @Param("versionId") versionId: string,
+    ) {
+        return this.trustListService
+            .getVersion(token.entity!.id, id, versionId)
+            .catch(() => {
+                throw new ConflictException("Trust list version not found");
+            });
+    }
+
+    /**
+     * Updates a trust list with new entities
+     * Creates a new version for audit and regenerates the JWT
      * @param id
      * @param body
      * @param token
      * @returns
      */
-    @Patch(":id")
+    @Put(":id")
     updateTrustList(
         @Param("id") id: string,
-        @Body() body: Partial<TrustListCreateDto>,
+        @Body() body: TrustListCreateDto,
         @Token() token: TokenPayload,
     ) {
-        return this.trustListService.update(token.entity!.id, id, body);
+        return this.trustListService
+            .update(token.entity!.id, id, body)
+            .catch((err) => {
+                throw new ConflictException(err.message);
+            });
     }
 
     /**

@@ -130,6 +130,10 @@ import type {
   TrustListControllerGetAllTrustListsResponses,
   TrustListControllerGetTrustListData,
   TrustListControllerGetTrustListResponses,
+  TrustListControllerGetTrustListVersionData,
+  TrustListControllerGetTrustListVersionResponses,
+  TrustListControllerGetTrustListVersionsData,
+  TrustListControllerGetTrustListVersionsResponses,
   TrustListControllerUpdateTrustListData,
   TrustListControllerUpdateTrustListResponses,
   TrustListPublicControllerGetTrustListJwtData,
@@ -1264,20 +1268,61 @@ export const trustListControllerGetTrustList = <
   });
 
 /**
- * Updates a trust list
+ * Updates a trust list with new entities
+ * Creates a new version for audit and regenerates the JWT
  */
 export const trustListControllerUpdateTrustList = <
   ThrowOnError extends boolean = true,
 >(
   options: Options<TrustListControllerUpdateTrustListData, ThrowOnError>,
 ) =>
-  (options.client ?? client).patch<
+  (options.client ?? client).put<
     TrustListControllerUpdateTrustListResponses,
     unknown,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/trust-list/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Returns the version history for a trust list
+ */
+export const trustListControllerGetTrustListVersions = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<TrustListControllerGetTrustListVersionsData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    TrustListControllerGetTrustListVersionsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/trust-list/{id}/versions",
+    ...options,
+  });
+
+/**
+ * Returns a specific version of a trust list
+ */
+export const trustListControllerGetTrustListVersion = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<TrustListControllerGetTrustListVersionData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    TrustListControllerGetTrustListVersionResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/trust-list/{id}/versions/{versionId}",
     ...options,
   });
 

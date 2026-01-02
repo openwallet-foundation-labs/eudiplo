@@ -1,33 +1,65 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
   TrustList,
+  TrustListVersion,
   trustListControllerDeleteTrustList,
   trustListControllerGetTrustList,
+  trustListControllerGetTrustListVersions,
 } from '@eudiplo/sdk';
-import { decodeJwt } from 'jose';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { EditorComponent } from '../../utils/editor/editor.component';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+interface EntityInfo {
+  name: string;
+  lang?: string;
+  uri?: string;
+  country?: string;
+  locality?: string;
+  postalCode?: string;
+  streetAddress?: string;
+  contactUri?: string;
+}
+
+interface InternalEntity {
+  type: 'internal';
+  issuerCertId: string;
+  revocationCertId: string;
+  info: EntityInfo;
+}
+
+interface ExternalEntity {
+  type: 'external';
+  issuerCertPem: string;
+  revocationCertPem: string;
+  info: EntityInfo;
+}
+
+type TrustListEntity = InternalEntity | ExternalEntity;
 
 @Component({
   selector: 'app-trust-list-show',
   imports: [
     CommonModule,
+    DatePipe,
     MatSnackBarModule,
     MatButtonModule,
     MatCardModule,
+    MatChipsModule,
+    MatExpansionModule,
     MatIconModule,
+    MatTabsModule,
+    MatTooltipModule,
     FlexLayoutModule,
     RouterModule,
-    EditorComponent,
-    FormsModule,
-    ReactiveFormsModule,
   ],
   templateUrl: './trust-list-show.component.html',
   styleUrl: './trust-list-show.component.scss',
@@ -37,24 +69,54 @@ export class TrustListShowComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
 
-  form = new FormGroup({
-    payload: new FormControl('', []),
-  });
-
   trustList?: TrustList;
+  entities: TrustListEntity[] = [];
+  versions: TrustListVersion[] = [];
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id')!;
     trustListControllerGetTrustList({ path: { id } }).then(
       (res) => {
         this.trustList = res.data;
-        this.form.patchValue({ payload: JSON.stringify(decodeJwt(this.trustList.jwt), null, 2) });
+        this.parseEntities();
+        this.loadVersions(id);
       },
       () => {
         this.snackBar.open('Error loading trust list', 'Close', { duration: 3000 });
         this.router.navigate(['/trust-list']);
       }
     );
+  }
+
+  private parseEntities(): void {
+    if (this.trustList?.entityConfig) {
+      this.entities = this.trustList.entityConfig as unknown as TrustListEntity[];
+    }
+  }
+
+  private loadVersions(id: string): void {
+    trustListControllerGetTrustListVersions({ path: { id } }).then(
+      (res) => {
+        this.versions = res.data ?? [];
+      },
+      () => {
+        // Version history not critical, just log
+        console.warn('Could not load version history');
+      }
+    );
+  }
+
+  isInternalEntity(entity: TrustListEntity): entity is InternalEntity {
+    return entity.type === 'internal';
+  }
+
+  isExternalEntity(entity: TrustListEntity): entity is ExternalEntity {
+    return entity.type === 'external';
+  }
+
+  getTrustedEntitiesCount(): number {
+    const data = this.trustList?.data as { TrustedEntitiesList?: unknown[] } | undefined;
+    return data?.TrustedEntitiesList?.length ?? 0;
   }
 
   delete() {

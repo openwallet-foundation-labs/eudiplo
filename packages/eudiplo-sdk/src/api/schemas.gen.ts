@@ -1825,19 +1825,6 @@ export const PresentationConfigCreateDtoSchema = {
   required: ["id", "dcql_query"],
 } as const;
 
-export const TrustListEntitySchema = {
-  type: "object",
-  properties: {
-    issuerCertId: {
-      type: "string",
-    },
-    revocationCertId: {
-      type: "string",
-    },
-  },
-  required: ["issuerCertId", "revocationCertId"],
-} as const;
-
 export const TrustListCreateDtoSchema = {
   type: "object",
   properties: {
@@ -1847,7 +1834,7 @@ export const TrustListCreateDtoSchema = {
     entities: {
       type: "array",
       items: {
-        $ref: "#/components/schemas/TrustListEntity",
+        type: "object",
       },
     },
     id: {
@@ -1860,10 +1847,10 @@ export const TrustListCreateDtoSchema = {
     },
     data: {
       type: "object",
-      description: "The full trust list JSON",
+      description: "The full trust list JSON (generated LoTE structure)",
     },
   },
-  required: ["entities", "id"],
+  required: ["entities"],
 } as const;
 
 export const TrustListSchema = {
@@ -1885,18 +1872,99 @@ export const TrustListSchema = {
         },
       ],
     },
+    certId: {
+      type: "string",
+    },
     cert: {
       $ref: "#/components/schemas/CertEntity",
     },
     data: {
       type: "object",
-      description: "The full trust list JSON",
+      description: "The full trust list JSON (generated LoTE structure)",
+    },
+    entityConfig: {
+      description:
+        "The original entity configuration used to create this trust list.\nStored for round-tripping when editing.",
+      type: "array",
+      items: {
+        type: "object",
+      },
+    },
+    sequenceNumber: {
+      type: "number",
+      description:
+        "The sequence number for versioning (incremented on updates)",
     },
     jwt: {
       type: "string",
+      description: "The signed JWT representation of this trust list",
+    },
+    createdAt: {
+      format: "date-time",
+      type: "string",
+    },
+    updatedAt: {
+      format: "date-time",
+      type: "string",
     },
   },
-  required: ["id", "tenant", "cert", "jwt"],
+  required: [
+    "tenant",
+    "certId",
+    "cert",
+    "sequenceNumber",
+    "jwt",
+    "createdAt",
+    "updatedAt",
+  ],
+} as const;
+
+export const TrustListVersionSchema = {
+  type: "object",
+  properties: {
+    id: {
+      type: "string",
+    },
+    trustListId: {
+      type: "string",
+    },
+    trustList: {
+      $ref: "#/components/schemas/TrustList",
+    },
+    tenantId: {
+      type: "string",
+    },
+    sequenceNumber: {
+      type: "number",
+      description: "The sequence number at the time this version was created",
+    },
+    data: {
+      type: "object",
+      description: "The full trust list JSON at this version",
+    },
+    entityConfig: {
+      type: "object",
+      description: "The entity configuration at this version",
+    },
+    jwt: {
+      type: "string",
+      description: "The signed JWT at this version",
+    },
+    createdAt: {
+      format: "date-time",
+      type: "string",
+    },
+  },
+  required: [
+    "id",
+    "trustListId",
+    "trustList",
+    "tenantId",
+    "sequenceNumber",
+    "data",
+    "jwt",
+    "createdAt",
+  ],
 } as const;
 
 export const PresentationRequestSchema = {
