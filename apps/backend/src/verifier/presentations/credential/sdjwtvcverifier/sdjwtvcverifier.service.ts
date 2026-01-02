@@ -1,12 +1,11 @@
 import { HttpService } from "@nestjs/axios";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import * as x509 from "@peculiar/x509";
 import { digest } from "@sd-jwt/crypto-nodejs";
 import { SDJwtVcInstance, VerificationResult } from "@sd-jwt/sd-jwt-vc";
 import { KbVerifier } from "@sd-jwt/types";
 import { JWK } from "jose";
 import { firstValueFrom } from "rxjs";
-import { Logger } from "testcontainers/build/common/logger";
 import { CryptoImplementationService } from "../../../../crypto/key/crypto-implementation/crypto-implementation.service";
 import { ResolverService } from "../../../resolver/resolver.service";
 import { TrustStoreService } from "../../../resolver/trust/trust-store.service";
