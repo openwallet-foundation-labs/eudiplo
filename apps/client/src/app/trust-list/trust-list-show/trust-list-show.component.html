@@ -48,6 +48,28 @@
             <span class="value">{{ trustList.updatedAt | date: 'medium' }}</span>
           </div>
         </div>
+
+        <!-- Public URL Section -->
+        @if (publicUrl) {
+          <div class="public-url-section">
+            <h4>Public URL</h4>
+            <p class="url-description">
+              Use this URL to reference the trust list in external configurations:
+            </p>
+            <mat-form-field appearance="outline" class="url-field">
+              <mat-label>Trust List URL</mat-label>
+              <input matInput [value]="publicUrl" readonly />
+              <button
+                matSuffix
+                mat-icon-button
+                matTooltip="Copy URL"
+                (click)="copyToClipboard(publicUrl, 'Trust List URL')"
+              >
+                <mat-icon>content_copy</mat-icon>
+              </button>
+            </mat-form-field>
+          </div>
+        }
       </mat-card-content>
     </mat-card>
 

@@ -4,12 +4,15 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
+  ApiService,
   TrustList,
   TrustListVersion,
   trustListControllerDeleteTrustList,
@@ -55,7 +58,9 @@ type TrustListEntity = InternalEntity | ExternalEntity;
     MatCardModule,
     MatChipsModule,
     MatExpansionModule,
+    MatFormFieldModule,
     MatIconModule,
+    MatInputModule,
     MatTabsModule,
     MatTooltipModule,
     FlexLayoutModule,
@@ -68,10 +73,12 @@ export class TrustListShowComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly apiService = inject(ApiService);
 
   trustList?: TrustList;
   entities: TrustListEntity[] = [];
   versions: TrustListVersion[] = [];
+  publicUrl = '';
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id')!;
@@ -80,6 +87,7 @@ export class TrustListShowComponent implements OnInit {
         this.trustList = res.data;
         this.parseEntities();
         this.loadVersions(id);
+        this.buildPublicUrl();
       },
       () => {
         this.snackBar.open('Error loading trust list', 'Close', { duration: 3000 });
@@ -117,6 +125,25 @@ export class TrustListShowComponent implements OnInit {
   getTrustedEntitiesCount(): number {
     const data = this.trustList?.data as { TrustedEntitiesList?: unknown[] } | undefined;
     return data?.TrustedEntitiesList?.length ?? 0;
+  }
+
+  private buildPublicUrl(): void {
+    if (this.trustList) {
+      const baseUrl = this.apiService.getBaseUrl() || '';
+      const tenantId = this.trustList.tenant?.id || '';
+      this.publicUrl = `${baseUrl}${tenantId}/trust-list/${this.trustList.id}`;
+    }
+  }
+
+  copyToClipboard(text: string, label: string): void {
+    navigator.clipboard.writeText(text).then(
+      () => {
+        this.snackBar.open(`${label} copied to clipboard`, 'Close', { duration: 2000 });
+      },
+      () => {
+        this.snackBar.open('Failed to copy to clipboard', 'Close', { duration: 2000 });
+      }
+    );
   }
 
   delete() {

@@ -183,6 +183,28 @@ mat-chip-set {
   margin-left: auto;
 }
 
+// Public URL section
+.public-url-section {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+
+  .url-description {
+    font-size: 13px;
+    color: rgba(0, 0, 0, 0.6);
+    margin: 0 0 12px 0;
+  }
+
+  .url-field {
+    width: 100%;
+
+    input {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 13px;
+    }
+  }
+}
+
 /* make long cert strings break instead of forcing horizontal overflow */
 /* certificate value styling */
 .cert {
