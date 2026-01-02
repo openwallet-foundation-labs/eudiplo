@@ -2,13 +2,16 @@
   <div fxLayout="row" fxLayoutAlign="space-between center">
     <h2>Certificate Configuration: {{ certificate.id }}</h2>
     <div>
-      <button matIconButton [routerLink]="['../']">
+      <button matIconButton [routerLink]="['../']" matTooltip="Back to list">
         <mat-icon>arrow_back</mat-icon>
       </button>
-      <button matIconButton [routerLink]="['edit']">
+      <button matIconButton [routerLink]="['edit']" matTooltip="Edit certificate metadata">
         <mat-icon>edit</mat-icon>
       </button>
-      <button matIconButton (click)="delete()">
+      <button matIconButton (click)="downloadConfig()" matTooltip="Download configuration">
+        <mat-icon>download</mat-icon>
+      </button>
+      <button matIconButton (click)="delete()" matTooltip="Delete certificate">
         <mat-icon>delete</mat-icon>
       </button>
     </div>

@@ -28,11 +28,11 @@ import { KeyService } from "../key.service";
  * The key service is responsible for managing the keys of the issuer.
  */
 export class DBKeyService extends KeyService {
-    private crypto: CryptoImplementation;
+    private readonly crypto: CryptoImplementation;
 
     constructor(
         configService: ConfigService,
-        private cryptoService: CryptoImplementationService,
+        private readonly cryptoService: CryptoImplementationService,
         keyRepository: Repository<KeyEntity>,
         configImportService: ConfigImportService,
         certRepository: Repository<CertEntity>,
@@ -59,9 +59,8 @@ export class DBKeyService extends KeyService {
     import(tenantId: string, body: KeyImportDto): Promise<string> {
         return this.keyRepository
             .save({
-                id: body.id,
+                ...body,
                 tenantId,
-                key: body.key,
             })
             .then(() => body.id);
     }

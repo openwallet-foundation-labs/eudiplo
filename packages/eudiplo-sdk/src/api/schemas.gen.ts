@@ -456,8 +456,8 @@ export const CertImportDtoSchema = {
       format: "uuid",
     },
     certUsageTypes: {
-      type: "array",
       description: "Usage types for the certificate.",
+      type: "array",
       items: {
         type: "string",
         enum: ["access", "signing", "trustList", "statusList"],

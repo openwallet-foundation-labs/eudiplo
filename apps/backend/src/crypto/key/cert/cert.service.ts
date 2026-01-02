@@ -94,6 +94,31 @@ export class CertService {
     }
 
     /**
+     * Get the configuration of a certificate for import/export.
+     * @param id
+     * @param certId
+     * @returns
+     */
+    async getCertificateConfig(
+        id: string,
+        certId: string,
+    ): Promise<CertImportDto> {
+        const cert = await this.getCertificateById(id, certId);
+        const usages = await this.certUsageRepository.findBy({
+            tenantId: id,
+            certId: cert.id,
+        });
+
+        return {
+            id: cert.id,
+            keyId: cert.key.id,
+            description: cert.description,
+            crt: cert.crt,
+            certUsageTypes: usages.map((u) => u.usage),
+        };
+    }
+
+    /**
      * Add a new certificate to a key.
      * @param tenantId - The tenant ID
      * @param keyId - The key ID

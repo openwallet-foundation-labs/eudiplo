@@ -37,7 +37,6 @@ export class TrustListController {
         return this.trustListService
             .create(body, token.entity!)
             .catch((err) => {
-                console.log(err);
                 throw new ConflictException(err.message);
             });
     }
@@ -63,6 +62,21 @@ export class TrustListController {
         return this.trustListService.findOne(token.entity!.id, id).catch(() => {
             throw new ConflictException("Trust list not found");
         });
+    }
+
+    /**
+     * Exports the trust list in LoTE format
+     * @param token
+     * @param id
+     * @returns
+     */
+    @Get(":id/export")
+    exportTrustList(@Token() token: TokenPayload, @Param("id") id: string) {
+        return this.trustListService
+            .exportTrustList(token.entity!.id, id)
+            .catch(() => {
+                throw new ConflictException("Trust list not found");
+            });
     }
 
     /**

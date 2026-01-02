@@ -122,6 +122,7 @@ nav:
   - Architecture:
       - Overview: architecture/index.md      
       - Supported Protocols: architecture/supported-protocols.md
+      - Trust Framework: architecture/trust-framework.md
       - Tenant-Based: architecture/tenant.md
       - Sessions: architecture/sessions.md
       - Webhooks: architecture/webhooks.md

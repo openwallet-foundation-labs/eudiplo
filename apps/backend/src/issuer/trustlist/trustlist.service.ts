@@ -85,6 +85,20 @@ export class TrustListService implements OnApplicationBootstrap {
         return this.trustListRepo.findOneByOrFail({ tenantId, id });
     }
 
+    async exportTrustList(
+        tenantId: string,
+        id: string,
+    ): Promise<TrustListCreateDto> {
+        const entry = await this.findOne(tenantId, id);
+        return {
+            id: entry.id,
+            description: entry.description,
+            certId: entry.certId,
+            entities: entry.entityConfig ?? [],
+            data: entry.data,
+        };
+    }
+
     /**
      * Update a trust list with new entities
      * Increments the sequence number and stores a version for audit
@@ -226,7 +240,8 @@ export class TrustListService implements OnApplicationBootstrap {
         }
 
         // Use existing trust list or create new
-        const trustList = existing ?? this.trustListRepo.create({ tenant });
+        const trustList =
+            existing ?? this.trustListRepo.create({ tenant, id: config.id });
 
         // Update properties
         trustList.description = config.description;
@@ -322,7 +337,12 @@ export class TrustListService implements OnApplicationBootstrap {
      * @returns
      */
     getJwt(tenantId: string, id: string): Promise<string> {
-        return this.findOne(tenantId, id).then((trustList) => trustList.jwt);
+        return this.findOne(tenantId, id).then(
+            (trustList) => trustList.jwt,
+            (err) => {
+                throw new BadRequestException(err.message);
+            },
+        );
     }
 
     /**

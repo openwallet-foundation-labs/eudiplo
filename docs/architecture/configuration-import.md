@@ -136,6 +136,19 @@ Define verification requirements for credential presentations.
 **Schema Reference**:
 [Presentation Config API](../api/openapi.md#presentationconfig)
 
+### Trust List Configurations
+
+**Location**: `config/{tenant}/trustlists/*.json`
+
+Define trust lists for credential verification. Trust lists specify which issuers
+and revocation services are trusted when verifying credentials during presentation flows.
+
+**Schema Reference**:
+[Trust List API](../api/openapi.md#trustlist)
+
+For detailed information on trust lists and their role in credential verification, see
+[Trust Framework](./trust-framework.md).
+
 ### Client Configurations
 
 **Location**: `config/{tenant}/clients/*.json`

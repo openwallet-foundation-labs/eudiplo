@@ -20,21 +20,47 @@
         }
       ]
     },
+    "certId": {
+      "type": "string"
+    },
     "cert": {
       "$ref": "./CertEntity.schema.json"
     },
     "data": {
       "type": "object",
-      "description": "The full trust list JSON"
+      "description": "The full trust list JSON (generated LoTE structure)"
+    },
+    "entityConfig": {
+      "description": "The original entity configuration used to create this trust list.\nStored for round-tripping when editing.",
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "sequenceNumber": {
+      "type": "number",
+      "description": "The sequence number for versioning (incremented on updates)"
     },
     "jwt": {
+      "type": "string",
+      "description": "The signed JWT representation of this trust list"
+    },
+    "createdAt": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "updatedAt": {
+      "format": "date-time",
       "type": "string"
     }
   },
   "required": [
-    "id",
     "tenant",
+    "certId",
     "cert",
-    "jwt"
+    "sequenceNumber",
+    "jwt",
+    "createdAt",
+    "updatedAt"
   ]
 }

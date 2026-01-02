@@ -1489,6 +1489,22 @@ export type CertControllerUpdateCertificateResponses = {
   200: unknown;
 };
 
+export type CertControllerExportConfigData = {
+  body?: never;
+  path: {
+    certId: string;
+  };
+  query?: never;
+  url: "/certs/{certId}/config";
+};
+
+export type CertControllerExportConfigResponses = {
+  200: CertImportDto;
+};
+
+export type CertControllerExportConfigResponse =
+  CertControllerExportConfigResponses[keyof CertControllerExportConfigResponses];
+
 export type StatusListControllerGetListData = {
   body?: never;
   path: {
@@ -2039,6 +2055,22 @@ export type TrustListControllerUpdateTrustListResponses = {
 
 export type TrustListControllerUpdateTrustListResponse =
   TrustListControllerUpdateTrustListResponses[keyof TrustListControllerUpdateTrustListResponses];
+
+export type TrustListControllerExportTrustListData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/trust-list/{id}/export";
+};
+
+export type TrustListControllerExportTrustListResponses = {
+  200: TrustListCreateDto;
+};
+
+export type TrustListControllerExportTrustListResponse =
+  TrustListControllerExportTrustListResponses[keyof TrustListControllerExportTrustListResponses];
 
 export type TrustListControllerGetTrustListVersionsData = {
   body?: never;

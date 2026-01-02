@@ -15,6 +15,7 @@ import {
 } from "jose";
 import request from "supertest";
 import { Role } from "../src/auth/roles/role.enum";
+import { StatusListService } from "../src/issuer/lifecycle/status/status-list.service";
 
 async function createCredential(options: {
     claims: any;
@@ -72,10 +73,19 @@ export async function preparePresentation(
     kb: Omit<kbPayload, "sd_hash">,
     privateKey: CryptoKey,
     x5c: string[],
+    statusListService: StatusListService,
+    credentialConfigId: string,
 ) {
+    const status = await statusListService
+        .createEntry({ tenantId: "root", id: "1" } as any, credentialConfigId)
+        .catch((err) => {
+            console.log(err);
+        });
+
     const credential = await createCredential({
         claims: {
             vct: "http://localhost:3000/root/credentials-metadata/vct/pid",
+            status,
         },
         privateKey,
         x5c,

@@ -16,6 +16,7 @@ import {
   TrustList,
   TrustListVersion,
   trustListControllerDeleteTrustList,
+  trustListControllerExportTrustList,
   trustListControllerGetTrustList,
   trustListControllerGetTrustListVersions,
 } from '@eudiplo/sdk';
@@ -79,14 +80,18 @@ export class TrustListShowComponent implements OnInit {
   entities: TrustListEntity[] = [];
   versions: TrustListVersion[] = [];
   publicUrl = '';
+  private readonly id: string;
+
+  constructor() {
+    this.id = this.route.snapshot.paramMap.get('id')!;
+  }
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id')!;
-    trustListControllerGetTrustList({ path: { id } }).then(
+    trustListControllerGetTrustList({ path: { id: this.id } }).then(
       (res) => {
         this.trustList = res.data;
         this.parseEntities();
-        this.loadVersions(id);
+        this.loadVersions(this.id);
         this.buildPublicUrl();
       },
       () => {
@@ -165,20 +170,18 @@ export class TrustListShowComponent implements OnInit {
   /**
    * Downloads the current configuration as a JSON file.
    */
-  download() {
-    if (this.trustList) {
-      const blob = new Blob([JSON.stringify(this.trustList, null, 2)], {
-        type: 'application/json',
-      });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `trust-list-${this.trustList.id}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-    this.snackBar.open('Configuration downloaded', 'Close', {
-      duration: 3000,
-    });
+  async download() {
+    const config = await trustListControllerExportTrustList({ path: { id: this.id } }).then(
+      (res) => res.data
+    );
+    const dataStr =
+      'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(config, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute('href', dataStr);
+    downloadAnchorNode.setAttribute('download', `trustlist-${this.id}-config.json`);
+    document.body.appendChild(downloadAnchorNode); // required for firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+    this.snackBar.open('Trust list configuration downloaded', 'Close', { duration: 3000 });
   }
 }

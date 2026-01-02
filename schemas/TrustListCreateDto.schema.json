@@ -10,7 +10,7 @@
     "entities": {
       "type": "array",
       "items": {
-        "$ref": "./TrustListEntity.schema.json"
+        "type": "object"
       }
     },
     "id": {
@@ -23,11 +23,10 @@
     },
     "data": {
       "type": "object",
-      "description": "The full trust list JSON"
+      "description": "The full trust list JSON (generated LoTE structure)"
     }
   },
   "required": [
-    "entities",
-    "id"
+    "entities"
   ]
 }

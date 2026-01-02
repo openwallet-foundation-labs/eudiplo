@@ -29,6 +29,8 @@ import type {
   CertControllerAddCertificateResponses,
   CertControllerDeleteCertificateData,
   CertControllerDeleteCertificateResponses,
+  CertControllerExportConfigData,
+  CertControllerExportConfigResponses,
   CertControllerGetCertificateData,
   CertControllerGetCertificateResponses,
   CertControllerGetCertificatesData,
@@ -126,6 +128,8 @@ import type {
   TrustListControllerCreateTrustListResponses,
   TrustListControllerDeleteTrustListData,
   TrustListControllerDeleteTrustListResponses,
+  TrustListControllerExportTrustListData,
+  TrustListControllerExportTrustListResponses,
   TrustListControllerGetAllTrustListsData,
   TrustListControllerGetAllTrustListsResponses,
   TrustListControllerGetTrustListData,
@@ -619,6 +623,22 @@ export const certControllerUpdateCertificate = <
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * Export the configuration of a certificate for import/export purposes.
+ */
+export const certControllerExportConfig = <ThrowOnError extends boolean = true>(
+  options: Options<CertControllerExportConfigData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    CertControllerExportConfigResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/certs/{certId}/config",
+    ...options,
   });
 
 /**
@@ -1288,6 +1308,24 @@ export const trustListControllerUpdateTrustList = <
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * Exports the trust list in LoTE format
+ */
+export const trustListControllerExportTrustList = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<TrustListControllerExportTrustListData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    TrustListControllerExportTrustListResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/trust-list/{id}/export",
+    ...options,
   });
 
 /**

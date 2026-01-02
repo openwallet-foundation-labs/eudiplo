@@ -2177,25 +2177,6 @@
     }
   },
   {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustListEntity.schema.json",
-    "fileMatch": ["a://b/TrustListEntity.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustListEntity.schema.json",
-      "title": "TrustListEntity",
-      "type": "object",
-      "properties": {
-        "issuerCertId": {
-          "type": "string"
-        },
-        "revocationCertId": {
-          "type": "string"
-        }
-      },
-      "required": ["issuerCertId", "revocationCertId"]
-    }
-  },
-  {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustListCreateDto.schema.json",
     "fileMatch": ["a://b/TrustListCreateDto.schema.json"],
     "schema": {
@@ -2210,7 +2191,7 @@
         "entities": {
           "type": "array",
           "items": {
-            "$ref": "./TrustListEntity.schema.json"
+            "type": "object"
           }
         },
         "id": {
@@ -2223,10 +2204,10 @@
         },
         "data": {
           "type": "object",
-          "description": "The full trust list JSON"
+          "description": "The full trust list JSON (generated LoTE structure)"
         }
       },
-      "required": ["entities", "id"]
+      "required": ["entities"]
     }
   },
   {
@@ -2254,18 +2235,95 @@
             }
           ]
         },
+        "certId": {
+          "type": "string"
+        },
         "cert": {
           "$ref": "./CertEntity.schema.json"
         },
         "data": {
           "type": "object",
-          "description": "The full trust list JSON"
+          "description": "The full trust list JSON (generated LoTE structure)"
+        },
+        "entityConfig": {
+          "description": "The original entity configuration used to create this trust list.\nStored for round-tripping when editing.",
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "sequenceNumber": {
+          "type": "number",
+          "description": "The sequence number for versioning (incremented on updates)"
         },
         "jwt": {
+          "type": "string",
+          "description": "The signed JWT representation of this trust list"
+        },
+        "createdAt": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "updatedAt": {
+          "format": "date-time",
           "type": "string"
         }
       },
-      "required": ["id", "tenant", "cert", "jwt"]
+      "required": ["tenant", "certId", "cert", "sequenceNumber", "jwt", "createdAt", "updatedAt"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustListVersion.schema.json",
+    "fileMatch": ["a://b/TrustListVersion.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustListVersion.schema.json",
+      "title": "TrustListVersion",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "trustListId": {
+          "type": "string"
+        },
+        "trustList": {
+          "$ref": "./TrustList.schema.json"
+        },
+        "tenantId": {
+          "type": "string"
+        },
+        "sequenceNumber": {
+          "type": "number",
+          "description": "The sequence number at the time this version was created"
+        },
+        "data": {
+          "type": "object",
+          "description": "The full trust list JSON at this version"
+        },
+        "entityConfig": {
+          "type": "object",
+          "description": "The entity configuration at this version"
+        },
+        "jwt": {
+          "type": "string",
+          "description": "The signed JWT at this version"
+        },
+        "createdAt": {
+          "format": "date-time",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "trustListId",
+        "trustList",
+        "tenantId",
+        "sequenceNumber",
+        "data",
+        "jwt",
+        "createdAt"
+      ]
     }
   },
   {

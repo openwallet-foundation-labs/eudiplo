@@ -1,0 +1,42 @@
+.dialog-icon {
+  vertical-align: middle;
+  margin-right: 8px;
+  color: #ff9800;
+}
+
+.warning-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background-color: #fff3e0;
+  border-left: 4px solid #ff9800;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+.warning-banner mat-icon {
+  color: #ff9800;
+  flex-shrink: 0;
+}
+
+.warning-banner p {
+  margin: 4px 0 0 0;
+  color: #666;
+}
+
+h4 {
+  margin: 16px 0 8px 0;
+}
+
+mat-dialog-content {
+  min-width: 500px;
+  max-width: 700px;
+}
+
+.editor {
+  height: 300px;
+  display: block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}

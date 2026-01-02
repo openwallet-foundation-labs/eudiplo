@@ -15,6 +15,7 @@ import { beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../src/app.module";
 import { CertImportDto } from "../src/crypto/key/dto/cert-import.dto";
 import { KeyImportDto } from "../src/crypto/key/dto/key-import.dto";
+import { StatusListService } from "../src/issuer/lifecycle/status/status-list.service";
 import { TrustListCreateDto } from "../src/issuer/trustlist/dto/trust-list-create.dto";
 import { AuthConfig } from "../src/shared/utils/webhook/webhook.dto";
 import {
@@ -30,9 +31,12 @@ describe("Presentation", () => {
     let host: string;
     let clientId: string;
     let clientSecret: string;
+    let statusListService: StatusListService;
 
     let privateIssuerKey: CryptoKey;
     let x5c: string[];
+
+    const credentialConfigId = "pid";
 
     const client = new Openid4vpClient({
         callbacks: {
@@ -122,9 +126,6 @@ describe("Presentation", () => {
 
         const res = await createPresentationRequest(requestBody);
 
-        console.log(values.requestId);
-        console.log(res.body);
-
         const authRequest = client.parseOpenid4vpAuthorizationRequest({
             authorizationRequest: res.body.uri,
         });
@@ -141,6 +142,8 @@ describe("Presentation", () => {
             },
             values.privateKey,
             values.x5c,
+            statusListService,
+            credentialConfigId,
         );
 
         const jwt = await encryptVpToken(vp_token, resolved);
@@ -185,12 +188,15 @@ describe("Presentation", () => {
         clientSecret = configService.getOrThrow<string>("AUTH_CLIENT_SECRET");
         app.useGlobalPipes(new ValidationPipe());
 
+        statusListService = app.get(StatusListService);
+
         await app.init();
         await app.listen(3000);
         authToken = await getToken(app, clientId, clientSecret);
 
+        //import signing key and cert
         const privateKey = readFile<KeyImportDto>(
-            join(configFolder, "root/keys/key.json"),
+            join(configFolder, "root/keys/sign.json"),
         );
 
         privateIssuerKey = (await importJWK(
@@ -204,10 +210,11 @@ describe("Presentation", () => {
             .send(privateKey)
             .expect(201);
 
-        // import cert
-
         const cert = readFile<CertImportDto>(
-            join(configFolder, "root/certs/self-signed.json"),
+            join(
+                configFolder,
+                "root/certs/certificate-b6db7c84-776e-4998-9d40-ac599a4ea1fc-config.json",
+            ),
         );
         x5c = [
             cert
@@ -221,6 +228,7 @@ describe("Presentation", () => {
             .send(cert)
             .expect(201);
 
+        //import the presentation configuration without webhook
         await request(app.getHttpServer())
             .post("/verifier/config")
             .trustLocalhost()
@@ -232,13 +240,66 @@ describe("Presentation", () => {
             )
             .expect(201);
 
+        //import statuslist key and cert
+        const statusListKey = readFile<KeyImportDto>(
+            join(configFolder, "root/keys/status-list.json"),
+        );
+
+        await request(app.getHttpServer())
+            .post("/key")
+            .set("Authorization", `Bearer ${authToken}`)
+            .send(statusListKey)
+            .expect(201);
+
+        const statusListCert = readFile<CertImportDto>(
+            join(
+                configFolder,
+                "root/certs/certificate-0f6e186f-9763-49ec-8d93-6cb801ded7a4-config.json",
+            ),
+        );
+
+        await request(app.getHttpServer())
+            .post("/certs")
+            .set("Authorization", `Bearer ${authToken}`)
+            .send(statusListCert)
+            .expect(201);
+
+        //import the trust list and its key
+        await request(app.getHttpServer())
+            .post("/key")
+            .trustLocalhost()
+            .set("Authorization", `Bearer ${authToken}`)
+            .send(
+                readFile<KeyImportDto>(
+                    join(configFolder, "root/keys/trust-list.json"),
+                ),
+            )
+            .expect(201);
+
+        //import cert
+        await request(app.getHttpServer())
+            .post("/certs")
+            .set("Authorization", `Bearer ${authToken}`)
+            .send(
+                readFile<CertImportDto>(
+                    join(
+                        configFolder,
+                        "root/certs/certificate-fb139025-05f8-47af-be11-326c41098263-config.json",
+                    ),
+                ),
+            )
+            .expect(201);
+
         await request(app.getHttpServer())
             .post("/trust-list")
             .trustLocalhost()
             .set("Authorization", `Bearer ${authToken}`)
             .send(
                 readFile<TrustListCreateDto>(
-                    join(configFolder, "root/trustlists/pid.json"),
+                    join(
+                        configFolder,
+                        "root/trustlists/trustlist-580831bc-ef11-43f4-a3be-a2b6bf1b29a3-config.json",
+                    ),
                 ),
             )
             .expect(201);

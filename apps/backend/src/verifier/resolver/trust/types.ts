@@ -9,6 +9,60 @@ export type RulebookTrustListRef = {
 
 export type ServiceTypeIdentifier = string;
 
+/** Well-known service type identifiers from ETSI TS 119 602 */
+export const ServiceTypeIdentifiers = {
+    EaaIssuance: "http://uri.etsi.org/19602/SvcType/EAA/Issuance",
+    EaaRevocation: "http://uri.etsi.org/19602/SvcType/EAA/Revocation",
+} as const;
+
+/**
+ * A service certificate from a TrustedEntity in a LoTE.
+ */
+export type TrustedEntityServiceCert = {
+    serviceTypeIdentifier: ServiceTypeIdentifier;
+    certValue: string; // PEM or base64 DER
+};
+
+/**
+ * A TrustedEntity from a LoTE, containing its services grouped together.
+ * This preserves the relationship between issuance and revocation certificates
+ * from the same entity.
+ */
+export type TrustedEntity = {
+    /** Entity identifier, if available */
+    entityId?: string;
+    /** All services for this entity */
+    services: TrustedEntityServiceCert[];
+};
+
+/**
+ * Helper to find a specific service type within a TrustedEntity.
+ */
+export function findServiceByType(
+    entity: TrustedEntity,
+    serviceType: ServiceTypeIdentifier,
+): TrustedEntityServiceCert | undefined {
+    return entity.services.find((s) => s.serviceTypeIdentifier === serviceType);
+}
+
+/**
+ * Get the issuance certificate from a TrustedEntity.
+ */
+export function getIssuanceCert(
+    entity: TrustedEntity,
+): TrustedEntityServiceCert | undefined {
+    return findServiceByType(entity, ServiceTypeIdentifiers.EaaIssuance);
+}
+
+/**
+ * Get the revocation certificate from a TrustedEntity.
+ */
+export function getRevocationCert(
+    entity: TrustedEntity,
+): TrustedEntityServiceCert | undefined {
+    return findServiceByType(entity, ServiceTypeIdentifiers.EaaRevocation);
+}
+
 export type VerifierOptions = {
     trustListSource: TrustListSource;
     policy: VerifyPolicy;

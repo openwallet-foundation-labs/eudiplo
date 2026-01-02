@@ -61,6 +61,20 @@ export class CertController {
     }
 
     /**
+     * Export the configuration of a certificate for import/export purposes.
+     * @param token - Authentication token
+     * @param certId - The certificate ID
+     * @returns The certificate
+     */
+    @Get(":certId/config")
+    exportConfig(
+        @Token() token: TokenPayload,
+        @Param("certId") certId: string,
+    ): Promise<CertImportDto> {
+        return this.certService.getCertificateConfig(token.entity!.id, certId);
+    }
+
+    /**
      * Add a new certificate to a key. If no certificate is provided, a self-signed certificate will be generated.
      * @param token - Authentication token
      * @param body - Certificate data including keyId
