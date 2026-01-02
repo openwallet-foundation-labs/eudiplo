@@ -171,12 +171,12 @@
                             </li>
                             <li>
                                     <span class="modifier"></span>
-                                <a href="#addSelfSignedCert" >addSelfSignedCert</a>
+                                    <span class="modifier">Async</span>
+                                <a href="#deleteCertificate" >deleteCertificate</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
-                                    <span class="modifier">Async</span>
-                                <a href="#deleteCertificate" >deleteCertificate</a>
+                                <a href="#exportConfig" >exportConfig</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
@@ -238,15 +238,15 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="71"
-                                    class="link-to-prism">src/crypto/key/cert/cert.controller.ts:71</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="84"
+                                    class="link-to-prism">src/crypto/key/cert/cert.controller.ts:84</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Add a new certificate to a key.</p>
+                        <div class="io-description"><p>Add a new certificate to a key. If no certificate is provided, a self-signed certificate will be generated.</p>
 </div>
 
                             <div class="io-description">
@@ -317,109 +317,6 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="addSelfSignedCert"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                        <span ><b>addSelfSignedCert</b></span>
-                        <a href="#addSelfSignedCert"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>addSelfSignedCert(token: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>, dto: <a href="../classes/CertSelfSignedDto.html" target="_self">CertSelfSignedDto</a>)</code>
-                </td>
-            </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <b>Decorators : </b>
-                    <br />
-                    <code>@Post(&#x27;self-signed&#x27;)<br /></code>
-                </td>
-            </tr>
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="88"
-                                    class="link-to-prism">src/crypto/key/cert/cert.controller.ts:88</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Generate and add a self-signed certificate.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>token</td>
-                                            <td>
-                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>Authentication token</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>dto</td>
-                                            <td>
-                                                            <code><a href="../classes/CertSelfSignedDto.html" target="_self" >CertSelfSignedDto</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>Certificate type and keyId</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../classes/CertResponseDto.html" target="_self" >Promise&lt;CertResponseDto&gt;</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
                     <a name="deleteCertificate"></a>
                     <span class="name">
                             <span class="modifier"></span>
@@ -446,8 +343,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="129"
-                                    class="link-to-prism">src/crypto/key/cert/cert.controller.ts:129</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="123"
+                                    class="link-to-prism">src/crypto/key/cert/cert.controller.ts:123</a></div>
                         </td>
                     </tr>
 
@@ -524,6 +421,110 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="exportConfig"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                        <span ><b>exportConfig</b></span>
+                        <a href="#exportConfig"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>exportConfig(token: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>, certId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;:certId/config&#x27;)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="70"
+                                    class="link-to-prism">src/crypto/key/cert/cert.controller.ts:70</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Export the configuration of a certificate for import/export purposes.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>token</td>
+                                            <td>
+                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>Authentication token</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>certId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The certificate ID</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/CertImportDto.html" target="_self" >Promise&lt;CertImportDto&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>The certificate</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="getCertificate"></a>
                     <span class="name">
                             <span class="modifier"></span>
@@ -549,8 +550,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="57"
-                                    class="link-to-prism">src/crypto/key/cert/cert.controller.ts:57</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="56"
+                                    class="link-to-prism">src/crypto/key/cert/cert.controller.ts:56</a></div>
                         </td>
                     </tr>
 
@@ -654,8 +655,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="40"
-                                    class="link-to-prism">src/crypto/key/cert/cert.controller.ts:40</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="39"
+                                    class="link-to-prism">src/crypto/key/cert/cert.controller.ts:39</a></div>
                         </td>
                     </tr>
 
@@ -760,8 +761,8 @@ Can be filtered by keyId using query parameter.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="111"
-                                    class="link-to-prism">src/crypto/key/cert/cert.controller.ts:111</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="105"
+                                    class="link-to-prism">src/crypto/key/cert/cert.controller.ts:105</a></div>
                         </td>
                     </tr>
 
@@ -872,7 +873,6 @@ import { Secured } from &quot;../../../auth/secure.decorator&quot;;
 import { Token, TokenPayload } from &quot;../../../auth/token.decorator&quot;;
 import { CertImportDto } from &quot;../dto/cert-import.dto&quot;;
 import { CertResponseDto } from &quot;../dto/cert-response.dto&quot;;
-import { CertSelfSignedDto } from &quot;../dto/cert-self-signed.dto&quot;;
 import { CertUpdateDto } from &quot;../dto/cert-update.dto&quot;;
 import { CertEntity } from &quot;../entities/cert.entity&quot;;
 import { CertService } from &quot;./cert.service&quot;;
@@ -920,7 +920,21 @@ export class CertController {
     }
 
     /**
-     * Add a new certificate to a key.
+     * Export the configuration of a certificate for import/export purposes.
+     * @param token - Authentication token
+     * @param certId - The certificate ID
+     * @returns The certificate
+     */
+    @Get(&quot;:certId/config&quot;)
+    exportConfig(
+        @Token() token: TokenPayload,
+        @Param(&quot;certId&quot;) certId: string,
+    ): Promise&lt;CertImportDto&gt; {
+        return this.certService.getCertificateConfig(token.entity!.id, certId);
+    }
+
+    /**
+     * Add a new certificate to a key. If no certificate is provided, a self-signed certificate will be generated.
      * @param token - Authentication token
      * @param body - Certificate data including keyId
      * @returns The created certificate ID
@@ -930,33 +944,14 @@ export class CertController {
         @Token() token: TokenPayload,
         @Body() body: CertImportDto,
     ): Promise&lt;CertResponseDto&gt; {
-        return this.certService.addCertificate(
-            token.entity!.id,
-            body.keyId,
-            body,
-        );
-    }
-
-    /**
-     * Generate and add a self-signed certificate.
-     * @param token - Authentication token
-     * @param dto - Certificate type and keyId
-     */
-    @Post(&quot;self-signed&quot;)
-    addSelfSignedCert(
-        @Token() token: TokenPayload,
-        @Body() dto: CertSelfSignedDto,
-    ): Promise&lt;CertResponseDto&gt; {
+        if (!body.crt) {
+            return this.certService
+                .addSelfSignedCert(token.entity!, body.keyId, body)
+                .then((id) &#x3D;&gt; ({ id }));
+        }
         return this.certService
-            .addSelfSignedCert(
-                token.entity!,
-                dto.keyId,
-                dto.isAccessCert,
-                dto.isSigningCert,
-            )
-            .then((id) &#x3D;&gt; ({
-                id,
-            }));
+            .addCertificate(token.entity!.id, body.keyId, body)
+            .then((id) &#x3D;&gt; ({ id }));
     }
 
     /**

@@ -160,18 +160,23 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier"></span>
-                                    <span class="modifier"></span>
                                 <a href="#configuration" >configuration</a>
                             </li>
                             <li>
-                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                 <a href="#deleteConfiguration" >deleteConfiguration</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
+                                <a href="#getConfiguration" >getConfiguration</a>
+                            </li>
+                            <li>
                                     <span class="modifier"></span>
                                 <a href="#storePresentationConfig" >storePresentationConfig</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                <a href="#updateConfiguration" >updateConfiguration</a>
                             </li>
                         </ul>
                     </td>
@@ -197,7 +202,6 @@
                     <a name="configuration"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                            <span class="modifier"></span>
                         <span ><b>configuration</b></span>
                         <a href="#configuration"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -214,14 +218,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Secured([&#x27;undefined&#x27;])<br />@Get()<br /></code>
+                    <code>@Get()<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="20"
-                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:20</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="28"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:28</a></div>
                         </td>
                     </tr>
 
@@ -276,7 +280,6 @@
                     <a name="deleteConfiguration"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                            <span class="modifier"></span>
                         <span ><b>deleteConfiguration</b></span>
                         <a href="#deleteConfiguration"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -293,14 +296,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Secured([&#x27;undefined&#x27;])<br />@Delete(&#x27;:id&#x27;)<br /></code>
+                    <code>@Delete(&#x27;:id&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="50"
-                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:50</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="90"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:90</a></div>
                         </td>
                     </tr>
 
@@ -364,9 +367,98 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="storePresentationConfig"></a>
+                    <a name="getConfiguration"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                        <span ><b>getConfiguration</b></span>
+                        <a href="#getConfiguration"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getConfiguration(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, user: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;:id&#x27;)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="57"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:57</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get a presentation request configuration by its ID.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>user</td>
+                                            <td>
+                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="storePresentationConfig"></a>
+                    <span class="name">
                             <span class="modifier"></span>
                         <span ><b>storePresentationConfig</b></span>
                         <a href="#storePresentationConfig"><span class="icon ion-ios-link"></span></a>
@@ -384,14 +476,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Secured([&#x27;undefined&#x27;])<br />@Post()<br /></code>
+                    <code>@Post()<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="33"
-                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:33</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="40"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:40</a></div>
                         </td>
                     </tr>
 
@@ -451,11 +543,121 @@
             </tr>
         </tbody>
     </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="updateConfiguration"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                        <span ><b>updateConfiguration</b></span>
+                        <a href="#updateConfiguration"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>updateConfiguration(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, config: <a href="../classes/PresentationConfigCreateDto.html" target="_self">PresentationConfigCreateDto</a>, user: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Patch(&#x27;:id&#x27;)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="72"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:72</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Update a presentation request configuration by its ID.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>config</td>
+                                            <td>
+                                                            <code><a href="../classes/PresentationConfigCreateDto.html" target="_self" >PresentationConfigCreateDto</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>user</td>
+                                            <td>
+                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </section>    </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Body, Controller, Delete, Get, Param, Post } from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    Patch,
+    Post,
+} from &quot;@nestjs/common&quot;;
 import { ApiTags } from &quot;@nestjs/swagger&quot;;
 import { Role } from &quot;../../auth/roles/role.enum&quot;;
 import { Secured } from &quot;../../auth/secure.decorator&quot;;
@@ -463,6 +665,7 @@ import { Token, TokenPayload } from &quot;../../auth/token.decorator&quot;;
 import { PresentationConfigCreateDto } from &quot;./dto/presentation-config-create.dto&quot;;
 import { PresentationsService } from &quot;./presentations.service&quot;;
 
+@Secured([Role.Presentations])
 @ApiTags(&quot;Verifier&quot;)
 @Controller(&quot;verifier/config&quot;)
 export class PresentationManagementController {
@@ -472,7 +675,6 @@ export class PresentationManagementController {
      * Returns the presentation request configurations.
      * @returns
      */
-    @Secured([Role.Presentations])
     @Get()
     configuration(@Token() user: TokenPayload) {
         return this.presentationsService.getPresentationConfigs(
@@ -485,7 +687,6 @@ export class PresentationManagementController {
      * @param config
      * @returns
      */
-    @Secured([Role.Presentations])
     @Post()
     storePresentationConfig(
         @Body() config: PresentationConfigCreateDto,
@@ -498,11 +699,44 @@ export class PresentationManagementController {
     }
 
     /**
+     * Get a presentation request configuration by its ID.
+     * @param id
+     * @param user
+     * @returns
+     */
+    @Get(&quot;:id&quot;)
+    getConfiguration(@Param(&quot;id&quot;) id: string, @Token() user: TokenPayload) {
+        return this.presentationsService.getPresentationConfig(
+            id,
+            user.entity!.id,
+        );
+    }
+
+    /**
+     * Update a presentation request configuration by its ID.
+     * @param id
+     * @param config
+     * @param user
+     * @returns
+     */
+    @Patch(&quot;:id&quot;)
+    updateConfiguration(
+        @Param(&quot;id&quot;) id: string,
+        @Body() config: PresentationConfigCreateDto,
+        @Token() user: TokenPayload,
+    ) {
+        return this.presentationsService.updatePresentationConfig(
+            id,
+            user.entity!.id,
+            config,
+        );
+    }
+
+    /**
      * Deletes a presentation request configuration by its ID.
      * @param id
      * @returns
      */
-    @Secured([Role.Presentations])
     @Delete(&quot;:id&quot;)
     deleteConfiguration(@Param(&quot;id&quot;) id: string, @Token() user: TokenPayload) {
         return this.presentationsService.deletePresentationConfig(

@@ -220,7 +220,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="87" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:87</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="91" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:91</a></div>
                         </td>
                     </tr>
 
@@ -256,7 +256,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="90" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:90</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="94" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:94</a></div>
                         </td>
                     </tr>
 
@@ -294,7 +294,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="94" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:94</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="98" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:98</a></div>
                         </td>
                     </tr>
 
@@ -318,7 +318,7 @@ import { Type } from &quot;class-transformer&quot;;
 import {
     IsArray,
     IsBoolean,
-    IsIn,
+    IsEnum,
     IsNotEmpty,
     IsNumber,
     IsObject,
@@ -338,6 +338,11 @@ import { TenantEntity } from &quot;../../../auth/tenant/entitites/tenant.entity&
 import { WebhookConfig } from &quot;../../../shared/utils/webhook/webhook.dto&quot;;
 import { RegistrationCertificateRequest } from &quot;../dto/vp-request.dto&quot;;
 
+export enum TrustedAuthorityType {
+    AKI &#x3D; &quot;aki&quot;,
+    ETSI_TL &#x3D; &quot;etsi_tl&quot;,
+}
+
 /**
  * Attached attestations
  */
@@ -355,8 +360,8 @@ export class PresentationAttachment {
 // TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-trusted-authorities-query
 export class TrustedAuthorityQuery {
     @IsString()
-    @IsIn([&quot;aki&quot;, &quot;etsi_tl&quot;, &quot;openid_federation&quot;])
-    type!: string;
+    @IsEnum(TrustedAuthorityType)
+    type!: TrustedAuthorityType;
 
     @IsArray()
     @IsString({ each: true })
@@ -369,7 +374,6 @@ export class Claim {
 }
 
 //TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-credential-query
-
 export class CredentialQuery {
     @IsString()
     id!: string;
@@ -492,6 +496,7 @@ export class PresentationConfig {
     @Type(() &#x3D;&gt; RegistrationCertificateRequest)
     @Column(&quot;json&quot;, { nullable: true })
     registrationCert?: RegistrationCertificateRequest;
+
     /**
      * Optional webhook URL to receive the response.
      */

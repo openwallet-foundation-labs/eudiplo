@@ -1007,6 +1007,8 @@
       
         
       
+        
+      
     
     
     
@@ -1078,6 +1080,34 @@
     
   
     Supported Protocols
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/trust-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trust Framework
   
 
     
@@ -1957,10 +1987,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#verification" class="md-nav__link">
+  <a href="#trust-verification" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Verification
+        Trust Verification
       
     </span>
   </a>
@@ -2215,12 +2245,15 @@ to define presentation requests:</p>
 <li><strong>Tenant isolation</strong> prevents cross-tenant data access</li>
 <li><strong>Session-based security</strong> with automatic cleanup</li>
 </ul>
-<h3 id="verification">Verification<a class="headerlink" href="#verification" title="Permanent link">¶</a></h3>
+<h3 id="trust-verification">Trust Verification<a class="headerlink" href="#trust-verification" title="Permanent link">¶</a></h3>
 <ul>
 <li><strong>Cryptographic validation</strong> of presented credentials</li>
-<li><strong>Issuer verification</strong> against trusted registries</li>
-<li><strong>Revocation status checking</strong> for active credentials</li>
+<li><strong>Issuer verification</strong> against trusted entities in trust lists</li>
+<li><strong>Revocation status checking</strong> using the correct revocation certificate from
+  the same trusted entity</li>
 </ul>
+<p>For detailed information on how trust verification works, see
+<a href="../../architecture/trust-framework/">Trust Framework</a>.</p>
 
 
 

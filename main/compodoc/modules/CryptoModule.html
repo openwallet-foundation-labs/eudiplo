@@ -136,13 +136,13 @@
 <title>cluster_CryptoModule</title>
 <polygon fill="none" stroke="black" stroke-dasharray="1,5" points="8,-70 8,-268 489,-268 489,-70 8,-70"/>
 </g>
-<g id="clust4" class="cluster">
-<title>cluster_CryptoModule_exports</title>
-<polygon fill="none" stroke="black" points="75,-208 75,-260 437,-260 437,-208 75,-208"/>
-</g>
 <g id="clust6" class="cluster">
 <title>cluster_CryptoModule_providers</title>
 <polygon fill="none" stroke="black" points="16,-78 16,-130 481,-130 481,-78 16,-78"/>
+</g>
+<g id="clust4" class="cluster">
+<title>cluster_CryptoModule_exports</title>
+<polygon fill="none" stroke="black" points="75,-208 75,-260 437,-260 437,-208 75,-208"/>
 </g>
 <!-- CertService  -->
 <g id="node1" class="node">
@@ -327,11 +327,19 @@ import { EncryptionService } from &quot;./encryption/encryption.service&quot;;
 import { CertController } from &quot;./key/cert/cert.controller&quot;;
 import { CertService } from &quot;./key/cert/cert.service&quot;;
 import { CertEntity } from &quot;./key/entities/cert.entity&quot;;
+import { CertUsageEntity } from &quot;./key/entities/cert-usage.entity&quot;;
 import { KeyEntity } from &quot;./key/entities/keys.entity&quot;;
 import { KeyController } from &quot;./key/key.controller&quot;;
 
 @Module({
-    imports: [TypeOrmModule.forFeature([CertEntity, KeyEntity, TenantEntity])],
+    imports: [
+        TypeOrmModule.forFeature([
+            CertEntity,
+            CertUsageEntity,
+            KeyEntity,
+            TenantEntity,
+        ]),
+    ],
     controllers: [KeyController, CertController],
     providers: [CryptoService, EncryptionService, CertService],
     exports: [CryptoService, EncryptionService, CertService],

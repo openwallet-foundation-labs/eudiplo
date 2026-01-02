@@ -271,7 +271,7 @@ import { StatusListService } from &quot;./status-list.service&quot;;
 @ApiTags(&quot;Issuer&quot;)
 @Controller(&quot;:tenantId/status-management&quot;)
 export class StatusListController {
-    constructor(private statusListService: StatusListService) {}
+    constructor(private readonly statusListService: StatusListService) {}
 
     /**
      * Get the status list

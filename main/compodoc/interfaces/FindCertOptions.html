@@ -1,0 +1,831 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>@eudiplo/backend documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+        <link rel="stylesheet" href="../styles/material.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">@eudiplo/backend documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content interface">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Interfaces</li>
+  <li class="breadcrumb-item"
+  >
+  FindCertOptions</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>src/crypto/key/cert/cert.service.ts</code>
+        </p>
+
+
+
+
+        <section data-compodoc="block-index">
+            <h3 id="index">Index</h3>
+            <table class="table table-sm table-bordered index-table">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <h6><b>Properties</b></h6>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <ul class="index-list">
+                                <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#id" 
+>
+                                            id
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#tenantId" 
+>
+                                            tenantId
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#type" 
+>
+                                            type
+                                        </a>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+
+
+            <section data-compodoc="block-properties">
+                <h3 id="inputs">Properties</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="id"></a>
+                                        <span class="name "><b>id</b>
+                                            <a href="#id">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>id:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="tenantId"></a>
+                                        <span class="name "><b>tenantId</b>
+                                            <a href="#tenantId">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>tenantId:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="type"></a>
+                                        <span class="name "><b>type</b>
+                                            <a href="#type">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>type:         <code><a href="../miscellaneous/enumerations.html#CertUsage" target="_self" >CertUsage</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="../miscellaneous/enumerations.html#CertUsage" target="_self" >CertUsage</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+            </section>
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { createHash } from &quot;node:crypto&quot;;
+import { readFileSync } from &quot;node:fs&quot;;
+import { Inject, Injectable, Logger } from &quot;@nestjs/common&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
+import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
+import * as x509 from &quot;@peculiar/x509&quot;;
+import { plainToClass } from &quot;class-transformer&quot;;
+import { importJWK } from &quot;jose&quot;;
+import { Repository } from &quot;typeorm&quot;;
+import { v4 } from &quot;uuid&quot;;
+import { TenantEntity } from &quot;../../../auth/tenant/entitites/tenant.entity&quot;;
+import { ConfigImportService } from &quot;../../../shared/utils/config-import/config-import.service&quot;;
+import { CertImportDto } from &quot;../dto/cert-import.dto&quot;;
+import { CertSelfSignedDto } from &quot;../dto/cert-self-signed.dto&quot;;
+import { CertUpdateDto } from &quot;../dto/cert-update.dto&quot;;
+import { UpdateKeyDto } from &quot;../dto/key-update.dto&quot;;
+import { CertEntity } from &quot;../entities/cert.entity&quot;;
+import { CertUsage, CertUsageEntity } from &quot;../entities/cert-usage.entity&quot;;
+import { KeyService } from &quot;../key.service&quot;;
+
+const ECDSA_P256 &#x3D; {
+    name: &quot;ECDSA&quot;,
+    namedCurve: &quot;P-256&quot;,
+    hash: &quot;SHA-256&quot; as const,
+};
+
+export interface FindCertOptions {
+    tenantId: string;
+    type: CertUsage;
+    id?: string;
+}
+
+/**
+ * Service for managing certificates associated with keys.
+ */
+@Injectable()
+export class CertService {
+    private readonly logger &#x3D; new Logger(CertService.name);
+
+    constructor(
+        @InjectRepository(CertEntity)
+        private readonly certRepository: Repository&lt;CertEntity&gt;,
+        @InjectRepository(CertUsageEntity)
+        private readonly certUsageRepository: Repository&lt;CertUsageEntity&gt;,
+        @Inject(&quot;KeyService&quot;) public readonly keyService: KeyService,
+        private readonly configService: ConfigService,
+        @InjectRepository(TenantEntity)
+        private readonly tenantRepository: Repository&lt;TenantEntity&gt;,
+        private readonly configImportService: ConfigImportService,
+    ) {}
+
+    /**
+     * Get all certificates for a tenant (across all keys).
+     * @param tenantId - The tenant ID
+     * @returns Array of certificates with their associated key information
+     */
+    getAllCertificates(tenantId: string): Promise&lt;CertEntity[]&gt; {
+        return this.certRepository.find({
+            where: { tenantId },
+            relations: [&quot;key&quot;],
+        });
+    }
+
+    /**
+     * Get all certificates for a specific key.
+     * @param tenantId - The tenant ID
+     * @param keyId - The key ID
+     * @returns Array of certificates
+     */
+    getCertificates(tenantId: string, keyId: string): Promise&lt;CertEntity[]&gt; {
+        return this.certRepository.find({
+            where: {
+                tenantId,
+                key: { id: keyId },
+            },
+            relations: [&quot;key&quot;],
+        });
+    }
+
+    /**
+     * Get a specific certificate by ID (without keyId requirement).
+     * @param tenantId - The tenant ID
+     * @param certId - The certificate ID
+     * @returns The certificate entity
+     */
+    getCertificateById(tenantId: string, certId: string): Promise&lt;CertEntity&gt; {
+        return this.certRepository.findOneOrFail({
+            where: {
+                tenantId,
+                id: certId,
+            },
+            relations: [&quot;key&quot;],
+        });
+    }
+
+    /**
+     * Get the configuration of a certificate for import/export.
+     * @param id
+     * @param certId
+     * @returns
+     */
+    async getCertificateConfig(
+        id: string,
+        certId: string,
+    ): Promise&lt;CertImportDto&gt; {
+        const cert &#x3D; await this.getCertificateById(id, certId);
+        const usages &#x3D; await this.certUsageRepository.findBy({
+            tenantId: id,
+            certId: cert.id,
+        });
+
+        return {
+            id: cert.id,
+            keyId: cert.key.id,
+            description: cert.description,
+            crt: cert.crt,
+            certUsageTypes: usages.map((u) &#x3D;&gt; u.usage),
+        };
+    }
+
+    /**
+     * Add a new certificate to a key.
+     * @param tenantId - The tenant ID
+     * @param keyId - The key ID
+     * @param dto - Certificate data
+     * @returns The created certificate with its ID
+     */
+    async addCertificate(
+        tenantId: string,
+        keyId: string,
+        dto: CertImportDto,
+    ): Promise&lt;string&gt; {
+        const certId &#x3D; dto.id ?? v4();
+
+        await this.certRepository.save({
+            id: certId,
+            tenantId,
+            crt: dto.crt,
+            description: dto.description,
+            key: { id: keyId, tenantId },
+            usages: dto.certUsageTypes.map((usage) &#x3D;&gt; ({
+                certId,
+                usage,
+                tenantId,
+            })),
+        });
+
+        return certId;
+    }
+
+    /**
+     * Generates a self-signed certificate for the given tenant/key id.
+     */
+    async addSelfSignedCert(
+        tenant: TenantEntity,
+        keyId: string,
+        dto: CertSelfSignedDto,
+    ) {
+        // &#x3D;&#x3D;&#x3D; Inputs/parameters (subject + SAN hostname) &#x3D;&#x3D;&#x3D;
+        const subjectCN &#x3D; tenant.name;
+        const hostname &#x3D; new URL(
+            this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;),
+        ).hostname;
+
+        // &#x3D;&#x3D;&#x3D; Get the key pair for the certificate &#x3D;&#x3D;&#x3D;
+        const subjectSpkiPem &#x3D; await this.keyService.getPublicKey(
+            &quot;pem&quot;,
+            tenant.id,
+            keyId,
+        );
+        const publicKey &#x3D; await new x509.PublicKey(subjectSpkiPem).export(
+            { name: &quot;ECDSA&quot;, namedCurve: &quot;P-256&quot; },
+            [&quot;verify&quot;],
+        );
+
+        // Get the private key from the database
+        const keyEntity &#x3D; await this.keyService.getKey(tenant.id, keyId);
+        const privateJwk &#x3D; keyEntity.key;
+        const privateKey &#x3D; (await importJWK(privateJwk, &quot;ES256&quot;)) as CryptoKey;
+
+        const now &#x3D; new Date();
+        const inOneYear &#x3D; new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
+
+        // &#x3D;&#x3D;&#x3D; Create a single self-signed certificate &#x3D;&#x3D;&#x3D;
+        const selfSignedCert &#x3D;
+            await x509.X509CertificateGenerator.createSelfSigned({
+                serialNumber: &quot;01&quot;,
+                name: &#x60;CN&#x3D;${subjectCN}&#x60;,
+                notBefore: now,
+                notAfter: inOneYear,
+                signingAlgorithm: ECDSA_P256,
+                keys: { publicKey, privateKey },
+                extensions: [
+                    new x509.SubjectAlternativeNameExtension([
+                        { type: &quot;dns&quot;, value: hostname },
+                    ]),
+                    new x509.KeyUsagesExtension(
+                        x509.KeyUsageFlags.digitalSignature |
+                            x509.KeyUsageFlags.keyEncipherment,
+                        true,
+                    ),
+                    await x509.SubjectKeyIdentifierExtension.create(publicKey),
+                ],
+            });
+
+        const crtPem &#x3D; selfSignedCert.toString(&quot;pem&quot;); // PEM-encoded certificate
+
+        return this.addCertificate(tenant.id, keyId, {
+            crt: crtPem,
+            certUsageTypes: dto.certUsageTypes,
+            description: &#x60;Self-signed certificate (${dto.certUsageTypes.join(&quot;, &quot;)}) for tenant ${tenant.name}&#x60;,
+            keyId,
+        });
+    }
+
+    /**
+     * Update certificate metadata (description and usage types).
+     * @param tenantId - The tenant ID
+     * @param keyId - The key ID
+     * @param certId - The certificate ID to update
+     * @param updates - The updates to apply
+     */
+    async updateCertificate(
+        tenantId: string,
+        certId: string,
+        updates: CertUpdateDto,
+    ): Promise&lt;void&gt; {
+        // Update description or other simple fields (not usages)
+        await this.certRepository.update(
+            {
+                tenantId,
+                id: certId,
+            },
+            {
+                description: updates.description,
+            },
+        );
+
+        // Remove old usages
+        await this.certUsageRepository.delete({ tenantId, certId });
+
+        // Add new usages
+        if (updates.certUsageTypes &amp;&amp; updates.certUsageTypes.length &gt; 0) {
+            const newUsages &#x3D; updates.certUsageTypes.map((usage) &#x3D;&gt;
+                this.certUsageRepository.create({
+                    certId,
+                    usage,
+                    tenantId,
+                }),
+            );
+            await this.certUsageRepository.save(newUsages);
+        }
+    }
+
+    /**
+     * Delete a certificate.
+     * @param tenantId - The tenant ID
+     * @param keyId - The key ID
+     * @param certId - The certificate ID to delete
+     */
+    async deleteCertificate(tenantId: string, certId: string): Promise&lt;void&gt; {
+        const result &#x3D; await this.certRepository.delete({
+            id: certId,
+            tenantId,
+        });
+
+        if (result.affected &#x3D;&#x3D;&#x3D; 0) {
+            throw new Error(&#x60;Certificate ${certId} not found&#x60;);
+        }
+    }
+
+    /**
+     * Find a certificate by tenantId and type.
+     * @param value - The search criteria
+     * @returns The matching certificate
+     */
+    /**
+     * Find a certificate by tenantId and usage type.
+     */
+    find(value: FindCertOptions): Promise&lt;CertEntity&gt; {
+        return this.certUsageRepository
+            .findOneOrFail({
+                where: {
+                    tenantId: value.tenantId,
+                    usage: value.type,
+                    certId: value.id || undefined,
+                },
+                relations: [&quot;cert&quot;],
+            })
+            .then((certUsage) &#x3D;&gt; certUsage.cert);
+    }
+
+    /**
+     * Find a certificate or create one if it does not exist.
+     * @param value
+     * @returns
+     */
+    findOrCreate(value: FindCertOptions): Promise&lt;CertEntity&gt; {
+        return this.find(value).catch(async () &#x3D;&gt; {
+            // Create a new key
+            const keyId &#x3D; await this.keyService.create(value.tenantId);
+
+            const dto: CertSelfSignedDto &#x3D; {
+                certUsageTypes: [value.type],
+                keyId,
+            };
+
+            // Create a self-signed certificate for the new key
+            const certId &#x3D; await this.addSelfSignedCert(
+                await this.tenantRepository.findOneByOrFail({
+                    id: value.tenantId,
+                }),
+                keyId,
+                dto,
+            );
+
+            // Retrieve and return the newly created certificate
+            return this.certRepository.findOneByOrFail({
+                tenantId: value.tenantId,
+                id: certId,
+            });
+        });
+    }
+
+    /**
+     * Check if a certificate exists for the given tenant and certId.
+     * @param tenantId - The tenant ID
+     * @param certId - The certificate ID
+     * @returns True if certificate exists
+     */
+    hasEntry(tenantId: string, certId: string): Promise&lt;boolean&gt; {
+        return this.certRepository
+            .findOneBy({ tenantId, id: certId })
+            .then((cert) &#x3D;&gt; !!cert);
+    }
+
+    /**
+     * Update an existing certificate.
+     * @param tenantId - The tenant ID
+     * @param id - The certificate ID
+     * @param body - Update data
+     */
+    updateCert(tenantId: string, id: string, body: UpdateKeyDto) {
+        this.certRepository.update({ tenantId, id }, body);
+    }
+
+    /**
+     * Get the certificate chain to be included in the JWS header.
+     * @param cert - The certificate entity
+     * @returns Array with base64-encoded certificate
+     */
+    getCertChain(cert: CertEntity): string[] {
+        const chain &#x3D; cert.crt
+            .replace(&quot;-----BEGIN CERTIFICATE-----&quot;, &quot;&quot;)
+            .replace(&quot;-----END CERTIFICATE-----&quot;, &quot;&quot;)
+            .replaceAll(/\r?\n|\r/g, &quot;&quot;);
+        return [chain];
+    }
+
+    /**
+     * Store the access certificate for the tenant.
+     * @param crt - The certificate PEM string
+     * @param tenantId - The tenant ID
+     * @param id - The certificate ID
+     */
+    async storeAccessCertificate(crt: string, tenantId: string, id: string) {
+        await this.certRepository.save({
+            tenantId,
+            id,
+            crt,
+            isAccessCert: true,
+            isSigningCert: false,
+        });
+    }
+
+    /**
+     * Get the base64 url encoded SHA-256 hash of the certificate.
+     * @param cert - The certificate entity
+     * @returns The certificate hash as base64url encoded string
+     */
+    getCertHash(cert: CertEntity): string {
+        // Extract DER from PEM (PEM is base64 encoded, not base64url)
+        const der &#x3D; Buffer.from(
+            cert.crt
+                .replace(&quot;-----BEGIN CERTIFICATE-----&quot;, &quot;&quot;)
+                .replace(&quot;-----END CERTIFICATE-----&quot;, &quot;&quot;)
+                .replaceAll(/\r?\n|\r/g, &quot;&quot;),
+            &quot;base64&quot;,
+        );
+        // Hash the DER and return as base64url
+        return createHash(&quot;sha256&quot;).update(der).digest(&quot;base64url&quot;);
+    }
+
+    /**
+     * Imports certificates from the file system.
+     */
+    async importCerts() {
+        await this.configImportService.importConfigs&lt;CertImportDto&gt;({
+            subfolder: &quot;certs&quot;,
+            fileExtension: &quot;.json&quot;,
+            validationClass: CertImportDto,
+            resourceType: &quot;cert&quot;,
+            loadData: (filePath) &#x3D;&gt; {
+                const payload &#x3D; JSON.parse(readFileSync(filePath, &quot;utf8&quot;));
+                return plainToClass(CertImportDto, payload);
+            },
+            checkExists: (tenantId, data) &#x3D;&gt; {
+                return data.id
+                    ? this.hasEntry(tenantId, data.id)
+                    : Promise.resolve(false);
+            },
+            deleteExisting: async (tenantId, data) &#x3D;&gt; {
+                // Find and delete matching certs
+                const certs &#x3D; await this.certRepository.findBy({ tenantId });
+                const existingCert &#x3D; certs.find((c) &#x3D;&gt; c.id &#x3D;&#x3D;&#x3D; data.id);
+                if (existingCert) {
+                    await this.certRepository
+                        .delete({
+                            id: existingCert.id,
+                            tenantId,
+                        })
+                        .catch((err) &#x3D;&gt; {
+                            this.logger.error(
+                                {
+                                    event: &quot;ImportError&quot;,
+                                    tenant: tenantId,
+                                    certId: existingCert.id,
+                                },
+                                &#x60;Error deleting existing cert ${existingCert.id} for tenant ${tenantId}: ${err.message}&#x60;,
+                            );
+                            throw err;
+                        });
+                }
+            },
+            processItem: async (tenantId, config) &#x3D;&gt; {
+                const tenantEntity &#x3D;
+                    await this.tenantRepository.findOneByOrFail({
+                        id: tenantId,
+                    });
+                const key &#x3D; await this.keyService.getKey(
+                    tenantEntity.id,
+                    config.keyId,
+                );
+
+                this.addCertificate(tenantId, key.id, config);
+            },
+        });
+    }
+}
+</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'interface';
+            var COMPODOC_CURRENT_PAGE_URL = 'FindCertOptions.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

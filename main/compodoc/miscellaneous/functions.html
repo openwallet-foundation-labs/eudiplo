@@ -131,19 +131,40 @@
                 <td class="col-md-4">
                     <ul class="index-list">
                         <li>
+                            <a href="#arrayBufferToHex" title="src/verifier/resolver/trust/x509-validation.service.ts" ><b>arrayBufferToHex</b>&nbsp;&nbsp;&nbsp;(src/.../x509-validation.service.ts)</a>
+                        </li>
+                        <li>
                             <a href="#bootstrap" title="src/main.ts" ><b>bootstrap</b>&nbsp;&nbsp;&nbsp;(src/.../main.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#certFromValue" title="src/verifier/resolver/trust/x509-validation.service.ts" ><b>certFromValue</b>&nbsp;&nbsp;&nbsp;(src/.../x509-validation.service.ts)</a>
                         </li>
                         <li>
                             <a href="#extractConditionsFromKeyDesc" title="src/shared/utils/config-printer/helpers.ts" ><b>extractConditionsFromKeyDesc</b>&nbsp;&nbsp;&nbsp;(src/.../helpers.ts)</a>
                         </li>
                         <li>
+                            <a href="#findServiceByType" title="src/verifier/resolver/trust/types.ts" ><b>findServiceByType</b>&nbsp;&nbsp;&nbsp;(src/.../types.ts)</a>
+                        </li>
+                        <li>
                             <a href="#flattenMetas" title="src/shared/utils/config-printer/helpers.ts" ><b>flattenMetas</b>&nbsp;&nbsp;&nbsp;(src/.../helpers.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#get" title="src/verifier/resolver/trust/lote-parser.service.ts" ><b>get</b>&nbsp;&nbsp;&nbsp;(src/.../lote-parser.service.ts)</a>
                         </li>
                         <li>
                             <a href="#getHeadersFromRequest" title="src/issuer/issuance/oid4vci/util.ts" ><b>getHeadersFromRequest</b>&nbsp;&nbsp;&nbsp;(src/.../util.ts)</a>
                         </li>
                         <li>
+                            <a href="#getIssuanceCert" title="src/verifier/resolver/trust/types.ts" ><b>getIssuanceCert</b>&nbsp;&nbsp;&nbsp;(src/.../types.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#getRevocationCert" title="src/verifier/resolver/trust/types.ts" ><b>getRevocationCert</b>&nbsp;&nbsp;&nbsp;(src/.../types.ts)</a>
+                        </li>
+                        <li>
                             <a href="#isEffectivelyRequired" title="src/shared/utils/config-printer/helpers.ts" ><b>isEffectivelyRequired</b>&nbsp;&nbsp;&nbsp;(src/.../helpers.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#isPem" title="src/verifier/resolver/trust/x509-validation.service.ts" ><b>isPem</b>&nbsp;&nbsp;&nbsp;(src/.../x509-validation.service.ts)</a>
                         </li>
                         <li>
                             <a href="#Secured" title="src/auth/secure.decorator.ts" ><b>Secured</b>&nbsp;&nbsp;&nbsp;(src/.../secure.decorator.ts)</a>
@@ -164,7 +185,188 @@
     </table>
 </section>
 
-    <h3>src/main.ts</h3>
+    <h3>src/verifier/resolver/trust/x509-validation.service.ts</h3>
+    <section data-compodoc="block-methods">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="arrayBufferToHex"></a>
+                    <span class="name">
+                        <span ><b>arrayBufferToHex</b></span>
+                        <a href="#arrayBufferToHex"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>arrayBufferToHex(buffer: ArrayBuffer)</code>
+                </td>
+            </tr>
+
+
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>buffer</td>
+                                            <td>
+                                                        <code>ArrayBuffer</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="certFromValue"></a>
+                    <span class="name">
+                        <span ><b>certFromValue</b></span>
+                        <a href="#certFromValue"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>certFromValue(val)</code>
+                </td>
+            </tr>
+
+
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>val</td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>x509.X509Certificate</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="isPem"></a>
+                    <span class="name">
+                        <span ><b>isPem</b></span>
+                        <a href="#isPem"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>isPem(s: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>s</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>src/main.ts</h3>
     <section data-compodoc="block-methods">
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
@@ -622,6 +824,283 @@
                             <div class="io-description">
                                 <p>A string representation of the &quot;when&quot; entry.</p>
 
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>src/verifier/resolver/trust/types.ts</h3>
+    <section data-compodoc="block-methods">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="findServiceByType"></a>
+                    <span class="name">
+                        <span ><b>findServiceByType</b></span>
+                        <a href="#findServiceByType"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>findServiceByType(entity: <a href="../interfaces/TrustedEntity.html" target="_self">TrustedEntity</a>, serviceType: <a href="../undefineds/ServiceTypeIdentifier.html" target="_self">ServiceTypeIdentifier</a>)</code>
+                </td>
+            </tr>
+
+
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Helper to find a specific service type within a TrustedEntity.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>entity</td>
+                                            <td>
+                                                            <code><a href="../interfaces/TrustedEntity.html" target="_self" >TrustedEntity</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>serviceType</td>
+                                            <td>
+                                                            <code><a href="../miscellaneous/typealiases.html#ServiceTypeIdentifier" target="_self" >ServiceTypeIdentifier</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>TrustedEntityServiceCert | undefined</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getIssuanceCert"></a>
+                    <span class="name">
+                        <span ><b>getIssuanceCert</b></span>
+                        <a href="#getIssuanceCert"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getIssuanceCert(entity: <a href="../interfaces/TrustedEntity.html" target="_self">TrustedEntity</a>)</code>
+                </td>
+            </tr>
+
+
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get the issuance certificate from a TrustedEntity.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>entity</td>
+                                            <td>
+                                                            <code><a href="../interfaces/TrustedEntity.html" target="_self" >TrustedEntity</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>TrustedEntityServiceCert | undefined</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getRevocationCert"></a>
+                    <span class="name">
+                        <span ><b>getRevocationCert</b></span>
+                        <a href="#getRevocationCert"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getRevocationCert(entity: <a href="../interfaces/TrustedEntity.html" target="_self">TrustedEntity</a>)</code>
+                </td>
+            </tr>
+
+
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get the revocation certificate from a TrustedEntity.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>entity</td>
+                                            <td>
+                                                            <code><a href="../interfaces/TrustedEntity.html" target="_self" >TrustedEntity</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>TrustedEntityServiceCert | undefined</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>src/verifier/resolver/trust/lote-parser.service.ts</h3>
+    <section data-compodoc="block-methods">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="get"></a>
+                    <span class="name">
+                        <span ><b>get</b></span>
+                        <a href="#get"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>get(obj: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, path)</code>
+                </td>
+            </tr>
+
+
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>obj</td>
+                                            <td>
+                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>path</td>
+                                            <td>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
                             </div>
                 </td>
             </tr>

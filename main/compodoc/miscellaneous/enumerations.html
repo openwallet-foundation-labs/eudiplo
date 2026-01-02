@@ -137,6 +137,9 @@
                             <a href="#AuthenticationMethod" title="src/issuer/configuration/issuance/dto/authentication-config.dto.ts" ><b>AuthenticationMethod</b>&nbsp;&nbsp;&nbsp;(src/.../authentication-config.dto.ts)</a>
                         </li>
                         <li>
+                            <a href="#CertUsage" title="src/crypto/key/entities/cert-usage.entity.ts" ><b>CertUsage</b>&nbsp;&nbsp;&nbsp;(src/.../cert-usage.entity.ts)</a>
+                        </li>
+                        <li>
                             <a href="#FlowType" title="src/issuer/issuance/oid4vci/dto/offer-request.dto.ts" ><b>FlowType</b>&nbsp;&nbsp;&nbsp;(src/.../offer-request.dto.ts)</a>
                         </li>
                         <li>
@@ -149,7 +152,13 @@
                             <a href="#Role" title="src/auth/roles/role.enum.ts" ><b>Role</b>&nbsp;&nbsp;&nbsp;(src/.../role.enum.ts)</a>
                         </li>
                         <li>
+                            <a href="#ServiceTypeIdentifier" title="src/issuer/trustlist/trustlist.service.ts" ><b>ServiceTypeIdentifier</b>&nbsp;&nbsp;&nbsp;(src/.../trustlist.service.ts)</a>
+                        </li>
+                        <li>
                             <a href="#SessionStatus" title="src/session/entities/session.entity.ts" ><b>SessionStatus</b>&nbsp;&nbsp;&nbsp;(src/.../session.entity.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#TrustedAuthorityType" title="src/verifier/presentations/entities/presentation-config.entity.ts" ><b>TrustedAuthorityType</b>&nbsp;&nbsp;&nbsp;(src/.../presentation-config.entity.ts)</a>
                         </li>
                     </ul>
                 </td>
@@ -235,6 +244,59 @@
                         <tr>
                             <td class="col-md-4">
                                 <i>Value : </i><code>presentationDuringIssuance</code>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+</section>
+    <h3>src/crypto/key/entities/cert-usage.entity.ts</h3>
+    <section data-compodoc="block-enums">
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="CertUsage"></a>
+                        <span class="name "><b>CertUsage</b><a href="#CertUsage"><span class="icon ion-ios-link"></span></a></span>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;Access
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>access</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;Signing
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>signing</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;TrustList
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>trustList</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;StatusList
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>statusList</code>
                             </td>
                         </tr>
             </tbody>
@@ -434,6 +496,39 @@
             </tbody>
         </table>
 </section>
+    <h3>src/issuer/trustlist/trustlist.service.ts</h3>
+    <section data-compodoc="block-enums">
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="ServiceTypeIdentifier"></a>
+                        <span class="name "><b>ServiceTypeIdentifier</b><a href="#ServiceTypeIdentifier"><span class="icon ion-ios-link"></span></a></span>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;EaaIssuance
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>http://uri.etsi.org/19602/SvcType/EAA/Issuance</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;EaaRevocation
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>http://uri.etsi.org/19602/SvcType/EAA/Revocation</code>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+</section>
     <h3>src/session/entities/session.entity.ts</h3>
     <section data-compodoc="block-enums">
         <table class="table table-sm table-bordered">
@@ -492,6 +587,39 @@
                         <tr>
                             <td class="col-md-4">
                                 <i>Value : </i><code>failed</code>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+</section>
+    <h3>src/verifier/presentations/entities/presentation-config.entity.ts</h3>
+    <section data-compodoc="block-enums">
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="TrustedAuthorityType"></a>
+                        <span class="name "><b>TrustedAuthorityType</b><a href="#TrustedAuthorityType"><span class="icon ion-ios-link"></span></a></span>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;AKI
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>aki</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;ETSI_TL
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>etsi_tl</code>
                             </td>
                         </tr>
             </tbody>

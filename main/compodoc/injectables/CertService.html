@@ -166,6 +166,11 @@
                                     <span class="modifier">Readonly</span>
                                 <a href="#keyService" >keyService</a>
                             </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Readonly</span>
+                                <a href="#logger" >logger</a>
+                            </li>
                         </ul>
                     </td>
                 </tr>
@@ -194,6 +199,9 @@
                                 <a href="#find" >find</a>
                             </li>
                             <li>
+                                <a href="#findOrCreate" >findOrCreate</a>
+                            </li>
+                            <li>
                                 <a href="#getAllCertificates" >getAllCertificates</a>
                             </li>
                             <li>
@@ -203,10 +211,11 @@
                                 <a href="#getCertHash" >getCertHash</a>
                             </li>
                             <li>
-                                <a href="#getCertificate" >getCertificate</a>
+                                <a href="#getCertificateById" >getCertificateById</a>
                             </li>
                             <li>
-                                <a href="#getCertificateById" >getCertificateById</a>
+                                    <span class="modifier">Async</span>
+                                <a href="#getCertificateConfig" >getCertificateConfig</a>
                             </li>
                             <li>
                                 <a href="#getCertificates" >getCertificates</a>
@@ -247,12 +256,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(certRepository: <a href="../entitys/CertEntity.html" target="_self">Repository&lt;CertEntity&gt;</a>, keyService: <a href="../classes/KeyService.html" target="_self">KeyService</a>, configService: ConfigService, tenantRepository: <a href="../entitys/TenantEntity.html" target="_self">Repository&lt;TenantEntity&gt;</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>)</code>
+<code>constructor(certRepository: <a href="../entitys/CertEntity.html" target="_self">Repository&lt;CertEntity&gt;</a>, certUsageRepository: <a href="../classes/CertUsageEntity.html" target="_self">Repository&lt;CertUsageEntity&gt;</a>, keyService: <a href="../classes/KeyService.html" target="_self">KeyService</a>, configService: ConfigService, tenantRepository: <a href="../entitys/TenantEntity.html" target="_self">Repository&lt;TenantEntity&gt;</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="30" class="link-to-prism">src/crypto/key/cert/cert.service.ts:30</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="38" class="link-to-prism">src/crypto/key/cert/cert.service.ts:38</a></div>
                             </td>
                         </tr>
 
@@ -274,6 +283,18 @@
                                                   
                                                         <td>
                                                                         <code><a href="../entitys/CertEntity.html" target="_self" >Repository&lt;CertEntity&gt;</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>certUsageRepository</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../classes/CertUsageEntity.html" target="_self" >Repository&lt;CertUsageEntity&gt;</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -365,8 +386,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="113"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:113</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="128"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:128</a></div>
                         </td>
                     </tr>
 
@@ -447,7 +468,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;literal type&gt;</code>
+                            <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
 
                         </div>
                             <div class="io-description">
@@ -473,15 +494,15 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>addSelfSignedCert(tenant: <a href="../entitys/TenantEntity.html" target="_self">TenantEntity</a>, keyId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, isAccessCert: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank">boolean</a>, isSigningCert: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank">boolean</a>)</code>
+                    <code>addSelfSignedCert(tenant: <a href="../entitys/TenantEntity.html" target="_self">TenantEntity</a>, keyId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, dto: <a href="../classes/CertSelfSignedDto.html" target="_self">CertSelfSignedDto</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="136"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:136</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="154"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:154</a></div>
                         </td>
                     </tr>
 
@@ -528,21 +549,9 @@
 
                                         </tr>
                                         <tr>
-                                                <td>isAccessCert</td>
+                                                <td>dto</td>
                                             <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>isSigningCert</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+                                                            <code><a href="../classes/CertSelfSignedDto.html" target="_self" >CertSelfSignedDto</a></code>
                                             </td>
 
                                             <td>
@@ -587,8 +596,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="234"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:234</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="261"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:261</a></div>
                         </td>
                     </tr>
 
@@ -674,22 +683,22 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>find(value: literal type)</code>
+<code>find(value: <a href="../interfaces/FindCertOptions.html" target="_self">FindCertOptions</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="250"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:250</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="280"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:280</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Find a certificate by tenantId and type.</p>
+                        <div class="io-description"><p>Find a certificate by tenantId and usage type.</p>
 </div>
 
                             <div class="io-description">
@@ -708,7 +717,7 @@
                                         <tr>
                                                 <td>value</td>
                                             <td>
-                                                        <code>literal type</code>
+                                                            <code><a href="../interfaces/FindCertOptions.html" target="_self" >FindCertOptions</a></code>
                                             </td>
 
                                             <td>
@@ -718,7 +727,7 @@
 
                                             <td>
                                                     <ul>
-<li>Search criteria including tenantId, type, and optional id</li>
+<li>The search criteria</li>
 </ul>
 
                                             </td>
@@ -733,6 +742,75 @@
                             <div class="io-description">
                                 <p>The matching certificate</p>
 
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="findOrCreate"></a>
+                    <span class="name">
+                        <span ><b>findOrCreate</b></span>
+                        <a href="#findOrCreate"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>findOrCreate(value: <a href="../interfaces/FindCertOptions.html" target="_self">FindCertOptions</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="298"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:298</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Find a certificate or create one if it does not exist.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>value</td>
+                                            <td>
+                                                            <code><a href="../interfaces/FindCertOptions.html" target="_self" >FindCertOptions</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../entitys/CertEntity.html" target="_self" >Promise&lt;CertEntity&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
                             </div>
                 </td>
             </tr>
@@ -758,8 +836,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="46"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:46</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="57"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:57</a></div>
                         </td>
                     </tr>
 
@@ -835,8 +913,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="300"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:300</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="352"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:352</a></div>
                         </td>
                     </tr>
 
@@ -912,8 +990,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="329"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:329</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="381"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:381</a></div>
                         </td>
                     </tr>
 
@@ -973,119 +1051,6 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getCertificate"></a>
-                    <span class="name">
-                        <span ><b>getCertificate</b></span>
-                        <a href="#getCertificate"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getCertificate(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, keyId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, certId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="76"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:76</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Get a specific certificate by ID.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>The tenant ID</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>keyId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>The key ID</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>certId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>The certificate ID</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../entitys/CertEntity.html" target="_self" >Promise&lt;CertEntity&gt;</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                <p>The certificate entity</p>
-
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
                     <a name="getCertificateById"></a>
                     <span class="name">
                         <span ><b>getCertificateById</b></span>
@@ -1102,8 +1067,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="96"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:96</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="86"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:86</a></div>
                         </td>
                     </tr>
 
@@ -1181,6 +1146,89 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="getCertificateConfig"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>getCertificateConfig</b></span>
+                        <a href="#getCertificateConfig"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getCertificateConfig(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, certId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="102"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:102</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get the configuration of a certificate for import/export.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>certId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/CertImportDto.html" target="_self" >Promise&lt;CertImportDto&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="getCertificates"></a>
                     <span class="name">
                         <span ><b>getCertificates</b></span>
@@ -1197,8 +1245,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="59"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:59</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="70"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:70</a></div>
                         </td>
                     </tr>
 
@@ -1292,8 +1340,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="279"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:279</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="331"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:331</a></div>
                         </td>
                     </tr>
 
@@ -1389,8 +1437,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="345"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:345</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="397"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:397</a></div>
                         </td>
                     </tr>
 
@@ -1430,8 +1478,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="314"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:314</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="366"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:366</a></div>
                         </td>
                     </tr>
 
@@ -1542,8 +1590,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="291"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:291</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="343"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:343</a></div>
                         </td>
                     </tr>
 
@@ -1656,8 +1704,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="214"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:214</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="223"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:223</a></div>
                         </td>
                     </tr>
 
@@ -1785,7 +1833,40 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="34" class="link-to-prism">src/crypto/key/cert/cert.service.ts:34</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="45" class="link-to-prism">src/crypto/key/cert/cert.service.ts:45</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="logger"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Readonly</span>
+                        <span ><b>logger</b></span>
+                        <a href="#logger"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>new Logger(CertService.name)</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="38" class="link-to-prism">src/crypto/key/cert/cert.service.ts:38</a></div>
                         </td>
                     </tr>
 
@@ -1800,21 +1881,22 @@
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { createHash } from &quot;node:crypto&quot;;
 import { readFileSync } from &quot;node:fs&quot;;
-import { Inject, Injectable } from &quot;@nestjs/common&quot;;
+import { Inject, Injectable, Logger } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import * as x509 from &quot;@peculiar/x509&quot;;
 import { plainToClass } from &quot;class-transformer&quot;;
-import { randomUUID } from &quot;crypto&quot;;
 import { importJWK } from &quot;jose&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import { v4 } from &quot;uuid&quot;;
 import { TenantEntity } from &quot;../../../auth/tenant/entitites/tenant.entity&quot;;
 import { ConfigImportService } from &quot;../../../shared/utils/config-import/config-import.service&quot;;
 import { CertImportDto } from &quot;../dto/cert-import.dto&quot;;
+import { CertSelfSignedDto } from &quot;../dto/cert-self-signed.dto&quot;;
 import { CertUpdateDto } from &quot;../dto/cert-update.dto&quot;;
 import { UpdateKeyDto } from &quot;../dto/key-update.dto&quot;;
 import { CertEntity } from &quot;../entities/cert.entity&quot;;
+import { CertUsage, CertUsageEntity } from &quot;../entities/cert-usage.entity&quot;;
 import { KeyService } from &quot;../key.service&quot;;
 
 const ECDSA_P256 &#x3D; {
@@ -1823,19 +1905,29 @@ const ECDSA_P256 &#x3D; {
     hash: &quot;SHA-256&quot; as const,
 };
 
+export interface FindCertOptions {
+    tenantId: string;
+    type: CertUsage;
+    id?: string;
+}
+
 /**
  * Service for managing certificates associated with keys.
  */
 @Injectable()
 export class CertService {
+    private readonly logger &#x3D; new Logger(CertService.name);
+
     constructor(
         @InjectRepository(CertEntity)
         private readonly certRepository: Repository&lt;CertEntity&gt;,
+        @InjectRepository(CertUsageEntity)
+        private readonly certUsageRepository: Repository&lt;CertUsageEntity&gt;,
         @Inject(&quot;KeyService&quot;) public readonly keyService: KeyService,
         private readonly configService: ConfigService,
         @InjectRepository(TenantEntity)
-        private tenantRepository: Repository&lt;TenantEntity&gt;,
-        private configImportService: ConfigImportService,
+        private readonly tenantRepository: Repository&lt;TenantEntity&gt;,
+        private readonly configImportService: ConfigImportService,
     ) {}
 
     /**
@@ -1867,27 +1959,6 @@ export class CertService {
     }
 
     /**
-     * Get a specific certificate by ID.
-     * @param tenantId - The tenant ID
-     * @param keyId - The key ID
-     * @param certId - The certificate ID
-     * @returns The certificate entity
-     */
-    getCertificate(
-        tenantId: string,
-        keyId: string,
-        certId: string,
-    ): Promise&lt;CertEntity&gt; {
-        return this.certRepository.findOneOrFail({
-            where: {
-                tenantId,
-                id: certId,
-                key: { id: keyId },
-            },
-        });
-    }
-
-    /**
      * Get a specific certificate by ID (without keyId requirement).
      * @param tenantId - The tenant ID
      * @param certId - The certificate ID
@@ -1904,6 +1975,31 @@ export class CertService {
     }
 
     /**
+     * Get the configuration of a certificate for import/export.
+     * @param id
+     * @param certId
+     * @returns
+     */
+    async getCertificateConfig(
+        id: string,
+        certId: string,
+    ): Promise&lt;CertImportDto&gt; {
+        const cert &#x3D; await this.getCertificateById(id, certId);
+        const usages &#x3D; await this.certUsageRepository.findBy({
+            tenantId: id,
+            certId: cert.id,
+        });
+
+        return {
+            id: cert.id,
+            keyId: cert.key.id,
+            description: cert.description,
+            crt: cert.crt,
+            certUsageTypes: usages.map((u) &#x3D;&gt; u.usage),
+        };
+    }
+
+    /**
      * Add a new certificate to a key.
      * @param tenantId - The tenant ID
      * @param keyId - The key ID
@@ -1914,20 +2010,23 @@ export class CertService {
         tenantId: string,
         keyId: string,
         dto: CertImportDto,
-    ): Promise&lt;{ id: string }&gt; {
-        const certId &#x3D; v4();
+    ): Promise&lt;string&gt; {
+        const certId &#x3D; dto.id ?? v4();
 
         await this.certRepository.save({
             id: certId,
             tenantId,
             crt: dto.crt,
-            isAccessCert: dto.isAccessCert,
-            isSigningCert: dto.isSigningCert,
             description: dto.description,
             key: { id: keyId, tenantId },
+            usages: dto.certUsageTypes.map((usage) &#x3D;&gt; ({
+                certId,
+                usage,
+                tenantId,
+            })),
         });
 
-        return { id: certId };
+        return certId;
     }
 
     /**
@@ -1936,8 +2035,7 @@ export class CertService {
     async addSelfSignedCert(
         tenant: TenantEntity,
         keyId: string,
-        isAccessCert: boolean,
-        isSigningCert: boolean,
+        dto: CertSelfSignedDto,
     ) {
         // &#x3D;&#x3D;&#x3D; Inputs/parameters (subject + SAN hostname) &#x3D;&#x3D;&#x3D;
         const subjectCN &#x3D; tenant.name;
@@ -1988,20 +2086,12 @@ export class CertService {
 
         const crtPem &#x3D; selfSignedCert.toString(&quot;pem&quot;); // PEM-encoded certificate
 
-        // Persist the certificate with the specified types
-        const types: (&quot;access&quot; | &quot;signing&quot;)[] &#x3D; [];
-        if (isAccessCert) types.push(&quot;access&quot;);
-        if (isSigningCert) types.push(&quot;signing&quot;);
-        const certEntity &#x3D; await this.certRepository.save({
-            id: randomUUID(),
-            tenantId: tenant.id,
+        return this.addCertificate(tenant.id, keyId, {
             crt: crtPem,
-            isAccessCert,
-            isSigningCert,
-            description: &#x60;Self-signed certificate (${types.join(&quot;, &quot;)}) for tenant ${tenant.name}&#x60;,
-            key: { id: keyId, tenantId: tenant.id },
+            certUsageTypes: dto.certUsageTypes,
+            description: &#x60;Self-signed certificate (${dto.certUsageTypes.join(&quot;, &quot;)}) for tenant ${tenant.name}&#x60;,
+            keyId,
         });
-        return certEntity.id;
     }
 
     /**
@@ -2016,13 +2106,31 @@ export class CertService {
         certId: string,
         updates: CertUpdateDto,
     ): Promise&lt;void&gt; {
+        // Update description or other simple fields (not usages)
         await this.certRepository.update(
             {
                 tenantId,
                 id: certId,
             },
-            updates,
+            {
+                description: updates.description,
+            },
         );
+
+        // Remove old usages
+        await this.certUsageRepository.delete({ tenantId, certId });
+
+        // Add new usages
+        if (updates.certUsageTypes &amp;&amp; updates.certUsageTypes.length &gt; 0) {
+            const newUsages &#x3D; updates.certUsageTypes.map((usage) &#x3D;&gt;
+                this.certUsageRepository.create({
+                    certId,
+                    usage,
+                    tenantId,
+                }),
+            );
+            await this.certUsageRepository.save(newUsages);
+        }
     }
 
     /**
@@ -2044,30 +2152,55 @@ export class CertService {
 
     /**
      * Find a certificate by tenantId and type.
-     * @param value - Search criteria including tenantId, type, and optional id
+     * @param value - The search criteria
      * @returns The matching certificate
      */
-    find(value: {
-        tenantId: string;
-        type: &quot;access&quot; | &quot;signing&quot;;
-        id?: string;
-    }): Promise&lt;CertEntity&gt; {
-        const whereClause: any &#x3D; {
-            tenantId: value.tenantId,
-        };
+    /**
+     * Find a certificate by tenantId and usage type.
+     */
+    find(value: FindCertOptions): Promise&lt;CertEntity&gt; {
+        return this.certUsageRepository
+            .findOneOrFail({
+                where: {
+                    tenantId: value.tenantId,
+                    usage: value.type,
+                    certId: value.id || undefined,
+                },
+                relations: [&quot;cert&quot;],
+            })
+            .then((certUsage) &#x3D;&gt; certUsage.cert);
+    }
 
-        // Map type to boolean field
-        if (value.type &#x3D;&#x3D;&#x3D; &quot;access&quot;) {
-            whereClause.isAccessCert &#x3D; true;
-        } else if (value.type &#x3D;&#x3D;&#x3D; &quot;signing&quot;) {
-            whereClause.isSigningCert &#x3D; true;
-        }
+    /**
+     * Find a certificate or create one if it does not exist.
+     * @param value
+     * @returns
+     */
+    findOrCreate(value: FindCertOptions): Promise&lt;CertEntity&gt; {
+        return this.find(value).catch(async () &#x3D;&gt; {
+            // Create a new key
+            const keyId &#x3D; await this.keyService.create(value.tenantId);
 
-        if (value.id) {
-            whereClause.id &#x3D; value.id;
-        }
+            const dto: CertSelfSignedDto &#x3D; {
+                certUsageTypes: [value.type],
+                keyId,
+            };
 
-        return this.certRepository.findOneByOrFail(whereClause);
+            // Create a self-signed certificate for the new key
+            const certId &#x3D; await this.addSelfSignedCert(
+                await this.tenantRepository.findOneByOrFail({
+                    id: value.tenantId,
+                }),
+                keyId,
+                dto,
+            );
+
+            // Retrieve and return the newly created certificate
+            return this.certRepository.findOneByOrFail({
+                tenantId: value.tenantId,
+                id: certId,
+            });
+        });
     }
 
     /**
@@ -2101,7 +2234,7 @@ export class CertService {
         const chain &#x3D; cert.crt
             .replace(&quot;-----BEGIN CERTIFICATE-----&quot;, &quot;&quot;)
             .replace(&quot;-----END CERTIFICATE-----&quot;, &quot;&quot;)
-            .replace(/\r?\n|\r/g, &quot;&quot;);
+            .replaceAll(/\r?\n|\r/g, &quot;&quot;);
         return [chain];
     }
 
@@ -2132,7 +2265,7 @@ export class CertService {
             cert.crt
                 .replace(&quot;-----BEGIN CERTIFICATE-----&quot;, &quot;&quot;)
                 .replace(&quot;-----END CERTIFICATE-----&quot;, &quot;&quot;)
-                .replace(/\r?\n|\r/g, &quot;&quot;),
+                .replaceAll(/\r?\n|\r/g, &quot;&quot;),
             &quot;base64&quot;,
         );
         // Hash the DER and return as base64url
@@ -2153,17 +2286,31 @@ export class CertService {
                 return plainToClass(CertImportDto, payload);
             },
             checkExists: (tenantId, data) &#x3D;&gt; {
-                return this.hasEntry(tenantId, data.id);
+                return data.id
+                    ? this.hasEntry(tenantId, data.id)
+                    : Promise.resolve(false);
             },
             deleteExisting: async (tenantId, data) &#x3D;&gt; {
                 // Find and delete matching certs
                 const certs &#x3D; await this.certRepository.findBy({ tenantId });
                 const existingCert &#x3D; certs.find((c) &#x3D;&gt; c.id &#x3D;&#x3D;&#x3D; data.id);
                 if (existingCert) {
-                    await this.certRepository.delete({
-                        id: existingCert.id,
-                        tenantId,
-                    });
+                    await this.certRepository
+                        .delete({
+                            id: existingCert.id,
+                            tenantId,
+                        })
+                        .catch((err) &#x3D;&gt; {
+                            this.logger.error(
+                                {
+                                    event: &quot;ImportError&quot;,
+                                    tenant: tenantId,
+                                    certId: existingCert.id,
+                                },
+                                &#x60;Error deleting existing cert ${existingCert.id} for tenant ${tenantId}: ${err.message}&#x60;,
+                            );
+                            throw err;
+                        });
                 }
             },
             processItem: async (tenantId, config) &#x3D;&gt; {
@@ -2175,11 +2322,8 @@ export class CertService {
                     tenantEntity.id,
                     config.keyId,
                 );
-                await this.certRepository.save({
-                    ...config,
-                    key,
-                    tenantId: tenantEntity.id,
-                });
+
+                this.addCertificate(tenantId, key.id, config);
             },
         });
     }
