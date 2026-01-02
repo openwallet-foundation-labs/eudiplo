@@ -296,7 +296,7 @@ jobs:
       # --- HEALTH TEST ---
       - name: Run container (detached)
         run: |
-          docker run -d --rm \
+          docker run -d \
             --name eudiplo-test \
             -p 8080:8080 \
             ghcr.io/openwallet-foundation-labs/eudiplo:main
@@ -304,8 +304,32 @@ jobs:
       - name: Wait for healthy
         run: |
           set -e
+          # Check if container is running
+          if ! docker ps -q -f name=eudiplo-test | grep -q .; then
+            echo "Container failed to start or exited immediately ❌"
+            echo ""
+            echo "=== Container Status ==="
+            docker ps -a -f name=eudiplo-test
+            echo ""
+            echo "=== Container Logs ==="
+            docker logs eudiplo-test 2>&1 || echo "No logs available"
+            exit 1
+          fi
+
           # wait up to ~90s (45 * 2s) for HEALTHCHECK to pass
           for i in $(seq 1 45); do
+            # Check if container is still running
+            if ! docker ps -q -f name=eudiplo-test | grep -q .; then
+              echo "Container stopped unexpectedly ❌"
+              echo ""
+              echo "=== Container Status ==="
+              docker ps -a -f name=eudiplo-test
+              echo ""
+              echo "=== Container Logs ==="
+              docker logs eudiplo-test 2>&1 || true
+              exit 1
+            fi
+            
             STATUS=$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' eudiplo-test)
             if [ "$STATUS" = "healthy" ]; then
               echo "Container is healthy ✅"
@@ -335,7 +359,7 @@ jobs:
 
       - name: Stop test container
         if: always()
-        run: docker stop eudiplo-test || true
+        run: docker rm -f eudiplo-test || true
 
       - name: Log in to GitHub Container Registry
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
