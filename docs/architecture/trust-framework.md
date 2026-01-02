@@ -241,7 +241,7 @@ Trust lists are used during presentation verification to:
    part of verification results
 
 For configuring presentation verification with trust lists, see
-[Presentation Configuration](./presentation-configuration.md).
+[Presentation Configuration](../getting-started/presentation/presentation-configuration.md).
 
 ---
 
