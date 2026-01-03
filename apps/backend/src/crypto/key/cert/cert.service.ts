@@ -11,7 +11,6 @@ import { v4 } from "uuid";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
 import { ConfigImportService } from "../../../shared/utils/config-import/config-import.service";
 import { CertImportDto } from "../dto/cert-import.dto";
-import { CertSelfSignedDto } from "../dto/cert-self-signed.dto";
 import { CertUpdateDto } from "../dto/cert-update.dto";
 import { UpdateKeyDto } from "../dto/key-update.dto";
 import { CertEntity } from "../entities/cert.entity";
@@ -154,7 +153,7 @@ export class CertService {
     async addSelfSignedCert(
         tenant: TenantEntity,
         keyId: string,
-        dto: CertSelfSignedDto,
+        dto: CertImportDto,
     ) {
         // === Inputs/parameters (subject + SAN hostname) ===
         const subjectCN = tenant.name;
@@ -185,7 +184,7 @@ export class CertService {
         const selfSignedCert =
             await x509.X509CertificateGenerator.createSelfSigned({
                 serialNumber: "01",
-                name: `CN=${subjectCN}`,
+                name: `C=DE, CN=${subjectCN}`,
                 notBefore: now,
                 notAfter: inOneYear,
                 signingAlgorithm: ECDSA_P256,
@@ -208,7 +207,9 @@ export class CertService {
         return this.addCertificate(tenant.id, keyId, {
             crt: crtPem,
             certUsageTypes: dto.certUsageTypes,
-            description: `Self-signed certificate (${dto.certUsageTypes.join(", ")}) for tenant ${tenant.name}`,
+            description:
+                dto.description ??
+                `Self-signed certificate (${dto.certUsageTypes.join(", ")}) for tenant ${tenant.name}`,
             keyId,
         });
     }
@@ -300,7 +301,7 @@ export class CertService {
             // Create a new key
             const keyId = await this.keyService.create(value.tenantId);
 
-            const dto: CertSelfSignedDto = {
+            const dto: CertImportDto = {
                 certUsageTypes: [value.type],
                 keyId,
             };
