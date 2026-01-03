@@ -182,6 +182,18 @@ export class Session {
     vp_nonce?: string;
 
     /**
+     * Client ID used in the OID4VP authorization request.
+     */
+    @Column("varchar", { nullable: true })
+    clientId?: string;
+
+    /**
+     * Response URI used in the OID4VP authorization request.
+     */
+    @Column("varchar", { nullable: true })
+    responseUri?: string;
+
+    /**
      * Redirect URI to which the user-agent should be redirected after the presentation is completed.
      */
     @Column("varchar", { nullable: true })

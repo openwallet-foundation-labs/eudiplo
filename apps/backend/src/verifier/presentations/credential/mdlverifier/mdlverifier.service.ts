@@ -98,11 +98,7 @@ export class MdlverifierService {
 
             // 4) Build the session transcript for verification
             const sessionTranscript = await SessionTranscript.forOid4Vp(
-                {
-                    clientId: sessionData.clientId,
-                    responseUri: sessionData.responseUri,
-                    nonce: sessionData.nonce,
-                },
+                sessionData,
                 mdocContext,
             );
 
@@ -124,7 +120,6 @@ export class MdlverifierService {
             this.logger.debug(
                 `MDL device response verified successfully for docType: ${docType}`,
             );
-            console.log("done");
 
             return {
                 verified: true,

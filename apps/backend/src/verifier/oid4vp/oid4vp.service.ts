@@ -249,6 +249,12 @@ export class Oid4vpService {
         );
 
         if (fresh) {
+            const host = this.configService.getOrThrow<string>("PUBLIC_URL");
+            const clientId = "x509_hash:" + certHash;
+            const responseUri = useDcApi
+                ? undefined
+                : `${host}/${values.session}/oid4vp`;
+
             const session = await this.sessionService.create({
                 id: values.session,
                 parsedWebhook: values.webhook,
@@ -259,6 +265,8 @@ export class Oid4vpService {
                 requestUrl: `openid4vp://?${queryString}`,
                 expiresAt,
                 useDcApi,
+                clientId,
+                responseUri,
             });
 
             if (request_uri_method === "get") {

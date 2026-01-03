@@ -39,7 +39,7 @@ describe("Presentation", () => {
     let statusListService: StatusListService;
 
     let privateIssuerKey: CryptoKey;
-    let x5c: string[];
+    let issuerCert: string;
 
     const credentialConfigId = "pid";
 
@@ -118,7 +118,7 @@ describe("Presentation", () => {
         credentialId: string;
         webhookUrl?: string;
         privateKey: CryptoKey;
-        x5c: string[];
+        issuerCert: string;
     }) {
         const requestBody: PresentationRequest = {
             response_type: ResponseType.URI,
@@ -145,8 +145,18 @@ describe("Presentation", () => {
         if (values.credentialId === "pid-mso-mdoc") {
             vp_token = await prepareMdocPresentation(
                 resolved.authorizationRequestPayload.nonce,
+                values.privateKey,
+                values.issuerCert,
+                resolved.authorizationRequestPayload.client_id,
+                resolved.authorizationRequestPayload.response_uri,
             );
         } else {
+            const x5c = [
+                values.issuerCert
+                    .replace("-----BEGIN CERTIFICATE-----", "")
+                    .replace("-----END CERTIFICATE-----", "")
+                    .replaceAll(/\r?\n|\r/g, ""),
+            ];
             vp_token = await preparePresentation(
                 {
                     iat: Math.floor(Date.now() / 1000),
@@ -154,7 +164,7 @@ describe("Presentation", () => {
                     nonce: resolved.authorizationRequestPayload.nonce,
                 },
                 values.privateKey,
-                values.x5c,
+                x5c,
                 statusListService,
                 credentialConfigId,
             );
@@ -234,10 +244,9 @@ describe("Presentation", () => {
             join(configFolder, "root/keys/sign.json"),
         );
 
-        privateIssuerKey = (await importJWK(
-            privateKey.key,
-            "ES256",
-        )) as CryptoKey;
+        privateIssuerKey = (await importJWK(privateKey.key, "ES256", {
+            extractable: true,
+        })) as CryptoKey;
 
         await expectRequest(
             request(app.getHttpServer())
@@ -253,12 +262,7 @@ describe("Presentation", () => {
                 "root/certs/certificate-b6db7c84-776e-4998-9d40-ac599a4ea1fc-config.json",
             ),
         );
-        x5c = [
-            cert
-                .crt!.replace("-----BEGIN CERTIFICATE-----", "")
-                .replace("-----END CERTIFICATE-----", "")
-                .replaceAll(/\r?\n|\r/g, ""),
-        ];
+        issuerCert = cert.crt!;
         await expectRequest(
             request(app.getHttpServer())
                 .post("/certs")
@@ -428,7 +432,7 @@ describe("Presentation", () => {
             requestId: "pid-no-hook",
             credentialId: "pid",
             privateKey: privateIssuerKey,
-            x5c,
+            issuerCert,
         });
 
         expect(submitRes).toBeDefined();
@@ -439,7 +443,7 @@ describe("Presentation", () => {
         const { submitRes } = await submitPresentation({
             requestId: "pid-de",
             privateKey: privateIssuerKey,
-            x5c,
+            issuerCert,
             credentialId: "pid-mso-mdoc",
         });
 
@@ -464,7 +468,7 @@ describe("Presentation", () => {
             requestId: "pid",
             privateKey: privateIssuerKey,
             credentialId: "pid",
-            x5c,
+            issuerCert,
         });
 
         expect(submitRes).toBeDefined();
@@ -488,7 +492,7 @@ describe("Presentation", () => {
         const { submitRes } = await submitPresentation({
             requestId: "pid",
             privateKey: privateIssuerKey,
-            x5c,
+            issuerCert,
             credentialId: "pid",
             webhookUrl: "http://localhost:8787/custom",
         });

@@ -28,14 +28,15 @@ import {
 import request from "supertest";
 import { Role } from "../src/auth/roles/role.enum";
 import { StatusListService } from "../src/issuer/lifecycle/status/status-list.service";
-import {
-    DEVICE_JWK,
-    ISSUER_CERTIFICATE,
-    ISSUER_PRIVATE_KEY_JWK,
-    mdocContext,
-} from "./utils-mdoc";
+import { DEVICE_JWK, mdocContext } from "./utils-mdoc";
 
-export async function prepareMdocPresentation(nonce: string) {
+export async function prepareMdocPresentation(
+    nonce: string,
+    privateKey: CryptoKey,
+    issuerCert: string,
+    clientId: string,
+    responseUri: string,
+) {
     const issuer = new Issuer("org.iso.18013.5.1", mdocContext);
 
     const signed = new Date();
@@ -49,12 +50,11 @@ export async function prepareMdocPresentation(nonce: string) {
     });
 
     //TODO: get key from eudiplo so it matches with the trust list
+    const key = await exportJWK(privateKey);
 
     const issuerSigned = await issuer.sign({
-        signingKey: CoseKey.fromJwk(ISSUER_PRIVATE_KEY_JWK),
-        certificate: new Uint8Array(
-            new X509Certificate(ISSUER_CERTIFICATE).rawData,
-        ),
+        signingKey: CoseKey.fromJwk(key as Jwk),
+        certificate: new Uint8Array(new X509Certificate(issuerCert).rawData),
         algorithm: SignatureAlgorithm.ES256,
         digestAlgorithm: "SHA-256",
         deviceKeyInfo: { deviceKey: CoseKey.fromJwk(DEVICE_JWK) },
@@ -83,10 +83,10 @@ export async function prepareMdocPresentation(nonce: string) {
         ],
     });
 
-    const fakeSessionTranscript = await SessionTranscript.forOid4Vp(
+    const sessionTranscript = await SessionTranscript.forOid4Vp(
         {
-            clientId: "my-client-id",
-            responseUri: "my-response-uri.com",
+            clientId,
+            responseUri,
             nonce,
         },
         mdocContext,
@@ -96,7 +96,7 @@ export async function prepareMdocPresentation(nonce: string) {
         {
             deviceRequest,
             issuerSigned: [credential],
-            sessionTranscript: fakeSessionTranscript,
+            sessionTranscript,
             signature: { signingKey: CoseKey.fromJwk(DEVICE_JWK) },
         },
         mdocContext,

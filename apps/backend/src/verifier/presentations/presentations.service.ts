@@ -177,7 +177,6 @@ export class PresentationsService implements OnApplicationBootstrap {
             id,
             tenantId,
         });
-        //element.registrationCert!.id = registrationCertId;
         await this.vpRequestRepository.save(element);
     }
 
@@ -187,102 +186,99 @@ export class PresentationsService implements OnApplicationBootstrap {
      * @param requiredFields
      * @returns
      */
-    parseResponse(
+    async parseResponse(
         res: AuthResponse,
         presentationConfig: PresentationConfig,
         session: Session,
     ) {
-        //get the type based on the configuration id to know how to parse the vp_token
-        const attestations = Object.keys(res.vp_token);
-        const att = attestations.map(async (att) => ({
-            id: att,
-            values: await Promise.all(
-                (res.vp_token[att] as unknown as string[]).map((cred) => {
-                    const dcqlCredential =
-                        presentationConfig.dcql_query.credentials.find(
-                            (c) => c.id === att,
-                        );
+        const attestationIds = Object.keys(res.vp_token);
+        const host = this.configService.getOrThrow<string>("PUBLIC_URL");
+        const tenantHost = `${host}/${presentationConfig.tenantId}`;
 
-                    if (!dcqlCredential) {
-                        throw new ConflictException(
-                            `${att} not found in the presentation config`,
-                        );
-                    }
+        const results = await Promise.all(
+            attestationIds.map(async (attId) => {
+                const credentials = res.vp_token[attId] as unknown as string[];
+                const dcqlCredential =
+                    presentationConfig.dcql_query.credentials.find(
+                        (c) => c.id === attId,
+                    );
 
-                    const host =
-                        this.configService.getOrThrow<string>("PUBLIC_URL");
-                    const tenantHost = `${host}/${presentationConfig.tenantId}`;
+                if (!dcqlCredential) {
+                    throw new ConflictException(
+                        `${attId} not found in the presentation config`,
+                    );
+                }
 
-                    const verifyOptions: VerifierOptions = {
-                        trustListSource: {
-                            lotes:
-                                dcqlCredential.trusted_authorities
-                                    ?.find(
-                                        (auth) =>
-                                            auth.type ===
-                                            TrustedAuthorityType.ETSI_TL,
-                                    )
-                                    ?.values.map((url) => {
-                                        return {
-                                            url: url.replaceAll(
-                                                "<PUBLIC_URL>",
-                                                tenantHost,
-                                            ),
-                                            //add verifierKey from trusted source, would be rulebook
-                                        };
-                                    }) || [],
-                            acceptedServiceTypes: [
-                                ServiceTypeIdentifier.EaaIssuance,
-                            ],
-                        },
-                        policy: {
-                            requireX5c: true,
-                        },
-                    };
+                const verifyOptions: VerifierOptions = {
+                    trustListSource: {
+                        lotes:
+                            dcqlCredential.trusted_authorities
+                                ?.find(
+                                    (auth) =>
+                                        auth.type ===
+                                        TrustedAuthorityType.ETSI_TL,
+                                )
+                                ?.values.map((url) => ({
+                                    url: url.replaceAll(
+                                        "<PUBLIC_URL>",
+                                        tenantHost,
+                                    ),
+                                })) || [],
+                        acceptedServiceTypes: [
+                            ServiceTypeIdentifier.EaaIssuance,
+                        ],
+                    },
+                    policy: {
+                        requireX5c: true,
+                    },
+                };
 
-                    //TODO get the trusted entities already here since they are needed in both verifications
+                const type = this.getType(session.requestObject!, attId);
 
-                    const type = this.getType(session.requestObject!, att);
-                    if (type === "mso_mdoc") {
-                        return this.mdlverifierService
-                            .verify(
+                const values = await Promise.all(
+                    credentials.map(async (cred) => {
+                        if (type === "mso_mdoc") {
+                            const result = await this.mdlverifierService.verify(
                                 cred,
                                 {
                                     nonce: session.vp_nonce as string,
-                                    clientId: tenantHost,
-                                    responseUri: `${tenantHost}/oid4vp/response`,
+                                    clientId: session.clientId!,
+                                    responseUri: session.responseUri!,
                                     protocol: "openid4vp",
                                     responseMode: session.useDcApi
                                         ? "dc_api.jwt"
                                         : "direct_post.jwt",
                                 },
                                 verifyOptions,
-                            )
-                            .then((result) => ({
+                            );
+                            return {
                                 ...result.claims,
                                 payload: result.payload,
-                            }));
-                    } else if (type === "dc+sd-jwt") {
-                        // Pass trusted authorities to the verify function
-                        return this.sdjwtvcverifierService
-                            .verify(cred, {
-                                //TODO: get required fields from the dcql query to check if they got passed
-                                requiredClaimKeys: [],
-                                keyBindingNonce: session.vp_nonce!,
-                                ...verifyOptions,
-                            } as any)
-                            .then((result) => {
-                                return {
-                                    ...result.payload,
-                                    cnf: undefined, // remove cnf for simplicity
-                                    status: undefined, // remove status for simplicity
-                                };
-                            });
-                    }
-                }),
-            ),
-        }));
-        return Promise.all(att);
+                            };
+                        } else if (type === "dc+sd-jwt") {
+                            const result =
+                                await this.sdjwtvcverifierService.verify(cred, {
+                                    requiredClaimKeys: [],
+                                    keyBindingNonce: session.vp_nonce!,
+                                    ...verifyOptions,
+                                } as any);
+                            return {
+                                ...result.payload,
+                                cnf: undefined,
+                                status: undefined,
+                            };
+                        }
+                        throw new ConflictException(
+                            `Unsupported credential type: ${type}`,
+                        );
+                    }),
+                );
+
+                return { id: attId, values };
+            }),
+        );
+
+        return results;
     }
 
     /**

@@ -100,9 +100,10 @@ export const mdocContext: MdocContext = {
                 }
 
                 // lowS is needed after upgrade of @noble/curves to keep existing tests passing
-                return p256.verify(signature, toBeSigned, key.publicKey, {
+                const res = p256.verify(signature, toBeSigned, key.publicKey, {
                     lowS: false,
                 });
+                return res;
             },
         },
     },
