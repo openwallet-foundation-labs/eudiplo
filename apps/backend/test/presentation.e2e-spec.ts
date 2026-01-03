@@ -188,6 +188,24 @@ describe("Presentation", () => {
         return JSON.parse(readFileSync(path, "utf-8"));
     }
 
+    /**
+     * Helper to make requests and show detailed error on failure
+     */
+    async function expectRequest(
+        req: request.Test,
+        expectedStatus: number,
+    ): Promise<request.Response> {
+        const res = await req;
+        if (res.status !== expectedStatus) {
+            console.error(
+                `Request failed: expected ${expectedStatus}, got ${res.status}`,
+            );
+            console.error("Response body:", JSON.stringify(res.body, null, 2));
+        }
+        expect(res.status).toBe(expectedStatus);
+        return res;
+    }
+
     beforeAll(async () => {
         //delete the database
         rmSync("../../tmp/service.db", { force: true });
@@ -221,11 +239,13 @@ describe("Presentation", () => {
             "ES256",
         )) as CryptoKey;
 
-        await request(app.getHttpServer())
-            .post("/key")
-            .set("Authorization", `Bearer ${authToken}`)
-            .send(privateKey)
-            .expect(201);
+        await expectRequest(
+            request(app.getHttpServer())
+                .post("/key")
+                .set("Authorization", `Bearer ${authToken}`)
+                .send(privateKey),
+            201,
+        );
 
         const cert = readFile<CertImportDto>(
             join(
@@ -239,34 +259,43 @@ describe("Presentation", () => {
                 .replace("-----END CERTIFICATE-----", "")
                 .replaceAll(/\r?\n|\r/g, ""),
         ];
-        await request(app.getHttpServer())
-            .post("/certs")
-            .set("Authorization", `Bearer ${authToken}`)
-            .send(cert)
-            .expect(201);
+        await expectRequest(
+            request(app.getHttpServer())
+                .post("/certs")
+                .set("Authorization", `Bearer ${authToken}`)
+                .send(cert),
+            201,
+        );
 
         //import the presentation configuration without webhook
-        await request(app.getHttpServer())
-            .post("/verifier/config")
-            .trustLocalhost()
-            .set("Authorization", `Bearer ${authToken}`)
-            .send(
-                readFile<PresentationConfigCreateDto>(
-                    join(configFolder, "root/presentation/pid-no-hook.json"),
+        await expectRequest(
+            request(app.getHttpServer())
+                .post("/verifier/config")
+                .trustLocalhost()
+                .set("Authorization", `Bearer ${authToken}`)
+                .send(
+                    readFile<PresentationConfigCreateDto>(
+                        join(
+                            configFolder,
+                            "root/presentation/pid-no-hook.json",
+                        ),
+                    ),
                 ),
-            )
-            .expect(201);
+            201,
+        );
 
         //import statuslist key and cert
         const statusListKey = readFile<KeyImportDto>(
             join(configFolder, "root/keys/status-list.json"),
         );
 
-        await request(app.getHttpServer())
-            .post("/key")
-            .set("Authorization", `Bearer ${authToken}`)
-            .send(statusListKey)
-            .expect(201);
+        await expectRequest(
+            request(app.getHttpServer())
+                .post("/key")
+                .set("Authorization", `Bearer ${authToken}`)
+                .send(statusListKey),
+            201,
+        );
 
         const statusListCert = readFile<CertImportDto>(
             join(
@@ -275,81 +304,85 @@ describe("Presentation", () => {
             ),
         );
 
-        await request(app.getHttpServer())
-            .post("/certs")
-            .set("Authorization", `Bearer ${authToken}`)
-            .send(statusListCert)
-            .expect(201);
+        await expectRequest(
+            request(app.getHttpServer())
+                .post("/certs")
+                .set("Authorization", `Bearer ${authToken}`)
+                .send(statusListCert),
+            201,
+        );
 
         //import the trust list and its key
-        await request(app.getHttpServer())
-            .post("/key")
-            .trustLocalhost()
-            .set("Authorization", `Bearer ${authToken}`)
-            .send(
-                readFile<KeyImportDto>(
-                    join(configFolder, "root/keys/trust-list.json"),
+        await expectRequest(
+            request(app.getHttpServer())
+                .post("/key")
+                .trustLocalhost()
+                .set("Authorization", `Bearer ${authToken}`)
+                .send(
+                    readFile<KeyImportDto>(
+                        join(configFolder, "root/keys/trust-list.json"),
+                    ),
                 ),
-            )
-            .expect(201);
+            201,
+        );
 
         //import cert
-        await request(app.getHttpServer())
-            .post("/certs")
-            .set("Authorization", `Bearer ${authToken}`)
-            .send(
-                readFile<CertImportDto>(
-                    join(
-                        configFolder,
-                        "root/certs/certificate-fb139025-05f8-47af-be11-326c41098263-config.json",
+        await expectRequest(
+            request(app.getHttpServer())
+                .post("/certs")
+                .set("Authorization", `Bearer ${authToken}`)
+                .send(
+                    readFile<CertImportDto>(
+                        join(
+                            configFolder,
+                            "root/certs/certificate-fb139025-05f8-47af-be11-326c41098263-config.json",
+                        ),
                     ),
                 ),
-            )
-            .expect(201);
+            201,
+        );
 
-        await request(app.getHttpServer())
-            .post("/trust-list")
-            .trustLocalhost()
-            .set("Authorization", `Bearer ${authToken}`)
-            .send(
-                readFile<TrustListCreateDto>(
-                    join(
-                        configFolder,
-                        "root/trustlists/trustlist-580831bc-ef11-43f4-a3be-a2b6bf1b29a3-config.json",
+        await expectRequest(
+            request(app.getHttpServer())
+                .post("/trust-list")
+                .trustLocalhost()
+                .set("Authorization", `Bearer ${authToken}`)
+                .send(
+                    readFile<TrustListCreateDto>(
+                        join(
+                            configFolder,
+                            "root/trustlists/trustlist-580831bc-ef11-43f4-a3be-a2b6bf1b29a3-config.json",
+                        ),
                     ),
                 ),
-            )
-            .expect(201);
-
-        //import the pid credential configuration
-        const pidMdocCredentialConfiguration = JSON.parse(
-            readFileSync(
-                join(configFolder, "root/presentation/pid-de.json"),
-                "utf-8",
-            ),
+            201,
         );
 
-        await request(app.getHttpServer())
-            .post("/presentation-management")
-            .trustLocalhost()
-            .set("Authorization", `Bearer ${authToken}`)
-            .send(pidMdocCredentialConfiguration)
-            .expect(201);
-
-        //import the pid credential configuration
-        const pidCredentialConfiguration = JSON.parse(
-            readFileSync(
-                join(configFolder, "root/presentation/pid.json"),
-                "utf-8",
-            ),
+        await expectRequest(
+            request(app.getHttpServer())
+                .post("/verifier/config")
+                .trustLocalhost()
+                .set("Authorization", `Bearer ${authToken}`)
+                .send(
+                    readFile<PresentationConfigCreateDto>(
+                        join(configFolder, "root/presentation/pid-de.json"),
+                    ),
+                ),
+            201,
         );
 
-        await request(app.getHttpServer())
-            .post("/verifier/config")
-            .trustLocalhost()
-            .set("Authorization", `Bearer ${authToken}`)
-            .send(pidCredentialConfiguration)
-            .expect(201);
+        await expectRequest(
+            request(app.getHttpServer())
+                .post("/verifier/config")
+                .trustLocalhost()
+                .set("Authorization", `Bearer ${authToken}`)
+                .send(
+                    readFile<PresentationConfigCreateDto>(
+                        join(configFolder, "root/presentation/pid.json"),
+                    ),
+                ),
+            201,
+        );
     });
 
     test("create oid4vp offer", async () => {

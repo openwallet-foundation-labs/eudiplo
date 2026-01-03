@@ -13,6 +13,7 @@ import { ServiceTypeIdentifier } from "../../issuer/trustlist/trustlist.service"
 import { Session } from "../../session/entities/session.entity";
 import { ConfigImportService } from "../../shared/utils/config-import/config-import.service";
 import { VerifierOptions } from "../resolver/trust/types";
+import { MdlverifierService } from "./credential/mdlverifier/mdlverifier.service";
 import { SdjwtvcverifierService } from "./credential/sdjwtvcverifier/sdjwtvcverifier.service";
 import { AuthResponse } from "./dto/auth-response.dto";
 import { PresentationConfigCreateDto } from "./dto/presentation-config-create.dto";
@@ -20,7 +21,6 @@ import {
     PresentationConfig,
     TrustedAuthorityType,
 } from "./entities/presentation-config.entity";
-import { verifyMDoc } from "./mdl";
 
 type CredentialType = "dc+sd-jwt" | "mso_mdoc";
 
@@ -40,6 +40,7 @@ export class PresentationsService implements OnApplicationBootstrap {
         private readonly vpRequestRepository: Repository<PresentationConfig>,
         private readonly configImportService: ConfigImportService,
         private readonly sdjwtvcverifierService: SdjwtvcverifierService,
+        private readonly mdlverifierService: MdlverifierService,
         private readonly configService: ConfigService,
     ) {}
 
@@ -238,19 +239,29 @@ export class PresentationsService implements OnApplicationBootstrap {
                             requireX5c: true,
                         },
                     };
+
+                    //TODO get the trusted entities already here since they are needed in both verifications
+
                     const type = this.getType(session.requestObject!, att);
                     if (type === "mso_mdoc") {
-                        return verifyMDoc(cred, {
-                            nonce: session.vp_nonce as string,
-                            origin: "https://dcapi-test.vercel.app",
-                            protocol: "openid4vp",
-                            response_mode: session.useDcApi
-                                ? "dc_api.jwt"
-                                : "direct_post.jwt",
-                        }).then((result) => ({
-                            ...result.claims,
-                            payload: result.payload,
-                        }));
+                        return this.mdlverifierService
+                            .verify(
+                                cred,
+                                {
+                                    nonce: session.vp_nonce as string,
+                                    clientId: tenantHost,
+                                    responseUri: `${tenantHost}/oid4vp/response`,
+                                    protocol: "openid4vp",
+                                    responseMode: session.useDcApi
+                                        ? "dc_api.jwt"
+                                        : "direct_post.jwt",
+                                },
+                                verifyOptions,
+                            )
+                            .then((result) => ({
+                                ...result.claims,
+                                payload: result.payload,
+                            }));
                     } else if (type === "dc+sd-jwt") {
                         // Pass trusted authorities to the verify function
                         return this.sdjwtvcverifierService

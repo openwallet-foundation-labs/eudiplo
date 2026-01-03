@@ -53,10 +53,23 @@ export const ISSUER_PRIVATE_KEY_JWK = {
     d: "o6PrzBm1dCfSwqJHW6DVqmJOCQSIAosrCPfbFJDMNp4",
 };
 
+/**
+ * Helper to convert Uint8Array<ArrayBufferLike> to Uint8Array<ArrayBuffer>
+ * This is needed due to TypeScript version differences where newer TS versions
+ * use Uint8Array<ArrayBufferLike> which is not assignable to BufferSource
+ */
+const toBuffer = (bytes: Uint8Array): Uint8Array<ArrayBuffer> => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return new Uint8Array(bytes) as unknown as Uint8Array<ArrayBuffer>;
+};
+
 export const mdocContext: MdocContext = {
     crypto: {
         digest: async ({ digestAlgorithm, bytes }) => {
-            const digest = await crypto.subtle.digest(digestAlgorithm, bytes);
+            const digest = await crypto.subtle.digest(
+                digestAlgorithm,
+                toBuffer(bytes),
+            );
             return new Uint8Array(digest);
         },
         random: (length: number) => {
@@ -69,7 +82,10 @@ export const mdocContext: MdocContext = {
                 .getSharedSecret(privateKey, publicKey, true)
                 .slice(1);
             const salt = new Uint8Array(
-                await crypto.subtle.digest("SHA-256", sessionTranscriptBytes),
+                await crypto.subtle.digest(
+                    "SHA-256",
+                    toBuffer(sessionTranscriptBytes),
+                ),
             );
             const infoAsBytes = stringToBytes(info);
             const digest = "sha256";
@@ -133,14 +149,18 @@ export const mdocContext: MdocContext = {
             certificate: Uint8Array;
             field: string;
         }) => {
-            const certificate = new X509Certificate(input.certificate as any);
+            const certificate = new X509Certificate(
+                toBuffer(input.certificate),
+            );
             return certificate.issuerName.getField(input.field);
         },
         getPublicKey: async (input: {
             certificate: Uint8Array;
             alg: string;
         }) => {
-            const certificate = new X509Certificate(input.certificate as any);
+            const certificate = new X509Certificate(
+                toBuffer(input.certificate),
+            );
 
             const key = await importX509(certificate.toString(), input.alg, {
                 extractable: true,
@@ -161,11 +181,11 @@ export const mdocContext: MdocContext = {
                 throw new Error("Certificate chain is empty");
 
             const parsedLeafCertificate = new x509.X509Certificate(
-                certificateChain[0] as any,
+                toBuffer(certificateChain[0]),
             );
 
             const parsedCertificates = certificateChain.map(
-                (c) => new x509.X509Certificate(c as any),
+                (c) => new x509.X509Certificate(toBuffer(c)),
             );
 
             const certificateChainBuilder = new x509.X509ChainBuilder({
@@ -190,7 +210,7 @@ export const mdocContext: MdocContext = {
 
             const parsedTrustedCertificates = trustedCertificates.map(
                 (trustedCertificate) =>
-                    new x509.X509Certificate(trustedCertificate as any),
+                    new x509.X509Certificate(toBuffer(trustedCertificate)),
             );
 
             const trustedCertificateIndex = parsedChain.findIndex((cert) =>
@@ -220,8 +240,10 @@ export const mdocContext: MdocContext = {
             }
         },
         getCertificateData: async (input: { certificate: Uint8Array }) => {
-            const certificate = new X509Certificate(input.certificate as any);
-            const thumbprint = await certificate.getThumbprint(crypto as any);
+            const certificate = new X509Certificate(
+                toBuffer(input.certificate),
+            );
+            const thumbprint = await certificate.getThumbprint();
             const thumbprintHex = hex.encode(new Uint8Array(thumbprint));
             return {
                 issuerName: certificate.issuerName.toString(),
@@ -233,18 +255,5 @@ export const mdocContext: MdocContext = {
                 notAfter: certificate.notAfter,
             };
         },
-    },
-};
-
-export const deterministicMdocContext = {
-    ...mdocContext,
-    crypto: {
-        ...mdocContext.crypto,
-        random: (len: number) =>
-            hex
-                .decode(
-                    "9bdb72498967865710108af43959f90c1b6aac9687bedd1fa53dd0d2103fa5d0",
-                )
-                .slice(0, len),
     },
 };

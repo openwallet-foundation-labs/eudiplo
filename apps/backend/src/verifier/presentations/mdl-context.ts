@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import {
     CoseKey,
     hex,
@@ -15,22 +16,22 @@ import * as x509 from "@peculiar/x509";
 import { X509Certificate } from "@peculiar/x509";
 import { exportJWK, importX509 } from "jose";
 
-async function asyncSome<T>(
-    array: T[],
-    predicate: (item: T) => Promise<boolean>,
-): Promise<boolean> {
-    for (const item of array) {
-        if (await predicate(item)) return true;
-    }
-    return false;
-}
+/**
+ * Helper to convert Uint8Array<ArrayBufferLike> to Uint8Array<ArrayBuffer>
+ * This is needed due to TypeScript version differences where newer TS versions
+ * use Uint8Array<ArrayBufferLike> which is not assignable to BufferSource
+ */
+const toBuffer = (bytes: Uint8Array): Uint8Array<ArrayBuffer> => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return new Uint8Array(bytes) as unknown as Uint8Array<ArrayBuffer>;
+};
 
 export const mdocContext: MdocContext = {
     crypto: {
         digest: async ({ digestAlgorithm, bytes }) => {
             const digest = await crypto.subtle.digest(
                 digestAlgorithm,
-                new Int8Array(bytes),
+                toBuffer(bytes),
             );
             return new Uint8Array(digest);
         },
@@ -41,16 +42,12 @@ export const mdocContext: MdocContext = {
             const { privateKey, publicKey, sessionTranscriptBytes, info } =
                 input;
             const ikm = p256
-                .getSharedSecret(
-                    hex.encode(privateKey),
-                    hex.encode(publicKey),
-                    true,
-                )
+                .getSharedSecret(privateKey, publicKey, true)
                 .slice(1);
             const salt = new Uint8Array(
                 await crypto.subtle.digest(
                     "SHA-256",
-                    new Int8Array(sessionTranscriptBytes),
+                    toBuffer(sessionTranscriptBytes),
                 ),
             );
             const infoAsBytes = stringToBytes(info);
@@ -88,11 +85,9 @@ export const mdocContext: MdocContext = {
         sign1: {
             sign: (input) => {
                 const { key, sign1 } = input;
-
-                const hashed = sha256(sign1.toBeSigned);
-                const sig = p256.sign(hashed, key.privateKey);
-
-                return sig.toCompactRawBytes();
+                return p256.sign(sign1.toBeSigned, key.privateKey, {
+                    format: "compact",
+                });
             },
             verify: (input) => {
                 const { sign1, key } = input;
@@ -104,8 +99,10 @@ export const mdocContext: MdocContext = {
                     );
                 }
 
-                const hashed = sha256(toBeSigned);
-                return p256.verify(signature, hashed, key.publicKey);
+                // lowS is needed after upgrade of @noble/curves to keep existing tests passing
+                return p256.verify(signature, toBeSigned, key.publicKey, {
+                    lowS: false,
+                });
             },
         },
     },
@@ -116,7 +113,7 @@ export const mdocContext: MdocContext = {
             field: string;
         }) => {
             const certificate = new X509Certificate(
-                new Int8Array(input.certificate),
+                toBuffer(input.certificate),
             );
             return certificate.issuerName.getField(input.field);
         },
@@ -125,7 +122,7 @@ export const mdocContext: MdocContext = {
             alg: string;
         }) => {
             const certificate = new X509Certificate(
-                new Int8Array(input.certificate),
+                toBuffer(input.certificate),
             );
 
             const key = await importX509(certificate.toString(), input.alg, {
@@ -140,90 +137,76 @@ export const mdocContext: MdocContext = {
         verifyCertificateChain: async (input: {
             trustedCertificates: Array<Uint8Array>;
             x5chain: Array<Uint8Array>;
+            now?: Date;
         }) => {
             const { trustedCertificates, x5chain: certificateChain } = input;
             if (certificateChain.length === 0)
                 throw new Error("Certificate chain is empty");
 
+            const parsedLeafCertificate = new x509.X509Certificate(
+                toBuffer(certificateChain[0]),
+            );
+
             const parsedCertificates = certificateChain.map(
-                (c) => new x509.X509Certificate(new Uint8Array(c)),
+                (c) => new x509.X509Certificate(toBuffer(c)),
             );
 
-            const parsedTrustedCertificates = trustedCertificates.map(
-                (trustedCertificate) =>
-                    new x509.X509Certificate(
-                        new Uint8Array(trustedCertificate),
-                    ),
-            );
-
-            const parsedLeafCertificate = parsedCertificates[0];
-
-            // ✅ trusted certificates도 체인 빌드에 포함
             const certificateChainBuilder = new x509.X509ChainBuilder({
-                certificates: [
-                    ...parsedCertificates,
-                    ...parsedTrustedCertificates,
-                ],
+                certificates: parsedCertificates,
             });
 
             const chain = await certificateChainBuilder.build(
                 parsedLeafCertificate,
             );
 
-            // x5c: [Leaf, Intermediate, Root]
-            // chain.build 결과: [Leaf, Intermediate, Root] (leaf first)
-            const parsedChain = chain.map(
-                (c) => new x509.X509Certificate(c.rawData),
+            // The chain is reversed here as the `x5c` header (the expected input),
+            // has the leaf certificate as the first entry, while the `x509` library expects this as the last
+            let parsedChain = chain
+                .map((c) => new x509.X509Certificate(c.rawData))
+                .reverse();
+
+            if (parsedChain.length !== certificateChain.length) {
+                throw new Error(
+                    "Could not parse the full chain. Likely due to incorrect ordering",
+                );
+            }
+
+            const parsedTrustedCertificates = trustedCertificates.map(
+                (trustedCertificate) =>
+                    new x509.X509Certificate(toBuffer(trustedCertificate)),
             );
 
-            // ✅ 체인의 마지막(Root)이 trusted certificate인지 확인
-            const rootCert = parsedChain[parsedChain.length - 1];
-            const isTrusted = await asyncSome(
-                parsedTrustedCertificates,
-                async (tCert) => {
-                    const publicKey = tCert.publicKey;
-                    if (rootCert.equal(tCert)) return true;
-                    try {
-                        await rootCert.verify({
-                            publicKey: publicKey,
-                            date: new Date(),
-                        });
-                        return true;
-                    } catch {
-                        return false;
-                    }
-                },
+            const trustedCertificateIndex = parsedChain.findIndex((cert) =>
+                parsedTrustedCertificates.some((tCert) => cert.equal(tCert)),
             );
 
-            if (!isTrusted) {
+            if (trustedCertificateIndex === -1) {
                 throw new Error(
                     "No trusted certificate was found while validating the X.509 chain",
                 );
             }
 
-            // ✅ 체인 검증: 각 인증서가 다음 인증서(issuer)에 의해 서명되었는지 확인
-            // parsedChain: [Leaf, Intermediate, Root]
-            for (let i = 0; i < parsedChain.length - 1; i++) {
+            // Pop everything off above the index of the trusted as it is not relevant for validation
+            parsedChain = parsedChain.slice(0, trustedCertificateIndex);
+
+            // Verify the certificate with the publicKey of the certificate above
+            for (let i = 0; i < parsedChain.length; i++) {
                 const cert = parsedChain[i];
-                const issuerCert = parsedChain[i + 1];
-                await cert.verify({
-                    publicKey: issuerCert.publicKey,
-                    date: new Date(),
+                const previousCertificate = parsedChain[i - 1];
+                const publicKey = previousCertificate
+                    ? previousCertificate.publicKey
+                    : undefined;
+                await cert?.verify({
+                    publicKey,
+                    date: input.now ?? new Date(),
                 });
             }
-
-            // Root CA는 self-signed이므로 자체 검증 (선택적)
-            const rootCertFinal = parsedChain[parsedChain.length - 1];
-            await rootCertFinal.verify({
-                publicKey: rootCertFinal.publicKey,
-                date: new Date(),
-            });
         },
         getCertificateData: async (input: { certificate: Uint8Array }) => {
             const certificate = new X509Certificate(
-                new Uint8Array(input.certificate),
+                toBuffer(input.certificate),
             );
-            const thumbprint = await certificate.getThumbprint(crypto);
+            const thumbprint = await certificate.getThumbprint();
             const thumbprintHex = hex.encode(new Uint8Array(thumbprint));
             return {
                 issuerName: certificate.issuerName.toString(),
@@ -235,5 +218,18 @@ export const mdocContext: MdocContext = {
                 notAfter: certificate.notAfter,
             };
         },
+    },
+};
+
+export const deterministicMdocContext = {
+    ...mdocContext,
+    crypto: {
+        ...mdocContext.crypto,
+        random: (len: number) =>
+            hex
+                .decode(
+                    "9bdb72498967865710108af43959f90c1b6aac9687bedd1fa53dd0d2103fa5d0",
+                )
+                .slice(0, len),
     },
 };
