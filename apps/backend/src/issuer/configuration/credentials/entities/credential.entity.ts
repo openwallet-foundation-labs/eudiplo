@@ -38,13 +38,17 @@ export class Display {
     description!: string;
     @IsString()
     locale!: string;
+    @IsOptional()
     @IsString()
     background_color?: string;
+    @IsOptional()
     @IsString()
     text_color?: string;
+    @IsOptional()
     @ValidateNested()
     @Type(() => DisplayImage)
     background_image?: DisplayImage;
+    @IsOptional()
     @ValidateNested()
     @Type(() => DisplayImage)
     logo?: DisplayImage;
@@ -59,6 +63,37 @@ export class IssuerMetadataCredentialConfig {
     @IsOptional()
     @IsString()
     scope?: string;
+
+    /**
+     * Document type for mDOC credentials (e.g., "org.iso.18013.5.1.mDL").
+     * Only applicable when format is "mso_mdoc".
+     */
+    @IsOptional()
+    @IsString()
+    docType?: string;
+
+    /**
+     * Namespace for mDOC credentials (e.g., "org.iso.18013.5.1").
+     * Only applicable when format is "mso_mdoc".
+     * Used when claims are provided as a flat object.
+     */
+    @IsOptional()
+    @IsString()
+    namespace?: string;
+
+    /**
+     * Claims organized by namespace for mDOC credentials.
+     * Allows specifying claims across multiple namespaces.
+     * Only applicable when format is "mso_mdoc".
+     * Example:
+     * {
+     *   "org.iso.18013.5.1": { "given_name": "John", "family_name": "Doe" },
+     *   "org.iso.18013.5.1.aamva": { "DHS_compliance": "F" }
+     * }
+     */
+    @IsOptional()
+    @IsObject()
+    claimsByNamespace?: Record<string, Record<string, any>>;
 }
 
 @ApiExtraModels(

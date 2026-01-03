@@ -3,41 +3,40 @@ import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import type { Jwk } from "@openid4vc/oauth2";
 import { CredentialConfigurationSupported } from "@openid4vc/openid4vci";
-import { digest, generateSalt } from "@sd-jwt/crypto-nodejs";
-import { JWTwithStatusListPayload } from "@sd-jwt/jwt-status-list";
-import { SDJwtVcInstance } from "@sd-jwt/sd-jwt-vc";
 import Ajv from "ajv/dist/2020";
 import { Repository } from "typeorm";
-import { CertService } from "../../../crypto/key/cert/cert.service";
 import { CryptoImplementationService } from "../../../crypto/key/crypto-implementation/crypto-implementation.service";
-import { CertUsage } from "../../../crypto/key/entities/cert-usage.entity";
 import { Session } from "../../../session/entities/session.entity";
 import { SessionLogContext } from "../../../shared/utils/logger/session-logger-context";
 import { WebhookService } from "../../../shared/utils/webhook/webhook.service";
 import { VCT } from "../../issuance/oid4vci/metadata/dto/vct.dto";
-import { StatusListService } from "../../lifecycle/status/status-list.service";
 import { CredentialConfig } from "./entities/credential.entity";
+import { MdocIssuerService } from "./issuer/mdoc-issuer/mdoc-issuer.service";
+import { SdjwtvcIssuerService } from "./issuer/sdjwtvc-issuer/sdjwtvc-issuer.service";
+
 /**
  * Service for managing credentials and their configurations.
+ * Delegates actual credential issuance to format-specific services.
  */
 @Injectable()
 export class CredentialsService {
     /**
      * Constructor for CredentialsService.
-     * @param certService
      * @param configService
-     * @param statusListService
      * @param credentialConfigRepo
+     * @param webhookService
+     * @param sdjwtvcIssuerService
+     * @param mdocIssuerService
      * @param cryptoImplementationService
      */
     constructor(
-        private readonly certService: CertService,
         private readonly configService: ConfigService,
-        private readonly statusListService: StatusListService,
         @InjectRepository(CredentialConfig)
         private readonly credentialConfigRepo: Repository<CredentialConfig>,
-        private readonly cryptoImplementationService: CryptoImplementationService,
         private readonly webhookService: WebhookService,
+        private readonly sdjwtvcIssuerService: SdjwtvcIssuerService,
+        private readonly mdocIssuerService: MdocIssuerService,
+        private readonly cryptoImplementationService: CryptoImplementationService,
     ) {}
 
     /**
@@ -81,6 +80,12 @@ export class CredentialsService {
                 (
                     value.config as unknown as CredentialConfigurationSupported
                 ).disclosure_policy = value.embeddedDisclosurePolicy;
+            }
+
+            // For mso_mdoc format, map docType to doctype (OID4VCI spec uses lowercase)
+            if (value.config.format === "mso_mdoc" && value.config.docType) {
+                (value.config as any).doctype = value.config.docType;
+                delete (value.config as any).docType;
             }
 
             value.config = {
@@ -149,7 +154,7 @@ export class CredentialsService {
                 credentialConfigurationId
             ];
 
-        if (claimsSource && claimsSource.type === "webhook") {
+        if (claimsSource?.type === "webhook") {
             const logContext: SessionLogContext = {
                 sessionId: session.id,
                 tenantId: session.tenantId,
@@ -171,6 +176,7 @@ export class CredentialsService {
 
     /**
      * Issues a credential based on the provided configuration and session.
+     * Delegates to format-specific issuer services.
      * @param credentialConfigurationId
      * @param holderCnf
      * @param session
@@ -202,7 +208,7 @@ export class CredentialsService {
          * 4. static claims from the credential configuration
          */
         // Extract claims from the session's credentialClaims (discriminated union)
-        let usedClaims = credentialConfiguration.claims; // default fallback
+        let usedClaims = credentialConfiguration.claims ?? {}; // default fallback
 
         // Use preloaded claims if provided (from webhook or inline)
         if (preloadedClaims) {
@@ -213,7 +219,7 @@ export class CredentialsService {
                 session.credentialPayload?.credentialClaims?.[
                     credentialConfigurationId
                 ];
-            if (claimsSource && claimsSource.type === "inline") {
+            if (claimsSource?.type === "inline") {
                 usedClaims = claimsSource.claims;
             } else if (credentialConfiguration.claimsWebhook) {
                 const logContext: SessionLogContext = {
@@ -235,71 +241,26 @@ export class CredentialsService {
             }
         }
 
-        const disclosureFrame = credentialConfiguration.disclosureFrame;
+        // Delegate to format-specific issuer service
+        const format = credentialConfiguration.config.format;
 
-        const certificate = await this.certService.find({
-            tenantId: session.tenantId,
-            type: CertUsage.Signing,
-            id: credentialConfiguration.certId,
-        });
-
-        //at this point it is sd-jwt specific.
-
-        const sdjwt = new SDJwtVcInstance({
-            signer: await this.certService.keyService.signer(
-                session.tenantId,
-                certificate.keyId,
-            ),
-            signAlg: this.cryptoImplementationService.getAlg(),
-            hasher: digest,
-            hashAlg: "sha-256",
-            saltGenerator: generateSalt,
-            loadTypeMetadataFormat: true,
-        });
-
-        // If status management is enabled, create a status entry
-        let status: JWTwithStatusListPayload | undefined;
-        if (credentialConfiguration.statusManagement) {
-            status = await this.statusListService.createEntry(
+        if (format === "mso_mdoc") {
+            // For mDOC, holderCnf is the device key
+            return this.mdocIssuerService.issue({
+                credentialConfiguration,
+                deviceKey: holderCnf,
                 session,
-                credentialConfigurationId,
-            );
+                claims: usedClaims,
+            });
+        } else {
+            // Default to SD-JWT VC (handles "dc+sd-jwt" and "vc+sd-jwt" formats)
+            return this.sdjwtvcIssuerService.issue({
+                credentialConfiguration,
+                holderCnf,
+                session,
+                claims: usedClaims,
+            });
         }
-
-        const iat = Math.round(new Date().getTime() / 1000);
-        // Set expiration time if lifeTime is defined
-        let exp: number | undefined;
-        if (credentialConfiguration.lifeTime) {
-            exp = iat + credentialConfiguration.lifeTime;
-        }
-
-        // If key binding is enabled, include the JWK in the cnf
-        let cnf: { jwk: Jwk } | undefined;
-
-        if (credentialConfiguration.keyBinding) {
-            cnf = {
-                jwk: holderCnf,
-            };
-        }
-
-        return sdjwt.issue(
-            {
-                iat,
-                exp,
-                vct: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${session.tenantId}/credentials-metadata/vct/${credentialConfigurationId}`,
-                iss: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${session.tenantId}`,
-                cnf,
-                ...usedClaims,
-                ...status,
-            },
-            disclosureFrame,
-            {
-                header: {
-                    x5c: await this.certService.getCertChain(certificate),
-                    alg: this.cryptoImplementationService.getAlg(),
-                },
-            },
-        );
     }
 
     /**

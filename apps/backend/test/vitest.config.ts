@@ -5,11 +5,11 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
     test: {
         include: ["**/*.e2e-spec.ts"],
-        exclude: process.env.VITEST_SKIP_OIDF ? ["**/oidf/**"] : [],
+        exclude: [],
         globals: true,
         root: "./",
         fileParallelism: false,
-        globalSetup: ["./test/global-setup.ts"],
+        setupFiles: ["./test/setup-file.ts"],
     },
     plugins: [
         swc.vite(), // Put the Codecov vite plugin after all other plugins

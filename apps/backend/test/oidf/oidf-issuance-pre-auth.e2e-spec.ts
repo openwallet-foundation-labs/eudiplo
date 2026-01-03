@@ -1,11 +1,11 @@
+import { readFileSync } from "node:fs";
+import https from "node:https";
+import { join, resolve } from "node:path";
 import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { Test, TestingModule } from "@nestjs/testing";
 import * as axios from "axios";
-import { readFileSync } from "fs";
-import https from "https";
-import { join, resolve } from "path";
 import { beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../../src/app.module";
 import {

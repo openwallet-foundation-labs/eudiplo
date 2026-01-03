@@ -1,4 +1,6 @@
 import crypto from "node:crypto";
+import { readFileSync, rmSync } from "node:fs";
+import { join, resolve } from "node:path";
 import {
     CoseKey,
     DeviceRequest,
@@ -10,7 +12,9 @@ import {
     SessionTranscript,
     SignatureAlgorithm,
 } from "@animo-id/mdoc";
-import { INestApplication } from "@nestjs/common";
+import { INestApplication, ValidationPipe } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { Test, TestingModule } from "@nestjs/testing";
 import { CallbackContext, Jwk, SignJwtCallback } from "@openid4vc/oauth2";
 import { X509Certificate } from "@peculiar/x509";
 import { digest, ES256 } from "@sd-jwt/crypto-nodejs";
@@ -26,9 +30,22 @@ import {
     SignJWT,
 } from "jose";
 import request from "supertest";
+import { App } from "supertest/types";
+import { AppModule } from "../src/app.module";
 import { Role } from "../src/auth/roles/role.enum";
+import { CertImportDto } from "../src/crypto/key/dto/cert-import.dto";
+import { KeyImportDto } from "../src/crypto/key/dto/key-import.dto";
+import { CertUsage } from "../src/crypto/key/entities/cert-usage.entity";
+import { CredentialConfigCreate } from "../src/issuer/configuration/credentials/dto/credential-config-create.dto";
+import { IssuanceDto } from "../src/issuer/configuration/issuance/dto/issuance.dto";
 import { StatusListService } from "../src/issuer/lifecycle/status/status-list.service";
+import { TrustListCreateDto } from "../src/issuer/trustlist/dto/trust-list-create.dto";
+import { PresentationConfigCreateDto } from "../src/verifier/presentations/dto/presentation-config-create.dto";
 import { DEVICE_JWK, mdocContext } from "./utils-mdoc";
+
+export function readConfig<T>(path: string): T {
+    return JSON.parse(readFileSync(path, "utf-8"));
+}
 
 export async function prepareMdocPresentation(
     nonce: string,
@@ -164,11 +181,10 @@ export async function preparePresentation(
     statusListService: StatusListService,
     credentialConfigId: string,
 ) {
-    const status = await statusListService
-        .createEntry({ tenantId: "root", id: "1" } as any, credentialConfigId)
-        .catch((err) => {
-            console.log(err);
-        });
+    const status = await statusListService.createEntry(
+        { tenantId: "root", id: "1" } as any,
+        credentialConfigId,
+    );
 
     const credential = await createCredential({
         claims: {
@@ -385,4 +401,352 @@ export function getDefaultSecret(input: string): string {
             return defVal;
         },
     );
+}
+
+/**
+ * Shared test context returned by setupIssuanceTestApp
+ */
+export interface IssuanceTestContext {
+    app: INestApplication<App>;
+    authToken: string;
+    clientId: string;
+    clientSecret: string;
+}
+
+/**
+ * Sets up a complete test application with all issuance configurations.
+ * This is a shared setup for all issuance-related e2e tests.
+ */
+export async function setupIssuanceTestApp(): Promise<IssuanceTestContext> {
+    // Delete the database
+    rmSync("../../tmp/service.db", { force: true });
+
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+        imports: [AppModule],
+    }).compile();
+
+    const app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe());
+
+    const configService = app.get(ConfigService);
+    configService.set("CONFIG_IMPORT", false);
+    configService.set("CONFIG_IMPORT_FORCE", true);
+    const clientId = configService.getOrThrow<string>("AUTH_CLIENT_ID");
+    const clientSecret = configService.getOrThrow<string>("AUTH_CLIENT_SECRET");
+
+    await app.init();
+    await app.listen(3000);
+
+    const authToken = await getToken(app, clientId, clientSecret);
+
+    const privateKey: KeyImportDto = {
+        id: "039af178-3ca0-48f4-a2e4-7b1209f30376",
+        key: {
+            kty: "EC",
+            x: "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
+            y: "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
+            crv: "P-256",
+            d: "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
+            alg: "ES256",
+        },
+    };
+
+    await request(app.getHttpServer())
+        .post("/key")
+        .set("Authorization", `Bearer ${authToken}`)
+        .send(privateKey)
+        .expect(201);
+
+    // Create self signed certificate for the key
+    await request(app.getHttpServer())
+        .post("/certs")
+        .set("Authorization", `Bearer ${authToken}`)
+        .send({
+            keyId: privateKey.id,
+            certUsageTypes: [CertUsage.Access, CertUsage.Signing],
+        } as CertImportDto)
+        .expect(201);
+
+    const configFolder = resolve(__dirname + "/../../../assets/config");
+
+    // Import issuance config
+    await request(app.getHttpServer())
+        .post("/issuer/config")
+        .trustLocalhost()
+        .set("Authorization", `Bearer ${authToken}`)
+        .send(
+            readConfig<IssuanceDto>(
+                join(configFolder, "root/issuance/issuance.json"),
+            ),
+        )
+        .expect(201);
+
+    // Import the pid credential configuration
+    await request(app.getHttpServer())
+        .post("/issuer/credentials")
+        .trustLocalhost()
+        .set("Authorization", `Bearer ${authToken}`)
+        .send(
+            readConfig<CredentialConfigCreate>(
+                join(configFolder, "root/issuance/credentials/pid.json"),
+            ),
+        )
+        .expect(201);
+
+    // Import citizen presentation config (required for presentation during issuance)
+    await request(app.getHttpServer())
+        .post("/verifier/config")
+        .trustLocalhost()
+        .set("Authorization", `Bearer ${authToken}`)
+        .send(
+            readConfig<PresentationConfigCreateDto>(
+                join(configFolder, "root/presentation/pid.json"),
+            ),
+        )
+        .expect(201);
+
+    // Import the citizen credential configuration
+    await request(app.getHttpServer())
+        .post("/issuer/credentials")
+        .trustLocalhost()
+        .set("Authorization", `Bearer ${authToken}`)
+        .send(
+            readConfig<CredentialConfigCreate>(
+                join(configFolder, "root/issuance/credentials/citizen.json"),
+            ),
+        )
+        .expect(201);
+
+    // Import mDOC credential configuration
+    await request(app.getHttpServer())
+        .post("/issuer/credentials")
+        .trustLocalhost()
+        .set("Authorization", `Bearer ${authToken}`)
+        .send(
+            readConfig<CredentialConfigCreate>(
+                join(configFolder, "root/issuance/credentials/pid-mdoc.json"),
+            ),
+        )
+        .expect(201);
+
+    return { app, authToken, clientId, clientSecret };
+}
+
+/**
+ * Shared test context returned by setupPresentationTestApp
+ */
+export interface PresentationTestContext {
+    app: INestApplication<App>;
+    authToken: string;
+    host: string;
+    clientId: string;
+    clientSecret: string;
+    privateIssuerKey: CryptoKey;
+    issuerCert: string;
+    statusListService: StatusListService;
+}
+
+/**
+ * Sets up a complete test application for presentation e2e tests.
+ * This includes keys, certificates, presentation configs, and trust lists.
+ */
+export async function setupPresentationTestApp(): Promise<PresentationTestContext> {
+    // Delete the database
+    rmSync("../../tmp/service.db", { force: true });
+
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+        imports: [AppModule],
+    }).compile();
+
+    const app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe());
+
+    const configService = app.get(ConfigService);
+    const configFolder = resolve(__dirname + "/../../../assets/config");
+    configService.set("CONFIG_FOLDER", configFolder);
+    const host = configService.getOrThrow("PUBLIC_URL");
+    const clientId = configService.getOrThrow<string>("AUTH_CLIENT_ID");
+    const clientSecret = configService.getOrThrow<string>("AUTH_CLIENT_SECRET");
+
+    const statusListService = app.get(StatusListService);
+
+    await app.init();
+    await app.listen(3000);
+
+    const authToken = await getToken(app, clientId, clientSecret);
+
+    // Helper to make requests and show detailed error on failure
+    async function expectRequest(
+        req: request.Test,
+        expectedStatus: number,
+    ): Promise<request.Response> {
+        const res = await req;
+        if (res.status !== expectedStatus) {
+            console.error(
+                `Request failed: expected ${expectedStatus}, got ${res.status}`,
+            );
+            console.error("Response body:", JSON.stringify(res.body, null, 2));
+        }
+        expect(res.status).toBe(expectedStatus);
+        return res;
+    }
+
+    // Import signing key and cert
+    const privateKey = readConfig<KeyImportDto>(
+        join(configFolder, "root/keys/sign.json"),
+    );
+
+    const privateIssuerKey = (await importJWK(privateKey.key, "ES256", {
+        extractable: true,
+    })) as CryptoKey;
+
+    await expectRequest(
+        request(app.getHttpServer())
+            .post("/key")
+            .set("Authorization", `Bearer ${authToken}`)
+            .send(privateKey),
+        201,
+    );
+
+    const cert = readConfig<CertImportDto>(
+        join(
+            configFolder,
+            "root/certs/certificate-b6db7c84-776e-4998-9d40-ac599a4ea1fc-config.json",
+        ),
+    );
+    const issuerCert = cert.crt!;
+    await expectRequest(
+        request(app.getHttpServer())
+            .post("/certs")
+            .set("Authorization", `Bearer ${authToken}`)
+            .send(cert),
+        201,
+    );
+
+    // Import presentation configuration without webhook
+    await expectRequest(
+        request(app.getHttpServer())
+            .post("/verifier/config")
+            .trustLocalhost()
+            .set("Authorization", `Bearer ${authToken}`)
+            .send(
+                readConfig<PresentationConfigCreateDto>(
+                    join(configFolder, "root/presentation/pid-no-hook.json"),
+                ),
+            ),
+        201,
+    );
+
+    // Import statuslist key and cert
+    const statusListKey = readConfig<KeyImportDto>(
+        join(configFolder, "root/keys/status-list.json"),
+    );
+
+    await expectRequest(
+        request(app.getHttpServer())
+            .post("/key")
+            .set("Authorization", `Bearer ${authToken}`)
+            .send(statusListKey),
+        201,
+    );
+
+    const statusListCert = readConfig<CertImportDto>(
+        join(
+            configFolder,
+            "root/certs/certificate-0f6e186f-9763-49ec-8d93-6cb801ded7a4-config.json",
+        ),
+    );
+
+    await expectRequest(
+        request(app.getHttpServer())
+            .post("/certs")
+            .set("Authorization", `Bearer ${authToken}`)
+            .send(statusListCert),
+        201,
+    );
+
+    // Import trust list key
+    await expectRequest(
+        request(app.getHttpServer())
+            .post("/key")
+            .trustLocalhost()
+            .set("Authorization", `Bearer ${authToken}`)
+            .send(
+                readConfig<KeyImportDto>(
+                    join(configFolder, "root/keys/trust-list.json"),
+                ),
+            ),
+        201,
+    );
+
+    // Import trust list cert
+    await expectRequest(
+        request(app.getHttpServer())
+            .post("/certs")
+            .set("Authorization", `Bearer ${authToken}`)
+            .send(
+                readConfig<CertImportDto>(
+                    join(
+                        configFolder,
+                        "root/certs/certificate-fb139025-05f8-47af-be11-326c41098263-config.json",
+                    ),
+                ),
+            ),
+        201,
+    );
+
+    // Import trust list
+    await expectRequest(
+        request(app.getHttpServer())
+            .post("/trust-list")
+            .trustLocalhost()
+            .set("Authorization", `Bearer ${authToken}`)
+            .send(
+                readConfig<TrustListCreateDto>(
+                    join(
+                        configFolder,
+                        "root/trustlists/trustlist-580831bc-ef11-43f4-a3be-a2b6bf1b29a3-config.json",
+                    ),
+                ),
+            ),
+        201,
+    );
+
+    // Import presentation configs for pid-de and pid
+    await expectRequest(
+        request(app.getHttpServer())
+            .post("/verifier/config")
+            .trustLocalhost()
+            .set("Authorization", `Bearer ${authToken}`)
+            .send(
+                readConfig<PresentationConfigCreateDto>(
+                    join(configFolder, "root/presentation/pid-de.json"),
+                ),
+            ),
+        201,
+    );
+
+    await expectRequest(
+        request(app.getHttpServer())
+            .post("/verifier/config")
+            .trustLocalhost()
+            .set("Authorization", `Bearer ${authToken}`)
+            .send(
+                readConfig<PresentationConfigCreateDto>(
+                    join(configFolder, "root/presentation/pid.json"),
+                ),
+            ),
+        201,
+    );
+
+    return {
+        app,
+        authToken,
+        host,
+        clientId,
+        clientSecret,
+        privateIssuerKey,
+        issuerCert,
+        statusListService,
+    };
 }
