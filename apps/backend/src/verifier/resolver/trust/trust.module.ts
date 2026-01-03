@@ -1,4 +1,4 @@
-import https from "node:https";
+import * as https from "node:https";
 import { HttpModule } from "@nestjs/axios";
 import { Module } from "@nestjs/common";
 import { LoteParserService } from "./lote-parser.service";
