@@ -12,11 +12,11 @@ import { Session, SessionStatus } from "./entities/session.entity";
 export class SessionService implements OnApplicationBootstrap {
     constructor(
         @InjectRepository(Session)
-        private sessionRepository: Repository<Session>,
+        private readonly sessionRepository: Repository<Session>,
         private readonly configService: ConfigService,
         private readonly schedulerRegistry: SchedulerRegistry,
         @InjectMetric("sessions")
-        private sessionsCounter: Gauge<string>,
+        private readonly sessionsCounter: Gauge<string>,
     ) {}
 
     /**
