@@ -12,7 +12,7 @@
  * a persistent connection. This must run in the same context as the test workers
  * (not in globalSetup), which is why we use beforeAll/afterAll hooks.
  */
-import { afterAll, beforeAll } from "vitest";
+
 import {
     GenericContainer,
     Network,
@@ -21,6 +21,7 @@ import {
     TestContainers,
     Wait,
 } from "testcontainers";
+import { afterAll, beforeAll } from "vitest";
 
 let network: StartedNetwork | undefined;
 let mongoDb: StartedTestContainer | undefined;
