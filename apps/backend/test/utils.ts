@@ -16,7 +16,7 @@ import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
 import { CallbackContext, Jwk, SignJwtCallback } from "@openid4vc/oauth2";
-import { Openid4vpAuthorizationRequest } from "@openid4vc/openid4vp";
+import { ResolvedOpenid4vpAuthorizationRequest } from "@openid4vc/openid4vp";
 import { X509Certificate } from "@peculiar/x509";
 import { digest, ES256 } from "@sd-jwt/crypto-nodejs";
 import { SDJwtVcInstance } from "@sd-jwt/sd-jwt-vc";
@@ -42,6 +42,7 @@ import { CredentialConfigCreate } from "../src/issuer/configuration/credentials/
 import { IssuanceDto } from "../src/issuer/configuration/issuance/dto/issuance.dto";
 import { StatusListService } from "../src/issuer/lifecycle/status/status-list.service";
 import { TrustListCreateDto } from "../src/issuer/trustlist/dto/trust-list-create.dto";
+import { PresentationRequest } from "../src/verifier/oid4vp/dto/presentation-request.dto";
 import { PresentationConfigCreateDto } from "../src/verifier/presentations/dto/presentation-config-create.dto";
 import { DEVICE_JWK, mdocContext } from "./utils-mdoc";
 
@@ -767,7 +768,7 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
 export async function encryptVpToken(
     vp_token: string,
     credentialId: string,
-    resolved: Openid4vpAuthorizationRequest,
+    resolved: ResolvedOpenid4vpAuthorizationRequest,
 ): Promise<string> {
     const key = (await importJWK(
         resolved.authorizationRequestPayload.client_metadata?.jwks
@@ -786,4 +787,49 @@ export async function encryptVpToken(
         .setIssuedAt()
         .setExpirationTime("2h")
         .encrypt(key);
+}
+
+/**
+ * Creates a test fetch function for Openid4vpClient that routes requests through supertest
+ */
+export function createTestFetch(
+    app: INestApplication<App>,
+    getHost: () => string,
+) {
+    return async (uri: string, init: RequestInit) => {
+        const path = uri.split(getHost())[1];
+        let response: request.Response;
+        if (init.method === "POST") {
+            response = await request(app.getHttpServer())
+                .post(path)
+                .trustLocalhost()
+                .send(init.body!);
+        } else {
+            response = await request(app.getHttpServer())
+                .get(path)
+                .trustLocalhost();
+        }
+        return {
+            ok: true,
+            text: () => response.text,
+            json: () => response.body,
+            status: response.status,
+            headers: response.headers,
+        };
+    };
+}
+
+/**
+ * Helper function to create a presentation request via the verifier API
+ */
+export function createPresentationRequest(
+    app: INestApplication<App>,
+    authToken: string,
+    requestBody: PresentationRequest,
+) {
+    return request(app.getHttpServer())
+        .post("/verifier/offer")
+        .trustLocalhost()
+        .set("Authorization", `Bearer ${authToken}`)
+        .send(requestBody);
 }

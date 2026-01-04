@@ -5,7 +5,6 @@ import {
 } from "@openid4vc/openid4vp";
 import { CryptoKey } from "jose";
 import nock from "nock";
-import request from "supertest";
 import { App } from "supertest/types";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { StatusListService } from "../../src/issuer/lifecycle/status/status-list.service";
@@ -16,6 +15,8 @@ import {
 } from "../../src/verifier/oid4vp/dto/presentation-request.dto";
 import {
     callbacks,
+    createPresentationRequest,
+    createTestFetch,
     encryptVpToken,
     PresentationTestContext,
     preparePresentation,
@@ -33,43 +34,7 @@ describe("Presentation - Webhook Integration", () => {
 
     const credentialConfigId = "pid";
 
-    const client = new Openid4vpClient({
-        callbacks: {
-            ...callbacks,
-            fetch: async (uri: string, init: RequestInit) => {
-                const path = uri.split(host)[1];
-                let response: any;
-                if (init.method === "POST") {
-                    response = await request(app.getHttpServer())
-                        .post(path)
-                        .trustLocalhost()
-                        .send(init.body!);
-                } else {
-                    response = await request(app.getHttpServer())
-                        .get(path)
-                        .trustLocalhost();
-                }
-                return {
-                    ok: true,
-                    text: () => response.text,
-                    json: () => response.body,
-                    status: response.status,
-                    headers: response.headers,
-                };
-            },
-        },
-    });
-
-    /**
-     * Helper function to create a presentation request
-     */
-    function createPresentationRequest(requestBody: PresentationRequest) {
-        return request(app.getHttpServer())
-            .post("/verifier/offer")
-            .trustLocalhost()
-            .set("Authorization", `Bearer ${authToken}`)
-            .send(requestBody);
-    }
+    let client: Openid4vpClient;
 
     /**
      * Helper function to submit a complete presentation flow
@@ -92,7 +57,11 @@ describe("Presentation - Webhook Integration", () => {
             }),
         };
 
-        const res = await createPresentationRequest(requestBody);
+        const res = await createPresentationRequest(
+            app,
+            authToken,
+            requestBody,
+        );
 
         const authRequest = client.parseOpenid4vpAuthorizationRequest({
             authorizationRequest: res.body.uri,
@@ -153,6 +122,13 @@ describe("Presentation - Webhook Integration", () => {
         privateIssuerKey = ctx.privateIssuerKey;
         issuerCert = ctx.issuerCert;
         statusListService = ctx.statusListService;
+
+        client = new Openid4vpClient({
+            callbacks: {
+                ...callbacks,
+                fetch: createTestFetch(app, () => host),
+            },
+        });
     });
 
     afterAll(async () => {
