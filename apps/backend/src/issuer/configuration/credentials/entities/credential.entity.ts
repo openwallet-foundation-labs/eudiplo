@@ -110,7 +110,7 @@ export class CredentialConfig {
 
     @IsString()
     @Column("varchar", { nullable: true })
-    description?: string;
+    description?: string | null;
 
     @ApiHideProperty()
     @Column("varchar", { primary: true })
@@ -130,7 +130,7 @@ export class CredentialConfig {
     @Column("json", { nullable: true })
     @IsOptional()
     @IsObject()
-    claims?: Record<string, any>;
+    claims?: Record<string, any> | null;
 
     /**
      * Webhook to receive claims for the issuance process.
@@ -139,7 +139,7 @@ export class CredentialConfig {
     @ValidateNested()
     @Type(() => WebhookConfig)
     @Column("json", { nullable: true })
-    claimsWebhook?: WebhookConfig;
+    claimsWebhook?: WebhookConfig | null;
 
     /**
      * Webhook to receive claims for the issuance process.
@@ -148,19 +148,19 @@ export class CredentialConfig {
     @ValidateNested()
     @Type(() => WebhookConfig)
     @Column("json", { nullable: true })
-    notificationWebhook?: WebhookConfig;
+    notificationWebhook?: WebhookConfig | null;
 
     // has to be optional since there may be credentials that are disclosed without a frame
     @Column("json", { nullable: true })
     @IsOptional()
     @IsObject()
-    disclosureFrame?: Record<string, any>;
+    disclosureFrame?: Record<string, any> | null;
 
     @IsOptional()
     @ValidateNested()
     @Type(() => VCT)
     @Column("json", { nullable: true })
-    vct?: VCT;
+    vct?: VCT | null;
 
     @IsOptional()
     @Column("boolean", { default: false })
@@ -188,7 +188,7 @@ export class CredentialConfig {
     @ValidateNested()
     @Type(() => SchemaResponse)
     @Column("json", { nullable: true })
-    schema?: SchemaResponse;
+    schema?: SchemaResponse | null;
 
     /**
      * Embedded disclosure policy (discriminated union by `policy`).
@@ -221,5 +221,5 @@ export class CredentialConfig {
         keepDiscriminatorProperty: true, // keep `policy` on the instance
     })
     @Column("json", { nullable: true })
-    embeddedDisclosurePolicy?: EmbeddedDisclosurePolicy;
+    embeddedDisclosurePolicy?: EmbeddedDisclosurePolicy | null;
 }

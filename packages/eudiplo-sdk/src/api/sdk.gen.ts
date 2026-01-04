@@ -57,6 +57,8 @@ import type {
   CredentialConfigControllerGetConfigsResponses,
   CredentialConfigControllerStoreCredentialConfigurationData,
   CredentialConfigControllerStoreCredentialConfigurationResponses,
+  CredentialConfigControllerUpdateCredentialConfigurationData,
+  CredentialConfigControllerUpdateCredentialConfigurationResponses,
   CredentialOfferControllerGetOfferData,
   CredentialOfferControllerGetOfferResponses,
   HealthControllerCheckData,
@@ -855,6 +857,31 @@ export const credentialConfigControllerGetConfigById = <
     security: [{ scheme: "bearer", type: "http" }],
     url: "/issuer/credentials/{id}",
     ...options,
+  });
+
+/**
+ * Updates a credential configuration by ID.
+ */
+export const credentialConfigControllerUpdateCredentialConfiguration = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<
+    CredentialConfigControllerUpdateCredentialConfigurationData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).patch<
+    CredentialConfigControllerUpdateCredentialConfigurationResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/issuer/credentials/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });
 
 /**

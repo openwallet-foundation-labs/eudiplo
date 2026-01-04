@@ -15,8 +15,8 @@
       "format": "uuid"
     },
     "certUsageTypes": {
-      "type": "array",
       "description": "Usage types for the certificate.",
+      "type": "array",
       "items": {
         "type": "string",
         "enum": [

@@ -81,7 +81,7 @@ export class SdjwtvcIssuerService {
         }
 
         const host = this.configService.getOrThrow<string>("PUBLIC_URL");
-        const disclosureFrame = credentialConfiguration.disclosureFrame;
+        const disclosureFrame = credentialConfiguration.disclosureFrame ?? {};
 
         return sdjwt.issue(
             {

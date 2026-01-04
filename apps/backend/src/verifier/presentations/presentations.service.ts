@@ -17,6 +17,7 @@ import { MdlverifierService } from "./credential/mdlverifier/mdlverifier.service
 import { SdjwtvcverifierService } from "./credential/sdjwtvcverifier/sdjwtvcverifier.service";
 import { AuthResponse } from "./dto/auth-response.dto";
 import { PresentationConfigCreateDto } from "./dto/presentation-config-create.dto";
+import { PresentationConfigUpdateDto } from "./dto/presentation-config-update.dto";
 import {
     PresentationConfig,
     TrustedAuthorityType,
@@ -123,12 +124,22 @@ export class PresentationsService implements OnApplicationBootstrap {
      * @param vprequest
      * @returns
      */
-    updatePresentationConfig(
+    async updatePresentationConfig(
         id: string,
         tenantId: string,
-        vprequest: PresentationConfigCreateDto,
+        vprequest: PresentationConfigUpdateDto,
     ) {
-        return this.vpRequestRepository.update({ id, tenantId }, vprequest);
+        // Verify the config exists
+        const existing = await this.getPresentationConfig(id, tenantId);
+
+        // Merge existing with updates - client must explicitly set fields to null to clear them
+        // Omitted fields keep their existing values
+        return this.vpRequestRepository.save({
+            ...existing,
+            ...vprequest,
+            id,
+            tenantId,
+        });
     }
 
     /**

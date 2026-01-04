@@ -12,6 +12,7 @@ import { Role } from "../../auth/roles/role.enum";
 import { Secured } from "../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../auth/token.decorator";
 import { PresentationConfigCreateDto } from "./dto/presentation-config-create.dto";
+import { PresentationConfigUpdateDto } from "./dto/presentation-config-update.dto";
 import { PresentationsService } from "./presentations.service";
 
 @Secured([Role.Presentations])
@@ -71,7 +72,7 @@ export class PresentationManagementController {
     @Patch(":id")
     updateConfiguration(
         @Param("id") id: string,
-        @Body() config: PresentationConfigCreateDto,
+        @Body() config: PresentationConfigUpdateDto,
         @Token() user: TokenPayload,
     ) {
         return this.presentationsService.updatePresentationConfig(

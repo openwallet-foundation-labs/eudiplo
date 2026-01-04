@@ -1,75 +1,266 @@
 @if (config) {
-  <div fxLayout="column" fxFlex fxLayoutGap="16px">
+  <div fxLayout="column" fxFlex fxLayoutGap="24px">
+    <!-- Header -->
     <div fxLayout="row" fxLayoutAlign="space-between center">
-      <h2>Presentation Configuration: {{ config.id }}</h2>
+      <h2>Presentation Configuration</h2>
       <div>
-        <button matIconButton [routerLink]="['../']">
+        <button mat-icon-button [routerLink]="['../']" matTooltip="Back to list">
           <mat-icon>arrow_back</mat-icon>
         </button>
         <button
-          matIconButton
+          mat-icon-button
           [routerLink]="['/offer/presentation', config.id]"
           matTooltip="Create offer"
         >
           <mat-icon>add</mat-icon>
         </button>
-        <button matIconButton [routerLink]="['edit']">
+        <button mat-icon-button [routerLink]="['edit']" matTooltip="Edit configuration">
           <mat-icon>edit</mat-icon>
         </button>
-        <button matIconButton (click)="downloadConfig()" [matTooltip]="'Download configuration'">
+        <button mat-icon-button (click)="downloadConfig()" matTooltip="Download configuration">
           <mat-icon>download</mat-icon>
         </button>
-        <button matIconButton (click)="deletePresentation()" class="delete-button">
+        <button
+          mat-icon-button
+          (click)="deletePresentation()"
+          matTooltip="Delete configuration"
+          color="warn"
+        >
           <mat-icon>delete</mat-icon>
         </button>
       </div>
     </div>
-    <p><strong>Created At:</strong> {{ config.createdAt | date }}</p>
-    <p><strong>Lifetime of the request:</strong> {{ config.lifeTime }} seconds</p>
-    <p><strong>Description:</strong> {{ config.description }}</p>
-    <p><strong>Redirect URI:</strong> {{ config.redirectUri }}</p>
+
+    <!-- Configuration Details Card -->
     <mat-card>
       <mat-card-header>
-        <mat-card-title>DCQL</mat-card-title>
-        <mat-card-subtitle>Which credentials to query</mat-card-subtitle>
+        <mat-card-title>
+          <mat-icon>settings</mat-icon>
+          Configuration Details
+        </mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <pre>{{ config.dcql_query | json }}</pre>
+        <mat-list class="config-list">
+          <mat-list-item>
+            <mat-icon matListItemIcon>fingerprint</mat-icon>
+            <span matListItemTitle>Configuration ID</span>
+            <span matListItemLine>{{ config.id }}</span>
+          </mat-list-item>
+          @if (config.description) {
+            <mat-list-item>
+              <mat-icon matListItemIcon>description</mat-icon>
+              <span matListItemTitle>Description</span>
+              <span matListItemLine>{{ config.description }}</span>
+            </mat-list-item>
+          }
+          <mat-list-item>
+            <mat-icon matListItemIcon>schedule</mat-icon>
+            <span matListItemTitle>Created At</span>
+            <span matListItemLine>{{ config.createdAt | date: 'medium' }}</span>
+          </mat-list-item>
+          <mat-list-item>
+            <mat-icon matListItemIcon>timer</mat-icon>
+            <span matListItemTitle>Request Lifetime</span>
+            <span matListItemLine>{{
+              config.lifeTime ? formatLifetime(config.lifeTime) : 'Not set'
+            }}</span>
+          </mat-list-item>
+          @if (config.redirectUri) {
+            <mat-list-item>
+              <mat-icon matListItemIcon>open_in_new</mat-icon>
+              <span matListItemTitle>Redirect URI</span>
+              <span matListItemLine>{{ config.redirectUri }}</span>
+            </mat-list-item>
+          }
+        </mat-list>
       </mat-card-content>
     </mat-card>
 
+    <!-- DCQL Query Card -->
     <mat-card>
       <mat-card-header>
-        <mat-card-title>Registration Certificate</mat-card-title>
-        <mat-card-subtitle>Certificate used for the presentation</mat-card-subtitle>
+        <mat-card-title>
+          <mat-icon>search</mat-icon>
+          Credential Query (DCQL)
+        </mat-card-title>
+        <mat-card-subtitle>Credentials requested from the wallet</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
-        <pre>{{ config.registrationCert | json }}</pre>
+        <!-- Credential Set (combinations) -->
+        @if (config.dcql_query.credential_set && config.dcql_query.credential_set.length > 0) {
+          <div class="credential-sets-section">
+            <h4>
+              <mat-icon>account_tree</mat-icon>
+              Accepted Combinations
+            </h4>
+            <p class="section-description">
+              The wallet must provide one of the following credential combinations:
+            </p>
+            <div fxLayout="column" fxLayoutGap="12px">
+              @for (credSet of config.dcql_query.credential_set; track $index; let i = $index) {
+                <div class="credential-set-card">
+                  <div class="set-header">
+                    <span class="set-label">Option {{ i + 1 }}</span>
+                    @if (credSet.required) {
+                      <mat-chip class="required-chip">Required</mat-chip>
+                    }
+                  </div>
+                  <div class="set-options">
+                    @for (option of credSet.options; track $index; let j = $index) {
+                      @if (j > 0) {
+                        <span class="or-separator">OR</span>
+                      }
+                      <div class="option-group">
+                        @for (credId of option; track credId; let k = $index) {
+                          @if (k > 0) {
+                            <span class="and-separator">+</span>
+                          }
+                          <mat-chip class="credential-id-chip">{{ credId }}</mat-chip>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+          <mat-divider></mat-divider>
+        }
+
+        <!-- Individual Credential Definitions -->
+        @if (credentialQueries.length > 0) {
+          <div class="credentials-section">
+            <h4>
+              <mat-icon>badge</mat-icon>
+              Credential Definitions
+            </h4>
+            <div fxLayout="column" fxLayoutGap="16px">
+              @for (cred of credentialQueries; track cred.id) {
+                <mat-card class="credential-query-card">
+                  <mat-card-header>
+                    <mat-card-title>{{ cred.id }}</mat-card-title>
+                    <mat-card-subtitle>
+                      <mat-chip-set>
+                        @if (cred.format) {
+                          <mat-chip
+                            [class]="cred.format === 'mso_mdoc' ? 'format-mdoc' : 'format-sdjwt'"
+                          >
+                            {{ cred.format === 'mso_mdoc' ? 'mDOC' : 'SD-JWT' }}
+                          </mat-chip>
+                        }
+                      </mat-chip-set>
+                    </mat-card-subtitle>
+                  </mat-card-header>
+                  <mat-card-content>
+                    @if (cred.meta?.doctype_value || cred.meta?.vct_values) {
+                      <div class="query-meta">
+                        @if (cred.meta?.doctype_value) {
+                          <div><strong>DocType:</strong> {{ cred.meta.doctype_value }}</div>
+                        }
+                        @if (cred.meta?.vct_values) {
+                          <div><strong>VCT:</strong> {{ cred.meta.vct_values.join(', ') }}</div>
+                        }
+                      </div>
+                    }
+                    @if (cred.claims) {
+                      <mat-expansion-panel class="claims-panel">
+                        <mat-expansion-panel-header>
+                          <mat-panel-title>
+                            <mat-icon>list</mat-icon>
+                            Requested Claims
+                          </mat-panel-title>
+                        </mat-expansion-panel-header>
+                        <pre class="config-value">{{ formatJsonValue(cred.claims) }}</pre>
+                      </mat-expansion-panel>
+                    }
+                  </mat-card-content>
+                </mat-card>
+              }
+            </div>
+          </div>
+        } @else {
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <mat-icon>code</mat-icon>
+                Raw DCQL Query
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <pre class="config-value">{{ formatJsonValue(config.dcql_query) }}</pre>
+          </mat-expansion-panel>
+        }
       </mat-card-content>
     </mat-card>
 
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Webhook</mat-card-title>
-        <mat-card-subtitle>Where to send the the verification result</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        <pre>{{ config.webhook | json }}</pre>
-      </mat-card-content>
-    </mat-card>
+    <!-- Registration Certificate Card -->
+    @if (config.registrationCert) {
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>verified_user</mat-icon>
+            Registration Certificate
+          </mat-card-title>
+          <mat-card-subtitle>Certificate used for the presentation</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-list class="config-list">
+            <mat-list-item>
+              <mat-icon matListItemIcon>key</mat-icon>
+              <span matListItemTitle>JWT</span>
+              <span matListItemLine class="jwt-preview"
+                >{{ config.registrationCert.jwt | slice: 0 : 50 }}...</span
+              >
+            </mat-list-item>
+          </mat-list>
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <mat-icon>code</mat-icon>
+                Full JWT
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <pre class="config-value">{{ config.registrationCert.jwt }}</pre>
+          </mat-expansion-panel>
+        </mat-card-content>
+      </mat-card>
+    }
 
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Attached</mat-card-title>
-        <mat-card-subtitle>Additional data attached to the presentation</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        <pre>{{ config.attached | json }}</pre>
-      </mat-card-content>
-    </mat-card>
+    <!-- Webhook -->
+    <app-webhook-config-show
+      [config]="config.webhook"
+      title="Verification Result"
+      descriptions="Where verification results are sent"
+    ></app-webhook-config-show>
+
+    <!-- Attached Data -->
+    @if (config.attached) {
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>attach_file</mat-icon>
+            Attached Data
+          </mat-card-title>
+          <mat-card-subtitle
+            >Additional data attached to the presentation request</mat-card-subtitle
+          >
+        </mat-card-header>
+        <mat-card-content>
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <mat-icon>code</mat-icon>
+                View Attached Data
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <pre class="config-value">{{ formatJsonValue(config.attached) }}</pre>
+          </mat-expansion-panel>
+        </mat-card-content>
+      </mat-card>
+    }
   </div>
 } @else {
-  <div class="no-presentation-message" fxLayout="column" fxFlex>
+  <div class="empty-state" fxLayout="column" fxLayoutAlign="center center" fxFlex>
+    <mat-icon>folder_open</mat-icon>
     <p>No presentation configuration selected.</p>
   </div>
 }

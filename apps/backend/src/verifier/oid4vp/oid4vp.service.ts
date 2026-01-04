@@ -259,7 +259,9 @@ export class Oid4vpService {
                 id: values.session,
                 parsedWebhook: values.webhook,
                 redirectUri:
-                    values.redirectUri ?? presentationConfig.redirectUri,
+                    values.redirectUri ??
+                    presentationConfig.redirectUri ??
+                    undefined,
                 tenantId,
                 requestId,
                 requestUrl: `openid4vp://?${queryString}`,

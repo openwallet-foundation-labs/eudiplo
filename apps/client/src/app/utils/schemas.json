@@ -550,8 +550,8 @@
           "format": "uuid"
         },
         "certUsageTypes": {
-          "type": "array",
           "description": "Usage types for the certificate.",
+          "type": "array",
           "items": {
             "type": "string",
             "enum": ["access", "signing", "trustList", "statusList"]
@@ -968,6 +968,14 @@
           "type": "string",
           "description": "Noncce from the Verifiable Presentation request."
         },
+        "clientId": {
+          "type": "string",
+          "description": "Client ID used in the OID4VP authorization request."
+        },
+        "responseUri": {
+          "type": "string",
+          "description": "Response URI used in the OID4VP authorization request."
+        },
         "redirectUri": {
           "type": "string",
           "description": "Redirect URI to which the user-agent should be redirected after the presentation is completed."
@@ -1181,14 +1189,6 @@
             "type": "string"
           }
         },
-        "notifyWebhook": {
-          "description": "Webhook to send the result of the notification response",
-          "allOf": [
-            {
-              "$ref": "./WebhookConfig.schema.json"
-            }
-          ]
-        },
         "batchSize": {
           "type": "number",
           "description": "Value to determine the amount of credentials that are issued in a batch.\nDefault is 1."
@@ -1232,14 +1232,6 @@
           "items": {
             "type": "string"
           }
-        },
-        "notifyWebhook": {
-          "description": "Webhook to send the result of the notification response",
-          "allOf": [
-            {
-              "$ref": "./WebhookConfig.schema.json"
-            }
-          ]
         },
         "batchSize": {
           "type": "number",
@@ -1591,6 +1583,18 @@
         },
         "scope": {
           "type": "string"
+        },
+        "docType": {
+          "type": "string",
+          "description": "Document type for mDOC credentials (e.g., \"org.iso.18013.5.1.mDL\").\nOnly applicable when format is \"mso_mdoc\"."
+        },
+        "namespace": {
+          "type": "string",
+          "description": "Namespace for mDOC credentials (e.g., \"org.iso.18013.5.1\").\nOnly applicable when format is \"mso_mdoc\".\nUsed when claims are provided as a flat object."
+        },
+        "claimsByNamespace": {
+          "type": "object",
+          "description": "Claims organized by namespace for mDOC credentials.\nAllows specifying claims across multiple namespaces.\nOnly applicable when format is \"mso_mdoc\".\nExample:\n{\n  \"org.iso.18013.5.1\": { \"given_name\": \"John\", \"family_name\": \"Doe\" },\n  \"org.iso.18013.5.1.aamva\": { \"DHS_compliance\": \"F\" }\n}"
         }
       },
       "required": ["format", "display"]
@@ -2061,6 +2065,7 @@
         },
         "description": {
           "type": "string",
+          "nullable": true,
           "description": "Description of the presentation configuration."
         },
         "lifeTime": {
@@ -2076,6 +2081,7 @@
           ]
         },
         "registrationCert": {
+          "nullable": true,
           "description": "The registration certificate request containing the necessary details.",
           "allOf": [
             {
@@ -2084,6 +2090,7 @@
           ]
         },
         "webhook": {
+          "nullable": true,
           "description": "Optional webhook URL to receive the response.",
           "allOf": [
             {
@@ -2102,6 +2109,7 @@
           "description": "The timestamp when the VP request was last updated."
         },
         "attached": {
+          "nullable": true,
           "description": "Attestation that should be attached",
           "type": "array",
           "items": {
@@ -2110,6 +2118,7 @@
         },
         "redirectUri": {
           "type": "string",
+          "nullable": true,
           "description": "Redirect URI to which the user-agent should be redirected after the presentation is completed."
         }
       },
@@ -2131,6 +2140,7 @@
         },
         "description": {
           "type": "string",
+          "nullable": true,
           "description": "Description of the presentation configuration."
         },
         "lifeTime": {
@@ -2146,6 +2156,7 @@
           ]
         },
         "registrationCert": {
+          "nullable": true,
           "description": "The registration certificate request containing the necessary details.",
           "allOf": [
             {
@@ -2154,6 +2165,7 @@
           ]
         },
         "webhook": {
+          "nullable": true,
           "description": "Optional webhook URL to receive the response.",
           "allOf": [
             {
@@ -2162,6 +2174,7 @@
           ]
         },
         "attached": {
+          "nullable": true,
           "description": "Attestation that should be attached",
           "type": "array",
           "items": {
@@ -2170,10 +2183,75 @@
         },
         "redirectUri": {
           "type": "string",
+          "nullable": true,
           "description": "Redirect URI to which the user-agent should be redirected after the presentation is completed."
         }
       },
       "required": ["id", "dcql_query"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/PresentationConfigUpdateDto.schema.json",
+    "fileMatch": ["a://b/PresentationConfigUpdateDto.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/PresentationConfigUpdateDto.schema.json",
+      "title": "PresentationConfigUpdateDto",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the VP request."
+        },
+        "description": {
+          "type": "string",
+          "nullable": true,
+          "description": "Description of the presentation configuration."
+        },
+        "lifeTime": {
+          "type": "number",
+          "description": "Lifetime how long the presentation request is valid after creation, in seconds."
+        },
+        "dcql_query": {
+          "description": "The DCQL query to be used for the VP request.",
+          "allOf": [
+            {
+              "$ref": "./DCQL.schema.json"
+            }
+          ]
+        },
+        "registrationCert": {
+          "nullable": true,
+          "description": "The registration certificate request containing the necessary details.",
+          "allOf": [
+            {
+              "$ref": "./RegistrationCertificateRequest.schema.json"
+            }
+          ]
+        },
+        "webhook": {
+          "nullable": true,
+          "description": "Optional webhook URL to receive the response.",
+          "allOf": [
+            {
+              "$ref": "./WebhookConfig.schema.json"
+            }
+          ]
+        },
+        "attached": {
+          "nullable": true,
+          "description": "Attestation that should be attached",
+          "type": "array",
+          "items": {
+            "$ref": "./PresentationAttachment.schema.json"
+          }
+        },
+        "redirectUri": {
+          "type": "string",
+          "nullable": true,
+          "description": "Redirect URI to which the user-agent should be redirected after the presentation is completed."
+        }
+      }
     }
   },
   {

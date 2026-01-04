@@ -118,6 +118,14 @@
       "type": "string",
       "description": "Noncce from the Verifiable Presentation request."
     },
+    "clientId": {
+      "type": "string",
+      "description": "Client ID used in the OID4VP authorization request."
+    },
+    "responseUri": {
+      "type": "string",
+      "description": "Response URI used in the OID4VP authorization request."
+    },
     "redirectUri": {
       "type": "string",
       "description": "Redirect URI to which the user-agent should be redirected after the presentation is completed."

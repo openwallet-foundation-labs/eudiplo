@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -10,7 +10,10 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { PresentationConfig } from '@eudiplo/sdk';
+import {
+  PresentationConfig,
+  presentationManagementControllerUpdateConfiguration,
+} from '@eudiplo/sdk';
 import { PresentationManagementService } from '../presentation-management.service';
 import { MatDialog } from '@angular/material/dialog';
 import { JsonViewDialogComponent } from '../../../issuance/credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
@@ -51,7 +54,7 @@ import { CredentialIdsComponent } from '../../credential-ids/credential-ids.comp
   templateUrl: './presentation-create.component.html',
   styleUrls: ['./presentation-create.component.scss'],
 })
-export class PresentationCreateComponent {
+export class PresentationCreateComponent implements OnInit {
   public form: FormGroup;
   public create = true;
 
@@ -62,11 +65,11 @@ export class PresentationCreateComponent {
   public predefinedConfigs = configs;
 
   constructor(
-    private presentationService: PresentationManagementService,
-    private router: Router,
-    private route: ActivatedRoute,
-    private snackBar: MatSnackBar,
-    private dialog: MatDialog
+    private readonly presentationService: PresentationManagementService,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute,
+    private readonly snackBar: MatSnackBar,
+    private readonly dialog: MatDialog
   ) {
     this.form = new FormGroup({
       id: new FormControl(undefined, [Validators.required]),
@@ -87,7 +90,9 @@ export class PresentationCreateComponent {
         }),
       }),
     } as { [k in keyof Omit<PresentationConfig, 'createdAt'>]: any });
+  }
 
+  ngOnInit(): void {
     if (this.route.snapshot.params['id']) {
       this.presentationService
         .getPresentationById(this.route.snapshot.params['id'])
@@ -162,31 +167,40 @@ export class PresentationCreateComponent {
       }
 
       if (!formValue.webhook.url) {
-        formValue.webhook = undefined; // Remove webhook if URL is not provided
+        formValue.webhook = null; // Set to null to clear the webhook
       }
 
       if (!formValue.registrationCert) {
-        formValue.registrationCert = undefined; // Remove registrationCert if not provided
+        formValue.registrationCert = null; // Set to null to clear registrationCert
       }
 
       formValue.id = this.route.snapshot.params['id'] || formValue.id;
 
-      // Use the same method for both create and update
-      this.presentationService.createConfiguration(formValue).then(
-        (res: any) => {
-          if (this.create) {
+      if (this.create) {
+        this.presentationService.createConfiguration(formValue).then(
+          (res: any) => {
             this.router.navigate(['../', res.id], { relativeTo: this.route });
             this.snackBar.open('Presentation created successfully', 'Close', {
               duration: 3000,
             });
-          } else {
-            this.router.navigate(['../'], { relativeTo: this.route });
-            this.snackBar.open('Presentation updated successfully', 'Close', {
-              duration: 3000,
-            });
-          }
+          },
+          (err: any) => this.snackBar.open(err.message, 'Close')
+        );
+      }
+
+      presentationManagementControllerUpdateConfiguration({
+        body: formValue,
+        path: { id: formValue.id },
+      }).then(
+        () => {
+          this.router.navigate(['../'], { relativeTo: this.route });
+          this.snackBar.open('Presentation updated successfully', 'Close', {
+            duration: 3000,
+          });
         },
-        (err: any) => this.snackBar.open(err.message, 'Close')
+        (err: any) => {
+          this.snackBar.open(err.message, 'Close');
+        }
       );
     }
   }
@@ -257,7 +271,7 @@ export class PresentationCreateComponent {
     }
 
     // Clean up empty optional fields
-    if (formValue.attached && formValue.attached.length === 0) {
+    if (formValue.attached?.length === 0) {
       formValue.attached = undefined;
     }
     return formValue;
