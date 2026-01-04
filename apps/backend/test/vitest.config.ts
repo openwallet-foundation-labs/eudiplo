@@ -9,7 +9,6 @@ export default defineConfig({
         globals: true,
         root: "./",
         fileParallelism: false,
-        setupFiles: ["./test/setup-file.ts"],
     },
     plugins: [
         swc.vite(), // Put the Codecov vite plugin after all other plugins

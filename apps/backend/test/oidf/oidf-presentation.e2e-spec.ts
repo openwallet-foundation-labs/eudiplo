@@ -11,7 +11,11 @@ import { AppModule } from "../../src/app.module";
 import { CertImportDto } from "../../src/crypto/key/dto/cert-import.dto";
 import { KeyImportDto } from "../../src/crypto/key/dto/key-import.dto";
 import { getDefaultSecret, readConfig } from "../utils";
+import { useOidfContainers } from "./oidf-setup";
 import { OIDFSuite, TestInstance } from "./oidf-suite";
+
+// Setup OIDF containers for this test file
+useOidfContainers();
 
 /**
  * E2E: OIDF conformance runner integration test

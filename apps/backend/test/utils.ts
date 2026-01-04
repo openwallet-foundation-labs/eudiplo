@@ -469,6 +469,14 @@ export async function setupIssuanceTestApp(): Promise<IssuanceTestContext> {
 
     const configFolder = resolve(__dirname + "/../../../assets/config");
 
+    // Import image
+    await request(app.getHttpServer())
+        .post("/storage")
+        .trustLocalhost()
+        .set("Authorization", `Bearer ${authToken}`)
+        .attach("file", join(configFolder, "root/images/company.png"))
+        .expect(201);
+
     // Import issuance config
     await request(app.getHttpServer())
         .post("/issuer/config")
