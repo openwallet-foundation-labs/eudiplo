@@ -24,10 +24,13 @@ For a complete configuration example, see the [Complete Configuration Example](#
 - `id`: **REQUIRED** - Unique identifier for the credential configuration that will be used to reference this credential in the issuance metadata or in the credential offer.
 - `config`: **REQUIRED** - Entry for
   [credential_configuration_supported](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-credential-issuer-metadata:~:text=the%20logo%20image.-,credential_configurations_supported,-%3A%20REQUIRED.%20Object%20that).
-    - `format`: **REQUIRED** - The format of the credential, only `dc+sd-jwt` is
-      currently supported.
+    - `format`: **REQUIRED** - The format of the credential. Supported formats:
+        - `dc+sd-jwt` - Selective Disclosure JWT Verifiable Credentials
+        - `mso_mdoc` - Mobile Document (ISO 18013-5)
     - `display`: **REQUIRED** - Display configuration for the credential,
       including name, description, locale, colors, and images.
+    - `docType`: **REQUIRED for mso_mdoc** - Document type identifier (e.g., `org.iso.18013.5.1.mDL`).
+    - `namespace`: **OPTIONAL for mso_mdoc** - Default namespace for claims (e.g., `org.iso.18013.5.1`). If not provided, derived from docType.
 
 ### Optional Fields
 
@@ -197,6 +200,78 @@ This configuration allows:
 - Individual disclosure of personal information fields
 - Selective disclosure of address components
 - Holders can choose which claims to reveal during presentation
+
+---
+
+## mDOC Credential Format
+
+For issuing mobile documents following the ISO 18013-5 standard (such as Mobile Driving Licenses), use the `mso_mdoc` format.
+
+### Basic mDOC Configuration
+
+```json
+{
+    "id": "pid-mdoc",
+    "description": "Personal ID as mDL",
+    "config": {
+        "format": "mso_mdoc",
+        "docType": "org.iso.18013.5.1.mDL",
+        "namespace": "org.iso.18013.5.1",
+        "scope": "mdl",
+        "display": [
+            {
+                "name": "Mobile Driving License",
+                "description": "mDL Credential",
+                "locale": "en-US"
+            }
+        ]
+    },
+    "claims": {
+        "given_name": "ERIKA",
+        "family_name": "MUSTERMANN",
+        "birth_date": "1964-08-12",
+        "issuing_country": "DE"
+    },
+    "keyBinding": true
+}
+```
+
+### mDOC-Specific Fields
+
+| Field               | Required | Description                                                                                                           |
+| ------------------- | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `docType`           | Yes      | Document type identifier following ISO 18013-5 naming convention (e.g., `org.iso.18013.5.1.mDL`)                      |
+| `namespace`         | No       | Default namespace for claims. If not provided, derived from `docType`. For mDL, this is typically `org.iso.18013.5.1` |
+| `claimsByNamespace` | No       | Alternative to `claims` - allows specifying claims across multiple namespaces                                         |
+
+### Multiple Namespaces
+
+For credentials that require claims from multiple namespaces, use `claimsByNamespace`:
+
+```json
+{
+    "config": {
+        "format": "mso_mdoc",
+        "docType": "org.iso.18013.5.1.mDL",
+        "display": [{ "name": "mDL", "locale": "en-US" }]
+    },
+    "claimsByNamespace": {
+        "org.iso.18013.5.1": {
+            "given_name": "ERIKA",
+            "family_name": "MUSTERMANN"
+        },
+        "org.iso.18013.5.1.aamva": {
+            "DHS_compliance": "F"
+        }
+    }
+}
+```
+
+!!! note "Key Binding Required"
+For mDOC credentials, `keyBinding` should typically be set to `true` as the ISO 18013-5 standard requires device authentication.
+
+!!! info "Selective Disclosure"
+Unlike SD-JWT, mDOC credentials have built-in selective disclosure at the namespace and claim level. The `disclosureFrame` field is not used for mDOC format.
 
 ---
 
