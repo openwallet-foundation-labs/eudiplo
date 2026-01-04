@@ -16,12 +16,14 @@ import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
 import { CallbackContext, Jwk, SignJwtCallback } from "@openid4vc/oauth2";
+import { Openid4vpAuthorizationRequest } from "@openid4vc/openid4vp";
 import { X509Certificate } from "@peculiar/x509";
 import { digest, ES256 } from "@sd-jwt/crypto-nodejs";
 import { SDJwtVcInstance } from "@sd-jwt/sd-jwt-vc";
 import { kbPayload } from "@sd-jwt/types";
 import {
     calculateJwkThumbprint,
+    EncryptJWT,
     exportJWK,
     importJWK,
     importX509,
@@ -757,4 +759,31 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
         issuerCert,
         statusListService,
     };
+}
+
+/**
+ * Helper function to encrypt and prepare VP token
+ */
+export async function encryptVpToken(
+    vp_token: string,
+    credentialId: string,
+    resolved: Openid4vpAuthorizationRequest,
+): Promise<string> {
+    const key = (await importJWK(
+        resolved.authorizationRequestPayload.client_metadata?.jwks
+            ?.keys[0] as JWK,
+        "ECDH-ES",
+    )) as CryptoKey;
+
+    return new EncryptJWT({
+        vp_token: { [credentialId]: [vp_token] },
+        state: resolved.authorizationRequestPayload.state!,
+    })
+        .setProtectedHeader({
+            alg: "ECDH-ES",
+            enc: "A128GCM",
+        })
+        .setIssuedAt()
+        .setExpirationTime("2h")
+        .encrypt(key);
 }

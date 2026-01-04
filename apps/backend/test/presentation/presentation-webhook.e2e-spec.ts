@@ -3,7 +3,7 @@ import {
     Openid4vpAuthorizationRequest,
     Openid4vpClient,
 } from "@openid4vc/openid4vp";
-import { CryptoKey, EncryptJWT, importJWK, JWK } from "jose";
+import { CryptoKey } from "jose";
 import nock from "nock";
 import request from "supertest";
 import { App } from "supertest/types";
@@ -16,6 +16,7 @@ import {
 } from "../../src/verifier/oid4vp/dto/presentation-request.dto";
 import {
     callbacks,
+    encryptVpToken,
     PresentationTestContext,
     preparePresentation,
     setupPresentationTestApp,
@@ -68,33 +69,6 @@ describe("Presentation - Webhook Integration", () => {
             .trustLocalhost()
             .set("Authorization", `Bearer ${authToken}`)
             .send(requestBody);
-    }
-
-    /**
-     * Helper function to encrypt and prepare VP token
-     */
-    async function encryptVpToken(
-        vp_token: string,
-        credentialId: string,
-        resolved: any,
-    ): Promise<string> {
-        const key = (await importJWK(
-            resolved.authorizationRequestPayload.client_metadata?.jwks
-                ?.keys[0] as JWK,
-            "ECDH-ES",
-        )) as CryptoKey;
-
-        return new EncryptJWT({
-            vp_token: { [credentialId]: [vp_token] },
-            state: resolved.authorizationRequestPayload.state!,
-        })
-            .setProtectedHeader({
-                alg: "ECDH-ES",
-                enc: "A128GCM",
-            })
-            .setIssuedAt()
-            .setExpirationTime("2h")
-            .encrypt(key);
     }
 
     /**
