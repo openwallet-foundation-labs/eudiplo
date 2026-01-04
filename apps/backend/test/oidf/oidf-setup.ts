@@ -69,9 +69,7 @@ async function setupOidfContainers(): Promise<void> {
                 "--fintechlabs.base_url=https://host.testcontainers.internal:8443",
                 "--fintechlabs.devmode=true",
             ])
-            .withWaitStrategy(
-                Wait.forLogMessage(new RegExp(".*Started Application in.*")),
-            )
+            .withWaitStrategy(Wait.forLogMessage(/.*Started Application in.*/))
             .start();
         console.log("FAPI test suite server container started");
 
