@@ -137,6 +137,9 @@ importers:
       '@openid4vc/utils':
         specifier: 0.4.3
         version: 0.4.3
+      '@panva/hkdf':
+        specifier: ^1.2.1
+        version: 1.2.1
       '@peculiar/asn1-schema':
         specifier: ^2.6.0
         version: 2.6.0
@@ -249,9 +252,6 @@ importers:
       '@nestjs/testing':
         specifier: ^11.1.9
         version: 11.1.11(@nestjs/common@11.1.11(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.11)(@nestjs/platform-express@11.1.11)
-      '@panva/hkdf':
-        specifier: ^1.2.1
-        version: 1.2.1
       '@swc/cli':
         specifier: ^0.7.9
         version: 0.7.9(@swc/core@1.15.8)(chokidar@4.0.3)
