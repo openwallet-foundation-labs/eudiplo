@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/SessionStorageConfig.schema.json",
+  "title": "SessionStorageConfig",
+  "type": "object",
+  "properties": {
+    "ttlSeconds": {
+      "type": "number",
+      "description": "Time-to-live for sessions in seconds. If not set, uses global SESSION_TTL.",
+      "example": 86400,
+      "minimum": 60
+    },
+    "cleanupMode": {
+      "type": "string",
+      "description": "Cleanup mode: 'full' deletes everything, 'anonymize' keeps metadata but removes PII.",
+      "enum": [
+        "full",
+        "anonymize"
+      ],
+      "default": "full"
+    }
+  }
+}

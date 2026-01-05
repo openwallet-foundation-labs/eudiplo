@@ -52,9 +52,38 @@ export const TokenResponseSchema = {
   required: ["access_token", "token_type", "expires_in"],
 } as const;
 
+export const SessionStorageConfigSchema = {
+  type: "object",
+  properties: {
+    ttlSeconds: {
+      type: "number",
+      description:
+        "Time-to-live for sessions in seconds. If not set, uses global SESSION_TTL.",
+      example: 86400,
+      minimum: 60,
+    },
+    cleanupMode: {
+      type: "string",
+      description:
+        "Cleanup mode: 'full' deletes everything, 'anonymize' keeps metadata but removes PII.",
+      enum: ["full", "anonymize"],
+      default: "full",
+    },
+  },
+} as const;
+
 export const TenantEntitySchema = {
   type: "object",
   properties: {
+    sessionConfig: {
+      description:
+        "Session storage configuration for this tenant. Controls TTL and cleanup behavior.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/SessionStorageConfig",
+        },
+      ],
+    },
     id: {
       type: "string",
       description: "The unique identifier for the tenant.",
@@ -132,6 +161,15 @@ export const ClientEntitySchema = {
 export const CreateTenantDtoSchema = {
   type: "object",
   properties: {
+    sessionConfig: {
+      description:
+        "Session storage configuration. Controls TTL and cleanup behavior.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/SessionStorageConfig",
+        },
+      ],
+    },
     roles: {
       type: "array",
       items: {
@@ -882,6 +920,27 @@ export const StatusUpdateDtoSchema = {
     },
   },
   required: ["sessionId", "status"],
+} as const;
+
+export const UpdateSessionConfigDtoSchema = {
+  type: "object",
+  properties: {
+    ttlSeconds: {
+      type: "number",
+      nullable: true,
+      description:
+        "Time-to-live for sessions in seconds. Set to null to use global default.",
+      minimum: 60,
+      example: 86400,
+    },
+    cleanupMode: {
+      description:
+        "Cleanup mode: 'full' deletes everything, 'anonymize' keeps metadata but removes PII.",
+      enum: ["full", "anonymize"],
+      type: "string",
+      default: "full",
+    },
+  },
 } as const;
 
 export const AuthenticationMethodNoneSchema = {

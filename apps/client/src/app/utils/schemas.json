@@ -70,6 +70,30 @@
     }
   },
   {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/SessionStorageConfig.schema.json",
+    "fileMatch": ["a://b/SessionStorageConfig.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/SessionStorageConfig.schema.json",
+      "title": "SessionStorageConfig",
+      "type": "object",
+      "properties": {
+        "ttlSeconds": {
+          "type": "number",
+          "description": "Time-to-live for sessions in seconds. If not set, uses global SESSION_TTL.",
+          "example": 86400,
+          "minimum": 60
+        },
+        "cleanupMode": {
+          "type": "string",
+          "description": "Cleanup mode: 'full' deletes everything, 'anonymize' keeps metadata but removes PII.",
+          "enum": ["full", "anonymize"],
+          "default": "full"
+        }
+      }
+    }
+  },
+  {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TenantEntity.schema.json",
     "fileMatch": ["a://b/TenantEntity.schema.json"],
     "schema": {
@@ -78,6 +102,14 @@
       "title": "TenantEntity",
       "type": "object",
       "properties": {
+        "sessionConfig": {
+          "description": "Session storage configuration for this tenant. Controls TTL and cleanup behavior.",
+          "allOf": [
+            {
+              "$ref": "./SessionStorageConfig.schema.json"
+            }
+          ]
+        },
         "id": {
           "type": "string",
           "description": "The unique identifier for the tenant."
@@ -166,6 +198,14 @@
       "title": "CreateTenantDto",
       "type": "object",
       "properties": {
+        "sessionConfig": {
+          "description": "Session storage configuration. Controls TTL and cleanup behavior.",
+          "allOf": [
+            {
+              "$ref": "./SessionStorageConfig.schema.json"
+            }
+          ]
+        },
         "roles": {
           "type": "array",
           "items": {
@@ -1027,6 +1067,31 @@
     }
   },
   {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpdateSessionConfigDto.schema.json",
+    "fileMatch": ["a://b/UpdateSessionConfigDto.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpdateSessionConfigDto.schema.json",
+      "title": "UpdateSessionConfigDto",
+      "type": "object",
+      "properties": {
+        "ttlSeconds": {
+          "type": "number",
+          "nullable": true,
+          "description": "Time-to-live for sessions in seconds. Set to null to use global default.",
+          "minimum": 60,
+          "example": 86400
+        },
+        "cleanupMode": {
+          "description": "Cleanup mode: 'full' deletes everything, 'anonymize' keeps metadata but removes PII.",
+          "enum": ["full", "anonymize"],
+          "type": "string",
+          "default": "full"
+        }
+      }
+    }
+  },
+  {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AuthenticationMethodNone.schema.json",
     "fileMatch": ["a://b/AuthenticationMethodNone.schema.json"],
     "schema": {
@@ -1677,6 +1742,7 @@
       "type": "object",
       "properties": {
         "embeddedDisclosurePolicy": {
+          "nullable": true,
           "description": "Embedded disclosure policy (discriminated union by `policy`).\nThe discriminator makes class-transformer instantiate the right subclass,\nand then class-validator runs that subclass’s rules.",
           "oneOf": [
             {
@@ -1702,7 +1768,8 @@
           "type": "string"
         },
         "description": {
-          "type": "string"
+          "type": "string",
+          "nullable": true
         },
         "tenant": {
           "description": "The tenant that owns this object.",
@@ -1716,9 +1783,11 @@
           "$ref": "./IssuerMetadataCredentialConfig.schema.json"
         },
         "claims": {
-          "type": "object"
+          "type": "object",
+          "nullable": true
         },
         "claimsWebhook": {
+          "nullable": true,
           "description": "Webhook to receive claims for the issuance process.",
           "allOf": [
             {
@@ -1727,6 +1796,7 @@
           ]
         },
         "notificationWebhook": {
+          "nullable": true,
           "description": "Webhook to receive claims for the issuance process.",
           "allOf": [
             {
@@ -1735,10 +1805,16 @@
           ]
         },
         "disclosureFrame": {
-          "type": "object"
+          "type": "object",
+          "nullable": true
         },
         "vct": {
-          "$ref": "./VCT.schema.json"
+          "nullable": true,
+          "allOf": [
+            {
+              "$ref": "./VCT.schema.json"
+            }
+          ]
         },
         "keyBinding": {
           "type": "boolean"
@@ -1756,7 +1832,12 @@
           "type": "number"
         },
         "schema": {
-          "$ref": "./SchemaResponse.schema.json"
+          "nullable": true,
+          "allOf": [
+            {
+              "$ref": "./SchemaResponse.schema.json"
+            }
+          ]
         }
       },
       "required": ["id", "tenant", "config", "cert"]
@@ -1772,6 +1853,7 @@
       "type": "object",
       "properties": {
         "embeddedDisclosurePolicy": {
+          "nullable": true,
           "description": "Embedded disclosure policy (discriminated union by `policy`).\nThe discriminator makes class-transformer instantiate the right subclass,\nand then class-validator runs that subclass’s rules.",
           "oneOf": [
             {
@@ -1797,15 +1879,18 @@
           "type": "string"
         },
         "description": {
-          "type": "string"
+          "type": "string",
+          "nullable": true
         },
         "config": {
           "$ref": "./IssuerMetadataCredentialConfig.schema.json"
         },
         "claims": {
-          "type": "object"
+          "type": "object",
+          "nullable": true
         },
         "claimsWebhook": {
+          "nullable": true,
           "description": "Webhook to receive claims for the issuance process.",
           "allOf": [
             {
@@ -1814,6 +1899,7 @@
           ]
         },
         "notificationWebhook": {
+          "nullable": true,
           "description": "Webhook to receive claims for the issuance process.",
           "allOf": [
             {
@@ -1822,10 +1908,16 @@
           ]
         },
         "disclosureFrame": {
-          "type": "object"
+          "type": "object",
+          "nullable": true
         },
         "vct": {
-          "$ref": "./VCT.schema.json"
+          "nullable": true,
+          "allOf": [
+            {
+              "$ref": "./VCT.schema.json"
+            }
+          ]
         },
         "keyBinding": {
           "type": "boolean"
@@ -1840,10 +1932,114 @@
           "type": "number"
         },
         "schema": {
-          "$ref": "./SchemaResponse.schema.json"
+          "nullable": true,
+          "allOf": [
+            {
+              "$ref": "./SchemaResponse.schema.json"
+            }
+          ]
         }
       },
       "required": ["id", "config"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CredentialConfigUpdate.schema.json",
+    "fileMatch": ["a://b/CredentialConfigUpdate.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CredentialConfigUpdate.schema.json",
+      "title": "CredentialConfigUpdate",
+      "type": "object",
+      "properties": {
+        "embeddedDisclosurePolicy": {
+          "nullable": true,
+          "description": "Embedded disclosure policy (discriminated union by `policy`).\nThe discriminator makes class-transformer instantiate the right subclass,\nand then class-validator runs that subclass’s rules.",
+          "oneOf": [
+            {
+              "$ref": "./AttestationBasedPolicy.schema.json"
+            },
+            {
+              "$ref": "./NoneTrustPolicy.schema.json"
+            },
+            {
+              "$ref": "./AllowListPolicy.schema.json"
+            },
+            {
+              "$ref": "./RootOfTrustPolicy.schema.json"
+            }
+          ],
+          "allOf": [
+            {
+              "$ref": "./EmbeddedDisclosurePolicy.schema.json"
+            }
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string",
+          "nullable": true
+        },
+        "config": {
+          "$ref": "./IssuerMetadataCredentialConfig.schema.json"
+        },
+        "claims": {
+          "type": "object",
+          "nullable": true
+        },
+        "claimsWebhook": {
+          "nullable": true,
+          "description": "Webhook to receive claims for the issuance process.",
+          "allOf": [
+            {
+              "$ref": "./WebhookConfig.schema.json"
+            }
+          ]
+        },
+        "notificationWebhook": {
+          "nullable": true,
+          "description": "Webhook to receive claims for the issuance process.",
+          "allOf": [
+            {
+              "$ref": "./WebhookConfig.schema.json"
+            }
+          ]
+        },
+        "disclosureFrame": {
+          "type": "object",
+          "nullable": true
+        },
+        "vct": {
+          "nullable": true,
+          "allOf": [
+            {
+              "$ref": "./VCT.schema.json"
+            }
+          ]
+        },
+        "keyBinding": {
+          "type": "boolean"
+        },
+        "certId": {
+          "type": "string"
+        },
+        "statusManagement": {
+          "type": "boolean"
+        },
+        "lifeTime": {
+          "type": "number"
+        },
+        "schema": {
+          "nullable": true,
+          "allOf": [
+            {
+              "$ref": "./SchemaResponse.schema.json"
+            }
+          ]
+        }
+      }
     }
   },
   {

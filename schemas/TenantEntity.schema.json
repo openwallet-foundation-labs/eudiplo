@@ -4,6 +4,14 @@
   "title": "TenantEntity",
   "type": "object",
   "properties": {
+    "sessionConfig": {
+      "description": "Session storage configuration for this tenant. Controls TTL and cleanup behavior.",
+      "allOf": [
+        {
+          "$ref": "./SessionStorageConfig.schema.json"
+        }
+      ]
+    },
     "id": {
       "type": "string",
       "description": "The unique identifier for the tenant."

@@ -29,7 +29,22 @@ export type TokenResponse = {
   expires_in: number;
 };
 
+export type SessionStorageConfig = {
+  /**
+   * Time-to-live for sessions in seconds. If not set, uses global SESSION_TTL.
+   */
+  ttlSeconds?: number;
+  /**
+   * Cleanup mode: 'full' deletes everything, 'anonymize' keeps metadata but removes PII.
+   */
+  cleanupMode?: "full" | "anonymize";
+};
+
 export type TenantEntity = {
+  /**
+   * Session storage configuration for this tenant. Controls TTL and cleanup behavior.
+   */
+  sessionConfig?: SessionStorageConfig;
   /**
    * The unique identifier for the tenant.
    */
@@ -87,6 +102,10 @@ export type ClientEntity = {
 };
 
 export type CreateTenantDto = {
+  /**
+   * Session storage configuration. Controls TTL and cleanup behavior.
+   */
+  sessionConfig?: SessionStorageConfig;
   roles?: Array<
     | "presentation:manage"
     | "presentation:offer"
@@ -530,6 +549,17 @@ export type StatusUpdateDto = {
    * 0 = valid, 1 = revoked, 2 = suspended
    */
   status: number;
+};
+
+export type UpdateSessionConfigDto = {
+  /**
+   * Time-to-live for sessions in seconds. Set to null to use global default.
+   */
+  ttlSeconds?: number;
+  /**
+   * Cleanup mode: 'full' deletes everything, 'anonymize' keeps metadata but removes PII.
+   */
+  cleanupMode?: "full" | "anonymize";
 };
 
 export type AuthenticationMethodNone = {
@@ -1668,6 +1698,54 @@ export type SessionControllerRevokeAllData = {
 export type SessionControllerRevokeAllResponses = {
   201: unknown;
 };
+
+export type SessionConfigControllerResetConfigData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/session-config";
+};
+
+export type SessionConfigControllerResetConfigResponses = {
+  /**
+   * Configuration reset successfully
+   */
+  200: unknown;
+};
+
+export type SessionConfigControllerGetConfigData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/session-config";
+};
+
+export type SessionConfigControllerGetConfigResponses = {
+  /**
+   * The session storage configuration
+   */
+  200: SessionStorageConfig;
+};
+
+export type SessionConfigControllerGetConfigResponse =
+  SessionConfigControllerGetConfigResponses[keyof SessionConfigControllerGetConfigResponses];
+
+export type SessionConfigControllerUpdateConfigData = {
+  body: UpdateSessionConfigDto;
+  path?: never;
+  query?: never;
+  url: "/session-config";
+};
+
+export type SessionConfigControllerUpdateConfigResponses = {
+  /**
+   * The updated session storage configuration
+   */
+  200: SessionStorageConfig;
+};
+
+export type SessionConfigControllerUpdateConfigResponse =
+  SessionConfigControllerUpdateConfigResponses[keyof SessionConfigControllerUpdateConfigResponses];
 
 export type IssuanceConfigControllerGetIssuanceConfigurationsData = {
   body?: never;
