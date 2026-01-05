@@ -15,6 +15,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { EnvironmentService } from '../services/environment.service';
+import { JwtService } from '../services/jwt.service';
 import { ApiService, appControllerMain } from '@eudiplo/sdk';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { DashboardService } from './dashboard.service';
@@ -52,6 +53,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     public apiService: ApiService,
     public environmentService: EnvironmentService,
     public dashboardService: DashboardService,
+    public jwtService: JwtService,
     private readonly router: Router,
     private readonly snackBar: MatSnackBar
   ) {}
