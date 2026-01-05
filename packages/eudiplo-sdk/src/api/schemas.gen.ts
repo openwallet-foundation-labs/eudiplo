@@ -102,6 +102,12 @@ export const StatusListConfigSchema = {
         "If true, regenerate JWT immediately on status changes. If false (default), use lazy regeneration on TTL expiry.",
       default: false,
     },
+    enableAggregation: {
+      type: "boolean",
+      description:
+        "If true, include aggregation_uri in status list JWTs for pre-fetching support (default: true).",
+      default: true,
+    },
   },
 } as const;
 
@@ -643,6 +649,24 @@ export const StatusListImportDtoSchema = {
   required: ["id"],
 } as const;
 
+export const StatusListAggregationDtoSchema = {
+  type: "object",
+  properties: {
+    status_lists: {
+      description: "Array of status list token URIs",
+      example: [
+        "https://example.com/tenant-123/status-management/status-list/list-1",
+        "https://example.com/tenant-123/status-management/status-list/list-2",
+      ],
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
+  },
+  required: ["status_lists"],
+} as const;
+
 export const UpdateStatusListConfigDtoSchema = {
   type: "object",
   properties: {
@@ -674,6 +698,12 @@ export const UpdateStatusListConfigDtoSchema = {
       nullable: true,
       description:
         "If true, regenerate JWT on every status change. Set to null to reset to default (false).",
+    },
+    enableAggregation: {
+      type: "boolean",
+      nullable: true,
+      description:
+        "If true, include aggregation_uri in status list JWTs for pre-fetching support. Set to null to reset to default (true).",
     },
   },
 } as const;

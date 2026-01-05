@@ -33,6 +33,11 @@
       "type": "boolean",
       "nullable": true,
       "description": "If true, regenerate JWT on every status change. Set to null to reset to default (false)."
+    },
+    "enableAggregation": {
+      "type": "boolean",
+      "nullable": true,
+      "description": "If true, include aggregation_uri in status list JWTs for pre-fetching support. Set to null to reset to default (true)."
     }
   }
 }

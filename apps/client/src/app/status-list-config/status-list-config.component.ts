@@ -54,6 +54,7 @@ export class StatusListConfigComponent implements OnInit {
       bits: [1],
       ttl: [null, [Validators.min(60)]],
       immediateUpdate: [false],
+      enableAggregation: [true],
     });
   }
 
@@ -70,6 +71,7 @@ export class StatusListConfigComponent implements OnInit {
         bits: this.currentConfig?.bits ?? 1,
         ttl: this.currentConfig?.ttl ?? null,
         immediateUpdate: this.currentConfig?.immediateUpdate ?? false,
+        enableAggregation: this.currentConfig?.enableAggregation ?? true,
       });
     } catch (error) {
       this.snackBar.open('Failed to load status list configuration', 'Close', {
@@ -121,6 +123,7 @@ export class StatusListConfigComponent implements OnInit {
         bits: 1,
         ttl: null,
         immediateUpdate: false,
+        enableAggregation: true,
       });
       this.snackBar.open('Status list configuration reset to defaults', 'Close', {
         duration: 3000,

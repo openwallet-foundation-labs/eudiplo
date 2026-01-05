@@ -66,4 +66,17 @@ export class UpdateStatusListConfigDto {
     @IsOptional()
     @IsBoolean()
     immediateUpdate?: boolean | null;
+
+    /**
+     * Whether to include aggregation_uri in status list JWTs.
+     * Set to null to reset to global default (true).
+     */
+    @ApiPropertyOptional({
+        description:
+            "If true, include aggregation_uri in status list JWTs for pre-fetching support. Set to null to reset to default (true).",
+        nullable: true,
+    })
+    @IsOptional()
+    @IsBoolean()
+    enableAggregation?: boolean | null;
 }

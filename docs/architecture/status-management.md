@@ -284,6 +284,35 @@ Status lists can be pre-created via configuration import:
 See [Configuration Import](./configuration-import.md#status-list-configurations)
 for more details.
 
+## Status List Aggregation
+
+EUDIPLO supports **Status List Aggregation** per
+[RFC 9528 Section 9](https://www.ietf.org/archive/id/draft-ietf-oauth-status-list-14.html#section-9),
+enabling verifiers to pre-fetch all status lists for offline validation.
+
+When enabled:
+
+- Each status list JWT includes an `aggregation_uri` claim
+- The issuer metadata includes `status_list_aggregation_endpoint`
+- A public endpoint returns all status list URIs for the tenant
+
+### Configuration
+
+Aggregation is **enabled by default**. Configure via environment variable or
+per-tenant settings:
+
+```bash
+STATUS_ENABLE_AGGREGATION=true  # default
+```
+
+Or per-tenant:
+
+```json
+{
+    "enableAggregation": true
+}
+```
+
 ## Best Practices
 
 ### Security

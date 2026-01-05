@@ -124,6 +124,11 @@
           "type": "boolean",
           "description": "If true, regenerate JWT immediately on status changes. If false (default), use lazy regeneration on TTL expiry.",
           "default": false
+        },
+        "enableAggregation": {
+          "type": "boolean",
+          "description": "If true, include aggregation_uri in status list JWTs for pre-fetching support (default: true).",
+          "default": true
         }
       }
     }
@@ -753,6 +758,30 @@
     }
   },
   {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/StatusListAggregationDto.schema.json",
+    "fileMatch": ["a://b/StatusListAggregationDto.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/StatusListAggregationDto.schema.json",
+      "title": "StatusListAggregationDto",
+      "type": "object",
+      "properties": {
+        "status_lists": {
+          "description": "Array of status list token URIs",
+          "example": [
+            "https://example.com/tenant-123/status-management/status-list/list-1",
+            "https://example.com/tenant-123/status-management/status-list/list-2"
+          ],
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["status_lists"]
+    }
+  },
+  {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpdateStatusListConfigDto.schema.json",
     "fileMatch": ["a://b/UpdateStatusListConfigDto.schema.json"],
     "schema": {
@@ -785,6 +814,11 @@
           "type": "boolean",
           "nullable": true,
           "description": "If true, regenerate JWT on every status change. Set to null to reset to default (false)."
+        },
+        "enableAggregation": {
+          "type": "boolean",
+          "nullable": true,
+          "description": "If true, include aggregation_uri in status list JWTs for pre-fetching support. Set to null to reset to default (true)."
         }
       }
     }

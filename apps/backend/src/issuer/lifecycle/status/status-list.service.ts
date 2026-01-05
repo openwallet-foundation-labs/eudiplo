@@ -91,6 +91,16 @@ export class StatusListService {
     }
 
     /**
+     * Build the aggregation URI for a tenant.
+     * This endpoint returns all status list URIs for the tenant.
+     * See RFC draft-ietf-oauth-status-list Section 9.
+     */
+    private buildAggregationUri(tenantId: string): string {
+        const baseUrl = this.configService.getOrThrow<string>("PUBLIC_URL");
+        return `${baseUrl}/${tenantId}/status-management/status-list-aggregation`;
+    }
+
+    /**
      * Create a new status list, optionally bound to a specific credential configuration and/or certificate.
      * @param tenantId The tenant ID
      * @param options Optional configuration for the new list
@@ -150,6 +160,7 @@ export class StatusListService {
      * - `iat`: When the token was issued (REQUIRED)
      * - `exp`: When the token expires (RECOMMENDED)
      * - `ttl`: How long verifiers can cache before fetching fresh copy (RECOMMENDED)
+     * - `aggregation_uri`: URI to fetch all status list URIs (OPTIONAL, per RFC Section 9)
      */
     async createListJWT(entry: StatusListEntity): Promise<void> {
         const list = new StatusList(entry.elements, entry.bits);
@@ -203,6 +214,13 @@ export class StatusListService {
             preHeader,
         );
 
+        // Add aggregation_uri to status_list if enabled for this tenant (RFC Section 9.2)
+        // This allows relying parties to pre-fetch all status lists for offline validation
+        if (effectiveConfig.enableAggregation && payload.status_list) {
+            (payload.status_list as Record<string, unknown>).aggregation_uri =
+                this.buildAggregationUri(entry.tenantId);
+        }
+
         const jwt = await this.keyService.signJWT(
             payload,
             header,
@@ -228,6 +246,17 @@ export class StatusListService {
             where: { tenantId },
             order: { createdAt: "ASC" },
         });
+    }
+
+    /**
+     * Get all status list URIs for a tenant.
+     * Used for the status list aggregation endpoint (RFC Section 9.3).
+     * @param tenantId The ID of the tenant.
+     * @returns Array of status list URIs.
+     */
+    async getStatusListUris(tenantId: string): Promise<string[]> {
+        const lists = await this.getLists(tenantId);
+        return lists.map((list) => this.buildStatusListUri(tenantId, list.id));
     }
 
     /**

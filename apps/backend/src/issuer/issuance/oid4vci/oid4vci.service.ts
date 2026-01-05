@@ -35,6 +35,7 @@ import { SessionLogContext } from "../../../shared/utils/logger/session-logger-c
 import { WebhookService } from "../../../shared/utils/webhook/webhook.service";
 import { CredentialsService } from "../../configuration/credentials/credentials.service";
 import { IssuanceService } from "../../configuration/issuance/issuance.service";
+import { StatusListConfigService } from "../../lifecycle/status/status-list-config.service";
 import { AuthorizeService } from "./authorize/authorize.service";
 import { NotificationRequestDto } from "./dto/notification-request.dto";
 import {
@@ -60,6 +61,7 @@ export class Oid4vciService {
         private readonly issuanceService: IssuanceService,
         private readonly webhookService: WebhookService,
         private readonly httpService: HttpService,
+        private readonly statusListConfigService: StatusListConfigService,
         @InjectRepository(NonceEntity)
         private readonly nonceRepository: Repository<NonceEntity>,
     ) {}
@@ -142,6 +144,14 @@ export class Oid4vciService {
             authorizationServerMetadata =
                 this.authzService.authzMetadata(tenantId);
         }
+
+        // Check if status list aggregation is enabled for this tenant
+        const statusListConfig =
+            await this.statusListConfigService.getEffectiveConfig(tenantId);
+        const statusListAggregationEndpoint = statusListConfig.enableAggregation
+            ? `${credential_issuer}/status-management/status-list-aggregation`
+            : undefined;
+
         const credentialIssuer = issuer.createCredentialIssuerMetadata({
             credential_issuer,
             credential_configurations_supported:
@@ -160,6 +170,7 @@ export class Oid4vciService {
                           batch_size: issuanceConfig?.batchSize,
                       }
                     : undefined,
+            status_list_aggregation_endpoint: statusListAggregationEndpoint,
         });
         return {
             credentialIssuer,

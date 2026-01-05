@@ -68,4 +68,20 @@ export class StatusListConfig {
     @IsOptional()
     @IsBoolean()
     immediateUpdate?: boolean;
+
+    /**
+     * Whether to include the aggregation_uri in status list JWTs.
+     * When enabled, each status list JWT will contain an aggregation_uri claim
+     * pointing to an endpoint that returns all status list URIs for this tenant.
+     * This allows relying parties to pre-fetch all status lists for offline validation.
+     * See RFC draft-ietf-oauth-status-list Section 9.
+     */
+    @ApiPropertyOptional({
+        description:
+            "If true, include aggregation_uri in status list JWTs for pre-fetching support (default: true).",
+        default: true,
+    })
+    @IsOptional()
+    @IsBoolean()
+    enableAggregation?: boolean;
 }

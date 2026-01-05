@@ -1,5 +1,12 @@
 import { Controller, Get, Header, Param } from "@nestjs/common";
-import { ApiExcludeController, ApiExtraModels, ApiTags } from "@nestjs/swagger";
+import {
+    ApiExcludeController,
+    ApiExtraModels,
+    ApiOkResponse,
+    ApiOperation,
+    ApiTags,
+} from "@nestjs/swagger";
+import { StatusListAggregationDto } from "./dto/status-list-aggregation.dto";
 import { StatusListImportDto } from "./dto/status-list-import.dto";
 import { StatusListService } from "./status-list.service";
 
@@ -23,5 +30,34 @@ export class StatusListController {
         @Param("listId") listId: string,
     ) {
         return this.statusListService.getListJwt(tenantId, listId);
+    }
+
+    /**
+     * Get all status list URIs for a tenant (Status List Aggregation).
+     * This endpoint returns a list of all status list token URIs,
+     * allowing relying parties to pre-fetch all status lists for offline validation.
+     * See RFC draft-ietf-oauth-status-list Section 9.3.
+     * @param tenantId The tenant ID.
+     * @returns The status list aggregation response.
+     */
+    @Get("status-list-aggregation")
+    @Header("Content-Type", "application/json")
+    @ApiOperation({
+        summary: "Get all status list URIs",
+        description:
+            "Returns a list of all status list token URIs for the tenant. " +
+            "This allows relying parties to pre-fetch all status lists for offline validation. " +
+            "See RFC draft-ietf-oauth-status-list Section 9.",
+    })
+    @ApiOkResponse({
+        description: "List of status list URIs",
+        type: StatusListAggregationDto,
+    })
+    async getStatusListAggregation(
+        @Param("tenantId") tenantId: string,
+    ): Promise<StatusListAggregationDto> {
+        const statusLists =
+            await this.statusListService.getStatusListUris(tenantId);
+        return { status_lists: statusLists };
     }
 }

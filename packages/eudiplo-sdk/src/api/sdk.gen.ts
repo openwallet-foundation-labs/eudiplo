@@ -126,6 +126,8 @@ import type {
   StatusListConfigControllerUpdateConfigResponses,
   StatusListControllerGetListData,
   StatusListControllerGetListResponses,
+  StatusListControllerGetStatusListAggregationData,
+  StatusListControllerGetStatusListAggregationResponses,
   StatusListManagementControllerCreateListData,
   StatusListManagementControllerCreateListResponses,
   StatusListManagementControllerDeleteListData,
@@ -678,6 +680,28 @@ export const statusListControllerGetList = <
     unknown,
     ThrowOnError
   >({ url: "/{tenantId}/status-management/status-list/{listId}", ...options });
+
+/**
+ * Get all status list URIs
+ *
+ * Returns a list of all status list token URIs for the tenant. This allows relying parties to pre-fetch all status lists for offline validation. See RFC draft-ietf-oauth-status-list Section 9.
+ */
+export const statusListControllerGetStatusListAggregation = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<
+    StatusListControllerGetStatusListAggregationData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).get<
+    StatusListControllerGetStatusListAggregationResponses,
+    unknown,
+    ThrowOnError
+  >({
+    url: "/{tenantId}/status-management/status-list-aggregation",
+    ...options,
+  });
 
 /**
  * Reset status list configuration

@@ -57,6 +57,10 @@ export type StatusListConfig = {
    * If true, regenerate JWT immediately on status changes. If false (default), use lazy regeneration on TTL expiry.
    */
   immediateUpdate?: boolean;
+  /**
+   * If true, include aggregation_uri in status list JWTs for pre-fetching support (default: true).
+   */
+  enableAggregation?: boolean;
 };
 
 export type TenantEntity = {
@@ -383,6 +387,13 @@ export type StatusListImportDto = {
   bits?: 1 | 2 | 4 | 8;
 };
 
+export type StatusListAggregationDto = {
+  /**
+   * Array of status list token URIs
+   */
+  status_lists: Array<string>;
+};
+
 export type UpdateStatusListConfigDto = {
   /**
    * The capacity of the status list. Set to null to reset to global default.
@@ -400,6 +411,10 @@ export type UpdateStatusListConfigDto = {
    * If true, regenerate JWT on every status change. Set to null to reset to default (false).
    */
   immediateUpdate?: boolean;
+  /**
+   * If true, include aggregation_uri in status list JWTs for pre-fetching support. Set to null to reset to default (true).
+   */
+  enableAggregation?: boolean;
 };
 
 export type StatusListResponseDto = {
@@ -1788,6 +1803,25 @@ export type StatusListControllerGetListResponses = {
 
 export type StatusListControllerGetListResponse =
   StatusListControllerGetListResponses[keyof StatusListControllerGetListResponses];
+
+export type StatusListControllerGetStatusListAggregationData = {
+  body?: never;
+  path: {
+    tenantId: string;
+  };
+  query?: never;
+  url: "/{tenantId}/status-management/status-list-aggregation";
+};
+
+export type StatusListControllerGetStatusListAggregationResponses = {
+  /**
+   * List of status list URIs
+   */
+  200: StatusListAggregationDto;
+};
+
+export type StatusListControllerGetStatusListAggregationResponse =
+  StatusListControllerGetStatusListAggregationResponses[keyof StatusListControllerGetStatusListAggregationResponses];
 
 export type StatusListConfigControllerResetConfigData = {
   body?: never;

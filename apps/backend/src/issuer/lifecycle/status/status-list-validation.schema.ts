@@ -27,4 +27,10 @@ export const STATUS_LIST_VALIDATION_SCHEMA = Joi.object({
             "If true, regenerate status list JWT immediately on every status change. If false (default), use lazy regeneration when TTL expires. Can be overridden per tenant.",
         )
         .meta({ group: "status", order: 40 }),
+    STATUS_ENABLE_AGGREGATION: Joi.boolean()
+        .default(true)
+        .description(
+            "If true (default), include aggregation_uri in status list JWTs. This allows relying parties to pre-fetch all status lists for offline validation per RFC draft-ietf-oauth-status-list Section 9. Can be overridden per tenant.",
+        )
+        .meta({ group: "status", order: 50 }),
 });

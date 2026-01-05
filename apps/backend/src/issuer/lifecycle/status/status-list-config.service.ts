@@ -49,6 +49,16 @@ export class StatusListConfigService {
     }
 
     /**
+     * Get the default enableAggregation setting from environment configuration.
+     * Defaults to true to enable status list aggregation for offline validation.
+     */
+    getDefaultEnableAggregation(): boolean {
+        return (
+            this.configService.get<boolean>("STATUS_ENABLE_AGGREGATION") ?? true
+        );
+    }
+
+    /**
      * Get the status list configuration for a tenant.
      * @param tenantId The tenant ID
      * @returns The status list configuration or null if not set (uses global defaults)
@@ -74,6 +84,8 @@ export class StatusListConfigService {
             ttl: config?.ttl ?? this.getDefaultTtl(),
             immediateUpdate:
                 config?.immediateUpdate ?? this.getDefaultImmediateUpdate(),
+            enableAggregation:
+                config?.enableAggregation ?? this.getDefaultEnableAggregation(),
         };
     }
 
@@ -100,6 +112,7 @@ export class StatusListConfigService {
             bits: config.bits ?? undefined,
             ttl: config.ttl ?? undefined,
             immediateUpdate: config.immediateUpdate ?? undefined,
+            enableAggregation: config.enableAggregation ?? undefined,
         };
 
         await this.tenantRepository.update(

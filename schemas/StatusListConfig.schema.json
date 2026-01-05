@@ -31,6 +31,11 @@
       "type": "boolean",
       "description": "If true, regenerate JWT immediately on status changes. If false (default), use lazy regeneration on TTL expiry.",
       "default": false
+    },
+    "enableAggregation": {
+      "type": "boolean",
+      "description": "If true, include aggregation_uri in status list JWTs for pre-fetching support (default: true).",
+      "default": true
     }
   }
 }

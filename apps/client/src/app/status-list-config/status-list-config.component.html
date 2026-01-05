@@ -252,6 +252,39 @@
               </div>
             }
           </div>
+
+          <mat-divider></mat-divider>
+
+          <!-- Aggregation Configuration -->
+          <div class="config-section">
+            <h3>
+              <mat-icon>hub</mat-icon>
+              Status List Aggregation
+            </h3>
+            <p class="section-description">
+              Per RFC 9528 Section 9, status list aggregation enables verifiers to pre-fetch all
+              status lists for offline validation. When enabled, each status list JWT includes an
+              <code>aggregation_uri</code> pointing to an endpoint that returns all status list
+              URIs.
+            </p>
+
+            <div class="toggle-section" fxLayout="row" fxLayoutAlign="space-between center">
+              <div>
+                <strong>Enable Aggregation</strong>
+                <p class="toggle-description">
+                  @if (configForm.get('enableAggregation')?.value) {
+                    Status list JWTs include an <code>aggregation_uri</code> claim. Verifiers can
+                    use this to pre-fetch all status lists for offline validation scenarios.
+                  } @else {
+                    Status list JWTs do not include aggregation information. Verifiers must fetch
+                    each status list individually.
+                  }
+                </p>
+              </div>
+              <mat-slide-toggle formControlName="enableAggregation" color="primary">
+              </mat-slide-toggle>
+            </div>
+          </div>
         </form>
       </mat-card-content>
 
