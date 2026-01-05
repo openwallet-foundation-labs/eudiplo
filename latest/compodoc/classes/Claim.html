@@ -210,7 +210,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="53" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:53</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="58" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:58</a></div>
                         </td>
                     </tr>
 
@@ -234,7 +234,7 @@ import { Type } from &quot;class-transformer&quot;;
 import {
     IsArray,
     IsBoolean,
-    IsIn,
+    IsEnum,
     IsNotEmpty,
     IsNumber,
     IsObject,
@@ -251,8 +251,13 @@ import {
     UpdateDateColumn,
 } from &quot;typeorm&quot;;
 import { TenantEntity } from &quot;../../../auth/tenant/entitites/tenant.entity&quot;;
-import { WebhookConfig } from &quot;../../../utils/webhook/webhook.dto&quot;;
+import { WebhookConfig } from &quot;../../../shared/utils/webhook/webhook.dto&quot;;
 import { RegistrationCertificateRequest } from &quot;../dto/vp-request.dto&quot;;
+
+export enum TrustedAuthorityType {
+    AKI &#x3D; &quot;aki&quot;,
+    ETSI_TL &#x3D; &quot;etsi_tl&quot;,
+}
 
 /**
  * Attached attestations
@@ -271,8 +276,8 @@ export class PresentationAttachment {
 // TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-trusted-authorities-query
 export class TrustedAuthorityQuery {
     @IsString()
-    @IsIn([&quot;aki&quot;, &quot;etsi_tl&quot;, &quot;openid_federation&quot;])
-    type!: string;
+    @IsEnum(TrustedAuthorityType)
+    type!: TrustedAuthorityType;
 
     @IsArray()
     @IsString({ each: true })
@@ -285,7 +290,6 @@ export class Claim {
 }
 
 //TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-credential-query
-
 export class CredentialQuery {
     @IsString()
     id!: string;
@@ -362,20 +366,20 @@ export class PresentationConfig {
      */
     @Column(&quot;varchar&quot;, { primary: true })
     @IsString()
-    id!: string;
+    id: string;
 
     /**
      * The tenant ID for which the VP request is made.
      */
     @ApiHideProperty()
     @Column(&quot;varchar&quot;, { primary: true })
-    tenantId!: string;
+    tenantId: string;
 
     /**
      * The tenant that owns this object.
      */
     @ManyToOne(() &#x3D;&gt; TenantEntity, { cascade: true, onDelete: &quot;CASCADE&quot; })
-    tenant!: TenantEntity;
+    tenant: TenantEntity;
 
     /**
      * Description of the presentation configuration.
@@ -383,7 +387,7 @@ export class PresentationConfig {
     @Column(&quot;varchar&quot;, { nullable: true })
     @IsOptional()
     @IsString()
-    description?: string;
+    description?: string | null;
 
     /**
      * Lifetime how long the presentation request is valid after creation, in seconds.
@@ -407,7 +411,8 @@ export class PresentationConfig {
     @ValidateNested()
     @Type(() &#x3D;&gt; RegistrationCertificateRequest)
     @Column(&quot;json&quot;, { nullable: true })
-    registrationCert?: RegistrationCertificateRequest;
+    registrationCert?: RegistrationCertificateRequest | null;
+
     /**
      * Optional webhook URL to receive the response.
      */
@@ -415,7 +420,7 @@ export class PresentationConfig {
     @IsOptional()
     @Validate(WebhookConfig)
     @Type(() &#x3D;&gt; WebhookConfig)
-    webhook?: WebhookConfig;
+    webhook?: WebhookConfig | null;
 
     /**
      * The timestamp when the VP request was created.
@@ -437,7 +442,7 @@ export class PresentationConfig {
     @ValidateNested()
     @Type(() &#x3D;&gt; PresentationAttachment)
     @Column(&quot;json&quot;, { nullable: true })
-    attached?: PresentationAttachment[];
+    attached?: PresentationAttachment[] | null;
 
     /**
      * Redirect URI to which the user-agent should be redirected after the presentation is completed.
@@ -445,7 +450,7 @@ export class PresentationConfig {
     @IsOptional()
     @IsString()
     @Column(&quot;varchar&quot;, { nullable: true })
-    redirectUri?: string;
+    redirectUri?: string | null;
 }
 </code></pre>
     </div>

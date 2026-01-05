@@ -1496,15 +1496,15 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ConfigService } from &quot;@nestjs/config&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { readFileSync } from &quot;node:fs&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
 import { Signer } from &quot;@sd-jwt/types&quot;;
 import { plainToClass } from &quot;class-transformer&quot;;
-import { readFileSync } from &quot;fs&quot;;
 import { JWK, JWSHeaderParameters, JWTPayload } from &quot;jose&quot;;
 import { PinoLogger } from &quot;nestjs-pino&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import { TenantEntity } from &quot;../../auth/tenant/entitites/tenant.entity&quot;;
-import { ConfigImportService } from &quot;../../utils/config-import/config-import.service&quot;;
+import { ConfigImportService } from &quot;../../shared/utils/config-import/config-import.service&quot;;
 import { KeyImportDto } from &quot;./dto/key-import.dto&quot;;
 import { UpdateKeyDto } from &quot;./dto/key-update.dto&quot;;
 import { CertEntity } from &quot;./entities/cert.entity&quot;;
@@ -1518,9 +1518,9 @@ export abstract class KeyService {
         protected configService: ConfigService,
         protected keyRepository: Repository&lt;KeyEntity&gt;,
         protected configImportService: ConfigImportService,
-        private certRepository: Repository&lt;CertEntity&gt;,
-        private tenantRepository: Repository&lt;TenantEntity&gt;,
-        private logger: PinoLogger,
+        private readonly certRepository: Repository&lt;CertEntity&gt;,
+        private readonly tenantRepository: Repository&lt;TenantEntity&gt;,
+        private readonly logger: PinoLogger,
     ) {}
 
     /**

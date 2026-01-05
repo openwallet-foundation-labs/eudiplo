@@ -134,7 +134,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/issuer/status-list/status-list.service.ts</code>
+            <code>src/issuer/lifecycle/status/status-list.service.ts</code>
         </p>
 
 
@@ -195,6 +195,10 @@
                                 <a href="#setEntry" >setEntry</a>
                             </li>
                             <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#shuffleArray" >shuffleArray</a>
+                            </li>
+                            <li>
                                     <span class="modifier">Async</span>
                                 <a href="#updateStatus" >updateStatus</a>
                             </li>
@@ -221,7 +225,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="22" class="link-to-prism">src/issuer/status-list/status-list.service.ts:22</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="24" class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:24</a></div>
                             </td>
                         </tr>
 
@@ -334,8 +338,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="136"
-                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:136</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="148"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:148</a></div>
                         </td>
                     </tr>
 
@@ -417,8 +421,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="62"
-                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:62</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="75"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:75</a></div>
                         </td>
                     </tr>
 
@@ -488,8 +492,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="36"
-                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:36</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="50"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:50</a></div>
                         </td>
                     </tr>
 
@@ -557,8 +561,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="112"
-                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:112</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="124"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:124</a></div>
                         </td>
                     </tr>
 
@@ -632,8 +636,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="118"
-                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:118</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="130"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:130</a></div>
                         </td>
                     </tr>
 
@@ -702,8 +706,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="183"
-                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:183</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="195"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:195</a></div>
                         </td>
                     </tr>
 
@@ -779,6 +783,85 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="shuffleArray"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>shuffleArray</b></span>
+                        <a href="#shuffleArray"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>shuffleArray(array: T[])</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="38"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:38</a></div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <b>Type parameters :</b>
+                            <ul class="type-parameters">
+                                    <li>T</li>
+                            </ul>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Cryptographically secure Fisher-Yates shuffle</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>array</td>
+                                            <td>
+                                                        <code>T[]</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>T[]</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="updateStatus"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
@@ -797,8 +880,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="199"
-                                    class="link-to-prism">src/issuer/status-list/status-list.service.ts:199</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="211"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:211</a></div>
                         </td>
                     </tr>
 
@@ -895,7 +978,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="26" class="link-to-prism">src/issuer/status-list/status-list.service.ts:26</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="28" class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:28</a></div>
                         </td>
                     </tr>
 
@@ -908,7 +991,9 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ConflictException, Inject, Injectable } from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { randomInt } from &quot;node:crypto&quot;;
+import { join } from &quot;node:path&quot;;
+import { ConflictException, Inject, Injectable } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import {
@@ -919,11 +1004,11 @@ import {
     StatusListJWTHeaderParameters,
 } from &quot;@sd-jwt/jwt-status-list&quot;;
 import { JwtPayload } from &quot;@sd-jwt/types&quot;;
-import { join } from &quot;path&quot;;
 import { Repository } from &quot;typeorm&quot;;
-import { CertService } from &quot;../../crypto/key/cert/cert.service&quot;;
-import { KeyService } from &quot;../../crypto/key/key.service&quot;;
-import { Session } from &quot;../../session/entities/session.entity&quot;;
+import { CertService } from &quot;../../../crypto/key/cert/cert.service&quot;;
+import { CertUsage } from &quot;../../../crypto/key/entities/cert-usage.entity&quot;;
+import { KeyService } from &quot;../../../crypto/key/key.service&quot;;
+import { Session } from &quot;../../../session/entities/session.entity&quot;;
 import { StatusUpdateDto } from &quot;./dto/status-update.dto&quot;;
 import { StatusListEntity } from &quot;./entities/status-list.entity&quot;;
 import { StatusMapping } from &quot;./entities/status-mapping.entity&quot;;
@@ -931,14 +1016,26 @@ import { StatusMapping } from &quot;./entities/status-mapping.entity&quot;;
 @Injectable()
 export class StatusListService {
     constructor(
-        private configService: ConfigService,
-        private certService: CertService,
+        private readonly configService: ConfigService,
+        private readonly certService: CertService,
         @Inject(&quot;KeyService&quot;) public readonly keyService: KeyService,
         @InjectRepository(StatusMapping)
-        private statusMappingRepository: Repository&lt;StatusMapping&gt;,
+        private readonly statusMappingRepository: Repository&lt;StatusMapping&gt;,
         @InjectRepository(StatusListEntity)
-        private statusListRepository: Repository&lt;StatusListEntity&gt;,
+        private readonly statusListRepository: Repository&lt;StatusListEntity&gt;,
     ) {}
+
+    /**
+     * Cryptographically secure Fisher-Yates shuffle
+     */
+    private shuffleArray&lt;T&gt;(array: T[]): T[] {
+        const shuffled &#x3D; [...array];
+        for (let i &#x3D; shuffled.length - 1; i &gt; 0; i--) {
+            const j &#x3D; randomInt(0, i + 1);
+            [shuffled[i], shuffled[j]] &#x3D; [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    }
 
     /**
      * Create a new status list and store it in the file
@@ -947,11 +1044,10 @@ export class StatusListService {
         const size &#x3D; this.configService.getOrThrow&lt;number&gt;(&quot;STATUS_LENGTH&quot;);
         // create an empty array with the size of 1000
         const elements &#x3D; new Array(size).fill(0).map(() &#x3D;&gt; 0);
-        // create a list of 1000 indexes and shuffel them
-        const stack &#x3D; new Array(size)
-            .fill(0)
-            .map((_, i) &#x3D;&gt; i)
-            .sort(() &#x3D;&gt; 0.5 - Math.random());
+        // create a list of 1000 indexes and shuffle them using crypto-secure randomness
+        const stack &#x3D; this.shuffleArray(
+            new Array(size).fill(0).map((_, i) &#x3D;&gt; i),
+        );
 
         const bits &#x3D;
             this.configService.getOrThrow&lt;BitsPerStatus&gt;(&quot;STATUS_BITS&quot;);
@@ -985,16 +1081,15 @@ export class StatusListService {
             sub,
             iat: Math.floor(Date.now() / 1000),
         };
-        //TODO: maybe add a cert for status list management
-        const cert &#x3D; await this.certService.find({
+        const cert &#x3D; await this.certService.findOrCreate({
             tenantId: entry.tenantId,
-            type: &quot;signing&quot;,
+            type: CertUsage.StatusList,
         });
 
         const preHeader: StatusListJWTHeaderParameters &#x3D; {
             alg: &quot;ES256&quot;,
             typ: &quot;statuslist+jwt&quot;,
-            x5c: await this.certService.getCertChain(cert),
+            x5c: this.certService.getCertChain(cert),
         };
         const { header, payload } &#x3D; createHeaderAndPayload(
             list,

@@ -131,7 +131,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/issuer/status-list/status-list.controller.ts</code>
+            <code>src/issuer/lifecycle/status/status-list.controller.ts</code>
         </p>
             <p class="comment">
                 <h3>Prefix</h3>
@@ -211,7 +211,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="17"
-                                    class="link-to-prism">src/issuer/status-list/status-list.controller.ts:17</a></div>
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.controller.ts:17</a></div>
                         </td>
                     </tr>
 
@@ -268,10 +268,10 @@ import { ApiExcludeController, ApiTags } from &quot;@nestjs/swagger&quot;;
 import { StatusListService } from &quot;./status-list.service&quot;;
 
 @ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &quot;true&quot;)
-@ApiTags(&quot;Status management&quot;)
+@ApiTags(&quot;Issuer&quot;)
 @Controller(&quot;:tenantId/status-management&quot;)
 export class StatusListController {
-    constructor(private statusListService: StatusListService) {}
+    constructor(private readonly statusListService: StatusListService) {}
 
     /**
      * Get the status list

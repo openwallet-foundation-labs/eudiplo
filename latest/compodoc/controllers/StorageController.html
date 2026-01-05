@@ -223,8 +223,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="51"
-                                    class="link-to-prism">src/storage/storage.controller.ts:51</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="52"
+                                    class="link-to-prism">src/storage/storage.controller.ts:52</a></div>
                         </td>
                     </tr>
 
@@ -303,8 +303,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="43"
-                                    class="link-to-prism">src/storage/storage.controller.ts:43</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="44"
+                                    class="link-to-prism">src/storage/storage.controller.ts:44</a></div>
                         </td>
                     </tr>
 
@@ -378,7 +378,7 @@
     UseInterceptors,
 } from &quot;@nestjs/common&quot;;
 import { FileInterceptor } from &quot;@nestjs/platform-express&quot;;
-import { ApiBody, ApiConsumes } from &quot;@nestjs/swagger&quot;;
+import { ApiBody, ApiConsumes, ApiTags } from &quot;@nestjs/swagger&quot;;
 import { Role } from &quot;../auth/roles/role.enum&quot;;
 import { Secured } from &quot;../auth/secure.decorator&quot;;
 import { Token, TokenPayload } from &quot;../auth/token.decorator&quot;;
@@ -388,6 +388,7 @@ import { FilesService } from &quot;./files.service&quot;;
 /**
  * Storage Controller
  */
+@ApiTags(&quot;Storage&quot;)
 @Controller(&quot;storage&quot;)
 export class StorageController {
     /**

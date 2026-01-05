@@ -131,10 +131,17 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/app/app.controller.ts</code>
+            <code>src/core/app/app.controller.ts</code>
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Main application controller</p>
+
+            </p>
 
 
 
@@ -202,19 +209,24 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="8"
-                                    class="link-to-prism">src/app/app.controller.ts:8</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="15"
+                                    class="link-to-prism">src/core/app/app.controller.ts:15</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Main endpoint providing service info</p>
+</div>
 
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                            <b>Returns : </b>    <code>{ service: string; version: any; documentation: string; }</code>
 
                         </div>
+                            <div class="io-description">
+                                
+                            </div>
                 </td>
             </tr>
         </tbody>
@@ -224,14 +236,26 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Controller, Get } from &quot;@nestjs/common&quot;;
-import { ApiExcludeController } from &quot;@nestjs/swagger&quot;;
+import { ApiTags } from &quot;@nestjs/swagger&quot;;
 
-@ApiExcludeController()
+/**
+ * Main application controller
+ */
+@ApiTags(&quot;App&quot;)
 @Controller()
 export class AppController {
+    /**
+     * Main endpoint providing service info
+     * @returns
+     */
     @Get()
-    main(): string {
-        return &#x27;EUDIPLO is up and running, more information at &lt;a href&#x3D;&quot;https://openwallet-foundation-labs.github.io/eudiplo/latest/&quot;&gt;https://openwallet-foundation-labs.github.io/eudiplo/latest/&lt;/a&gt;&#x27;;
+    main() {
+        return {
+            service: &quot;EUDIPLO&quot;,
+            version: process.env.VERSION ?? &quot;main&quot;,
+            documentation:
+                &quot;https://openwallet-foundation-labs.github.io/eudiplo/latest/&quot;,
+        };
     }
 }
 </code></pre>

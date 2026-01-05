@@ -138,7 +138,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/utils/webhook/webhook.service.ts</code>
+            <code>src/shared/utils/webhook/webhook.service.ts</code>
         </p>
 
 
@@ -169,7 +169,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="13" class="link-to-prism">src/utils/webhook/webhook.service.ts:13</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="16" class="link-to-prism">src/shared/utils/webhook/webhook.service.ts:16</a></div>
                             </td>
                         </tr>
             </tbody>
@@ -187,8 +187,11 @@
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { HttpService } from &quot;@nestjs/axios&quot;;
 import { Injectable } from &quot;@nestjs/common&quot;;
 import { firstValueFrom } from &quot;rxjs&quot;;
-import { Notification, Session } from &quot;../../session/entities/session.entity&quot;;
-import { SessionService } from &quot;../../session/session.service&quot;;
+import {
+    Notification,
+    Session,
+} from &quot;../../../session/entities/session.entity&quot;;
+import { SessionService } from &quot;../../../session/session.service&quot;;
 import { SessionLoggerService } from &quot;../logger/session-logger.service&quot;;
 import { SessionLogContext } from &quot;../logger/session-logger-context&quot;;
 import { WebhookConfig } from &quot;./webhook.dto&quot;;

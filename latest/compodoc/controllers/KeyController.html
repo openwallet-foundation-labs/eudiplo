@@ -234,8 +234,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="58"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:58</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="60"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:60</a></div>
                         </td>
                     </tr>
 
@@ -324,8 +324,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="87"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:87</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="89"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:89</a></div>
                         </td>
                     </tr>
 
@@ -414,8 +414,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="44"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:44</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="46"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:46</a></div>
                         </td>
                     </tr>
 
@@ -504,8 +504,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="33"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:33</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="35"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:35</a></div>
                         </td>
                     </tr>
 
@@ -583,8 +583,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="73"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:73</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="75"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:75</a></div>
                         </td>
                     </tr>
 
@@ -670,6 +670,7 @@
     Post,
     Put,
 } from &quot;@nestjs/common&quot;;
+import { ApiTags } from &quot;@nestjs/swagger&quot;;
 import { Role } from &quot;../../auth/roles/role.enum&quot;;
 import { Secured } from &quot;../../auth/secure.decorator&quot;;
 import { Token, TokenPayload } from &quot;../../auth/token.decorator&quot;;
@@ -681,6 +682,7 @@ import { KeyService } from &quot;./key.service&quot;;
 /**
  * KeyController is responsible for managing keys in the system.
  */
+@ApiTags(&quot;Key&quot;)
 @Secured([Role.Issuances, Role.Presentations])
 @Controller(&quot;key&quot;)
 export class KeyController {

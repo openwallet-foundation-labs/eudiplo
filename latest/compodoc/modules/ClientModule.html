@@ -163,7 +163,7 @@ import { ConfigService } from &quot;@nestjs/config&quot;;
 import { getRepositoryToken, TypeOrmModule } from &quot;@nestjs/typeorm&quot;;
 import { makeGaugeProvider } from &quot;@willsoto/nestjs-prometheus&quot;;
 import { Repository } from &quot;typeorm&quot;;
-import { ConfigImportService } from &quot;../../utils/config-import/config-import.service&quot;;
+import { ConfigImportService } from &quot;../../shared/utils/config-import/config-import.service&quot;;
 import { InternalClientsProvider } from &quot;./adapters/internal-clients.service&quot;;
 import { KeycloakClientsProvider } from &quot;./adapters/keycloak-clients.service&quot;;
 import { ClientController } from &quot;./client.controller&quot;;

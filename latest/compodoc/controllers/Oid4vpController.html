@@ -228,8 +228,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="57"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:57</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="58"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:58</a></div>
                         </td>
                     </tr>
 
@@ -319,8 +319,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="41"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:41</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="42"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:42</a></div>
                         </td>
                     </tr>
 
@@ -411,8 +411,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="73"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:73</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="74"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:74</a></div>
                         </td>
                     </tr>
 
@@ -487,16 +487,17 @@
     Req,
     UseInterceptors,
 } from &quot;@nestjs/common&quot;;
-import { ApiExcludeController, ApiParam } from &quot;@nestjs/swagger&quot;;
+import { ApiExcludeController, ApiParam, ApiTags } from &quot;@nestjs/swagger&quot;;
 import { Request } from &quot;express&quot;;
-import { SessionLogger } from &quot;../../utils/logger/session-logger.decorator&quot;;
-import { SessionLoggerInterceptor } from &quot;../../utils/logger/session-logger.interceptor&quot;;
+import { SessionLogger } from &quot;../../shared/utils/logger/session-logger.decorator&quot;;
+import { SessionLoggerInterceptor } from &quot;../../shared/utils/logger/session-logger.interceptor&quot;;
 import { AuthorizationResponse } from &quot;./dto/authorization-response.dto&quot;;
 import { Oid4vpService } from &quot;./oid4vp.service&quot;;
 
 /**
  * Controller for handling OID4VP (OpenID for Verifiable Presentations) requests.
  */
+@ApiTags(&quot;OID4VP&quot;)
 @Controller(&quot;:session/oid4vp&quot;)
 @UseInterceptors(SessionLoggerInterceptor)
 @ApiParam({ name: &quot;session&quot;, required: true })
@@ -553,6 +554,7 @@ export class Oid4vpController {
         @Param(&quot;session&quot;) sessionId: string,
     ) {
         return this.oid4vpService.getResponse(body, sessionId).catch((err) &#x3D;&gt; {
+            console.log(&quot;Error in OID4VP response handling:&quot;);
             console.error(err);
             throw err;
         });

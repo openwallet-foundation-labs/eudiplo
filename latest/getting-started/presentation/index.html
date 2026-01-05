@@ -1007,6 +1007,8 @@
       
         
       
+        
+      
     
     
     
@@ -1078,6 +1080,34 @@
     
   
     Supported Protocols
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/trust-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trust Framework
   
 
     
@@ -1881,56 +1911,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Quick Start">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-create-a-presentation-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. Create a Presentation Configuration
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-store-the-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. Store the Configuration
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-request-a-presentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. Request a Presentation
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4-present-to-user" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4. Present to User
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -2007,10 +1987,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#verification" class="md-nav__link">
+  <a href="#trust-verification" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Verification
+        Trust Verification
       
     </span>
   </a>
@@ -2208,30 +2188,7 @@ to define presentation requests:</p>
 </ul>
 <hr>
 <h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">¶</a></h2>
-<p>For a quick start, follow these steps:</p>
-<ol>
-<li><strong>Create a presentation configuration</strong> - Define the presentation requirements using DCQL.</li>
-<li><strong>Presentation request</strong> - Initiate a presentation request using the created configuration.</li>
-</ol>
-<h3 id="1-create-a-presentation-configuration">1. Create a Presentation Configuration<a class="headerlink" href="#1-create-a-presentation-configuration" title="Permanent link">¶</a></h3>
-<p>See <a href="presentation-configuration/">Presentation Configuration</a> for detailed instructions on creating and managing presentation configurations.</p>
-<h3 id="2-store-the-configuration">2. Store the Configuration<a class="headerlink" href="#2-store-the-configuration" title="Permanent link">¶</a></h3>
-<p>Use the presentation management API to store the configuration. For detailed endpoint specifications, see:</p>
-<p><strong>API Reference</strong>: <a href="../../api/openapi/#tag/presentation-management/POST/presentation-management">Create Presentation Configuration</a></p>
-<h3 id="3-request-a-presentation">3. Request a Presentation<a class="headerlink" href="#3-request-a-presentation" title="Permanent link">¶</a></h3>
-<p>Initiate a presentation request using the stored configuration. For detailed endpoint specifications, see:</p>
-<p><strong>API Reference</strong>: <a href="../../api/openapi/#tag/presentation-management/POST/presentation-management/request">Request Presentation</a></p>
-<div class="admonition info">
-<p class="admonition-title">Info</p>
-<p>In this request you need to specify if the flow should use the DC API or not.</p>
-</div>
-<h3 id="4-present-to-user">4. Present to User<a class="headerlink" href="#4-present-to-user" title="Permanent link">¶</a></h3>
-<p>The response includes a URI that can be presented to the user:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="nt">"uri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"openid4vp://?request_uri=https://your-domain.com/oid4vp/request/abc123&amp;session_id=session-456"</span><span class="p">,</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nt">"session_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"session-456"</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">}</span>
-</code></pre></div>
+<p>To manage presentation configurations, have a look at the <a href="../../api/openapi/#verifier">API Documentation</a> about the verifier. There you will find the endpoints to manage presentation configs and also to create presentation requests.</p>
 <hr>
 <h2 id="flow-diagrams">Flow Diagrams<a class="headerlink" href="#flow-diagrams" title="Permanent link">¶</a></h2>
 <h3 id="standard-presentation-flow">Standard Presentation Flow<a class="headerlink" href="#standard-presentation-flow" title="Permanent link">¶</a></h3>
@@ -2288,12 +2245,15 @@ to define presentation requests:</p>
 <li><strong>Tenant isolation</strong> prevents cross-tenant data access</li>
 <li><strong>Session-based security</strong> with automatic cleanup</li>
 </ul>
-<h3 id="verification">Verification<a class="headerlink" href="#verification" title="Permanent link">¶</a></h3>
+<h3 id="trust-verification">Trust Verification<a class="headerlink" href="#trust-verification" title="Permanent link">¶</a></h3>
 <ul>
 <li><strong>Cryptographic validation</strong> of presented credentials</li>
-<li><strong>Issuer verification</strong> against trusted registries</li>
-<li><strong>Revocation status checking</strong> for active credentials</li>
+<li><strong>Issuer verification</strong> against trusted entities in trust lists</li>
+<li><strong>Revocation status checking</strong> using the correct revocation certificate from
+  the same trusted entity</li>
 </ul>
+<p>For detailed information on how trust verification works, see
+<a href="../../architecture/trust-framework/">Trust Framework</a>.</p>
 
 
 

@@ -1000,6 +1000,8 @@
       
         
       
+        
+      
     
     
     
@@ -1072,6 +1074,34 @@
     
   
     Supported Protocols
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../trust-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trust Framework
   
 
     
@@ -1335,6 +1365,17 @@
     <span class="md-ellipsis">
       
         Presentation Configurations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trust-list-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trust List Configurations
       
     </span>
   </a>
@@ -2275,6 +2316,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#trust-list-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trust List Configurations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#client-configurations" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2700,6 +2752,14 @@ starts. This is particularly useful for:</p>
 <p>Define verification requirements for credential presentations.</p>
 <p><strong>Schema Reference</strong>:
 <a href="../../api/openapi/#presentationconfig">Presentation Config API</a></p>
+<h3 id="trust-list-configurations">Trust List Configurations<a class="headerlink" href="#trust-list-configurations" title="Permanent link">¶</a></h3>
+<p><strong>Location</strong>: <code>config/{tenant}/trustlists/*.json</code></p>
+<p>Define trust lists for credential verification. Trust lists specify which issuers
+and revocation services are trusted when verifying credentials during presentation flows.</p>
+<p><strong>Schema Reference</strong>:
+<a href="../../api/openapi/#trustlist">Trust List API</a></p>
+<p>For detailed information on trust lists and their role in credential verification, see
+<a href="../trust-framework/">Trust Framework</a>.</p>
 <h3 id="client-configurations">Client Configurations<a class="headerlink" href="#client-configurations" title="Permanent link">¶</a></h3>
 <p><strong>Location</strong>: <code>config/{tenant}/clients/*.json</code></p>
 <p>Define client-specific configurations, including client IDs, secrets, and permissions.</p>

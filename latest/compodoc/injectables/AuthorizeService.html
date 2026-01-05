@@ -134,7 +134,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/issuer/authorize/authorize.service.ts</code>
+            <code>src/issuer/issuance/oid4vci/authorize/authorize.service.ts</code>
         </p>
 
 
@@ -206,7 +206,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">src/issuer/authorize/authorize.service.ts:41</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:41</a></div>
                             </td>
                         </tr>
 
@@ -308,7 +308,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="270"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:270</a></div>
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:270</a></div>
                         </td>
                     </tr>
 
@@ -411,7 +411,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="58"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:58</a></div>
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:58</a></div>
                         </td>
                     </tr>
 
@@ -478,7 +478,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="51"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:51</a></div>
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:51</a></div>
                         </td>
                     </tr>
 
@@ -545,7 +545,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="243"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:243</a></div>
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:243</a></div>
                         </td>
                     </tr>
 
@@ -651,7 +651,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="333"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:333</a></div>
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:333</a></div>
                         </td>
                     </tr>
 
@@ -730,7 +730,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="87"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:87</a></div>
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:87</a></div>
                         </td>
                     </tr>
 
@@ -811,7 +811,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="340"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:340</a></div>
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:340</a></div>
                         </td>
                     </tr>
 
@@ -880,7 +880,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="121"
-                                    class="link-to-prism">src/issuer/authorize/authorize.service.ts:121</a></div>
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:121</a></div>
                         </td>
                     </tr>
 
@@ -979,12 +979,12 @@ import {
 } from &quot;@openid4vc/oauth2&quot;;
 import type { Request, Response } from &quot;express&quot;;
 import { v4 } from &quot;uuid&quot;;
-import { CryptoService } from &quot;../../crypto/crypto.service&quot;;
-import { Session } from &quot;../../session/entities/session.entity&quot;;
-import { SessionService } from &quot;../../session/session.service&quot;;
-import { WebhookConfig } from &quot;../../utils/webhook/webhook.dto&quot;;
-import { IssuanceService } from &quot;../issuance/issuance.service&quot;;
-import { getHeadersFromRequest } from &quot;../oid4vci/util&quot;;
+import { CryptoService } from &quot;../../../../crypto/crypto.service&quot;;
+import { Session } from &quot;../../../../session/entities/session.entity&quot;;
+import { SessionService } from &quot;../../../../session/session.service&quot;;
+import { WebhookConfig } from &quot;../../../../shared/utils/webhook/webhook.dto&quot;;
+import { IssuanceService } from &quot;../../../configuration/issuance/issuance.service&quot;;
+import { getHeadersFromRequest } from &quot;../util&quot;;
 import { AuthorizeQueries } from &quot;./dto/authorize-request.dto&quot;;
 
 export interface ParsedAccessTokenAuthorizationCodeRequestGrant {

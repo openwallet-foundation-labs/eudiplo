@@ -162,7 +162,6 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
-                                    <span class="modifier">Async</span>
                                 <a href="#resolvePublicKey" >resolvePublicKey</a>
                             </li>
                         </ul>
@@ -177,54 +176,6 @@
     </table>
 </section>
 
-            <section data-compodoc="block-constructor">
-    <h3 id="constructor">Constructor</h3>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-<code>constructor(httpService: HttpService)</code>
-                    </td>
-                </tr>
-                        <tr>
-                            <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="12" class="link-to-prism">src/verifier/resolver/resolver.service.ts:12</a></div>
-                            </td>
-                        </tr>
-
-                <tr>
-                    <td class="col-md-4">
-                            <div>
-                                    <b>Parameters :</b>
-                                    <table class="params">
-                                        <thead>
-                                            <tr>
-                                                <td>Name</td>
-                                                    <td>Type</td>
-                                                <td>Optional</td>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                                <tr>
-                                                        <td>httpService</td>
-                                                  
-                                                        <td>
-                                                                    <code>HttpService</code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                        </tbody>
-                                    </table>
-                            </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-</section>
 
             <section data-compodoc="block-methods">
     
@@ -237,7 +188,6 @@
                 <td class="col-md-4">
                     <a name="resolvePublicKey"></a>
                     <span class="name">
-                            <span class="modifier">Async</span>
                         <span ><b>resolvePublicKey</b></span>
                         <a href="#resolvePublicKey"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -245,23 +195,22 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>resolvePublicKey(payload: JWTPayload, header: JWK)</code>
+<code>resolvePublicKey(header: JWK)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="21"
-                                    class="link-to-prism">src/verifier/resolver/resolver.service.ts:21</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="16"
+                                    class="link-to-prism">src/verifier/resolver/resolver.service.ts:16</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Resolve the public key from the issuer, the function will first check for the x5c header, then for the did document and finally for the issuer metadata.</p>
+                        <div class="io-description"><p>Resolve the public key from the issuer, x5c header only supported.</p>
 </div>
 
                             <div class="io-description">
@@ -276,18 +225,6 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                                <td>payload</td>
-                                            <td>
-                                                        <code>JWTPayload</code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
                                         <tr>
                                                 <td>header</td>
                                             <td>
@@ -321,56 +258,34 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { X509Certificate } from &quot;node:crypto&quot;;
-import { HttpService } from &quot;@nestjs/axios&quot;;
 import { ConflictException, Injectable } from &quot;@nestjs/common&quot;;
-import { JWK, JWTPayload } from &quot;jose&quot;;
-import { firstValueFrom } from &quot;rxjs&quot;;
-import { IssuerMetadata } from &quot;./dto/issuer-metadata.dto&quot;;
+import { JWK } from &quot;jose&quot;;
 
 /**
  * Service for resolving public keys from JWT payloads and headers.
  */
 @Injectable()
 export class ResolverService {
-    constructor(private httpService: HttpService) {}
-
     /**
-     * Resolve the public key from the issuer, the function will first check for the x5c header, then for the did document and finally for the issuer metadata.
+     * Resolve the public key from the issuer, x5c header only supported.
      * @param payload
      * @param header
      * @returns
      */
-    async resolvePublicKey(payload: JWTPayload, header: JWK): Promise&lt;JWK&gt; {
+    resolvePublicKey(header: JWK): Promise&lt;JWK&gt; {
         //we ignore is iss value since it is no required when using x5c: https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-13.html#name-registered-jwt-claims
-
         if (header.x5c) {
             //TODO: validate the certificate and the chain of trust!
             const certs &#x3D; header.x5c.map(
                 (cert) &#x3D;&gt; new X509Certificate(Buffer.from(cert, &quot;base64&quot;)),
             );
             const cert &#x3D; certs[0];
-            return cert.publicKey.export({ format: &quot;jwk&quot; }) as JWK;
+            return Promise.resolve(
+                cert.publicKey.export({ format: &quot;jwk&quot; }) as JWK,
+            );
+        } else {
+            throw new ConflictException(&quot;No x5c header found in the JWT&quot;);
         }
-        //checl if the key is in the header as jwk
-        if (header[&quot;jwk&quot;]) {
-            return header[&quot;jwk&quot;] as JWK;
-        }
-
-        const response &#x3D; await firstValueFrom(
-            this.httpService.get&lt;IssuerMetadata&gt;(
-                &#x60;${payload.iss}/.well-known/jwt-vc-issuer&#x60;,
-            ),
-        ).then(
-            (r) &#x3D;&gt; r.data,
-            () &#x3D;&gt; {
-                throw new ConflictException(&quot;Issuer not reachable&quot;);
-            },
-        );
-        const key &#x3D; response.jwks.keys.find((key) &#x3D;&gt; key.kid &#x3D;&#x3D;&#x3D; header.kid);
-        if (!key) {
-            throw new Error(&quot;Key not found&quot;);
-        }
-        return key;
     }
 }
 </code></pre>

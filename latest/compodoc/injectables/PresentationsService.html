@@ -152,31 +152,6 @@
     <h3 id="index">Index</h3>
     <table class="table table-sm table-bordered index-table">
         <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <h6><b>Properties</b></h6>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <ul class="index-list">
-                            <li>
-                                    <span class="modifier">Private</span>
-                                <a href="#kbVerifier" >kbVerifier</a>
-                            </li>
-                            <li>
-                                <a href="#sdjwtInstance" >sdjwtInstance</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Private</span>
-                                <a href="#statusListFetcher" >statusListFetcher</a>
-                            </li>
-                            <li>
-                                <a href="#verifier" >verifier</a>
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
 
                 <tr>
                     <td class="col-md-4">
@@ -196,6 +171,9 @@
                                 <a href="#getPresentationConfigs" >getPresentationConfigs</a>
                             </li>
                             <li>
+                                <a href="#getType" >getType</a>
+                            </li>
+                            <li>
                                     <span class="modifier">Private</span>
                                     <span class="modifier">Async</span>
                                 <a href="#import" >import</a>
@@ -205,6 +183,7 @@
                                 <a href="#onApplicationBootstrap" >onApplicationBootstrap</a>
                             </li>
                             <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#parseResponse" >parseResponse</a>
                             </li>
                             <li>
@@ -214,6 +193,10 @@
                                     <span class="modifier">Public</span>
                                     <span class="modifier">Async</span>
                                 <a href="#storeRCID" >storeRCID</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#updatePresentationConfig" >updatePresentationConfig</a>
                             </li>
                         </ul>
                     </td>
@@ -233,12 +216,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(httpService: HttpService, resolverService: <a href="../injectables/ResolverService.html" target="_self">ResolverService</a>, vpRequestRepository: <a href="../entitys/PresentationConfig.html" target="_self">Repository&lt;PresentationConfig&gt;</a>, cryptoService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>)</code>
+<code>constructor(vpRequestRepository: <a href="../entitys/PresentationConfig.html" target="_self">Repository&lt;PresentationConfig&gt;</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, sdjwtvcverifierService: <a href="../injectables/SdjwtvcverifierService.html" target="_self">SdjwtvcverifierService</a>, mdlverifierService: <a href="../injectables/MdlverifierService.html" target="_self">MdlverifierService</a>, configService: ConfigService)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">src/verifier/presentations/presentations.service.ts:31</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="32" class="link-to-prism">src/verifier/presentations/presentations.service.ts:32</a></div>
                             </td>
                         </tr>
 
@@ -259,42 +242,6 @@
                                         </thead>
                                         <tbody>
                                                 <tr>
-                                                        <td>httpService</td>
-                                                  
-                                                        <td>
-                                                                    <code>HttpService</code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                        <td>
-                                                                <ul>
-<li>Instance of HttpService for making HTTP requests.</li>
-</ul>
-
-                                                        </td>
-                                                </tr>
-                                                <tr>
-                                                        <td>resolverService</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../injectables/ResolverService.html" target="_self" >ResolverService</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                        <td>
-                                                                <ul>
-<li>Instance of ResolverService for resolving DID documents.</li>
-</ul>
-
-                                                        </td>
-                                                </tr>
-                                                <tr>
                                                         <td>vpRequestRepository</td>
                                                   
                                                         <td>
@@ -313,10 +260,10 @@
                                                         </td>
                                                 </tr>
                                                 <tr>
-                                                        <td>cryptoService</td>
+                                                        <td>configImportService</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../injectables/CryptoImplementationService.html" target="_self" >CryptoImplementationService</a></code>
+                                                                        <code><a href="../injectables/ConfigImportService.html" target="_self" >ConfigImportService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -327,10 +274,38 @@
                                                         </td>
                                                 </tr>
                                                 <tr>
-                                                        <td>configImportService</td>
+                                                        <td>sdjwtvcverifierService</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../injectables/ConfigImportService.html" target="_self" >ConfigImportService</a></code>
+                                                                        <code><a href="../injectables/SdjwtvcverifierService.html" target="_self" >SdjwtvcverifierService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                        <td>
+                                                        </td>
+                                                </tr>
+                                                <tr>
+                                                        <td>mdlverifierService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/MdlverifierService.html" target="_self" >MdlverifierService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                        <td>
+                                                        </td>
+                                                </tr>
+                                                <tr>
+                                                        <td>configService</td>
+                                                  
+                                                        <td>
+                                                                    <code>ConfigService</code>
                                                         </td>
                                                   
                                                     <td>
@@ -374,8 +349,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="132"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:132</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="151"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:151</a></div>
                         </td>
                     </tr>
 
@@ -469,8 +444,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="142"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:142</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="161"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:161</a></div>
                         </td>
                     </tr>
 
@@ -564,8 +539,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="103"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:103</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="97"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:97</a></div>
                         </td>
                     </tr>
 
@@ -625,6 +600,87 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="getType"></a>
+                    <span class="name">
+                        <span ><b>getType</b></span>
+                        <a href="#getType"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getType(jwt: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, att: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="301"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:301</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get the credential type based on the configuration id.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>jwt</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>att</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#CredentialType" target="_self" >CredentialType</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="import"></a>
                     <span class="name">
                             <span class="modifier">Private</span>
@@ -644,8 +700,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="64"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:64</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="58"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:58</a></div>
                         </td>
                     </tr>
 
@@ -710,6 +766,7 @@
                 <td class="col-md-4">
                     <a name="parseResponse"></a>
                     <span class="name">
+                            <span class="modifier">Async</span>
                         <span ><b>parseResponse</b></span>
                         <a href="#parseResponse"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -717,15 +774,16 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>parseResponse(res: <a href="../interfaces/AuthResponse.html" target="_self">AuthResponse</a>, requiredFields: string[], keyBindingNonce: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>parseResponse(res: <a href="../interfaces/AuthResponse.html" target="_self">AuthResponse</a>, presentationConfig: <a href="../entitys/PresentationConfig.html" target="_self">PresentationConfig</a>, session: <a href="../entitys/Session.html" target="_self">Session</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="237"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:237</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="200"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:200</a></div>
                         </td>
                     </tr>
 
@@ -760,9 +818,9 @@
 
                                         </tr>
                                         <tr>
-                                                <td>requiredFields</td>
+                                                <td>presentationConfig</td>
                                             <td>
-                                                        <code>string[]</code>
+                                                            <code><a href="../entitys/PresentationConfig.html" target="_self" >PresentationConfig</a></code>
                                             </td>
 
                                             <td>
@@ -772,9 +830,9 @@
 
                                         </tr>
                                         <tr>
-                                                <td>keyBindingNonce</td>
+                                                <td>session</td>
                                             <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                                            <code><a href="../entitys/Session.html" target="_self" >Session</a></code>
                                             </td>
 
                                             <td>
@@ -787,7 +845,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>    <code>unknown</code>
 
                         </div>
                             <div class="io-description">
@@ -817,8 +875,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="116"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:116</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="110"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:110</a></div>
                         </td>
                     </tr>
 
@@ -915,8 +973,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="163"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:163</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="182"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:182</a></div>
                         </td>
                     </tr>
 
@@ -1007,234 +1065,99 @@
             </tr>
         </tbody>
     </table>
-</section>
-            <section data-compodoc="block-properties">
-    
-    <h3 id="inputs">
-        Properties
-    </h3>
     <table class="table table-sm table-bordered">
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="kbVerifier"></a>
+                    <a name="updatePresentationConfig"></a>
                     <span class="name">
-                            <span class="modifier">Private</span>
-                        <span ><b>kbVerifier</b></span>
-                        <a href="#kbVerifier"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier">Async</span>
+                        <span ><b>updatePresentationConfig</b></span>
+                        <a href="#updatePresentationConfig"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../miscellaneous/typealiases.html#Verifier" target="_self" >KbVerifier</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Default value : </i><code>() &#x3D;&gt; {...}</code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="221" class="link-to-prism">src/verifier/presentations/presentations.service.ts:221</a></div>
-                        </td>
-                    </tr>
-
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><p>Verifier for keybindings. It will verify the signature of the keybinding and return true if it is valid.</p>
-</div>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>updatePresentationConfig(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, vprequest: <a href="../classes/PresentationConfigUpdateDto.html" target="_self">PresentationConfigUpdateDto</a>)</code>
                 </td>
             </tr>
 
-                <tr>
-                    <td class="col-md-4">
-                        <div class="io-description">
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="127"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:127</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Updates an existing presentation configuration.</p>
+</div>
+
+                            <div class="io-description">
                                 <b>Parameters :</b>
+                                
                                 <table class="params">
                                     <thead>
                                         <tr>
                                             <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                            <tr>
-                                                    <td>data</td>
-                                            </tr>
-                                            <tr>
-                                                    <td>signature</td>
-                                            </tr>
-                                            <tr>
-                                                    <td>payload</td>
-                                            </tr>
-                                    </tbody>
-                                </table>
-                        </div>
-                    </td>
-                </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="sdjwtInstance"></a>
-                    <span class="name">
-                        <span ><b>sdjwtInstance</b></span>
-                        <a href="#sdjwtInstance"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>    <code>SDJwtVcInstance</code>
-
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">src/verifier/presentations/presentations.service.ts:31</a></div>
-                        </td>
-                    </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Instance of SDJwtVcInstance for handling SD-JWT-VCs.</p>
-</div>
-                </td>
-            </tr>
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="statusListFetcher"></a>
-                    <span class="name">
-                            <span class="modifier">Private</span>
-                        <span ><b>statusListFetcher</b></span>
-                        <a href="#statusListFetcher"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Default value : </i><code>() &#x3D;&gt; {...}</code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="206" class="link-to-prism">src/verifier/presentations/presentations.service.ts:206</a></div>
-                        </td>
-                    </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Fetch the status list from the uri.</p>
-</div>
-                </td>
-            </tr>
-
-                <tr>
-                    <td class="col-md-4">
-                        <div class="io-description">
-                                <b>Parameters :</b>
-                                <table class="params">
-                                    <thead>
                                         <tr>
-                                            <td>Name</td>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                            <tr>
-                                                    <td>uri</td>
-                                            </tr>
-                                    </tbody>
-                                </table>
-                        </div>
-                    </td>
-                </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="verifier"></a>
-                    <span class="name">
-                        <span ><b>verifier</b></span>
-                        <a href="#verifier"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../miscellaneous/typealiases.html#Verifier" target="_self" >Verifier</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Default value : </i><code>() &#x3D;&gt; {...}</code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="182" class="link-to-prism">src/verifier/presentations/presentations.service.ts:182</a></div>
-                        </td>
-                    </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Verifier for SD-JWT-VCs. It will verify the signature of the SD-JWT-VC and return true if it is valid.</p>
-</div>
-                </td>
-            </tr>
-
-                <tr>
-                    <td class="col-md-4">
-                        <div class="io-description">
-                                <b>Parameters :</b>
-                                <table class="params">
-                                    <thead>
                                         <tr>
-                                            <td>Name</td>
-                                                <td>Description</td>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                            <tr>
-                                                    <td>data</td>
-                                                    <td>
-                                                            <code><ul>
-<li>The data part of the SD-JWT-VC.</li>
-</ul>
-</code>
-                                                    </td>
-                                            </tr>
-                                            <tr>
-                                                    <td>signature</td>
-                                                    <td>
-                                                            <code><ul>
-<li>The signature of the SD-JWT-VC.</li>
-</ul>
-</code>
-                                                    </td>
-                                            </tr>
+                                        <tr>
+                                                <td>vprequest</td>
+                                            <td>
+                                                            <code><a href="../classes/PresentationConfigUpdateDto.html" target="_self" >PresentationConfigUpdateDto</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
                                     </tbody>
                                 </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>unknown</code>
+
                         </div>
-                    </td>
-                </tr>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
         </tbody>
     </table>
 </section>
@@ -1243,27 +1166,32 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { HttpService } from &quot;@nestjs/axios&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { readFileSync } from &quot;node:fs&quot;;
 import {
     ConflictException,
     Injectable,
     OnApplicationBootstrap,
 } from &quot;@nestjs/common&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
-import { digest } from &quot;@sd-jwt/crypto-nodejs&quot;;
-import { SDJwtVcInstance } from &quot;@sd-jwt/sd-jwt-vc&quot;;
-import { KbVerifier, Verifier } from &quot;@sd-jwt/types&quot;;
 import { plainToClass } from &quot;class-transformer&quot;;
-import { readFileSync } from &quot;fs&quot;;
-import { JWK, JWTPayload } from &quot;jose&quot;;
-import { firstValueFrom } from &quot;rxjs&quot;;
+import { decodeJwt } from &quot;jose&quot;;
 import { Repository } from &quot;typeorm&quot;;
-import { CryptoImplementationService } from &quot;../../crypto/key/crypto-implementation/crypto-implementation.service&quot;;
-import { ConfigImportService } from &quot;../../utils/config-import/config-import.service&quot;;
-import { ResolverService } from &quot;../resolver/resolver.service&quot;;
+import { ServiceTypeIdentifier } from &quot;../../issuer/trustlist/trustlist.service&quot;;
+import { Session } from &quot;../../session/entities/session.entity&quot;;
+import { ConfigImportService } from &quot;../../shared/utils/config-import/config-import.service&quot;;
+import { VerifierOptions } from &quot;../resolver/trust/types&quot;;
+import { MdlverifierService } from &quot;./credential/mdlverifier/mdlverifier.service&quot;;
+import { SdjwtvcverifierService } from &quot;./credential/sdjwtvcverifier/sdjwtvcverifier.service&quot;;
 import { AuthResponse } from &quot;./dto/auth-response.dto&quot;;
 import { PresentationConfigCreateDto } from &quot;./dto/presentation-config-create.dto&quot;;
-import { PresentationConfig } from &quot;./entities/presentation-config.entity&quot;;
+import { PresentationConfigUpdateDto } from &quot;./dto/presentation-config-update.dto&quot;;
+import {
+    PresentationConfig,
+    TrustedAuthorityType,
+} from &quot;./entities/presentation-config.entity&quot;;
+
+type CredentialType &#x3D; &quot;dc+sd-jwt&quot; | &quot;mso_mdoc&quot;;
 
 /**
  * Service for managing Verifiable Presentations (VPs) and handling SD-JWT-VCs.
@@ -1271,35 +1199,24 @@ import { PresentationConfig } from &quot;./entities/presentation-config.entity&q
 @Injectable()
 export class PresentationsService implements OnApplicationBootstrap {
     /**
-     * Instance of SDJwtVcInstance for handling SD-JWT-VCs.
-     */
-    sdjwtInstance!: SDJwtVcInstance;
-
-    /**
      * Constructor for the PresentationsService.
      * @param httpService - Instance of HttpService for making HTTP requests.
      * @param resolverService - Instance of ResolverService for resolving DID documents.
      * @param vpRequestRepository - Repository for managing VP request configurations.
      */
     constructor(
-        private httpService: HttpService,
-        private resolverService: ResolverService,
         @InjectRepository(PresentationConfig)
-        private vpRequestRepository: Repository&lt;PresentationConfig&gt;,
-        private cryptoService: CryptoImplementationService,
-        private configImportService: ConfigImportService,
+        private readonly vpRequestRepository: Repository&lt;PresentationConfig&gt;,
+        private readonly configImportService: ConfigImportService,
+        private readonly sdjwtvcverifierService: SdjwtvcverifierService,
+        private readonly mdlverifierService: MdlverifierService,
+        private readonly configService: ConfigService,
     ) {}
 
     /**
      * Imports presentation configurations from a predefined directory structure.
      */
     async onApplicationBootstrap() {
-        this.sdjwtInstance &#x3D; new SDJwtVcInstance({
-            hasher: digest,
-            verifier: this.verifier.bind(this),
-            kbVerifier: this.kbVerifier.bind(this),
-            statusListFetcher: this.statusListFetcher.bind(this),
-        });
         await this.import();
     }
 
@@ -1369,6 +1286,31 @@ export class PresentationsService implements OnApplicationBootstrap {
     }
 
     /**
+     * Updates an existing presentation configuration.
+     * @param id
+     * @param tenantId
+     * @param vprequest
+     * @returns
+     */
+    async updatePresentationConfig(
+        id: string,
+        tenantId: string,
+        vprequest: PresentationConfigUpdateDto,
+    ) {
+        // Verify the config exists
+        const existing &#x3D; await this.getPresentationConfig(id, tenantId);
+
+        // Merge existing with updates - client must explicitly set fields to null to clear them
+        // Omitted fields keep their existing values
+        return this.vpRequestRepository.save({
+            ...existing,
+            ...vprequest,
+            id,
+            tenantId,
+        });
+    }
+
+    /**
      * Deletes a presentation configuration by its ID and tenant ID.
      * @param id - The ID of the presentation configuration to delete.
      * @param tenantId - The ID of the tenant for which to delete the configuration.
@@ -1414,64 +1356,8 @@ export class PresentationsService implements OnApplicationBootstrap {
             id,
             tenantId,
         });
-        element.registrationCert!.id &#x3D; registrationCertId;
         await this.vpRequestRepository.save(element);
     }
-
-    /**
-     * Verifier for SD-JWT-VCs. It will verify the signature of the SD-JWT-VC and return true if it is valid.
-     * @param data - The data part of the SD-JWT-VC.
-     * @param signature - The signature of the SD-JWT-VC.
-     * @returns
-     */
-    verifier: Verifier &#x3D; async (data, signature) &#x3D;&gt; {
-        const instance &#x3D; new SDJwtVcInstance({
-            hasher: digest,
-        });
-        const decodedVC &#x3D; await instance.decode(&#x60;${data}.${signature}&#x60;);
-        const payload &#x3D; decodedVC.jwt?.payload as JWTPayload;
-        const header &#x3D; decodedVC.jwt?.header as JWK;
-        const publicKey &#x3D; await this.resolverService.resolvePublicKey(
-            payload,
-            header,
-        );
-        const crypto &#x3D; this.cryptoService.getCryptoFromJwk(publicKey); // just to check if we support the key
-        const verify &#x3D; await crypto.getVerifier(publicKey);
-        return verify(data, signature).catch((err) &#x3D;&gt; {
-            console.log(err);
-            return false;
-        });
-    };
-
-    /**
-     * Fetch the status list from the uri.
-     * @param uri
-     * @returns
-     */
-    private statusListFetcher: (uri: string) &#x3D;&gt; Promise&lt;string&gt; &#x3D; (
-        uri: string,
-    ) &#x3D;&gt; {
-        return firstValueFrom(this.httpService.get&lt;string&gt;(uri)).then(
-            (res) &#x3D;&gt; res.data,
-        );
-    };
-
-    /**
-     * Verifier for keybindings. It will verify the signature of the keybinding and return true if it is valid.
-     * @param data
-     * @param signature
-     * @param payload
-     * @returns
-     */
-    private kbVerifier: KbVerifier &#x3D; async (data, signature, payload) &#x3D;&gt; {
-        if (!payload.cnf) {
-            throw new Error(&quot;No cnf found in the payload&quot;);
-        }
-        const jwk: JWK &#x3D; (payload.cnf as any).jwk;
-        const crypto &#x3D; this.cryptoService.getCryptoFromJwk(jwk);
-        const verifier &#x3D; await crypto.getVerifier(jwk);
-        return verifier(data, signature);
-    };
 
     /**
      * Parse the response from the wallet. It will verify the SD-JWT-VCs in the vp_token and return the parsed attestations.
@@ -1479,39 +1365,112 @@ export class PresentationsService implements OnApplicationBootstrap {
      * @param requiredFields
      * @returns
      */
-    parseResponse(
+    async parseResponse(
         res: AuthResponse,
-        requiredFields: string[],
-        keyBindingNonce: string,
+        presentationConfig: PresentationConfig,
+        session: Session,
     ) {
-        const attestations &#x3D; Object.keys(res.vp_token);
-        const att &#x3D; attestations.map(async (att) &#x3D;&gt; ({
-            id: att,
-            values: await Promise.all(
-                (res.vp_token[att] as unknown as string[]).map(
-                    (cred) &#x3D;&gt;
-                        this.sdjwtInstance
-                            .verify(cred, {
-                                requiredClaimKeys: requiredFields,
-                                keyBindingNonce,
-                            })
-                            .then((result) &#x3D;&gt; ({
+        const attestationIds &#x3D; Object.keys(res.vp_token);
+        const host &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;);
+        const tenantHost &#x3D; &#x60;${host}/${presentationConfig.tenantId}&#x60;;
+
+        const results &#x3D; await Promise.all(
+            attestationIds.map(async (attId) &#x3D;&gt; {
+                const credentials &#x3D; res.vp_token[attId] as unknown as string[];
+                const dcqlCredential &#x3D;
+                    presentationConfig.dcql_query.credentials.find(
+                        (c) &#x3D;&gt; c.id &#x3D;&#x3D;&#x3D; attId,
+                    );
+
+                if (!dcqlCredential) {
+                    throw new ConflictException(
+                        &#x60;${attId} not found in the presentation config&#x60;,
+                    );
+                }
+
+                const verifyOptions: VerifierOptions &#x3D; {
+                    trustListSource: {
+                        lotes:
+                            dcqlCredential.trusted_authorities
+                                ?.find(
+                                    (auth) &#x3D;&gt;
+                                        auth.type &#x3D;&#x3D;&#x3D;
+                                        TrustedAuthorityType.ETSI_TL,
+                                )
+                                ?.values.map((url) &#x3D;&gt; ({
+                                    url: url.replaceAll(
+                                        &quot;&lt;PUBLIC_URL&gt;&quot;,
+                                        tenantHost,
+                                    ),
+                                })) || [],
+                        acceptedServiceTypes: [
+                            ServiceTypeIdentifier.EaaIssuance,
+                        ],
+                    },
+                    policy: {
+                        requireX5c: true,
+                    },
+                };
+
+                const type &#x3D; this.getType(session.requestObject!, attId);
+
+                const values &#x3D; await Promise.all(
+                    credentials.map(async (cred) &#x3D;&gt; {
+                        if (type &#x3D;&#x3D;&#x3D; &quot;mso_mdoc&quot;) {
+                            const result &#x3D; await this.mdlverifierService.verify(
+                                cred,
+                                {
+                                    nonce: session.vp_nonce as string,
+                                    clientId: session.clientId!,
+                                    responseUri: session.responseUri!,
+                                    protocol: &quot;openid4vp&quot;,
+                                    responseMode: session.useDcApi
+                                        ? &quot;dc_api.jwt&quot;
+                                        : &quot;direct_post.jwt&quot;,
+                                },
+                                verifyOptions,
+                            );
+                            return {
+                                ...result.claims,
+                                payload: result.payload,
+                            };
+                        } else if (type &#x3D;&#x3D;&#x3D; &quot;dc+sd-jwt&quot;) {
+                            const result &#x3D;
+                                await this.sdjwtvcverifierService.verify(cred, {
+                                    requiredClaimKeys: [],
+                                    keyBindingNonce: session.vp_nonce!,
+                                    ...verifyOptions,
+                                } as any);
+                            return {
                                 ...result.payload,
-                                cnf: undefined, // remove cnf for simplicity
-                                status: undefined, // remove status for simplicity
-                            })),
-                    /* (err) &#x3D;&gt; {
-                        throw new Error
-                        //(console.log(err);
-                        return {
-                            id: att,
-                            error: err.message,
-                        };
-                    }, */
-                ),
-            ),
-        }));
-        return Promise.all(att);
+                                cnf: undefined,
+                                status: undefined,
+                            };
+                        }
+                        throw new ConflictException(
+                            &#x60;Unsupported credential type: ${type}&#x60;,
+                        );
+                    }),
+                );
+
+                return { id: attId, values };
+            }),
+        );
+
+        return results;
+    }
+
+    /**
+     * Get the credential type based on the configuration id.
+     * @param jwt
+     * @param att
+     * @returns
+     */
+    getType(jwt: string, att: string): CredentialType {
+        const payload &#x3D; decodeJwt&lt;any&gt;(jwt);
+        return payload.dcql_query.credentials.find(
+            (credential) &#x3D;&gt; credential.id &#x3D;&#x3D;&#x3D; att,
+        ).format;
     }
 }
 </code></pre>

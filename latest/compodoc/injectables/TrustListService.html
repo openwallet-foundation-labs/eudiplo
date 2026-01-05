@@ -1,0 +1,2740 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>@eudiplo/backend documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+        <link rel="stylesheet" href="../styles/material.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">@eudiplo/backend documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content injectable">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Injectables</li>
+  <li class="breadcrumb-item" >TrustListService</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>src/issuer/trustlist/trustlist.service.ts</code>
+        </p>
+
+
+
+
+
+            <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Readonly</span>
+                                <a href="#keyService" >keyService</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#buildAndSaveTrustList" >buildAndSaveTrustList</a>
+                            </li>
+                            <li>
+                                <a href="#create" >create</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#createEntityFromCert" >createEntityFromCert</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#createEntityFromData" >createEntityFromData</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#createEntityFromPem" >createEntityFromPem</a>
+                            </li>
+                            <li>
+                                <a href="#createList" >createList</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#exportTrustList" >exportTrustList</a>
+                            </li>
+                            <li>
+                                <a href="#findAll" >findAll</a>
+                            </li>
+                            <li>
+                                <a href="#findOne" >findOne</a>
+                            </li>
+                            <li>
+                                <a href="#formatCertEntity" >formatCertEntity</a>
+                            </li>
+                            <li>
+                                <a href="#formatPem" >formatPem</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#generateJwt" >generateJwt</a>
+                            </li>
+                            <li>
+                                <a href="#getJwt" >getJwt</a>
+                            </li>
+                            <li>
+                                <a href="#getVersion" >getVersion</a>
+                            </li>
+                            <li>
+                                <a href="#getVersionHistory" >getVersionHistory</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#importList" >importList</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#onApplicationBootstrap" >onApplicationBootstrap</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#remove" >remove</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#saveVersion" >saveVersion</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#update" >update</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#validatePem" >validatePem</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+            <section data-compodoc="block-constructor">
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor(trustListRepo: <a href="../entitys/TrustList.html" target="_self">Repository&lt;TrustList&gt;</a>, trustListVersionRepo: Repository<TrustListVersion>, keyService: <a href="../classes/KeyService.html" target="_self">KeyService</a>, certService: <a href="../injectables/CertService.html" target="_self">CertService</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, tenantRepository: <a href="../entitys/TenantEntity.html" target="_self">Repository&lt;TenantEntity&gt;</a>)</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/issuer/trustlist/trustlist.service.ts:36</a></div>
+                            </td>
+                        </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>trustListRepo</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../entitys/TrustList.html" target="_self" >Repository&lt;TrustList&gt;</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>trustListVersionRepo</td>
+                                                  
+                                                        <td>
+                                                                    <code>Repository&lt;TrustListVersion&gt;</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>keyService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>certService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/CertService.html" target="_self" >CertService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>configImportService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/ConfigImportService.html" target="_self" >ConfigImportService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>tenantRepository</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../entitys/TenantEntity.html" target="_self" >Repository&lt;TenantEntity&gt;</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
+            <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="buildAndSaveTrustList"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>buildAndSaveTrustList</b></span>
+                        <a href="#buildAndSaveTrustList"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>buildAndSaveTrustList(config: <a href="../classes/TrustListCreateDto.html" target="_self">TrustListCreateDto</a>, tenant: <a href="../entitys/TenantEntity.html" target="_self">TenantEntity</a>, existing?: <a href="../entitys/TrustList.html" target="_self">TrustList</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="209"
+                                    class="link-to-prism">src/issuer/trustlist/trustlist.service.ts:209</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Shared logic for creating and saving a trust list (used by both API and import)</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>config</td>
+                                            <td>
+                                                            <code><a href="../classes/TrustListCreateDto.html" target="_self" >TrustListCreateDto</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The configuration for the trust list</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>tenant</td>
+                                            <td>
+                                                            <code><a href="../entitys/TenantEntity.html" target="_self" >TenantEntity</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The tenant entity</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>existing</td>
+                                            <td>
+                                                            <code><a href="../entitys/TrustList.html" target="_self" >TrustList</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                            <td>
+                                                    <p>Optional existing trust list to update</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../entitys/TrustList.html" target="_self" >Promise&lt;TrustList&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="create"></a>
+                    <span class="name">
+                        <span ><b>create</b></span>
+                        <a href="#create"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>create(values: <a href="../classes/TrustListCreateDto.html" target="_self">TrustListCreateDto</a>, tenant: <a href="../entitys/TenantEntity.html" target="_self">TenantEntity</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="62"
+                                    class="link-to-prism">src/issuer/trustlist/trustlist.service.ts:62</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Create a new trust list</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>values</td>
+                                            <td>
+                                                            <code><a href="../classes/TrustListCreateDto.html" target="_self" >TrustListCreateDto</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>tenant</td>
+                                            <td>
+                                                            <code><a href="../entitys/TenantEntity.html" target="_self" >TenantEntity</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../entitys/TrustList.html" target="_self" >Promise&lt;TrustList&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="createEntityFromCert"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>createEntityFromCert</b></span>
+                        <a href="#createEntityFromCert"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>createEntityFromCert(issuerCert: <a href="../entitys/CertEntity.html" target="_self">CertEntity</a>, revocationCert: <a href="../entitys/CertEntity.html" target="_self">CertEntity</a>, info: <a href="../classes/TrustListEntityInfo.html" target="_self">TrustListEntityInfo</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="376"
+                                    class="link-to-prism">src/issuer/trustlist/trustlist.service.ts:376</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>issuerCert</td>
+                                            <td>
+                                                            <code><a href="../entitys/CertEntity.html" target="_self" >CertEntity</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>revocationCert</td>
+                                            <td>
+                                                            <code><a href="../entitys/CertEntity.html" target="_self" >CertEntity</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>info</td>
+                                            <td>
+                                                            <code><a href="../classes/TrustListEntityInfo.html" target="_self" >TrustListEntityInfo</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../interfaces/TrustedEntity.html" target="_self" >TrustedEntity</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="createEntityFromData"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>createEntityFromData</b></span>
+                        <a href="#createEntityFromData"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>createEntityFromData(issuerCertBase64: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, revocationCertBase64: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, info: <a href="../classes/TrustListEntityInfo.html" target="_self">TrustListEntityInfo</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="400"
+                                    class="link-to-prism">src/issuer/trustlist/trustlist.service.ts:400</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>issuerCertBase64</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>revocationCertBase64</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>info</td>
+                                            <td>
+                                                            <code><a href="../classes/TrustListEntityInfo.html" target="_self" >TrustListEntityInfo</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../interfaces/TrustedEntity.html" target="_self" >TrustedEntity</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="createEntityFromPem"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>createEntityFromPem</b></span>
+                        <a href="#createEntityFromPem"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>createEntityFromPem(issuerCertPem: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, revocationCertPem: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, info: <a href="../classes/TrustListEntityInfo.html" target="_self">TrustListEntityInfo</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="388"
+                                    class="link-to-prism">src/issuer/trustlist/trustlist.service.ts:388</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>issuerCertPem</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>revocationCertPem</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>info</td>
+                                            <td>
+                                                            <code><a href="../classes/TrustListEntityInfo.html" target="_self" >TrustListEntityInfo</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../interfaces/TrustedEntity.html" target="_self" >TrustedEntity</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="createList"></a>
+                    <span class="name">
+                        <span ><b>createList</b></span>
+                        <a href="#createList"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>createList(tenant: <a href="../entitys/TenantEntity.html" target="_self">TenantEntity</a>, list: <a href="../interfaces/TrustedEntity.html" target="_self">TrustedEntity[]</a>, sequenceNumber: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="481"
+                                    class="link-to-prism">src/issuer/trustlist/trustlist.service.ts:481</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Default value</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenant</td>
+                                            <td>
+                                                            <code><a href="../entitys/TenantEntity.html" target="_self" >TenantEntity</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+                                            <td>
+                                            </td>
+
+                                        </tr>
+                                        <tr>
+                                                <td>list</td>
+                                            <td>
+                                                            <code><a href="../interfaces/TrustedEntity.html" target="_self" >TrustedEntity[]</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+                                            <td>
+                                            </td>
+
+                                        </tr>
+                                        <tr>
+                                                <td>sequenceNumber</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+                                            <td>
+                                                    <code>1</code>
+                                            </td>
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../interfaces/LoTE.html" target="_self" >LoTE</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="exportTrustList"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>exportTrustList</b></span>
+                        <a href="#exportTrustList"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>exportTrustList(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="88"
+                                    class="link-to-prism">src/issuer/trustlist/trustlist.service.ts:88</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/TrustListCreateDto.html" target="_self" >Promise&lt;TrustListCreateDto&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="findAll"></a>
+                    <span class="name">
+                        <span ><b>findAll</b></span>
+                        <a href="#findAll"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>findAll(tenant: <a href="../entitys/TenantEntity.html" target="_self">TenantEntity</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="74"
+                                    class="link-to-prism">src/issuer/trustlist/trustlist.service.ts:74</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Finds all trust lists for the tenant</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenant</td>
+                                            <td>
+                                                            <code><a href="../entitys/TenantEntity.html" target="_self" >TenantEntity</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../entitys/TrustList.html" target="_self" >Promise&lt;TrustList[]&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="findOne"></a>
+                    <span class="name">
+                        <span ><b>findOne</b></span>
+                        <a href="#findOne"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>findOne(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="84"
+                                    class="link-to-prism">src/issuer/trustlist/trustlist.service.ts:84</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Find one trust list by tenantId and id</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../entitys/TrustList.html" target="_self" >Promise&lt;TrustList&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="formatCertEntity"></a>
+                    <span class="name">
+                        <span ><b>formatCertEntity</b></span>
+                        <a href="#formatCertEntity"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>formatCertEntity(cert: <a href="../entitys/CertEntity.html" target="_self">CertEntity</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="525"
+                                    class="link-to-prism">src/issuer/trustlist/trustlist.service.ts:525</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Format CertEntity to base64 DER without PEM headers</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>cert</td>
+                                            <td>
+                                                            <code><a href="../entitys/CertEntity.html" target="_self" >CertEntity</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="formatPem"></a>
+                    <span class="name">
+                        <span ><b>formatPem</b></span>
+                        <a href="#formatPem"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>formatPem(pem: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="534"
+                                    class="link-to-prism">src/issuer/trustlist/trustlist.service.ts:534</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Format PEM string to base64 DER without PEM headers</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>pem</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="generateJwt"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>generateJwt</b></span>
+                        <a href="#generateJwt"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>generateJwt(trustList: <a href="../entitys/TrustList.html" target="_self">TrustList</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="353"
+                                    class="link-to-prism">src/issuer/trustlist/trustlist.service.ts:353</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Generate a signed JWT for the trust list</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>trustList</td>
+                                            <td>
+                                                            <code><a href="../entitys/TrustList.html" target="_self" >TrustList</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getJwt"></a>
+                    <span class="name">
+                        <span ><b>getJwt</b></span>
+                        <a href="#getJwt"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getJwt(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="339"
+                                    class="link-to-prism">src/issuer/trustlist/trustlist.service.ts:339</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get the JWT of the trust list</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getVersion"></a>
+                    <span class="name">
+                        <span ><b>getVersion</b></span>
+                        <a href="#getVersion"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getVersion(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, trustListId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, versionId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="150"
+                                    class="link-to-prism">src/issuer/trustlist/trustlist.service.ts:150</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get a specific version of a trust list</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>trustListId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>versionId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;TrustListVersion&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getVersionHistory"></a>
+                    <span class="name">
+                        <span ><b>getVersionHistory</b></span>
+                        <a href="#getVersionHistory"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getVersionHistory(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, trustListId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="133"
+                                    class="link-to-prism">src/issuer/trustlist/trustlist.service.ts:133</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get version history for a trust list</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>trustListId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;TrustListVersion[]&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="importList"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>importList</b></span>
+                        <a href="#importList"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>importList()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="174"
+                                    class="link-to-prism">src/issuer/trustlist/trustlist.service.ts:174</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Imports certificates from the file system.</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onApplicationBootstrap"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>onApplicationBootstrap</b></span>
+                        <a href="#onApplicationBootstrap"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>onApplicationBootstrap()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="52"
+                                    class="link-to-prism">src/issuer/trustlist/trustlist.service.ts:52</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Imports trust lists from the file system.</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="remove"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>remove</b></span>
+                        <a href="#remove"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>remove(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="167"
+                                    class="link-to-prism">src/issuer/trustlist/trustlist.service.ts:167</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Remove a trust list</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="saveVersion"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>saveVersion</b></span>
+                        <a href="#saveVersion"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>saveVersion(trustList: <a href="../entitys/TrustList.html" target="_self">TrustList</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="303"
+                                    class="link-to-prism">src/issuer/trustlist/trustlist.service.ts:303</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Save the current state of a trust list as a version for audit</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>trustList</td>
+                                            <td>
+                                                            <code><a href="../entitys/TrustList.html" target="_self" >TrustList</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;TrustListVersion&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="update"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>update</b></span>
+                        <a href="#update"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>update(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, values: <a href="../classes/TrustListCreateDto.html" target="_self">TrustListCreateDto</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="110"
+                                    class="link-to-prism">src/issuer/trustlist/trustlist.service.ts:110</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Update a trust list with new entities
+Increments the sequence number and stores a version for audit</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>values</td>
+                                            <td>
+                                                            <code><a href="../classes/TrustListCreateDto.html" target="_self" >TrustListCreateDto</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../entitys/TrustList.html" target="_self" >Promise&lt;TrustList&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="validatePem"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>validatePem</b></span>
+                        <a href="#validatePem"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>validatePem(pem: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, fieldName: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="320"
+                                    class="link-to-prism">src/issuer/trustlist/trustlist.service.ts:320</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Validate that a string is a valid PEM certificate</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>pem</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The PEM string to validate</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>fieldName</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The field name for error messages</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+            <section data-compodoc="block-properties">
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="keyService"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Readonly</span>
+                        <span ><b>keyService</b></span>
+                        <a href="#keyService"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @Inject(&#x27;KeyService&#x27;)<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/issuer/trustlist/trustlist.service.ts:42</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+</section>
+
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { X509Certificate } from &quot;node:crypto&quot;;
+import { readFileSync } from &quot;node:fs&quot;;
+import {
+    BadRequestException,
+    Inject,
+    Injectable,
+    OnApplicationBootstrap,
+} from &quot;@nestjs/common&quot;;
+import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
+import { plainToClass } from &quot;class-transformer&quot;;
+import { JWTHeaderParameters } from &quot;jose&quot;;
+import { Repository } from &quot;typeorm&quot;;
+import { TenantEntity } from &quot;../../auth/tenant/entitites/tenant.entity&quot;;
+import { CertService } from &quot;../../crypto/key/cert/cert.service&quot;;
+import { CertEntity } from &quot;../../crypto/key/entities/cert.entity&quot;;
+import { CertUsage } from &quot;../../crypto/key/entities/cert-usage.entity&quot;;
+import { KeyService } from &quot;../../crypto/key/key.service&quot;;
+import { ConfigImportService } from &quot;../../shared/utils/config-import/config-import.service&quot;;
+import {
+    TrustListCreateDto,
+    TrustListEntityInfo,
+} from &quot;./dto/trust-list-create.dto&quot;;
+import { LoTE, TrustedEntitiesList, TrustedEntity } from &quot;./dto/types&quot;;
+import { TrustList } from &quot;./entities/trust-list.entity&quot;;
+import { TrustListVersion } from &quot;./entities/trust-list-version.entity&quot;;
+
+export enum ServiceTypeIdentifier {
+    EaaIssuance &#x3D; &quot;http://uri.etsi.org/19602/SvcType/EAA/Issuance&quot;,
+    EaaRevocation &#x3D; &quot;http://uri.etsi.org/19602/SvcType/EAA/Revocation&quot;,
+}
+
+/** Default language for trust list entries */
+const DEFAULT_LANG &#x3D; &quot;en&quot;;
+
+@Injectable()
+export class TrustListService implements OnApplicationBootstrap {
+    constructor(
+        @InjectRepository(TrustList)
+        private readonly trustListRepo: Repository&lt;TrustList&gt;,
+        @InjectRepository(TrustListVersion)
+        private readonly trustListVersionRepo: Repository&lt;TrustListVersion&gt;,
+        @Inject(&quot;KeyService&quot;) public readonly keyService: KeyService,
+        private readonly certService: CertService,
+        private readonly configImportService: ConfigImportService,
+        @InjectRepository(TenantEntity)
+        private readonly tenantRepository: Repository&lt;TenantEntity&gt;,
+    ) {}
+
+    /**
+     * Imports trust lists from the file system.
+     */
+    async onApplicationBootstrap() {
+        await this.importList();
+    }
+
+    /**
+     * Create a new trust list
+     * @param values
+     * @param tenant
+     * @returns
+     */
+    create(
+        values: TrustListCreateDto,
+        tenant: TenantEntity,
+    ): Promise&lt;TrustList&gt; {
+        return this.buildAndSaveTrustList(values, tenant);
+    }
+
+    /**
+     * Finds all trust lists for the tenant
+     * @param tenant
+     * @returns
+     */
+    findAll(tenant: TenantEntity): Promise&lt;TrustList[]&gt; {
+        return this.trustListRepo.findBy({ tenantId: tenant.id });
+    }
+
+    /**
+     * Find one trust list by tenantId and id
+     * @param tenantId
+     * @param id
+     * @returns
+     */
+    findOne(tenantId: string, id: string): Promise&lt;TrustList&gt; {
+        return this.trustListRepo.findOneByOrFail({ tenantId, id });
+    }
+
+    async exportTrustList(
+        tenantId: string,
+        id: string,
+    ): Promise&lt;TrustListCreateDto&gt; {
+        const entry &#x3D; await this.findOne(tenantId, id);
+        return {
+            id: entry.id,
+            description: entry.description,
+            certId: entry.certId,
+            entities: entry.entityConfig ?? [],
+            data: entry.data,
+        };
+    }
+
+    /**
+     * Update a trust list with new entities
+     * Increments the sequence number and stores a version for audit
+     * @param tenantId
+     * @param id
+     * @param values
+     * @returns
+     */
+    async update(
+        tenantId: string,
+        id: string,
+        values: TrustListCreateDto,
+    ): Promise&lt;TrustList&gt; {
+        const existing &#x3D; await this.findOne(tenantId, id);
+        const tenant &#x3D; await this.tenantRepository.findOneByOrFail({
+            id: tenantId,
+        });
+
+        // Store the current version for audit before updating
+        await this.saveVersion(existing);
+
+        // Update the trust list
+        return this.buildAndSaveTrustList(values, tenant, existing);
+    }
+
+    /**
+     * Get version history for a trust list
+     * @param tenantId
+     * @param trustListId
+     * @returns
+     */
+    getVersionHistory(
+        tenantId: string,
+        trustListId: string,
+    ): Promise&lt;TrustListVersion[]&gt; {
+        return this.trustListVersionRepo.find({
+            where: { tenantId, trustListId },
+            order: { sequenceNumber: &quot;DESC&quot; },
+        });
+    }
+
+    /**
+     * Get a specific version of a trust list
+     * @param tenantId
+     * @param trustListId
+     * @param versionId
+     * @returns
+     */
+    getVersion(
+        tenantId: string,
+        trustListId: string,
+        versionId: string,
+    ): Promise&lt;TrustListVersion&gt; {
+        return this.trustListVersionRepo.findOneByOrFail({
+            tenantId,
+            trustListId,
+            id: versionId,
+        });
+    }
+
+    /**
+     * Remove a trust list
+     * @param tenantId
+     * @param id
+     */
+    async remove(tenantId: string, id: string): Promise&lt;void&gt; {
+        await this.trustListRepo.delete({ tenantId, id });
+    }
+
+    /**
+     * Imports certificates from the file system.
+     */
+    async importList() {
+        await this.configImportService.importConfigs&lt;TrustListCreateDto&gt;({
+            subfolder: &quot;trustlists&quot;,
+            fileExtension: &quot;.json&quot;,
+            validationClass: TrustListCreateDto,
+            resourceType: &quot;trustlist&quot;,
+            loadData: (filePath) &#x3D;&gt; {
+                const payload &#x3D; JSON.parse(readFileSync(filePath, &quot;utf8&quot;));
+                return plainToClass(TrustListCreateDto, payload);
+            },
+            checkExists: (tenantId, data) &#x3D;&gt; {
+                return this.findOne(tenantId, data.id!)
+                    .then(() &#x3D;&gt; true)
+                    .catch(() &#x3D;&gt; false);
+            },
+            deleteExisting: async (tenantId, data) &#x3D;&gt; {
+                await this.trustListRepo.delete({
+                    id: data.id,
+                    tenantId,
+                });
+            },
+            processItem: async (tenantId, config) &#x3D;&gt; {
+                const tenant &#x3D; await this.tenantRepository.findOneByOrFail({
+                    id: tenantId,
+                });
+                await this.buildAndSaveTrustList(config, tenant);
+            },
+        });
+    }
+    /**
+     * Shared logic for creating and saving a trust list (used by both API and import)
+     * @param config The configuration for the trust list
+     * @param tenant The tenant entity
+     * @param existing Optional existing trust list to update
+     */
+    private async buildAndSaveTrustList(
+        config: TrustListCreateDto,
+        tenant: TenantEntity,
+        existing?: TrustList,
+    ): Promise&lt;TrustList&gt; {
+        // Validate PEM certificates for external entities
+        for (const entity of config.entities || []) {
+            if (entity.type &#x3D;&#x3D;&#x3D; &quot;external&quot;) {
+                this.validatePem(entity.issuerCertPem, &quot;issuerCertPem&quot;);
+                this.validatePem(entity.revocationCertPem, &quot;revocationCertPem&quot;);
+            }
+        }
+
+        let cert: CertEntity;
+        if (config.certId) {
+            cert &#x3D; await this.certService.getCertificateById(
+                tenant.id,
+                config.certId,
+            );
+            if (!cert.usages.some((c) &#x3D;&gt; c.usage &#x3D;&#x3D;&#x3D; CertUsage.TrustList)) {
+                throw new BadRequestException(
+                    &#x60;Certificate ${config.certId} is not valid for Trust List usage&#x60;,
+                );
+            }
+        } else if (existing?.cert) {
+            cert &#x3D; existing.cert;
+        } else {
+            cert &#x3D; await this.certService.findOrCreate({
+                tenantId: tenant.id,
+                type: CertUsage.TrustList,
+            });
+        }
+
+        // Use existing trust list or create new
+        const trustList &#x3D;
+            existing ?? this.trustListRepo.create({ tenant, id: config.id });
+
+        // Update properties
+        trustList.description &#x3D; config.description;
+        trustList.cert &#x3D; cert;
+        trustList.entityConfig &#x3D; config.entities;
+
+        // Increment sequence number on updates
+        if (existing) {
+            trustList.sequenceNumber &#x3D; (existing.sequenceNumber || 1) + 1;
+        } else {
+            trustList.sequenceNumber &#x3D; 1;
+        }
+
+        const entries: TrustedEntity[] &#x3D; [];
+        for (const entity of config.entities || []) {
+            if (entity.type &#x3D;&#x3D;&#x3D; &quot;internal&quot;) {
+                // Internal: fetch certificates from database
+                const issuerCert &#x3D; await this.certService.find({
+                    tenantId: tenant.id,
+                    type: CertUsage.Signing,
+                    id: entity.issuerCertId,
+                });
+                const revocationCert &#x3D; await this.certService.find({
+                    tenantId: tenant.id,
+                    type: CertUsage.StatusList,
+                    id: entity.revocationCertId,
+                });
+                entries.push(
+                    this.createEntityFromCert(
+                        issuerCert,
+                        revocationCert,
+                        entity.info,
+                    ),
+                );
+            } else {
+                // External: use PEM certificates directly with provided info
+                entries.push(
+                    this.createEntityFromPem(
+                        entity.issuerCertPem,
+                        entity.revocationCertPem,
+                        entity.info,
+                    ),
+                );
+            }
+        }
+
+        trustList.data &#x3D; this.createList(
+            tenant,
+            entries,
+            trustList.sequenceNumber,
+        );
+        trustList.jwt &#x3D; await this.generateJwt(trustList);
+        return this.trustListRepo.save(trustList);
+    }
+
+    /**
+     * Save the current state of a trust list as a version for audit
+     */
+    private saveVersion(trustList: TrustList): Promise&lt;TrustListVersion&gt; {
+        const version &#x3D; this.trustListVersionRepo.create({
+            trustListId: trustList.id,
+            tenantId: trustList.tenantId,
+            sequenceNumber: trustList.sequenceNumber || 1,
+            data: trustList.data ?? {},
+            entityConfig: trustList.entityConfig,
+            jwt: trustList.jwt,
+        });
+        return this.trustListVersionRepo.save(version);
+    }
+
+    /**
+     * Validate that a string is a valid PEM certificate
+     * @param pem The PEM string to validate
+     * @param fieldName The field name for error messages
+     */
+    private validatePem(pem: string, fieldName: string): void {
+        if (!pem || pem.trim() &#x3D;&#x3D;&#x3D; &quot;&quot;) {
+            throw new BadRequestException(&#x60;${fieldName} is required&#x60;);
+        }
+        try {
+            new X509Certificate(pem);
+        } catch {
+            throw new BadRequestException(
+                &#x60;${fieldName} is not a valid X.509 certificate&#x60;,
+            );
+        }
+    }
+
+    /**
+     * Get the JWT of the trust list
+     * @param tenantId
+     * @param id
+     * @returns
+     */
+    getJwt(tenantId: string, id: string): Promise&lt;string&gt; {
+        return this.findOne(tenantId, id).then(
+            (trustList) &#x3D;&gt; trustList.jwt,
+            (err) &#x3D;&gt; {
+                throw new BadRequestException(err.message);
+            },
+        );
+    }
+
+    /**
+     * Generate a signed JWT for the trust list
+     * @param id
+     * @returns
+     */
+    async generateJwt(trustList: TrustList): Promise&lt;string&gt; {
+        const cert &#x3D; await this.certService.find({
+            tenantId: trustList.tenantId,
+            type: CertUsage.TrustList,
+        });
+
+        // Prepare payload and header
+        const payload &#x3D; { ...trustList.data };
+        const protectedHeader: JWTHeaderParameters &#x3D; {
+            alg: &quot;ES256&quot;,
+            iat: Math.floor(Date.now() / 1000),
+            typ: &quot;JWT&quot;,
+            x5c: this.certService.getCertChain(cert),
+        };
+
+        return this.keyService.signJWT(
+            payload,
+            protectedHeader,
+            trustList.tenantId,
+            cert.keyId,
+        );
+    }
+
+    private createEntityFromCert(
+        issuerCert: CertEntity,
+        revocationCert: CertEntity,
+        info: TrustListEntityInfo,
+    ): TrustedEntity {
+        return this.createEntityFromData(
+            this.formatCertEntity(issuerCert),
+            this.formatCertEntity(revocationCert),
+            info,
+        );
+    }
+
+    private createEntityFromPem(
+        issuerCertPem: string,
+        revocationCertPem: string,
+        info: TrustListEntityInfo,
+    ): TrustedEntity {
+        return this.createEntityFromData(
+            this.formatPem(issuerCertPem),
+            this.formatPem(revocationCertPem),
+            info,
+        );
+    }
+
+    private createEntityFromData(
+        issuerCertBase64: string,
+        revocationCertBase64: string,
+        info: TrustListEntityInfo,
+    ): TrustedEntity {
+        const lang &#x3D; info.lang || DEFAULT_LANG;
+        return {
+            TrustedEntityInformation: {
+                TEInformationURI: [
+                    {
+                        lang,
+                        uriValue: info.uri || &quot;&quot;,
+                    },
+                ],
+                TEName: [
+                    {
+                        lang,
+                        value: info.name,
+                    },
+                ],
+                TEAddress: {
+                    TEElectronicAddress: [
+                        {
+                            lang,
+                            uriValue: info.contactUri || &quot;&quot;,
+                        },
+                    ],
+                    TEPostalAddress: [
+                        {
+                            Country: info.country || &quot;&quot;,
+                            lang: lang.split(&quot;-&quot;)[0], // Use short lang code for postal
+                            Locality: info.locality || &quot;&quot;,
+                            PostalCode: info.postalCode || &quot;&quot;,
+                            StreetAddress: info.streetAddress || &quot;&quot;,
+                        },
+                    ],
+                },
+            },
+            TrustedEntityServices: [
+                {
+                    ServiceInformation: {
+                        ServiceTypeIdentifier:
+                            ServiceTypeIdentifier.EaaIssuance,
+                        ServiceName: [
+                            {
+                                lang,
+                                value: &quot;EAA-Issuance-Service&quot;,
+                            },
+                        ],
+                        ServiceDigitalIdentity: {
+                            X509Certificates: [
+                                {
+                                    val: issuerCertBase64,
+                                },
+                            ],
+                        },
+                    },
+                },
+                {
+                    ServiceInformation: {
+                        ServiceName: [
+                            {
+                                lang,
+                                value: &quot;EAA-Revocation-Service&quot;,
+                            },
+                        ],
+                        ServiceTypeIdentifier:
+                            ServiceTypeIdentifier.EaaRevocation,
+                        ServiceDigitalIdentity: {
+                            X509Certificates: [
+                                {
+                                    val: revocationCertBase64,
+                                },
+                            ],
+                        },
+                    },
+                },
+            ],
+        };
+    }
+
+    createList(
+        tenant: TenantEntity,
+        list: TrustedEntity[],
+        sequenceNumber &#x3D; 1,
+    ): LoTE {
+        const date &#x3D; new Date();
+        const nextUpdate &#x3D; new Date();
+        nextUpdate.setDate(date.getDate() + 30);
+
+        return {
+            ListAndSchemeInformation: {
+                LoTEVersionIdentifier: 1,
+                LoTESequenceNumber: sequenceNumber,
+                LoTEType:
+                    &quot;http://uri.etsi.org/19602/LoTEType/EUEAAProvidersList&quot;,
+                StatusDeterminationApproach:
+                    &quot;http://uri.etsi.org/19602/EUEAAProvidersList/StatusDetn/EU&quot;,
+                SchemeTypeCommunityRules: [
+                    {
+                        lang: DEFAULT_LANG,
+                        uriValue:
+                            &quot;http://uri.etsi.org/19602/EUEAAProviders/schemerules/EU&quot;,
+                    },
+                ],
+                //TODO: add historical endpoint
+                SchemeTerritory: &quot;EU&quot;,
+                NextUpdate: nextUpdate.toISOString(),
+                SchemeOperatorName: [
+                    {
+                        lang: DEFAULT_LANG,
+                        value: tenant.name,
+                    },
+                ],
+                ListIssueDateTime: date.toISOString(),
+            },
+            TrustedEntitiesList: list as TrustedEntitiesList,
+        };
+    }
+
+    /**
+     * Format CertEntity to base64 DER without PEM headers
+     * @param cert
+     * @returns
+     */
+    formatCertEntity(cert: CertEntity): string {
+        return this.formatPem(cert.crt);
+    }
+
+    /**
+     * Format PEM string to base64 DER without PEM headers
+     * @param pem
+     * @returns
+     */
+    formatPem(pem: string): string {
+        return pem
+            .replaceAll(&quot;-----BEGIN CERTIFICATE-----&quot;, &quot;&quot;)
+            .replaceAll(&quot;-----END CERTIFICATE-----&quot;, &quot;&quot;)
+            .replaceAll(/\r?\n|\r/g, &quot;&quot;);
+    }
+}
+</code></pre>
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'injectable';
+            var COMPODOC_CURRENT_PAGE_URL = 'TrustListService.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

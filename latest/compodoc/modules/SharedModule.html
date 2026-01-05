@@ -94,7 +94,7 @@
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
-               <div class="content class">
+               <div class="content module">
                    <div class="content-data">
 
 
@@ -103,93 +103,87 @@
 
 
 
-
-
-
-
-
-
-
-
-
 <ol class="breadcrumb">
-  <li class="breadcrumb-item">Classes</li>
-  <li class="breadcrumb-item" >CertSelfSignedDto</li>
+    <li class="breadcrumb-item">Modules</li>
+    <li class="breadcrumb-item" >SharedModule</li>
 </ol>
 
+
 <ul class="nav nav-tabs" role="tablist">
-        <li class="nav-item">
-            <a href="#info" 
-                class="nav-link"
-                class="nav-link active"
-                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
-        </li>
-        <li class="nav-item">
-            <a href="#source" 
-                class="nav-link"
-                
-                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
-        </li>
+    <li class="nav-item">
+        <a href="#info" 
+            class="nav-link"
+            class="nav-link active"
+            role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+    </li>
+    <li class="nav-item">
+        <a href="#source" 
+            class="nav-link"
+            
+            role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+    </li>
 </ul>
 
 <div class="tab-content">
     <div class="tab-pane fade active in" id="info">
+
         <p class="comment">
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/crypto/key/dto/cert-self-signed.dto.ts</code>
+            <code>src/shared/shared.module.ts</code>
         </p>
 
 
-            <p class="comment">
-                <h3>Description</h3>
-            </p>
-            <p class="comment">
-                <p>DTO for generating a self-signed certificate.</p>
 
-            </p>
+        <p class="comment">
+            <h3>Description</h3>
+        </p>
+        <p class="comment">
+            <p>Shared Module - Cross-cutting concerns and utilities</p>
+<p>Responsibilities:</p>
+<ul>
+<li>Common filters, guards, interceptors</li>
+<li>Shared utilities (config, logger, mediaType, webhook)</li>
+<li>Configuration management</li>
+</ul>
 
-            <p class="comment">
-                <h3>Extends</h3>
-            </p>
-            <p class="comment">
-                            <code><a href="../entitys/CertEntity.html" target="_self" >PickType(CertEntity, [
-    &quot;keyId&quot;,
-    &quot;isAccessCert&quot;,
-    &quot;isSigningCert&quot;,
-] as const)</a></code>
-            </p>
+        </p>
 
 
-
-
-
-
-
-
-
-
+        <div class="container-fluid module">
+            <div class="row">
+            </div>
+        </div>
 
 
     </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { PickType } from &quot;@nestjs/swagger&quot;;
-import { CertEntity } from &quot;../entities/cert.entity&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &quot;@nestjs/common&quot;;
 
 /**
- * DTO for generating a self-signed certificate.
+ * Shared Module - Cross-cutting concerns and utilities
+ *
+ * Responsibilities:
+ * - Common filters, guards, interceptors
+ * - Shared utilities (config, logger, mediaType, webhook)
+ * - Configuration management
  */
-export class CertSelfSignedDto extends PickType(CertEntity, [
-    &quot;keyId&quot;,
-    &quot;isAccessCert&quot;,
-    &quot;isSigningCert&quot;,
-] as const) {}
+@Module({})
+export class SharedModule {}
 </code></pre>
     </div>
 </div>
+
+
+
+
+
+
+
+
 
 
 
@@ -224,8 +218,8 @@ export class CertSelfSignedDto extends PickType(CertEntity, [
 
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
-            var COMPODOC_CURRENT_PAGE_URL = 'CertSelfSignedDto.html';
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'module';
+            var COMPODOC_CURRENT_PAGE_URL = 'SharedModule.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

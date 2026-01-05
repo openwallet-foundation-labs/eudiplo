@@ -131,7 +131,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/issuer/authorize/authorize.controller.ts</code>
+            <code>src/issuer/issuance/oid4vci/authorize/authorize.controller.ts</code>
         </p>
             <p class="comment">
                 <h3>Prefix</h3>
@@ -231,8 +231,8 @@ This controller handles the authorization requests, token requests.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="96"
-                                    class="link-to-prism">src/issuer/authorize/authorize.controller.ts:96</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="97"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:97</a></div>
                         </td>
                     </tr>
 
@@ -346,8 +346,8 @@ This controller handles the authorization requests, token requests.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="37"
-                                    class="link-to-prism">src/issuer/authorize/authorize.controller.ts:37</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="38"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:38</a></div>
                         </td>
                     </tr>
 
@@ -450,8 +450,8 @@ This controller handles the authorization requests, token requests.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="60"
-                                    class="link-to-prism">src/issuer/authorize/authorize.controller.ts:60</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="61"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:61</a></div>
                         </td>
                     </tr>
 
@@ -528,8 +528,8 @@ This controller handles the authorization requests, token requests.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="81"
-                                    class="link-to-prism">src/issuer/authorize/authorize.controller.ts:81</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="82"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:82</a></div>
                         </td>
                     </tr>
 
@@ -617,9 +617,9 @@ import {
     Req,
     Res,
 } from &quot;@nestjs/common&quot;;
-import { ApiBody, ApiExcludeController } from &quot;@nestjs/swagger&quot;;
+import { ApiBody, ApiExcludeController, ApiTags } from &quot;@nestjs/swagger&quot;;
 import type { Request, Response } from &quot;express&quot;;
-import { SessionService } from &quot;../../session/session.service&quot;;
+import { SessionService } from &quot;../../../../session/session.service&quot;;
 import { AuthorizeService } from &quot;./authorize.service&quot;;
 import { AuthorizeQueries } from &quot;./dto/authorize-request.dto&quot;;
 import { ParResponseDto } from &quot;./dto/par-response.dto&quot;;
@@ -628,6 +628,7 @@ import { ParResponseDto } from &quot;./dto/par-response.dto&quot;;
  * Controller for the OpenID4VCI authorization endpoints.
  * This controller handles the authorization requests, token requests.
  */
+@ApiTags(&quot;OID4VCI&quot;)
 @ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &quot;true&quot;)
 @Controller(&quot;:tenantId/authorize&quot;)
 export class AuthorizeController {

@@ -94,7 +94,7 @@
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
-               <div class="content module">
+               <div class="content controller">
                    <div class="content-data">
 
 
@@ -103,69 +103,216 @@
 
 
 
+
+
 <ol class="breadcrumb">
-    <li class="breadcrumb-item">Modules</li>
-    <li class="breadcrumb-item" >MetricModule</li>
+  <li class="breadcrumb-item">Controllers</li>
+  <li class="breadcrumb-item" >TrustListPublicController</li>
 </ol>
 
-
 <ul class="nav nav-tabs" role="tablist">
-    <li class="nav-item">
-        <a href="#info" 
-            class="nav-link"
-            class="nav-link active"
-            role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
-    </li>
-    <li class="nav-item">
-        <a href="#source" 
-            class="nav-link"
-            
-            role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
-    </li>
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
 </ul>
 
 <div class="tab-content">
     <div class="tab-pane fade active in" id="info">
-
         <p class="comment">
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/metric/metric.module.ts</code>
+            <code>src/issuer/trustlist/trust-list-public/trust-list-public.controller.ts</code>
         </p>
+            <p class="comment">
+                <h3>Prefix</h3>
+            </p>
+            <p class="comment">
+                <code>:tenantId/trust-list/:id</code>
+            </p>
+
+
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Public controller for accessing trust lists</p>
+
+            </p>
+
+
+
+
+            <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier"></span>
+                                <a href="#getTrustListJwt" >getTrustListJwt</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
 
 
 
 
 
-        <div class="container-fluid module">
-            <div class="row">
-            </div>
-        </div>
+        </tbody>
+    </table>
+</section>
+
+            <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getTrustListJwt"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                        <span ><b>getTrustListJwt</b></span>
+                        <a href="#getTrustListJwt"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getTrustListJwt(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get()<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="24"
+                                    class="link-to-prism">src/issuer/trustlist/trust-list-public/trust-list-public.controller.ts:24</a></div>
+                        </td>
+                    </tr>
 
 
-    </div>
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Returns the JWT of the trust list</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &quot;@nestjs/common&quot;;
-import { PrometheusModule } from &quot;@willsoto/nestjs-prometheus&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Controller, Get, Param } from &quot;@nestjs/common&quot;;
+import { ApiTags } from &quot;@nestjs/swagger&quot;;
+import { TrustListService } from &quot;../trustlist.service&quot;;
 
-@Module({
-    imports: [
-        //TODO: add a guard to protect the metrics endpoint
-        PrometheusModule.register({
-            defaultMetrics: {
-                enabled: false,
-            },
-        }),
-    ],
-})
-export class MetricModule {}
+/**
+ * Public controller for accessing trust lists
+ */
+@ApiTags(&quot;Issuer&quot;)
+@Controller(&quot;:tenantId/trust-list/:id&quot;)
+export class TrustListPublicController {
+    /**
+     * Creates an instance of TrustListPublicController.
+     * @param trustListService
+     */
+    constructor(private readonly trustListService: TrustListService) {}
+
+    /**
+     * Returns the JWT of the trust list
+     * @param tenantId
+     * @param id
+     * @returns
+     */
+    @Get()
+    getTrustListJwt(
+        @Param(&quot;tenantId&quot;) tenantId: string,
+        @Param(&quot;id&quot;) id: string,
+    ) {
+        return this.trustListService.getJwt(tenantId, id);
+    }
+}
 </code></pre>
     </div>
 </div>
-
 
 
 
@@ -207,8 +354,8 @@ export class MetricModule {}
 
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'module';
-            var COMPODOC_CURRENT_PAGE_URL = 'MetricModule.html';
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'controller';
+            var COMPODOC_CURRENT_PAGE_URL = 'TrustListPublicController.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

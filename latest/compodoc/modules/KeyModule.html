@@ -170,8 +170,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="20"
-                                    class="link-to-prism">src/crypto/key/key.module.ts:20</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="21"
+                                    class="link-to-prism">src/crypto/key/key.module.ts:21</a></div>
                         </td>
                     </tr>
 
@@ -199,13 +199,14 @@ import { getRepositoryToken, TypeOrmModule } from &quot;@nestjs/typeorm&quot;;
 import { PinoLogger } from &quot;nestjs-pino/PinoLogger&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import { TenantEntity } from &quot;../../auth/tenant/entitites/tenant.entity&quot;;
-import { ConfigImportService } from &quot;../../utils/config-import/config-import.service&quot;;
+import { ConfigImportService } from &quot;../../shared/utils/config-import/config-import.service&quot;;
 import { DBKeyService } from &quot;./adapters/db-key.service&quot;;
 import { VaultKeyService } from &quot;./adapters/vault-key.service&quot;;
 import { CertService } from &quot;./cert/cert.service&quot;;
 import { CryptoImplementatationModule } from &quot;./crypto-implementation/crypto-implementation.module&quot;;
 import { CryptoImplementationService } from &quot;./crypto-implementation/crypto-implementation.service&quot;;
 import { CertEntity } from &quot;./entities/cert.entity&quot;;
+import { CertUsageEntity } from &quot;./entities/cert-usage.entity&quot;;
 import { KeyEntity } from &quot;./entities/keys.entity&quot;;
 
 @Global()
@@ -218,7 +219,12 @@ export class KeyModule {
                 HttpModule,
                 ConfigModule,
                 CryptoImplementatationModule,
-                TypeOrmModule.forFeature([CertEntity, KeyEntity, TenantEntity]),
+                TypeOrmModule.forFeature([
+                    CertEntity,
+                    CertUsageEntity,
+                    KeyEntity,
+                    TenantEntity,
+                ]),
             ],
             providers: [
                 CertService,
