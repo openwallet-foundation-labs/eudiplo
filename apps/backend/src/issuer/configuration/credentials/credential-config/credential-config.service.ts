@@ -10,6 +10,7 @@ import { ConfigImportService } from "../../../../shared/utils/config-import/conf
 import { FilesService } from "../../../../storage/files.service";
 import { StatusListService } from "../../../lifecycle/status/status-list.service";
 import { CredentialConfigCreate } from "../dto/credential-config-create.dto";
+import { CredentialConfigUpdate } from "../dto/credential-config-update.dto";
 import { CredentialConfig } from "../entities/credential.entity";
 
 /**
@@ -164,6 +165,25 @@ export class CredentialConfigService {
     store(tenantId: string, config: CredentialConfigCreate) {
         return this.credentialConfigRepository.save({
             ...config,
+            tenantId,
+        });
+    }
+
+    /**
+     * Updates a credential configuration for a given tenant.
+     * Only updates fields that are provided in the config.
+     * Set fields to null to clear them.
+     * @param tenantId - The ID of the tenant.
+     * @param id - The ID of the CredentialConfig entity to update.
+     * @param config - The partial CredentialConfig to update.
+     * @returns A promise that resolves to the updated CredentialConfig entity.
+     */
+    async update(tenantId: string, id: string, config: CredentialConfigUpdate) {
+        const existing = await this.getById(tenantId, id);
+        return this.credentialConfigRepository.save({
+            ...existing,
+            ...config,
+            id,
             tenantId,
         });
     }

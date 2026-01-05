@@ -1,5 +1,12 @@
 import { Component, type OnInit } from '@angular/core';
-import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormArray,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+  FormBuilder,
+} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -19,13 +26,8 @@ import { IssuanceConfigService } from '../issuance-config.service';
 import { issuanceConfigSchema } from '../../../utils/schemas';
 import { JsonViewDialogComponent } from '../../credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
-import {
-  createWebhookFormGroup,
-  WebhookConfigEditComponent,
-} from '../../../utils/webhook-config-edit/webhook-config-edit.component';
 import { MatSlideToggle, MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ImageFieldComponent } from '../../../utils/image-field/image-field.component';
-import { FormBuilder } from '@angular/forms';
 
 @Component({
   selector: 'app-issuance-config-create',
@@ -46,7 +48,6 @@ import { FormBuilder } from '@angular/forms';
     ReactiveFormsModule,
     RouterModule,
     MatSlideToggleModule,
-    WebhookConfigEditComponent,
     MatSlideToggle,
     ImageFieldComponent,
   ],
@@ -58,23 +59,22 @@ export class IssuanceConfigCreateComponent implements OnInit {
   public loading = false;
 
   constructor(
-    private issuanceConfigService: IssuanceConfigService,
-    private router: Router,
-    private route: ActivatedRoute,
-    private snackBar: MatSnackBar,
-    private dialog: MatDialog,
-    private fb: FormBuilder
+    private readonly issuanceConfigService: IssuanceConfigService,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute,
+    private readonly snackBar: MatSnackBar,
+    private readonly dialog: MatDialog,
+    private readonly fb: FormBuilder
   ) {
     this.form = new FormGroup({
       display: this.fb.array([]),
       batchSize: new FormControl(1, [Validators.min(1)]),
       dPopRequired: new FormControl(true),
-      notifyWebhook: createWebhookFormGroup(),
     } as { [k in keyof IssuanceDto]: any });
   }
 
-  async ngOnInit(): Promise<void> {
-    await this.loadConfigForEdit();
+  ngOnInit(): void {
+    this.loadConfigForEdit();
   }
 
   private async loadConfigForEdit(): Promise<void> {
@@ -109,10 +109,6 @@ export class IssuanceConfigCreateComponent implements OnInit {
       this.form.patchValue({
         batchSize: config.batchSize,
         dPopRequired: config.dPopRequired,
-        notifyWebhook: config.notifyWebhook || {
-          url: '',
-          auth: { type: '', config: { headerName: '', value: '' } },
-        },
       });
     } catch (error) {
       console.error('Error loading config:', error);
@@ -123,45 +119,31 @@ export class IssuanceConfigCreateComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.form.invalid) {
-      this.markFormGroupTouched();
-      return;
-    }
-
     this.loading = true;
     const formValue = this.form.value;
 
-    try {
-      const issuanceDto: IssuanceDto = {
-        batchSize: formValue.batchSize,
-        display: formValue.display,
-        dPopRequired: formValue.dPopRequired,
-        notifyWebhook: formValue.notifyWebhook.url ? formValue.notifyWebhook : null,
-      };
+    const issuanceDto: IssuanceDto = {
+      batchSize: formValue.batchSize,
+      display: formValue.display,
+      dPopRequired: formValue.dPopRequired,
+    };
 
-      this.issuanceConfigService
-        .saveConfiguration(issuanceDto)
-        .then(
-          () => {
-            this.snackBar.open(`Configuration saved successfully`, 'Close', { duration: 3000 });
-            this.router.navigate(['../'], { relativeTo: this.route });
-          },
-          (error: string) => {
-            this.snackBar.open(`Failed to save configuration: ${error}`, 'Close', {
-              duration: 3000,
-            });
-          }
-        )
-        .finally(() => {
-          this.loading = false;
-        });
-    } catch (error) {
-      console.error('Error preparing configuration:', error);
-      this.snackBar.open('Failed to prepare configuration', 'Close', {
-        duration: 3000,
+    this.issuanceConfigService
+      .saveConfiguration(issuanceDto)
+      .then(
+        () => {
+          this.snackBar.open(`Configuration saved successfully`, 'Close', { duration: 3000 });
+          this.router.navigate(['../'], { relativeTo: this.route });
+        },
+        (error: string) => {
+          this.snackBar.open(`Failed to save configuration: ${error}`, 'Close', {
+            duration: 3000,
+          });
+        }
+      )
+      .finally(() => {
+        this.loading = false;
       });
-      this.loading = false;
-    }
   }
 
   getFormGroup(controlName: string): FormGroup {
@@ -205,9 +187,6 @@ export class IssuanceConfigCreateComponent implements OnInit {
     const currentConfig = this.form.value;
     currentConfig.id = this.route.snapshot.params['id'];
     currentConfig.credentialConfigs = undefined;
-    if (currentConfig.notifyWebhook?.url === '') {
-      currentConfig.notifyWebhook = undefined;
-    }
 
     const dialogRef = this.dialog.open(JsonViewDialogComponent, {
       data: {

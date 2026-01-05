@@ -10,6 +10,7 @@
     },
     "description": {
       "type": "string",
+      "nullable": true,
       "description": "Description of the presentation configuration."
     },
     "lifeTime": {
@@ -25,6 +26,7 @@
       ]
     },
     "registrationCert": {
+      "nullable": true,
       "description": "The registration certificate request containing the necessary details.",
       "allOf": [
         {
@@ -33,6 +35,7 @@
       ]
     },
     "webhook": {
+      "nullable": true,
       "description": "Optional webhook URL to receive the response.",
       "allOf": [
         {
@@ -41,6 +44,7 @@
       ]
     },
     "attached": {
+      "nullable": true,
       "description": "Attestation that should be attached",
       "type": "array",
       "items": {
@@ -49,6 +53,7 @@
     },
     "redirectUri": {
       "type": "string",
+      "nullable": true,
       "description": "Redirect URI to which the user-agent should be redirected after the presentation is completed."
     }
   },

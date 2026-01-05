@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/PresentationConfigUpdateDto.schema.json",
+  "title": "PresentationConfigUpdateDto",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for the VP request."
+    },
+    "description": {
+      "type": "string",
+      "nullable": true,
+      "description": "Description of the presentation configuration."
+    },
+    "lifeTime": {
+      "type": "number",
+      "description": "Lifetime how long the presentation request is valid after creation, in seconds."
+    },
+    "dcql_query": {
+      "description": "The DCQL query to be used for the VP request.",
+      "allOf": [
+        {
+          "$ref": "./DCQL.schema.json"
+        }
+      ]
+    },
+    "registrationCert": {
+      "nullable": true,
+      "description": "The registration certificate request containing the necessary details.",
+      "allOf": [
+        {
+          "$ref": "./RegistrationCertificateRequest.schema.json"
+        }
+      ]
+    },
+    "webhook": {
+      "nullable": true,
+      "description": "Optional webhook URL to receive the response.",
+      "allOf": [
+        {
+          "$ref": "./WebhookConfig.schema.json"
+        }
+      ]
+    },
+    "attached": {
+      "nullable": true,
+      "description": "Attestation that should be attached",
+      "type": "array",
+      "items": {
+        "$ref": "./PresentationAttachment.schema.json"
+      }
+    },
+    "redirectUri": {
+      "type": "string",
+      "nullable": true,
+      "description": "Redirect URI to which the user-agent should be redirected after the presentation is completed."
+    }
+  }
+}

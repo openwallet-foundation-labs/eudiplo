@@ -24,7 +24,7 @@ yourself.
 
 Connecting to the EUDI Wallet ecosystem is technically demanding:
 
-- You must understand **OID4VCI**, **OID4VP**, **SD-JWT VC**, and **OAuth-based
+- You must understand **OID4VCI**, **OID4VP**, **SD-JWT VC**, **mDOC (ISO 18013-5)**, and **OAuth-based
   status protocols**.
 - Libraries are scattered, often **incomplete or language-specific**.
 - Hosted services can lead to **vendor lock-in** or obscure how your data is

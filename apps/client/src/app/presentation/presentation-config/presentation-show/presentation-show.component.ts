@@ -1,14 +1,20 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { Clipboard, ClipboardModule } from '@angular/cdk/clipboard';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { PresentationConfig } from '@eudiplo/sdk';
 import { PresentationManagementService } from '../presentation-management.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { WebhookConfigShowComponent } from '../../../utils/webhook-config-show/webhook-config-show.component';
 
 @Component({
   selector: 'app-presentation-show',
@@ -18,8 +24,14 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatCardModule,
     MatButtonModule,
     MatTooltipModule,
+    MatListModule,
+    MatChipsModule,
+    MatDividerModule,
+    MatExpansionModule,
     FlexLayoutModule,
     RouterModule,
+    ClipboardModule,
+    WebhookConfigShowComponent,
   ],
   templateUrl: './presentation-show.component.html',
   styleUrls: ['./presentation-show.component.scss'],
@@ -31,7 +43,8 @@ export class PresentationShowComponent implements OnInit {
     private readonly presentationService: PresentationManagementService,
     private readonly route: ActivatedRoute,
     private readonly snackBar: MatSnackBar,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly clipboard: Clipboard
   ) {}
 
   ngOnInit(): void {
@@ -47,6 +60,28 @@ export class PresentationShowComponent implements OnInit {
     } catch (error) {
       console.error('Error loading presentation:', error);
     }
+  }
+
+  get credentialQueries(): any[] {
+    return this.config?.dcql_query?.credentials || [];
+  }
+
+  copyToClipboard(value: string, label: string): void {
+    this.clipboard.copy(value);
+    this.snackBar.open(`${label} copied to clipboard`, 'Close', {
+      duration: 2000,
+    });
+  }
+
+  formatLifetime(seconds: number): string {
+    if (seconds < 60) return `${seconds} seconds`;
+    if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours`;
+    return `${Math.floor(seconds / 86400)} days`;
+  }
+
+  formatJsonValue(value: any): string {
+    return JSON.stringify(value, null, 2);
   }
 
   deletePresentation() {

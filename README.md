@@ -37,7 +37,7 @@ management, scalable database support, and clean API boundaries.
 
 ## 🧩 Features
 
-- ✅ Supports **OID4VCI**, **OID4VP**, **SD-JWT VC**, and **OAuth Token Status
+- ✅ Supports **OID4VCI**, **OID4VP**, **SD-JWT VC**, **mDOC (ISO 18013-5)**, and **OAuth Token Status
   List**
 - ✅ **OIDF conformance tested** for OID4VCI and OID4VP protocols
 - ✅ JSON-based credential configuration

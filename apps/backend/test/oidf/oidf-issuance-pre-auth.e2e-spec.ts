@@ -1,11 +1,11 @@
+import { readFileSync } from "node:fs";
+import https from "node:https";
+import { join, resolve } from "node:path";
 import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { Test, TestingModule } from "@nestjs/testing";
 import * as axios from "axios";
-import { readFileSync } from "fs";
-import https from "https";
-import { join, resolve } from "path";
 import { beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../../src/app.module";
 import {
@@ -15,7 +15,11 @@ import {
 } from "../../src/issuer/issuance/oid4vci/dto/offer-request.dto";
 import { ResponseType } from "../../src/verifier/oid4vp/dto/presentation-request.dto";
 import { getDefaultSecret } from "../utils";
+import { useOidfContainers } from "./oidf-setup";
 import { OIDFSuite } from "./oidf-suite";
+
+// Setup OIDF containers for this test file
+useOidfContainers();
 
 /**
  * E2E: OIDF conformance runner integration test

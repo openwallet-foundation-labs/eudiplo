@@ -16,7 +16,6 @@ import {
     UpdateDateColumn,
 } from "typeorm";
 import { TenantEntity } from "../../../../auth/tenant/entitites/tenant.entity";
-import { WebhookConfig } from "../../../../shared/utils/webhook/webhook.dto";
 import {
     AuthenticationMethodAuth,
     AuthenticationMethodNone,
@@ -54,15 +53,6 @@ export class IssuanceConfig {
     @IsOptional()
     @Column({ type: "json", nullable: true })
     authServers?: string[];
-
-    /**
-     * Webhook to send the result of the notification response
-     */
-    @IsOptional()
-    @ValidateNested()
-    @Type(() => WebhookConfig)
-    @Column("json", { nullable: true })
-    notifyWebhook?: WebhookConfig;
 
     /**
      * Value to determine the amount of credentials that are issued in a batch.

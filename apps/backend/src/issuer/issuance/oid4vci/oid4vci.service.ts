@@ -61,7 +61,7 @@ export class Oid4vciService {
         private readonly webhookService: WebhookService,
         private readonly httpService: HttpService,
         @InjectRepository(NonceEntity)
-        private nonceRepository: Repository<NonceEntity>,
+        private readonly nonceRepository: Repository<NonceEntity>,
     ) {}
 
     /**
@@ -97,9 +97,7 @@ export class Oid4vciService {
         tenantId: string,
         issuer?: Openid4vciIssuer,
     ): Promise<IssuerMetadataResult> {
-        if (!issuer) {
-            issuer = this.getIssuer(tenantId);
-        }
+        issuer ??= this.getIssuer(tenantId);
 
         const credential_issuer = `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${tenantId}`;
 
@@ -142,7 +140,7 @@ export class Oid4vciService {
                     `/${tenantId}`,
             );
             authorizationServerMetadata =
-                await this.authzService.authzMetadata(tenantId);
+                this.authzService.authzMetadata(tenantId);
         }
         const credentialIssuer = issuer.createCredentialIssuerMetadata({
             credential_issuer,

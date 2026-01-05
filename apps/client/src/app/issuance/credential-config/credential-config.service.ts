@@ -2,10 +2,12 @@ import { Injectable } from '@angular/core';
 import {
   CredentialConfig,
   CredentialConfigCreate,
+  CredentialConfigUpdate,
   credentialConfigControllerDeleteIssuanceConfiguration,
   credentialConfigControllerGetConfigById,
   credentialConfigControllerGetConfigs,
   credentialConfigControllerStoreCredentialConfiguration,
+  credentialConfigControllerUpdateCredentialConfiguration,
 } from '@eudiplo/sdk';
 
 @Injectable({
@@ -27,10 +29,21 @@ export class CredentialConfigService {
   }
 
   /**
-   * Save or update a credential configuration
+   * Save a new credential configuration (POST)
    */
   async saveConfiguration(config: CredentialConfigCreate): Promise<any> {
     return credentialConfigControllerStoreCredentialConfiguration({
+      body: config,
+    });
+  }
+
+  /**
+   * Update an existing credential configuration (PATCH)
+   * Set fields to null to clear them, omit fields to keep existing values
+   */
+  async updateConfiguration(id: string, config: CredentialConfigUpdate): Promise<any> {
+    return credentialConfigControllerUpdateCredentialConfiguration({
+      path: { id },
       body: config,
     });
   }

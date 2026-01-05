@@ -829,6 +829,14 @@ export const SessionSchema = {
       type: "string",
       description: "Noncce from the Verifiable Presentation request.",
     },
+    clientId: {
+      type: "string",
+      description: "Client ID used in the OID4VP authorization request.",
+    },
+    responseUri: {
+      type: "string",
+      description: "Response URI used in the OID4VP authorization request.",
+    },
     redirectUri: {
       type: "string",
       description:
@@ -994,14 +1002,6 @@ export const IssuanceConfigSchema = {
         type: "string",
       },
     },
-    notifyWebhook: {
-      description: "Webhook to send the result of the notification response",
-      allOf: [
-        {
-          $ref: "#/components/schemas/WebhookConfig",
-        },
-      ],
-    },
     batchSize: {
       type: "number",
       description:
@@ -1041,14 +1041,6 @@ export const IssuanceDtoSchema = {
       items: {
         type: "string",
       },
-    },
-    notifyWebhook: {
-      description: "Webhook to send the result of the notification response",
-      allOf: [
-        {
-          $ref: "#/components/schemas/WebhookConfig",
-        },
-      ],
     },
     batchSize: {
       type: "number",
@@ -1319,6 +1311,21 @@ export const IssuerMetadataCredentialConfigSchema = {
     scope: {
       type: "string",
     },
+    docType: {
+      type: "string",
+      description:
+        'Document type for mDOC credentials (e.g., "org.iso.18013.5.1.mDL").\nOnly applicable when format is "mso_mdoc".',
+    },
+    namespace: {
+      type: "string",
+      description:
+        'Namespace for mDOC credentials (e.g., "org.iso.18013.5.1").\nOnly applicable when format is "mso_mdoc".\nUsed when claims are provided as a flat object.',
+    },
+    claimsByNamespace: {
+      type: "object",
+      description:
+        'Claims organized by namespace for mDOC credentials.\nAllows specifying claims across multiple namespaces.\nOnly applicable when format is "mso_mdoc".\nExample:\n{\n  "org.iso.18013.5.1": { "given_name": "John", "family_name": "Doe" },\n  "org.iso.18013.5.1.aamva": { "DHS_compliance": "F" }\n}',
+    },
   },
   required: ["format", "display"],
 } as const;
@@ -1382,6 +1389,7 @@ export const CredentialConfigSchema = {
   type: "object",
   properties: {
     embeddedDisclosurePolicy: {
+      nullable: true,
       description:
         "Embedded disclosure policy (discriminated union by `policy`).\nThe discriminator makes class-transformer instantiate the right subclass,\nand then class-validator runs that subclass’s rules.",
       oneOf: [
@@ -1409,6 +1417,7 @@ export const CredentialConfigSchema = {
     },
     description: {
       type: "string",
+      nullable: true,
     },
     tenant: {
       description: "The tenant that owns this object.",
@@ -1423,8 +1432,10 @@ export const CredentialConfigSchema = {
     },
     claims: {
       type: "object",
+      nullable: true,
     },
     claimsWebhook: {
+      nullable: true,
       description: "Webhook to receive claims for the issuance process.",
       allOf: [
         {
@@ -1433,6 +1444,7 @@ export const CredentialConfigSchema = {
       ],
     },
     notificationWebhook: {
+      nullable: true,
       description: "Webhook to receive claims for the issuance process.",
       allOf: [
         {
@@ -1442,9 +1454,15 @@ export const CredentialConfigSchema = {
     },
     disclosureFrame: {
       type: "object",
+      nullable: true,
     },
     vct: {
-      $ref: "#/components/schemas/VCT",
+      nullable: true,
+      allOf: [
+        {
+          $ref: "#/components/schemas/VCT",
+        },
+      ],
     },
     keyBinding: {
       type: "boolean",
@@ -1462,7 +1480,12 @@ export const CredentialConfigSchema = {
       type: "number",
     },
     schema: {
-      $ref: "#/components/schemas/SchemaResponse",
+      nullable: true,
+      allOf: [
+        {
+          $ref: "#/components/schemas/SchemaResponse",
+        },
+      ],
     },
   },
   required: ["id", "tenant", "config", "cert"],
@@ -1472,6 +1495,7 @@ export const CredentialConfigCreateSchema = {
   type: "object",
   properties: {
     embeddedDisclosurePolicy: {
+      nullable: true,
       description:
         "Embedded disclosure policy (discriminated union by `policy`).\nThe discriminator makes class-transformer instantiate the right subclass,\nand then class-validator runs that subclass’s rules.",
       oneOf: [
@@ -1499,14 +1523,17 @@ export const CredentialConfigCreateSchema = {
     },
     description: {
       type: "string",
+      nullable: true,
     },
     config: {
       $ref: "#/components/schemas/IssuerMetadataCredentialConfig",
     },
     claims: {
       type: "object",
+      nullable: true,
     },
     claimsWebhook: {
+      nullable: true,
       description: "Webhook to receive claims for the issuance process.",
       allOf: [
         {
@@ -1515,6 +1542,7 @@ export const CredentialConfigCreateSchema = {
       ],
     },
     notificationWebhook: {
+      nullable: true,
       description: "Webhook to receive claims for the issuance process.",
       allOf: [
         {
@@ -1524,9 +1552,15 @@ export const CredentialConfigCreateSchema = {
     },
     disclosureFrame: {
       type: "object",
+      nullable: true,
     },
     vct: {
-      $ref: "#/components/schemas/VCT",
+      nullable: true,
+      allOf: [
+        {
+          $ref: "#/components/schemas/VCT",
+        },
+      ],
     },
     keyBinding: {
       type: "boolean",
@@ -1541,10 +1575,109 @@ export const CredentialConfigCreateSchema = {
       type: "number",
     },
     schema: {
-      $ref: "#/components/schemas/SchemaResponse",
+      nullable: true,
+      allOf: [
+        {
+          $ref: "#/components/schemas/SchemaResponse",
+        },
+      ],
     },
   },
   required: ["id", "config"],
+} as const;
+
+export const CredentialConfigUpdateSchema = {
+  type: "object",
+  properties: {
+    embeddedDisclosurePolicy: {
+      nullable: true,
+      description:
+        "Embedded disclosure policy (discriminated union by `policy`).\nThe discriminator makes class-transformer instantiate the right subclass,\nand then class-validator runs that subclass’s rules.",
+      oneOf: [
+        {
+          $ref: "#/components/schemas/AttestationBasedPolicy",
+        },
+        {
+          $ref: "#/components/schemas/NoneTrustPolicy",
+        },
+        {
+          $ref: "#/components/schemas/AllowListPolicy",
+        },
+        {
+          $ref: "#/components/schemas/RootOfTrustPolicy",
+        },
+      ],
+      allOf: [
+        {
+          $ref: "#/components/schemas/EmbeddedDisclosurePolicy",
+        },
+      ],
+    },
+    id: {
+      type: "string",
+    },
+    description: {
+      type: "string",
+      nullable: true,
+    },
+    config: {
+      $ref: "#/components/schemas/IssuerMetadataCredentialConfig",
+    },
+    claims: {
+      type: "object",
+      nullable: true,
+    },
+    claimsWebhook: {
+      nullable: true,
+      description: "Webhook to receive claims for the issuance process.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/WebhookConfig",
+        },
+      ],
+    },
+    notificationWebhook: {
+      nullable: true,
+      description: "Webhook to receive claims for the issuance process.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/WebhookConfig",
+        },
+      ],
+    },
+    disclosureFrame: {
+      type: "object",
+      nullable: true,
+    },
+    vct: {
+      nullable: true,
+      allOf: [
+        {
+          $ref: "#/components/schemas/VCT",
+        },
+      ],
+    },
+    keyBinding: {
+      type: "boolean",
+    },
+    certId: {
+      type: "string",
+    },
+    statusManagement: {
+      type: "boolean",
+    },
+    lifeTime: {
+      type: "number",
+    },
+    schema: {
+      nullable: true,
+      allOf: [
+        {
+          $ref: "#/components/schemas/SchemaResponse",
+        },
+      ],
+    },
+  },
 } as const;
 
 export const NotificationRequestDtoSchema = {
@@ -1710,6 +1843,7 @@ export const PresentationConfigSchema = {
     },
     description: {
       type: "string",
+      nullable: true,
       description: "Description of the presentation configuration.",
     },
     lifeTime: {
@@ -1726,6 +1860,7 @@ export const PresentationConfigSchema = {
       ],
     },
     registrationCert: {
+      nullable: true,
       description:
         "The registration certificate request containing the necessary details.",
       allOf: [
@@ -1735,6 +1870,7 @@ export const PresentationConfigSchema = {
       ],
     },
     webhook: {
+      nullable: true,
       description: "Optional webhook URL to receive the response.",
       allOf: [
         {
@@ -1753,6 +1889,7 @@ export const PresentationConfigSchema = {
       description: "The timestamp when the VP request was last updated.",
     },
     attached: {
+      nullable: true,
       description: "Attestation that should be attached",
       type: "array",
       items: {
@@ -1761,6 +1898,7 @@ export const PresentationConfigSchema = {
     },
     redirectUri: {
       type: "string",
+      nullable: true,
       description:
         "Redirect URI to which the user-agent should be redirected after the presentation is completed.",
     },
@@ -1777,6 +1915,7 @@ export const PresentationConfigCreateDtoSchema = {
     },
     description: {
       type: "string",
+      nullable: true,
       description: "Description of the presentation configuration.",
     },
     lifeTime: {
@@ -1793,6 +1932,7 @@ export const PresentationConfigCreateDtoSchema = {
       ],
     },
     registrationCert: {
+      nullable: true,
       description:
         "The registration certificate request containing the necessary details.",
       allOf: [
@@ -1802,6 +1942,7 @@ export const PresentationConfigCreateDtoSchema = {
       ],
     },
     webhook: {
+      nullable: true,
       description: "Optional webhook URL to receive the response.",
       allOf: [
         {
@@ -1810,6 +1951,7 @@ export const PresentationConfigCreateDtoSchema = {
       ],
     },
     attached: {
+      nullable: true,
       description: "Attestation that should be attached",
       type: "array",
       items: {
@@ -1818,11 +1960,73 @@ export const PresentationConfigCreateDtoSchema = {
     },
     redirectUri: {
       type: "string",
+      nullable: true,
       description:
         "Redirect URI to which the user-agent should be redirected after the presentation is completed.",
     },
   },
   required: ["id", "dcql_query"],
+} as const;
+
+export const PresentationConfigUpdateDtoSchema = {
+  type: "object",
+  properties: {
+    id: {
+      type: "string",
+      description: "Unique identifier for the VP request.",
+    },
+    description: {
+      type: "string",
+      nullable: true,
+      description: "Description of the presentation configuration.",
+    },
+    lifeTime: {
+      type: "number",
+      description:
+        "Lifetime how long the presentation request is valid after creation, in seconds.",
+    },
+    dcql_query: {
+      description: "The DCQL query to be used for the VP request.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/DCQL",
+        },
+      ],
+    },
+    registrationCert: {
+      nullable: true,
+      description:
+        "The registration certificate request containing the necessary details.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/RegistrationCertificateRequest",
+        },
+      ],
+    },
+    webhook: {
+      nullable: true,
+      description: "Optional webhook URL to receive the response.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/WebhookConfig",
+        },
+      ],
+    },
+    attached: {
+      nullable: true,
+      description: "Attestation that should be attached",
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/PresentationAttachment",
+      },
+    },
+    redirectUri: {
+      type: "string",
+      nullable: true,
+      description:
+        "Redirect URI to which the user-agent should be redirected after the presentation is completed.",
+    },
+  },
 } as const;
 
 export const TrustListCreateDtoSchema = {

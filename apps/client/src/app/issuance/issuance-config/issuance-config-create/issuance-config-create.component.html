@@ -114,20 +114,6 @@
       </mat-card-content>
     </mat-card>
 
-    <!-- Webhook Configuration Card -->
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>webhook</mat-icon>
-          Notification Webhook (Optional)
-        </mat-card-title>
-        <mat-card-subtitle>URL to receive notification data</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        <app-webhook-config-edit [group]="getFormGroup('notifyWebhook')"></app-webhook-config-edit>
-      </mat-card-content>
-    </mat-card>
-
     <!-- Action Buttons -->
     <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="end center">
       <button mat-button type="button" [routerLink]="['../']">Cancel</button>

@@ -1,16 +1,21 @@
+import { readFileSync } from "node:fs";
+import https from "node:https";
+import { join, resolve } from "node:path";
 import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { Test, TestingModule } from "@nestjs/testing";
-import * as x509 from "@peculiar/x509";
 import * as axios from "axios";
-import { readFileSync } from "fs";
-import https from "https";
-import { join, resolve } from "path";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../../src/app.module";
-import { getDefaultSecret } from "../utils";
+import { CertImportDto } from "../../src/crypto/key/dto/cert-import.dto";
+import { KeyImportDto } from "../../src/crypto/key/dto/key-import.dto";
+import { getDefaultSecret, readConfig } from "../utils";
+import { useOidfContainers } from "./oidf-setup";
 import { OIDFSuite, TestInstance } from "./oidf-suite";
+
+// Setup OIDF containers for this test file
+useOidfContainers();
 
 /**
  * E2E: OIDF conformance runner integration test
@@ -36,51 +41,19 @@ describe("OIDF", () => {
     const oidfSuite = new OIDFSuite(OIDF_URL, OIDF_DEMO_TOKEN);
 
     beforeAll(async () => {
-        // create a jwt and a self signed certificate for https
-
-        const ECDSA_P256 = {
-            name: "ECDSA",
-            namedCurve: "P-256",
-            hash: "SHA-256" as const,
-        };
-
-        // === Create issuer key pair and self-signed issuer certificate ===
-        const issuerKeys = await crypto.subtle.generateKey(ECDSA_P256, true, [
-            "sign",
-            "verify",
-        ]);
-        const now = new Date();
-        const inOneYear = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
-
-        const issuerCert = await x509.X509CertificateGenerator.createSelfSigned(
-            {
-                serialNumber: "01",
-                name: `CN=${PUBLIC_DOMAIN}`,
-                notBefore: now,
-                notAfter: inOneYear,
-                signingAlgorithm: ECDSA_P256,
-                keys: issuerKeys,
-                extensions: [
-                    new x509.BasicConstraintsExtension(true, 0, true), // CA: true, pathLen:0
-                    new x509.KeyUsagesExtension(
-                        x509.KeyUsageFlags.keyCertSign,
-                        true,
-                    ),
-                    await x509.SubjectKeyIdentifierExtension.create(
-                        issuerKeys.publicKey,
-                    ),
-                    new x509.SubjectAlternativeNameExtension([
-                        { type: "dns", value: PUBLIC_DOMAIN },
-                    ]),
-                ],
-            },
+        //use existing keys from the config folder
+        const key = readConfig<KeyImportDto>(
+            resolve(
+                __dirname + "/../../../../assets/config/root/keys/sign.json",
+            ),
         );
 
-        // Export private key as JWK
-        const privateKeyJwk = await crypto.subtle.exportKey(
-            "jwk",
-            issuerKeys.privateKey,
-        );
+        const issuerCert = readConfig<CertImportDto>(
+            resolve(
+                __dirname +
+                    "/../../../../assets/config/root/certs/certificate-b6db7c84-776e-4998-9d40-ac599a4ea1fc-config.json",
+            ),
+        ).crt!;
 
         const planId = "oid4vp-1final-verifier-test-plan";
         const variant = {
@@ -94,14 +67,13 @@ describe("OIDF", () => {
             description: "test plan created via e2e tests",
             credential: {
                 signing_jwk: {
-                    ...privateKeyJwk,
+                    ...key.key,
                     use: "sig",
                     x5c: [
                         issuerCert
-                            .toString("pem")
-                            .replace(/-----BEGIN CERTIFICATE-----/g, "")
-                            .replace(/-----END CERTIFICATE-----/g, "")
-                            .replace(/\r?\n|\r/g, ""),
+                            .replaceAll("-----BEGIN CERTIFICATE-----", "")
+                            .replaceAll("-----END CERTIFICATE-----", "")
+                            .replaceAll(/\r?\n|\r/g, ""),
                     ],
                     alg: "ES256",
                 },

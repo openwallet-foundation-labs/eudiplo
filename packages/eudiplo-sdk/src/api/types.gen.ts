@@ -498,6 +498,14 @@ export type Session = {
    */
   vp_nonce?: string;
   /**
+   * Client ID used in the OID4VP authorization request.
+   */
+  clientId?: string;
+  /**
+   * Response URI used in the OID4VP authorization request.
+   */
+  responseUri?: string;
+  /**
    * Redirect URI to which the user-agent should be redirected after the presentation is completed.
    */
   redirectUri?: string;
@@ -578,10 +586,6 @@ export type IssuanceConfig = {
    */
   authServers?: Array<string>;
   /**
-   * Webhook to send the result of the notification response
-   */
-  notifyWebhook?: WebhookConfig;
-  /**
    * Value to determine the amount of credentials that are issued in a batch.
    * Default is 1.
    */
@@ -606,10 +610,6 @@ export type IssuanceDto = {
    * Authentication server URL for the issuance process.
    */
   authServers?: Array<string>;
-  /**
-   * Webhook to send the result of the notification response
-   */
-  notifyWebhook?: WebhookConfig;
   /**
    * Value to determine the amount of credentials that are issued in a batch.
    * Default is 1.
@@ -702,6 +702,30 @@ export type IssuerMetadataCredentialConfig = {
   format: string;
   display: Array<Display>;
   scope?: string;
+  /**
+   * Document type for mDOC credentials (e.g., "org.iso.18013.5.1.mDL").
+   * Only applicable when format is "mso_mdoc".
+   */
+  docType?: string;
+  /**
+   * Namespace for mDOC credentials (e.g., "org.iso.18013.5.1").
+   * Only applicable when format is "mso_mdoc".
+   * Used when claims are provided as a flat object.
+   */
+  namespace?: string;
+  /**
+   * Claims organized by namespace for mDOC credentials.
+   * Allows specifying claims across multiple namespaces.
+   * Only applicable when format is "mso_mdoc".
+   * Example:
+   * {
+   * "org.iso.18013.5.1": { "given_name": "John", "family_name": "Doe" },
+   * "org.iso.18013.5.1.aamva": { "DHS_compliance": "F" }
+   * }
+   */
+  claimsByNamespace?: {
+    [key: string]: unknown;
+  };
 };
 
 export type Vct = {
@@ -772,6 +796,38 @@ export type CredentialConfigCreate = {
   id: string;
   description?: string;
   config: IssuerMetadataCredentialConfig;
+  claims?: {
+    [key: string]: unknown;
+  };
+  /**
+   * Webhook to receive claims for the issuance process.
+   */
+  claimsWebhook?: WebhookConfig;
+  /**
+   * Webhook to receive claims for the issuance process.
+   */
+  notificationWebhook?: WebhookConfig;
+  disclosureFrame?: {
+    [key: string]: unknown;
+  };
+  vct?: Vct;
+  keyBinding?: boolean;
+  certId?: string;
+  statusManagement?: boolean;
+  lifeTime?: number;
+  schema?: SchemaResponse;
+};
+
+export type CredentialConfigUpdate = {
+  /**
+   * Embedded disclosure policy (discriminated union by `policy`).
+   * The discriminator makes class-transformer instantiate the right subclass,
+   * and then class-validator runs that subclass’s rules.
+   */
+  embeddedDisclosurePolicy?: EmbeddedDisclosurePolicy;
+  id?: string;
+  description?: string;
+  config?: IssuerMetadataCredentialConfig;
   claims?: {
     [key: string]: unknown;
   };
@@ -938,6 +994,41 @@ export type PresentationConfigCreateDto = {
    * The DCQL query to be used for the VP request.
    */
   dcql_query: Dcql;
+  /**
+   * The registration certificate request containing the necessary details.
+   */
+  registrationCert?: RegistrationCertificateRequest;
+  /**
+   * Optional webhook URL to receive the response.
+   */
+  webhook?: WebhookConfig;
+  /**
+   * Attestation that should be attached
+   */
+  attached?: Array<PresentationAttachment>;
+  /**
+   * Redirect URI to which the user-agent should be redirected after the presentation is completed.
+   */
+  redirectUri?: string;
+};
+
+export type PresentationConfigUpdateDto = {
+  /**
+   * Unique identifier for the VP request.
+   */
+  id?: string;
+  /**
+   * Description of the presentation configuration.
+   */
+  description?: string;
+  /**
+   * Lifetime how long the presentation request is valid after creation, in seconds.
+   */
+  lifeTime?: number;
+  /**
+   * The DCQL query to be used for the VP request.
+   */
+  dcql_query?: Dcql;
   /**
    * The registration certificate request containing the necessary details.
    */
@@ -1667,6 +1758,24 @@ export type CredentialConfigControllerGetConfigByIdResponses = {
 export type CredentialConfigControllerGetConfigByIdResponse =
   CredentialConfigControllerGetConfigByIdResponses[keyof CredentialConfigControllerGetConfigByIdResponses];
 
+export type CredentialConfigControllerUpdateCredentialConfigurationData = {
+  body: CredentialConfigUpdate;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/issuer/credentials/{id}";
+};
+
+export type CredentialConfigControllerUpdateCredentialConfigurationResponses = {
+  200: {
+    [key: string]: unknown;
+  };
+};
+
+export type CredentialConfigControllerUpdateCredentialConfigurationResponse =
+  CredentialConfigControllerUpdateCredentialConfigurationResponses[keyof CredentialConfigControllerUpdateCredentialConfigurationResponses];
+
 export type Oid4VciControllerCredentialData = {
   body?: never;
   path: {
@@ -1971,7 +2080,7 @@ export type PresentationManagementControllerGetConfigurationResponse =
   PresentationManagementControllerGetConfigurationResponses[keyof PresentationManagementControllerGetConfigurationResponses];
 
 export type PresentationManagementControllerUpdateConfigurationData = {
-  body: PresentationConfigCreateDto;
+  body: PresentationConfigUpdateDto;
   path: {
     id: string;
   };
@@ -1980,8 +2089,13 @@ export type PresentationManagementControllerUpdateConfigurationData = {
 };
 
 export type PresentationManagementControllerUpdateConfigurationResponses = {
-  200: unknown;
+  200: {
+    [key: string]: unknown;
+  };
 };
+
+export type PresentationManagementControllerUpdateConfigurationResponse =
+  PresentationManagementControllerUpdateConfigurationResponses[keyof PresentationManagementControllerUpdateConfigurationResponses];
 
 export type TrustListControllerGetAllTrustListsData = {
   body?: never;

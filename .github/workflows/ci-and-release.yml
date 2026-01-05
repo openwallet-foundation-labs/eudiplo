@@ -219,9 +219,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      #      - name: Add entry to /etc/hosts
-      #        run: echo "127.0.0.1       host.testcontainers.internal" | sudo tee
-      #          -a /etc/hosts
+      - name: Add entry to /etc/hosts
+        run: echo "127.0.0.1       host.testcontainers.internal" | sudo tee -a /etc/hosts
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
@@ -246,6 +245,8 @@ jobs:
 
       - name: Run E2E tests
         run: pnpm run --filter @eudiplo/backend test:e2e
+        env:
+          TESTCONTAINERS_HOST_OVERRIDE: host.testcontainers.internal
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5

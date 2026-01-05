@@ -135,20 +135,20 @@ export class PresentationConfig {
      */
     @Column("varchar", { primary: true })
     @IsString()
-    id!: string;
+    id: string;
 
     /**
      * The tenant ID for which the VP request is made.
      */
     @ApiHideProperty()
     @Column("varchar", { primary: true })
-    tenantId!: string;
+    tenantId: string;
 
     /**
      * The tenant that owns this object.
      */
     @ManyToOne(() => TenantEntity, { cascade: true, onDelete: "CASCADE" })
-    tenant!: TenantEntity;
+    tenant: TenantEntity;
 
     /**
      * Description of the presentation configuration.
@@ -156,7 +156,7 @@ export class PresentationConfig {
     @Column("varchar", { nullable: true })
     @IsOptional()
     @IsString()
-    description?: string;
+    description?: string | null;
 
     /**
      * Lifetime how long the presentation request is valid after creation, in seconds.
@@ -180,7 +180,7 @@ export class PresentationConfig {
     @ValidateNested()
     @Type(() => RegistrationCertificateRequest)
     @Column("json", { nullable: true })
-    registrationCert?: RegistrationCertificateRequest;
+    registrationCert?: RegistrationCertificateRequest | null;
 
     /**
      * Optional webhook URL to receive the response.
@@ -189,7 +189,7 @@ export class PresentationConfig {
     @IsOptional()
     @Validate(WebhookConfig)
     @Type(() => WebhookConfig)
-    webhook?: WebhookConfig;
+    webhook?: WebhookConfig | null;
 
     /**
      * The timestamp when the VP request was created.
@@ -211,7 +211,7 @@ export class PresentationConfig {
     @ValidateNested()
     @Type(() => PresentationAttachment)
     @Column("json", { nullable: true })
-    attached?: PresentationAttachment[];
+    attached?: PresentationAttachment[] | null;
 
     /**
      * Redirect URI to which the user-agent should be redirected after the presentation is completed.
@@ -219,5 +219,5 @@ export class PresentationConfig {
     @IsOptional()
     @IsString()
     @Column("varchar", { nullable: true })
-    redirectUri?: string;
+    redirectUri?: string | null;
 }

@@ -24,15 +24,16 @@
         "start:debug": "nest start --debug --watch",
         "start:prod": "node dist/main",
         "lint": "biome lint",
-        "lint:fix": "biome check --fix",
+        "lint:fix": "biome check --fix --unsafe",
         "test": "vitest run",
         "test:watch": "vitest",
         "test:debug": "vitest --inspect-brk --inspect --logHeapUsage --threads=false",
-        "test:e2e": "VITEST_SKIP_OIDF=true vitest run --coverage --config ./test/vitest.config.ts",
+        "test:e2e": "vitest run --coverage --config ./test/vitest.config.ts",
         "test:e2e:watch": "vitest --coverage --config ./test/vitest.config.ts",
         "registrar": "npx @hey-api/openapi-ts -i https://funke-wallet.de/-json -o ./src/registrar/generated -c @hey-api/client-fetch"
     },
     "dependencies": {
+        "@animo-id/mdoc": "0.6.0-alpha-20251209053057",
         "@aws-sdk/client-s3": "^3.943.0",
         "@aws-sdk/s3-request-presigner": "^3.943.0",
         "@badgateway/oauth2-client": "^3.3.1",
@@ -49,6 +50,8 @@
         "@nestjs/swagger": "^11.2.3",
         "@nestjs/terminus": "^11.0.0",
         "@nestjs/typeorm": "^11.0.0",
+        "@noble/hashes": "^2.0.1",
+        "@noble/curves": "^2.0.1",
         "@openid4vc/oauth2": "0.4.3",
         "@openid4vc/openid4vci": "0.4.3",
         "@openid4vc/openid4vp": "0.4.3",
@@ -82,7 +85,8 @@
         "rxjs": "^7.8.2",
         "sqlite3": "^5.1.7",
         "typeorm": "^0.3.28",
-        "uuid": "^13.0.0"
+        "uuid": "^13.0.0",
+        "@panva/hkdf": "^1.2.1"
     },
     "devDependencies": {
         "@biomejs/biome": "2.3.8",

@@ -58,6 +58,73 @@
   }
 }
 
+// Config list styling
+.config-list {
+  padding: 0;
+
+  mat-list-item {
+    height: auto !important;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}
+
+.icon-enabled {
+  color: #2e7d32;
+}
+
+.icon-disabled {
+  color: #9e9e9e;
+}
+
+// Issuer preview styling
+.preview-card {
+  .issuer-preview {
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 400px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+    .preview-logo {
+      max-width: 80px;
+      max-height: 80px;
+      object-fit: contain;
+      border-radius: 8px;
+      background: white;
+      padding: 8px;
+    }
+
+    .preview-content {
+      .preview-name {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .preview-locale {
+        font-size: 14px;
+        opacity: 0.8;
+        text-transform: uppercase;
+      }
+    }
+  }
+
+  .locale-chips {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+}
+
 .locale-icon {
   vertical-align: middle;
   font-size: 18px;

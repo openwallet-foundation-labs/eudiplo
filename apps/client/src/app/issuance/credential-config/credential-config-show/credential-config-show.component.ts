@@ -1,10 +1,12 @@
 import { Component, type OnInit } from '@angular/core';
+import { Clipboard, ClipboardModule } from '@angular/cdk/clipboard';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -23,8 +25,10 @@ import { WebhookConfigShowComponent } from '../../../utils/webhook-config-show/w
     MatExpansionModule,
     MatChipsModule,
     MatDividerModule,
+    MatListModule,
     FlexLayoutModule,
     RouterModule,
+    ClipboardModule,
     WebhookConfigShowComponent,
   ],
   templateUrl: './credential-config-show.component.html',
@@ -37,8 +41,31 @@ export class CredentialConfigShowComponent implements OnInit {
     private readonly credentialConfigService: CredentialConfigService,
     private readonly route: ActivatedRoute,
     private readonly snackBar: MatSnackBar,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly clipboard: Clipboard
   ) {}
+
+  get isMdocFormat(): boolean {
+    return this.config?.config?.format === 'mso_mdoc';
+  }
+
+  get formatLabel(): string {
+    if (this.config?.config?.format === 'mso_mdoc') {
+      return 'mDOC (mso_mdoc)';
+    }
+    return 'SD-JWT VC (dc+sd-jwt)';
+  }
+
+  get primaryDisplay(): any {
+    return this.config?.config?.display?.[0];
+  }
+
+  copyToClipboard(value: string, label: string): void {
+    this.clipboard.copy(value);
+    this.snackBar.open(`${label} copied to clipboard`, 'Close', {
+      duration: 2000,
+    });
+  }
 
   ngOnInit(): void {
     this.loadConfig();

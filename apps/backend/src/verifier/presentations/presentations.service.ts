@@ -7,17 +7,23 @@ import {
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
+import { decodeJwt } from "jose";
 import { Repository } from "typeorm";
 import { ServiceTypeIdentifier } from "../../issuer/trustlist/trustlist.service";
+import { Session } from "../../session/entities/session.entity";
 import { ConfigImportService } from "../../shared/utils/config-import/config-import.service";
 import { VerifierOptions } from "../resolver/trust/types";
+import { MdlverifierService } from "./credential/mdlverifier/mdlverifier.service";
 import { SdjwtvcverifierService } from "./credential/sdjwtvcverifier/sdjwtvcverifier.service";
 import { AuthResponse } from "./dto/auth-response.dto";
 import { PresentationConfigCreateDto } from "./dto/presentation-config-create.dto";
+import { PresentationConfigUpdateDto } from "./dto/presentation-config-update.dto";
 import {
     PresentationConfig,
     TrustedAuthorityType,
 } from "./entities/presentation-config.entity";
+
+type CredentialType = "dc+sd-jwt" | "mso_mdoc";
 
 /**
  * Service for managing Verifiable Presentations (VPs) and handling SD-JWT-VCs.
@@ -35,6 +41,7 @@ export class PresentationsService implements OnApplicationBootstrap {
         private readonly vpRequestRepository: Repository<PresentationConfig>,
         private readonly configImportService: ConfigImportService,
         private readonly sdjwtvcverifierService: SdjwtvcverifierService,
+        private readonly mdlverifierService: MdlverifierService,
         private readonly configService: ConfigService,
     ) {}
 
@@ -117,12 +124,22 @@ export class PresentationsService implements OnApplicationBootstrap {
      * @param vprequest
      * @returns
      */
-    updatePresentationConfig(
+    async updatePresentationConfig(
         id: string,
         tenantId: string,
-        vprequest: PresentationConfigCreateDto,
+        vprequest: PresentationConfigUpdateDto,
     ) {
-        return this.vpRequestRepository.update({ id, tenantId }, vprequest);
+        // Verify the config exists
+        const existing = await this.getPresentationConfig(id, tenantId);
+
+        // Merge existing with updates - client must explicitly set fields to null to clear them
+        // Omitted fields keep their existing values
+        return this.vpRequestRepository.save({
+            ...existing,
+            ...vprequest,
+            id,
+            tenantId,
+        });
     }
 
     /**
@@ -171,7 +188,6 @@ export class PresentationsService implements OnApplicationBootstrap {
             id,
             tenantId,
         });
-        //element.registrationCert!.id = registrationCertId;
         await this.vpRequestRepository.save(element);
     }
 
@@ -181,76 +197,111 @@ export class PresentationsService implements OnApplicationBootstrap {
      * @param requiredFields
      * @returns
      */
-    parseResponse(
+    async parseResponse(
         res: AuthResponse,
         presentationConfig: PresentationConfig,
-        keyBindingNonce: string,
+        session: Session,
     ) {
-        const attestations = Object.keys(res.vp_token);
-        const att = attestations.map(async (att) => ({
-            id: att,
-            values: await Promise.all(
-                (res.vp_token[att] as unknown as string[]).map((cred) => {
-                    const dcqlCredential =
-                        presentationConfig.dcql_query.credentials.find(
-                            (c) => c.id === att,
-                        );
+        const attestationIds = Object.keys(res.vp_token);
+        const host = this.configService.getOrThrow<string>("PUBLIC_URL");
+        const tenantHost = `${host}/${presentationConfig.tenantId}`;
 
-                    if (!dcqlCredential) {
-                        throw new ConflictException(
-                            `${att} not found in the presentation config`,
-                        );
-                    }
+        const results = await Promise.all(
+            attestationIds.map(async (attId) => {
+                const credentials = res.vp_token[attId] as unknown as string[];
+                const dcqlCredential =
+                    presentationConfig.dcql_query.credentials.find(
+                        (c) => c.id === attId,
+                    );
 
-                    const host =
-                        this.configService.getOrThrow<string>("PUBLIC_URL");
-                    const tenantHost = `${host}/${presentationConfig.tenantId}`;
+                if (!dcqlCredential) {
+                    throw new ConflictException(
+                        `${attId} not found in the presentation config`,
+                    );
+                }
 
-                    const verifyOptions: VerifierOptions = {
-                        trustListSource: {
-                            lotes:
-                                dcqlCredential.trusted_authorities
-                                    ?.find(
-                                        (auth) =>
-                                            auth.type ===
-                                            TrustedAuthorityType.ETSI_TL,
-                                    )
-                                    ?.values.map((url) => {
-                                        return {
-                                            url: url.replaceAll(
-                                                "<PUBLIC_URL>",
-                                                tenantHost,
-                                            ),
-                                            //add verifierKey from trusted source, would be rulebook
-                                        };
-                                    }) || [],
-                            acceptedServiceTypes: [
-                                ServiceTypeIdentifier.EaaIssuance,
-                            ],
-                        },
-                        policy: {
-                            requireX5c: true,
-                        },
-                    };
+                const verifyOptions: VerifierOptions = {
+                    trustListSource: {
+                        lotes:
+                            dcqlCredential.trusted_authorities
+                                ?.find(
+                                    (auth) =>
+                                        auth.type ===
+                                        TrustedAuthorityType.ETSI_TL,
+                                )
+                                ?.values.map((url) => ({
+                                    url: url.replaceAll(
+                                        "<PUBLIC_URL>",
+                                        tenantHost,
+                                    ),
+                                })) || [],
+                        acceptedServiceTypes: [
+                            ServiceTypeIdentifier.EaaIssuance,
+                        ],
+                    },
+                    policy: {
+                        requireX5c: true,
+                    },
+                };
 
-                    // Pass trusted authorities to the verify function
-                    return this.sdjwtvcverifierService
-                        .verify(cred, {
-                            //TODO: get required fields from the dcql query to check if they got passed
-                            requiredClaimKeys: [],
-                            keyBindingNonce,
-                            ...verifyOptions,
-                        } as any)
-                        .then((result) => {
+                const type = this.getType(session.requestObject!, attId);
+
+                const values = await Promise.all(
+                    credentials.map(async (cred) => {
+                        if (type === "mso_mdoc") {
+                            const result = await this.mdlverifierService.verify(
+                                cred,
+                                {
+                                    nonce: session.vp_nonce as string,
+                                    clientId: session.clientId!,
+                                    responseUri: session.responseUri!,
+                                    protocol: "openid4vp",
+                                    responseMode: session.useDcApi
+                                        ? "dc_api.jwt"
+                                        : "direct_post.jwt",
+                                },
+                                verifyOptions,
+                            );
+                            return {
+                                ...result.claims,
+                                payload: result.payload,
+                            };
+                        } else if (type === "dc+sd-jwt") {
+                            const result =
+                                await this.sdjwtvcverifierService.verify(cred, {
+                                    requiredClaimKeys: [],
+                                    keyBindingNonce: session.vp_nonce!,
+                                    ...verifyOptions,
+                                } as any);
                             return {
                                 ...result.payload,
-                                cnf: undefined, // remove cnf for simplicity
-                                status: undefined, // remove status for simplicity
+                                cnf: undefined,
+                                status: undefined,
                             };
-                        });
-                }),
-            ),
-        }));
-        return Promise.all(att);
+                        }
+                        throw new ConflictException(
+                            `Unsupported credential type: ${type}`,
+                        );
+                    }),
+                );
+
+                return { id: attId, values };
+            }),
+        );
+
+        return results;
+    }
+
+    /**
+     * Get the credential type based on the configuration id.
+     * @param jwt
+     * @param att
+     * @returns
+     */
+    getType(jwt: string, att: string): CredentialType {
+        const payload = decodeJwt<any>(jwt);
+        return payload.dcql_query.credentials.find(
+            (credential) => credential.id === att,
+        ).format;
     }
 }

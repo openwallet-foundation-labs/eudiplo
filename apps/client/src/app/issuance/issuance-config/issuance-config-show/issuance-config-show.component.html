@@ -4,16 +4,16 @@
     <div fxLayout="row" fxLayoutAlign="space-between center">
       <h2>Issuance Configuration</h2>
       <div>
-        <button matIconButton [routerLink]="['../']" matTooltip="Back to list">
+        <button mat-icon-button [routerLink]="['../']" matTooltip="Back to list">
           <mat-icon>arrow_back</mat-icon>
         </button>
-        <button matIconButton [routerLink]="['/offer/issuance']" matTooltip="Create offer">
+        <button mat-icon-button [routerLink]="['/offer/issuance']" matTooltip="Create offer">
           <mat-icon>add</mat-icon>
         </button>
-        <button matIconButton [routerLink]="['edit']" matTooltip="Edit configuration">
+        <button mat-icon-button [routerLink]="['edit']" matTooltip="Edit configuration">
           <mat-icon>edit</mat-icon>
         </button>
-        <button matIconButton (click)="downloadConfig()" matTooltip="Download configuration">
+        <button mat-icon-button (click)="downloadConfig()" matTooltip="Download configuration">
           <mat-icon>download</mat-icon>
         </button>
       </div>
@@ -24,84 +24,67 @@
       <mat-card-header>
         <mat-card-title>
           <mat-icon>settings</mat-icon>
-          Basic Information
+          Configuration Details
         </mat-card-title>
       </mat-card-header>
-      <mat-card-content fxLayout="column" fxLayoutGap="16px">
-        <div fxLayout="row" fxLayoutGap="32px" fxLayout.lt-md="column">
-          <div fxFlex>
-            <div><strong>Created At:</strong></div>
-            <div class="value-text">{{ formatDate(config.createdAt) }}</div>
-          </div>
-          <div fxFlex>
-            <div><strong>Batch Size:</strong></div>
-            <div class="value-text">{{ config.batchSize || 1 }}</div>
-          </div>
-          <div fxFlex>
-            <div><strong>DPop required:</strong></div>
-            <div class="value-text">{{ config.dPopRequired ? 'Yes' : 'No' }}</div>
-          </div>
-        </div>
+      <mat-card-content>
+        <mat-list class="config-list">
+          <mat-list-item>
+            <mat-icon matListItemIcon>schedule</mat-icon>
+            <span matListItemTitle>Created At</span>
+            <span matListItemLine>{{ formatDate(config.createdAt) }}</span>
+          </mat-list-item>
+          <mat-list-item>
+            <mat-icon
+              matListItemIcon
+              [class]="config.dPopRequired ? 'icon-enabled' : 'icon-disabled'"
+            >
+              {{ config.dPopRequired ? 'verified_user' : 'no_encryption' }}
+            </mat-icon>
+            <span matListItemTitle>DPoP</span>
+            <span matListItemLine>{{ config.dPopRequired ? 'Required' : 'Not required' }}</span>
+          </mat-list-item>
+          <mat-list-item>
+            <mat-icon matListItemIcon>layers</mat-icon>
+            <span matListItemTitle>Batch Size</span>
+            <span matListItemLine>{{ config.batchSize || 1 }} credential(s) per request</span>
+          </mat-list-item>
+        </mat-list>
       </mat-card-content>
     </mat-card>
 
-    <!-- Display Configurations Card -->
-    @if (config.display && config.display.length > 0) {
-      <mat-card>
+    <!-- Issuer Preview Card -->
+    @if (primaryDisplay) {
+      <mat-card class="preview-card">
         <mat-card-header>
           <mat-card-title>
-            <mat-icon>view_carousel</mat-icon>
-            Display Configurations ({{ config.display.length }})
+            <mat-icon>preview</mat-icon>
+            Issuer Preview
           </mat-card-title>
-          <mat-card-subtitle>How credentials are displayed to users</mat-card-subtitle>
+          <mat-card-subtitle>How the issuer appears to wallets</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
-          <div fxLayout="column" fxLayoutGap="16px">
-            @for (display of config.display; track $index; let i = $index) {
-              <mat-card class="display-entry-card">
-                <mat-card-header>
-                  <mat-card-title>Display Entry {{ i + 1 }}</mat-card-title>
-                </mat-card-header>
-                <mat-card-content fxLayout="column" fxLayoutGap="12px">
-                  <div fxLayout="row" fxLayoutGap="32px" fxLayout.lt-md="column">
-                    <div fxFlex>
-                      <div><strong>Name:</strong></div>
-                      <div class="value-text">{{ display.name }}</div>
-                    </div>
-                    <div fxFlex>
-                      <div><strong>Locale:</strong></div>
-                      <div class="value-text">
-                        <mat-icon inline class="locale-icon">language</mat-icon>
-                        {{ display.locale }}
-                      </div>
-                    </div>
-                  </div>
-                  @if (display.logo?.uri) {
-                    <div>
-                      <div><strong>Logo:</strong></div>
-                      <div class="value-text logo-container">
-                        <img
-                          [src]="display.logo!.uri"
-                          alt="Display configuration logo"
-                          title="Display configuration logo"
-                          class="logo-image"
-                          (error)="$event.target.style.display = 'none'"
-                        />
-                      </div>
-                    </div>
-                  }
-                </mat-card-content>
-              </mat-card>
+          <div class="issuer-preview">
+            @if (primaryDisplay.logo?.uri) {
+              <img [src]="primaryDisplay.logo.uri" alt="Issuer Logo" class="preview-logo" />
             }
+            <div class="preview-content">
+              <div class="preview-name">{{ primaryDisplay.name }}</div>
+              <div class="preview-locale">{{ primaryDisplay.locale }}</div>
+            </div>
           </div>
+          @if (config.display && config.display.length > 1) {
+            <div class="locale-chips">
+              <strong>Available locales:</strong>
+              <mat-chip-set>
+                @for (display of config.display; track display.locale) {
+                  <mat-chip>{{ display.locale }} - {{ display.name }}</mat-chip>
+                }
+              </mat-chip-set>
+            </div>
+          }
         </mat-card-content>
       </mat-card>
     }
-
-    <app-webhook-config-show
-      [config]="config.notifyWebhook"
-      title="Notification"
-      descriptions="to receive notifications during issuance"
-    ></app-webhook-config-show>
   </div>
 }

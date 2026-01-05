@@ -69,8 +69,38 @@ export class CredentialConfigCreateComponent implements OnInit {
 
   predefinedConfigs = configs;
 
+  // Lifetime presets in seconds
+  lifetimePresets = [
+    { label: '1 hour', value: 3600 },
+    { label: '8 hours', value: 28800 },
+    { label: '1 day', value: 86400 },
+    { label: '7 days', value: 604800 },
+    { label: '30 days', value: 2592000 },
+    { label: '1 year', value: 31536000 },
+    { label: 'Custom', value: null },
+  ];
+
+  // Common mDOC document types
+  docTypePresets = [
+    {
+      label: 'Mobile Driving License (mDL)',
+      value: 'org.iso.18013.5.1.mDL',
+      namespace: 'org.iso.18013.5.1',
+    },
+    { label: 'EU PID', value: 'eu.europa.ec.eudi.pid.1', namespace: 'eu.europa.ec.eudi.pid.1' },
+    { label: 'EU mDL', value: 'org.iso.18013.5.1.mDL', namespace: 'org.iso.18013.5.1' },
+    { label: 'Custom', value: '', namespace: '' },
+  ];
+
+  selectedLifetimePreset: number | null = 3600;
+  customLifetime = false;
+
   vctSchema = vctSchema;
   embeddedDisclosurePolicySchema = embeddedDisclosurePolicySchema;
+
+  get isMdocFormat(): boolean {
+    return this.form.get('format')?.value === 'mso_mdoc';
+  }
 
   constructor(
     private readonly credentialConfigService: CredentialConfigService,
@@ -82,14 +112,21 @@ export class CredentialConfigCreateComponent implements OnInit {
     this.form = new FormGroup({
       id: new FormControl('', [Validators.required]),
       description: new FormControl('', Validators.required),
+      format: new FormControl('dc+sd-jwt', [Validators.required]),
       certId: new FormControl(''),
       scope: new FormControl(''),
       lifeTime: new FormControl(3600, [Validators.min(1)]),
       keyBinding: new FormControl(true, [Validators.required]),
       statusManagement: new FormControl(true, [Validators.required]),
       claims: new FormControl(''),
+      // SD-JWT specific fields
       disclosureFrame: new FormControl(''),
       vct: new FormControl(''),
+      // mDOC specific fields
+      docType: new FormControl(''),
+      namespace: new FormControl(''),
+      claimsByNamespace: new FormControl(''),
+      // Common fields
       schema: new FormControl(''),
       displayConfigs: new FormArray([this.createDisplayConfigGroup()]),
       embeddedDisclosurePolicy: new FormControl(''),
@@ -149,9 +186,13 @@ export class CredentialConfigCreateComponent implements OnInit {
 
     try {
       const formValue = this.buildConfigurationPayload();
+      const configId = this.route.snapshot.params['id'];
 
-      this.credentialConfigService
-        .saveConfiguration(formValue)
+      const savePromise = this.create
+        ? this.credentialConfigService.saveConfiguration(formValue)
+        : this.credentialConfigService.updateConfiguration(configId, formValue);
+
+      savePromise
         .then(
           () => {
             this.snackBar.open(
@@ -194,6 +235,7 @@ export class CredentialConfigCreateComponent implements OnInit {
     this.form.patchValue({
       id: config.id || '',
       certId: config.certId || '',
+      format: config.config?.format || 'dc+sd-jwt',
       scope: config.config?.scope || '',
       description: config.description || '',
       lifeTime: config.lifeTime || 3600,
@@ -202,12 +244,87 @@ export class CredentialConfigCreateComponent implements OnInit {
       claims: this.stringifyField(config.claims),
       claimsWebhook: config.claimsWebhook,
       notificationWebhook: config.notificationWebhook,
+      // SD-JWT specific
       disclosureFrame: this.stringifyField(config.disclosureFrame),
       vct: this.stringifyField(config.vct),
+      // mDOC specific
+      docType: config.config?.docType || '',
+      namespace: config.config?.namespace || '',
+      claimsByNamespace: this.stringifyField(config.config?.claimsByNamespace),
+      // Common
       schema: this.stringifyField(config.schema),
       displayConfigs: config.config?.display || [],
       embeddedDisclosurePolicy: this.stringifyField(config.embeddedDisclosurePolicy),
     } as { [k in keyof Omit<CredentialConfigCreate, 'config'>]: any });
+
+    // Update lifetime preset selection
+    this.updateLifetimePresetFromValue(config.lifeTime || 3600);
+  }
+
+  /**
+   * Update lifetime preset selection based on value
+   */
+  private updateLifetimePresetFromValue(value: number): void {
+    const preset = this.lifetimePresets.find((p) => p.value === value);
+    if (preset) {
+      this.selectedLifetimePreset = preset.value;
+      this.customLifetime = false;
+    } else {
+      this.selectedLifetimePreset = null;
+      this.customLifetime = true;
+    }
+  }
+
+  /**
+   * Handle lifetime preset selection
+   */
+  onLifetimePresetChange(presetValue: number | null): void {
+    this.selectedLifetimePreset = presetValue;
+    if (presetValue === null) {
+      this.customLifetime = true;
+    } else {
+      this.customLifetime = false;
+      this.form.get('lifeTime')?.setValue(presetValue);
+    }
+  }
+
+  /**
+   * Handle docType preset selection
+   */
+  onDocTypePresetChange(preset: { value: string; namespace: string }): void {
+    this.form.get('docType')?.setValue(preset.value);
+    if (preset.namespace) {
+      this.form.get('namespace')?.setValue(preset.namespace);
+    }
+  }
+
+  /**
+   * Generate ID from description (slug format)
+   */
+  generateIdFromDescription(): void {
+    const description = this.form.get('description')?.value;
+    if (description) {
+      const slug = description
+        .toLowerCase()
+        .replaceAll(/[^a-z0-9\s-]/g, '')
+        .replaceAll(/\s+/g, '-')
+        .replaceAll(/-+/g, '-')
+        .trim();
+      this.form.get('id')?.setValue(slug);
+    }
+  }
+
+  /**
+   * Format lifetime value for display
+   */
+  formatLifetime(seconds: number): string {
+    if (seconds < 60) return `${seconds} seconds`;
+    if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours`;
+    if (seconds < 604800) return `${Math.floor(seconds / 86400)} days`;
+    if (seconds < 2592000) return `${Math.floor(seconds / 604800)} weeks`;
+    if (seconds < 31536000) return `${Math.floor(seconds / 2592000)} months`;
+    return `${Math.floor(seconds / 31536000)} years`;
   }
 
   private markFormGroupTouched(): void {
@@ -282,41 +399,68 @@ export class CredentialConfigCreateComponent implements OnInit {
     const formValue = { ...this.form.value };
     formValue.id = this.route.snapshot.params['id'] || formValue.id;
 
+    const isMdoc = formValue.format === 'mso_mdoc';
+
     formValue.config = {
-      format: 'dc+sd-jwt',
+      format: formValue.format,
       display: formValue.displayConfigs,
       scope: formValue.scope || undefined,
+      // mDOC specific fields
+      ...(isMdoc && {
+        docType: formValue.docType || undefined,
+        namespace: formValue.namespace || undefined,
+        claimsByNamespace: this.parseJsonField(formValue.claimsByNamespace, 'parse'),
+      }),
     };
 
-    // Convert empty strings to undefined for optional fields
-    formValue.certId = formValue.certId || undefined;
-    formValue.scope = formValue.scope || undefined;
+    // Convert empty strings to null to clear optional fields (for PATCH semantics)
+    formValue.certId = formValue.certId || null;
+    formValue.scope = formValue.scope || null;
 
-    // Parse JSON fields using helper
-    formValue.claims = this.parseJsonField(formValue.claims, 'parse');
-    formValue.disclosureFrame = this.parseJsonField(formValue.disclosureFrame, 'parse');
-    formValue.vct = this.parseJsonField(formValue.vct, 'extract');
-    formValue.schema = this.parseJsonField(formValue.schema, 'parse');
+    // Parse JSON fields using helper - use null to clear, undefined is not sent
+    formValue.claims = this.parseJsonField(formValue.claims, 'parse', true);
+
+    // SD-JWT specific fields (only include if SD-JWT format)
+    if (isMdoc) {
+      formValue.disclosureFrame = null;
+      formValue.vct = null;
+    } else {
+      formValue.disclosureFrame = this.parseJsonField(formValue.disclosureFrame, 'parse', true);
+      formValue.vct = this.parseJsonField(formValue.vct, 'extract', true);
+    }
+
+    formValue.schema = this.parseJsonField(formValue.schema, 'parse', true);
     formValue.embeddedDisclosurePolicy = this.parseJsonField(
       formValue.embeddedDisclosurePolicy,
-      'extract'
+      'extract',
+      true
     );
 
-    // Handle webhooks
-    formValue.claimsWebhook = formValue.claimsWebhook?.url ? formValue.claimsWebhook : undefined;
+    // Handle webhooks - use null to clear
+    formValue.claimsWebhook = formValue.claimsWebhook?.url ? formValue.claimsWebhook : null;
     formValue.notificationWebhook = formValue.notificationWebhook?.url
       ? formValue.notificationWebhook
-      : undefined;
+      : null;
 
+    // Clean up form-only fields
     delete formValue.displayConfigs;
+    delete formValue.format;
+    delete formValue.docType;
+    delete formValue.namespace;
+    delete formValue.claimsByNamespace;
     return formValue;
   }
 
   /**
    * Helper to parse JSON fields with proper null/undefined handling
+   * @param useNullForEmpty - if true, returns null for empty values (for PATCH to clear field)
    */
-  private parseJsonField(value: any, mode: 'parse' | 'extract' = 'parse'): any {
-    if (!value || value === '') return undefined;
+  private parseJsonField(
+    value: any,
+    mode: 'parse' | 'extract' = 'parse',
+    useNullForEmpty = false
+  ): any {
+    if (!value || value === '') return useNullForEmpty ? null : undefined;
     if (typeof value !== 'string') return value;
 
     const parsed = JSON.parse(value);
