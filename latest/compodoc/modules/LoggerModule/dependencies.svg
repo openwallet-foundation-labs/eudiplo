@@ -24,13 +24,13 @@
 <title>cluster_LoggerModule</title>
 <polygon fill="none" stroke="black" stroke-dasharray="1,5" points="31,-70 31,-268 465,-268 465,-70 31,-70"/>
 </g>
-<g id="clust4" class="cluster">
-<title>cluster_LoggerModule_exports</title>
-<polygon fill="none" stroke="black" points="169,-208 169,-260 329,-260 329,-208 169,-208"/>
-</g>
 <g id="clust6" class="cluster">
 <title>cluster_LoggerModule_providers</title>
 <polygon fill="none" stroke="black" points="39,-78 39,-130 457,-130 457,-78 39,-78"/>
+</g>
+<g id="clust4" class="cluster">
+<title>cluster_LoggerModule_exports</title>
+<polygon fill="none" stroke="black" points="169,-208 169,-260 329,-260 329,-208 169,-208"/>
 </g>
 <!-- SessionLoggerService  -->
 <g id="node1" class="node">

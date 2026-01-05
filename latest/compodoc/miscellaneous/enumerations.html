@@ -152,7 +152,10 @@
                             <a href="#Role" title="src/auth/roles/role.enum.ts" ><b>Role</b>&nbsp;&nbsp;&nbsp;(src/.../role.enum.ts)</a>
                         </li>
                         <li>
-                            <a href="#ServiceTypeIdentifier" title="src/issuer/trustlist/trustlist.service.ts" ><b>ServiceTypeIdentifier</b>&nbsp;&nbsp;&nbsp;(src/.../trustlist.service.ts)</a>
+                            <a href="#ServiceTypeIdentifier" title="src/issuer/trust-list/trustlist.service.ts" ><b>ServiceTypeIdentifier</b>&nbsp;&nbsp;&nbsp;(src/.../trustlist.service.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#SessionCleanupMode" title="src/auth/tenant/entitites/session-storage-config.ts" ><b>SessionCleanupMode</b>&nbsp;&nbsp;&nbsp;(src/.../session-storage-config.ts)</a>
                         </li>
                         <li>
                             <a href="#SessionStatus" title="src/session/entities/session.entity.ts" ><b>SessionStatus</b>&nbsp;&nbsp;&nbsp;(src/.../session.entity.ts)</a>
@@ -496,7 +499,7 @@
             </tbody>
         </table>
 </section>
-    <h3>src/issuer/trustlist/trustlist.service.ts</h3>
+    <h3>src/issuer/trust-list/trustlist.service.ts</h3>
     <section data-compodoc="block-enums">
         <table class="table table-sm table-bordered">
             <tbody>
@@ -524,6 +527,45 @@
                         <tr>
                             <td class="col-md-4">
                                 <i>Value : </i><code>http://uri.etsi.org/19602/SvcType/EAA/Revocation</code>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+</section>
+    <h3>src/auth/tenant/entitites/session-storage-config.ts</h3>
+    <section data-compodoc="block-enums">
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="SessionCleanupMode"></a>
+                        <span class="name "><b>SessionCleanupMode</b><a href="#SessionCleanupMode"><span class="icon ion-ios-link"></span></a></span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-description"><p>Cleanup mode when sessions expire.</p>
+</div>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;Full
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>full</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;Anonymize
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>anonymize</code>
                             </td>
                         </tr>
             </tbody>
