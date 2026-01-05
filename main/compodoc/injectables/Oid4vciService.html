@@ -403,8 +403,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="180"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:180</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="178"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:178</a></div>
                         </td>
                     </tr>
 
@@ -512,8 +512,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="300"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:300</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="298"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:298</a></div>
                         </td>
                     </tr>
 
@@ -745,8 +745,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="475"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:475</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="473"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:473</a></div>
                         </td>
                     </tr>
 
@@ -931,8 +931,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="287"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:287</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="285"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:285</a></div>
                         </td>
                     </tr>
 
@@ -972,8 +972,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="273"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:273</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="271"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:271</a></div>
                         </td>
                     </tr>
 
@@ -1124,7 +1124,7 @@ export class Oid4vciService {
         private readonly webhookService: WebhookService,
         private readonly httpService: HttpService,
         @InjectRepository(NonceEntity)
-        private nonceRepository: Repository&lt;NonceEntity&gt;,
+        private readonly nonceRepository: Repository&lt;NonceEntity&gt;,
     ) {}
 
     /**
@@ -1160,9 +1160,7 @@ export class Oid4vciService {
         tenantId: string,
         issuer?: Openid4vciIssuer,
     ): Promise&lt;IssuerMetadataResult&gt; {
-        if (!issuer) {
-            issuer &#x3D; this.getIssuer(tenantId);
-        }
+        issuer ??&#x3D; this.getIssuer(tenantId);
 
         const credential_issuer &#x3D; &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/${tenantId}&#x60;;
 
@@ -1205,7 +1203,7 @@ export class Oid4vciService {
                     &#x60;/${tenantId}&#x60;,
             );
             authorizationServerMetadata &#x3D;
-                await this.authzService.authzMetadata(tenantId);
+                this.authzService.authzMetadata(tenantId);
         }
         const credentialIssuer &#x3D; issuer.createCredentialIssuerMetadata({
             credential_issuer,

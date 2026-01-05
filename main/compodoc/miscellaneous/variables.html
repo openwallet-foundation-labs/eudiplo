@@ -188,6 +188,9 @@
                             <a href="#LOG_VALIDATION_SCHEMA" title="src/shared/utils/logger/log-validation.schema.ts" ><b>LOG_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../log-validation.schema.ts)</a>
                         </li>
                         <li>
+                            <a href="#mdocContext" title="src/verifier/presentations/mdl-context.ts" ><b>mdocContext</b>&nbsp;&nbsp;&nbsp;(src/.../mdl-context.ts)</a>
+                        </li>
+                        <li>
                             <a href="#Public" title="src/auth/public.decorator.ts" ><b>Public</b>&nbsp;&nbsp;&nbsp;(src/.../public.decorator.ts)</a>
                         </li>
                         <li>
@@ -216,6 +219,12 @@
                         </li>
                         <li>
                             <a href="#STORAGE_VALIDATION_SCHEMA" title="src/storage/storage-validation.schema.ts" ><b>STORAGE_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../storage-validation.schema.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#toBuffer" title="src/verifier/presentations/mdl-context.ts" ><b>toBuffer</b>&nbsp;&nbsp;&nbsp;(src/.../mdl-context.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#toBuffer" title="src/verifier/presentations/credential/mdlverifier/mdlverifier.service.ts" ><b>toBuffer</b>&nbsp;&nbsp;&nbsp;(src/.../mdlverifier.service.ts)</a>
                         </li>
                         <li>
                             <a href="#Token" title="src/auth/token.decorator.ts" ><b>Token</b>&nbsp;&nbsp;&nbsp;(src/.../token.decorator.ts)</a>
@@ -1221,6 +1230,266 @@ This decorator can be used to determine the media type of the request.</p>
         </tbody>
     </table>
 </section>
+    <h3>src/verifier/presentations/mdl-context.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="mdocContext"></a>
+                    <span class="name">
+                        <span ><b>mdocContext</b></span>
+                        <a href="#mdocContext"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>MdocContext</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>{
+    crypto: {
+        digest: async ({ digestAlgorithm, bytes }) &#x3D;&gt; {
+            const digest &#x3D; await crypto.subtle.digest(
+                digestAlgorithm,
+                toBuffer(bytes),
+            );
+            return new Uint8Array(digest);
+        },
+        random: (length: number) &#x3D;&gt; {
+            return crypto.getRandomValues(new Uint8Array(length));
+        },
+        calculateEphemeralMacKey: async (input) &#x3D;&gt; {
+            const { privateKey, publicKey, sessionTranscriptBytes, info } &#x3D;
+                input;
+            const ikm &#x3D; p256
+                .getSharedSecret(privateKey, publicKey, true)
+                .slice(1);
+            const salt &#x3D; new Uint8Array(
+                await crypto.subtle.digest(
+                    &quot;SHA-256&quot;,
+                    toBuffer(sessionTranscriptBytes),
+                ),
+            );
+            const infoAsBytes &#x3D; stringToBytes(info);
+            const digest &#x3D; &quot;sha256&quot;;
+            const result &#x3D; await hkdf(digest, ikm, salt, infoAsBytes, 32);
+
+            return new CoseKey({
+                keyOps: [KeyOps.Sign, KeyOps.Verify],
+                keyType: KeyType.Oct,
+                k: result,
+                algorithm: MacAlgorithm.HS256,
+            });
+        },
+    },
+
+    cose: {
+        mac0: {
+            sign: (input) &#x3D;&gt; {
+                const { key, mac0 } &#x3D; input;
+                return hmac(sha256, key.privateKey, mac0.toBeAuthenticated);
+            },
+            verify: (input) &#x3D;&gt; {
+                const { mac0, key } &#x3D; input;
+
+                if (!mac0.tag) {
+                    throw new Error(&quot;tag is required for mac0 verification&quot;);
+                }
+
+                return (
+                    mac0.tag &#x3D;&#x3D;&#x3D;
+                    hmac(sha256, key.privateKey, mac0.toBeAuthenticated)
+                );
+            },
+        },
+        sign1: {
+            sign: (input) &#x3D;&gt; {
+                const { key, sign1 } &#x3D; input;
+                return p256.sign(sign1.toBeSigned, key.privateKey, {
+                    format: &quot;compact&quot;,
+                });
+            },
+            verify: (input) &#x3D;&gt; {
+                const { sign1, key } &#x3D; input;
+                const { toBeSigned, signature } &#x3D; sign1;
+
+                if (!signature) {
+                    throw new Error(
+                        &quot;signature is required for sign1 verification&quot;,
+                    );
+                }
+
+                // lowS is needed after upgrade of @noble/curves to keep existing tests passing
+                const res &#x3D; p256.verify(signature, toBeSigned, key.publicKey, {
+                    lowS: false,
+                });
+                return res;
+            },
+        },
+    },
+
+    x509: {
+        getIssuerNameField: (input: {
+            certificate: Uint8Array;
+            field: string;
+        }) &#x3D;&gt; {
+            const certificate &#x3D; new X509Certificate(
+                toBuffer(input.certificate),
+            );
+            return certificate.issuerName.getField(input.field);
+        },
+        getPublicKey: async (input: {
+            certificate: Uint8Array;
+            alg: string;
+        }) &#x3D;&gt; {
+            const certificate &#x3D; new X509Certificate(
+                toBuffer(input.certificate),
+            );
+
+            const key &#x3D; await importX509(certificate.toString(), input.alg, {
+                extractable: true,
+            });
+
+            return CoseKey.fromJwk(
+                (await exportJWK(key)) as unknown as Record&lt;string, unknown&gt;,
+            );
+        },
+
+        verifyCertificateChain: async (input: {
+            trustedCertificates: Array&lt;Uint8Array&gt;;
+            x5chain: Array&lt;Uint8Array&gt;;
+            now?: Date;
+        }) &#x3D;&gt; {
+            const { trustedCertificates, x5chain: certificateChain } &#x3D; input;
+            if (certificateChain.length &#x3D;&#x3D;&#x3D; 0)
+                throw new Error(&quot;Certificate chain is empty&quot;);
+
+            const parsedLeafCertificate &#x3D; new x509.X509Certificate(
+                toBuffer(certificateChain[0]),
+            );
+
+            const parsedCertificates &#x3D; certificateChain.map(
+                (c) &#x3D;&gt; new x509.X509Certificate(toBuffer(c)),
+            );
+
+            const certificateChainBuilder &#x3D; new x509.X509ChainBuilder({
+                certificates: parsedCertificates,
+            });
+
+            const chain &#x3D; await certificateChainBuilder.build(
+                parsedLeafCertificate,
+            );
+
+            // The chain is reversed here as the &#x60;x5c&#x60; header (the expected input),
+            // has the leaf certificate as the first entry, while the &#x60;x509&#x60; library expects this as the last
+            let parsedChain &#x3D; chain
+                .map((c) &#x3D;&gt; new x509.X509Certificate(c.rawData))
+                .reverse();
+
+            if (parsedChain.length !&#x3D;&#x3D; certificateChain.length) {
+                throw new Error(
+                    &quot;Could not parse the full chain. Likely due to incorrect ordering&quot;,
+                );
+            }
+
+            const parsedTrustedCertificates &#x3D; trustedCertificates.map(
+                (trustedCertificate) &#x3D;&gt;
+                    new x509.X509Certificate(toBuffer(trustedCertificate)),
+            );
+
+            const trustedCertificateIndex &#x3D; parsedChain.findIndex((cert) &#x3D;&gt;
+                parsedTrustedCertificates.some((tCert) &#x3D;&gt; cert.equal(tCert)),
+            );
+
+            if (trustedCertificateIndex &#x3D;&#x3D;&#x3D; -1) {
+                throw new Error(
+                    &quot;No trusted certificate was found while validating the X.509 chain&quot;,
+                );
+            }
+
+            // Pop everything off above the index of the trusted as it is not relevant for validation
+            parsedChain &#x3D; parsedChain.slice(0, trustedCertificateIndex);
+
+            // Verify the certificate with the publicKey of the certificate above
+            for (let i &#x3D; 0; i &lt; parsedChain.length; i++) {
+                const cert &#x3D; parsedChain[i];
+                const previousCertificate &#x3D; parsedChain[i - 1];
+                const publicKey &#x3D; previousCertificate
+                    ? previousCertificate.publicKey
+                    : undefined;
+                await cert?.verify({
+                    publicKey,
+                    date: input.now ?? new Date(),
+                });
+            }
+        },
+        getCertificateData: async (input: { certificate: Uint8Array }) &#x3D;&gt; {
+            const certificate &#x3D; new X509Certificate(
+                toBuffer(input.certificate),
+            );
+            const thumbprint &#x3D; await certificate.getThumbprint();
+            const thumbprintHex &#x3D; hex.encode(new Uint8Array(thumbprint));
+            return {
+                issuerName: certificate.issuerName.toString(),
+                subjectName: certificate.subjectName.toString(),
+                pem: certificate.toString(),
+                serialNumber: certificate.serialNumber,
+                thumbprint: thumbprintHex,
+                notBefore: certificate.notBefore,
+                notAfter: certificate.notAfter,
+            };
+        },
+    },
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="toBuffer"></a>
+                    <span class="name">
+                        <span ><b>toBuffer</b></span>
+                        <a href="#toBuffer"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>(bytes: Uint8Array): Uint8Array&lt;ArrayBuffer&gt; &#x3D;&gt; {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return new Uint8Array(bytes) as unknown as Uint8Array&lt;ArrayBuffer&gt;;
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Helper to convert Uint8Array<ArrayBufferLike> to Uint8Array<ArrayBuffer>
+This is needed due to TypeScript version differences where newer TS versions
+use Uint8Array<ArrayBufferLike> which is not assignable to BufferSource</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+</section>
     <h3>src/registrar/registrar-validation.schema.ts</h3>
     <section data-compodoc="block-properties">
     <h3></h3>    <table class="table table-sm table-bordered">
@@ -1619,6 +1888,44 @@ Defines the required environment variables and their types.</p>
                     </td>
                 </tr>
 
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/verifier/presentations/credential/mdlverifier/mdlverifier.service.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="toBuffer"></a>
+                    <span class="name">
+                        <span ><b>toBuffer</b></span>
+                        <a href="#toBuffer"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>(bytes: Uint8Array): Uint8Array&lt;ArrayBuffer&gt; &#x3D;&gt; {
+    return new Uint8Array(bytes) as unknown as Uint8Array&lt;ArrayBuffer&gt;;
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Helper to convert Uint8Array<ArrayBufferLike> to Uint8Array<ArrayBuffer>
+This is needed due to TypeScript version differences</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>

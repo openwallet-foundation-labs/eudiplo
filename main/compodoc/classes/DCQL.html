@@ -418,20 +418,20 @@ export class PresentationConfig {
      */
     @Column(&quot;varchar&quot;, { primary: true })
     @IsString()
-    id!: string;
+    id: string;
 
     /**
      * The tenant ID for which the VP request is made.
      */
     @ApiHideProperty()
     @Column(&quot;varchar&quot;, { primary: true })
-    tenantId!: string;
+    tenantId: string;
 
     /**
      * The tenant that owns this object.
      */
     @ManyToOne(() &#x3D;&gt; TenantEntity, { cascade: true, onDelete: &quot;CASCADE&quot; })
-    tenant!: TenantEntity;
+    tenant: TenantEntity;
 
     /**
      * Description of the presentation configuration.
@@ -439,7 +439,7 @@ export class PresentationConfig {
     @Column(&quot;varchar&quot;, { nullable: true })
     @IsOptional()
     @IsString()
-    description?: string;
+    description?: string | null;
 
     /**
      * Lifetime how long the presentation request is valid after creation, in seconds.
@@ -463,7 +463,7 @@ export class PresentationConfig {
     @ValidateNested()
     @Type(() &#x3D;&gt; RegistrationCertificateRequest)
     @Column(&quot;json&quot;, { nullable: true })
-    registrationCert?: RegistrationCertificateRequest;
+    registrationCert?: RegistrationCertificateRequest | null;
 
     /**
      * Optional webhook URL to receive the response.
@@ -472,7 +472,7 @@ export class PresentationConfig {
     @IsOptional()
     @Validate(WebhookConfig)
     @Type(() &#x3D;&gt; WebhookConfig)
-    webhook?: WebhookConfig;
+    webhook?: WebhookConfig | null;
 
     /**
      * The timestamp when the VP request was created.
@@ -494,7 +494,7 @@ export class PresentationConfig {
     @ValidateNested()
     @Type(() &#x3D;&gt; PresentationAttachment)
     @Column(&quot;json&quot;, { nullable: true })
-    attached?: PresentationAttachment[];
+    attached?: PresentationAttachment[] | null;
 
     /**
      * Redirect URI to which the user-agent should be redirected after the presentation is completed.
@@ -502,7 +502,7 @@ export class PresentationConfig {
     @IsOptional()
     @IsString()
     @Column(&quot;varchar&quot;, { nullable: true })
-    redirectUri?: string;
+    redirectUri?: string | null;
 }
 </code></pre>
     </div>

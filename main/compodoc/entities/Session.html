@@ -171,6 +171,11 @@ request URI, authorization queries, and more.</p>
                             </li>
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
+                                <a href="#clientId" >clientId</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
                                 <a href="#createdAt" >createdAt</a>
                             </li>
                             <li>
@@ -240,6 +245,11 @@ request URI, authorization queries, and more.</p>
                                     <span class="modifier"></span>
                                     <span class="modifier">Optional</span>
                                 <a href="#requestUrl" >requestUrl</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
+                                <a href="#responseUri" >responseUri</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
@@ -365,6 +375,49 @@ request URI, authorization queries, and more.</p>
             <tr>
                 <td class="col-md-4">
                     <div class="io-description"><p>Authorization code for the session.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="clientId"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
+                        <span ><b>clientId</b></span>
+                        <a href="#clientId"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @Column(&#x27;varchar&#x27;, {nullable: true})<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="188" class="link-to-prism">src/session/entities/session.entity.ts:188</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Client ID used in the OID4VP authorization request.</p>
 </div>
                 </td>
             </tr>
@@ -785,7 +838,7 @@ request URI, authorization queries, and more.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="194" class="link-to-prism">src/session/entities/session.entity.ts:194</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="206" class="link-to-prism">src/session/entities/session.entity.ts:206</a></div>
                         </td>
                     </tr>
 
@@ -828,7 +881,7 @@ request URI, authorization queries, and more.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="188" class="link-to-prism">src/session/entities/session.entity.ts:188</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="200" class="link-to-prism">src/session/entities/session.entity.ts:200</a></div>
                         </td>
                     </tr>
 
@@ -1007,6 +1060,49 @@ request URI, authorization queries, and more.</p>
             <tr>
                 <td class="col-md-4">
                     <div class="io-description"><p>The URL of the presentation auth request.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="responseUri"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
+                        <span ><b>responseUri</b></span>
+                        <a href="#responseUri"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @Column(&#x27;varchar&#x27;, {nullable: true})<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="194" class="link-to-prism">src/session/entities/session.entity.ts:194</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Response URI used in the OID4VP authorization request.</p>
 </div>
                 </td>
             </tr>
@@ -1454,6 +1550,18 @@ export class Session {
      */
     @Column(&quot;varchar&quot;, { nullable: true })
     vp_nonce?: string;
+
+    /**
+     * Client ID used in the OID4VP authorization request.
+     */
+    @Column(&quot;varchar&quot;, { nullable: true })
+    clientId?: string;
+
+    /**
+     * Response URI used in the OID4VP authorization request.
+     */
+    @Column(&quot;varchar&quot;, { nullable: true })
+    responseUri?: string;
 
     /**
      * Redirect URI to which the user-agent should be redirected after the presentation is completed.

@@ -136,13 +136,13 @@
 <title>cluster_TrustModule</title>
 <polygon fill="none" stroke="black" stroke-dasharray="1,5" points="8,-70 8,-268 802,-268 802,-70 8,-70"/>
 </g>
-<g id="clust6" class="cluster">
-<title>cluster_TrustModule_providers</title>
-<polygon fill="none" stroke="black" points="16,-78 16,-130 794,-130 794,-78 16,-78"/>
-</g>
 <g id="clust4" class="cluster">
 <title>cluster_TrustModule_exports</title>
 <polygon fill="none" stroke="black" points="260,-208 260,-260 566,-260 566,-208 260,-208"/>
+</g>
+<g id="clust6" class="cluster">
+<title>cluster_TrustModule_providers</title>
+<polygon fill="none" stroke="black" points="16,-78 16,-130 794,-130 794,-78 16,-78"/>
 </g>
 <!-- TrustStoreService  -->
 <g id="node1" class="node">
@@ -306,7 +306,8 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { HttpModule } from &quot;@nestjs/axios&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import * as https from &quot;node:https&quot;;
+import { HttpModule } from &quot;@nestjs/axios&quot;;
 import { Module } from &quot;@nestjs/common&quot;;
 import { LoteParserService } from &quot;./lote-parser.service&quot;;
 import { TrustStoreService } from &quot;./trust-store.service&quot;;
@@ -314,7 +315,13 @@ import { TrustListJwtService } from &quot;./trustlist-jwt.service&quot;;
 import { X509ValidationService } from &quot;./x509-validation.service&quot;;
 
 @Module({
-    imports: [HttpModule],
+    imports: [
+        HttpModule.register({
+            httpsAgent: new https.Agent({
+                rejectUnauthorized: process.env.NODE_ENV &#x3D;&#x3D;&#x3D; &quot;production&quot;,
+            }),
+        }),
+    ],
     providers: [
         TrustListJwtService,
         LoteParserService,

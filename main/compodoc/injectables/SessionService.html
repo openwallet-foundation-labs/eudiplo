@@ -913,11 +913,11 @@ import { Session, SessionStatus } from &quot;./entities/session.entity&quot;;
 export class SessionService implements OnApplicationBootstrap {
     constructor(
         @InjectRepository(Session)
-        private sessionRepository: Repository&lt;Session&gt;,
+        private readonly sessionRepository: Repository&lt;Session&gt;,
         private readonly configService: ConfigService,
         private readonly schedulerRegistry: SchedulerRegistry,
         @InjectMetric(&quot;sessions&quot;)
-        private sessionsCounter: Gauge&lt;string&gt;,
+        private readonly sessionsCounter: Gauge&lt;string&gt;,
     ) {}
 
     /**

@@ -269,13 +269,17 @@ export class Display {
     description!: string;
     @IsString()
     locale!: string;
+    @IsOptional()
     @IsString()
     background_color?: string;
+    @IsOptional()
     @IsString()
     text_color?: string;
+    @IsOptional()
     @ValidateNested()
     @Type(() &#x3D;&gt; DisplayImage)
     background_image?: DisplayImage;
+    @IsOptional()
     @ValidateNested()
     @Type(() &#x3D;&gt; DisplayImage)
     logo?: DisplayImage;
@@ -290,6 +294,37 @@ export class IssuerMetadataCredentialConfig {
     @IsOptional()
     @IsString()
     scope?: string;
+
+    /**
+     * Document type for mDOC credentials (e.g., &quot;org.iso.18013.5.1.mDL&quot;).
+     * Only applicable when format is &quot;mso_mdoc&quot;.
+     */
+    @IsOptional()
+    @IsString()
+    docType?: string;
+
+    /**
+     * Namespace for mDOC credentials (e.g., &quot;org.iso.18013.5.1&quot;).
+     * Only applicable when format is &quot;mso_mdoc&quot;.
+     * Used when claims are provided as a flat object.
+     */
+    @IsOptional()
+    @IsString()
+    namespace?: string;
+
+    /**
+     * Claims organized by namespace for mDOC credentials.
+     * Allows specifying claims across multiple namespaces.
+     * Only applicable when format is &quot;mso_mdoc&quot;.
+     * Example:
+     * {
+     *   &quot;org.iso.18013.5.1&quot;: { &quot;given_name&quot;: &quot;John&quot;, &quot;family_name&quot;: &quot;Doe&quot; },
+     *   &quot;org.iso.18013.5.1.aamva&quot;: { &quot;DHS_compliance&quot;: &quot;F&quot; }
+     * }
+     */
+    @IsOptional()
+    @IsObject()
+    claimsByNamespace?: Record&lt;string, Record&lt;string, any&gt;&gt;;
 }
 
 @ApiExtraModels(
@@ -306,7 +341,7 @@ export class CredentialConfig {
 
     @IsString()
     @Column(&quot;varchar&quot;, { nullable: true })
-    description?: string;
+    description?: string | null;
 
     @ApiHideProperty()
     @Column(&quot;varchar&quot;, { primary: true })
@@ -326,7 +361,7 @@ export class CredentialConfig {
     @Column(&quot;json&quot;, { nullable: true })
     @IsOptional()
     @IsObject()
-    claims?: Record&lt;string, any&gt;;
+    claims?: Record&lt;string, any&gt; | null;
 
     /**
      * Webhook to receive claims for the issuance process.
@@ -335,7 +370,7 @@ export class CredentialConfig {
     @ValidateNested()
     @Type(() &#x3D;&gt; WebhookConfig)
     @Column(&quot;json&quot;, { nullable: true })
-    claimsWebhook?: WebhookConfig;
+    claimsWebhook?: WebhookConfig | null;
 
     /**
      * Webhook to receive claims for the issuance process.
@@ -344,19 +379,19 @@ export class CredentialConfig {
     @ValidateNested()
     @Type(() &#x3D;&gt; WebhookConfig)
     @Column(&quot;json&quot;, { nullable: true })
-    notificationWebhook?: WebhookConfig;
+    notificationWebhook?: WebhookConfig | null;
 
     // has to be optional since there may be credentials that are disclosed without a frame
     @Column(&quot;json&quot;, { nullable: true })
     @IsOptional()
     @IsObject()
-    disclosureFrame?: Record&lt;string, any&gt;;
+    disclosureFrame?: Record&lt;string, any&gt; | null;
 
     @IsOptional()
     @ValidateNested()
     @Type(() &#x3D;&gt; VCT)
     @Column(&quot;json&quot;, { nullable: true })
-    vct?: VCT;
+    vct?: VCT | null;
 
     @IsOptional()
     @Column(&quot;boolean&quot;, { default: false })
@@ -384,7 +419,7 @@ export class CredentialConfig {
     @ValidateNested()
     @Type(() &#x3D;&gt; SchemaResponse)
     @Column(&quot;json&quot;, { nullable: true })
-    schema?: SchemaResponse;
+    schema?: SchemaResponse | null;
 
     /**
      * Embedded disclosure policy (discriminated union by &#x60;policy&#x60;).
@@ -417,7 +452,7 @@ export class CredentialConfig {
         keepDiscriminatorProperty: true, // keep &#x60;policy&#x60; on the instance
     })
     @Column(&quot;json&quot;, { nullable: true })
-    embeddedDisclosurePolicy?: EmbeddedDisclosurePolicy;
+    embeddedDisclosurePolicy?: EmbeddedDisclosurePolicy | null;
 }
 </code></pre>
     </div>

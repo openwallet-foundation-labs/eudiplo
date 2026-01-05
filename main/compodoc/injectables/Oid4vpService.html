@@ -583,8 +583,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="293"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:293</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="303"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:303</a></div>
                         </td>
                     </tr>
 
@@ -945,16 +945,26 @@ export class Oid4vpService {
         );
 
         if (fresh) {
+            const host &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;);
+            const clientId &#x3D; &quot;x509_hash:&quot; + certHash;
+            const responseUri &#x3D; useDcApi
+                ? undefined
+                : &#x60;${host}/${values.session}/oid4vp&#x60;;
+
             const session &#x3D; await this.sessionService.create({
                 id: values.session,
                 parsedWebhook: values.webhook,
                 redirectUri:
-                    values.redirectUri ?? presentationConfig.redirectUri,
+                    values.redirectUri ??
+                    presentationConfig.redirectUri ??
+                    undefined,
                 tenantId,
                 requestId,
                 requestUrl: &#x60;openid4vp://?${queryString}&#x60;,
                 expiresAt,
                 useDcApi,
+                clientId,
+                responseUri,
             });
 
             if (request_uri_method &#x3D;&#x3D;&#x3D; &quot;get&quot;) {
@@ -1020,7 +1030,7 @@ export class Oid4vpService {
             const credentials &#x3D; await this.presentationsService.parseResponse(
                 res,
                 presentationConfig,
-                session.vp_nonce as string,
+                session,
             );
 
             this.sessionLogger.logCredentialVerification(

@@ -224,8 +224,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="28"
-                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:28</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="29"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:29</a></div>
                         </td>
                     </tr>
 
@@ -302,8 +302,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="90"
-                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:90</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="91"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:91</a></div>
                         </td>
                     </tr>
 
@@ -392,8 +392,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="57"
-                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:57</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="58"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:58</a></div>
                         </td>
                     </tr>
 
@@ -482,8 +482,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="40"
-                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:40</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="41"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:41</a></div>
                         </td>
                     </tr>
 
@@ -558,7 +558,7 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>updateConfiguration(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, config: <a href="../classes/PresentationConfigCreateDto.html" target="_self">PresentationConfigCreateDto</a>, user: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
+                    <code>updateConfiguration(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, config: <a href="../classes/PresentationConfigUpdateDto.html" target="_self">PresentationConfigUpdateDto</a>, user: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
                 </td>
             </tr>
 
@@ -572,8 +572,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="72"
-                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:72</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="73"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:73</a></div>
                         </td>
                     </tr>
 
@@ -610,7 +610,7 @@
                                         <tr>
                                                 <td>config</td>
                                             <td>
-                                                            <code><a href="../classes/PresentationConfigCreateDto.html" target="_self" >PresentationConfigCreateDto</a></code>
+                                                            <code><a href="../classes/PresentationConfigUpdateDto.html" target="_self" >PresentationConfigUpdateDto</a></code>
                                             </td>
 
                                             <td>
@@ -663,6 +663,7 @@ import { Role } from &quot;../../auth/roles/role.enum&quot;;
 import { Secured } from &quot;../../auth/secure.decorator&quot;;
 import { Token, TokenPayload } from &quot;../../auth/token.decorator&quot;;
 import { PresentationConfigCreateDto } from &quot;./dto/presentation-config-create.dto&quot;;
+import { PresentationConfigUpdateDto } from &quot;./dto/presentation-config-update.dto&quot;;
 import { PresentationsService } from &quot;./presentations.service&quot;;
 
 @Secured([Role.Presentations])
@@ -722,7 +723,7 @@ export class PresentationManagementController {
     @Patch(&quot;:id&quot;)
     updateConfiguration(
         @Param(&quot;id&quot;) id: string,
-        @Body() config: PresentationConfigCreateDto,
+        @Body() config: PresentationConfigUpdateDto,
         @Token() user: TokenPayload,
     ) {
         return this.presentationsService.updatePresentationConfig(
