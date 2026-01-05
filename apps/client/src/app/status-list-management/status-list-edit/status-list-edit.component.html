@@ -194,6 +194,65 @@
         </mat-card-content>
       </mat-card>
 
+      <!-- Status List Settings Card (Create mode only) -->
+      @if (!isEditMode) {
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon class="title-icon">tune</mat-icon>
+              Status List Settings
+            </mat-card-title>
+            <mat-card-subtitle>
+              Configure the capacity and bit size for this status list. Leave empty to use tenant
+              defaults.
+            </mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div fxLayout="column" fxLayoutGap="16px">
+              <mat-form-field appearance="outline">
+                <mat-label>Bits per Status</mat-label>
+                <mat-select formControlName="bits">
+                  <mat-option [value]="null">Use tenant default</mat-option>
+                  @for (bit of bitsOptions; track bit) {
+                    <mat-option [value]="bit">{{ bit }} bit{{ bit > 1 ? 's' : '' }}</mat-option>
+                  }
+                </mat-select>
+                <mat-icon matSuffix>memory</mat-icon>
+                <mat-hint> More bits allow more status values (e.g., 2 bits = 4 states) </mat-hint>
+              </mat-form-field>
+
+              <div fxLayout="column" fxLayoutGap="8px">
+                <mat-form-field appearance="outline">
+                  <mat-label>Capacity</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    formControlName="capacity"
+                    placeholder="Use tenant default"
+                    min="1000"
+                  />
+                  <mat-icon matSuffix>storage</mat-icon>
+                  <mat-hint>Maximum number of credential entries in this list</mat-hint>
+                </mat-form-field>
+
+                <div fxLayout="row wrap" fxLayoutGap="8px">
+                  @for (preset of capacityPresets; track preset.value) {
+                    <button
+                      type="button"
+                      mat-stroked-button
+                      (click)="form.get('capacity')?.setValue(preset.value)"
+                    >
+                      {{ preset.label }}
+                    </button>
+                  }
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+
       <!-- Actions -->
       <div fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
         <button mat-button type="button" routerLink="/status-lists">Cancel</button>

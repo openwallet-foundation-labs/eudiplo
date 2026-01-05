@@ -129,6 +129,8 @@ export class StatusListManagementController {
             {
                 credentialConfigurationId: dto.credentialConfigurationId,
                 certId: dto.certId,
+                bits: dto.bits,
+                capacity: dto.capacity,
             },
         );
         return this.toResponseDto(list);

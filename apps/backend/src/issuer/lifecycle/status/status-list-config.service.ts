@@ -80,6 +80,10 @@ export class StatusListConfigService {
     /**
      * Update the status list configuration for a tenant.
      * Note: Changes only affect newly created status lists, not existing ones.
+     *
+     * Fields set to `null` will use the global default.
+     * Fields set to a value will override the default.
+     *
      * @param tenantId The tenant ID
      * @param config The new status list configuration
      * @returns The updated status list configuration
@@ -88,42 +92,15 @@ export class StatusListConfigService {
         tenantId: string,
         config: UpdateStatusListConfigDto,
     ): Promise<StatusListConfig> {
-        const tenant = await this.tenantRepository.findOneByOrFail({
-            id: tenantId,
-        });
+        await this.tenantRepository.findOneByOrFail({ id: tenantId });
 
-        // Build updated config, handling null values
+        // Replace config entirely - null values mean "use default"
         const updatedConfig: StatusListConfig = {
-            ...tenant.statusListConfig,
+            length: config.length ?? undefined,
+            bits: config.bits ?? undefined,
+            ttl: config.ttl ?? undefined,
+            immediateUpdate: config.immediateUpdate ?? undefined,
         };
-
-        // Handle length: null means reset to default, number means set value
-        if (config.length === null) {
-            delete updatedConfig.length;
-        } else if (config.length !== undefined) {
-            updatedConfig.length = config.length;
-        }
-
-        // Handle bits: null means reset to default, number means set value
-        if (config.bits === null) {
-            delete updatedConfig.bits;
-        } else if (config.bits !== undefined) {
-            updatedConfig.bits = config.bits;
-        }
-
-        // Handle ttl: null means reset to default, number means set value
-        if (config.ttl === null) {
-            delete updatedConfig.ttl;
-        } else if (config.ttl !== undefined) {
-            updatedConfig.ttl = config.ttl;
-        }
-
-        // Handle immediateUpdate: null means reset to default, boolean means set value
-        if (config.immediateUpdate === null) {
-            delete updatedConfig.immediateUpdate;
-        } else if (config.immediateUpdate !== undefined) {
-            updatedConfig.immediateUpdate = config.immediateUpdate;
-        }
 
         await this.tenantRepository.update(
             { id: tenantId },

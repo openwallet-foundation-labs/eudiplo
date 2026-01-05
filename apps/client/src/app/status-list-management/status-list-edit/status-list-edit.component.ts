@@ -60,6 +60,17 @@ export class StatusListEditComponent implements OnInit {
   /** Available certificates with statusList usage */
   certificates: CertEntity[] = [];
 
+  /** Available bits per status options */
+  bitsOptions = [1, 2, 4, 8] as const;
+
+  /** Available capacity presets */
+  capacityPresets = [
+    { value: 10000, label: '10K' },
+    { value: 100000, label: '100K' },
+    { value: 500000, label: '500K' },
+    { value: 1000000, label: '1M' },
+  ];
+
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
@@ -73,6 +84,9 @@ export class StatusListEditComponent implements OnInit {
     this.form = new FormGroup({
       credentialConfigurationId: new FormControl(null),
       certId: new FormControl(null),
+      // Only used in create mode
+      bits: new FormControl(null),
+      capacity: new FormControl(null),
     });
 
     this.loadData();
@@ -178,15 +192,21 @@ export class StatusListEditComponent implements OnInit {
     this.isSaving = true;
     try {
       const formValue = this.form.value;
-      const dto = {
-        credentialConfigurationId: formValue.credentialConfigurationId || undefined,
-        certId: formValue.certId || undefined,
-      };
 
       if (this.isEditMode) {
+        const dto = {
+          credentialConfigurationId: formValue.credentialConfigurationId || undefined,
+          certId: formValue.certId || undefined,
+        };
         await this.statusListService.updateList(this.listId!, dto);
         this.snackBar.open('Status list updated successfully', 'Close', { duration: 3000 });
       } else {
+        const dto = {
+          credentialConfigurationId: formValue.credentialConfigurationId || undefined,
+          certId: formValue.certId || undefined,
+          bits: formValue.bits || undefined,
+          capacity: formValue.capacity || undefined,
+        };
         await this.statusListService.createList(dto);
         this.snackBar.open('Status list created successfully', 'Close', { duration: 3000 });
       }

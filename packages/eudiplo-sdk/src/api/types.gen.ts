@@ -458,6 +458,14 @@ export type CreateStatusListDto = {
    * Certificate ID to use for signing. Leave empty to use the tenant's default StatusList certificate.
    */
   certId?: string;
+  /**
+   * Bits per status value. More bits allow more status states. Defaults to tenant configuration.
+   */
+  bits?: 1 | 2 | 4 | 8;
+  /**
+   * Maximum number of credential status entries. Defaults to tenant configuration.
+   */
+  capacity?: number;
 };
 
 export type UpdateStatusListDto = {

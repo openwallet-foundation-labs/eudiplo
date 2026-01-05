@@ -101,9 +101,12 @@ export class StatusListService {
         options?: {
             credentialConfigurationId?: string;
             certId?: string;
+            bits?: BitsPerStatus;
+            capacity?: number;
         },
     ): Promise<StatusListEntity> {
-        const size = await this.getEffectiveLength(tenantId);
+        const size =
+            options?.capacity ?? (await this.getEffectiveLength(tenantId));
         // create an empty array with the size
         const elements = new Array(size).fill(0).map(() => 0);
         // create a list of indexes and shuffle them using crypto-secure randomness
@@ -111,7 +114,7 @@ export class StatusListService {
             new Array(size).fill(0).map((_, i) => i),
         );
 
-        const bits = await this.getEffectiveBits(tenantId);
+        const bits = options?.bits ?? (await this.getEffectiveBits(tenantId));
 
         // Validate certId if provided
         if (options?.certId) {

@@ -1,5 +1,6 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
-import { IsOptional, IsString } from "class-validator";
+import { BitsPerStatus } from "@sd-jwt/jwt-status-list";
+import { IsIn, IsInt, IsOptional, IsString, Min } from "class-validator";
 
 /**
  * DTO for creating a new status list.
@@ -30,4 +31,32 @@ export class CreateStatusListDto {
     @IsOptional()
     @IsString()
     certId?: string;
+
+    /**
+     * Number of bits per status entry.
+     * If not provided, uses the tenant's configured default or the global default.
+     */
+    @ApiPropertyOptional({
+        description:
+            "Bits per status value. More bits allow more status states. Defaults to tenant configuration.",
+        enum: [1, 2, 4, 8],
+        example: 1,
+    })
+    @IsOptional()
+    @IsIn([1, 2, 4, 8])
+    bits?: BitsPerStatus;
+
+    /**
+     * Maximum capacity of the status list (number of entries).
+     * If not provided, uses the tenant's configured default or the global default.
+     */
+    @ApiPropertyOptional({
+        description:
+            "Maximum number of credential status entries. Defaults to tenant configuration.",
+        example: 100000,
+    })
+    @IsOptional()
+    @IsInt()
+    @Min(1000)
+    capacity?: number;
 }
