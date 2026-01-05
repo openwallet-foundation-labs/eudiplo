@@ -105,9 +105,22 @@
           <!-- Monitoring -->
           <div mat-subheader>Monitoring & Sessions</div>
 
-          <mat-list-item [routerLink]="['/session-management']" routerLinkActive="active-link">
+          <mat-list-item
+            [routerLink]="['/session-management']"
+            routerLinkActive="active-link"
+            [routerLinkActiveOptions]="{ exact: true }"
+          >
             <span matListItemTitle>Session Management</span>
           </mat-list-item>
+
+          @if (hasRole(['issuance:manage', 'presentation:manage'])) {
+            <mat-list-item
+              [routerLink]="['/session-management/config']"
+              routerLinkActive="active-link"
+            >
+              <span matListItemTitle>Session Config</span>
+            </mat-list-item>
+          }
         }
       </mat-nav-list>
     </mat-sidenav>

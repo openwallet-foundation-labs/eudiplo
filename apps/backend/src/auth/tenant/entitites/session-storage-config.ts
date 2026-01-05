@@ -1,0 +1,53 @@
+import { ApiPropertyOptional } from "@nestjs/swagger";
+import { IsEnum, IsInt, IsOptional, Min } from "class-validator";
+
+/**
+ * Cleanup mode when sessions expire.
+ */
+export enum SessionCleanupMode {
+    /**
+     * Delete the entire session record (default behavior).
+     */
+    Full = "full",
+    /**
+     * Keep session metadata but remove personal data
+     * (credentials, verification results, etc.).
+     */
+    Anonymize = "anonymize",
+}
+
+/**
+ * Configuration for session storage and cleanup behavior per tenant.
+ */
+export class SessionStorageConfig {
+    /**
+     * Time-to-live for sessions in seconds.
+     * After this period, sessions are eligible for cleanup.
+     * If not set, uses the global SESSION_TTL environment variable (default: 86400 = 24h).
+     */
+    @ApiPropertyOptional({
+        description:
+            "Time-to-live for sessions in seconds. If not set, uses global SESSION_TTL.",
+        example: 86400,
+        minimum: 60,
+    })
+    @IsOptional()
+    @IsInt()
+    @Min(60)
+    ttlSeconds?: number;
+
+    /**
+     * Cleanup mode when sessions expire.
+     * - 'full': Delete the entire session record (default)
+     * - 'anonymize': Keep session metadata but remove personal data
+     */
+    @ApiPropertyOptional({
+        description:
+            "Cleanup mode: 'full' deletes everything, 'anonymize' keeps metadata but removes PII.",
+        enum: SessionCleanupMode,
+        default: SessionCleanupMode.Full,
+    })
+    @IsOptional()
+    @IsEnum(SessionCleanupMode)
+    cleanupMode?: SessionCleanupMode;
+}

@@ -1,42 +1,17 @@
 import type { Routes } from '@angular/router';
-import { DashboardComponent } from './dashboard/dashboard.component';
 import { AuthGuard } from './guards/auth.guard';
-import { ClientListComponent } from './tenants/client/client-list/client-list.component';
-import { ClientCreateComponent } from './tenants/client/client-create/client-create.component';
-import { CredentialConfigCreateComponent } from './issuance/credential-config/credential-config-create/credential-config-create.component';
-import { CredentialConfigListComponent } from './issuance/credential-config/credential-config-list/credential-config-list.component';
-import { CredentialConfigShowComponent } from './issuance/credential-config/credential-config-show/credential-config-show.component';
-import { IssuanceConfigCreateComponent } from './issuance/issuance-config/issuance-config-create/issuance-config-create.component';
-import { IssuanceConfigShowComponent } from './issuance/issuance-config/issuance-config-show/issuance-config-show.component';
-import { IssuanceOfferComponent } from './issuance/issuance-offer/issuance-offer.component';
-import { KeyManagementCreateComponent } from './key-management/key-management-create/key-management-create.component';
-import { KeyManagementListComponent } from './key-management/key-management-list/key-management-list.component';
-import { KeyManagementShowComponent } from './key-management/key-management-show/key-management-show.component';
-import { CertificatesOverviewComponent } from './key-management/certificates-overview/certificates-overview.component';
-import { CertificateShowComponent } from './key-management/certificate-show/certificate-show.component';
-import { CertificateEditComponent } from './key-management/certificate-edit/certificate-edit.component';
-import { LoginComponent } from './login/login.component';
-import { PresentationCreateComponent } from './presentation/presentation-config/presentation-create/presentation-create.component';
-import { PresentationListComponent } from './presentation/presentation-config/presentation-list/presentation-list.component';
-import { PresentationShowComponent } from './presentation/presentation-config/presentation-show/presentation-show.component';
-import { PresentationOfferComponent } from './presentation/presentation-offer/presentation-offer.component';
-import { SessionManagementListComponent } from './session-management/session-management-list/session-management-list.component';
-import { SessionManagementShowComponent } from './session-management/session-management-show/session-management-show.component';
 import { getRole } from './services/jwt.service';
 import { RoleGuard } from './guards/roles.guard';
-import { TenantCreateComponent } from './tenants/tenant-create/tenant-create.component';
-import { TenantListComponent } from './tenants/tenant-list/tenant-list.component';
-import { TenantShowComponent } from './tenants/tenant-show/tenant-show.component';
-import { ClientShowComponent } from './tenants/client/client-show/client-show.component';
-import { TrustListListComponent } from './trust-list/trust-list-list/trust-list-list.component';
-import { TrustListShowComponent } from './trust-list/trust-list-show/trust-list-show.component';
-import { TrustListEditComponent } from './trust-list/trust-list-edit/trust-list-edit.component';
 
 export const routes: Routes = [
-  { path: 'login', component: LoginComponent },
+  {
+    path: 'login',
+    loadComponent: () => import('./login/login.component').then((m) => m.LoginComponent),
+  },
   {
     path: 'dashboard',
-    component: DashboardComponent,
+    loadComponent: () =>
+      import('./dashboard/dashboard.component').then((m) => m.DashboardComponent),
     canActivate: [AuthGuard],
   },
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -47,19 +22,31 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        component: ClientListComponent,
+        loadComponent: () =>
+          import('./tenants/client/client-list/client-list.component').then(
+            (m) => m.ClientListComponent
+          ),
       },
       {
         path: 'create',
-        component: ClientCreateComponent,
+        loadComponent: () =>
+          import('./tenants/client/client-create/client-create.component').then(
+            (m) => m.ClientCreateComponent
+          ),
       },
       {
         path: ':id',
-        component: ClientShowComponent,
+        loadComponent: () =>
+          import('./tenants/client/client-show/client-show.component').then(
+            (m) => m.ClientShowComponent
+          ),
       },
       {
         path: ':id/edit',
-        component: ClientCreateComponent,
+        loadComponent: () =>
+          import('./tenants/client/client-create/client-create.component').then(
+            (m) => m.ClientCreateComponent
+          ),
       },
     ],
   },
@@ -70,15 +57,20 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        component: TenantListComponent,
+        loadComponent: () =>
+          import('./tenants/tenant-list/tenant-list.component').then((m) => m.TenantListComponent),
       },
       {
         path: 'create',
-        component: TenantCreateComponent,
+        loadComponent: () =>
+          import('./tenants/tenant-create/tenant-create.component').then(
+            (m) => m.TenantCreateComponent
+          ),
       },
       {
         path: ':id',
-        component: TenantShowComponent,
+        loadComponent: () =>
+          import('./tenants/tenant-show/tenant-show.component').then((m) => m.TenantShowComponent),
       },
     ],
   },
@@ -93,11 +85,17 @@ export const routes: Routes = [
         children: [
           {
             path: '',
-            component: IssuanceOfferComponent,
+            loadComponent: () =>
+              import('./issuance/issuance-offer/issuance-offer.component').then(
+                (m) => m.IssuanceOfferComponent
+              ),
           },
           {
             path: ':id',
-            component: IssuanceOfferComponent,
+            loadComponent: () =>
+              import('./issuance/issuance-offer/issuance-offer.component').then(
+                (m) => m.IssuanceOfferComponent
+              ),
           },
         ],
       },
@@ -108,11 +106,17 @@ export const routes: Routes = [
         children: [
           {
             path: '',
-            component: PresentationOfferComponent,
+            loadComponent: () =>
+              import('./presentation/presentation-offer/presentation-offer.component').then(
+                (m) => m.PresentationOfferComponent
+              ),
           },
           {
             path: ':id',
-            component: PresentationOfferComponent,
+            loadComponent: () =>
+              import('./presentation/presentation-offer/presentation-offer.component').then(
+                (m) => m.PresentationOfferComponent
+              ),
           },
         ],
       },
@@ -124,11 +128,17 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        component: IssuanceConfigShowComponent,
+        loadComponent: () =>
+          import('./issuance/issuance-config/issuance-config-show/issuance-config-show.component').then(
+            (m) => m.IssuanceConfigShowComponent
+          ),
       },
       {
         path: 'edit',
-        component: IssuanceConfigCreateComponent,
+        loadComponent: () =>
+          import('./issuance/issuance-config/issuance-config-create/issuance-config-create.component').then(
+            (m) => m.IssuanceConfigCreateComponent
+          ),
       },
     ],
   },
@@ -138,32 +148,53 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        component: KeyManagementListComponent,
+        loadComponent: () =>
+          import('./key-management/key-management-list/key-management-list.component').then(
+            (m) => m.KeyManagementListComponent
+          ),
       },
       {
         path: 'create',
-        component: KeyManagementCreateComponent,
+        loadComponent: () =>
+          import('./key-management/key-management-create/key-management-create.component').then(
+            (m) => m.KeyManagementCreateComponent
+          ),
       },
       {
         path: ':id',
-        component: KeyManagementShowComponent,
+        loadComponent: () =>
+          import('./key-management/key-management-show/key-management-show.component').then(
+            (m) => m.KeyManagementShowComponent
+          ),
       },
       {
         path: ':id/edit',
-        component: KeyManagementCreateComponent,
+        loadComponent: () =>
+          import('./key-management/key-management-create/key-management-create.component').then(
+            (m) => m.KeyManagementCreateComponent
+          ),
       },
       {
         path: ':keyId/certificate',
-        component: CertificateEditComponent,
+        loadComponent: () =>
+          import('./key-management/certificate-edit/certificate-edit.component').then(
+            (m) => m.CertificateEditComponent
+          ),
         data: { createMode: true },
       },
       {
         path: ':keyId/certificate/:certId',
-        component: CertificateShowComponent,
+        loadComponent: () =>
+          import('./key-management/certificate-show/certificate-show.component').then(
+            (m) => m.CertificateShowComponent
+          ),
       },
       {
         path: ':keyId/certificate/:certId/edit',
-        component: CertificateEditComponent,
+        loadComponent: () =>
+          import('./key-management/certificate-edit/certificate-edit.component').then(
+            (m) => m.CertificateEditComponent
+          ),
       },
     ],
   },
@@ -173,20 +204,32 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        component: CertificatesOverviewComponent,
+        loadComponent: () =>
+          import('./key-management/certificates-overview/certificates-overview.component').then(
+            (m) => m.CertificatesOverviewComponent
+          ),
       },
       {
         path: 'create',
-        component: CertificateEditComponent,
+        loadComponent: () =>
+          import('./key-management/certificate-edit/certificate-edit.component').then(
+            (m) => m.CertificateEditComponent
+          ),
         data: { createMode: true },
       },
       {
         path: ':certId',
-        component: CertificateShowComponent,
+        loadComponent: () =>
+          import('./key-management/certificate-show/certificate-show.component').then(
+            (m) => m.CertificateShowComponent
+          ),
       },
       {
         path: ':certId/edit',
-        component: CertificateEditComponent,
+        loadComponent: () =>
+          import('./key-management/certificate-edit/certificate-edit.component').then(
+            (m) => m.CertificateEditComponent
+          ),
       },
     ],
   },
@@ -196,19 +239,31 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        component: CredentialConfigListComponent,
+        loadComponent: () =>
+          import('./issuance/credential-config/credential-config-list/credential-config-list.component').then(
+            (m) => m.CredentialConfigListComponent
+          ),
       },
       {
         path: 'create',
-        component: CredentialConfigCreateComponent,
+        loadComponent: () =>
+          import('./issuance/credential-config/credential-config-create/credential-config-create.component').then(
+            (m) => m.CredentialConfigCreateComponent
+          ),
       },
       {
         path: ':id',
-        component: CredentialConfigShowComponent,
+        loadComponent: () =>
+          import('./issuance/credential-config/credential-config-show/credential-config-show.component').then(
+            (m) => m.CredentialConfigShowComponent
+          ),
       },
       {
         path: ':id/edit',
-        component: CredentialConfigCreateComponent,
+        loadComponent: () =>
+          import('./issuance/credential-config/credential-config-create/credential-config-create.component').then(
+            (m) => m.CredentialConfigCreateComponent
+          ),
       },
     ],
   },
@@ -218,11 +273,24 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        component: SessionManagementListComponent,
+        loadComponent: () =>
+          import('./session-management/session-management-list/session-management-list.component').then(
+            (m) => m.SessionManagementListComponent
+          ),
+      },
+      {
+        path: 'config',
+        canActivate: [RoleGuard],
+        data: { role: getRole('issuance:manage') },
+        loadComponent: () =>
+          import('./session-config/session-config.component').then((m) => m.SessionConfigComponent),
       },
       {
         path: ':id',
-        component: SessionManagementShowComponent,
+        loadComponent: () =>
+          import('./session-management/session-management-show/session-management-show.component').then(
+            (m) => m.SessionManagementShowComponent
+          ),
       },
     ],
   },
@@ -232,19 +300,31 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        component: PresentationListComponent,
+        loadComponent: () =>
+          import('./presentation/presentation-config/presentation-list/presentation-list.component').then(
+            (m) => m.PresentationListComponent
+          ),
       },
       {
         path: 'create',
-        component: PresentationCreateComponent,
+        loadComponent: () =>
+          import('./presentation/presentation-config/presentation-create/presentation-create.component').then(
+            (m) => m.PresentationCreateComponent
+          ),
       },
       {
         path: ':id',
-        component: PresentationShowComponent,
+        loadComponent: () =>
+          import('./presentation/presentation-config/presentation-show/presentation-show.component').then(
+            (m) => m.PresentationShowComponent
+          ),
       },
       {
         path: ':id/edit',
-        component: PresentationCreateComponent,
+        loadComponent: () =>
+          import('./presentation/presentation-config/presentation-create/presentation-create.component').then(
+            (m) => m.PresentationCreateComponent
+          ),
       },
     ],
   },
@@ -254,19 +334,31 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        component: TrustListListComponent,
+        loadComponent: () =>
+          import('./trust-list/trust-list-list/trust-list-list.component').then(
+            (m) => m.TrustListListComponent
+          ),
       },
       {
         path: 'create',
-        component: TrustListEditComponent,
+        loadComponent: () =>
+          import('./trust-list/trust-list-edit/trust-list-edit.component').then(
+            (m) => m.TrustListEditComponent
+          ),
       },
       {
         path: ':id',
-        component: TrustListShowComponent,
+        loadComponent: () =>
+          import('./trust-list/trust-list-show/trust-list-show.component').then(
+            (m) => m.TrustListShowComponent
+          ),
       },
       {
         path: ':id/edit',
-        component: TrustListEditComponent,
+        loadComponent: () =>
+          import('./trust-list/trust-list-edit/trust-list-edit.component').then(
+            (m) => m.TrustListEditComponent
+          ),
       },
     ],
   },

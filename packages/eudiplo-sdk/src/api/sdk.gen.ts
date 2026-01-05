@@ -104,6 +104,12 @@ import type {
   PresentationManagementControllerUpdateConfigurationResponses,
   PrometheusControllerIndexData,
   PrometheusControllerIndexResponses,
+  SessionConfigControllerGetConfigData,
+  SessionConfigControllerGetConfigResponses,
+  SessionConfigControllerResetConfigData,
+  SessionConfigControllerResetConfigResponses,
+  SessionConfigControllerUpdateConfigData,
+  SessionConfigControllerUpdateConfigResponses,
   SessionControllerDeleteSessionData,
   SessionControllerDeleteSessionResponses,
   SessionControllerGetAllSessionsData,
@@ -724,6 +730,70 @@ export const sessionControllerRevokeAll = <ThrowOnError extends boolean = true>(
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/session/revoke",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Reset session storage configuration
+ *
+ * Resets the session storage configuration to use global defaults.
+ */
+export const sessionConfigControllerResetConfig = <
+  ThrowOnError extends boolean = true,
+>(
+  options?: Options<SessionConfigControllerResetConfigData, ThrowOnError>,
+) =>
+  (options?.client ?? client).delete<
+    SessionConfigControllerResetConfigResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/session-config",
+    ...options,
+  });
+
+/**
+ * Get session storage configuration
+ *
+ * Returns the session storage configuration for the current tenant.
+ */
+export const sessionConfigControllerGetConfig = <
+  ThrowOnError extends boolean = true,
+>(
+  options?: Options<SessionConfigControllerGetConfigData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    SessionConfigControllerGetConfigResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/session-config",
+    ...options,
+  });
+
+/**
+ * Update session storage configuration
+ *
+ * Updates the session storage configuration for the current tenant.
+ */
+export const sessionConfigControllerUpdateConfig = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<SessionConfigControllerUpdateConfigData, ThrowOnError>,
+) =>
+  (options.client ?? client).put<
+    SessionConfigControllerUpdateConfigResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/session-config",
     ...options,
     headers: {
       "Content-Type": "application/json",

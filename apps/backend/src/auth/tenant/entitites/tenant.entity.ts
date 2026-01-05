@@ -1,6 +1,9 @@
-import { IsOptional, IsString } from "class-validator";
+import { ApiPropertyOptional } from "@nestjs/swagger";
+import { Type } from "class-transformer";
+import { IsOptional, IsString, ValidateNested } from "class-validator";
 import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
 import { ClientEntity } from "../../client/entities/client.entity";
+import { SessionStorageConfig } from "./session-storage-config";
 
 export type TenantStatus = "active";
 
@@ -36,6 +39,21 @@ export class TenantEntity {
      */
     @Column("varchar", { nullable: true })
     status!: TenantStatus;
+
+    /**
+     * Session storage configuration for this tenant.
+     * Controls how long sessions are kept and how they are cleaned up.
+     */
+    @ApiPropertyOptional({
+        description:
+            "Session storage configuration for this tenant. Controls TTL and cleanup behavior.",
+        type: () => SessionStorageConfig,
+    })
+    @IsOptional()
+    @ValidateNested()
+    @Type(() => SessionStorageConfig)
+    @Column("json", { nullable: true })
+    sessionConfig?: SessionStorageConfig | null;
 
     /**
      * The clients associated with the tenant.

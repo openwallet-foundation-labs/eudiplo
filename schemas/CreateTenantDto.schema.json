@@ -4,6 +4,14 @@
   "title": "CreateTenantDto",
   "type": "object",
   "properties": {
+    "sessionConfig": {
+      "description": "Session storage configuration. Controls TTL and cleanup behavior.",
+      "allOf": [
+        {
+          "$ref": "./SessionStorageConfig.schema.json"
+        }
+      ]
+    },
     "roles": {
       "type": "array",
       "items": {
