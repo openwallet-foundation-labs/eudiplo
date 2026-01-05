@@ -29,66 +29,70 @@
       </mat-card-header>
       <mat-card-content>
         <!-- Prerequisites Section -->
-        <div class="setup-section">
-          <h3 class="section-title">
-            <mat-icon>foundation</mat-icon>
-            Prerequisites
-          </h3>
-          <p class="section-description">Required for both issuance and verification</p>
+        @if (dashboardService.canManageKeysAndCerts) {
+          <div class="setup-section">
+            <h3 class="section-title">
+              <mat-icon>foundation</mat-icon>
+              Prerequisites
+            </h3>
+            <p class="section-description">Required for both issuance and verification</p>
 
-          <div class="setup-steps" fxLayout="column" fxLayoutGap="8px">
-            <!-- Step 1: Create Key -->
-            <div
-              class="setup-step"
-              [class.completed]="dashboardService.totalKeys > 0"
-              fxLayout="row"
-              fxLayoutAlign="start center"
-              fxLayoutGap="12px"
-            >
-              <mat-icon [class.done]="dashboardService.totalKeys > 0">
-                {{ dashboardService.totalKeys > 0 ? 'check_circle' : 'radio_button_unchecked' }}
-              </mat-icon>
-              <div fxFlex>
-                <strong>1. Create a Key</strong>
-                <p>Cryptographic keys are used to sign credentials and presentations</p>
+            <div class="setup-steps" fxLayout="column" fxLayoutGap="8px">
+              <!-- Step 1: Create Key -->
+              <div
+                class="setup-step"
+                [class.completed]="dashboardService.totalKeys > 0"
+                fxLayout="row"
+                fxLayoutAlign="start center"
+                fxLayoutGap="12px"
+              >
+                <mat-icon [class.done]="dashboardService.totalKeys > 0">
+                  {{ dashboardService.totalKeys > 0 ? 'check_circle' : 'radio_button_unchecked' }}
+                </mat-icon>
+                <div fxFlex>
+                  <strong>1. Create a Key</strong>
+                  <p>Cryptographic keys are used to sign credentials and presentations</p>
+                </div>
+                @if (dashboardService.totalKeys === 0) {
+                  <a mat-stroked-button color="primary" routerLink="/key-management/create">
+                    <mat-icon>add</mat-icon> Create Key
+                  </a>
+                } @else {
+                  <mat-chip>{{ dashboardService.totalKeys }} key(s)</mat-chip>
+                }
               </div>
-              @if (dashboardService.totalKeys === 0) {
-                <a mat-stroked-button color="primary" routerLink="/key-management/create">
-                  <mat-icon>add</mat-icon> Create Key
-                </a>
-              } @else {
-                <mat-chip>{{ dashboardService.totalKeys }} key(s)</mat-chip>
-              }
-            </div>
 
-            <!-- Step 2: Add Certificate -->
-            <div
-              class="setup-step"
-              [class.completed]="dashboardService.totalCertificates > 0"
-              [class.disabled]="dashboardService.totalKeys === 0"
-              fxLayout="row"
-              fxLayoutAlign="start center"
-              fxLayoutGap="12px"
-            >
-              <mat-icon [class.done]="dashboardService.totalCertificates > 0">
-                {{
-                  dashboardService.totalCertificates > 0 ? 'check_circle' : 'radio_button_unchecked'
-                }}
-              </mat-icon>
-              <div fxFlex>
-                <strong>2. Add a Certificate</strong>
-                <p>Self-sign or import a certificate from a registrar for your key</p>
+              <!-- Step 2: Add Certificate -->
+              <div
+                class="setup-step"
+                [class.completed]="dashboardService.totalCertificates > 0"
+                [class.disabled]="dashboardService.totalKeys === 0"
+                fxLayout="row"
+                fxLayoutAlign="start center"
+                fxLayoutGap="12px"
+              >
+                <mat-icon [class.done]="dashboardService.totalCertificates > 0">
+                  {{
+                    dashboardService.totalCertificates > 0
+                      ? 'check_circle'
+                      : 'radio_button_unchecked'
+                  }}
+                </mat-icon>
+                <div fxFlex>
+                  <strong>2. Add a Certificate</strong>
+                  <p>Self-sign or import a certificate from a registrar for your key</p>
+                </div>
+                @if (dashboardService.totalCertificates === 0 && dashboardService.totalKeys > 0) {
+                  <a mat-stroked-button color="primary" routerLink="/certificates/create">
+                    <mat-icon>verified</mat-icon> Add Certificate
+                  </a>
+                } @else if (dashboardService.totalCertificates > 0) {
+                  <mat-chip>{{ dashboardService.totalCertificates }} cert(s)</mat-chip>
+                }
               </div>
-              @if (dashboardService.totalCertificates === 0 && dashboardService.totalKeys > 0) {
-                <a mat-stroked-button color="primary" routerLink="/certificates/create">
-                  <mat-icon>verified</mat-icon> Add Certificate
-                </a>
-              } @else if (dashboardService.totalCertificates > 0) {
-                <mat-chip>{{ dashboardService.totalCertificates }} cert(s)</mat-chip>
-              }
             </div>
           </div>
-        </div>
+        }
 
         <!-- Two-track setup -->
         @if (dashboardService.hasPrerequisites) {
@@ -96,110 +100,120 @@
 
           <div class="tracks-container" fxLayout="row" fxLayout.lt-md="column" fxLayoutGap="24px">
             <!-- Issuance Track -->
-            <div class="setup-track" [class.ready]="dashboardService.isReadyToIssue" fxFlex>
-              <h3 class="track-title">
-                <mat-icon>card_giftcard</mat-icon>
-                Issue Credentials
-                @if (dashboardService.isReadyToIssue) {
-                  <mat-chip color="primary" highlighted>Ready</mat-chip>
-                }
-              </h3>
-
-              <div class="setup-steps" fxLayout="column" fxLayoutGap="8px">
-                <!-- Issuance Config -->
-                <div
-                  class="setup-step"
-                  [class.completed]="dashboardService.hasIssuanceConfig"
-                  fxLayout="row"
-                  fxLayoutAlign="start center"
-                  fxLayoutGap="12px"
-                >
-                  <mat-icon [class.done]="dashboardService.hasIssuanceConfig">
-                    {{
-                      dashboardService.hasIssuanceConfig ? 'check_circle' : 'radio_button_unchecked'
-                    }}
-                  </mat-icon>
-                  <div fxFlex>
-                    <strong>Issuance Config</strong>
-                    <p>Configure your issuer identity</p>
-                  </div>
-                  @if (!dashboardService.hasIssuanceConfig) {
-                    <a mat-stroked-button color="primary" routerLink="/issuance-config">
-                      <mat-icon>settings</mat-icon> Configure
-                    </a>
+            @if (dashboardService.canManageIssuance) {
+              <div class="setup-track" [class.ready]="dashboardService.isReadyToIssue" fxFlex>
+                <h3 class="track-title">
+                  <mat-icon>card_giftcard</mat-icon>
+                  Issue Credentials
+                  @if (dashboardService.isReadyToIssue) {
+                    <mat-chip color="primary" highlighted>Ready</mat-chip>
                   }
-                </div>
+                </h3>
 
-                <!-- Credential Config -->
-                <div
-                  class="setup-step"
-                  [class.completed]="dashboardService.credentialConfigs > 0"
-                  fxLayout="row"
-                  fxLayoutAlign="start center"
-                  fxLayoutGap="12px"
-                >
-                  <mat-icon [class.done]="dashboardService.credentialConfigs > 0">
-                    {{
-                      dashboardService.credentialConfigs > 0
-                        ? 'check_circle'
-                        : 'radio_button_unchecked'
-                    }}
-                  </mat-icon>
-                  <div fxFlex>
-                    <strong>Credential Config</strong>
-                    <p>Define credentials to issue</p>
+                <div class="setup-steps" fxLayout="column" fxLayoutGap="8px">
+                  <!-- Issuance Config -->
+                  <div
+                    class="setup-step"
+                    [class.completed]="dashboardService.hasIssuanceConfig"
+                    fxLayout="row"
+                    fxLayoutAlign="start center"
+                    fxLayoutGap="12px"
+                  >
+                    <mat-icon [class.done]="dashboardService.hasIssuanceConfig">
+                      {{
+                        dashboardService.hasIssuanceConfig
+                          ? 'check_circle'
+                          : 'radio_button_unchecked'
+                      }}
+                    </mat-icon>
+                    <div fxFlex>
+                      <strong>Issuance Config</strong>
+                      <p>Configure your issuer identity</p>
+                    </div>
+                    @if (!dashboardService.hasIssuanceConfig) {
+                      <a mat-stroked-button color="primary" routerLink="/issuance-config">
+                        <mat-icon>settings</mat-icon> Configure
+                      </a>
+                    }
                   </div>
-                  @if (dashboardService.credentialConfigs === 0) {
-                    <a mat-stroked-button color="primary" routerLink="/credential-config/create">
-                      <mat-icon>add</mat-icon> Add
-                    </a>
-                  } @else {
-                    <mat-chip>{{ dashboardService.credentialConfigs }} config(s)</mat-chip>
-                  }
+
+                  <!-- Credential Config -->
+                  <div
+                    class="setup-step"
+                    [class.completed]="dashboardService.credentialConfigs > 0"
+                    fxLayout="row"
+                    fxLayoutAlign="start center"
+                    fxLayoutGap="12px"
+                  >
+                    <mat-icon [class.done]="dashboardService.credentialConfigs > 0">
+                      {{
+                        dashboardService.credentialConfigs > 0
+                          ? 'check_circle'
+                          : 'radio_button_unchecked'
+                      }}
+                    </mat-icon>
+                    <div fxFlex>
+                      <strong>Credential Config</strong>
+                      <p>Define credentials to issue</p>
+                    </div>
+                    @if (dashboardService.credentialConfigs === 0) {
+                      <a mat-stroked-button color="primary" routerLink="/credential-config/create">
+                        <mat-icon>add</mat-icon> Add
+                      </a>
+                    } @else {
+                      <mat-chip>{{ dashboardService.credentialConfigs }} config(s)</mat-chip>
+                    }
+                  </div>
                 </div>
               </div>
-            </div>
+            }
 
             <!-- Verification Track -->
-            <div class="setup-track" [class.ready]="dashboardService.isReadyToVerify" fxFlex>
-              <h3 class="track-title">
-                <mat-icon>verified_user</mat-icon>
-                Verify Presentations
-                @if (dashboardService.isReadyToVerify) {
-                  <mat-chip color="accent" highlighted>Ready</mat-chip>
-                }
-              </h3>
-
-              <div class="setup-steps" fxLayout="column" fxLayoutGap="8px">
-                <!-- Presentation Config -->
-                <div
-                  class="setup-step"
-                  [class.completed]="dashboardService.presentationConfigs > 0"
-                  fxLayout="row"
-                  fxLayoutAlign="start center"
-                  fxLayoutGap="12px"
-                >
-                  <mat-icon [class.done]="dashboardService.presentationConfigs > 0">
-                    {{
-                      dashboardService.presentationConfigs > 0
-                        ? 'check_circle'
-                        : 'radio_button_unchecked'
-                    }}
-                  </mat-icon>
-                  <div fxFlex>
-                    <strong>Presentation Config</strong>
-                    <p>Define what credentials to request</p>
-                  </div>
-                  @if (dashboardService.presentationConfigs === 0) {
-                    <a mat-stroked-button color="primary" routerLink="/presentation-config/create">
-                      <mat-icon>add</mat-icon> Add
-                    </a>
-                  } @else {
-                    <mat-chip>{{ dashboardService.presentationConfigs }} config(s)</mat-chip>
+            @if (dashboardService.canManagePresentation) {
+              <div class="setup-track" [class.ready]="dashboardService.isReadyToVerify" fxFlex>
+                <h3 class="track-title">
+                  <mat-icon>verified_user</mat-icon>
+                  Verify Presentations
+                  @if (dashboardService.isReadyToVerify) {
+                    <mat-chip color="accent" highlighted>Ready</mat-chip>
                   }
+                </h3>
+
+                <div class="setup-steps" fxLayout="column" fxLayoutGap="8px">
+                  <!-- Presentation Config -->
+                  <div
+                    class="setup-step"
+                    [class.completed]="dashboardService.presentationConfigs > 0"
+                    fxLayout="row"
+                    fxLayoutAlign="start center"
+                    fxLayoutGap="12px"
+                  >
+                    <mat-icon [class.done]="dashboardService.presentationConfigs > 0">
+                      {{
+                        dashboardService.presentationConfigs > 0
+                          ? 'check_circle'
+                          : 'radio_button_unchecked'
+                      }}
+                    </mat-icon>
+                    <div fxFlex>
+                      <strong>Presentation Config</strong>
+                      <p>Define what credentials to request</p>
+                    </div>
+                    @if (dashboardService.presentationConfigs === 0) {
+                      <a
+                        mat-stroked-button
+                        color="primary"
+                        routerLink="/presentation-config/create"
+                      >
+                        <mat-icon>add</mat-icon> Add
+                      </a>
+                    } @else {
+                      <mat-chip>{{ dashboardService.presentationConfigs }} config(s)</mat-chip>
+                    }
+                  </div>
                 </div>
               </div>
-            </div>
+            }
           </div>
         }
       </mat-card-content>
@@ -208,67 +222,80 @@
 
   <!-- Stats Cards -->
   <div class="stats-grid">
-    <a
-      class="stat-card-link"
-      routerLink="/credential-config"
-      aria-label="View credential configurations"
-    >
-      <mat-card class="stat-card">
-        <mat-card-content fxLayout="column" fxLayoutAlign="center center">
-          <mat-icon class="stat-icon credential">badge</mat-icon>
-          <span class="stat-value">{{ dashboardService.credentialConfigs }}</span>
-          <span class="stat-label">Credential Configs</span>
-        </mat-card-content>
-      </mat-card>
-    </a>
+    @if (dashboardService.canManageIssuance) {
+      <a
+        class="stat-card-link"
+        routerLink="/credential-config"
+        aria-label="View credential configurations"
+      >
+        <mat-card class="stat-card">
+          <mat-card-content fxLayout="column" fxLayoutAlign="center center">
+            <mat-icon class="stat-icon credential">badge</mat-icon>
+            <span class="stat-value">{{ dashboardService.credentialConfigs }}</span>
+            <span class="stat-label">Credential Configs</span>
+          </mat-card-content>
+        </mat-card>
+      </a>
+    }
 
-    <a
-      class="stat-card-link"
-      routerLink="/presentation-config"
-      aria-label="View presentation configurations"
-    >
-      <mat-card class="stat-card">
-        <mat-card-content fxLayout="column" fxLayoutAlign="center center">
-          <mat-icon class="stat-icon presentation">verified_user</mat-icon>
-          <span class="stat-value">{{ dashboardService.presentationConfigs }}</span>
-          <span class="stat-label">Presentation Configs</span>
-        </mat-card-content>
-      </mat-card>
-    </a>
+    @if (dashboardService.canManagePresentation) {
+      <a
+        class="stat-card-link"
+        routerLink="/presentation-config"
+        aria-label="View presentation configurations"
+      >
+        <mat-card class="stat-card">
+          <mat-card-content fxLayout="column" fxLayoutAlign="center center">
+            <mat-icon class="stat-icon presentation">verified_user</mat-icon>
+            <span class="stat-value">{{ dashboardService.presentationConfigs }}</span>
+            <span class="stat-label">Presentation Configs</span>
+          </mat-card-content>
+        </mat-card>
+      </a>
+    }
 
-    <a class="stat-card-link" routerLink="/key-management" aria-label="View key management">
-      <mat-card class="stat-card">
-        <mat-card-content fxLayout="column" fxLayoutAlign="center center">
-          <mat-icon class="stat-icon keys">vpn_key</mat-icon>
-          <span class="stat-value">{{ dashboardService.totalKeys }}</span>
-          <span class="stat-label">Keys</span>
-        </mat-card-content>
-      </mat-card>
-    </a>
+    @if (dashboardService.canManageKeysAndCerts) {
+      <a class="stat-card-link" routerLink="/key-management" aria-label="View key management">
+        <mat-card class="stat-card">
+          <mat-card-content fxLayout="column" fxLayoutAlign="center center">
+            <mat-icon class="stat-icon keys">vpn_key</mat-icon>
+            <span class="stat-value">{{ dashboardService.totalKeys }}</span>
+            <span class="stat-label">Keys</span>
+          </mat-card-content>
+        </mat-card>
+      </a>
+    }
 
-    <a class="stat-card-link" routerLink="/session-management" aria-label="View session management">
-      <mat-card class="stat-card">
-        <mat-card-content fxLayout="column" fxLayoutAlign="center center">
-          <mat-icon class="stat-icon sessions">sync</mat-icon>
-          <span class="stat-value">{{
-            dashboardService.sessionActive +
-              dashboardService.sessionCompleted +
-              dashboardService.sessionFetched
-          }}</span>
-          <span class="stat-label">Total Sessions</span>
-        </mat-card-content>
-      </mat-card>
-    </a>
+    @if (dashboardService.canViewSessions) {
+      <a
+        class="stat-card-link"
+        routerLink="/session-management"
+        aria-label="View session management"
+      >
+        <mat-card class="stat-card">
+          <mat-card-content fxLayout="column" fxLayoutAlign="center center">
+            <mat-icon class="stat-icon sessions">sync</mat-icon>
+            <span class="stat-value">{{
+              dashboardService.sessionActive +
+                dashboardService.sessionCompleted +
+                dashboardService.sessionFetched
+            }}</span>
+            <span class="stat-label">Total Sessions</span>
+          </mat-card-content>
+        </mat-card>
+      </a>
+    }
   </div>
 
   <!-- Session Status Breakdown -->
   @if (
+    dashboardService.canViewSessions &&
     dashboardService.sessionActive +
       dashboardService.sessionCompleted +
       dashboardService.sessionFetched +
       dashboardService.sessionFailed +
       dashboardService.sessionExpired >
-    0
+      0
   ) {
     <mat-card class="session-breakdown-card">
       <mat-card-header>
@@ -327,42 +354,53 @@
     </mat-card-header>
     <mat-card-content>
       <div class="quick-actions" fxLayout="row wrap" fxLayoutGap="12px">
-        <a
-          mat-raised-button
-          color="primary"
-          routerLink="/offer/issuance"
-          [class.disabled]="dashboardService.credentialConfigs === 0"
-          [attr.tabindex]="dashboardService.credentialConfigs === 0 ? -1 : 0"
-          [matTooltip]="
-            dashboardService.credentialConfigs === 0
-              ? 'Create a credential configuration first'
-              : 'Create an issuance offer'
-          "
-        >
-          <mat-icon>card_giftcard</mat-icon> Issue Credential
-        </a>
-        <a
-          mat-raised-button
-          color="accent"
-          routerLink="/offer/presentation"
-          [class.disabled]="dashboardService.presentationConfigs === 0"
-          [attr.tabindex]="dashboardService.presentationConfigs === 0 ? -1 : 0"
-          [matTooltip]="
-            dashboardService.presentationConfigs === 0
-              ? 'Create a presentation configuration first'
-              : 'Request a presentation'
-          "
-        >
-          <mat-icon>fact_check</mat-icon> Request Presentation
-        </a>
-        <a mat-stroked-button routerLink="/credential-config/create">
-          <mat-icon>add_circle</mat-icon> New Credential Config
-        </a>
-        <a mat-stroked-button routerLink="/presentation-config/create">
-          <mat-icon>playlist_add</mat-icon> New Presentation Config
-        </a>
+        @if (jwtService.hasRole('issuance:offer')) {
+          <a
+            mat-raised-button
+            color="primary"
+            routerLink="/offer/issuance"
+            [class.disabled]="dashboardService.credentialConfigs === 0"
+            [attr.tabindex]="dashboardService.credentialConfigs === 0 ? -1 : 0"
+            [matTooltip]="
+              dashboardService.credentialConfigs === 0
+                ? 'Create a credential configuration first'
+                : 'Create an issuance offer'
+            "
+          >
+            <mat-icon>card_giftcard</mat-icon> Issue Credential
+          </a>
+        }
+        @if (jwtService.hasRole('presentation:offer')) {
+          <a
+            mat-raised-button
+            color="accent"
+            routerLink="/offer/presentation"
+            [class.disabled]="dashboardService.presentationConfigs === 0"
+            [attr.tabindex]="dashboardService.presentationConfigs === 0 ? -1 : 0"
+            [matTooltip]="
+              dashboardService.presentationConfigs === 0
+                ? 'Create a presentation configuration first'
+                : 'Request a presentation'
+            "
+          >
+            <mat-icon>fact_check</mat-icon> Request Presentation
+          </a>
+        }
+        @if (dashboardService.canManageIssuance) {
+          <a mat-stroked-button routerLink="/credential-config/create">
+            <mat-icon>add_circle</mat-icon> New Credential Config
+          </a>
+        }
+        @if (dashboardService.canManagePresentation) {
+          <a mat-stroked-button routerLink="/presentation-config/create">
+            <mat-icon>playlist_add</mat-icon> New Presentation Config
+          </a>
+        }
       </div>
-      @if (dashboardService.credentialConfigs === 0 || dashboardService.presentationConfigs === 0) {
+      @if (
+        (dashboardService.canManageIssuance && dashboardService.credentialConfigs === 0) ||
+        (dashboardService.canManagePresentation && dashboardService.presentationConfigs === 0)
+      ) {
         <div class="actions-hint">
           <mat-icon>info</mat-icon>
           <span>

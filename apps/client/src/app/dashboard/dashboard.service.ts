@@ -7,6 +7,7 @@ import {
   issuanceConfigControllerGetIssuanceConfigurations,
   certControllerGetCertificates,
 } from '@eudiplo/sdk';
+import { JwtService } from '../services/jwt.service';
 
 export interface DashboardStats {
   credentialConfigs: number;
@@ -38,6 +39,8 @@ export class DashboardService {
   hasIssuanceConfig = false;
   isLoading = true;
 
+  constructor(private readonly jwtService: JwtService) {}
+
   async getCounters(): Promise<void> {
     this.isLoading = true;
     // Reset counters
@@ -48,57 +51,90 @@ export class DashboardService {
     this.sessionExpired = 0;
 
     try {
-      const [credentialRes, presentationRes, sessionRes, keysRes, certsRes, issuanceRes] =
-        await Promise.allSettled([
-          credentialConfigControllerGetConfigs(),
-          presentationManagementControllerConfiguration(),
-          sessionControllerGetAllSessions(),
-          keyControllerGetKeys(),
-          certControllerGetCertificates(),
-          issuanceConfigControllerGetIssuanceConfigurations(),
-        ]);
+      // Build list of promises based on user roles
+      const promises: Promise<any>[] = [];
+      const promiseKeys: string[] = [];
 
-      if (credentialRes.status === 'fulfilled') {
-        this.credentialConfigs = credentialRes.value.data.length;
+      // Keys and certs require issuance:manage OR presentation:manage
+      const canManageKeysAndCerts =
+        this.jwtService.hasRole('issuance:manage') || this.jwtService.hasRole('presentation:manage');
+
+      if (canManageKeysAndCerts) {
+        promises.push(keyControllerGetKeys());
+        promiseKeys.push('keys');
+        promises.push(certControllerGetCertificates());
+        promiseKeys.push('certs');
       }
 
-      if (presentationRes.status === 'fulfilled') {
-        this.presentationConfigs = presentationRes.value.data.length;
+      // Credential configs require issuance:manage
+      if (this.jwtService.hasRole('issuance:manage')) {
+        promises.push(credentialConfigControllerGetConfigs());
+        promiseKeys.push('credentials');
+        promises.push(issuanceConfigControllerGetIssuanceConfigurations());
+        promiseKeys.push('issuance');
       }
 
-      if (sessionRes.status === 'fulfilled') {
-        sessionRes.value.data.forEach((session) => {
-          switch (session.status) {
-            case 'active':
-              this.sessionActive++;
+      // Presentation configs require presentation:manage
+      if (this.jwtService.hasRole('presentation:manage')) {
+        promises.push(presentationManagementControllerConfiguration());
+        promiseKeys.push('presentations');
+      }
+
+      // Sessions require issuance:offer OR presentation:offer
+      if (
+        this.jwtService.hasRole('issuance:offer') ||
+        this.jwtService.hasRole('presentation:offer')
+      ) {
+        promises.push(sessionControllerGetAllSessions());
+        promiseKeys.push('sessions');
+      }
+
+      const results = await Promise.allSettled(promises);
+
+      // Process results based on their keys
+      results.forEach((result, index) => {
+        const key = promiseKeys[index];
+        if (result.status === 'fulfilled') {
+          switch (key) {
+            case 'credentials':
+              this.credentialConfigs = result.value.data.length;
               break;
-            case 'completed':
-              this.sessionCompleted++;
+            case 'presentations':
+              this.presentationConfigs = result.value.data.length;
               break;
-            case 'fetched':
-              this.sessionFetched++;
+            case 'sessions':
+              result.value.data.forEach((session: { status: string }) => {
+                switch (session.status) {
+                  case 'active':
+                    this.sessionActive++;
+                    break;
+                  case 'completed':
+                    this.sessionCompleted++;
+                    break;
+                  case 'fetched':
+                    this.sessionFetched++;
+                    break;
+                  case 'failed':
+                    this.sessionFailed++;
+                    break;
+                  case 'expired':
+                    this.sessionExpired++;
+                    break;
+                }
+              });
               break;
-            case 'failed':
-              this.sessionFailed++;
+            case 'keys':
+              this.totalKeys = result.value.data.length;
               break;
-            case 'expired':
-              this.sessionExpired++;
+            case 'certs':
+              this.totalCertificates = result.value.data.length;
+              break;
+            case 'issuance':
+              this.hasIssuanceConfig = !!result.value.data;
               break;
           }
-        });
-      }
-
-      if (keysRes.status === 'fulfilled') {
-        this.totalKeys = keysRes.value.data.length;
-      }
-
-      if (certsRes.status === 'fulfilled') {
-        this.totalCertificates = certsRes.value.data.length;
-      }
-
-      if (issuanceRes.status === 'fulfilled') {
-        this.hasIssuanceConfig = !!issuanceRes.value.data;
-      }
+        }
+      });
     } catch (error) {
       console.error('Failed to fetch dashboard stats:', error);
     } finally {
@@ -106,18 +142,48 @@ export class DashboardService {
     }
   }
 
-  // Prerequisites check
+  // Role-based visibility helpers
+  get canManageKeysAndCerts(): boolean {
+    return (
+      this.jwtService.hasRole('issuance:manage') || this.jwtService.hasRole('presentation:manage')
+    );
+  }
+
+  get canManageIssuance(): boolean {
+    return this.jwtService.hasRole('issuance:manage');
+  }
+
+  get canManagePresentation(): boolean {
+    return this.jwtService.hasRole('presentation:manage');
+  }
+
+  get canViewSessions(): boolean {
+    return (
+      this.jwtService.hasRole('issuance:offer') || this.jwtService.hasRole('presentation:offer')
+    );
+  }
+
+  // Prerequisites check - only relevant if user can manage keys/certs
   get hasPrerequisites(): boolean {
+    if (!this.canManageKeysAndCerts) {
+      return true; // Not relevant for this user
+    }
     return this.totalKeys > 0 && this.totalCertificates > 0;
   }
 
   // Issuance readiness
   get isReadyToIssue(): boolean {
+    if (!this.canManageIssuance) {
+      return false; // User can't manage issuance
+    }
     return this.hasPrerequisites && this.hasIssuanceConfig && this.credentialConfigs > 0;
   }
 
   // Verification readiness
   get isReadyToVerify(): boolean {
+    if (!this.canManagePresentation) {
+      return false; // User can't manage presentations
+    }
     return this.hasPrerequisites && this.presentationConfigs > 0;
   }
 
