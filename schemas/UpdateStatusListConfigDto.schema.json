@@ -4,10 +4,10 @@
   "title": "UpdateStatusListConfigDto",
   "type": "object",
   "properties": {
-    "length": {
+    "capacity": {
       "type": "number",
       "nullable": true,
-      "description": "The length of the status list. Set to null to reset to global default.",
+      "description": "The capacity of the status list. Set to null to reset to global default.",
       "minimum": 100,
       "example": 10000
     },
@@ -21,6 +21,18 @@
         4,
         8
       ]
+    },
+    "ttl": {
+      "type": "number",
+      "nullable": true,
+      "description": "TTL in seconds for the status list JWT. Set to null to reset to global default.",
+      "minimum": 60,
+      "example": 3600
+    },
+    "immediateUpdate": {
+      "type": "boolean",
+      "nullable": true,
+      "description": "If true, regenerate JWT on every status change. Set to null to reset to default (false)."
     }
   }
 }

@@ -1,10 +1,10 @@
 import * as Joi from "joi";
 
 export const STATUS_LIST_VALIDATION_SCHEMA = Joi.object({
-    STATUS_LENGTH: Joi.number()
+    STATUS_CAPACITY: Joi.number()
         .default(10000)
         .description(
-            "The default length of the status list. Can be overridden per tenant.",
+            "The default capacity of the status list. Can be overridden per tenant.",
         )
         .meta({ group: "status", order: 10 }),
     STATUS_BITS: Joi.number()

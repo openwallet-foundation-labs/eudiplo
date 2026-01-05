@@ -62,6 +62,13 @@
       "type": "string",
       "description": "Creation timestamp",
       "example": "2024-01-15T10:30:00.000Z"
+    },
+    "expiresAt": {
+      "format": "date-time",
+      "type": "string",
+      "nullable": true,
+      "description": "JWT expiration timestamp. Null if JWT has not been generated yet.",
+      "example": "2024-01-15T11:30:00.000Z"
     }
   },
   "required": [

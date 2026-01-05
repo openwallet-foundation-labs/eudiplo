@@ -4,9 +4,9 @@
   "title": "StatusListConfig",
   "type": "object",
   "properties": {
-    "length": {
+    "capacity": {
       "type": "number",
-      "description": "The length of the status list. If not set, uses global STATUS_LENGTH.",
+      "description": "The capacity of the status list. If not set, uses global STATUS_CAPACITY.",
       "example": 10000,
       "minimum": 100
     },
@@ -20,6 +20,17 @@
         8
       ],
       "default": 1
+    },
+    "ttl": {
+      "type": "number",
+      "description": "TTL in seconds for the status list JWT. If not set, uses global STATUS_TTL.",
+      "example": 3600,
+      "minimum": 60
+    },
+    "immediateUpdate": {
+      "type": "boolean",
+      "description": "If true, regenerate JWT immediately on status changes. If false (default), use lazy regeneration on TTL expiry.",
+      "default": false
     }
   }
 }

@@ -20,9 +20,9 @@
       "description": "Certificate ID to use for signing. Leave empty to use the tenant's default StatusList certificate.",
       "example": "my-status-list-cert"
     },
-    "length": {
+    "capacity": {
       "type": "number",
-      "description": "Size of the status list. If not provided, uses tenant or global defaults.",
+      "description": "Capacity of the status list. If not provided, uses tenant or global defaults.",
       "minimum": 100,
       "example": 10000
     },

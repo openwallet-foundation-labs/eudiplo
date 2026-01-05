@@ -716,7 +716,7 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
                 readConfig<TrustListCreateDto>(
                     join(
                         configFolder,
-                        "root/trustlists/trustlist-580831bc-ef11-43f4-a3be-a2b6bf1b29a3-config.json",
+                        "root/trust-lists/trustlist-580831bc-ef11-43f4-a3be-a2b6bf1b29a3-config.json",
                     ),
                 ),
             ),

@@ -19,10 +19,10 @@ export class StatusListConfigService {
     ) {}
 
     /**
-     * Get the default status list length from environment configuration.
+     * Get the default status list capacity from environment configuration.
      */
-    getDefaultLength(): number {
-        return this.configService.getOrThrow<number>("STATUS_LENGTH");
+    getDefaultCapacity(): number {
+        return this.configService.getOrThrow<number>("STATUS_CAPACITY");
     }
 
     /**
@@ -69,7 +69,7 @@ export class StatusListConfigService {
     async getEffectiveConfig(tenantId: string): Promise<StatusListConfig> {
         const config = await this.getConfig(tenantId);
         return {
-            length: config?.length ?? this.getDefaultLength(),
+            capacity: config?.capacity ?? this.getDefaultCapacity(),
             bits: config?.bits ?? this.getDefaultBits(),
             ttl: config?.ttl ?? this.getDefaultTtl(),
             immediateUpdate:
@@ -96,7 +96,7 @@ export class StatusListConfigService {
 
         // Replace config entirely - null values mean "use default"
         const updatedConfig: StatusListConfig = {
-            length: config.length ?? undefined,
+            capacity: config.capacity ?? undefined,
             bits: config.bits ?? undefined,
             ttl: config.ttl ?? undefined,
             immediateUpdate: config.immediateUpdate ?? undefined,

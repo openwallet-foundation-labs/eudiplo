@@ -53,19 +53,19 @@ export class StatusListImportDto {
     certId?: string;
 
     /**
-     * Optional size of the status list.
+     * Optional capacity of the status list (number of entries).
      * If not provided, uses the tenant's configured default or the global default.
      */
     @ApiPropertyOptional({
         description:
-            "Size of the status list. If not provided, uses tenant or global defaults.",
+            "Capacity of the status list. If not provided, uses tenant or global defaults.",
         example: 10000,
         minimum: 100,
     })
     @IsOptional()
     @IsInt()
     @Min(100)
-    length?: number;
+    capacity?: number;
 
     /**
      * Optional bits per status.

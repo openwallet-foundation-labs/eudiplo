@@ -75,10 +75,10 @@ export const SessionStorageConfigSchema = {
 export const StatusListConfigSchema = {
   type: "object",
   properties: {
-    length: {
+    capacity: {
       type: "number",
       description:
-        "The length of the status list. If not set, uses global STATUS_LENGTH.",
+        "The capacity of the status list. If not set, uses global STATUS_CAPACITY.",
       example: 10000,
       minimum: 100,
     },
@@ -625,10 +625,10 @@ export const StatusListImportDtoSchema = {
         "Certificate ID to use for signing. Leave empty to use the tenant's default StatusList certificate.",
       example: "my-status-list-cert",
     },
-    length: {
+    capacity: {
       type: "number",
       description:
-        "Size of the status list. If not provided, uses tenant or global defaults.",
+        "Capacity of the status list. If not provided, uses tenant or global defaults.",
       minimum: 100,
       example: 10000,
     },
@@ -646,11 +646,11 @@ export const StatusListImportDtoSchema = {
 export const UpdateStatusListConfigDtoSchema = {
   type: "object",
   properties: {
-    length: {
+    capacity: {
       type: "number",
       nullable: true,
       description:
-        "The length of the status list. Set to null to reset to global default.",
+        "The capacity of the status list. Set to null to reset to global default.",
       minimum: 100,
       example: 10000,
     },

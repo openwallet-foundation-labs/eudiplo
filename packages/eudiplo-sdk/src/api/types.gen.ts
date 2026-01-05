@@ -42,9 +42,9 @@ export type SessionStorageConfig = {
 
 export type StatusListConfig = {
   /**
-   * The length of the status list. If not set, uses global STATUS_LENGTH.
+   * The capacity of the status list. If not set, uses global STATUS_CAPACITY.
    */
-  length?: number;
+  capacity?: number;
   /**
    * Bits per status entry: 1 (valid/revoked), 2 (with suspended), 4/8 (extended). If not set, uses global STATUS_BITS.
    */
@@ -374,9 +374,9 @@ export type StatusListImportDto = {
    */
   certId?: string;
   /**
-   * Size of the status list. If not provided, uses tenant or global defaults.
+   * Capacity of the status list. If not provided, uses tenant or global defaults.
    */
-  length?: number;
+  capacity?: number;
   /**
    * Bits per status value. If not provided, uses tenant or global defaults.
    */
@@ -385,9 +385,9 @@ export type StatusListImportDto = {
 
 export type UpdateStatusListConfigDto = {
   /**
-   * The length of the status list. Set to null to reset to global default.
+   * The capacity of the status list. Set to null to reset to global default.
    */
-  length?: number;
+  capacity?: number;
   /**
    * Bits per status entry. Set to null to reset to global default.
    */

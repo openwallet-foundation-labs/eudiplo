@@ -50,7 +50,7 @@ export class StatusListConfigComponent implements OnInit {
     private readonly snackBar: MatSnackBar
   ) {
     this.configForm = this.fb.group({
-      length: [null, [Validators.min(100)]],
+      capacity: [null, [Validators.min(100)]],
       bits: [1],
       ttl: [null, [Validators.min(60)]],
       immediateUpdate: [false],
@@ -66,7 +66,7 @@ export class StatusListConfigComponent implements OnInit {
     try {
       this.currentConfig = await this.statusListConfigService.getConfig();
       this.configForm.patchValue({
-        length: this.currentConfig?.length ?? null,
+        capacity: this.currentConfig?.capacity ?? null,
         bits: this.currentConfig?.bits ?? 1,
         ttl: this.currentConfig?.ttl ?? null,
         immediateUpdate: this.currentConfig?.immediateUpdate ?? false,
@@ -89,9 +89,9 @@ export class StatusListConfigComponent implements OnInit {
     this.isSaving = true;
     try {
       const formValue = this.configForm.value;
-      // Convert empty string to null for length and ttl
-      if (formValue.length === '' || formValue.length === null) {
-        formValue.length = null;
+      // Convert empty string to null for capacity and ttl
+      if (formValue.capacity === '' || formValue.capacity === null) {
+        formValue.capacity = null;
       }
       if (formValue.ttl === '' || formValue.ttl === null) {
         formValue.ttl = null;
@@ -117,7 +117,7 @@ export class StatusListConfigComponent implements OnInit {
       await this.statusListConfigService.resetConfig();
       this.currentConfig = null;
       this.configForm.patchValue({
-        length: null,
+        capacity: null,
         bits: 1,
         ttl: null,
         immediateUpdate: false,
@@ -136,9 +136,9 @@ export class StatusListConfigComponent implements OnInit {
     }
   }
 
-  formatLength(length?: number | null): string {
-    if (!length) return 'Using global default (10,000)';
-    return `${length.toLocaleString()} entries`;
+  formatCapacity(capacity?: number | null): string {
+    if (!capacity) return 'Using global default (10,000)';
+    return `${capacity.toLocaleString()} entries`;
   }
 
   formatTtl(ttl?: number | null): string {

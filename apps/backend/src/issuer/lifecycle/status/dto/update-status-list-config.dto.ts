@@ -9,12 +9,12 @@ import { IsBoolean, IsIn, IsInt, IsOptional, Min } from "class-validator";
  */
 export class UpdateStatusListConfigDto {
     /**
-     * The length of the status list (number of entries).
+     * The capacity of the status list (number of entries).
      * Set to null to reset to global default.
      */
     @ApiPropertyOptional({
         description:
-            "The length of the status list. Set to null to reset to global default.",
+            "The capacity of the status list. Set to null to reset to global default.",
         example: 10000,
         minimum: 100,
         nullable: true,
@@ -22,7 +22,7 @@ export class UpdateStatusListConfigDto {
     @IsOptional()
     @IsInt()
     @Min(100)
-    length?: number | null;
+    capacity?: number | null;
 
     /**
      * The number of bits used per status entry.

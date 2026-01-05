@@ -49,13 +49,13 @@ export class StatusListService {
     ) {}
 
     /**
-     * Get the effective status list length for a tenant.
+     * Get the effective status list capacity for a tenant.
      */
-    private async getEffectiveLength(tenantId: string): Promise<number> {
+    private async getEffectiveCapacity(tenantId: string): Promise<number> {
         const tenant = await this.tenantRepository.findOneBy({ id: tenantId });
         return (
-            tenant?.statusListConfig?.length ??
-            this.configService.getOrThrow<number>("STATUS_LENGTH")
+            tenant?.statusListConfig?.capacity ??
+            this.configService.getOrThrow<number>("STATUS_CAPACITY")
         );
     }
 
@@ -106,7 +106,7 @@ export class StatusListService {
         },
     ): Promise<StatusListEntity> {
         const size =
-            options?.capacity ?? (await this.getEffectiveLength(tenantId));
+            options?.capacity ?? (await this.getEffectiveCapacity(tenantId));
         // create an empty array with the size
         const elements = new Array(size).fill(0).map(() => 0);
         // create a list of indexes and shuffle them using crypto-secure randomness
@@ -574,7 +574,8 @@ export class StatusListService {
             processItem: async (tenantId, config) => {
                 // Get effective size and bits (from config, tenant defaults, or global defaults)
                 const size =
-                    config.length ?? (await this.getEffectiveLength(tenantId));
+                    config.capacity ??
+                    (await this.getEffectiveCapacity(tenantId));
                 const bits =
                     config.bits ?? (await this.getEffectiveBits(tenantId));
 

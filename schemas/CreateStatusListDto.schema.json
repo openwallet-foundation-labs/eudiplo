@@ -13,6 +13,23 @@
       "type": "string",
       "description": "Certificate ID to use for signing. Leave empty to use the tenant's default StatusList certificate.",
       "example": "my-status-list-cert"
+    },
+    "bits": {
+      "type": "number",
+      "description": "Bits per status value. More bits allow more status states. Defaults to tenant configuration.",
+      "enum": [
+        1,
+        2,
+        4,
+        8
+      ],
+      "example": 1
+    },
+    "capacity": {
+      "type": "number",
+      "description": "Maximum number of credential status entries. Defaults to tenant configuration.",
+      "minimum": 1000,
+      "example": 100000
     }
   }
 }

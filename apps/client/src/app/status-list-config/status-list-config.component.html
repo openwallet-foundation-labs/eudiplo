@@ -23,11 +23,11 @@
 
       <mat-card-content>
         <form [formGroup]="configForm" fxLayout="column" fxLayoutGap="24px">
-          <!-- Length Configuration -->
+          <!-- Capacity Configuration -->
           <div class="config-section">
             <h3>
               <mat-icon>straighten</mat-icon>
-              Status List Length
+              Status List Capacity
             </h3>
             <p class="section-description">
               Number of entries in the status list. Larger lists can track more credentials but use
@@ -35,57 +35,59 @@
             </p>
 
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>List length</mat-label>
+              <mat-label>List capacity</mat-label>
               <input
                 matInput
                 type="number"
-                formControlName="length"
+                formControlName="capacity"
                 placeholder="Leave empty for global default"
               />
-              <mat-hint> Current: {{ formatLength(configForm.get('length')?.value) }} </mat-hint>
-              @if (configForm.get('length')?.hasError('min')) {
-                <mat-error>Length must be at least 100</mat-error>
+              <mat-hint>
+                Current: {{ formatCapacity(configForm.get('capacity')?.value) }}
+              </mat-hint>
+              @if (configForm.get('capacity')?.hasError('min')) {
+                <mat-error>Capacity must be at least 100</mat-error>
               }
             </mat-form-field>
 
-            <div class="length-presets" fxLayout="row wrap" fxLayoutGap="8px">
+            <div class="capacity-presets" fxLayout="row wrap" fxLayoutGap="8px">
               <button
                 mat-stroked-button
                 type="button"
-                (click)="configForm.patchValue({ length: 1000 })"
-                [color]="configForm.get('length')?.value === 1000 ? 'primary' : undefined"
+                (click)="configForm.patchValue({ capacity: 1000 })"
+                [color]="configForm.get('capacity')?.value === 1000 ? 'primary' : undefined"
               >
                 1,000
               </button>
               <button
                 mat-stroked-button
                 type="button"
-                (click)="configForm.patchValue({ length: 10000 })"
-                [color]="configForm.get('length')?.value === 10000 ? 'primary' : undefined"
+                (click)="configForm.patchValue({ capacity: 10000 })"
+                [color]="configForm.get('capacity')?.value === 10000 ? 'primary' : undefined"
               >
                 10,000
               </button>
               <button
                 mat-stroked-button
                 type="button"
-                (click)="configForm.patchValue({ length: 50000 })"
-                [color]="configForm.get('length')?.value === 50000 ? 'primary' : undefined"
+                (click)="configForm.patchValue({ capacity: 50000 })"
+                [color]="configForm.get('capacity')?.value === 50000 ? 'primary' : undefined"
               >
                 50,000
               </button>
               <button
                 mat-stroked-button
                 type="button"
-                (click)="configForm.patchValue({ length: 100000 })"
-                [color]="configForm.get('length')?.value === 100000 ? 'primary' : undefined"
+                (click)="configForm.patchValue({ capacity: 100000 })"
+                [color]="configForm.get('capacity')?.value === 100000 ? 'primary' : undefined"
               >
                 100,000
               </button>
               <button
                 mat-stroked-button
                 type="button"
-                (click)="configForm.patchValue({ length: null })"
-                [color]="!configForm.get('length')?.value ? 'accent' : undefined"
+                (click)="configForm.patchValue({ capacity: null })"
+                [color]="!configForm.get('capacity')?.value ? 'accent' : undefined"
               >
                 Use default
               </button>

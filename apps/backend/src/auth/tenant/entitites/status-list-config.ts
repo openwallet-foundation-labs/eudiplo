@@ -7,19 +7,19 @@ import { IsBoolean, IsIn, IsInt, IsOptional, Min } from "class-validator";
  */
 export class StatusListConfig {
     /**
-     * The length of the status list (number of entries).
-     * If not set, uses the global STATUS_LENGTH environment variable (default: 10000).
+     * The capacity of the status list (number of entries).
+     * If not set, uses the global STATUS_CAPACITY environment variable (default: 10000).
      */
     @ApiPropertyOptional({
         description:
-            "The length of the status list. If not set, uses global STATUS_LENGTH.",
+            "The capacity of the status list. If not set, uses global STATUS_CAPACITY.",
         example: 10000,
         minimum: 100,
     })
     @IsOptional()
     @IsInt()
     @Min(100)
-    length?: number;
+    capacity?: number;
 
     /**
      * The number of bits used per status entry.

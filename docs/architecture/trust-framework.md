@@ -106,10 +106,10 @@ EUDIPLO supports two modes for matching certificates:
 
 ### Via Configuration Import
 
-Create a JSON file in `config/{tenant}/trustlists/`:
+Create a JSON file in `config/{tenant}/trust-lists/`:
 
 ```json
---8<-- "assets/config/root/trustlists/pid.json"
+--8<-- "assets/config/root/trust-lists/pid.json"
 ```
 
 ### Via API
