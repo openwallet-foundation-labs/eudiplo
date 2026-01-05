@@ -164,7 +164,7 @@
                             <a href="#DEFAULT_JWT_SECRET" title="src/auth/auth-validation.schema.ts" ><b>DEFAULT_JWT_SECRET</b>&nbsp;&nbsp;&nbsp;(src/.../auth-validation.schema.ts)</a>
                         </li>
                         <li>
-                            <a href="#DEFAULT_LANG" title="src/issuer/trustlist/trustlist.service.ts" ><b>DEFAULT_LANG</b>&nbsp;&nbsp;&nbsp;(src/.../trustlist.service.ts)</a>
+                            <a href="#DEFAULT_LANG" title="src/issuer/trust-list/trustlist.service.ts" ><b>DEFAULT_LANG</b>&nbsp;&nbsp;&nbsp;(src/.../trustlist.service.ts)</a>
                         </li>
                         <li>
                             <a href="#ECDSA_P256" title="src/crypto/key/cert/cert.service.ts" ><b>ECDSA_P256</b>&nbsp;&nbsp;&nbsp;(src/.../cert.service.ts)</a>
@@ -826,7 +826,7 @@ This decorator can be used to determine the media type of the request.</p>
         </tbody>
     </table>
 </section>
-    <h3>src/issuer/trustlist/trustlist.service.ts</h3>
+    <h3>src/issuer/trust-list/trustlist.service.ts</h3>
     <section data-compodoc="block-properties">
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
@@ -1789,15 +1789,38 @@ Defines the required environment variables and their types.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>Joi.object({
-    STATUS_LENGTH: Joi.number()
+    STATUS_CAPACITY: Joi.number()
         .default(10000)
-        .description(&quot;The length of the status list&quot;)
+        .description(
+            &quot;The default capacity of the status list. Can be overridden per tenant.&quot;,
+        )
         .meta({ group: &quot;status&quot;, order: 10 }),
     STATUS_BITS: Joi.number()
         .valid(1, 2, 4, 8)
         .default(1)
-        .description(&quot;The number of bits used per status entry&quot;)
+        .description(
+            &quot;The default number of bits used per status entry. Can be overridden per tenant.&quot;,
+        )
         .meta({ group: &quot;status&quot;, order: 20 }),
+    STATUS_TTL: Joi.number()
+        .min(60)
+        .default(3600)
+        .description(
+            &quot;The default TTL in seconds for status list JWTs. Verifiers can cache the JWT until expiration. Can be overridden per tenant.&quot;,
+        )
+        .meta({ group: &quot;status&quot;, order: 30 }),
+    STATUS_IMMEDIATE_UPDATE: Joi.boolean()
+        .default(false)
+        .description(
+            &quot;If true, regenerate status list JWT immediately on every status change. If false (default), use lazy regeneration when TTL expires. Can be overridden per tenant.&quot;,
+        )
+        .meta({ group: &quot;status&quot;, order: 40 }),
+    STATUS_ENABLE_AGGREGATION: Joi.boolean()
+        .default(true)
+        .description(
+            &quot;If true (default), include aggregation_uri in status list JWTs. This allows relying parties to pre-fetch all status lists for offline validation per RFC draft-ietf-oauth-status-list Section 9. Can be overridden per tenant.&quot;,
+        )
+        .meta({ group: &quot;status&quot;, order: 50 }),
 })</code>
                     </td>
                 </tr>

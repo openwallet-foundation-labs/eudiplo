@@ -1506,6 +1506,8 @@
       
         
       
+        
+      
     
     
     
@@ -1661,6 +1663,34 @@
     
   
     Sessions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/status-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Status Management
   
 
     
@@ -3236,14 +3266,29 @@ option.</p>
 </thead>
 <tbody>
 <tr>
-<td><code>STATUS_LENGTH</code></td>
+<td><code>STATUS_CAPACITY</code></td>
 <td><code>number</code></td>
-<td>The length of the status list  (default: <code>10000</code>)</td>
+<td>The default capacity of the status list. Can be overridden per tenant.  (default: <code>10000</code>)</td>
 </tr>
 <tr>
 <td><code>STATUS_BITS</code></td>
 <td><code>number</code></td>
-<td>The number of bits used per status entry  (default: <code>1</code>)</td>
+<td>The default number of bits used per status entry. Can be overridden per tenant.  (default: <code>1</code>)</td>
+</tr>
+<tr>
+<td><code>STATUS_TTL</code></td>
+<td><code>number</code></td>
+<td>The default TTL in seconds for status list JWTs. Verifiers can cache the JWT until expiration. Can be overridden per tenant.  (default: <code>3600</code>)</td>
+</tr>
+<tr>
+<td><code>STATUS_IMMEDIATE_UPDATE</code></td>
+<td><code>boolean</code></td>
+<td>If true, regenerate status list JWT immediately on every status change. If false (default), use lazy regeneration when TTL expires. Can be overridden per tenant.  (default: <code>false</code>)</td>
+</tr>
+<tr>
+<td><code>STATUS_ENABLE_AGGREGATION</code></td>
+<td><code>boolean</code></td>
+<td>If true (default), include aggregation_uri in status list JWTs. This allows relying parties to pre-fetch all status lists for offline validation per RFC draft-ietf-oauth-status-list Section 9. Can be overridden per tenant.  (default: <code>true</code>)</td>
 </tr>
 </tbody>
 </table>

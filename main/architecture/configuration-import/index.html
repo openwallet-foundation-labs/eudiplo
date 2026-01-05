@@ -1002,6 +1002,8 @@
       
         
       
+        
+      
     
     
     
@@ -1158,6 +1160,34 @@
     
   
     Sessions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../status-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Status Management
   
 
     
@@ -1376,6 +1406,17 @@
     <span class="md-ellipsis">
       
         Trust List Configurations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#status-list-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Status List Configurations
       
     </span>
   </a>
@@ -2327,6 +2368,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#status-list-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Status List Configurations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#client-configurations" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2753,13 +2805,22 @@ starts. This is particularly useful for:</p>
 <p><strong>Schema Reference</strong>:
 <a href="../../api/openapi/#presentationconfig">Presentation Config API</a></p>
 <h3 id="trust-list-configurations">Trust List Configurations<a class="headerlink" href="#trust-list-configurations" title="Permanent link">¶</a></h3>
-<p><strong>Location</strong>: <code>config/{tenant}/trustlists/*.json</code></p>
+<p><strong>Location</strong>: <code>config/{tenant}/trust-lists/*.json</code></p>
 <p>Define trust lists for credential verification. Trust lists specify which issuers
 and revocation services are trusted when verifying credentials during presentation flows.</p>
 <p><strong>Schema Reference</strong>:
 <a href="../../api/openapi/#trustlist">Trust List API</a></p>
 <p>For detailed information on trust lists and their role in credential verification, see
 <a href="../trust-framework/">Trust Framework</a>.</p>
+<h3 id="status-list-configurations">Status List Configurations<a class="headerlink" href="#status-list-configurations" title="Permanent link">¶</a></h3>
+<p><strong>Location</strong>: <code>config/{tenant}/status-lists/*.json</code></p>
+<p>Pre-create status lists for credential revocation and suspension tracking. Status lists
+are used to track the status of issued credentials without revealing which specific
+credential is being checked.</p>
+<p><strong>Schema Reference</strong>:
+<a href="../../api/openapi/#statuslist">Status List API</a></p>
+<p>For detailed information on status lists and their role in credential lifecycle management,
+see <a href="../status-management/">Status Management</a>.</p>
 <h3 id="client-configurations">Client Configurations<a class="headerlink" href="#client-configurations" title="Permanent link">¶</a></h3>
 <p><strong>Location</strong>: <code>config/{tenant}/clients/*.json</code></p>
 <p>Define client-specific configurations, including client IDs, secrets, and permissions.</p>
@@ -2921,16 +2982,25 @@ The reference to the image is done via the filename, e.g. <code>logo.png</code> 
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>assets/config/
 <a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>├──<span class="w"> </span>acme-corp/
 <a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>│<span class="w">   </span>├──<span class="w"> </span>keys/
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>│<span class="w">   </span>├──<span class="w"> </span>issuance/
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>│<span class="w">   </span>└──<span class="w"> </span>presentation/
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>├──<span class="w"> </span>university-x/
-<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>│<span class="w">   </span>├──<span class="w"> </span>keys/
-<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>│<span class="w">   </span>├──<span class="w"> </span>issuance/
-<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>│<span class="w">   </span>└──<span class="w"> </span>presentation/
-<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>└──<span class="w"> </span>government-agency/
-<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">    </span>├──<span class="w"> </span>keys/
-<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="w">    </span>├──<span class="w"> </span>issuance/
-<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="w">    </span>└──<span class="w"> </span>presentation/
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>│<span class="w">   </span>├──<span class="w"> </span>certs/
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>│<span class="w">   </span>├──<span class="w"> </span>issuance/
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>│<span class="w">   </span>├──<span class="w"> </span>presentation/
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>│<span class="w">   </span>├──<span class="w"> </span>trustlists/
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>│<span class="w">   </span>└──<span class="w"> </span>status-lists/
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>├──<span class="w"> </span>university-x/
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>│<span class="w">   </span>├──<span class="w"> </span>keys/
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>│<span class="w">   </span>├──<span class="w"> </span>certs/
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>│<span class="w">   </span>├──<span class="w"> </span>issuance/
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>│<span class="w">   </span>├──<span class="w"> </span>presentation/
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>│<span class="w">   </span>├──<span class="w"> </span>trustlists/
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>│<span class="w">   </span>└──<span class="w"> </span>status-lists/
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>└──<span class="w"> </span>government-agency/
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="w">    </span>├──<span class="w"> </span>keys/
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a><span class="w">    </span>├──<span class="w"> </span>certs/
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a><span class="w">    </span>├──<span class="w"> </span>issuance/
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a><span class="w">    </span>├──<span class="w"> </span>presentation/
+<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a><span class="w">    </span>├──<span class="w"> </span>trustlists/
+<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a><span class="w">    </span>└──<span class="w"> </span>status-lists/
 </code></pre></div>
 <p>Even when you just have one tenant, use a folder structure to prepare for future
 multi-tenancy.</p>
