@@ -125,6 +125,7 @@ nav:
       - Trust Framework: architecture/trust-framework.md
       - Tenant-Based: architecture/tenant.md
       - Sessions: architecture/sessions.md
+      - Status Management: architecture/status-management.md
       - Webhooks: architecture/webhooks.md
       - Config Import: architecture/configuration-import.md
       - Key Management: architecture/key-management.md

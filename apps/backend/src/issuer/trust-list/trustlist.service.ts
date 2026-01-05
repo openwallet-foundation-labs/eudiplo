@@ -173,7 +173,7 @@ export class TrustListService implements OnApplicationBootstrap {
      */
     async importList() {
         await this.configImportService.importConfigs<TrustListCreateDto>({
-            subfolder: "trustlists",
+            subfolder: "trust-lists",
             fileExtension: ".json",
             validationClass: TrustListCreateDto,
             resourceType: "trustlist",

@@ -138,7 +138,7 @@ Define verification requirements for credential presentations.
 
 ### Trust List Configurations
 
-**Location**: `config/{tenant}/trustlists/*.json`
+**Location**: `config/{tenant}/trust-lists/*.json`
 
 Define trust lists for credential verification. Trust lists specify which issuers
 and revocation services are trusted when verifying credentials during presentation flows.
@@ -148,6 +148,20 @@ and revocation services are trusted when verifying credentials during presentati
 
 For detailed information on trust lists and their role in credential verification, see
 [Trust Framework](./trust-framework.md).
+
+### Status List Configurations
+
+**Location**: `config/{tenant}/status-lists/*.json`
+
+Pre-create status lists for credential revocation and suspension tracking. Status lists
+are used to track the status of issued credentials without revealing which specific
+credential is being checked.
+
+**Schema Reference**:
+[Status List API](../api/openapi.md#statuslist)
+
+For detailed information on status lists and their role in credential lifecycle management,
+see [Status Management](./status-management.md).
 
 ### Client Configurations
 
@@ -338,16 +352,25 @@ Import activities are logged with structured information:
 assets/config/
 ├── acme-corp/
 │   ├── keys/
+│   ├── certs/
 │   ├── issuance/
-│   └── presentation/
+│   ├── presentation/
+│   ├── trustlists/
+│   └── status-lists/
 ├── university-x/
 │   ├── keys/
+│   ├── certs/
 │   ├── issuance/
-│   └── presentation/
+│   ├── presentation/
+│   ├── trustlists/
+│   └── status-lists/
 └── government-agency/
     ├── keys/
+    ├── certs/
     ├── issuance/
-    └── presentation/
+    ├── presentation/
+    ├── trustlists/
+    └── status-lists/
 ```
 
 Even when you just have one tenant, use a folder structure to prepare for future

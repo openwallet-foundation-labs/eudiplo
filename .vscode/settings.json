@@ -74,6 +74,12 @@
       ],
       "url": "./schemas/TrustListCreateDto.schema.json"
     },
+    {
+      "fileMatch": [
+        "/assets/config/*/issuance/status-lists/*.json"
+      ],
+      "url": "./schemas/StatusListImportDto.schema.json"
+    },
   ],
   "sonarlint.connectedMode.project": {
     "connectionId": "eudiplo",

@@ -41,7 +41,7 @@ import { CertUsage } from "../src/crypto/key/entities/cert-usage.entity";
 import { CredentialConfigCreate } from "../src/issuer/configuration/credentials/dto/credential-config-create.dto";
 import { IssuanceDto } from "../src/issuer/configuration/issuance/dto/issuance.dto";
 import { StatusListService } from "../src/issuer/lifecycle/status/status-list.service";
-import { TrustListCreateDto } from "../src/issuer/trustlist/dto/trust-list-create.dto";
+import { TrustListCreateDto } from "../src/issuer/trust-list/dto/trust-list-create.dto";
 import { PresentationRequest } from "../src/verifier/oid4vp/dto/presentation-request.dto";
 import { PresentationConfigCreateDto } from "../src/verifier/presentations/dto/presentation-config-create.dto";
 import { DEVICE_JWK, mdocContext } from "./utils-mdoc";

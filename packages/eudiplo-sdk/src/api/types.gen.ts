@@ -40,11 +40,34 @@ export type SessionStorageConfig = {
   cleanupMode?: "full" | "anonymize";
 };
 
+export type StatusListConfig = {
+  /**
+   * The length of the status list. If not set, uses global STATUS_LENGTH.
+   */
+  length?: number;
+  /**
+   * Bits per status entry: 1 (valid/revoked), 2 (with suspended), 4/8 (extended). If not set, uses global STATUS_BITS.
+   */
+  bits?: 1 | 2 | 4 | 8;
+  /**
+   * TTL in seconds for the status list JWT. If not set, uses global STATUS_TTL.
+   */
+  ttl?: number;
+  /**
+   * If true, regenerate JWT immediately on status changes. If false (default), use lazy regeneration on TTL expiry.
+   */
+  immediateUpdate?: boolean;
+};
+
 export type TenantEntity = {
   /**
    * Session storage configuration for this tenant. Controls TTL and cleanup behavior.
    */
   sessionConfig?: SessionStorageConfig;
+  /**
+   * Status list configuration for this tenant. Only affects newly created status lists.
+   */
+  statusListConfig?: StatusListConfig;
   /**
    * The unique identifier for the tenant.
    */
@@ -102,6 +125,10 @@ export type ClientEntity = {
 };
 
 export type CreateTenantDto = {
+  /**
+   * Status list configuration for this tenant. Only affects newly created status lists.
+   */
+  statusListConfig?: StatusListConfig;
   /**
    * Session storage configuration. Controls TTL and cleanup behavior.
    */
@@ -331,6 +358,117 @@ export type CertUpdateDto = {
    * Description of the key.
    */
   description?: string;
+};
+
+export type StatusListImportDto = {
+  /**
+   * Unique identifier for the status list
+   */
+  id: string;
+  /**
+   * Credential configuration ID to bind this list exclusively to. Leave empty for a shared list.
+   */
+  credentialConfigurationId?: string;
+  /**
+   * Certificate ID to use for signing. Leave empty to use the tenant's default StatusList certificate.
+   */
+  certId?: string;
+  /**
+   * Size of the status list. If not provided, uses tenant or global defaults.
+   */
+  length?: number;
+  /**
+   * Bits per status value. If not provided, uses tenant or global defaults.
+   */
+  bits?: 1 | 2 | 4 | 8;
+};
+
+export type UpdateStatusListConfigDto = {
+  /**
+   * The length of the status list. Set to null to reset to global default.
+   */
+  length?: number;
+  /**
+   * Bits per status entry. Set to null to reset to global default.
+   */
+  bits?: 1 | 2 | 4 | 8;
+  /**
+   * TTL in seconds for the status list JWT. Set to null to reset to global default.
+   */
+  ttl?: number;
+  /**
+   * If true, regenerate JWT on every status change. Set to null to reset to default (false).
+   */
+  immediateUpdate?: boolean;
+};
+
+export type StatusListResponseDto = {
+  /**
+   * Unique identifier for the status list
+   */
+  id: string;
+  /**
+   * The tenant ID
+   */
+  tenantId: string;
+  /**
+   * Credential configuration ID this list is bound to. Null means shared.
+   */
+  credentialConfigurationId?: string;
+  /**
+   * Certificate ID used for signing. Null means using the tenant's default.
+   */
+  certId?: string;
+  /**
+   * Bits per status value
+   */
+  bits: 1 | 2 | 4 | 8;
+  /**
+   * Total capacity of the status list
+   */
+  capacity: number;
+  /**
+   * Number of entries in use
+   */
+  usedEntries: number;
+  /**
+   * Number of available entries
+   */
+  availableEntries: number;
+  /**
+   * The public URI for this status list
+   */
+  uri: string;
+  /**
+   * Creation timestamp
+   */
+  createdAt: string;
+  /**
+   * JWT expiration timestamp. Null if JWT has not been generated yet.
+   */
+  expiresAt?: string;
+};
+
+export type CreateStatusListDto = {
+  /**
+   * Credential configuration ID to bind this list exclusively to. Leave empty for a shared list.
+   */
+  credentialConfigurationId?: string;
+  /**
+   * Certificate ID to use for signing. Leave empty to use the tenant's default StatusList certificate.
+   */
+  certId?: string;
+};
+
+export type UpdateStatusListDto = {
+  /**
+   * Credential configuration ID to bind this list exclusively to. Set to null to make this a shared list.
+   */
+  credentialConfigurationId?: string;
+  /**
+   * Certificate ID to use for signing. Set to null to use the tenant's default StatusList certificate.
+   */
+  certId?: string;
 };
 
 export type AuthorizeQueries = {
@@ -1630,9 +1768,10 @@ export type StatusListControllerGetListData = {
   body?: never;
   path: {
     tenantId: string;
+    listId: string;
   };
   query?: never;
-  url: "/{tenantId}/status-management/status-list";
+  url: "/{tenantId}/status-management/status-list/{listId}";
 };
 
 export type StatusListControllerGetListResponses = {
@@ -1641,6 +1780,157 @@ export type StatusListControllerGetListResponses = {
 
 export type StatusListControllerGetListResponse =
   StatusListControllerGetListResponses[keyof StatusListControllerGetListResponses];
+
+export type StatusListConfigControllerResetConfigData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/status-list-config";
+};
+
+export type StatusListConfigControllerResetConfigResponses = {
+  /**
+   * Configuration reset successfully
+   */
+  204: void;
+};
+
+export type StatusListConfigControllerResetConfigResponse =
+  StatusListConfigControllerResetConfigResponses[keyof StatusListConfigControllerResetConfigResponses];
+
+export type StatusListConfigControllerGetConfigData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/status-list-config";
+};
+
+export type StatusListConfigControllerGetConfigResponses = {
+  /**
+   * The status list configuration
+   */
+  200: StatusListConfig;
+};
+
+export type StatusListConfigControllerGetConfigResponse =
+  StatusListConfigControllerGetConfigResponses[keyof StatusListConfigControllerGetConfigResponses];
+
+export type StatusListConfigControllerUpdateConfigData = {
+  body: UpdateStatusListConfigDto;
+  path?: never;
+  query?: never;
+  url: "/status-list-config";
+};
+
+export type StatusListConfigControllerUpdateConfigResponses = {
+  /**
+   * The updated status list configuration
+   */
+  200: StatusListConfig;
+};
+
+export type StatusListConfigControllerUpdateConfigResponse =
+  StatusListConfigControllerUpdateConfigResponses[keyof StatusListConfigControllerUpdateConfigResponses];
+
+export type StatusListManagementControllerGetListsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/status-lists";
+};
+
+export type StatusListManagementControllerGetListsResponses = {
+  /**
+   * List of status lists
+   */
+  200: Array<StatusListResponseDto>;
+};
+
+export type StatusListManagementControllerGetListsResponse =
+  StatusListManagementControllerGetListsResponses[keyof StatusListManagementControllerGetListsResponses];
+
+export type StatusListManagementControllerCreateListData = {
+  body: CreateStatusListDto;
+  path?: never;
+  query?: never;
+  url: "/status-lists";
+};
+
+export type StatusListManagementControllerCreateListResponses = {
+  /**
+   * The created status list
+   */
+  201: StatusListResponseDto;
+};
+
+export type StatusListManagementControllerCreateListResponse =
+  StatusListManagementControllerCreateListResponses[keyof StatusListManagementControllerCreateListResponses];
+
+export type StatusListManagementControllerDeleteListData = {
+  body?: never;
+  path: {
+    /**
+     * The status list ID
+     */
+    listId: string;
+  };
+  query?: never;
+  url: "/status-lists/{listId}";
+};
+
+export type StatusListManagementControllerDeleteListResponses = {
+  /**
+   * Status list deleted successfully
+   */
+  204: void;
+};
+
+export type StatusListManagementControllerDeleteListResponse =
+  StatusListManagementControllerDeleteListResponses[keyof StatusListManagementControllerDeleteListResponses];
+
+export type StatusListManagementControllerGetListData = {
+  body?: never;
+  path: {
+    /**
+     * The status list ID
+     */
+    listId: string;
+  };
+  query?: never;
+  url: "/status-lists/{listId}";
+};
+
+export type StatusListManagementControllerGetListResponses = {
+  /**
+   * The status list
+   */
+  200: StatusListResponseDto;
+};
+
+export type StatusListManagementControllerGetListResponse =
+  StatusListManagementControllerGetListResponses[keyof StatusListManagementControllerGetListResponses];
+
+export type StatusListManagementControllerUpdateListData = {
+  body: UpdateStatusListDto;
+  path: {
+    /**
+     * The status list ID
+     */
+    listId: string;
+  };
+  query?: never;
+  url: "/status-lists/{listId}";
+};
+
+export type StatusListManagementControllerUpdateListResponses = {
+  /**
+   * The updated status list
+   */
+  200: StatusListResponseDto;
+};
+
+export type StatusListManagementControllerUpdateListResponse =
+  StatusListManagementControllerUpdateListResponses[keyof StatusListManagementControllerUpdateListResponses];
 
 export type SessionControllerGetAllSessionsData = {
   body?: never;

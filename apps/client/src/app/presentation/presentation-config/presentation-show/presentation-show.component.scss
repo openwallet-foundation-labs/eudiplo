@@ -216,3 +216,63 @@ mat-expansion-panel {
     margin: 0;
   }
 }
+
+// Trusted authorities styling
+.trusted-authorities {
+  margin-top: 16px;
+  padding: 12px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+
+  h5 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: #2e7d32;
+    }
+  }
+
+  .authority-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 8px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .authority-type {
+      background-color: #e8f5e9 !important;
+      color: #2e7d32 !important;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .authority-values {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .authority-value {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 12px;
+      background-color: #fff;
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: 1px solid #e0e0e0;
+      word-break: break-all;
+    }
+  }
+}

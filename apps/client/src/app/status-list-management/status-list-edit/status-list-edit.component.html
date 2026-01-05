@@ -1,0 +1,210 @@
+<div fxLayout="column" fxFlex fxLayoutGap="24px">
+  <!-- Header -->
+  <div fxLayout="row" fxLayoutAlign="space-between center">
+    <h2>{{ isEditMode ? 'Edit' : 'Create' }} Status List</h2>
+    <button matIconButton routerLink="/status-lists" matTooltip="Back">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-container" fxLayout="row" fxLayoutAlign="center center">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" fxLayout="column" fxLayoutGap="24px">
+      <!-- Status List Info Card (Edit mode only) -->
+      @if (isEditMode && statusList) {
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon class="title-icon">info</mat-icon>
+              Status List Information
+            </mat-card-title>
+            <mat-card-subtitle>Read-only details about this status list</mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div fxLayout="column" fxLayoutGap="16px">
+              <!-- ID and URI -->
+              <div fxLayout="row" fxLayoutGap="16px" fxLayout.lt-md="column">
+                <mat-form-field appearance="outline" fxFlex>
+                  <mat-label>ID</mat-label>
+                  <input matInput [value]="statusList.id" readonly title="Status List ID" />
+                  <mat-icon matSuffix>tag</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" fxFlex>
+                  <mat-label>URI</mat-label>
+                  <input matInput [value]="statusList.uri" readonly title="Status List URI" />
+                  <button
+                    type="button"
+                    matSuffix
+                    matIconButton
+                    (click)="copyUri()"
+                    matTooltip="Copy URI"
+                  >
+                    <mat-icon>content_copy</mat-icon>
+                  </button>
+                </mat-form-field>
+              </div>
+
+              <!-- Usage Stats -->
+              <div class="stats-section">
+                <div fxLayout="row" fxLayoutGap="24px" fxLayout.lt-sm="column">
+                  <div class="stat-item" fxFlex>
+                    <span class="stat-label">Capacity</span>
+                    <span class="stat-value">{{ formatCapacity(statusList.capacity) }}</span>
+                  </div>
+                  <div class="stat-item" fxFlex>
+                    <span class="stat-label">Used</span>
+                    <span class="stat-value">{{ statusList.usedEntries | number }}</span>
+                  </div>
+                  <div class="stat-item" fxFlex>
+                    <span class="stat-label">Available</span>
+                    <span class="stat-value">{{ statusList.availableEntries | number }}</span>
+                  </div>
+                  <div class="stat-item" fxFlex>
+                    <span class="stat-label">Bits per Status</span>
+                    <span class="stat-value">{{ statusList.bits }}</span>
+                  </div>
+                </div>
+
+                <div class="usage-bar">
+                  <div fxLayout="row" fxLayoutAlign="space-between center">
+                    <span class="usage-label">Usage</span>
+                    <span class="usage-percentage"
+                      >{{ getUsagePercentage() | number: '1.0-1' }}%</span
+                    >
+                  </div>
+                  <mat-progress-bar
+                    [value]="getUsagePercentage()"
+                    [color]="getUsageColor()"
+                  ></mat-progress-bar>
+                </div>
+              </div>
+
+              <!-- JWT Status -->
+              <div class="jwt-status-section">
+                <span class="stat-label">JWT Status</span>
+                <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+                  @switch (getExpirationStatus()) {
+                    @case ('valid') {
+                      <mat-chip class="status-valid">
+                        <mat-icon>check_circle</mat-icon>
+                        {{ getExpirationLabel() }}
+                      </mat-chip>
+                      <span class="muted">
+                        Expires {{ statusList.expiresAt | date: 'medium' }}
+                      </span>
+                    }
+                    @case ('expiring') {
+                      <mat-chip class="status-expiring">
+                        <mat-icon>schedule</mat-icon>
+                        {{ getExpirationLabel() }}
+                      </mat-chip>
+                      <span class="muted">
+                        Expires {{ statusList.expiresAt | date: 'medium' }}
+                      </span>
+                    }
+                    @case ('expired') {
+                      <mat-chip class="status-expired">
+                        <mat-icon>refresh</mat-icon>
+                        {{ getExpirationLabel() }}
+                      </mat-chip>
+                      <span class="muted">Will regenerate on next request</span>
+                    }
+                    @default {
+                      <span class="muted">JWT not generated yet</span>
+                    }
+                  }
+                </div>
+              </div>
+
+              <!-- Timestamps -->
+              <div fxLayout="row" fxLayoutGap="16px" fxLayout.lt-md="column">
+                <mat-form-field appearance="outline" fxFlex>
+                  <mat-label>Created</mat-label>
+                  <input
+                    matInput
+                    [value]="statusList.createdAt | date: 'medium'"
+                    readonly
+                    title="Creation date"
+                  />
+                  <mat-icon matSuffix>calendar_today</mat-icon>
+                </mat-form-field>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      <!-- Binding Configuration Card -->
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="title-icon">link</mat-icon>
+            Binding Configuration
+          </mat-card-title>
+          <mat-card-subtitle>
+            Configure which credential configuration and certificate this status list uses
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div fxLayout="column" fxLayoutGap="16px">
+            <mat-form-field appearance="outline">
+              <mat-label>Credential Configuration</mat-label>
+              <mat-select formControlName="credentialConfigurationId">
+                <mat-option [value]="null">Shared (no binding)</mat-option>
+                @for (config of credentialConfigs; track config.id) {
+                  <mat-option [value]="config.id">{{ config.id }}</mat-option>
+                }
+              </mat-select>
+              <mat-icon matSuffix>badge</mat-icon>
+              <mat-hint>
+                Bind this list exclusively to a credential configuration, or leave as shared
+              </mat-hint>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Certificate</mat-label>
+              <mat-select formControlName="certId">
+                <mat-option [value]="null">Default (auto-managed)</mat-option>
+                @for (cert of certificates; track cert.id) {
+                  <mat-option [value]="cert.id">{{ cert.id }}</mat-option>
+                }
+              </mat-select>
+              <mat-icon matSuffix>security</mat-icon>
+              <mat-hint
+                >Pin a specific certificate for signing, or use the tenant's default</mat-hint
+              >
+            </mat-form-field>
+
+            @if (certificates.length === 0) {
+              <div class="info-box">
+                <mat-icon>info</mat-icon>
+                <span>
+                  No certificates with <strong>statusList</strong> usage found. The tenant's default
+                  certificate will be used for signing.
+                </span>
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Actions -->
+      <div fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
+        <button mat-button type="button" routerLink="/status-lists">Cancel</button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="isSaving">
+          @if (isSaving) {
+            <mat-spinner diameter="20"></mat-spinner>
+          } @else {
+            {{ isEditMode ? 'Save Changes' : 'Create Status List' }}
+          }
+        </button>
+      </div>
+    </form>
+  }
+</div>

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpdateStatusListConfigDto.schema.json",
+  "title": "UpdateStatusListConfigDto",
+  "type": "object",
+  "properties": {
+    "length": {
+      "type": "number",
+      "nullable": true,
+      "description": "The length of the status list. Set to null to reset to global default.",
+      "minimum": 100,
+      "example": 10000
+    },
+    "bits": {
+      "type": "number",
+      "nullable": true,
+      "description": "Bits per status entry. Set to null to reset to global default.",
+      "enum": [
+        1,
+        2,
+        4,
+        8
+      ]
+    }
+  }
+}
