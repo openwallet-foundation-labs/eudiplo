@@ -184,9 +184,9 @@ configuration and reaches capacity:
 3. If no shared lists have capacity, a new shared list is created
 
 !!! tip "Pre-creating Bound Lists"
-    If you require all credentials of a specific type to use dedicated status
-    lists, pre-create multiple bound lists with sufficient capacity, or monitor
-    usage and create new bound lists before reaching capacity.
+If you require all credentials of a specific type to use dedicated status
+lists, pre-create multiple bound lists with sufficient capacity, or monitor
+usage and create new bound lists before reaching capacity.
 
 ### Binding to Credential Configurations
 
