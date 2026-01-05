@@ -1210,10 +1210,66 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#configuration" class="md-nav__link">
+  <a href="#session-cleanup" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Configuration
+        Session Cleanup
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Session Cleanup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cleanup-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cleanup Modes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#per-tenant-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-Tenant Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Per-Tenant Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#global-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Configuration
       
     </span>
   </a>
@@ -1855,10 +1911,66 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#configuration" class="md-nav__link">
+  <a href="#session-cleanup" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Configuration
+        Session Cleanup
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Session Cleanup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cleanup-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cleanup Modes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#per-tenant-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-Tenant Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Per-Tenant Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#global-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Configuration
       
     </span>
   </a>
@@ -1910,11 +2022,52 @@ to each tenant. In case for a presentation during issuance, both actions are
 handled in the same session. Sessions are stored in the database and can be
 managed via the <code>/sessions</code> endpoint. You can retrieve a specific session via
 <code>/sessions/{id}</code>.</p>
-<p>To tidy up old sessions, an interval is set to delete older session. The default
-values can be configured.</p>
-<p>Other elements as persisted status mapping (the binding between a session id and
-a status list reference) are not deleted with this process.</p>
-<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">¶</a></h2>
+<h2 id="session-cleanup">Session Cleanup<a class="headerlink" href="#session-cleanup" title="Permanent link">¶</a></h2>
+<p>To tidy up old sessions, an interval is set to clean up older sessions. The
+cleanup behavior can be configured both globally (via environment variables) and
+per-tenant (via the Session Config API or the client UI).</p>
+<p>Other elements like persisted status mapping (the binding between a session ID
+and a status list reference) are not deleted with this process.</p>
+<h3 id="cleanup-modes">Cleanup Modes<a class="headerlink" href="#cleanup-modes" title="Permanent link">¶</a></h3>
+<p>EUDIPLO supports two cleanup modes:</p>
+<ul>
+<li><strong>Full</strong> (default): Deletes the entire session record from the database.</li>
+<li><strong>Anonymize</strong>: Keeps session metadata (ID, <strong>original status</strong>, timestamps)
+  but removes personal data including credentials, credential payloads, auth
+  queries, offers, and request objects.</li>
+</ul>
+<p>Anonymize mode is useful for audit and compliance scenarios where you need to
+retain evidence that a session occurred without storing personal data. The
+original session status is preserved, so historical statistics remain accurate.
+For real-time monitoring, use the Prometheus metrics exposed by EUDIPLO.</p>
+<h2 id="per-tenant-configuration">Per-Tenant Configuration<a class="headerlink" href="#per-tenant-configuration" title="Permanent link">¶</a></h2>
+<p>Each tenant can override the global session settings via the <code>/session-config</code>
+endpoint or through the client UI under <strong>Session Management &gt; Session Config</strong>.</p>
+<p>For the full API specification, see the <a href="../../api/#tag/session-config">Session Config API</a>.</p>
+<h3 id="configuration-options">Configuration Options<a class="headerlink" href="#configuration-options" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ttlSeconds</code></td>
+<td><code>number</code></td>
+<td>Time-to-live in seconds (minimum 60). Omit to use global default.</td>
+</tr>
+<tr>
+<td><code>cleanupMode</code></td>
+<td><code>string</code></td>
+<td>Either <code>full</code> or <code>anonymize</code>. Omit to use global default.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="global-configuration">Global Configuration<a class="headerlink" href="#global-configuration" title="Permanent link">¶</a></h2>
+<p>The global defaults are configured via environment variables:</p>
 <table>
 <thead>
 <tr>
@@ -1932,7 +2085,12 @@ a status list reference) are not deleted with this process.</p>
 <tr>
 <td><code>SESSION_TTL</code></td>
 <td><code>number</code></td>
-<td>Time to live for sessions in seconds  (default: <code>86400</code>)</td>
+<td>Default time to live for sessions in seconds. Can be overridden per tenant.  (default: <code>86400</code>)</td>
+</tr>
+<tr>
+<td><code>SESSION_CLEANUP_MODE</code></td>
+<td><code>string</code></td>
+<td>Default cleanup mode when sessions expire. 'full' deletes the entire session, 'anonymize' keeps metadata but removes personal data. Can be overridden per tenant.  (default: <code>full</code>)</td>
 </tr>
 </tbody>
 </table>

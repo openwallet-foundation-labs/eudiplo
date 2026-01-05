@@ -145,6 +145,22 @@
     <h3 id="index">Index</h3>
     <table class="table table-sm table-bordered index-table">
         <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Readonly</span>
+                                <a href="#logger" >logger</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
 
                 <tr>
                     <td class="col-md-4">
@@ -182,6 +198,7 @@
                                 <a href="#setState" >setState</a>
                             </li>
                             <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#tidyUpSessions" >tidyUpSessions</a>
                             </li>
                         </ul>
@@ -202,12 +219,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(sessionRepository: <a href="../entitys/Session.html" target="_self">Repository&lt;Session&gt;</a>, configService: ConfigService, schedulerRegistry: SchedulerRegistry, sessionsCounter: Gauge<string>)</code>
+<code>constructor(sessionRepository: <a href="../entitys/Session.html" target="_self">Repository&lt;Session&gt;</a>, tenantRepository: <a href="../entitys/TenantEntity.html" target="_self">Repository&lt;TenantEntity&gt;</a>, configService: ConfigService, schedulerRegistry: SchedulerRegistry, sessionsCounter: Gauge<string>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="12" class="link-to-prism">src/session/session.service.ts:12</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/session/session.service.ts:15</a></div>
                             </td>
                         </tr>
 
@@ -229,6 +246,18 @@
                                                   
                                                         <td>
                                                                         <code><a href="../entitys/Session.html" target="_self" >Repository&lt;Session&gt;</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>tenantRepository</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../entitys/TenantEntity.html" target="_self" >Repository&lt;TenantEntity&gt;</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -306,8 +335,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="127"
-                                    class="link-to-prism">src/session/session.service.ts:127</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="133"
+                                    class="link-to-prism">src/session/session.service.ts:133</a></div>
                         </td>
                     </tr>
 
@@ -389,8 +418,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="81"
-                                    class="link-to-prism">src/session/session.service.ts:81</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="87"
+                                    class="link-to-prism">src/session/session.service.ts:87</a></div>
                         </td>
                     </tr>
 
@@ -458,8 +487,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="176"
-                                    class="link-to-prism">src/session/session.service.ts:176</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="255"
+                                    class="link-to-prism">src/session/session.service.ts:255</a></div>
                         </td>
                     </tr>
 
@@ -539,8 +568,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="147"
-                                    class="link-to-prism">src/session/session.service.ts:147</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="153"
+                                    class="link-to-prism">src/session/session.service.ts:153</a></div>
                         </td>
                     </tr>
 
@@ -608,8 +637,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="135"
-                                    class="link-to-prism">src/session/session.service.ts:135</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="141"
+                                    class="link-to-prism">src/session/session.service.ts:141</a></div>
                         </td>
                     </tr>
 
@@ -677,8 +706,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="156"
-                                    class="link-to-prism">src/session/session.service.ts:156</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="162"
+                                    class="link-to-prism">src/session/session.service.ts:162</a></div>
                         </td>
                     </tr>
 
@@ -748,8 +777,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="27"
-                                    class="link-to-prism">src/session/session.service.ts:27</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="33"
+                                    class="link-to-prism">src/session/session.service.ts:33</a></div>
                         </td>
                     </tr>
 
@@ -793,8 +822,8 @@ This will run every hour by default, but can be configured via the <code>SESSION
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="101"
-                                    class="link-to-prism">src/session/session.service.ts:101</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="107"
+                                    class="link-to-prism">src/session/session.service.ts:107</a></div>
                         </td>
                     </tr>
 
@@ -860,6 +889,7 @@ This will run every hour by default, but can be configured via the <code>SESSION
                 <td class="col-md-4">
                     <a name="tidyUpSessions"></a>
                     <span class="name">
+                            <span class="modifier">Async</span>
                         <span ><b>tidyUpSessions</b></span>
                         <a href="#tidyUpSessions"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -867,22 +897,28 @@ This will run every hour by default, but can be configured via the <code>SESSION
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>tidyUpSessions()</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>tidyUpSessions()</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="163"
-                                    class="link-to-prism">src/session/session.service.ts:163</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="172"
+                                    class="link-to-prism">src/session/session.service.ts:172</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Tidy up sessions that are older than 1 day.</p>
+                        <div class="io-description"><p>Tidy up sessions based on per-tenant configuration.
+Each tenant can configure their own TTL and cleanup mode.</p>
+<ul>
+<li>&#39;full&#39; mode: Deletes the entire session record</li>
+<li>&#39;anonymize&#39; mode: Keeps session metadata but removes personal data</li>
+</ul>
 </div>
 
                         <div class="io-description">
@@ -894,12 +930,51 @@ This will run every hour by default, but can be configured via the <code>SESSION
         </tbody>
     </table>
 </section>
+            <section data-compodoc="block-properties">
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="logger"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Readonly</span>
+                        <span ><b>logger</b></span>
+                        <a href="#logger"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>new Logger(SessionService.name)</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/session/session.service.ts:15</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+</section>
 
     </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, OnApplicationBootstrap } from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, Logger, OnApplicationBootstrap } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { SchedulerRegistry } from &quot;@nestjs/schedule&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
@@ -907,13 +982,19 @@ import { InjectMetric } from &quot;@willsoto/nestjs-prometheus/dist/injector&quo
 import { Gauge } from &quot;prom-client&quot;;
 import { DeepPartial, FindOptionsWhere, LessThan, Repository } from &quot;typeorm&quot;;
 import { QueryDeepPartialEntity } from &quot;typeorm/query-builder/QueryPartialEntity.js&quot;;
+import { SessionCleanupMode } from &quot;../auth/tenant/entitites/session-storage-config&quot;;
+import { TenantEntity } from &quot;../auth/tenant/entitites/tenant.entity&quot;;
 import { Session, SessionStatus } from &quot;./entities/session.entity&quot;;
 
 @Injectable()
 export class SessionService implements OnApplicationBootstrap {
+    private readonly logger &#x3D; new Logger(SessionService.name);
+
     constructor(
         @InjectRepository(Session)
         private readonly sessionRepository: Repository&lt;Session&gt;,
+        @InjectRepository(TenantEntity)
+        private readonly tenantRepository: Repository&lt;TenantEntity&gt;,
         private readonly configService: ConfigService,
         private readonly schedulerRegistry: SchedulerRegistry,
         @InjectMetric(&quot;sessions&quot;)
@@ -1059,13 +1140,86 @@ export class SessionService implements OnApplicationBootstrap {
     }
 
     /**
-     * Tidy up sessions that are older than 1 day.
+     * Tidy up sessions based on per-tenant configuration.
+     * Each tenant can configure their own TTL and cleanup mode.
+     * - &#x27;full&#x27; mode: Deletes the entire session record
+     * - &#x27;anonymize&#x27; mode: Keeps session metadata but removes personal data
      */
-    tidyUpSessions() {
-        const ttl &#x3D; this.configService.getOrThrow&lt;number&gt;(&quot;SESSION_TTL&quot;) * 1000;
-        return this.sessionRepository.delete({
-            createdAt: LessThan(new Date(Date.now() - ttl)),
-        });
+    async tidyUpSessions() {
+        const defaultTtlSeconds &#x3D;
+            this.configService.getOrThrow&lt;number&gt;(&quot;SESSION_TTL&quot;);
+        const defaultCleanupMode &#x3D; this.configService.getOrThrow&lt;string&gt;(
+            &quot;SESSION_CLEANUP_MODE&quot;,
+        );
+
+        // Get all tenants to check for custom session configs
+        const tenants &#x3D; await this.tenantRepository.find();
+
+        // Process each tenant with their specific config
+        for (const tenant of tenants) {
+            const ttlSeconds &#x3D;
+                tenant.sessionConfig?.ttlSeconds ?? defaultTtlSeconds;
+            const cutoffDate &#x3D; new Date(Date.now() - ttlSeconds * 1000);
+            const cleanupMode &#x3D;
+                tenant.sessionConfig?.cleanupMode ?? defaultCleanupMode;
+
+            if (cleanupMode &#x3D;&#x3D;&#x3D; SessionCleanupMode.Anonymize) {
+                // Anonymize: Keep session metadata (including original status) but remove personal data
+                // We use a raw query to only target sessions that still have personal data
+                const result &#x3D; await this.sessionRepository
+                    .createQueryBuilder()
+                    .update()
+                    .set({
+                        // Clear personal data fields
+                        credentials: undefined,
+                        credentialPayload: undefined,
+                        auth_queries: undefined,
+                        offer: undefined,
+                        requestObject: undefined,
+                    })
+                    .where(&quot;tenantId &#x3D; :tenantId&quot;, { tenantId: tenant.id })
+                    .andWhere(&quot;createdAt &lt; :cutoffDate&quot;, { cutoffDate })
+                    // Only anonymize sessions that still have personal data
+                    .andWhere(
+                        &quot;(credentials IS NOT NULL OR credentialPayload IS NOT NULL OR auth_queries IS NOT NULL OR offer IS NOT NULL OR requestObject IS NOT NULL)&quot;,
+                    )
+                    .execute();
+                if (result.affected &amp;&amp; result.affected &gt; 0) {
+                    this.logger.log(
+                        &#x60;Anonymized ${result.affected} sessions for tenant ${tenant.id}&#x60;,
+                    );
+                }
+            } else {
+                // Full delete (default behavior)
+                const result &#x3D; await this.sessionRepository.delete({
+                    tenantId: tenant.id,
+                    createdAt: LessThan(cutoffDate),
+                });
+                if (result.affected &amp;&amp; result.affected &gt; 0) {
+                    this.logger.log(
+                        &#x60;Deleted ${result.affected} sessions for tenant ${tenant.id}&#x60;,
+                    );
+                }
+            }
+        }
+
+        // Also clean up sessions for tenants that no longer exist (orphaned sessions)
+        const tenantIds &#x3D; tenants.map((t) &#x3D;&gt; t.id);
+        if (tenantIds.length &gt; 0) {
+            const orphanedResult &#x3D; await this.sessionRepository
+                .createQueryBuilder()
+                .delete()
+                .where(&quot;tenantId NOT IN (:...tenantIds)&quot;, { tenantIds })
+                .andWhere(&quot;createdAt &lt; :cutoff&quot;, {
+                    cutoff: new Date(Date.now() - defaultTtlSeconds * 1000),
+                })
+                .execute();
+            if (orphanedResult.affected &amp;&amp; orphanedResult.affected &gt; 0) {
+                this.logger.log(
+                    &#x60;Deleted ${orphanedResult.affected} orphaned sessions&#x60;,
+                );
+            }
+        }
     }
 
     /**

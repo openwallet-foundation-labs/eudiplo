@@ -462,13 +462,16 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="modules/SessionModule.html" data-type="entity-link" >SessionModule</a>
                                     <li class="chapter inner">
                                         <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ?
-                                            'data-bs-target="#controllers-links-module-SessionModule-5c3d18086fe63379cbad4cb4cc9ee74f77850c31238c5a475e85e0c98d324546c24f4172d8888342a36d48d9ef0a3f544bbf8c4ca0adc3d99054ee497df60dcf"' : 'data-bs-target="#xs-controllers-links-module-SessionModule-5c3d18086fe63379cbad4cb4cc9ee74f77850c31238c5a475e85e0c98d324546c24f4172d8888342a36d48d9ef0a3f544bbf8c4ca0adc3d99054ee497df60dcf"' }>
+                                            'data-bs-target="#controllers-links-module-SessionModule-4f8ae19e6fb493e40f66334591e06af02e2b94527bee5f11b7d8f045a06111fc3b3b11af6852ab4ea9f48c8bcc93c67230e5750098d1ae1e792fc8357d44fb67"' : 'data-bs-target="#xs-controllers-links-module-SessionModule-4f8ae19e6fb493e40f66334591e06af02e2b94527bee5f11b7d8f045a06111fc3b3b11af6852ab4ea9f48c8bcc93c67230e5750098d1ae1e792fc8357d44fb67"' }>
                                             <span class="icon ion-md-swap"></span>
                                             <span>Controllers</span>
                                             <span class="icon ion-ios-arrow-down"></span>
                                         </div>
-                                        <ul class="links collapse" ${ isNormalMode ? 'id="controllers-links-module-SessionModule-5c3d18086fe63379cbad4cb4cc9ee74f77850c31238c5a475e85e0c98d324546c24f4172d8888342a36d48d9ef0a3f544bbf8c4ca0adc3d99054ee497df60dcf"' :
-                                            'id="xs-controllers-links-module-SessionModule-5c3d18086fe63379cbad4cb4cc9ee74f77850c31238c5a475e85e0c98d324546c24f4172d8888342a36d48d9ef0a3f544bbf8c4ca0adc3d99054ee497df60dcf"' }>
+                                        <ul class="links collapse" ${ isNormalMode ? 'id="controllers-links-module-SessionModule-4f8ae19e6fb493e40f66334591e06af02e2b94527bee5f11b7d8f045a06111fc3b3b11af6852ab4ea9f48c8bcc93c67230e5750098d1ae1e792fc8357d44fb67"' :
+                                            'id="xs-controllers-links-module-SessionModule-4f8ae19e6fb493e40f66334591e06af02e2b94527bee5f11b7d8f045a06111fc3b3b11af6852ab4ea9f48c8bcc93c67230e5750098d1ae1e792fc8357d44fb67"' }>
+                                            <li class="link">
+                                                <a href="controllers/SessionConfigController.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >SessionConfigController</a>
+                                            </li>
                                             <li class="link">
                                                 <a href="controllers/SessionController.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >SessionController</a>
                                             </li>
@@ -476,13 +479,16 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                     </li>
                                 <li class="chapter inner">
                                     <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ?
-                                        'data-bs-target="#injectables-links-module-SessionModule-5c3d18086fe63379cbad4cb4cc9ee74f77850c31238c5a475e85e0c98d324546c24f4172d8888342a36d48d9ef0a3f544bbf8c4ca0adc3d99054ee497df60dcf"' : 'data-bs-target="#xs-injectables-links-module-SessionModule-5c3d18086fe63379cbad4cb4cc9ee74f77850c31238c5a475e85e0c98d324546c24f4172d8888342a36d48d9ef0a3f544bbf8c4ca0adc3d99054ee497df60dcf"' }>
+                                        'data-bs-target="#injectables-links-module-SessionModule-4f8ae19e6fb493e40f66334591e06af02e2b94527bee5f11b7d8f045a06111fc3b3b11af6852ab4ea9f48c8bcc93c67230e5750098d1ae1e792fc8357d44fb67"' : 'data-bs-target="#xs-injectables-links-module-SessionModule-4f8ae19e6fb493e40f66334591e06af02e2b94527bee5f11b7d8f045a06111fc3b3b11af6852ab4ea9f48c8bcc93c67230e5750098d1ae1e792fc8357d44fb67"' }>
                                         <span class="icon ion-md-arrow-round-down"></span>
                                         <span>Injectables</span>
                                         <span class="icon ion-ios-arrow-down"></span>
                                     </div>
-                                    <ul class="links collapse" ${ isNormalMode ? 'id="injectables-links-module-SessionModule-5c3d18086fe63379cbad4cb4cc9ee74f77850c31238c5a475e85e0c98d324546c24f4172d8888342a36d48d9ef0a3f544bbf8c4ca0adc3d99054ee497df60dcf"' :
-                                        'id="xs-injectables-links-module-SessionModule-5c3d18086fe63379cbad4cb4cc9ee74f77850c31238c5a475e85e0c98d324546c24f4172d8888342a36d48d9ef0a3f544bbf8c4ca0adc3d99054ee497df60dcf"' }>
+                                    <ul class="links collapse" ${ isNormalMode ? 'id="injectables-links-module-SessionModule-4f8ae19e6fb493e40f66334591e06af02e2b94527bee5f11b7d8f045a06111fc3b3b11af6852ab4ea9f48c8bcc93c67230e5750098d1ae1e792fc8357d44fb67"' :
+                                        'id="xs-injectables-links-module-SessionModule-4f8ae19e6fb493e40f66334591e06af02e2b94527bee5f11b7d8f045a06111fc3b3b11af6852ab4ea9f48c8bcc93c67230e5750098d1ae1e792fc8357d44fb67"' }>
+                                        <li class="link">
+                                            <a href="injectables/SessionConfigService.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >SessionConfigService</a>
+                                        </li>
                                         <li class="link">
                                             <a href="injectables/SessionService.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >SessionService</a>
                                         </li>
@@ -917,6 +923,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/SchemaResponse.html" data-type="entity-link" >SchemaResponse</a>
                             </li>
                             <li class="link">
+                                <a href="classes/SessionStorageConfig.html" data-type="entity-link" >SessionStorageConfig</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/StatusUpdateDto.html" data-type="entity-link" >StatusUpdateDto</a>
                             </li>
                             <li class="link">
@@ -936,6 +945,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             </li>
                             <li class="link">
                                 <a href="classes/UpdateKeyDto.html" data-type="entity-link" >UpdateKeyDto</a>
+                            </li>
+                            <li class="link">
+                                <a href="classes/UpdateSessionConfigDto.html" data-type="entity-link" >UpdateSessionConfigDto</a>
                             </li>
                             <li class="link">
                                 <a href="classes/ValidationErrorFilter.html" data-type="entity-link" >ValidationErrorFilter</a>

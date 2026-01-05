@@ -1742,8 +1742,17 @@ Defines the required environment variables and their types.</p>
         .meta({ group: &quot;session&quot;, order: 10 }),
     SESSION_TTL: Joi.number()
         .default(24 * 60 * 60)
-        .description(&quot;Time to live for sessions in seconds&quot;)
+        .description(
+            &quot;Default time to live for sessions in seconds. Can be overridden per tenant.&quot;,
+        )
         .meta({ group: &quot;session&quot;, order: 20 }),
+    SESSION_CLEANUP_MODE: Joi.string()
+        .valid(&quot;full&quot;, &quot;anonymize&quot;)
+        .default(&quot;full&quot;)
+        .description(
+            &quot;Default cleanup mode when sessions expire. &#x27;full&#x27; deletes the entire session, &#x27;anonymize&#x27; keeps metadata but removes personal data. Can be overridden per tenant.&quot;,
+        )
+        .meta({ group: &quot;session&quot;, order: 30 }),
 })</code>
                     </td>
                 </tr>
