@@ -57,7 +57,8 @@ export class DashboardService {
 
       // Keys and certs require issuance:manage OR presentation:manage
       const canManageKeysAndCerts =
-        this.jwtService.hasRole('issuance:manage') || this.jwtService.hasRole('presentation:manage');
+        this.jwtService.hasRole('issuance:manage') ||
+        this.jwtService.hasRole('presentation:manage');
 
       if (canManageKeysAndCerts) {
         promises.push(keyControllerGetKeys());
