@@ -4,5 +4,5 @@ import { ClientEntity } from "../entities/client.entity";
 export class CreateClientDto extends OmitType(ClientEntity, [
     "tenant",
     "tenantId",
-    "secret"
+    "secret",
 ] as const) {}

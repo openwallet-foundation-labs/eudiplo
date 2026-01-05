@@ -4,6 +4,7 @@ import { IsOptional, IsString, ValidateNested } from "class-validator";
 import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
 import { ClientEntity } from "../../client/entities/client.entity";
 import { SessionStorageConfig } from "./session-storage-config";
+import { StatusListConfig } from "./status-list-config";
 
 export type TenantStatus = "active";
 
@@ -54,6 +55,21 @@ export class TenantEntity {
     @Type(() => SessionStorageConfig)
     @Column("json", { nullable: true })
     sessionConfig?: SessionStorageConfig | null;
+
+    /**
+     * Status list configuration for this tenant.
+     * Controls the size and bits per status entry for newly created status lists.
+     */
+    @ApiPropertyOptional({
+        description:
+            "Status list configuration for this tenant. Only affects newly created status lists.",
+        type: () => StatusListConfig,
+    })
+    @IsOptional()
+    @ValidateNested()
+    @Type(() => StatusListConfig)
+    @Column("json", { nullable: true })
+    statusListConfig?: StatusListConfig | null;
 
     /**
      * The clients associated with the tenant.

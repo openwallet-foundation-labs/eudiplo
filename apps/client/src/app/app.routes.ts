@@ -268,6 +268,50 @@ export const routes: Routes = [
     ],
   },
   {
+    path: 'status-lists',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: getRole('issuance:manage') },
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./status-list-management/status-list-list/status-list-list.component').then(
+            (m) => m.StatusListListComponent
+          ),
+      },
+      {
+        path: 'config',
+        loadComponent: () =>
+          import('./status-list-config/status-list-config.component').then(
+            (m) => m.StatusListConfigComponent
+          ),
+      },
+      {
+        path: 'create',
+        loadComponent: () =>
+          import('./status-list-management/status-list-edit/status-list-edit.component').then(
+            (m) => m.StatusListEditComponent
+          ),
+      },
+      {
+        path: ':listId',
+        loadComponent: () =>
+          import('./status-list-management/status-list-edit/status-list-edit.component').then(
+            (m) => m.StatusListEditComponent
+          ),
+      },
+    ],
+  },
+  {
+    path: 'status-list-config',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: getRole('issuance:manage') },
+    loadComponent: () =>
+      import('./status-list-config/status-list-config.component').then(
+        (m) => m.StatusListConfigComponent
+      ),
+  },
+  {
     path: 'session-management',
     canActivate: [AuthGuard],
     children: [

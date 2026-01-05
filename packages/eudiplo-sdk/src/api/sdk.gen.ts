@@ -118,8 +118,26 @@ import type {
   SessionControllerGetSessionResponses,
   SessionControllerRevokeAllData,
   SessionControllerRevokeAllResponses,
+  StatusListConfigControllerGetConfigData,
+  StatusListConfigControllerGetConfigResponses,
+  StatusListConfigControllerResetConfigData,
+  StatusListConfigControllerResetConfigResponses,
+  StatusListConfigControllerUpdateConfigData,
+  StatusListConfigControllerUpdateConfigResponses,
   StatusListControllerGetListData,
   StatusListControllerGetListResponses,
+  StatusListControllerGetStatusListAggregationData,
+  StatusListControllerGetStatusListAggregationResponses,
+  StatusListManagementControllerCreateListData,
+  StatusListManagementControllerCreateListResponses,
+  StatusListManagementControllerDeleteListData,
+  StatusListManagementControllerDeleteListResponses,
+  StatusListManagementControllerGetListData,
+  StatusListManagementControllerGetListResponses,
+  StatusListManagementControllerGetListsData,
+  StatusListManagementControllerGetListsResponses,
+  StatusListManagementControllerUpdateListData,
+  StatusListManagementControllerUpdateListResponses,
   StorageControllerDownloadData,
   StorageControllerDownloadResponses,
   StorageControllerUploadData,
@@ -650,7 +668,7 @@ export const certControllerExportConfig = <ThrowOnError extends boolean = true>(
   });
 
 /**
- * Get the status list
+ * Get the JWT for a specific status list.
  */
 export const statusListControllerGetList = <
   ThrowOnError extends boolean = true,
@@ -661,7 +679,201 @@ export const statusListControllerGetList = <
     StatusListControllerGetListResponses,
     unknown,
     ThrowOnError
-  >({ url: "/{tenantId}/status-management/status-list", ...options });
+  >({ url: "/{tenantId}/status-management/status-list/{listId}", ...options });
+
+/**
+ * Get all status list URIs
+ *
+ * Returns a list of all status list token URIs for the tenant. This allows relying parties to pre-fetch all status lists for offline validation. See RFC draft-ietf-oauth-status-list Section 9.
+ */
+export const statusListControllerGetStatusListAggregation = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<
+    StatusListControllerGetStatusListAggregationData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).get<
+    StatusListControllerGetStatusListAggregationResponses,
+    unknown,
+    ThrowOnError
+  >({
+    url: "/{tenantId}/status-management/status-list-aggregation",
+    ...options,
+  });
+
+/**
+ * Reset status list configuration
+ *
+ * Reset the status list configuration to global defaults. Only affects newly created status lists.
+ */
+export const statusListConfigControllerResetConfig = <
+  ThrowOnError extends boolean = true,
+>(
+  options?: Options<StatusListConfigControllerResetConfigData, ThrowOnError>,
+) =>
+  (options?.client ?? client).delete<
+    StatusListConfigControllerResetConfigResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/status-list-config",
+    ...options,
+  });
+
+/**
+ * Get status list configuration
+ *
+ * Returns the current status list configuration for the tenant. Fields not set use global defaults.
+ */
+export const statusListConfigControllerGetConfig = <
+  ThrowOnError extends boolean = true,
+>(
+  options?: Options<StatusListConfigControllerGetConfigData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    StatusListConfigControllerGetConfigResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/status-list-config",
+    ...options,
+  });
+
+/**
+ * Update status list configuration
+ *
+ * Update the status list configuration. Changes only affect newly created status lists. Set a field to null to reset to global default.
+ */
+export const statusListConfigControllerUpdateConfig = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<StatusListConfigControllerUpdateConfigData, ThrowOnError>,
+) =>
+  (options.client ?? client).put<
+    StatusListConfigControllerUpdateConfigResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/status-list-config",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * List all status lists
+ *
+ * Returns all status lists for the tenant, including their capacity and usage.
+ */
+export const statusListManagementControllerGetLists = <
+  ThrowOnError extends boolean = true,
+>(
+  options?: Options<StatusListManagementControllerGetListsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    StatusListManagementControllerGetListsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/status-lists",
+    ...options,
+  });
+
+/**
+ * Create a status list
+ *
+ * Creates a new status list. Optionally bind it to a specific credential configuration and/or certificate.
+ */
+export const statusListManagementControllerCreateList = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<StatusListManagementControllerCreateListData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    StatusListManagementControllerCreateListResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/status-lists",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete a status list
+ *
+ * Delete a status list. Only allowed if no credentials are using it.
+ */
+export const statusListManagementControllerDeleteList = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<StatusListManagementControllerDeleteListData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    StatusListManagementControllerDeleteListResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/status-lists/{listId}",
+    ...options,
+  });
+
+/**
+ * Get a status list
+ *
+ * Returns details for a specific status list.
+ */
+export const statusListManagementControllerGetList = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<StatusListManagementControllerGetListData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    StatusListManagementControllerGetListResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/status-lists/{listId}",
+    ...options,
+  });
+
+/**
+ * Update a status list
+ *
+ * Update a status list's credential configuration binding and/or certificate.
+ */
+export const statusListManagementControllerUpdateList = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<StatusListManagementControllerUpdateListData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    StatusListManagementControllerUpdateListResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/status-lists/{listId}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
 
 /**
  * Retrieves all sessions.

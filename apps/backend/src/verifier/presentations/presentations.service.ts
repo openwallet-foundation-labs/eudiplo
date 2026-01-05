@@ -9,7 +9,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
 import { decodeJwt } from "jose";
 import { Repository } from "typeorm";
-import { ServiceTypeIdentifier } from "../../issuer/trustlist/trustlist.service";
+import { ServiceTypeIdentifier } from "../../issuer/trust-list/trustlist.service";
 import { Session } from "../../session/entities/session.entity";
 import { ConfigImportService } from "../../shared/utils/config-import/config-import.service";
 import { VerifierOptions } from "../resolver/trust/types";

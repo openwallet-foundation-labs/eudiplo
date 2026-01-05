@@ -72,15 +72,65 @@ export const SessionStorageConfigSchema = {
   },
 } as const;
 
+export const StatusListConfigSchema = {
+  type: "object",
+  properties: {
+    capacity: {
+      type: "number",
+      description:
+        "The capacity of the status list. If not set, uses global STATUS_CAPACITY.",
+      example: 10000,
+      minimum: 100,
+    },
+    bits: {
+      type: "number",
+      description:
+        "Bits per status entry: 1 (valid/revoked), 2 (with suspended), 4/8 (extended). If not set, uses global STATUS_BITS.",
+      enum: [1, 2, 4, 8],
+      default: 1,
+    },
+    ttl: {
+      type: "number",
+      description:
+        "TTL in seconds for the status list JWT. If not set, uses global STATUS_TTL.",
+      example: 3600,
+      minimum: 60,
+    },
+    immediateUpdate: {
+      type: "boolean",
+      description:
+        "If true, regenerate JWT immediately on status changes. If false (default), use lazy regeneration on TTL expiry.",
+      default: false,
+    },
+    enableAggregation: {
+      type: "boolean",
+      description:
+        "If true, include aggregation_uri in status list JWTs for pre-fetching support (default: true).",
+      default: true,
+    },
+  },
+} as const;
+
 export const TenantEntitySchema = {
   type: "object",
   properties: {
     sessionConfig: {
+      nullable: true,
       description:
         "Session storage configuration for this tenant. Controls TTL and cleanup behavior.",
       allOf: [
         {
           $ref: "#/components/schemas/SessionStorageConfig",
+        },
+      ],
+    },
+    statusListConfig: {
+      nullable: true,
+      description:
+        "Status list configuration for this tenant. Only affects newly created status lists.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/StatusListConfig",
         },
       ],
     },
@@ -161,6 +211,16 @@ export const ClientEntitySchema = {
 export const CreateTenantDtoSchema = {
   type: "object",
   properties: {
+    statusListConfig: {
+      nullable: true,
+      description:
+        "Status list configuration for this tenant. Only affects newly created status lists.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/StatusListConfig",
+        },
+      ],
+    },
     sessionConfig: {
       description:
         "Session storage configuration. Controls TTL and cleanup behavior.",
@@ -548,6 +608,237 @@ export const CertUpdateDtoSchema = {
     },
   },
   required: ["certUsageTypes", "usages"],
+} as const;
+
+export const StatusListImportDtoSchema = {
+  type: "object",
+  properties: {
+    id: {
+      type: "string",
+      description: "Unique identifier for the status list",
+      example: "mdl-status-list",
+    },
+    credentialConfigurationId: {
+      type: "string",
+      nullable: true,
+      description:
+        "Credential configuration ID to bind this list exclusively to. Leave empty for a shared list.",
+      example: "org.iso.18013.5.1.mDL",
+    },
+    certId: {
+      type: "string",
+      description:
+        "Certificate ID to use for signing. Leave empty to use the tenant's default StatusList certificate.",
+      example: "my-status-list-cert",
+    },
+    capacity: {
+      type: "number",
+      description:
+        "Capacity of the status list. If not provided, uses tenant or global defaults.",
+      minimum: 100,
+      example: 10000,
+    },
+    bits: {
+      type: "number",
+      description:
+        "Bits per status value. If not provided, uses tenant or global defaults.",
+      enum: [1, 2, 4, 8],
+      example: 1,
+    },
+  },
+  required: ["id"],
+} as const;
+
+export const StatusListAggregationDtoSchema = {
+  type: "object",
+  properties: {
+    status_lists: {
+      description: "Array of status list token URIs",
+      example: [
+        "https://example.com/tenant-123/status-management/status-list/list-1",
+        "https://example.com/tenant-123/status-management/status-list/list-2",
+      ],
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
+  },
+  required: ["status_lists"],
+} as const;
+
+export const UpdateStatusListConfigDtoSchema = {
+  type: "object",
+  properties: {
+    capacity: {
+      type: "number",
+      nullable: true,
+      description:
+        "The capacity of the status list. Set to null to reset to global default.",
+      minimum: 100,
+      example: 10000,
+    },
+    bits: {
+      type: "number",
+      nullable: true,
+      description:
+        "Bits per status entry. Set to null to reset to global default.",
+      enum: [1, 2, 4, 8],
+    },
+    ttl: {
+      type: "number",
+      nullable: true,
+      description:
+        "TTL in seconds for the status list JWT. Set to null to reset to global default.",
+      minimum: 60,
+      example: 3600,
+    },
+    immediateUpdate: {
+      type: "boolean",
+      nullable: true,
+      description:
+        "If true, regenerate JWT on every status change. Set to null to reset to default (false).",
+    },
+    enableAggregation: {
+      type: "boolean",
+      nullable: true,
+      description:
+        "If true, include aggregation_uri in status list JWTs for pre-fetching support. Set to null to reset to default (true).",
+    },
+  },
+} as const;
+
+export const StatusListResponseDtoSchema = {
+  type: "object",
+  properties: {
+    id: {
+      type: "string",
+      description: "Unique identifier for the status list",
+      example: "550e8400-e29b-41d4-a716-446655440000",
+    },
+    tenantId: {
+      type: "string",
+      description: "The tenant ID",
+      example: "root",
+    },
+    credentialConfigurationId: {
+      type: "string",
+      nullable: true,
+      description:
+        "Credential configuration ID this list is bound to. Null means shared.",
+      example: "org.iso.18013.5.1.mDL",
+    },
+    certId: {
+      type: "string",
+      nullable: true,
+      description:
+        "Certificate ID used for signing. Null means using the tenant's default.",
+      example: "my-status-list-cert",
+    },
+    bits: {
+      type: "number",
+      description: "Bits per status value",
+      enum: [1, 2, 4, 8],
+      example: 1,
+    },
+    capacity: {
+      type: "number",
+      description: "Total capacity of the status list",
+      example: 10000,
+    },
+    usedEntries: {
+      type: "number",
+      description: "Number of entries in use",
+      example: 150,
+    },
+    availableEntries: {
+      type: "number",
+      description: "Number of available entries",
+      example: 9850,
+    },
+    uri: {
+      type: "string",
+      description: "The public URI for this status list",
+      example:
+        "https://example.com/root/status-management/status-list/550e8400-e29b-41d4-a716-446655440000",
+    },
+    createdAt: {
+      format: "date-time",
+      type: "string",
+      description: "Creation timestamp",
+      example: "2024-01-15T10:30:00.000Z",
+    },
+    expiresAt: {
+      format: "date-time",
+      type: "string",
+      nullable: true,
+      description:
+        "JWT expiration timestamp. Null if JWT has not been generated yet.",
+      example: "2024-01-15T11:30:00.000Z",
+    },
+  },
+  required: [
+    "id",
+    "tenantId",
+    "bits",
+    "capacity",
+    "usedEntries",
+    "availableEntries",
+    "uri",
+    "createdAt",
+  ],
+} as const;
+
+export const CreateStatusListDtoSchema = {
+  type: "object",
+  properties: {
+    credentialConfigurationId: {
+      type: "string",
+      description:
+        "Credential configuration ID to bind this list exclusively to. Leave empty for a shared list.",
+      example: "org.iso.18013.5.1.mDL",
+    },
+    certId: {
+      type: "string",
+      description:
+        "Certificate ID to use for signing. Leave empty to use the tenant's default StatusList certificate.",
+      example: "my-status-list-cert",
+    },
+    bits: {
+      type: "number",
+      description:
+        "Bits per status value. More bits allow more status states. Defaults to tenant configuration.",
+      enum: [1, 2, 4, 8],
+      example: 1,
+    },
+    capacity: {
+      type: "number",
+      description:
+        "Maximum number of credential status entries. Defaults to tenant configuration.",
+      minimum: 1000,
+      example: 100000,
+    },
+  },
+} as const;
+
+export const UpdateStatusListDtoSchema = {
+  type: "object",
+  properties: {
+    credentialConfigurationId: {
+      type: "string",
+      nullable: true,
+      description:
+        "Credential configuration ID to bind this list exclusively to. Set to null to make this a shared list.",
+      example: "org.iso.18013.5.1.mDL",
+    },
+    certId: {
+      type: "string",
+      nullable: true,
+      description:
+        "Certificate ID to use for signing. Set to null to use the tenant's default StatusList certificate.",
+      example: "my-status-list-cert",
+    },
+  },
 } as const;
 
 export const AuthorizeQueriesSchema = {

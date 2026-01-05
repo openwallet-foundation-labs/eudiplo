@@ -40,6 +40,11 @@ import { IssuanceConfigController } from "./issuance/issuance-config.controller"
         SdjwtvcIssuerService,
         MdocIssuerService,
     ],
-    exports: [IssuanceService, CredentialConfigService, CredentialsService],
+    exports: [
+        IssuanceService,
+        CredentialConfigService,
+        CredentialsService,
+        StatusListModule,
+    ],
 })
 export class ConfigurationModule {}

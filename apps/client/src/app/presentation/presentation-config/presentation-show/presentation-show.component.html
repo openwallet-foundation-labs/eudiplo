@@ -173,6 +173,26 @@
                         <pre class="config-value">{{ formatJsonValue(cred.claims) }}</pre>
                       </mat-expansion-panel>
                     }
+                    @if (cred.trusted_authorities && cred.trusted_authorities.length > 0) {
+                      <div class="trusted-authorities">
+                        <h5>
+                          <mat-icon>verified_user</mat-icon>
+                          Trusted Authorities
+                        </h5>
+                        @for (auth of cred.trusted_authorities; track $index) {
+                          <div class="authority-item">
+                            <mat-chip-set>
+                              <mat-chip class="authority-type">{{ auth.type }}</mat-chip>
+                            </mat-chip-set>
+                            <div class="authority-values">
+                              @for (value of auth.values; track value) {
+                                <code class="authority-value">{{ value }}</code>
+                              }
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    }
                   </mat-card-content>
                 </mat-card>
               }

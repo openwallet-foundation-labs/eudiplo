@@ -8,6 +8,7 @@ import { CertService } from "../../../crypto/key/cert/cert.service";
 import { KeyService } from "../../../crypto/key/key.service";
 import { ConfigImportService } from "../../../shared/utils/config-import/config-import.service";
 import { FilesService } from "../../../storage/files.service";
+import { StatusListService } from "../../lifecycle/status/status-list.service";
 import { CredentialConfigService } from "../credentials/credential-config/credential-config.service";
 import { DisplayInfo } from "./dto/display.dto";
 import { IssuanceDto } from "./dto/issuance.dto";
@@ -28,6 +29,7 @@ export class IssuanceService implements OnApplicationBootstrap {
         @InjectRepository(IssuanceConfig)
         private readonly issuanceConfigRepo: Repository<IssuanceConfig>,
         private readonly credentialsConfigService: CredentialConfigService,
+        private readonly statusListService: StatusListService,
         private readonly logger: PinoLogger,
         private readonly filesService: FilesService,
         private readonly configImportService: ConfigImportService,
@@ -44,6 +46,8 @@ export class IssuanceService implements OnApplicationBootstrap {
         // import first the issuance config to make sure it exists when credentials should be imported
         await this.import();
         await this.credentialsConfigService.import();
+        // import status lists after credentials (they may reference credential config IDs)
+        await this.statusListService.import();
     }
 
     /**

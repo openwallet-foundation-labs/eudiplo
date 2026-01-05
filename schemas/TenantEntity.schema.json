@@ -5,10 +5,20 @@
   "type": "object",
   "properties": {
     "sessionConfig": {
+      "nullable": true,
       "description": "Session storage configuration for this tenant. Controls TTL and cleanup behavior.",
       "allOf": [
         {
           "$ref": "./SessionStorageConfig.schema.json"
+        }
+      ]
+    },
+    "statusListConfig": {
+      "nullable": true,
+      "description": "Status list configuration for this tenant. Only affects newly created status lists.",
+      "allOf": [
+        {
+          "$ref": "./StatusListConfig.schema.json"
         }
       ]
     },

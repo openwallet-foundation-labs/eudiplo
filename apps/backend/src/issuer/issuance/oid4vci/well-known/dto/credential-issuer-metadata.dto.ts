@@ -39,4 +39,9 @@ export class CredentialIssuerMetadataDto {
      * The URL of the preferred authorization server.
      */
     authorization_server!: string;
+    /**
+     * The URL of the status list aggregation endpoint.
+     * Per RFC 9528 Section 9.2, enables verifiers to pre-fetch all status lists for offline validation.
+     */
+    status_list_aggregation_endpoint?: string;
 }

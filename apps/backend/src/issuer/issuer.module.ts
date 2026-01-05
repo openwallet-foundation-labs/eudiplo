@@ -4,7 +4,7 @@ import { setGlobalConfig } from "@openid4vc/openid4vci";
 import { ConfigurationModule } from "./configuration/configuration.module";
 import { IssuanceModule } from "./issuance/issuance.module";
 import { LifecycleModule } from "./lifecycle/lifecycle.module";
-import { TrustListModule } from "./trustlist/trustlist.module";
+import { TrustListModule } from "./trust-list/trustlist.module";
 
 /**
  * Issuer Module - Root module for credential issuance functionality

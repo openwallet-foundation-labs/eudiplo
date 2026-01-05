@@ -117,13 +117,17 @@ export class CredentialConfigService {
                     (config as CredentialConfig).cert = cert;
                 }
 
-                //check if status revocation is enabled and if yes, the revocation list exists
+                //check if status revocation is enabled and if yes, ensure a status list is available
                 if (config.statusManagement) {
-                    await this.statusListService
-                        .hasStillFreeEntries(tenantId)
-                        .catch(() =>
-                            this.statusListService.createNewList(tenantId),
+                    const hasEntries =
+                        await this.statusListService.hasStillFreeEntries(
+                            tenantId,
+                            config.id,
                         );
+                    if (!hasEntries) {
+                        // Create a new shared list if no available list exists
+                        await this.statusListService.createNewList(tenantId);
+                    }
                 }
 
                 await this.store(tenantId, config);
