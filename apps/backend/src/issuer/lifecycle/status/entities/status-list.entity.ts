@@ -74,7 +74,7 @@ export class StatusListEntity {
      * When the current JWT expires (based on TTL).
      * Used for lazy regeneration - JWT is regenerated on request when expired.
      */
-    @Column("timestamp", { nullable: true })
+    @Column({ nullable: true })
     expiresAt?: Date;
 
     /**
