@@ -85,8 +85,8 @@ export class CertificateEditComponent implements OnInit {
 
     // Initialize form with optional keyId field for standalone mode
     this.form = new FormGroup({
-      keyId: new FormControl(this.keyId || '', this.isStandaloneMode ? Validators.required : []),
-      certUsageTypes: new FormControl('', Validators.required),
+      keyId: new FormControl(this.keyId || ''),
+      certUsageTypes: new FormControl([], Validators.required),
       description: new FormControl(),
       crt: new FormControl(),
     });
