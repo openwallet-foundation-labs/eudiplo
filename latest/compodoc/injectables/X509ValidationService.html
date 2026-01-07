@@ -172,10 +172,6 @@
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#pathMatchesAnchors" >pathMatchesAnchors</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Async</span>
                                 <a href="#pathMatchesTrustedEntities" >pathMatchesTrustedEntities</a>
                             </li>
                         </ul>
@@ -218,8 +214,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="83"
-                                    class="link-to-prism">src/verifier/resolver/trust/x509-validation.service.ts:83</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="68"
+                                    class="link-to-prism">src/verifier/resolver/trust/x509-validation.service.ts:68</a></div>
                         </td>
                     </tr>
 
@@ -334,8 +330,8 @@ Returns path leaf..anchor if successful.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="97"
-                                    class="link-to-prism">src/verifier/resolver/trust/x509-validation.service.ts:97</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="82"
+                                    class="link-to-prism">src/verifier/resolver/trust/x509-validation.service.ts:82</a></div>
                         </td>
                     </tr>
 
@@ -403,8 +399,8 @@ Returns path leaf..anchor if successful.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="178"
-                                    class="link-to-prism">src/verifier/resolver/trust/x509-validation.service.ts:178</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="95"
+                                    class="link-to-prism">src/verifier/resolver/trust/x509-validation.service.ts:95</a></div>
                         </td>
                     </tr>
 
@@ -491,8 +487,8 @@ but keeping it explicit is sometimes useful).</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="69"
-                                    class="link-to-prism">src/verifier/resolver/trust/x509-validation.service.ts:69</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="54"
+                                    class="link-to-prism">src/verifier/resolver/trust/x509-validation.service.ts:54</a></div>
                         </td>
                     </tr>
 
@@ -558,8 +554,8 @@ but keeping it explicit is sometimes useful).</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="65"
-                                    class="link-to-prism">src/verifier/resolver/trust/x509-validation.service.ts:65</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="50"
+                                    class="link-to-prism">src/verifier/resolver/trust/x509-validation.service.ts:50</a></div>
                         </td>
                     </tr>
 
@@ -609,118 +605,6 @@ but keeping it explicit is sometimes useful).</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="pathMatchesAnchors"></a>
-                    <span class="name">
-                            <span class="modifier">Async</span>
-                        <span ><b>pathMatchesAnchors</b></span>
-                        <a href="#pathMatchesAnchors"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>pathMatchesAnchors(path: x509.X509Certificate[], anchors: x509.X509Certificate[], pinnedMode: "leaf" | "pathEnd")</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="115"
-                                    class="link-to-prism">src/verifier/resolver/trust/x509-validation.service.ts:115</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Policy:</p>
-<ul>
-<li>If anchor is CA: require path terminates in that anchor</li>
-<li>If anchor is not CA: treat as pin<ul>
-<li>pinnedMode &quot;leaf&quot;: leaf equals pinned cert</li>
-<li>pinnedMode &quot;pathEnd&quot;: path end equals pinned cert</li>
-</ul>
-</li>
-</ul>
-<p>Returns the matched trust anchor info, or null if no match.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Default value</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>path</td>
-                                            <td>
-                                                        <code>x509.X509Certificate[]</code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-                                            <td>
-                                            </td>
-
-                                        </tr>
-                                        <tr>
-                                                <td>anchors</td>
-                                            <td>
-                                                        <code>x509.X509Certificate[]</code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-                                            <td>
-                                            </td>
-
-                                        </tr>
-                                        <tr>
-                                                <td>pinnedMode</td>
-                                            <td>
-                                                        <code>&quot;leaf&quot; | &quot;pathEnd&quot;</code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-                                            <td>
-                                                    <code>&quot;leaf&quot;</code>
-                                            </td>
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#MatchedTrustAnchor" target="_self" >Promise&lt;MatchedTrustAnchor | null&gt;</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
                     <a name="pathMatchesTrustedEntities"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
@@ -739,8 +623,8 @@ but keeping it explicit is sometimes useful).</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="195"
-                                    class="link-to-prism">src/verifier/resolver/trust/x509-validation.service.ts:195</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="112"
+                                    class="link-to-prism">src/verifier/resolver/trust/x509-validation.service.ts:112</a></div>
                         </td>
                     </tr>
 
@@ -864,21 +748,6 @@ function certFromValue(val: string | ArrayBuffer): x509.X509Certificate {
 }
 
 /**
- * Information about the matched trust anchor from certificate chain validation.
- * @deprecated Use MatchedTrustedEntity instead
- */
-export type MatchedTrustAnchor &#x3D; {
-    /** The matched anchor certificate */
-    anchor: x509.X509Certificate;
-    /** Thumbprint of the anchor certificate */
-    thumbprint: string;
-    /** Whether the anchor is a CA certificate */
-    isCa: boolean;
-    /** The mode that matched (ca, leaf-pinned, pathEnd-pinned) */
-    matchMode: &quot;ca&quot; | &quot;leaf-pinned&quot; | &quot;pathEnd-pinned&quot;;
-};
-
-/**
  * Information about a matched TrustedEntity from certificate chain validation.
  * Includes the matched issuance certificate and the associated revocation certificate
  * from the same entity.
@@ -941,74 +810,6 @@ export class X509ValidationService {
         if (!bc) return false;
         // Peculiar returns parsed extension object with &quot;ca&quot; boolean for BasicConstraints
         return Boolean((bc as any).ca);
-    }
-
-    /**
-     * Policy:
-     * - If anchor is CA: require path terminates in that anchor
-     * - If anchor is not CA: treat as pin
-     *   - pinnedMode &quot;leaf&quot;: leaf equals pinned cert
-     *   - pinnedMode &quot;pathEnd&quot;: path end equals pinned cert
-     *
-     * Returns the matched trust anchor info, or null if no match.
-     */
-    async pathMatchesAnchors(
-        path: x509.X509Certificate[],
-        anchors: x509.X509Certificate[],
-        pinnedMode: &quot;leaf&quot; | &quot;pathEnd&quot; &#x3D; &quot;leaf&quot;,
-    ): Promise&lt;MatchedTrustAnchor | null&gt; {
-        const leaf &#x3D; path[0];
-        const end &#x3D; path.at(-1)!;
-
-        // Build anchorByThumb with async getThumbprint
-        const anchorThumbPairs &#x3D; await Promise.all(
-            anchors.map(
-                async (a) &#x3D;&gt;
-                    [arrayBufferToHex(await a.getThumbprint()), a] as [
-                        string,
-                        x509.X509Certificate,
-                    ],
-            ),
-        );
-        const anchorByThumb &#x3D; new Map(anchorThumbPairs);
-
-        // CA anchors: end-of-path must be CA anchor
-        const endThumb &#x3D; arrayBufferToHex(await end.getThumbprint());
-        if (
-            anchorByThumb.has(endThumb) &amp;&amp;
-            this.isCaCert(anchorByThumb.get(endThumb)!)
-        ) {
-            return {
-                anchor: anchorByThumb.get(endThumb)!,
-                thumbprint: endThumb,
-                isCa: true,
-                matchMode: &quot;ca&quot;,
-            };
-        }
-
-        // pinned anchors (non-CA)
-        const leafThumb &#x3D; arrayBufferToHex(await leaf.getThumbprint());
-        for (const a of anchors) {
-            if (this.isCaCert(a)) continue;
-            const aThumb &#x3D; arrayBufferToHex(await a.getThumbprint());
-            if (pinnedMode &#x3D;&#x3D;&#x3D; &quot;leaf&quot; &amp;&amp; aThumb &#x3D;&#x3D;&#x3D; leafThumb) {
-                return {
-                    anchor: a,
-                    thumbprint: aThumb,
-                    isCa: false,
-                    matchMode: &quot;leaf-pinned&quot;,
-                };
-            }
-            if (pinnedMode &#x3D;&#x3D;&#x3D; &quot;pathEnd&quot; &amp;&amp; aThumb &#x3D;&#x3D;&#x3D; endThumb) {
-                return {
-                    anchor: a,
-                    thumbprint: aThumb,
-                    isCa: false,
-                    matchMode: &quot;pathEnd-pinned&quot;,
-                };
-            }
-        }
-        return null;
     }
 
     /**

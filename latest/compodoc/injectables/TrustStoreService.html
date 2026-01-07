@@ -201,7 +201,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="30" class="link-to-prism">src/verifier/resolver/trust/trust-store.service.ts:30</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="21" class="link-to-prism">src/verifier/resolver/trust/trust-store.service.ts:21</a></div>
                             </td>
                         </tr>
 
@@ -278,8 +278,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="37"
-                                    class="link-to-prism">src/verifier/resolver/trust/trust-store.service.ts:37</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="28"
+                                    class="link-to-prism">src/verifier/resolver/trust/trust-store.service.ts:28</a></div>
                         </td>
                     </tr>
 
@@ -374,7 +374,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="30" class="link-to-prism">src/verifier/resolver/trust/trust-store.service.ts:30</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="21" class="link-to-prism">src/verifier/resolver/trust/trust-store.service.ts:21</a></div>
                         </td>
                     </tr>
 
@@ -407,7 +407,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="29" class="link-to-prism">src/verifier/resolver/trust/trust-store.service.ts:29</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="20" class="link-to-prism">src/verifier/resolver/trust/trust-store.service.ts:20</a></div>
                         </td>
                     </tr>
 
@@ -422,17 +422,10 @@
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, Logger } from &quot;@nestjs/common&quot;;
 import { decodeJwt } from &quot;jose&quot;;
+import { LoTE } from &quot;../../../issuer/trust-list/dto/types&quot;;
 import { LoteParserService } from &quot;./lote-parser.service&quot;;
 import { TrustListJwtService } from &quot;./trustlist-jwt.service&quot;;
 import { TrustedEntity, TrustListSource } from &quot;./types&quot;;
-
-/**
- * @deprecated Use TrustedEntity instead
- */
-export type TrustAnchorEntry &#x3D; {
-    serviceTypeIdentifier: string;
-    certValue: string; // PEM or base64/DER
-};
 
 /**
  * Built trust store with TrustedEntities preserving service groupings.
@@ -442,8 +435,6 @@ export type BuiltTrustStore &#x3D; {
     nextUpdate?: string;
     /** TrustedEntities with their services (issuance + revocation) grouped */
     entities: TrustedEntity[];
-    /** @deprecated Flattened anchors for backwards compatibility */
-    anchors: TrustAnchorEntry[];
 };
 
 @Injectable()
@@ -464,17 +455,16 @@ export class TrustStoreService {
             return this.cache;
 
         const entities: TrustedEntity[] &#x3D; [];
-        const anchors: TrustAnchorEntry[] &#x3D; [];
         let nextUpdate: string | undefined;
 
         for (const ref of source.lotes) {
             const jwt &#x3D; await this.trustListJwt.fetchJwt(ref.url);
             await this.trustListJwt.verifyTrustListJwt(ref, jwt); // hook
-            const decoded &#x3D; decodeJwt(jwt);
+            const decoded &#x3D; decodeJwt&lt;LoTE&gt;(jwt);
 
-            let parsed &#x3D; this.loteParser.parseV2(decoded);
+            let parsed &#x3D; this.loteParser.parse(decoded);
             if (source.acceptedServiceTypes) {
-                parsed &#x3D; this.loteParser.filterEntitiesByServiceTypes(
+                parsed &#x3D; this.loteParser.filterByServiceTypes(
                     parsed,
                     source.acceptedServiceTypes,
                 );
@@ -486,26 +476,17 @@ export class TrustStoreService {
             for (const entity of parsed.entities) {
                 entities.push(entity);
             }
-
-            // Also populate flat anchors for backwards compatibility
-            for (const svc of parsed.services) {
-                anchors.push({
-                    serviceTypeIdentifier: svc.serviceTypeIdentifier,
-                    certValue: svc.certValue,
-                });
-            }
         }
 
         const store: BuiltTrustStore &#x3D; {
             fetchedAt: Date.now(),
             nextUpdate,
             entities,
-            anchors,
         };
         this.cache &#x3D; store;
 
         this.logger.debug(
-            &#x60;Built trust store with ${entities.length} trusted entit(y/ies), ${anchors.length} anchor cert(s)&#x60;,
+            &#x60;Built trust store with ${entities.length} trusted entit${entities.length &#x3D;&#x3D;&#x3D; 1 ? &quot;y&quot; : &quot;ies&quot;}&#x60;,
         );
         return store;
     }

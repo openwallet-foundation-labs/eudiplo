@@ -464,8 +464,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="211"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:211</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="217"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:217</a></div>
                         </td>
                     </tr>
 
@@ -583,8 +583,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="303"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:303</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="309"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:309</a></div>
                         </td>
                     </tr>
 
@@ -770,16 +770,22 @@ export class Oid4vpService {
 
             const dcql_query &#x3D; JSON.parse(
                 JSON.stringify(presentationConfig.dcql_query).replaceAll(
-                    &quot;&lt;PUBLIC_URL&gt;&quot;,
+                    &quot;&lt;TENANT_URL&gt;&quot;,
                     tenantHost,
                 ),
             );
+
+            //remove trusted_authorities from dcql
+            dcql_query.credentials &#x3D; dcql_query.credentials.map((cred: any) &#x3D;&gt; {
+                const { trusted_authorities, ...rest } &#x3D; cred;
+                return rest;
+            });
 
             if (this.registrarService.isEnabled()) {
                 const registrationCert &#x3D; JSON.parse(
                     JSON.stringify(
                         presentationConfig.registrationCert,
-                    ).replaceAll(&quot;&lt;PUBLIC_URL&gt;&quot;, tenantHost),
+                    ).replaceAll(&quot;&lt;TENANT_URL&gt;&quot;, tenantHost),
                 );
                 regCert &#x3D;
                     await this.registrarService.addRegistrationCertificate(
