@@ -32,7 +32,7 @@ export class TenantShowComponent implements OnInit {
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')!;
-    tenantControllerGetTenant<true>({ path: { id } }).then((res) => this.tenant = res.data);
+    tenantControllerGetTenant<true>({ path: { id } }).then((res) => (this.tenant = res.data));
   }
 
   getCleanupModeLabel(mode?: string): string {
