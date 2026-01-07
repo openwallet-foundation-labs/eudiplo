@@ -28,13 +28,13 @@
 <title>cluster_SessionModule_providers</title>
 <polygon fill="none" stroke="black" points="274,-78 274,-130 639,-130 639,-78 274,-78"/>
 </g>
-<g id="clust3" class="cluster">
-<title>cluster_SessionModule_imports</title>
-<polygon fill="none" stroke="black" points="16,-78 16,-130 266,-130 266,-78 16,-78"/>
-</g>
 <g id="clust4" class="cluster">
 <title>cluster_SessionModule_exports</title>
 <polygon fill="none" stroke="black" points="82,-208 82,-260 485,-260 485,-208 82,-208"/>
+</g>
+<g id="clust3" class="cluster">
+<title>cluster_SessionModule_imports</title>
+<polygon fill="none" stroke="black" points="16,-78 16,-130 266,-130 266,-78 16,-78"/>
 </g>
 <!-- LoggerModule -->
 <g id="node1" class="node">

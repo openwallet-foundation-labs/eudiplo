@@ -770,7 +770,7 @@ export class Oid4vpService {
 
             const dcql_query &#x3D; JSON.parse(
                 JSON.stringify(presentationConfig.dcql_query).replaceAll(
-                    &quot;&lt;PUBLIC_URL&gt;&quot;,
+                    &quot;&lt;TENANT_URL&gt;&quot;,
                     tenantHost,
                 ),
             );
@@ -779,7 +779,7 @@ export class Oid4vpService {
                 const registrationCert &#x3D; JSON.parse(
                     JSON.stringify(
                         presentationConfig.registrationCert,
-                    ).replaceAll(&quot;&lt;PUBLIC_URL&gt;&quot;, tenantHost),
+                    ).replaceAll(&quot;&lt;TENANT_URL&gt;&quot;, tenantHost),
                 );
                 regCert &#x3D;
                     await this.registrarService.addRegistrationCertificate(

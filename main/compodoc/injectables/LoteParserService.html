@@ -155,16 +155,10 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
-                                <a href="#filterByServiceTypes" class="deprecated-name">filterByServiceTypes</a>
+                                <a href="#filterByServiceTypes" >filterByServiceTypes</a>
                             </li>
                             <li>
-                                <a href="#filterEntitiesByServiceTypes" >filterEntitiesByServiceTypes</a>
-                            </li>
-                            <li>
-                                <a href="#parse" class="deprecated-name">parse</a>
-                            </li>
-                            <li>
-                                <a href="#parseV2" >parseV2</a>
+                                <a href="#parse" >parse</a>
                             </li>
                         </ul>
                     </td>
@@ -190,14 +184,9 @@
                 <td class="col-md-4">
                     <a name="filterByServiceTypes"></a>
                     <span class="name">
-                        <span class="deprecated-name"><b>filterByServiceTypes</b></span>
+                        <span ><b>filterByServiceTypes</b></span>
                         <a href="#filterByServiceTypes"><span class="icon ion-ios-link"></span></a>
                     </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4 deprecated">
-                    Use filterEntitiesByServiceTypes instead
                 </td>
             </tr>
             <tr>
@@ -209,14 +198,17 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="160"
-                                    class="link-to-prism">src/verifier/resolver/trust/lote-parser.service.ts:160</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="97"
+                                    class="link-to-prism">src/verifier/resolver/trust/lote-parser.service.ts:97</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Filter entities to only include those with services matching the accepted types.
+Preserves the entity grouping.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -272,98 +264,11 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="filterEntitiesByServiceTypes"></a>
-                    <span class="name">
-                        <span ><b>filterEntitiesByServiceTypes</b></span>
-                        <a href="#filterEntitiesByServiceTypes"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>filterEntitiesByServiceTypes(parsed: <a href="../undefineds/ParsedLoTEv2.html" target="_self">ParsedLoTEv2</a>, accepted: <a href="../undefineds/ServiceTypeIdentifier.html" target="_self">ServiceTypeIdentifier[]</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="131"
-                                    class="link-to-prism">src/verifier/resolver/trust/lote-parser.service.ts:131</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Filter entities to only include those with services matching the accepted types.
-Preserves the entity grouping.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>parsed</td>
-                                            <td>
-                                                            <code><a href="../miscellaneous/typealiases.html#ParsedLoTEv2" target="_self" >ParsedLoTEv2</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>accepted</td>
-                                            <td>
-                                                            <code><a href="../miscellaneous/enumerations.html#ServiceTypeIdentifier" target="_self" >ServiceTypeIdentifier[]</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#ParsedLoTEv2" target="_self" >ParsedLoTEv2</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
                     <a name="parse"></a>
                     <span class="name">
-                        <span class="deprecated-name"><b>parse</b></span>
+                        <span ><b>parse</b></span>
                         <a href="#parse"><span class="icon ion-ios-link"></span></a>
                     </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4 deprecated">
-                    Use parseV2 instead to preserve TrustedEntity groupings
                 </td>
             </tr>
             <tr>
@@ -375,14 +280,17 @@ Preserves the entity grouping.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="119"
-                                    class="link-to-prism">src/verifier/resolver/trust/lote-parser.service.ts:119</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="37"
+                                    class="link-to-prism">src/verifier/resolver/trust/lote-parser.service.ts:37</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Parse a LoTE payload preserving TrustedEntity groupings.
+This allows pairing issuance and revocation certificates from the same entity.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -422,76 +330,6 @@ Preserves the entity grouping.</p>
             </tr>
         </tbody>
     </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="parseV2"></a>
-                    <span class="name">
-                        <span ><b>parseV2</b></span>
-                        <a href="#parseV2"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>parseV2(lotePayload: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="53"
-                                    class="link-to-prism">src/verifier/resolver/trust/lote-parser.service.ts:53</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Parse a LoTE payload preserving TrustedEntity groupings.
-This allows pairing issuance and revocation certificates from the same entity.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>lotePayload</td>
-                                            <td>
-                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#ParsedLoTEv2" target="_self" >ParsedLoTEv2</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
 </section>
 
     </div>
@@ -511,35 +349,19 @@ export type LoteInfo &#x3D; {
     schemeTerritory?: string;
 };
 
-export type LoteServiceCert &#x3D; {
-    serviceTypeIdentifier: string;
-    // PEM text or base64 DER; TS 119 602 allows X.509 cert values, often PEM
-    certValue: string;
-};
-
-/**
- * @deprecated Use ParsedLoTEv2 instead which preserves TrustedEntity grouping
- */
-export type ParsedLoTE &#x3D; {
-    info: LoteInfo;
-    services: LoteServiceCert[];
-};
-
 /**
  * Parsed LoTE preserving TrustedEntity groupings.
  * This is important for pairing issuance and revocation certificates from the same entity.
  */
-export type ParsedLoTEv2 &#x3D; {
+export type ParsedLoTE &#x3D; {
     info: LoteInfo;
     /** TrustedEntities with their services grouped */
     entities: TrustedEntity[];
-    /** @deprecated Flattened services for backwards compatibility */
-    services: LoteServiceCert[];
 };
 
 function get(obj: any, path: string[]): any {
     return path.reduce(
-        (o, k) &#x3D;&gt; (o &amp;&amp; o[k] !&#x3D;&#x3D; undefined ? o[k] : undefined),
+        (o, k) &#x3D;&gt; (o?.[k] &#x3D;&#x3D;&#x3D; undefined ? undefined : o[k]),
         obj,
     );
 }
@@ -550,7 +372,7 @@ export class LoteParserService {
      * Parse a LoTE payload preserving TrustedEntity groupings.
      * This allows pairing issuance and revocation certificates from the same entity.
      */
-    parseV2(lotePayload: any): ParsedLoTEv2 {
+    parse(lotePayload: any): ParsedLoTE {
         const root &#x3D; lotePayload?.LoTE ?? lotePayload; // tolerate wrappers
 
         const info: LoteInfo &#x3D; {
@@ -572,7 +394,6 @@ export class LoteParserService {
 
         const rawEntities &#x3D; root?.TrustedEntitiesList ?? [];
         const entities: TrustedEntity[] &#x3D; [];
-        const services: LoteServiceCert[] &#x3D; []; // For backwards compatibility
 
         for (const te of rawEntities) {
             const entityId &#x3D; te?.TrustedEntityIdentifier ?? undefined;
@@ -592,12 +413,6 @@ export class LoteParserService {
                             certValue: x.val,
                         };
                         entityServices.push(serviceCert);
-
-                        // Also add to flat services for backwards compatibility
-                        services.push({
-                            serviceTypeIdentifier,
-                            certValue: x.val,
-                        });
                     }
                 }
             }
@@ -610,28 +425,17 @@ export class LoteParserService {
             }
         }
 
-        return { info, entities, services };
-    }
-
-    /**
-     * @deprecated Use parseV2 instead to preserve TrustedEntity groupings
-     */
-    parse(lotePayload: any): ParsedLoTE {
-        const result &#x3D; this.parseV2(lotePayload);
-        return {
-            info: result.info,
-            services: result.services,
-        };
+        return { info, entities };
     }
 
     /**
      * Filter entities to only include those with services matching the accepted types.
      * Preserves the entity grouping.
      */
-    filterEntitiesByServiceTypes(
-        parsed: ParsedLoTEv2,
+    filterByServiceTypes(
+        parsed: ParsedLoTE,
         accepted: ServiceTypeIdentifier[],
-    ): ParsedLoTEv2 {
+    ): ParsedLoTE {
         const set &#x3D; new Set(accepted);
 
         const filteredEntities &#x3D; parsed.entities
@@ -643,30 +447,9 @@ export class LoteParserService {
             }))
             .filter((entity) &#x3D;&gt; entity.services.length &gt; 0);
 
-        const filteredServices &#x3D; parsed.services.filter((s) &#x3D;&gt;
-            set.has(s.serviceTypeIdentifier),
-        );
-
         return {
             info: parsed.info,
             entities: filteredEntities,
-            services: filteredServices,
-        };
-    }
-
-    /**
-     * @deprecated Use filterEntitiesByServiceTypes instead
-     */
-    filterByServiceTypes(
-        parsed: ParsedLoTE,
-        accepted: ServiceTypeIdentifier[],
-    ): ParsedLoTE {
-        const set &#x3D; new Set(accepted);
-        return {
-            info: parsed.info,
-            services: parsed.services.filter((s) &#x3D;&gt;
-                set.has(s.serviceTypeIdentifier),
-            ),
         };
     }
 }

@@ -1399,7 +1399,7 @@ export class PresentationsService implements OnApplicationBootstrap {
                                 )
                                 ?.values.map((url) &#x3D;&gt; ({
                                     url: url.replaceAll(
-                                        &quot;&lt;PUBLIC_URL&gt;&quot;,
+                                        &quot;&lt;TENANT_URL&gt;&quot;,
                                         tenantHost,
                                     ),
                                 })) || [],
