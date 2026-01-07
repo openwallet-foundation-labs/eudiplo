@@ -231,7 +231,7 @@ export class PresentationsService implements OnApplicationBootstrap {
                                 )
                                 ?.values.map((url) => ({
                                     url: url.replaceAll(
-                                        "<PUBLIC_URL>",
+                                        "<TENANT_URL>",
                                         tenantHost,
                                     ),
                                 })) || [],

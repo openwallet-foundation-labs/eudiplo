@@ -272,6 +272,41 @@ Non-strict warning example (`CONFIG_VARIABLE_STRICT=ignore` or absent / false):
 
 > Note: Placeholder replacement occurs BEFORE class-validator schema validation so resolved values are validated, not the raw `${...}` tokens.
 
+## Built-in Placeholders
+
+In addition to environment variable placeholders, EUDIPLO provides built-in placeholders that are replaced at runtime when configurations are used.
+
+### `<TENANT_URL>`
+
+The `<TENANT_URL>` placeholder allows configurations to be instance-independent. When a configuration is used, this placeholder is automatically replaced with the full URL including the host and tenant ID.
+
+**Use Case**: This is particularly useful for portable configurations that need to reference URLs within the same tenant but should work across different deployments (e.g., development, staging, production) without modification.
+
+**Common Examples**:
+
+- **Verifiable Credential Type (vct)**: Use `<TENANT_URL>/credentials/pid` as the `vct` value to create instance-independent credential type identifiers
+- **Trust List references**: Point to trust lists hosted on the same instance, e.g., `<TENANT_URL>/trust-lists/eu-trust-list`
+
+**Example**:
+
+```json
+{
+    "vct": "<TENANT_URL>/credentials/pid",
+    "trustList": "<TENANT_URL>/trust-lists/my-trust-list"
+}
+```
+
+When used in a tenant with ID `company-xyz` on host `https://eudiplo.example.com`, the placeholder is replaced with:
+
+```json
+{
+    "vct": "https://eudiplo.example.com/company-xyz/credentials/pid",
+    "trustList": "https://eudiplo.example.com/company-xyz/trust-lists/my-trust-list"
+}
+```
+
+This enables sharing configuration files between environments without hardcoding URLs.
+
 ### Validation and Processing
 
 For each configuration file:
