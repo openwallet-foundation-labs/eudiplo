@@ -2418,6 +2418,10 @@ export const TrustListSchema = {
     description: {
       type: "string",
     },
+    tenantId: {
+      type: "string",
+      description: "The tenant ID for which the VP request is made.",
+    },
     tenant: {
       description: "The tenant that owns this object.",
       allOf: [
@@ -2463,6 +2467,7 @@ export const TrustListSchema = {
     },
   },
   required: [
+    "tenantId",
     "tenant",
     "certId",
     "cert",

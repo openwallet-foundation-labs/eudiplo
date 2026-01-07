@@ -170,12 +170,18 @@ import type {
   TrustListPublicControllerGetTrustListJwtResponses,
   VerifierOfferControllerGetOfferData,
   VerifierOfferControllerGetOfferResponses,
-  WellKnownControllerAuthzMetadataData,
-  WellKnownControllerAuthzMetadataResponses,
-  WellKnownControllerGetJwksData,
-  WellKnownControllerGetJwksResponses,
-  WellKnownControllerIssuerMetadataData,
-  WellKnownControllerIssuerMetadataResponses,
+  WellKnownControllerAuthzMetadata0Data,
+  WellKnownControllerAuthzMetadata0Responses,
+  WellKnownControllerAuthzMetadata1Data,
+  WellKnownControllerAuthzMetadata1Responses,
+  WellKnownControllerGetJwks0Data,
+  WellKnownControllerGetJwks0Responses,
+  WellKnownControllerGetJwks1Data,
+  WellKnownControllerGetJwks1Responses,
+  WellKnownControllerIssuerMetadata0Data,
+  WellKnownControllerIssuerMetadata0Responses,
+  WellKnownControllerIssuerMetadata1Data,
+  WellKnownControllerIssuerMetadata1Responses,
 } from "./types.gen";
 
 export type Options<
@@ -1321,42 +1327,88 @@ export const oid4VciMetadataControllerVct = <
  *
  * Returns the OpenID4VCI issuer metadata.
  */
-export const wellKnownControllerIssuerMetadata = <
+export const wellKnownControllerIssuerMetadata0 = <
   ThrowOnError extends boolean = true,
 >(
-  options: Options<WellKnownControllerIssuerMetadataData, ThrowOnError>,
+  options: Options<WellKnownControllerIssuerMetadata0Data, ThrowOnError>,
 ) =>
   (options.client ?? client).get<
-    WellKnownControllerIssuerMetadataResponses,
+    WellKnownControllerIssuerMetadata0Responses,
     unknown,
     ThrowOnError
   >({ url: "/.well-known/openid-credential-issuer/{tenantId}", ...options });
 
 /**
- * Authorization Server Metadata
+ * Get OpenID4VCI issuer metadata
+ *
+ * Returns the OpenID4VCI issuer metadata.
  */
-export const wellKnownControllerAuthzMetadata = <
+export const wellKnownControllerIssuerMetadata1 = <
   ThrowOnError extends boolean = true,
 >(
-  options: Options<WellKnownControllerAuthzMetadataData, ThrowOnError>,
+  options: Options<WellKnownControllerIssuerMetadata1Data, ThrowOnError>,
 ) =>
   (options.client ?? client).get<
-    WellKnownControllerAuthzMetadataResponses,
+    WellKnownControllerIssuerMetadata1Responses,
+    unknown,
+    ThrowOnError
+  >({ url: "/{tenantId}/.well-known/openid-credential-issuer", ...options });
+
+/**
+ * Authorization Server Metadata
+ */
+export const wellKnownControllerAuthzMetadata0 = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<WellKnownControllerAuthzMetadata0Data, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    WellKnownControllerAuthzMetadata0Responses,
     unknown,
     ThrowOnError
   >({ url: "/.well-known/oauth-authorization-server/{tenantId}", ...options });
 
 /**
- * Returns the JSON Web Key Set (JWKS) for the authorization server.
+ * Authorization Server Metadata
  */
-export const wellKnownControllerGetJwks = <ThrowOnError extends boolean = true>(
-  options: Options<WellKnownControllerGetJwksData, ThrowOnError>,
+export const wellKnownControllerAuthzMetadata1 = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<WellKnownControllerAuthzMetadata1Data, ThrowOnError>,
 ) =>
   (options.client ?? client).get<
-    WellKnownControllerGetJwksResponses,
+    WellKnownControllerAuthzMetadata1Responses,
+    unknown,
+    ThrowOnError
+  >({ url: "/{tenantId}/.well-known/oauth-authorization-server", ...options });
+
+/**
+ * Returns the JSON Web Key Set (JWKS) for the authorization server.
+ */
+export const wellKnownControllerGetJwks0 = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<WellKnownControllerGetJwks0Data, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    WellKnownControllerGetJwks0Responses,
     unknown,
     ThrowOnError
   >({ url: "/.well-known/jwks.json/{tenantId}", ...options });
+
+/**
+ * Returns the JSON Web Key Set (JWKS) for the authorization server.
+ */
+export const wellKnownControllerGetJwks1 = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<WellKnownControllerGetJwks1Data, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    WellKnownControllerGetJwks1Responses,
+    unknown,
+    ThrowOnError
+  >({ url: "/{tenantId}/.well-known/jwks.json", ...options });
 
 /**
  * Returns the authorization request for a given requestId and session.

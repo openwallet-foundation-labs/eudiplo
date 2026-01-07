@@ -1263,6 +1263,10 @@ export type TrustList = {
   id?: string;
   description?: string;
   /**
+   * The tenant ID for which the VP request is made.
+   */
+  tenantId: string;
+  /**
    * The tenant that owns this object.
    */
   tenant: TenantEntity;
@@ -2333,7 +2337,7 @@ export type Oid4VciMetadataControllerVctResponses = {
 export type Oid4VciMetadataControllerVctResponse =
   Oid4VciMetadataControllerVctResponses[keyof Oid4VciMetadataControllerVctResponses];
 
-export type WellKnownControllerIssuerMetadataData = {
+export type WellKnownControllerIssuerMetadata0Data = {
   body?: never;
   path: {
     tenantId: string;
@@ -2342,16 +2346,34 @@ export type WellKnownControllerIssuerMetadataData = {
   url: "/.well-known/openid-credential-issuer/{tenantId}";
 };
 
-export type WellKnownControllerIssuerMetadataResponses = {
+export type WellKnownControllerIssuerMetadata0Responses = {
   200: {
     [key: string]: unknown;
   };
 };
 
-export type WellKnownControllerIssuerMetadataResponse =
-  WellKnownControllerIssuerMetadataResponses[keyof WellKnownControllerIssuerMetadataResponses];
+export type WellKnownControllerIssuerMetadata0Response =
+  WellKnownControllerIssuerMetadata0Responses[keyof WellKnownControllerIssuerMetadata0Responses];
 
-export type WellKnownControllerAuthzMetadataData = {
+export type WellKnownControllerIssuerMetadata1Data = {
+  body?: never;
+  path: {
+    tenantId: string;
+  };
+  query?: never;
+  url: "/{tenantId}/.well-known/openid-credential-issuer";
+};
+
+export type WellKnownControllerIssuerMetadata1Responses = {
+  200: {
+    [key: string]: unknown;
+  };
+};
+
+export type WellKnownControllerIssuerMetadata1Response =
+  WellKnownControllerIssuerMetadata1Responses[keyof WellKnownControllerIssuerMetadata1Responses];
+
+export type WellKnownControllerAuthzMetadata0Data = {
   body?: never;
   path: {
     tenantId: string;
@@ -2360,11 +2382,24 @@ export type WellKnownControllerAuthzMetadataData = {
   url: "/.well-known/oauth-authorization-server/{tenantId}";
 };
 
-export type WellKnownControllerAuthzMetadataResponses = {
+export type WellKnownControllerAuthzMetadata0Responses = {
   200: unknown;
 };
 
-export type WellKnownControllerGetJwksData = {
+export type WellKnownControllerAuthzMetadata1Data = {
+  body?: never;
+  path: {
+    tenantId: string;
+  };
+  query?: never;
+  url: "/{tenantId}/.well-known/oauth-authorization-server";
+};
+
+export type WellKnownControllerAuthzMetadata1Responses = {
+  200: unknown;
+};
+
+export type WellKnownControllerGetJwks0Data = {
   body?: never;
   path: {
     tenantId: string;
@@ -2373,12 +2408,28 @@ export type WellKnownControllerGetJwksData = {
   url: "/.well-known/jwks.json/{tenantId}";
 };
 
-export type WellKnownControllerGetJwksResponses = {
+export type WellKnownControllerGetJwks0Responses = {
   200: JwksResponseDto;
 };
 
-export type WellKnownControllerGetJwksResponse =
-  WellKnownControllerGetJwksResponses[keyof WellKnownControllerGetJwksResponses];
+export type WellKnownControllerGetJwks0Response =
+  WellKnownControllerGetJwks0Responses[keyof WellKnownControllerGetJwks0Responses];
+
+export type WellKnownControllerGetJwks1Data = {
+  body?: never;
+  path: {
+    tenantId: string;
+  };
+  query?: never;
+  url: "/{tenantId}/.well-known/jwks.json";
+};
+
+export type WellKnownControllerGetJwks1Responses = {
+  200: JwksResponseDto;
+};
+
+export type WellKnownControllerGetJwks1Response =
+  WellKnownControllerGetJwks1Responses[keyof WellKnownControllerGetJwks1Responses];
 
 export type Oid4VpControllerGetRequestWithSessionData = {
   body?: never;

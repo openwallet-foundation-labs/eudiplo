@@ -1,4 +1,3 @@
-import { ApiHideProperty } from "@nestjs/swagger";
 import { IsObject, IsOptional, IsString, IsUUID } from "class-validator";
 import {
     Column,
@@ -33,7 +32,6 @@ export class TrustList {
     /**
      * The tenant ID for which the VP request is made.
      */
-    @ApiHideProperty()
     @Column("varchar", { primary: true })
     tenantId!: string;
 
