@@ -8,7 +8,7 @@
         "format": "dc+sd-jwt",
         "meta": {
           "vct_values": [
-            "<PUBLIC_URL>/credentials-metadata/vct/pid"
+            "<TENANT_URL>/credentials-metadata/vct/pid"
           ]
         },
         "claims": [
@@ -23,7 +23,7 @@
           {
             "type": "etsi_tl",
             "values": [
-              "<PUBLIC_URL>/trust-list/580831bc-ef11-43f4-a3be-a2b6bf1b29a3"
+              "<TENANT_URL>/trust-list/580831bc-ef11-43f4-a3be-a2b6bf1b29a3"
             ]
           }
         ]

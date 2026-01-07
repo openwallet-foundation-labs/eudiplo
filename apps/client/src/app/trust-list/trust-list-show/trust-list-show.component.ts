@@ -135,8 +135,8 @@ export class TrustListShowComponent implements OnInit {
   private buildPublicUrl(): void {
     if (this.trustList) {
       const baseUrl = this.apiService.getBaseUrl() || '';
-      const tenantId = this.trustList.tenant?.id || '';
-      this.publicUrl = `${baseUrl}${tenantId}/trust-list/${this.trustList.id}`;
+      const tenantId = this.trustList.tenantId;
+      this.publicUrl = `${baseUrl}/${tenantId}/trust-list/${this.trustList.id}`;
     }
   }
 

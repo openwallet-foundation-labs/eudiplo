@@ -24,21 +24,6 @@ function certFromValue(val: string | ArrayBuffer): x509.X509Certificate {
 }
 
 /**
- * Information about the matched trust anchor from certificate chain validation.
- * @deprecated Use MatchedTrustedEntity instead
- */
-export type MatchedTrustAnchor = {
-    /** The matched anchor certificate */
-    anchor: x509.X509Certificate;
-    /** Thumbprint of the anchor certificate */
-    thumbprint: string;
-    /** Whether the anchor is a CA certificate */
-    isCa: boolean;
-    /** The mode that matched (ca, leaf-pinned, pathEnd-pinned) */
-    matchMode: "ca" | "leaf-pinned" | "pathEnd-pinned";
-};
-
-/**
  * Information about a matched TrustedEntity from certificate chain validation.
  * Includes the matched issuance certificate and the associated revocation certificate
  * from the same entity.
@@ -101,74 +86,6 @@ export class X509ValidationService {
         if (!bc) return false;
         // Peculiar returns parsed extension object with "ca" boolean for BasicConstraints
         return Boolean((bc as any).ca);
-    }
-
-    /**
-     * Policy:
-     * - If anchor is CA: require path terminates in that anchor
-     * - If anchor is not CA: treat as pin
-     *   - pinnedMode "leaf": leaf equals pinned cert
-     *   - pinnedMode "pathEnd": path end equals pinned cert
-     *
-     * Returns the matched trust anchor info, or null if no match.
-     */
-    async pathMatchesAnchors(
-        path: x509.X509Certificate[],
-        anchors: x509.X509Certificate[],
-        pinnedMode: "leaf" | "pathEnd" = "leaf",
-    ): Promise<MatchedTrustAnchor | null> {
-        const leaf = path[0];
-        const end = path.at(-1)!;
-
-        // Build anchorByThumb with async getThumbprint
-        const anchorThumbPairs = await Promise.all(
-            anchors.map(
-                async (a) =>
-                    [arrayBufferToHex(await a.getThumbprint()), a] as [
-                        string,
-                        x509.X509Certificate,
-                    ],
-            ),
-        );
-        const anchorByThumb = new Map(anchorThumbPairs);
-
-        // CA anchors: end-of-path must be CA anchor
-        const endThumb = arrayBufferToHex(await end.getThumbprint());
-        if (
-            anchorByThumb.has(endThumb) &&
-            this.isCaCert(anchorByThumb.get(endThumb)!)
-        ) {
-            return {
-                anchor: anchorByThumb.get(endThumb)!,
-                thumbprint: endThumb,
-                isCa: true,
-                matchMode: "ca",
-            };
-        }
-
-        // pinned anchors (non-CA)
-        const leafThumb = arrayBufferToHex(await leaf.getThumbprint());
-        for (const a of anchors) {
-            if (this.isCaCert(a)) continue;
-            const aThumb = arrayBufferToHex(await a.getThumbprint());
-            if (pinnedMode === "leaf" && aThumb === leafThumb) {
-                return {
-                    anchor: a,
-                    thumbprint: aThumb,
-                    isCa: false,
-                    matchMode: "leaf-pinned",
-                };
-            }
-            if (pinnedMode === "pathEnd" && aThumb === endThumb) {
-                return {
-                    anchor: a,
-                    thumbprint: aThumb,
-                    isCa: false,
-                    matchMode: "pathEnd-pinned",
-                };
-            }
-        }
-        return null;
     }
 
     /**

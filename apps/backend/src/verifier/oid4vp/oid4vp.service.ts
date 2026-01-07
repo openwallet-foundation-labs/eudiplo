@@ -74,7 +74,7 @@ export class Oid4vpService {
 
             const dcql_query = JSON.parse(
                 JSON.stringify(presentationConfig.dcql_query).replaceAll(
-                    "<PUBLIC_URL>",
+                    "<TENANT_URL>",
                     tenantHost,
                 ),
             );
@@ -83,7 +83,7 @@ export class Oid4vpService {
                 const registrationCert = JSON.parse(
                     JSON.stringify(
                         presentationConfig.registrationCert,
-                    ).replaceAll("<PUBLIC_URL>", tenantHost),
+                    ).replaceAll("<TENANT_URL>", tenantHost),
                 );
                 regCert =
                     await this.registrarService.addRegistrationCertificate(

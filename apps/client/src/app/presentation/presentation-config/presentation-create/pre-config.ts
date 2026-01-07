@@ -21,7 +21,7 @@ export const configs: PredefinedConfig[] = [
             id: 'pid',
             format: 'dc+sd-jwt',
             meta: {
-              vct_values: ['<PUBLIC_URL>/credentials-metadata/vct/pid'],
+              vct_values: ['<TENANT_URL>/credentials-metadata/vct/pid'],
             },
             claims: [
               {
