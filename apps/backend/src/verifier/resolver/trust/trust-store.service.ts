@@ -1,5 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { decodeJwt } from "jose";
+import { LoTE } from "../../../issuer/trust-list/dto/types";
 import { LoteParserService } from "./lote-parser.service";
 import { TrustListJwtService } from "./trustlist-jwt.service";
 import { TrustedEntity, TrustListSource } from "./types";
@@ -37,7 +38,7 @@ export class TrustStoreService {
         for (const ref of source.lotes) {
             const jwt = await this.trustListJwt.fetchJwt(ref.url);
             await this.trustListJwt.verifyTrustListJwt(ref, jwt); // hook
-            const decoded = decodeJwt(jwt);
+            const decoded = decodeJwt<LoTE>(jwt);
 
             let parsed = this.loteParser.parse(decoded);
             if (source.acceptedServiceTypes) {
@@ -63,7 +64,7 @@ export class TrustStoreService {
         this.cache = store;
 
         this.logger.debug(
-            `Built trust store with ${entities.length} trusted entit(y/ies)`,
+            `Built trust store with ${entities.length} trusted entit${entities.length === 1 ? "y" : "ies"}`,
         );
         return store;
     }

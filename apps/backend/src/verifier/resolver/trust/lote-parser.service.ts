@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { LoTE } from "../../../issuer/trust-list/dto/types";
 import {
     ServiceTypeIdentifier,
     TrustedEntity,
@@ -21,55 +22,40 @@ export type ParsedLoTE = {
     entities: TrustedEntity[];
 };
 
-function get(obj: any, path: string[]): any {
-    return path.reduce(
-        (o, k) => (o?.[k] === undefined ? undefined : o[k]),
-        obj,
-    );
-}
-
 @Injectable()
 export class LoteParserService {
     /**
      * Parse a LoTE payload preserving TrustedEntity groupings.
      * This allows pairing issuance and revocation certificates from the same entity.
      */
-    parse(lotePayload: any): ParsedLoTE {
-        const root = lotePayload?.LoTE ?? lotePayload; // tolerate wrappers
+    parse(root: LoTE): ParsedLoTE {
+        const schemeInfo = root.ListAndSchemeInformation;
 
         const info: LoteInfo = {
-            nextUpdate:
-                get(root, ["ListAndSchemeInformation", "NextUpdate"]) ??
-                get(root, ["ListAndSchemeInformation", "NextUpdate", "value"]),
-            listIssueDateTime:
-                get(root, ["ListAndSchemeInformation", "ListIssueDateTime"]) ??
-                get(root, [
-                    "ListAndSchemeInformation",
-                    "ListIssueDateTime",
-                    "value",
-                ]),
-            schemeTerritory: get(root, [
-                "ListAndSchemeInformation",
-                "SchemeTerritory",
-            ]),
+            nextUpdate: schemeInfo.NextUpdate,
+            listIssueDateTime: schemeInfo.ListIssueDateTime,
+            schemeTerritory: schemeInfo.SchemeTerritory,
         };
 
-        const rawEntities = root?.TrustedEntitiesList ?? [];
+        const rawEntities = root.TrustedEntitiesList ?? [];
         const entities: TrustedEntity[] = [];
 
         for (const te of rawEntities) {
-            const entityId = te?.TrustedEntityIdentifier ?? undefined;
-            const teServices = te?.TrustedEntityServices ?? [];
+            // Extract entity ID from TrustedEntityInformation.TEName (array of MultiLangString)
+            // Use the first name's value as the entity identifier
+            const teName = te.TrustedEntityInformation.TEName;
+            const entityId = teName[0]?.value;
+
+            const teServices = te.TrustedEntityServices;
             const entityServices: TrustedEntityServiceCert[] = [];
 
             for (const svc of teServices) {
-                const svcInfo = svc?.ServiceInformation;
-                const serviceTypeIdentifier = svcInfo?.ServiceTypeIdentifier;
+                const svcInfo = svc.ServiceInformation;
+                const serviceTypeIdentifier = svcInfo.ServiceTypeIdentifier!;
                 const x509s =
-                    svcInfo?.ServiceDigitalIdentity?.X509Certificates ?? [];
-
+                    svcInfo.ServiceDigitalIdentity.X509Certificates ?? [];
                 for (const x of x509s) {
-                    if (x?.val) {
+                    if (x.val) {
                         const serviceCert: TrustedEntityServiceCert = {
                             serviceTypeIdentifier,
                             certValue: x.val,
@@ -91,8 +77,8 @@ export class LoteParserService {
     }
 
     /**
-     * Filter entities to only include those with services matching the accepted types.
-     * Preserves the entity grouping.
+     * Filter entities to only include those that have at least one service matching the accepted types.
+     * Keeps all services of matching entities (not just the matching services).
      */
     filterByServiceTypes(
         parsed: ParsedLoTE,
@@ -100,14 +86,9 @@ export class LoteParserService {
     ): ParsedLoTE {
         const set = new Set(accepted);
 
-        const filteredEntities = parsed.entities
-            .map((entity) => ({
-                entityId: entity.entityId,
-                services: entity.services.filter((s) =>
-                    set.has(s.serviceTypeIdentifier),
-                ),
-            }))
-            .filter((entity) => entity.services.length > 0);
+        const filteredEntities = parsed.entities.filter((entity) =>
+            entity.services.some((s) => set.has(s.serviceTypeIdentifier)),
+        );
 
         return {
             info: parsed.info,
