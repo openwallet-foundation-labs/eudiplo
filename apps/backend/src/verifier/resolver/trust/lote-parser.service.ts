@@ -11,35 +11,19 @@ export type LoteInfo = {
     schemeTerritory?: string;
 };
 
-export type LoteServiceCert = {
-    serviceTypeIdentifier: string;
-    // PEM text or base64 DER; TS 119 602 allows X.509 cert values, often PEM
-    certValue: string;
-};
-
-/**
- * @deprecated Use ParsedLoTEv2 instead which preserves TrustedEntity grouping
- */
-export type ParsedLoTE = {
-    info: LoteInfo;
-    services: LoteServiceCert[];
-};
-
 /**
  * Parsed LoTE preserving TrustedEntity groupings.
  * This is important for pairing issuance and revocation certificates from the same entity.
  */
-export type ParsedLoTEv2 = {
+export type ParsedLoTE = {
     info: LoteInfo;
     /** TrustedEntities with their services grouped */
     entities: TrustedEntity[];
-    /** @deprecated Flattened services for backwards compatibility */
-    services: LoteServiceCert[];
 };
 
 function get(obj: any, path: string[]): any {
     return path.reduce(
-        (o, k) => (o && o[k] !== undefined ? o[k] : undefined),
+        (o, k) => (o?.[k] === undefined ? undefined : o[k]),
         obj,
     );
 }
@@ -50,7 +34,7 @@ export class LoteParserService {
      * Parse a LoTE payload preserving TrustedEntity groupings.
      * This allows pairing issuance and revocation certificates from the same entity.
      */
-    parseV2(lotePayload: any): ParsedLoTEv2 {
+    parse(lotePayload: any): ParsedLoTE {
         const root = lotePayload?.LoTE ?? lotePayload; // tolerate wrappers
 
         const info: LoteInfo = {
@@ -72,7 +56,6 @@ export class LoteParserService {
 
         const rawEntities = root?.TrustedEntitiesList ?? [];
         const entities: TrustedEntity[] = [];
-        const services: LoteServiceCert[] = []; // For backwards compatibility
 
         for (const te of rawEntities) {
             const entityId = te?.TrustedEntityIdentifier ?? undefined;
@@ -92,12 +75,6 @@ export class LoteParserService {
                             certValue: x.val,
                         };
                         entityServices.push(serviceCert);
-
-                        // Also add to flat services for backwards compatibility
-                        services.push({
-                            serviceTypeIdentifier,
-                            certValue: x.val,
-                        });
                     }
                 }
             }
@@ -110,28 +87,17 @@ export class LoteParserService {
             }
         }
 
-        return { info, entities, services };
-    }
-
-    /**
-     * @deprecated Use parseV2 instead to preserve TrustedEntity groupings
-     */
-    parse(lotePayload: any): ParsedLoTE {
-        const result = this.parseV2(lotePayload);
-        return {
-            info: result.info,
-            services: result.services,
-        };
+        return { info, entities };
     }
 
     /**
      * Filter entities to only include those with services matching the accepted types.
      * Preserves the entity grouping.
      */
-    filterEntitiesByServiceTypes(
-        parsed: ParsedLoTEv2,
+    filterByServiceTypes(
+        parsed: ParsedLoTE,
         accepted: ServiceTypeIdentifier[],
-    ): ParsedLoTEv2 {
+    ): ParsedLoTE {
         const set = new Set(accepted);
 
         const filteredEntities = parsed.entities
@@ -143,30 +109,9 @@ export class LoteParserService {
             }))
             .filter((entity) => entity.services.length > 0);
 
-        const filteredServices = parsed.services.filter((s) =>
-            set.has(s.serviceTypeIdentifier),
-        );
-
         return {
             info: parsed.info,
             entities: filteredEntities,
-            services: filteredServices,
-        };
-    }
-
-    /**
-     * @deprecated Use filterEntitiesByServiceTypes instead
-     */
-    filterByServiceTypes(
-        parsed: ParsedLoTE,
-        accepted: ServiceTypeIdentifier[],
-    ): ParsedLoTE {
-        const set = new Set(accepted);
-        return {
-            info: parsed.info,
-            services: parsed.services.filter((s) =>
-                set.has(s.serviceTypeIdentifier),
-            ),
         };
     }
 }

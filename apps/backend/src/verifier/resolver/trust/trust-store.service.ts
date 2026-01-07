@@ -5,14 +5,6 @@ import { TrustListJwtService } from "./trustlist-jwt.service";
 import { TrustedEntity, TrustListSource } from "./types";
 
 /**
- * @deprecated Use TrustedEntity instead
- */
-export type TrustAnchorEntry = {
-    serviceTypeIdentifier: string;
-    certValue: string; // PEM or base64/DER
-};
-
-/**
  * Built trust store with TrustedEntities preserving service groupings.
  */
 export type BuiltTrustStore = {
@@ -20,8 +12,6 @@ export type BuiltTrustStore = {
     nextUpdate?: string;
     /** TrustedEntities with their services (issuance + revocation) grouped */
     entities: TrustedEntity[];
-    /** @deprecated Flattened anchors for backwards compatibility */
-    anchors: TrustAnchorEntry[];
 };
 
 @Injectable()
@@ -42,7 +32,6 @@ export class TrustStoreService {
             return this.cache;
 
         const entities: TrustedEntity[] = [];
-        const anchors: TrustAnchorEntry[] = [];
         let nextUpdate: string | undefined;
 
         for (const ref of source.lotes) {
@@ -50,9 +39,9 @@ export class TrustStoreService {
             await this.trustListJwt.verifyTrustListJwt(ref, jwt); // hook
             const decoded = decodeJwt(jwt);
 
-            let parsed = this.loteParser.parseV2(decoded);
+            let parsed = this.loteParser.parse(decoded);
             if (source.acceptedServiceTypes) {
-                parsed = this.loteParser.filterEntitiesByServiceTypes(
+                parsed = this.loteParser.filterByServiceTypes(
                     parsed,
                     source.acceptedServiceTypes,
                 );
@@ -64,26 +53,17 @@ export class TrustStoreService {
             for (const entity of parsed.entities) {
                 entities.push(entity);
             }
-
-            // Also populate flat anchors for backwards compatibility
-            for (const svc of parsed.services) {
-                anchors.push({
-                    serviceTypeIdentifier: svc.serviceTypeIdentifier,
-                    certValue: svc.certValue,
-                });
-            }
         }
 
         const store: BuiltTrustStore = {
             fetchedAt: Date.now(),
             nextUpdate,
             entities,
-            anchors,
         };
         this.cache = store;
 
         this.logger.debug(
-            `Built trust store with ${entities.length} trusted entit(y/ies), ${anchors.length} anchor cert(s)`,
+            `Built trust store with ${entities.length} trusted entit(y/ies)`,
         );
         return store;
     }
