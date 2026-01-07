@@ -201,7 +201,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="20" class="link-to-prism">src/verifier/resolver/trust/trust-store.service.ts:20</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="21" class="link-to-prism">src/verifier/resolver/trust/trust-store.service.ts:21</a></div>
                             </td>
                         </tr>
 
@@ -278,8 +278,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="27"
-                                    class="link-to-prism">src/verifier/resolver/trust/trust-store.service.ts:27</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="28"
+                                    class="link-to-prism">src/verifier/resolver/trust/trust-store.service.ts:28</a></div>
                         </td>
                     </tr>
 
@@ -374,7 +374,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="20" class="link-to-prism">src/verifier/resolver/trust/trust-store.service.ts:20</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="21" class="link-to-prism">src/verifier/resolver/trust/trust-store.service.ts:21</a></div>
                         </td>
                     </tr>
 
@@ -407,7 +407,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/verifier/resolver/trust/trust-store.service.ts:19</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="20" class="link-to-prism">src/verifier/resolver/trust/trust-store.service.ts:20</a></div>
                         </td>
                     </tr>
 
@@ -422,6 +422,7 @@
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, Logger } from &quot;@nestjs/common&quot;;
 import { decodeJwt } from &quot;jose&quot;;
+import { LoTE } from &quot;../../../issuer/trust-list/dto/types&quot;;
 import { LoteParserService } from &quot;./lote-parser.service&quot;;
 import { TrustListJwtService } from &quot;./trustlist-jwt.service&quot;;
 import { TrustedEntity, TrustListSource } from &quot;./types&quot;;
@@ -459,7 +460,7 @@ export class TrustStoreService {
         for (const ref of source.lotes) {
             const jwt &#x3D; await this.trustListJwt.fetchJwt(ref.url);
             await this.trustListJwt.verifyTrustListJwt(ref, jwt); // hook
-            const decoded &#x3D; decodeJwt(jwt);
+            const decoded &#x3D; decodeJwt&lt;LoTE&gt;(jwt);
 
             let parsed &#x3D; this.loteParser.parse(decoded);
             if (source.acceptedServiceTypes) {
@@ -485,7 +486,7 @@ export class TrustStoreService {
         this.cache &#x3D; store;
 
         this.logger.debug(
-            &#x60;Built trust store with ${entities.length} trusted entit(y/ies)&#x60;,
+            &#x60;Built trust store with ${entities.length} trusted entit${entities.length &#x3D;&#x3D;&#x3D; 1 ? &quot;y&quot; : &quot;ies&quot;}&#x60;,
         );
         return store;
     }

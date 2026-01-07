@@ -198,16 +198,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="97"
-                                    class="link-to-prism">src/verifier/resolver/trust/lote-parser.service.ts:97</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="83"
+                                    class="link-to-prism">src/verifier/resolver/trust/lote-parser.service.ts:83</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Filter entities to only include those with services matching the accepted types.
-Preserves the entity grouping.</p>
+                        <div class="io-description"><p>Filter entities to only include those that have at least one service matching the accepted types.
+Keeps all services of matching entities (not just the matching services).</p>
 </div>
 
                             <div class="io-description">
@@ -273,15 +273,15 @@ Preserves the entity grouping.</p>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>parse(lotePayload: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+<code>parse(root: <a href="../interfaces/LoTE.html" target="_self">LoTE</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="37"
-                                    class="link-to-prism">src/verifier/resolver/trust/lote-parser.service.ts:37</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="31"
+                                    class="link-to-prism">src/verifier/resolver/trust/lote-parser.service.ts:31</a></div>
                         </td>
                     </tr>
 
@@ -305,9 +305,9 @@ This allows pairing issuance and revocation certificates from the same entity.</
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>lotePayload</td>
+                                                <td>root</td>
                                             <td>
-                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                                            <code><a href="../interfaces/LoTE.html" target="_self" >LoTE</a></code>
                                             </td>
 
                                             <td>
@@ -337,6 +337,7 @@ This allows pairing issuance and revocation certificates from the same entity.</
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
+import { LoTE } from &quot;../../../issuer/trust-list/dto/types&quot;;
 import {
     ServiceTypeIdentifier,
     TrustedEntity,
@@ -359,55 +360,40 @@ export type ParsedLoTE &#x3D; {
     entities: TrustedEntity[];
 };
 
-function get(obj: any, path: string[]): any {
-    return path.reduce(
-        (o, k) &#x3D;&gt; (o?.[k] &#x3D;&#x3D;&#x3D; undefined ? undefined : o[k]),
-        obj,
-    );
-}
-
 @Injectable()
 export class LoteParserService {
     /**
      * Parse a LoTE payload preserving TrustedEntity groupings.
      * This allows pairing issuance and revocation certificates from the same entity.
      */
-    parse(lotePayload: any): ParsedLoTE {
-        const root &#x3D; lotePayload?.LoTE ?? lotePayload; // tolerate wrappers
+    parse(root: LoTE): ParsedLoTE {
+        const schemeInfo &#x3D; root.ListAndSchemeInformation;
 
         const info: LoteInfo &#x3D; {
-            nextUpdate:
-                get(root, [&quot;ListAndSchemeInformation&quot;, &quot;NextUpdate&quot;]) ??
-                get(root, [&quot;ListAndSchemeInformation&quot;, &quot;NextUpdate&quot;, &quot;value&quot;]),
-            listIssueDateTime:
-                get(root, [&quot;ListAndSchemeInformation&quot;, &quot;ListIssueDateTime&quot;]) ??
-                get(root, [
-                    &quot;ListAndSchemeInformation&quot;,
-                    &quot;ListIssueDateTime&quot;,
-                    &quot;value&quot;,
-                ]),
-            schemeTerritory: get(root, [
-                &quot;ListAndSchemeInformation&quot;,
-                &quot;SchemeTerritory&quot;,
-            ]),
+            nextUpdate: schemeInfo.NextUpdate,
+            listIssueDateTime: schemeInfo.ListIssueDateTime,
+            schemeTerritory: schemeInfo.SchemeTerritory,
         };
 
-        const rawEntities &#x3D; root?.TrustedEntitiesList ?? [];
+        const rawEntities &#x3D; root.TrustedEntitiesList ?? [];
         const entities: TrustedEntity[] &#x3D; [];
 
         for (const te of rawEntities) {
-            const entityId &#x3D; te?.TrustedEntityIdentifier ?? undefined;
-            const teServices &#x3D; te?.TrustedEntityServices ?? [];
+            // Extract entity ID from TrustedEntityInformation.TEName (array of MultiLangString)
+            // Use the first name&#x27;s value as the entity identifier
+            const teName &#x3D; te.TrustedEntityInformation.TEName;
+            const entityId &#x3D; teName[0]?.value;
+
+            const teServices &#x3D; te.TrustedEntityServices;
             const entityServices: TrustedEntityServiceCert[] &#x3D; [];
 
             for (const svc of teServices) {
-                const svcInfo &#x3D; svc?.ServiceInformation;
-                const serviceTypeIdentifier &#x3D; svcInfo?.ServiceTypeIdentifier;
+                const svcInfo &#x3D; svc.ServiceInformation;
+                const serviceTypeIdentifier &#x3D; svcInfo.ServiceTypeIdentifier!;
                 const x509s &#x3D;
-                    svcInfo?.ServiceDigitalIdentity?.X509Certificates ?? [];
-
+                    svcInfo.ServiceDigitalIdentity.X509Certificates ?? [];
                 for (const x of x509s) {
-                    if (x?.val) {
+                    if (x.val) {
                         const serviceCert: TrustedEntityServiceCert &#x3D; {
                             serviceTypeIdentifier,
                             certValue: x.val,
@@ -429,8 +415,8 @@ export class LoteParserService {
     }
 
     /**
-     * Filter entities to only include those with services matching the accepted types.
-     * Preserves the entity grouping.
+     * Filter entities to only include those that have at least one service matching the accepted types.
+     * Keeps all services of matching entities (not just the matching services).
      */
     filterByServiceTypes(
         parsed: ParsedLoTE,
@@ -438,14 +424,9 @@ export class LoteParserService {
     ): ParsedLoTE {
         const set &#x3D; new Set(accepted);
 
-        const filteredEntities &#x3D; parsed.entities
-            .map((entity) &#x3D;&gt; ({
-                entityId: entity.entityId,
-                services: entity.services.filter((s) &#x3D;&gt;
-                    set.has(s.serviceTypeIdentifier),
-                ),
-            }))
-            .filter((entity) &#x3D;&gt; entity.services.length &gt; 0);
+        const filteredEntities &#x3D; parsed.entities.filter((entity) &#x3D;&gt;
+            entity.services.some((s) &#x3D;&gt; set.has(s.serviceTypeIdentifier)),
+        );
 
         return {
             info: parsed.info,
