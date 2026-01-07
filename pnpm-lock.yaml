@@ -16,7 +16,7 @@ importers:
     devDependencies:
       '@adobe/jsonschema2md':
         specifier: ^8.0.8
-        version: 8.0.9
+        version: 8.0.10
       '@apidevtools/json-schema-ref-parser':
         specifier: ^15.1.3
         version: 15.1.3(@types/json-schema@7.0.15)
@@ -630,8 +630,8 @@ packages:
   '@actions/io@2.0.0':
     resolution: {integrity: sha512-Jv33IN09XLO+0HS79aaODsvIRyduiF7NY/F6LYeK5oeUmrsz7aFdRphQjFoESF4jS7lMauDOttKALcpapVDIAg==}
 
-  '@adobe/jsonschema2md@8.0.9':
-    resolution: {integrity: sha512-WEneGkXy+uThbv3xRahVleNu6Pgzj2s7s5ft01GlDs0FH7idkl/3PhYsLbW1RHFZb35jQKxbEh9LAUnhwZf/fw==}
+  '@adobe/jsonschema2md@8.0.10':
+    resolution: {integrity: sha512-POzBJ79SL1OwkUE3mnXmIkrTxt8o+oAyerWJ+TzMfK4rLQ3GPH+A6q1jhzLwODvk2S1M+9BYo2ouWIZPnC3CPg==}
     engines: {node: ^18.0.0 || >= 20.0.0}
     hasBin: true
 
@@ -6528,10 +6528,6 @@ packages:
     resolution: {integrity: sha512-oRXApq54ETRj4eMiFzGnHWGy+zo5raudjuxN0b8H7s/RU2oW0Wvsx9O0ACRN/kRq9E8Vu/ReskGB5o3ji+FzHQ==}
     engines: {node: '>=12'}
 
-  fs-extra@11.3.2:
-    resolution: {integrity: sha512-Xr9F6z6up6Ws+NjzMCZc6WXg2YFRlrLP9NQDO3VQrWrfiojdhS56TzueT88ze0uBdCTwEIhQ3ptnmKeWGFAe0A==}
-    engines: {node: '>=14.14'}
-
   fs-extra@11.3.3:
     resolution: {integrity: sha512-VWSRii4t0AFm6ixFFmLLx1t7wS1gh+ckoa84aOeapGum0h+EZd1EhEumSB+ZdDLnEPuucsVB9oB7cxJHap6Afg==}
     engines: {node: '>=14.14'}
@@ -10404,14 +10400,14 @@ snapshots:
 
   '@actions/io@2.0.0': {}
 
-  '@adobe/jsonschema2md@8.0.9':
+  '@adobe/jsonschema2md@8.0.10':
     dependencies:
       '@types/json-schema': 7.0.15
       '@types/mdast': 4.0.4
       '@types/unist': 3.0.3
       es2015-i18n-tag: 1.6.1
       ferrum: 1.9.4
-      fs-extra: 11.3.2
+      fs-extra: 11.3.3
       github-slugger: 2.0.0
       js-yaml: 4.1.1
       json-schema: 0.4.0
@@ -17134,12 +17130,6 @@ snapshots:
   fs-constants@1.0.0: {}
 
   fs-extra@10.1.0:
-    dependencies:
-      graceful-fs: 4.2.11
-      jsonfile: 6.2.0
-      universalify: 2.0.1
-
-  fs-extra@11.3.2:
     dependencies:
       graceful-fs: 4.2.11
       jsonfile: 6.2.0
