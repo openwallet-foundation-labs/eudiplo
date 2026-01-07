@@ -22,7 +22,7 @@
     "devDependencies": {
         "@angular/common": "^21.0.4",
         "@angular/core": "^21.0.4",
-        "@hey-api/openapi-ts": "^0.89.0",
+        "@hey-api/openapi-ts": "^0.90.1",
         "@types/node": "^25.0.2",
         "rxjs": "^7.8.2",
         "typescript": "^5.9.3"
