@@ -79,6 +79,12 @@ export class Oid4vpService {
                 ),
             );
 
+            //remove trusted_authorities from dcql
+            dcql_query.credentials = dcql_query.credentials.map((cred: any) => {
+                const { trusted_authorities, ...rest } = cred;
+                return rest;
+            });
+
             if (this.registrarService.isEnabled()) {
                 const registrationCert = JSON.parse(
                     JSON.stringify(
