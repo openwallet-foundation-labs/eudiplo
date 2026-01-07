@@ -400,8 +400,8 @@ importers:
         specifier: ^2.8.1
         version: 2.8.1
       uuid:
-        specifier: ^11.0.3
-        version: 11.1.0
+        specifier: ^13.0.0
+        version: 13.0.0
       zone.js:
         specifier: ~0.16.0
         version: 0.16.0
