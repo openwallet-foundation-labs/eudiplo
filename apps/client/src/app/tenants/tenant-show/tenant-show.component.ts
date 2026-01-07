@@ -28,13 +28,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 export class TenantShowComponent implements OnInit {
   tenant?: TenantEntity;
 
-  constructor(private route: ActivatedRoute) {}
+  constructor(private readonly route: ActivatedRoute) {}
 
-  async ngOnInit(): Promise<void> {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.tenant = await tenantControllerGetTenant<true>({ path: { id } }).then((res) => res.data);
-    }
+  ngOnInit() {
+    const id = this.route.snapshot.paramMap.get('id')!;
+    tenantControllerGetTenant<true>({ path: { id } }).then((res) => this.tenant = res.data);
   }
 
   getCleanupModeLabel(mode?: string): string {
