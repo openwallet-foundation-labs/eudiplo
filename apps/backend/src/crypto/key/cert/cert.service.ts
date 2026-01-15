@@ -193,9 +193,11 @@ export class CertService {
                     new x509.SubjectAlternativeNameExtension([
                         { type: "dns", value: hostname },
                     ]),
+                    new x509.BasicConstraintsExtension(true, undefined, true), // CA:TRUE, critical
                     new x509.KeyUsagesExtension(
                         x509.KeyUsageFlags.digitalSignature |
-                            x509.KeyUsageFlags.keyEncipherment,
+                            x509.KeyUsageFlags.keyEncipherment |
+                            x509.KeyUsageFlags.keyCertSign, // Allow signing other certificates
                         true,
                     ),
                     await x509.SubjectKeyIdentifierExtension.create(publicKey),

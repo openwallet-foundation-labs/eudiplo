@@ -102,10 +102,45 @@
 
         <mat-form-field>
           <mat-label>Redirect URI (optional)</mat-label>
-          <input matInput formControlName="redirectUri" placeholder="Enter redirect URI" />
+          <input
+            matInput
+            formControlName="redirectUri"
+            placeholder="https://example.com/callback?session={sessionId}"
+          />
           <mat-hint>
-            If provided, the user will be redirected to this URI after completing the presentation.
+            User will be redirected here after completing the presentation. Use
+            <code>{{ '{' }}sessionId{{ '}' }}</code> as placeholder for the session ID.
           </mat-hint>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Access Certificate (optional)</mat-label>
+          <mat-select formControlName="accessCertId">
+            <mat-select-trigger>
+              @if (form.controls['accessCertId'].value; as certId) {
+                {{ certId }}
+              } @else {
+                <em>Use default access certificate</em>
+              }
+            </mat-select-trigger>
+            <mat-option [value]="null">
+              <em>Use default access certificate</em>
+            </mat-option>
+            @for (cert of certificates; track cert.id) {
+              <mat-option [value]="cert.id">
+                <div fxLayout="column">
+                  <span
+                    ><strong>{{ cert.id }}</strong></span
+                  >
+                  <span class="option-description"
+                    >{{ cert.description }} (Key: {{ cert.keyId }})</span
+                  >
+                </div>
+              </mat-option>
+            }
+          </mat-select>
+          <mat-icon matSuffix>badge</mat-icon>
+          <mat-hint>Select the access certificate for signing the presentation request</mat-hint>
         </mat-form-field>
       </mat-card-content>
     </mat-card>

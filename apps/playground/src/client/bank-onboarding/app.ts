@@ -9,6 +9,9 @@ import {
   generateVerificationUI,
   waitForSession,
   getElement,
+  getSessionFromUrl,
+  buildRedirectUrl,
+  clearSessionFromUrl,
   type Session,
 } from '../shared/utils';
 
@@ -35,6 +38,40 @@ function showSection(section: HTMLElement): void {
 function init(): void {
   startBtn.addEventListener('click', handleStart);
   continueBtn?.addEventListener('click', handleContinue);
+  
+  // Check if returning from wallet with session
+  const sessionId = getSessionFromUrl();
+  if (sessionId) {
+    resumeSession(sessionId);
+  }
+}
+
+// Resume an existing session (from redirect)
+async function resumeSession(sessionId: string): Promise<void> {
+  // Show verification section in processing state
+  showSection(verificationSection);
+  qrCodeDiv.innerHTML = '<div class="processing-icon">🔄</div>';
+  qrCodeDiv.classList.remove('has-qr');
+  sameDeviceLink.classList.add('hidden');
+  statusText.textContent = 'Completing verification...';
+  
+  try {
+    const session = await waitForSession(sessionId, {
+      onUpdate: (s) => {
+        if (s.status === 'pending') {
+          statusText.textContent = 'Waiting for wallet response...';
+        } else if (s.status === 'processing') {
+          statusText.textContent = 'Verifying your identity...';
+        }
+      },
+    });
+    
+    clearSessionFromUrl();
+    showSuccess(session);
+  } catch (error) {
+    clearSessionFromUrl();
+    handleError(error);
+  }
 }
 
 // Handle start button click
@@ -43,8 +80,11 @@ async function handleStart(): Promise<void> {
   startBtn.textContent = 'Preparing verification...';
 
   try {
-    // Start verification process
-    const result = await createVerificationRequest(USE_CASE);
+    // Build redirect URL with {sessionId} placeholder - backend will replace it
+    const redirectUrl = buildRedirectUrl('{sessionId}');
+    
+    // Create request with redirect URI containing placeholder
+    const result = await createVerificationRequest(USE_CASE, redirectUrl);
 
     // Show verification section with QR code
     showSection(verificationSection);
@@ -65,27 +105,32 @@ async function handleStart(): Promise<void> {
     // Handle success
     showSuccess(session);
   } catch (error) {
-    console.error('Verification error:', error);
-    let message = 'Unknown error';
-    if (error instanceof Error) {
-      message = error.message;
-    } else if (typeof error === 'string') {
-      message = error;
-    } else if (error && typeof error === 'object' && 'message' in error) {
-      message = String((error as { message: unknown }).message);
-    }
-    
-    // Show verification section with error state
-    showSection(verificationSection);
-    qrCodeDiv.innerHTML = '<div class="error-icon">⚠️</div>';
-    qrCodeDiv.classList.remove('has-qr');
-    sameDeviceLink.classList.add('hidden');
-    statusText.textContent = `Something went wrong: ${message}`;
-    statusText.classList.add('error');
+    handleError(error);
   } finally {
     startBtn.disabled = false;
     startBtn.textContent = 'Open an Account';
   }
+}
+
+// Handle errors
+function handleError(error: unknown): void {
+  console.error('Verification error:', error);
+  let message = 'Unknown error';
+  if (error instanceof Error) {
+    message = error.message;
+  } else if (typeof error === 'string') {
+    message = error;
+  } else if (error && typeof error === 'object' && 'message' in error) {
+    message = String((error as { message: unknown }).message);
+  }
+  
+  // Show verification section with error state
+  showSection(verificationSection);
+  qrCodeDiv.innerHTML = '<div class="error-icon">⚠️</div>';
+  qrCodeDiv.classList.remove('has-qr');
+  sameDeviceLink.classList.add('hidden');
+  statusText.textContent = `Something went wrong: ${message}`;
+  statusText.classList.add('error');
 }
 
 // Show success state

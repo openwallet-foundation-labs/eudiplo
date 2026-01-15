@@ -356,6 +356,17 @@ header .badge {
   line-height: 1;
 }
 
+.processing-icon {
+  font-size: 4rem;
+  line-height: 1;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .status-text.error {
   color: var(--error);
 }

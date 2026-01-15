@@ -14,7 +14,7 @@
   ],
   "vars": {
     "CLIENT_ID": "test-client",
-    "CLIENT_SECRET": "test-secret",
-    "EUDIPLO_URL": "https://eudiplo.eudi-wallet.dev",
+    "CLIENT_SECRET": "test-client-secret",
+    "EUDIPLO_URL": "https://service.eudi-wallet.dev",
   },
 }

@@ -54,7 +54,7 @@
                   <p>Cryptographic keys are used to sign credentials and presentations</p>
                 </div>
                 @if (dashboardService.totalKeys === 0) {
-                  <a mat-stroked-button color="primary" routerLink="/key-management/create">
+                  <a mat-stroked-button color="primary" routerLink="/keys/create">
                     <mat-icon>add</mat-icon> Create Key
                   </a>
                 } @else {
@@ -255,7 +255,7 @@
     }
 
     @if (dashboardService.canManageKeysAndCerts) {
-      <a class="stat-card-link" routerLink="/key-management" aria-label="View key management">
+      <a class="stat-card-link" routerLink="/keys" aria-label="View key management">
         <mat-card class="stat-card">
           <mat-card-content fxLayout="column" fxLayoutAlign="center center">
             <mat-icon class="stat-icon keys">vpn_key</mat-icon>

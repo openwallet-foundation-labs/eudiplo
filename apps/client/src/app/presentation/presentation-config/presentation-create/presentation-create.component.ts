@@ -13,6 +13,8 @@ import { FlexLayoutModule } from 'ngx-flexible-layout';
 import {
   PresentationConfig,
   presentationManagementControllerUpdateConfiguration,
+  certControllerGetCertificates,
+  CertEntity,
 } from '@eudiplo/sdk-angular';
 import { PresentationManagementService } from '../presentation-management.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -65,6 +67,8 @@ export class PresentationCreateComponent implements OnInit {
 
   public predefinedConfigs = configs;
 
+  public certificates: CertEntity[] = [];
+
   constructor(
     private readonly presentationService: PresentationManagementService,
     private readonly router: Router,
@@ -76,6 +80,7 @@ export class PresentationCreateComponent implements OnInit {
       id: new FormControl(undefined, [Validators.required]),
       description: new FormControl(undefined, [Validators.required]),
       redirectUri: new FormControl(undefined),
+      accessCertId: new FormControl(undefined),
       dcql_query: new FormControl(undefined, [Validators.required]),
       lifeTime: new FormControl(300, [Validators.required, Validators.min(1)]),
       registrationCert: new FormControl(undefined), // Optional field
@@ -94,6 +99,19 @@ export class PresentationCreateComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Load certificates for the select dropdown
+    certControllerGetCertificates({}).then(
+      (res) =>
+        (this.certificates =
+          res.data.filter((cert) => cert.usages.some((usage) => usage.usage === 'access')) || []),
+      (error) => {
+        console.error('Failed to load certificates:', error);
+        this.snackBar.open('Failed to load certificates', 'Close', {
+          duration: 3000,
+        });
+      }
+    );
+
     if (this.route.snapshot.params['id']) {
       // Check if this is a copy operation
       this.copyMode = this.route.snapshot.url.some((segment) => segment.path === 'copy');
@@ -228,8 +246,7 @@ export class PresentationCreateComponent implements OnInit {
         const parsed = JSON.parse(dcqlControl.value);
         const formatted = JSON.stringify(parsed, null, 2);
         dcqlControl.setValue(formatted);
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (error) {
+      } catch {
         // Invalid JSON, don't format
       }
     }

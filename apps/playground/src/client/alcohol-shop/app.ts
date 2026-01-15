@@ -9,6 +9,9 @@ import {
   generateVerificationUI,
   waitForSession,
   getElement,
+  getSessionFromUrl,
+  buildRedirectUrl,
+  clearSessionFromUrl,
   type Session,
 } from '../shared/utils';
 
@@ -33,6 +36,48 @@ let currentSessionId: string | null = null;
 // Initialize
 function init(): void {
   checkoutBtn.addEventListener('click', handleCheckout);
+  
+  // Check if returning from wallet with session
+  const sessionId = getSessionFromUrl();
+  if (sessionId) {
+    resumeSession(sessionId);
+  }
+}
+
+// Resume an existing session (from redirect)
+async function resumeSession(sessionId: string): Promise<void> {
+  currentSessionId = sessionId;
+  
+  // Show verification section in processing state
+  checkoutSection.classList.add('hidden');
+  verificationSection.classList.remove('hidden');
+  infoSection.classList.add('hidden');
+  
+  // Hide QR code and same-device link (we're returning from wallet)
+  qrPlaceholder.innerHTML = '<div class="processing-icon">🔄</div>';
+  qrPlaceholder.classList.remove('has-qr');
+  sameDeviceLink.classList.add('hidden');
+  updateStatus('processing', 'Completing verification...');
+  
+  try {
+    // Wait for verification to complete
+    const session = await waitForSession(sessionId, {
+      onUpdate: (s) => {
+        if (s.status === 'pending') {
+          updateStatus('waiting', 'Waiting for wallet response...');
+        } else if (s.status === 'processing') {
+          updateStatus('processing', 'Processing verification...');
+        }
+      },
+    });
+    
+    // Clear session from URL on success
+    clearSessionFromUrl();
+    showSuccess(session);
+  } catch (error) {
+    clearSessionFromUrl();
+    handleError(error);
+  }
 }
 
 // Handle checkout button click
@@ -41,8 +86,11 @@ async function handleCheckout(): Promise<void> {
   checkoutBtn.textContent = 'Starting verification...';
 
   try {
-    // Start verification process
-    const result = await createVerificationRequest(USE_CASE);
+    // Build redirect URL with {sessionId} placeholder - backend will replace it
+    const redirectUrl = buildRedirectUrl('{sessionId}');
+    
+    // Create request with redirect URI containing placeholder
+    const result = await createVerificationRequest(USE_CASE, redirectUrl);
     currentSessionId = result.sessionId;
 
     // Show verification section
@@ -55,7 +103,7 @@ async function handleCheckout(): Promise<void> {
     updateStatus('waiting', 'Waiting for you to scan...');
 
     // Wait for verification to complete
-    const session = await waitForSession(currentSessionId, {
+    const session = await waitForSession(result.sessionId, {
       onUpdate: (s) => {
         if (s.status === 'pending') {
           updateStatus('waiting', 'Waiting for wallet response...');
@@ -68,30 +116,35 @@ async function handleCheckout(): Promise<void> {
     // Handle success
     showSuccess(session);
   } catch (error) {
-    console.error('Verification error:', error);
-    let message = 'Unknown error';
-    if (error instanceof Error) {
-      message = error.message;
-    } else if (typeof error === 'string') {
-      message = error;
-    } else if (error && typeof error === 'object' && 'message' in error) {
-      message = String((error as { message: unknown }).message);
-    }
-    
-    // Show verification section with error state
-    checkoutSection.classList.add('hidden');
-    verificationSection.classList.remove('hidden');
-    infoSection.classList.add('hidden');
-    
-    // Clear QR placeholder and show error
-    qrPlaceholder.innerHTML = '<div class="error-icon">⚠️</div>';
-    qrPlaceholder.classList.remove('has-qr');
-    sameDeviceLink.classList.add('hidden');
-    updateStatus('error', `Something went wrong: ${message}`);
+    handleError(error);
   } finally {
     checkoutBtn.disabled = false;
     checkoutBtn.textContent = 'Proceed to Checkout';
   }
+}
+
+// Handle errors
+function handleError(error: unknown): void {
+  console.error('Verification error:', error);
+  let message = 'Unknown error';
+  if (error instanceof Error) {
+    message = error.message;
+  } else if (typeof error === 'string') {
+    message = error;
+  } else if (error && typeof error === 'object' && 'message' in error) {
+    message = String((error as { message: unknown }).message);
+  }
+  
+  // Show verification section with error state
+  checkoutSection.classList.add('hidden');
+  verificationSection.classList.remove('hidden');
+  infoSection.classList.add('hidden');
+  
+  // Clear QR placeholder and show error
+  qrPlaceholder.innerHTML = '<div class="error-icon">⚠️</div>';
+  qrPlaceholder.classList.remove('has-qr');
+  sameDeviceLink.classList.add('hidden');
+  updateStatus('error', `Something went wrong: ${message}`);
 }
 
 // Update status display

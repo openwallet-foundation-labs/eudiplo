@@ -152,7 +152,7 @@ export class KeyManagementCreateComponent implements OnInit {
 
         // Navigate to the created key's detail page after dialog is closed
         dialogRef.afterClosed().subscribe(() => {
-          this.router.navigate(['/key-management', result.id]);
+          this.router.navigate(['/keys', result.id]);
         });
       }
     } catch (error) {

@@ -215,9 +215,25 @@ export class PresentationConfig {
 
     /**
      * Redirect URI to which the user-agent should be redirected after the presentation is completed.
+     * You can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.
+     * @example "https://example.com/callback?session={sessionId}"
      */
     @IsOptional()
     @IsString()
     @Column("varchar", { nullable: true })
     redirectUri?: string | null;
+
+    /**
+     * Optional ID of the access certificate to use for signing the presentation request.
+     * If not provided, the default access certificate for the tenant will be used.
+     *
+     * Note: This is intentionally NOT a TypeORM relationship because CertEntity uses
+     * a composite primary key (id + tenantId), and SQLite cannot create foreign keys
+     * that reference only part of a composite primary key. The relationship is handled
+     * at the application level in the service layer.
+     */
+    @IsOptional()
+    @IsString()
+    @Column("varchar", { nullable: true })
+    accessCertId?: string | null;
 }

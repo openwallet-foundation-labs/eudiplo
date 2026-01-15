@@ -45,6 +45,8 @@ export class PresentationRequest {
 
     /**
      * Optional redirect URI to which the user-agent should be redirected after the presentation is completed.
+     * You can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.
+     * @example "https://example.com/callback?session={sessionId}"
      */
     @IsOptional()
     @IsString()

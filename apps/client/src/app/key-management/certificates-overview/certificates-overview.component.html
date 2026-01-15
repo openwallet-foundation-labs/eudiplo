@@ -12,7 +12,7 @@
     <mat-icon class="empty-icon">badge</mat-icon>
     <p>No certificates found</p>
     <p class="hint">Create a key first, then add certificates to it</p>
-    <button mat-raised-button color="primary" routerLink="/key-management">
+    <button mat-raised-button color="primary" routerLink="/keys">
       <mat-icon>key</mat-icon>
       Manage Keys
     </button>
@@ -71,6 +71,9 @@
           matTooltip="Edit certificate metadata"
         >
           <mat-icon>edit</mat-icon>
+        </button>
+        <button matIconButton (click)="downloadConfig(cert)" matTooltip="Download configuration">
+          <mat-icon>download</mat-icon>
         </button>
       </td>
     </ng-container>

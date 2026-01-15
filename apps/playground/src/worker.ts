@@ -21,7 +21,7 @@ const USE_CASES: Record<string, { presentationConfigId: string; name: string }> 
     name: 'Alcohol Shop - Age Verification',
   },
   'bank-onboarding': {
-    presentationConfigId: 'pid',
+    presentationConfigId: 'playground-pid',
     name: 'Bank Onboarding - Identity Verification',
   },
   'car-rental': {
@@ -81,7 +81,7 @@ async function handleApi(request: Request, env: Env, url: URL): Promise<Response
 
     // POST /api/verify - Create a presentation request
     if (url.pathname === '/api/verify' && request.method === 'POST') {
-      const body = await request.json() as { useCase: string };
+      const body = await request.json() as { useCase: string; redirectUri?: string };
       const useCase = USE_CASES[body.useCase];
 
       if (!useCase) {
@@ -97,10 +97,12 @@ async function handleApi(request: Request, env: Env, url: URL): Promise<Response
         clientSecret: env.CLIENT_SECRET,
       });
 
-
+      // Create the presentation request
       const { uri, sessionId } = await client.createPresentationRequest({
         configId: useCase.presentationConfigId,
-      });      
+        // Pass redirect URI directly - caller is responsible for including session param
+        redirectUri: body.redirectUri,
+      });
 
       return Response.json({ uri, sessionId }, { headers: corsHeaders });
     }
