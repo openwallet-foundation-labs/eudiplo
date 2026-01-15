@@ -429,7 +429,7 @@ importers:
         version: 1.57.0
       '@types/jasmine':
         specifier: ~5.1.13
-        version: 5.1.13
+        version: 5.1.15
       angular-eslint:
         specifier: 21.1.0
         version: 21.1.0(@angular/cli@21.0.4(@types/node@25.0.3)(chokidar@4.0.3))(chokidar@4.0.3)(eslint@9.39.2(jiti@2.6.1))(typescript-eslint@8.52.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(typescript@5.9.3)
@@ -557,7 +557,7 @@ importers:
         version: 21.0.6(@angular/compiler@21.0.6)(typescript@5.9.3)
       '@types/jasmine':
         specifier: ~5.1.13
-        version: 5.1.13
+        version: 5.1.15
       '@types/node':
         specifier: ^25.0.2
         version: 25.0.3
@@ -4756,8 +4756,8 @@ packages:
   '@types/http-errors@2.0.5':
     resolution: {integrity: sha512-r8Tayk8HJnX0FztbZN7oVqGccWgw98T/0neJphO91KkmOzug1KkofZURD4UaD5uH8AqcFLfdPErnBod0u71/qg==}
 
-  '@types/jasmine@5.1.13':
-    resolution: {integrity: sha512-MYCcDkruFc92LeYZux5BC0dmqo2jk+M5UIZ4/oFnAPCXN9mCcQhLyj7F3/Za7rocVyt5YRr1MmqJqFlvQ9LVcg==}
+  '@types/jasmine@5.1.15':
+    resolution: {integrity: sha512-ZAC8KjmV2MJxbNTrwXFN+HKeajpXQZp6KpPiR6Aa4XvaEnjP6qh23lL/Rqb7AYzlp3h/rcwDrQ7Gg7q28cQTQg==}
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
@@ -15248,7 +15248,7 @@ snapshots:
 
   '@types/http-errors@2.0.5': {}
 
-  '@types/jasmine@5.1.13': {}
+  '@types/jasmine@5.1.15': {}
 
   '@types/json-schema@7.0.15': {}
 
