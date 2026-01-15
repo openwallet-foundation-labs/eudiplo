@@ -28,13 +28,13 @@
 <title>cluster_PresentationsModule_imports</title>
 <polygon fill="none" stroke="black" points="629,-78 629,-130 862,-130 862,-78 629,-78"/>
 </g>
-<g id="clust6" class="cluster">
-<title>cluster_PresentationsModule_providers</title>
-<polygon fill="none" stroke="black" points="16,-78 16,-130 621,-130 621,-78 16,-78"/>
-</g>
 <g id="clust4" class="cluster">
 <title>cluster_PresentationsModule_exports</title>
 <polygon fill="none" stroke="black" points="452,-208 452,-260 604,-260 604,-208 452,-208"/>
+</g>
+<g id="clust6" class="cluster">
+<title>cluster_PresentationsModule_providers</title>
+<polygon fill="none" stroke="black" points="16,-78 16,-130 621,-130 621,-78 16,-78"/>
 </g>
 <!-- ResolverModule -->
 <g id="node1" class="node">

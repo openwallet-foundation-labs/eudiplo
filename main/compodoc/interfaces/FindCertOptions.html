@@ -456,7 +456,7 @@ export class CertService {
         dto: CertImportDto,
     ) {
         // &#x3D;&#x3D;&#x3D; Inputs/parameters (subject + SAN hostname) &#x3D;&#x3D;&#x3D;
-        const subjectCN &#x3D; tenant.name;
+        const subjectCN &#x3D; dto.subjectName || tenant.name;
         const hostname &#x3D; new URL(
             this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;),
         ).hostname;

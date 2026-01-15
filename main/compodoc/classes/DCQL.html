@@ -164,7 +164,7 @@
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier">Optional</span>
-                                <a href="#credential_set" >credential_set</a>
+                                <a href="#credential_sets" >credential_sets</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
@@ -195,15 +195,15 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="credential_set"></a>
+                    <a name="credential_sets"></a>
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier">Optional</span>
-                        <span ><b>credential_set</b></span>
-                        <a href="#credential_set"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>credential_sets</b></span>
+                        <a href="#credential_sets"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
@@ -405,7 +405,7 @@ export class DCQL {
     @IsOptional()
     @ValidateNested({ each: true })
     @Type(() &#x3D;&gt; CredentialSetQuery)
-    credential_set?: CredentialSetQuery[];
+    credential_sets?: CredentialSetQuery[];
 }
 
 /**

@@ -585,8 +585,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="376"
-                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:376</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="375"
+                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:375</a></div>
                         </td>
                     </tr>
 
@@ -678,8 +678,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="400"
-                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:400</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="399"
+                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:399</a></div>
                         </td>
                     </tr>
 
@@ -771,8 +771,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="388"
-                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:388</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="387"
+                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:387</a></div>
                         </td>
                     </tr>
 
@@ -862,8 +862,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="481"
-                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:481</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="480"
+                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:480</a></div>
                         </td>
                     </tr>
 
@@ -1192,8 +1192,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="525"
-                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:525</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="524"
+                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:524</a></div>
                         </td>
                     </tr>
 
@@ -1261,8 +1261,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="534"
-                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:534</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="533"
+                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:533</a></div>
                         </td>
                     </tr>
 
@@ -1332,8 +1332,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="353"
-                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:353</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="352"
+                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:352</a></div>
                         </td>
                     </tr>
 
@@ -1401,8 +1401,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="339"
-                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:339</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="338"
+                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:338</a></div>
                         </td>
                     </tr>
 
@@ -1823,8 +1823,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="303"
-                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:303</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="302"
+                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:302</a></div>
                         </td>
                     </tr>
 
@@ -1990,8 +1990,8 @@ Increments the sequence number and stores a version for audit</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="320"
-                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:320</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="319"
+                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:319</a></div>
                         </td>
                     </tr>
 
@@ -2370,17 +2370,16 @@ export class TrustListService implements OnApplicationBootstrap {
         const entries: TrustedEntity[] &#x3D; [];
         for (const entity of config.entities || []) {
             if (entity.type &#x3D;&#x3D;&#x3D; &quot;internal&quot;) {
-                // Internal: fetch certificates from database
-                const issuerCert &#x3D; await this.certService.find({
-                    tenantId: tenant.id,
-                    type: CertUsage.Signing,
-                    id: entity.issuerCertId,
-                });
-                const revocationCert &#x3D; await this.certService.find({
-                    tenantId: tenant.id,
-                    type: CertUsage.StatusList,
-                    id: entity.revocationCertId,
-                });
+                // Internal: fetch certificates from database by ID
+                const issuerCert &#x3D; await this.certService.getCertificateById(
+                    tenant.id,
+                    entity.issuerCertId,
+                );
+                const revocationCert &#x3D;
+                    await this.certService.getCertificateById(
+                        tenant.id,
+                        entity.revocationCertId,
+                    );
                 entries.push(
                     this.createEntityFromCert(
                         issuerCert,

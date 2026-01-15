@@ -280,8 +280,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="216"
-                                    class="link-to-prism">src/verifier/presentations/credential/mdlverifier/mdlverifier.service.ts:216</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="219"
+                                    class="link-to-prism">src/verifier/presentations/credential/mdlverifier/mdlverifier.service.ts:219</a></div>
                         </td>
                     </tr>
 
@@ -365,8 +365,8 @@ This creates a request that matches what was received for verification.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="249"
-                                    class="link-to-prism">src/verifier/presentations/credential/mdlverifier/mdlverifier.service.ts:249</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="252"
+                                    class="link-to-prism">src/verifier/presentations/credential/mdlverifier/mdlverifier.service.ts:252</a></div>
                         </td>
                     </tr>
 
@@ -437,8 +437,8 @@ This creates a request that matches what was received for verification.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="147"
-                                    class="link-to-prism">src/verifier/presentations/credential/mdlverifier/mdlverifier.service.ts:147</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="149"
+                                    class="link-to-prism">src/verifier/presentations/credential/mdlverifier/mdlverifier.service.ts:149</a></div>
                         </td>
                     </tr>
 
@@ -509,8 +509,8 @@ Converts the trust store certificates to Uint8Array format required by the mdoc 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="208"
-                                    class="link-to-prism">src/verifier/presentations/credential/mdlverifier/mdlverifier.service.ts:208</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="211"
+                                    class="link-to-prism">src/verifier/presentations/credential/mdlverifier/mdlverifier.service.ts:211</a></div>
                         </td>
                     </tr>
 
@@ -798,6 +798,8 @@ export class MdlverifierService {
             const trustedCertificates &#x3D;
                 await this.getTrustedCertificates(options);
 
+            console.log(trustedCertificates);
+
             if (trustedCertificates.length &#x3D;&#x3D;&#x3D; 0) {
                 this.logger.warn(
                     &quot;No trusted certificates found in trust store&quot;,
@@ -909,6 +911,7 @@ export class MdlverifierService {
 
             return trustedCertificates;
         } catch (error: any) {
+            console.log(error);
             this.logger.error(
                 &#x60;Failed to load trust store: ${error?.message ?? error}&#x60;,
             );

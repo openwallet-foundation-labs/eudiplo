@@ -180,6 +180,10 @@
                                     <span class="modifier">Async</span>
                                 <a href="#setUpTenant" >setUpTenant</a>
                             </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#updateTenant" >updateTenant</a>
+                            </li>
                         </ul>
                     </td>
                 </tr>
@@ -423,8 +427,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="164"
-                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:164</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="178"
+                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:178</a></div>
                         </td>
                     </tr>
 
@@ -744,6 +748,99 @@
             </tr>
         </tbody>
     </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="updateTenant"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>updateTenant</b></span>
+                        <a href="#updateTenant"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>updateTenant(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, data: <a href="../entitys/TenantEntity.html" target="_self">Partial&lt;Omit&lt;TenantEntity, &quot;id&quot; | &quot;clients&quot; | &quot;status&quot;&gt;&gt;</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="166"
+                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:166</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Update a tenant by ID</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The ID of the tenant to update</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>data</td>
+                                            <td>
+                                                            <code><a href="../entitys/TenantEntity.html" target="_self" >Partial&lt;Omit&lt;TenantEntity, &quot;id&quot; | &quot;clients&quot; | &quot;status&quot;&gt;&gt;</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The updated tenant data</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../entitys/TenantEntity.html" target="_self" >Promise&lt;TenantEntity&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>The updated tenant entity</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </section>
 
     </div>
@@ -907,6 +1004,20 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
             { id: tenant.id },
             { status: &quot;active&quot; },
         );
+    }
+
+    /**
+     * Update a tenant by ID
+     * @param id The ID of the tenant to update
+     * @param data The updated tenant data
+     * @returns The updated tenant entity
+     */
+    async updateTenant(
+        id: string,
+        data: Partial&lt;Omit&lt;TenantEntity, &quot;id&quot; | &quot;clients&quot; | &quot;status&quot;&gt;&gt;,
+    ): Promise&lt;TenantEntity&gt; {
+        await this.tenantRepository.update({ id }, data);
+        return this.getTenant(id);
     }
 
     /**

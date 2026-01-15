@@ -416,11 +416,16 @@ export class SdjwtvcIssuerService {
         const host &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;);
         const disclosureFrame &#x3D; credentialConfiguration.disclosureFrame ?? {};
 
+        const vct &#x3D;
+            typeof credentialConfiguration.vct &#x3D;&#x3D;&#x3D; &quot;string&quot;
+                ? credentialConfiguration.vct
+                : &#x60;${host}/${session.tenantId}/credentials-metadata/vct/${credentialConfiguration.id}&#x60;;
+
         return sdjwt.issue(
             {
                 iat,
                 exp,
-                vct: &#x60;${host}/${session.tenantId}/credentials-metadata/vct/${credentialConfiguration.id}&#x60;,
+                vct,
                 iss: &#x60;${host}/${session.tenantId}&#x60;,
                 cnf,
                 ...claims,

@@ -181,6 +181,10 @@
                                     <span class="modifier"></span>
                                 <a href="#initTenant" >initTenant</a>
                             </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                <a href="#updateTenant" >updateTenant</a>
+                            </li>
                         </ul>
                     </td>
                 </tr>
@@ -227,8 +231,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="51"
-                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:51</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="71"
+                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:71</a></div>
                         </td>
                     </tr>
 
@@ -310,8 +314,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="42"
-                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:42</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="51"
+                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:51</a></div>
                         </td>
                     </tr>
 
@@ -394,8 +398,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="22"
-                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:22</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="31"
+                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:31</a></div>
                         </td>
                     </tr>
 
@@ -445,8 +449,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="32"
-                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:32</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="41"
+                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:41</a></div>
                         </td>
                     </tr>
 
@@ -494,15 +498,124 @@
             </tr>
         </tbody>
     </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="updateTenant"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                        <span ><b>updateTenant</b></span>
+                        <a href="#updateTenant"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>updateTenant(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, data: <a href="../classes/UpdateTenantDto.html" target="_self">UpdateTenantDto</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Patch(&#x27;:id&#x27;)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="62"
+                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:62</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Update a tenant by ID</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The ID of the tenant</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>data</td>
+                                            <td>
+                                                            <code><a href="../classes/UpdateTenantDto.html" target="_self" >UpdateTenantDto</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The updated tenant data</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>The updated tenant</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </section>    </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Body, Controller, Delete, Get, Param, Post } from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    Patch,
+    Post,
+} from &quot;@nestjs/common&quot;;
 import { ApiTags } from &quot;@nestjs/swagger&quot;;
 import { Role } from &quot;../roles/role.enum&quot;;
 import { Secured } from &quot;../secure.decorator&quot;;
 import { CreateTenantDto } from &quot;./dto/create-tenant.dto&quot;;
+import { UpdateTenantDto } from &quot;./dto/update-tenant.dto&quot;;
 import { TenantService } from &quot;./tenant.service&quot;;
 
 /**
@@ -541,6 +654,17 @@ export class TenantController {
     @Get(&quot;:id&quot;)
     getTenant(@Param(&quot;id&quot;) id: string) {
         return this.tenantService.getTenant(id);
+    }
+
+    /**
+     * Update a tenant by ID
+     * @param id The ID of the tenant
+     * @param data The updated tenant data
+     * @returns The updated tenant
+     */
+    @Patch(&quot;:id&quot;)
+    updateTenant(@Param(&quot;id&quot;) id: string, @Body() data: UpdateTenantDto) {
+        return this.tenantService.updateTenant(id, data);
     }
 
     /**

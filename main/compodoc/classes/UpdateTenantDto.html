@@ -114,7 +114,7 @@
 
 <ol class="breadcrumb">
   <li class="breadcrumb-item">Classes</li>
-  <li class="breadcrumb-item" >ClientCredentialsDto</li>
+  <li class="breadcrumb-item" >UpdateTenantDto</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -138,172 +138,33 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/auth/dto/client-credentials.dto.ts</code>
+            <code>src/auth/tenant/dto/update-tenant.dto.ts</code>
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>DTO for updating a tenant.
+All fields are optional except those inherited as required.
+The <code>id</code> field is omitted as it cannot be changed.</p>
 
+            </p>
 
-
-
-            <section data-compodoc="block-index">
-    <h3 id="index">Index</h3>
-    <table class="table table-sm table-bordered index-table">
-        <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <h6><b>Properties</b></h6>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <ul class="index-list">
-                            <li>
-                                    <span class="modifier"></span>
-                                <a href="#client_id" >client_id</a>
-                            </li>
-                            <li>
-                                    <span class="modifier"></span>
-                                <a href="#client_secret" >client_secret</a>
-                            </li>
-                            <li>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier">Optional</span>
-                                <a href="#grant_type" >grant_type</a>
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
+            <p class="comment">
+                <h3>Extends</h3>
+            </p>
+            <p class="comment">
+                            <code><a href="../classes/CreateTenantDto.html" target="_self" >PartialType(
+    OmitType(CreateTenantDto, [&quot;id&quot;] as const),
+)</a></code>
+            </p>
 
 
 
 
 
-
-        </tbody>
-    </table>
-</section>
-
-
-            <section data-compodoc="block-properties">
-    
-    <h3 id="inputs">
-        Properties
-    </h3>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="client_id"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                        <span ><b>client_id</b></span>
-                        <a href="#client_id"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @IsString()<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="11" class="link-to-prism">src/auth/dto/client-credentials.dto.ts:11</a></div>
-                        </td>
-                    </tr>
-
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="client_secret"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                        <span ><b>client_secret</b></span>
-                        <a href="#client_secret"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @IsString()<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="14" class="link-to-prism">src/auth/dto/client-credentials.dto.ts:14</a></div>
-                        </td>
-                    </tr>
-
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="grant_type"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier">Optional</span>
-                        <span ><b>grant_type</b></span>
-                        <a href="#grant_type"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @ApiPropertyOptional({default: &#x27;client_credentials&#x27;})<br />@IsOptional()<br />@IsString()<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="8" class="link-to-prism">src/auth/dto/client-credentials.dto.ts:8</a></div>
-                        </td>
-                    </tr>
-
-
-        </tbody>
-    </table>
-</section>
 
 
 
@@ -315,21 +176,17 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiPropertyOptional } from &quot;@nestjs/swagger&quot;;
-import { IsOptional, IsString } from &quot;class-validator&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { OmitType, PartialType } from &quot;@nestjs/swagger&quot;;
+import { CreateTenantDto } from &quot;./create-tenant.dto&quot;;
 
-export class ClientCredentialsDto {
-    @ApiPropertyOptional({ default: &quot;client_credentials&quot; })
-    @IsOptional()
-    @IsString()
-    grant_type?: string;
-
-    @IsString()
-    client_id!: string;
-
-    @IsString()
-    client_secret!: string;
-}
+/**
+ * DTO for updating a tenant.
+ * All fields are optional except those inherited as required.
+ * The &#x60;id&#x60; field is omitted as it cannot be changed.
+ */
+export class UpdateTenantDto extends PartialType(
+    OmitType(CreateTenantDto, [&quot;id&quot;] as const),
+) {}
 </code></pre>
     </div>
 </div>
@@ -368,7 +225,7 @@ export class ClientCredentialsDto {
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
-            var COMPODOC_CURRENT_PAGE_URL = 'ClientCredentialsDto.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'UpdateTenantDto.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 
