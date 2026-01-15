@@ -13,11 +13,11 @@
       "node"
     ],
     "paths": {
-      "@eudiplo/sdk": [
-        "../../packages/eudiplo-sdk/src/index.ts"
+      "@eudiplo/sdk-angular": [
+        "../../packages/eudiplo-sdk-angular/src/index.ts"
       ],
-      "@eudiplo/sdk/*": [
-        "../../packages/eudiplo-sdk/src/*"
+      "@eudiplo/sdk-angular/*": [
+        "../../packages/eudiplo-sdk-angular/src/*"
       ]
     }
   },

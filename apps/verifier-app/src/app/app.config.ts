@@ -1,13 +1,13 @@
 import { ApplicationConfig, provideZoneChangeDetection, APP_INITIALIZER, inject, provideAppInitializer } from '@angular/core';
-import { ApiService } from '@eudiplo/sdk';
+import { ApiService } from '@eudiplo/sdk-angular';
 import { environment } from '../environments/environment';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/http';
-import { client } from '@eudiplo/sdk/api/client.gen';
-import { provideHeyApiClient } from '@eudiplo/sdk/api/client/client.gen';
-import { authInterceptor } from '@eudiplo/sdk';
+import { client } from '@eudiplo/sdk-angular/api/client.gen';
+import { provideHeyApiClient } from '@eudiplo/sdk-angular/api/client/client.gen';
+import { authInterceptor } from '@eudiplo/sdk-angular';
 
 export const appConfig: ApplicationConfig = {
   providers: [

@@ -17,6 +17,9 @@
         <button mat-icon-button [routerLink]="['edit']" matTooltip="Edit configuration">
           <mat-icon>edit</mat-icon>
         </button>
+        <button mat-icon-button [routerLink]="['copy']" matTooltip="Copy configuration">
+          <mat-icon>content_copy</mat-icon>
+        </button>
         <button mat-icon-button (click)="downloadConfig()" matTooltip="Download configuration">
           <mat-icon>download</mat-icon>
         </button>
@@ -87,7 +90,7 @@
       </mat-card-header>
       <mat-card-content>
         <!-- Credential Set (combinations) -->
-        @if (config.dcql_query.credential_set && config.dcql_query.credential_set.length > 0) {
+        @if (config.dcql_query.credential_sets && config.dcql_query.credential_sets.length > 0) {
           <div class="credential-sets-section">
             <h4>
               <mat-icon>account_tree</mat-icon>
@@ -97,7 +100,7 @@
               The wallet must provide one of the following credential combinations:
             </p>
             <div fxLayout="column" fxLayoutGap="12px">
-              @for (credSet of config.dcql_query.credential_set; track $index; let i = $index) {
+              @for (credSet of config.dcql_query.credential_sets; track $index; let i = $index) {
                 <div class="credential-set-card">
                   <div class="set-header">
                     <span class="set-label">Option {{ i + 1 }}</span>

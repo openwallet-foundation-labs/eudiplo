@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { KeyEntity } from '@eudiplo/sdk';
+import { KeyEntity } from '@eudiplo/sdk-angular';
 import { KeyManagementService } from '../key-management.service';
 
 @Component({

@@ -10,11 +10,11 @@
     "target": "ES2022",
     "module": "ES2022",
     "paths": {
-      "@eudiplo/sdk": [
-        "../../packages/eudiplo-sdk/src/index.ts"
+      "@eudiplo/sdk-angular": [
+        "../../packages/eudiplo-sdk-angular/src/index.ts"
       ],
-      "@eudiplo/sdk/*": [
-        "../../packages/eudiplo-sdk/src/*"
+      "@eudiplo/sdk-angular/*": [
+        "../../packages/eudiplo-sdk-angular/src/*"
       ]
     }
   },

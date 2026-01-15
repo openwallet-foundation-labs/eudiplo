@@ -10,7 +10,7 @@
         "$ref": "./CredentialQuery.schema.json"
       }
     },
-    "credential_set": {
+    "credential_sets": {
       "type": "array",
       "items": {
         "$ref": "./CredentialSetQuery.schema.json"

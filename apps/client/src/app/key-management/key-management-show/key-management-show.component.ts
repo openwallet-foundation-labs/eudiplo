@@ -10,7 +10,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { X509Certificate, SubjectAlternativeNameExtension } from '@peculiar/x509';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { KeyEntity } from '@eudiplo/sdk';
+import { KeyEntity } from '@eudiplo/sdk-angular';
 import { KeyManagementService } from '../key-management.service';
 
 interface CertificateInfo {

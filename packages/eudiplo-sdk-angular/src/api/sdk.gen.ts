@@ -150,6 +150,8 @@ import type {
   TenantControllerGetTenantsResponses,
   TenantControllerInitTenantData,
   TenantControllerInitTenantResponses,
+  TenantControllerUpdateTenantData,
+  TenantControllerUpdateTenantResponses,
   TrustListControllerCreateTrustListData,
   TrustListControllerCreateTrustListResponses,
   TrustListControllerDeleteTrustListData,
@@ -356,6 +358,28 @@ export const tenantControllerGetTenant = <ThrowOnError extends boolean = true>(
     security: [{ scheme: "bearer", type: "http" }],
     url: "/tenant/{id}",
     ...options,
+  });
+
+/**
+ * Update a tenant by ID
+ */
+export const tenantControllerUpdateTenant = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<TenantControllerUpdateTenantData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    TenantControllerUpdateTenantResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/tenant/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });
 
 /**

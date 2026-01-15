@@ -1,4 +1,4 @@
-import { CredentialConfigCreate } from '@eudiplo/sdk';
+import { CredentialConfigCreate } from '@eudiplo/sdk-angular';
 
 export interface PredefinedConfig {
   name: string;

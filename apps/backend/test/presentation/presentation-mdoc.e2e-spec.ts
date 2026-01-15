@@ -70,8 +70,8 @@ describe("Presentation - mDOC Credential", () => {
             resolved.authorizationRequestPayload.nonce,
             values.privateKey,
             values.issuerCert,
-            resolved.authorizationRequestPayload.client_id,
-            resolved.authorizationRequestPayload.response_uri,
+            resolved.authorizationRequestPayload.client_id!,
+            resolved.authorizationRequestPayload.response_uri as string,
         );
 
         const jwt = await encryptVpToken(

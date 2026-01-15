@@ -13,7 +13,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { CredentialConfig, StatusListResponseDto } from '@eudiplo/sdk';
+import { CredentialConfig, StatusListResponseDto } from '@eudiplo/sdk-angular';
 import { CredentialConfigService } from '../credential-config.service';
 import { StatusListManagementService } from '../../../status-list-management/status-list-management.service';
 import { WebhookConfigShowComponent } from '../../../utils/webhook-config-show/webhook-config-show.component';
@@ -55,6 +55,18 @@ export class CredentialConfigShowComponent implements OnInit {
 
   get isMdocFormat(): boolean {
     return this.config?.config?.format === 'mso_mdoc';
+  }
+
+  get isVctString(): boolean {
+    return typeof this.config?.vct === 'string';
+  }
+
+  get vctAsString(): string | null {
+    return typeof this.config?.vct === 'string' ? this.config.vct : null;
+  }
+
+  get vctAsObject(): any {
+    return typeof this.config?.vct === 'object' ? this.config.vct : null;
   }
 
   get formatLabel(): string {

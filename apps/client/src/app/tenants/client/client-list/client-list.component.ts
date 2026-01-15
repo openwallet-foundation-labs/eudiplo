@@ -11,7 +11,7 @@ import {
   ClientEntity,
   clientControllerDeleteClient,
   ApiService,
-} from '@eudiplo/sdk';
+} from '@eudiplo/sdk-angular';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 

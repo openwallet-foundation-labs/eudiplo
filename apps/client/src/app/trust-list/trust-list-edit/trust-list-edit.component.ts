@@ -21,7 +21,7 @@ import {
   trustListControllerUpdateTrustList,
   type CertEntity,
   type TrustList,
-} from '@eudiplo/sdk';
+} from '@eudiplo/sdk-angular';
 import { EditorComponent } from '../../utils/editor/editor.component';
 
 /** Common info fields for both internal and external entities */

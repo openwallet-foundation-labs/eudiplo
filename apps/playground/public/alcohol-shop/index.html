@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>Vineyard Select - Age Verification</title>
+    <link rel="stylesheet" href="/shared/styles.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="demo-header">
+        <a href="/">←</a>
+        <h1>🍷 Vineyard Select</h1>
+      </div>
+
+      <div class="demo-container">
+        <!-- Left: Shop Content -->
+        <div class="demo-left shop-content">
+          <div class="product-card">
+            <div class="product-image">🍾</div>
+            <div class="product-info">
+              <h2>Château Premium 2018</h2>
+              <p class="product-description">
+                Full-bodied red wine with notes of blackberry and oak
+              </p>
+              <div class="product-price">€49.99</div>
+            </div>
+          </div>
+
+          <div class="cart-summary">
+            <h3>Your Cart</h3>
+            <div class="cart-item">
+              <span>Château Premium 2018 × 1</span>
+              <span>€49.99</span>
+            </div>
+            <div class="cart-total">
+              <span>Total</span>
+              <span>€49.99</span>
+            </div>
+          </div>
+
+          <div id="checkoutSection">
+            <button id="checkoutBtn" class="btn btn-primary btn-block">
+              Proceed to Checkout
+            </button>
+            <p class="checkout-note">
+              Age verification required for alcohol purchases
+            </p>
+          </div>
+
+          <div id="successSection" class="hidden">
+            <div class="message success">
+              ✅ Age verified! Your order has been confirmed.
+            </div>
+            <button
+              onclick="location.reload()"
+              class="btn btn-secondary btn-block"
+            >
+              Start New Order
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Verification -->
+        <div class="demo-right">
+          <div id="verificationSection" class="hidden">
+            <div class="qr-section">
+              <h2>Verify Your Age</h2>
+              <p class="qr-instruction">
+                Scan with your EUDI Wallet or tap the button below
+              </p>
+
+              <div id="qrPlaceholder" class="qr-placeholder">Loading...</div>
+
+              <div class="same-device-section">
+                <span class="divider-text">or on this device</span>
+                <div id="sameDeviceLink" class="hidden"></div>
+              </div>
+
+              <div id="statusBadge" class="status waiting">
+                <span class="status-dot"></span>
+                <span id="statusText">Waiting for verification...</span>
+              </div>
+            </div>
+
+            <div id="resultPanel" class="result-panel hidden">
+              <h3>Verification Result</h3>
+              <div id="credentialDisplay"></div>
+            </div>
+          </div>
+
+          <div id="infoSection">
+            <h2>Why do we verify age?</h2>
+            <p>
+              As a responsible retailer, we are required by law to verify that
+              customers are at least 18 years old before selling alcohol.
+            </p>
+
+            <h3>How it works</h3>
+            <ol class="steps-list">
+              <li>Click "Proceed to Checkout"</li>
+              <li>Scan the QR code or tap "Open in Wallet"</li>
+              <li>Confirm the age verification request</li>
+              <li>Complete your purchase</li>
+            </ol>
+
+            <div class="privacy-note">
+              <strong>🔒 Privacy First</strong>
+              <p>
+                We only verify that you are over 18. We do not store your
+                personal data or ID documents.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="/js/alcohol-shop/app.js"></script>
+  </body>
+</html>

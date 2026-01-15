@@ -83,11 +83,16 @@ export class SdjwtvcIssuerService {
         const host = this.configService.getOrThrow<string>("PUBLIC_URL");
         const disclosureFrame = credentialConfiguration.disclosureFrame ?? {};
 
+        const vct =
+            typeof credentialConfiguration.vct === "string"
+                ? credentialConfiguration.vct
+                : `${host}/${session.tenantId}/credentials-metadata/vct/${credentialConfiguration.id}`;
+
         return sdjwt.issue(
             {
                 iat,
                 exp,
-                vct: `${host}/${session.tenantId}/credentials-metadata/vct/${credentialConfiguration.id}`,
+                vct,
                 iss: `${host}/${session.tenantId}`,
                 cnf,
                 ...claims,

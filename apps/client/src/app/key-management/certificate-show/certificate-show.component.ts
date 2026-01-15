@@ -12,7 +12,7 @@ import {
   certControllerGetCertificate,
   certControllerExportConfig,
   type CertEntity,
-} from '@eudiplo/sdk';
+} from '@eudiplo/sdk-angular';
 import { X509Certificate, SubjectAlternativeNameExtension } from '@peculiar/x509';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 

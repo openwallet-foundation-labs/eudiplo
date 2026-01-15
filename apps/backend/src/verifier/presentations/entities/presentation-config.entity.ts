@@ -122,7 +122,7 @@ export class DCQL {
     @IsOptional()
     @ValidateNested({ each: true })
     @Type(() => CredentialSetQuery)
-    credential_set?: CredentialSetQuery[];
+    credential_sets?: CredentialSetQuery[];
 }
 
 /**

@@ -1,0 +1,332 @@
+/* Bank Onboarding specific styles */
+
+/* Brand colors - Professional blue banking theme */
+:root {
+  --bank-primary: #1e40af;
+  --bank-accent: #3b82f6;
+  --bank-bg: #eff6ff;
+  --bank-success: #059669;
+}
+
+.hero {
+  text-align: center;
+  padding: 2rem 0;
+  background: linear-gradient(135deg, var(--bank-bg) 0%, #dbeafe 100%);
+  margin: -2rem -2rem 2rem -2rem;
+  padding: 3rem 2rem;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+@media (max-width: 640px) {
+  .hero {
+    margin: -1.25rem -1.25rem 1.5rem -1.25rem;
+    padding: 2rem 1rem;
+    border-radius: 8px 8px 0 0;
+  }
+}
+
+.hero h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: var(--bank-primary);
+}
+
+@media (max-width: 640px) {
+  .hero h1 {
+    font-size: 1.5rem;
+  }
+}
+
+.hero p {
+  color: var(--text-muted);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+@media (max-width: 640px) {
+  .features {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}
+
+.feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--bg);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.feature:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.feature-icon {
+  font-size: 1.5rem;
+  background: var(--bank-bg);
+  padding: 0.5rem;
+  border-radius: 8px;
+}
+
+.feature strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--bank-primary);
+}
+
+.feature p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.btn-large {
+  width: 100%;
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+  background: var(--bank-accent);
+}
+
+.btn-large:hover {
+  background: var(--bank-primary);
+}
+
+.verification-subtitle {
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.verification-info {
+  background: var(--bank-bg);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #bfdbfe;
+}
+
+@media (max-width: 640px) {
+  .verification-info {
+    padding: 1rem;
+  }
+}
+
+.verification-info h3 {
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--bank-primary);
+}
+
+.data-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+}
+
+@media (max-width: 480px) {
+  .data-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+.data-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 6px;
+}
+
+.data-icon {
+  width: 24px;
+  text-align: center;
+}
+
+.success-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.success-icon {
+  font-size: 4rem;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.success-header h2 {
+  color: var(--bank-success);
+}
+
+.verified-data {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border);
+}
+
+@media (max-width: 640px) {
+  .verified-data {
+    padding: 1rem;
+  }
+}
+
+.verified-data h3 {
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.results-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.result-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.result-item:last-child {
+  border-bottom: none;
+}
+
+.result-label {
+  color: var(--text-muted);
+}
+
+.result-value {
+  font-weight: 500;
+}
+
+.next-steps {
+  margin-bottom: 1.5rem;
+}
+
+.next-steps h3 {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  border-radius: var(--radius);
+  color: var(--text-muted);
+}
+
+.step.completed {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.step.current {
+  background: var(--bank-bg);
+  color: var(--bank-primary);
+}
+
+.step-number {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: currentColor;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.step.completed .step-number,
+.step.current .step-number {
+  background: currentColor;
+}
+
+.step-text {
+  flex: 1;
+}
+
+/* Bank branded privacy note */
+.privacy-note {
+  background: var(--bank-bg);
+  border: 1px solid #bfdbfe;
+}
+
+.privacy-note strong {
+  color: var(--bank-primary);
+}
+
+/* Bank branded header */
+header {
+  background: linear-gradient(135deg, var(--bank-primary) 0%, #2563eb 100%);
+  border-bottom: none;
+}
+
+header .logo {
+  color: white;
+}
+
+header .badge {
+  background: white;
+  color: var(--bank-primary);
+}
+
+.error-card {
+  text-align: center;
+}
+
+.error-content {
+  padding: 2rem 0;
+}
+
+.error-icon {
+  font-size: 4rem;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.error-content h2 {
+  margin-bottom: 0.5rem;
+}
+
+.error-content p {
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.footer-note {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}

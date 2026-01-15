@@ -1,0 +1,10 @@
+# EUDIPLO Playground - Local Development Variables
+# Copy this file to .dev.vars and fill in your values
+# .dev.vars is gitignored and should never be committed
+
+# EUDIPLO backend URL (your local or remote instance)
+EUDIPLO_URL=http://localhost:3000
+
+# Client credentials for EUDIPLO API
+CLIENT_ID=root
+CLIENT_SECRET=root

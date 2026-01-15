@@ -8,7 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { StatusListManagementService } from '../status-list-management.service';
-import { StatusListResponseDto, CredentialConfig, CertEntity } from '@eudiplo/sdk';
+import { StatusListResponseDto, CredentialConfig, CertEntity } from '@eudiplo/sdk-angular';
 
 export interface StatusListDialogData {
   mode: 'create' | 'edit';

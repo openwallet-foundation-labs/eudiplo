@@ -19,7 +19,7 @@ import {
   trustListControllerExportTrustList,
   trustListControllerGetTrustList,
   trustListControllerGetTrustListVersions,
-} from '@eudiplo/sdk';
+} from '@eudiplo/sdk-angular';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 
 interface EntityInfo {

@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpdateTenantDto.schema.json",
+  "title": "UpdateTenantDto",
+  "type": "object",
+  "properties": {
+    "statusListConfig": {
+      "nullable": true,
+      "description": "Status list configuration for this tenant. Only affects newly created status lists.",
+      "allOf": [
+        {
+          "$ref": "./StatusListConfig.schema.json"
+        }
+      ]
+    },
+    "sessionConfig": {
+      "description": "Session storage configuration. Controls TTL and cleanup behavior.",
+      "allOf": [
+        {
+          "$ref": "./SessionStorageConfig.schema.json"
+        }
+      ]
+    },
+    "name": {
+      "type": "string",
+      "description": "The name of the tenant."
+    },
+    "description": {
+      "type": "string",
+      "description": "The description of the tenant."
+    },
+    "roles": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "presentation:manage",
+          "presentation:offer",
+          "issuance:manage",
+          "issuance:offer",
+          "clients:manage",
+          "tenants:manage"
+        ]
+      }
+    }
+  }
+}

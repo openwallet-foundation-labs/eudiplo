@@ -10,7 +10,7 @@
     "test": "ng test"
   },
   "dependencies": {
-    "@eudiplo/sdk": "workspace:*",
+    "@eudiplo/sdk-angular": "workspace:*",
     "@angular/cdk": "~21.0.3",
     "@angular/common": "^21.0.4",
     "@angular/compiler": "^21.0.4",

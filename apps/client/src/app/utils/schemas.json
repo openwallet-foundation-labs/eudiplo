@@ -34,6 +34,10 @@
       "title": "ClientCredentialsDto",
       "type": "object",
       "properties": {
+        "grant_type": {
+          "type": "string",
+          "default": "client_credentials"
+        },
         "client_id": {
           "type": "string"
         },
@@ -293,6 +297,57 @@
         }
       },
       "required": ["id", "name"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpdateTenantDto.schema.json",
+    "fileMatch": ["a://b/UpdateTenantDto.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpdateTenantDto.schema.json",
+      "title": "UpdateTenantDto",
+      "type": "object",
+      "properties": {
+        "statusListConfig": {
+          "nullable": true,
+          "description": "Status list configuration for this tenant. Only affects newly created status lists.",
+          "allOf": [
+            {
+              "$ref": "./StatusListConfig.schema.json"
+            }
+          ]
+        },
+        "sessionConfig": {
+          "description": "Session storage configuration. Controls TTL and cleanup behavior.",
+          "allOf": [
+            {
+              "$ref": "./SessionStorageConfig.schema.json"
+            }
+          ]
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the tenant."
+        },
+        "description": {
+          "type": "string",
+          "description": "The description of the tenant."
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "presentation:manage",
+              "presentation:offer",
+              "issuance:manage",
+              "issuance:offer",
+              "clients:manage",
+              "tenants:manage"
+            ]
+          }
+        }
+      }
     }
   },
   {
@@ -659,6 +714,10 @@
         "crt": {
           "type": "string",
           "description": "Certificate in PEM format, if not provided, a self-signed certificate will be generated."
+        },
+        "subjectName": {
+          "type": "string",
+          "description": "Subject name (CN) for self-signed certificate generation.\nIf not provided, the tenant name will be used."
         },
         "description": {
           "type": "string",
@@ -1870,6 +1929,39 @@
     }
   },
   {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/VCT.schema.json",
+    "fileMatch": ["a://b/VCT.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/VCT.schema.json",
+      "title": "VCT",
+      "type": "object",
+      "properties": {
+        "vct": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "extends": {
+          "type": "string"
+        },
+        "extends#integrity": {
+          "type": "string"
+        },
+        "schema_uri": {
+          "type": "string"
+        },
+        "schema_uri#integrity": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/EmbeddedDisclosurePolicy.schema.json",
     "fileMatch": ["a://b/EmbeddedDisclosurePolicy.schema.json"],
     "schema": {
@@ -1973,39 +2065,6 @@
     }
   },
   {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/VCT.schema.json",
-    "fileMatch": ["a://b/VCT.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/VCT.schema.json",
-      "title": "VCT",
-      "type": "object",
-      "properties": {
-        "vct": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "extends": {
-          "type": "string"
-        },
-        "extends#integrity": {
-          "type": "string"
-        },
-        "schema_uri": {
-          "type": "string"
-        },
-        "schema_uri#integrity": {
-          "type": "string"
-        }
-      }
-    }
-  },
-  {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/SchemaResponse.schema.json",
     "fileMatch": ["a://b/SchemaResponse.schema.json"],
     "schema": {
@@ -2048,6 +2107,19 @@
       "title": "CredentialConfig",
       "type": "object",
       "properties": {
+        "vct": {
+          "description": "VCT as a URI string (e.g., urn:eudi:pid:de:1) or as an object for EUDIPLO-hosted VCT",
+          "nullable": true,
+          "oneOf": [
+            {
+              "type": "string",
+              "description": "VCT URI string"
+            },
+            {
+              "$ref": "./VCT.schema.json"
+            }
+          ]
+        },
         "embeddedDisclosurePolicy": {
           "nullable": true,
           "description": "Embedded disclosure policy (discriminated union by `policy`).\nThe discriminator makes class-transformer instantiate the right subclass,\nand then class-validator runs that subclass’s rules.",
@@ -2115,14 +2187,6 @@
           "type": "object",
           "nullable": true
         },
-        "vct": {
-          "nullable": true,
-          "allOf": [
-            {
-              "$ref": "./VCT.schema.json"
-            }
-          ]
-        },
         "keyBinding": {
           "type": "boolean"
         },
@@ -2159,6 +2223,19 @@
       "title": "CredentialConfigCreate",
       "type": "object",
       "properties": {
+        "vct": {
+          "description": "VCT as a URI string (e.g., urn:eudi:pid:de:1) or as an object for EUDIPLO-hosted VCT",
+          "nullable": true,
+          "oneOf": [
+            {
+              "type": "string",
+              "description": "VCT URI string"
+            },
+            {
+              "$ref": "./VCT.schema.json"
+            }
+          ]
+        },
         "embeddedDisclosurePolicy": {
           "nullable": true,
           "description": "Embedded disclosure policy (discriminated union by `policy`).\nThe discriminator makes class-transformer instantiate the right subclass,\nand then class-validator runs that subclass’s rules.",
@@ -2217,14 +2294,6 @@
         "disclosureFrame": {
           "type": "object",
           "nullable": true
-        },
-        "vct": {
-          "nullable": true,
-          "allOf": [
-            {
-              "$ref": "./VCT.schema.json"
-            }
-          ]
         },
         "keyBinding": {
           "type": "boolean"
@@ -2259,6 +2328,19 @@
       "title": "CredentialConfigUpdate",
       "type": "object",
       "properties": {
+        "vct": {
+          "description": "VCT as a URI string (e.g., urn:eudi:pid:de:1) or as an object for EUDIPLO-hosted VCT",
+          "nullable": true,
+          "oneOf": [
+            {
+              "type": "string",
+              "description": "VCT URI string"
+            },
+            {
+              "$ref": "./VCT.schema.json"
+            }
+          ]
+        },
         "embeddedDisclosurePolicy": {
           "nullable": true,
           "description": "Embedded disclosure policy (discriminated union by `policy`).\nThe discriminator makes class-transformer instantiate the right subclass,\nand then class-validator runs that subclass’s rules.",
@@ -2317,14 +2399,6 @@
         "disclosureFrame": {
           "type": "object",
           "nullable": true
-        },
-        "vct": {
-          "nullable": true,
-          "allOf": [
-            {
-              "$ref": "./VCT.schema.json"
-            }
-          ]
         },
         "keyBinding": {
           "type": "boolean"
@@ -2493,7 +2567,7 @@
             "$ref": "./CredentialQuery.schema.json"
           }
         },
-        "credential_set": {
+        "credential_sets": {
           "type": "array",
           "items": {
             "$ref": "./CredentialSetQuery.schema.json"

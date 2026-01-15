@@ -137,6 +137,17 @@
               </mat-card-content>
             </mat-card>
 
+            <!-- Subject Name for self-signed generation -->
+            <mat-form-field appearance="outline">
+              <mat-label>Subject Name (CN)</mat-label>
+              <input matInput formControlName="subjectName" placeholder="e.g., My Organization" />
+              <mat-icon matSuffix>person</mat-icon>
+              <mat-hint
+                >Common Name for self-signed certificate. If empty, the tenant name will be
+                used.</mat-hint
+              >
+            </mat-form-field>
+
             <h4>Certificate (PEM Format)</h4>
             <app-editor
               formControlName="crt"

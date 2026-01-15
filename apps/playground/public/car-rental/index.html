@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>
+      EuroDrive Car Rental - License Verification | EUDIPLO Playground
+    </title>
+    <link rel="stylesheet" href="/shared/styles.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+  </head>
+  <body>
+    <header>
+      <a href="../" class="logo"> 🚗 EuroDrive </a>
+      <span class="badge">EUDIPLO Demo</span>
+    </header>
+
+    <main class="container">
+      <!-- Step 1: Car Selection -->
+      <section id="carSection" class="card">
+        <h1>Your Selected Vehicle</h1>
+
+        <div class="car-card">
+          <div class="car-image">🚙</div>
+          <div class="car-info">
+            <h2>Volkswagen ID.4</h2>
+            <p class="car-category">Electric SUV • Automatic</p>
+            <div class="car-features">
+              <span>👥 5 seats</span>
+              <span>🧳 Large trunk</span>
+              <span>⚡ 520km range</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="booking-summary">
+          <h3>Booking Details</h3>
+          <div class="booking-item">
+            <span>📍 Pick-up</span>
+            <span>Berlin Airport (BER)</span>
+          </div>
+          <div class="booking-item">
+            <span>📅 Dates</span>
+            <span>Dec 20 - Dec 27, 2024</span>
+          </div>
+          <div class="booking-item">
+            <span>📦 Insurance</span>
+            <span>Full Coverage</span>
+          </div>
+          <div class="booking-total">
+            <span>Total</span>
+            <span>€489.00</span>
+          </div>
+        </div>
+
+        <div class="license-requirement">
+          <span class="requirement-icon">🪪</span>
+          <div>
+            <strong>Valid Driving License Required</strong>
+            <p>
+              To complete your booking, we need to verify your EU driving
+              license using your EUDI Wallet.
+            </p>
+          </div>
+        </div>
+
+        <button id="verifyBtn" class="btn btn-primary btn-large">
+          Verify License & Complete Booking
+        </button>
+      </section>
+
+      <!-- Step 2: License Verification -->
+      <section id="verificationSection" class="card" style="display: none">
+        <h2>🪪 License Verification</h2>
+        <p class="verification-subtitle">
+          Scan the QR code with your EUDI Wallet to share your driving license.
+        </p>
+
+        <div class="license-info">
+          <h3>Information Required:</h3>
+          <ul class="data-list">
+            <li><span class="data-icon">👤</span> Driver's full name</li>
+            <li><span class="data-icon">📅</span> Date of birth</li>
+            <li><span class="data-icon">🪪</span> License number</li>
+            <li>
+              <span class="data-icon">📋</span> License categories (A, B, C...)
+            </li>
+            <li><span class="data-icon">⏰</span> License validity</li>
+          </ul>
+        </div>
+
+        <div id="qrContainer" class="qr-container">
+          <div id="qrCode" class="qr-code"></div>
+          <div class="same-device-section">
+            <span class="divider-text">or on this device</span>
+            <div id="sameDeviceLink" class="hidden"></div>
+          </div>
+          <p id="statusText" class="status-text">
+            Use your EUDI Wallet to verify
+          </p>
+        </div>
+
+        <div class="privacy-note">
+          <strong>🛡️ Privacy First</strong>
+          <p>
+            We only verify that you have a valid license for the vehicle
+            category. Your data is not stored longer than required by law.
+          </p>
+        </div>
+      </section>
+
+      <!-- Step 3: Success -->
+      <section id="successSection" class="card" style="display: none">
+        <div class="success-header">
+          <span class="success-icon">🎉</span>
+          <h2>Booking Confirmed!</h2>
+          <p>
+            Your driving license has been verified. See you at the pick-up
+            point!
+          </p>
+        </div>
+
+        <div class="booking-confirmation">
+          <div class="confirmation-number">
+            <span>Confirmation #</span>
+            <strong id="confirmationNumber">EUR-2024-XXXXX</strong>
+          </div>
+        </div>
+
+        <div class="verified-license">
+          <h3>Verified License Details</h3>
+          <div id="verificationResults" class="results-grid">
+            <!-- Will be populated by JS -->
+          </div>
+        </div>
+
+        <div class="pickup-info">
+          <h3>Pick-up Instructions</h3>
+          <div class="info-item">
+            <span class="info-icon">📍</span>
+            <div>
+              <strong>Location</strong>
+              <p>
+                Berlin Brandenburg Airport (BER), Terminal 1, Arrivals Level,
+                EuroDrive Counter
+              </p>
+            </div>
+          </div>
+          <div class="info-item">
+            <span class="info-icon">⏰</span>
+            <div>
+              <strong>Time</strong>
+              <p>December 20, 2024 • 10:00 AM - 10:00 PM</p>
+            </div>
+          </div>
+          <div class="info-item">
+            <span class="info-icon">📱</span>
+            <div>
+              <strong>What to bring</strong>
+              <p>Your EUDI Wallet and this confirmation number</p>
+            </div>
+          </div>
+        </div>
+
+        <button id="doneBtn" class="btn btn-secondary btn-large">Done</button>
+      </section>
+
+      <!-- Error State -->
+      <section id="errorSection" class="card error-card" style="display: none">
+        <div class="error-content">
+          <span class="error-icon">⚠️</span>
+          <h2>Verification Failed</h2>
+          <p id="errorMessage">We couldn't verify your driving license.</p>
+          <button id="retryBtn" class="btn btn-primary">Try Again</button>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        EuroDrive Demo - Part of
+        <a href="https://github.com/openwallet-foundation-labs/eudiplo"
+          >EUDIPLO</a
+        >
+      </p>
+      <p class="footer-note">
+        This is a demonstration. No real bookings are made.
+      </p>
+    </footer>
+
+    <script src="/js/car-rental/app.js"></script>
+  </body>
+</html>

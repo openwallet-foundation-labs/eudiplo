@@ -23,6 +23,10 @@ export const RoleDtoSchema = {
 export const ClientCredentialsDtoSchema = {
   type: "object",
   properties: {
+    grant_type: {
+      type: "string",
+      default: "client_credentials",
+    },
     client_id: {
       type: "string",
     },
@@ -258,6 +262,53 @@ export const CreateTenantDtoSchema = {
     },
   },
   required: ["id", "name"],
+} as const;
+
+export const UpdateTenantDtoSchema = {
+  type: "object",
+  properties: {
+    statusListConfig: {
+      nullable: true,
+      description:
+        "Status list configuration for this tenant. Only affects newly created status lists.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/StatusListConfig",
+        },
+      ],
+    },
+    sessionConfig: {
+      description:
+        "Session storage configuration. Controls TTL and cleanup behavior.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/SessionStorageConfig",
+        },
+      ],
+    },
+    name: {
+      type: "string",
+      description: "The name of the tenant.",
+    },
+    description: {
+      type: "string",
+      description: "The description of the tenant.",
+    },
+    roles: {
+      type: "array",
+      items: {
+        type: "string",
+        enum: [
+          "presentation:manage",
+          "presentation:offer",
+          "issuance:manage",
+          "issuance:offer",
+          "clients:manage",
+          "tenants:manage",
+        ],
+      },
+    },
+  },
 } as const;
 
 export const ClientSecretResponseDtoSchema = {
@@ -565,6 +616,11 @@ export const CertImportDtoSchema = {
       type: "string",
       description:
         "Certificate in PEM format, if not provided, a self-signed certificate will be generated.",
+    },
+    subjectName: {
+      type: "string",
+      description:
+        "Subject name (CN) for self-signed certificate generation.\nIf not provided, the tenant name will be used.",
     },
     description: {
       type: "string",
@@ -1598,6 +1654,33 @@ export const RootOfTrustPolicySchema = {
   required: ["policy", "values"],
 } as const;
 
+export const VCTSchema = {
+  type: "object",
+  properties: {
+    vct: {
+      type: "string",
+    },
+    name: {
+      type: "string",
+    },
+    description: {
+      type: "string",
+    },
+    extends: {
+      type: "string",
+    },
+    "extends#integrity": {
+      type: "string",
+    },
+    schema_uri: {
+      type: "string",
+    },
+    "schema_uri#integrity": {
+      type: "string",
+    },
+  },
+} as const;
+
 export const EmbeddedDisclosurePolicySchema = {
   type: "object",
   properties: {
@@ -1680,33 +1763,6 @@ export const IssuerMetadataCredentialConfigSchema = {
   required: ["format", "display"],
 } as const;
 
-export const VCTSchema = {
-  type: "object",
-  properties: {
-    vct: {
-      type: "string",
-    },
-    name: {
-      type: "string",
-    },
-    description: {
-      type: "string",
-    },
-    extends: {
-      type: "string",
-    },
-    "extends#integrity": {
-      type: "string",
-    },
-    schema_uri: {
-      type: "string",
-    },
-    "schema_uri#integrity": {
-      type: "string",
-    },
-  },
-} as const;
-
 export const SchemaResponseSchema = {
   type: "object",
   properties: {
@@ -1738,6 +1794,20 @@ export const SchemaResponseSchema = {
 export const CredentialConfigSchema = {
   type: "object",
   properties: {
+    vct: {
+      description:
+        "VCT as a URI string (e.g., urn:eudi:pid:de:1) or as an object for EUDIPLO-hosted VCT",
+      nullable: true,
+      oneOf: [
+        {
+          type: "string",
+          description: "VCT URI string",
+        },
+        {
+          $ref: "#/components/schemas/VCT",
+        },
+      ],
+    },
     embeddedDisclosurePolicy: {
       nullable: true,
       description:
@@ -1806,14 +1876,6 @@ export const CredentialConfigSchema = {
       type: "object",
       nullable: true,
     },
-    vct: {
-      nullable: true,
-      allOf: [
-        {
-          $ref: "#/components/schemas/VCT",
-        },
-      ],
-    },
     keyBinding: {
       type: "boolean",
     },
@@ -1844,6 +1906,20 @@ export const CredentialConfigSchema = {
 export const CredentialConfigCreateSchema = {
   type: "object",
   properties: {
+    vct: {
+      description:
+        "VCT as a URI string (e.g., urn:eudi:pid:de:1) or as an object for EUDIPLO-hosted VCT",
+      nullable: true,
+      oneOf: [
+        {
+          type: "string",
+          description: "VCT URI string",
+        },
+        {
+          $ref: "#/components/schemas/VCT",
+        },
+      ],
+    },
     embeddedDisclosurePolicy: {
       nullable: true,
       description:
@@ -1903,14 +1979,6 @@ export const CredentialConfigCreateSchema = {
     disclosureFrame: {
       type: "object",
       nullable: true,
-    },
-    vct: {
-      nullable: true,
-      allOf: [
-        {
-          $ref: "#/components/schemas/VCT",
-        },
-      ],
     },
     keyBinding: {
       type: "boolean",
@@ -1939,6 +2007,20 @@ export const CredentialConfigCreateSchema = {
 export const CredentialConfigUpdateSchema = {
   type: "object",
   properties: {
+    vct: {
+      description:
+        "VCT as a URI string (e.g., urn:eudi:pid:de:1) or as an object for EUDIPLO-hosted VCT",
+      nullable: true,
+      oneOf: [
+        {
+          type: "string",
+          description: "VCT URI string",
+        },
+        {
+          $ref: "#/components/schemas/VCT",
+        },
+      ],
+    },
     embeddedDisclosurePolicy: {
       nullable: true,
       description:
@@ -1998,14 +2080,6 @@ export const CredentialConfigUpdateSchema = {
     disclosureFrame: {
       type: "object",
       nullable: true,
-    },
-    vct: {
-      nullable: true,
-      allOf: [
-        {
-          $ref: "#/components/schemas/VCT",
-        },
-      ],
     },
     keyBinding: {
       type: "boolean",
@@ -2135,7 +2209,7 @@ export const DCQLSchema = {
         $ref: "#/components/schemas/CredentialQuery",
       },
     },
-    credential_set: {
+    credential_sets: {
       type: "array",
       items: {
         $ref: "#/components/schemas/CredentialSetQuery",

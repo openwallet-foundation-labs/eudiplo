@@ -158,6 +158,20 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
     }
 
     /**
+     * Update a tenant by ID
+     * @param id The ID of the tenant to update
+     * @param data The updated tenant data
+     * @returns The updated tenant entity
+     */
+    async updateTenant(
+        id: string,
+        data: Partial<Omit<TenantEntity, "id" | "clients" | "status">>,
+    ): Promise<TenantEntity> {
+        await this.tenantRepository.update({ id }, data);
+        return this.getTenant(id);
+    }
+
+    /**
      * Deletes a tenant by ID
      * @param tenantId The ID of the tenant to delete
      */

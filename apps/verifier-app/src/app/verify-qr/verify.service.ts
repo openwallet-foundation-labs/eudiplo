@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { verifierOfferControllerGetOffer, sessionControllerGetSession } from '@eudiplo/sdk';
+import { verifierOfferControllerGetOffer, sessionControllerGetSession } from '@eudiplo/sdk-angular';
 import { environment } from '../../environments/environment';
 
 @Injectable({
