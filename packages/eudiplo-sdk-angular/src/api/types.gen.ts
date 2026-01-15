@@ -18,6 +18,7 @@ export type RoleDto = {
 };
 
 export type ClientCredentialsDto = {
+  grant_type?: string;
   client_id: string;
   client_secret: string;
 };
@@ -157,6 +158,33 @@ export type CreateTenantDto = {
    * The description of the tenant.
    */
   description?: string;
+};
+
+export type UpdateTenantDto = {
+  /**
+   * Status list configuration for this tenant. Only affects newly created status lists.
+   */
+  statusListConfig?: StatusListConfig;
+  /**
+   * Session storage configuration. Controls TTL and cleanup behavior.
+   */
+  sessionConfig?: SessionStorageConfig;
+  /**
+   * The name of the tenant.
+   */
+  name?: string;
+  /**
+   * The description of the tenant.
+   */
+  description?: string;
+  roles?: Array<
+    | "presentation:manage"
+    | "presentation:offer"
+    | "issuance:manage"
+    | "issuance:offer"
+    | "clients:manage"
+    | "tenants:manage"
+  >;
 };
 
 export type ClientSecretResponseDto = {
@@ -339,6 +367,11 @@ export type CertImportDto = {
    * Certificate in PEM format, if not provided, a self-signed certificate will be generated.
    */
   crt?: string;
+  /**
+   * Subject name (CN) for self-signed certificate generation.
+   * If not provided, the tenant name will be used.
+   */
+  subjectName?: string;
   /**
    * Description of the key.
    */
@@ -871,6 +904,16 @@ export type RootOfTrustPolicy = {
   values: string;
 };
 
+export type Vct = {
+  vct?: string;
+  name?: string;
+  description?: string;
+  extends?: string;
+  "extends#integrity"?: string;
+  schema_uri?: string;
+  "schema_uri#integrity"?: string;
+};
+
 export type EmbeddedDisclosurePolicy = {
   policy: string;
 };
@@ -919,16 +962,6 @@ export type IssuerMetadataCredentialConfig = {
   };
 };
 
-export type Vct = {
-  vct?: string;
-  name?: string;
-  description?: string;
-  extends?: string;
-  "extends#integrity"?: string;
-  schema_uri?: string;
-  "schema_uri#integrity"?: string;
-};
-
 export type SchemaResponse = {
   $schema: string;
   type: string;
@@ -941,6 +974,10 @@ export type SchemaResponse = {
 };
 
 export type CredentialConfig = {
+  /**
+   * VCT as a URI string (e.g., urn:eudi:pid:de:1) or as an object for EUDIPLO-hosted VCT
+   */
+  vct?: string | Vct;
   /**
    * Embedded disclosure policy (discriminated union by `policy`).
    * The discriminator makes class-transformer instantiate the right subclass,
@@ -968,7 +1005,6 @@ export type CredentialConfig = {
   disclosureFrame?: {
     [key: string]: unknown;
   };
-  vct?: Vct;
   keyBinding?: boolean;
   certId?: string;
   cert: CertEntity;
@@ -978,6 +1014,10 @@ export type CredentialConfig = {
 };
 
 export type CredentialConfigCreate = {
+  /**
+   * VCT as a URI string (e.g., urn:eudi:pid:de:1) or as an object for EUDIPLO-hosted VCT
+   */
+  vct?: string | Vct;
   /**
    * Embedded disclosure policy (discriminated union by `policy`).
    * The discriminator makes class-transformer instantiate the right subclass,
@@ -1001,7 +1041,6 @@ export type CredentialConfigCreate = {
   disclosureFrame?: {
     [key: string]: unknown;
   };
-  vct?: Vct;
   keyBinding?: boolean;
   certId?: string;
   statusManagement?: boolean;
@@ -1010,6 +1049,10 @@ export type CredentialConfigCreate = {
 };
 
 export type CredentialConfigUpdate = {
+  /**
+   * VCT as a URI string (e.g., urn:eudi:pid:de:1) or as an object for EUDIPLO-hosted VCT
+   */
+  vct?: string | Vct;
   /**
    * Embedded disclosure policy (discriminated union by `policy`).
    * The discriminator makes class-transformer instantiate the right subclass,
@@ -1033,7 +1076,6 @@ export type CredentialConfigUpdate = {
   disclosureFrame?: {
     [key: string]: unknown;
   };
-  vct?: Vct;
   keyBinding?: boolean;
   certId?: string;
   statusManagement?: boolean;
@@ -1103,7 +1145,7 @@ export type AuthorizationResponse = {
 
 export type Dcql = {
   credentials: Array<CredentialQuery>;
-  credential_set?: Array<CredentialSetQuery>;
+  credential_sets?: Array<CredentialSetQuery>;
 };
 
 export type RegistrationCertificateRequest = {
@@ -1544,6 +1586,22 @@ export type TenantControllerGetTenantResponses = {
 
 export type TenantControllerGetTenantResponse =
   TenantControllerGetTenantResponses[keyof TenantControllerGetTenantResponses];
+
+export type TenantControllerUpdateTenantData = {
+  body: UpdateTenantDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/tenant/{id}";
+};
+
+export type TenantControllerUpdateTenantResponses = {
+  200: TenantEntity;
+};
+
+export type TenantControllerUpdateTenantResponse =
+  TenantControllerUpdateTenantResponses[keyof TenantControllerUpdateTenantResponses];
 
 export type ClientControllerGetClientsData = {
   body?: never;

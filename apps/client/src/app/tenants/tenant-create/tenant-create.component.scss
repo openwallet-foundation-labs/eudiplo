@@ -1,0 +1,24 @@
+.initial-client-section {
+  margin-top: 16px;
+  padding: 16px;
+  background-color: rgba(0, 0, 0, 0.02);
+  border-radius: 8px;
+  border: 1px dashed rgba(0, 0, 0, 0.12);
+
+  h3 {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.7);
+  }
+
+  .section-hint {
+    margin: 0 0 16px 0;
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.54);
+  }
+
+  mat-form-field {
+    width: 100%;
+  }
+}

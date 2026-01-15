@@ -14,7 +14,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { certControllerAddCertificate } from '@eudiplo/sdk';
+import { certControllerAddCertificate } from '@eudiplo/sdk-angular';
 import { v4 } from 'uuid';
 
 @Component({
@@ -42,6 +42,7 @@ import { v4 } from 'uuid';
 export class CertificateCreateComponent implements OnInit {
   keyId!: string;
   form!: FormGroup;
+  selfSignedForm!: FormGroup;
 
   editorOptionsPem = {
     automaticLayout: true,
@@ -72,6 +73,13 @@ export class CertificateCreateComponent implements OnInit {
       crt: new FormControl('', Validators.required),
       certUsageTypes: new FormControl<string[]>([], Validators.required),
       description: new FormControl(''),
+    });
+
+    // Initialize self-signed form
+    this.selfSignedForm = new FormGroup({
+      certUsageTypes: new FormControl<string[]>([], Validators.required),
+      description: new FormControl(''),
+      subjectName: new FormControl(''),
     });
   }
 
@@ -123,5 +131,40 @@ export class CertificateCreateComponent implements OnInit {
 
   onCancel(): void {
     this.router.navigate(['/key-management', this.keyId]);
+  }
+
+  async onGenerateSelfSigned(): Promise<void> {
+    if (this.selfSignedForm.invalid) {
+      this.snackBar.open('Please select at least one usage type', 'Close', {
+        duration: 3000,
+      });
+      return;
+    }
+
+    const formValue = this.selfSignedForm.value;
+
+    try {
+      await certControllerAddCertificate({
+        body: {
+          id: v4(),
+          keyId: this.keyId,
+          certUsageTypes: formValue.certUsageTypes,
+          description: formValue.description || undefined,
+          subjectName: formValue.subjectName || undefined,
+        },
+      });
+
+      this.snackBar.open('Self-signed certificate generated successfully', 'Close', {
+        duration: 3000,
+      });
+
+      // Navigate back to the key detail page
+      this.router.navigate(['/key-management', this.keyId]);
+    } catch (error: any) {
+      console.error('Failed to generate certificate:', error);
+      this.snackBar.open(error?.message || 'Failed to generate certificate', 'Close', {
+        duration: 5000,
+      });
+    }
   }
 }

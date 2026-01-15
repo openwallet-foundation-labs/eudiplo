@@ -1,0 +1,9 @@
+# Generated JS bundles
+public/js/
+
+# Old JS files (replaced by TypeScript)
+public/shared/utils.js
+public/alcohol-shop/app.js
+public/bank-onboarding/app.js
+public/car-rental/app.js
+.dev.vars

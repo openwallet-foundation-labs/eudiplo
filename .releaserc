@@ -32,9 +32,13 @@
         [
             '@semantic-release/exec',
             {
+                prepareCmd: "node scripts/sync-sdk-version.js ${nextRelease.version}",
                 publishCmd: "chmod +x scripts/release-docker.sh && DOCKER_RELEASE_VERSION=${nextRelease.version} ./scripts/release-docker.sh",
             },
-        ],        
+        ],
+        ['@semantic-release/npm', {
+            pkgRoot: 'packages/eudiplo-sdk-core',
+        }],
         ['@semantic-release/github', {
             assets: [],
             addReleases: 'bottom',

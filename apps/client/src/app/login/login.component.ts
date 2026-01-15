@@ -14,7 +14,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { EnvironmentService } from '../services/environment.service';
-import { ApiService } from '@eudiplo/sdk';
+import { ApiService } from '@eudiplo/sdk-angular';
 
 @Component({
   selector: 'app-login',

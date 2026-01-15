@@ -156,7 +156,7 @@ export class CertService {
         dto: CertImportDto,
     ) {
         // === Inputs/parameters (subject + SAN hostname) ===
-        const subjectCN = tenant.name;
+        const subjectCN = dto.subjectName || tenant.name;
         const hostname = new URL(
             this.configService.getOrThrow<string>("PUBLIC_URL"),
         ).hostname;

@@ -38,4 +38,12 @@ export class CertImportDto extends OmitType(CertEntity, [
     @IsString()
     @IsOptional()
     crt?: string;
+
+    /**
+     * Subject name (CN) for self-signed certificate generation.
+     * If not provided, the tenant name will be used.
+     */
+    @IsString()
+    @IsOptional()
+    subjectName?: string;
 }

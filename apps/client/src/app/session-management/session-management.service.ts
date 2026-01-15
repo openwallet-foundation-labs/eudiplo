@@ -4,7 +4,7 @@ import {
   sessionControllerGetAllSessions,
   sessionControllerGetSession,
   Session,
-} from '@eudiplo/sdk';
+} from '@eudiplo/sdk-angular';
 @Injectable({
   providedIn: 'root',
 })

@@ -22,7 +22,7 @@ import { TokenResponse } from "./dto/token-response.dto";
 @ApiTags("Authentication")
 @Controller()
 export class AuthController {
-    constructor(private authService: AuthService) {}
+    constructor(private readonly authService: AuthService) {}
 
     /**
      * OAuth2 Token endpoint - supports client credentials flow only

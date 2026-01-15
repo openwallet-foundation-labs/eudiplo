@@ -8,7 +8,7 @@ import {
   credentialConfigControllerGetConfigs,
   credentialConfigControllerStoreCredentialConfiguration,
   credentialConfigControllerUpdateCredentialConfiguration,
-} from '@eudiplo/sdk';
+} from '@eudiplo/sdk-angular';
 
 @Injectable({
   providedIn: 'root',

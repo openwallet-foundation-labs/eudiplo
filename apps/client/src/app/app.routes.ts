@@ -72,6 +72,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./tenants/tenant-show/tenant-show.component').then((m) => m.TenantShowComponent),
       },
+      {
+        path: ':id/edit',
+        loadComponent: () =>
+          import('./tenants/tenant-create/tenant-create.component').then(
+            (m) => m.TenantCreateComponent
+          ),
+      },
     ],
   },
   {
@@ -365,6 +372,13 @@ export const routes: Routes = [
       },
       {
         path: ':id/edit',
+        loadComponent: () =>
+          import('./presentation/presentation-config/presentation-create/presentation-create.component').then(
+            (m) => m.PresentationCreateComponent
+          ),
+      },
+      {
+        path: ':id/copy',
         loadComponent: () =>
           import('./presentation/presentation-config/presentation-create/presentation-create.component').then(
             (m) => m.PresentationCreateComponent

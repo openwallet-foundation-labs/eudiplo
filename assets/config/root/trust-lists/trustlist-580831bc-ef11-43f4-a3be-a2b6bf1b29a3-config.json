@@ -6,7 +6,7 @@
     {
       "type": "internal",
       "issuerCertId": "b6db7c84-776e-4998-9d40-ac599a4ea1fc",
-      "revocationCertId": "0f6e186f-9763-49ec-8d93-6cb801ded7a4",
+      "revocationCertId": "b6db7c84-776e-4998-9d40-ac599a4ea1fc",
       "info": {
         "name": "PID Provider",
         "lang": "en"

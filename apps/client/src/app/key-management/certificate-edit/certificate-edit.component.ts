@@ -17,7 +17,7 @@ import {
   CertUsageEntity,
   keyControllerGetKeys,
   KeyEntity,
-} from '@eudiplo/sdk';
+} from '@eudiplo/sdk-angular';
 import { MatSelectModule } from '@angular/material/select';
 import { EditorComponent } from '../../utils/editor/editor.component';
 
@@ -89,6 +89,7 @@ export class CertificateEditComponent implements OnInit {
       certUsageTypes: new FormControl([], Validators.required),
       description: new FormControl(),
       crt: new FormControl(),
+      subjectName: new FormControl(''),
     });
 
     // Load available keys if in standalone mode
@@ -191,6 +192,7 @@ export class CertificateEditComponent implements OnInit {
             description: formValue.description,
             crt: formValue.crt,
             keyId: targetKeyId,
+            subjectName: formValue.subjectName || undefined,
           },
         }).then((res) => res.data.id);
 

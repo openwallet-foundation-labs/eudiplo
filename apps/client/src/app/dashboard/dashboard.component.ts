@@ -16,7 +16,7 @@ import { Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { EnvironmentService } from '../services/environment.service';
 import { JwtService } from '../services/jwt.service';
-import { ApiService, appControllerMain } from '@eudiplo/sdk';
+import { ApiService, appControllerMain } from '@eudiplo/sdk-angular';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { DashboardService } from './dashboard.service';
 

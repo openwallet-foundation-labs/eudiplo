@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>EUDI Wallet Playground - Test Your Wallet</title>
+    <meta
+      name="description"
+      content="Test your EUDI Wallet with real-world verification scenarios including age verification, KYC, and driving license verification. Powered by EUDIPLO."
+    />
+    <link rel="stylesheet" href="/shared/styles.css" />
+    <style>
+      .playground-hero {
+        text-align: center;
+        padding: 3rem 1rem;
+        background: linear-gradient(
+          135deg,
+          #f0f9ff 0%,
+          #e0f2fe 50%,
+          #f0fdf4 100%
+        );
+        margin: -2rem -2rem 2rem -2rem;
+        border-radius: 0;
+      }
+
+      @media (max-width: 640px) {
+        .playground-hero {
+          padding: 2rem 1rem;
+          margin: -1rem -1rem 1.5rem -1rem;
+        }
+      }
+
+      .playground-hero h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+        background: linear-gradient(135deg, #1e40af 0%, #166534 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      @media (max-width: 640px) {
+        .playground-hero h1 {
+          font-size: 1.75rem;
+        }
+      }
+
+      .playground-hero p {
+        font-size: 1.125rem;
+        color: var(--text-muted);
+        max-width: 500px;
+        margin: 0 auto;
+      }
+
+      @media (max-width: 640px) {
+        .playground-hero p {
+          font-size: 1rem;
+        }
+      }
+
+      .powered-by {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 1.5rem;
+        padding: 0.5rem 1rem;
+        background: white;
+        border-radius: 999px;
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        box-shadow: var(--shadow);
+      }
+
+      .powered-by a {
+        color: var(--primary);
+        font-weight: 500;
+        text-decoration: none;
+      }
+
+      .powered-by a:hover {
+        text-decoration: underline;
+      }
+
+      .use-case-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin: 0 0 3rem 0;
+      }
+
+      @media (max-width: 640px) {
+        .use-case-grid {
+          gap: 1rem;
+        }
+      }
+
+      .use-case-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.75rem;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .use-case-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--card-accent, var(--primary));
+        transform: scaleX(0);
+        transition: transform 0.2s ease;
+      }
+
+      .use-case-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--card-accent, var(--primary));
+      }
+
+      .use-case-card:hover::before {
+        transform: scaleX(1);
+      }
+
+      .use-case-card.alcohol {
+        --card-accent: #dc2626;
+      }
+      .use-case-card.bank {
+        --card-accent: #2563eb;
+      }
+      .use-case-card.car {
+        --card-accent: #22c55e;
+      }
+
+      .use-case-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+      }
+
+      .use-case-card h2 {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+        color: var(--text);
+      }
+
+      .use-case-card p {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+        flex: 1;
+      }
+
+      .use-case-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+      }
+
+      .use-case-badge {
+        display: inline-block;
+        background: var(--bg);
+        padding: 0.25rem 0.75rem;
+        border-radius: 2rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--card-accent, var(--primary));
+      }
+
+      .use-case-arrow {
+        color: var(--text-muted);
+        transition: transform 0.2s;
+      }
+
+      .use-case-card:hover .use-case-arrow {
+        transform: translateX(4px);
+        color: var(--card-accent, var(--primary));
+      }
+
+      footer {
+        text-align: center;
+        padding: 2rem 1rem;
+        color: var(--text-muted);
+        font-size: 0.875rem;
+        border-top: 1px solid var(--border);
+      }
+
+      footer a {
+        color: var(--primary);
+        text-decoration: none;
+      }
+
+      footer a:hover {
+        text-decoration: underline;
+      }
+
+      .footer-links {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header class="playground-hero">
+        <h1>EUDI Wallet Playground</h1>
+        <p>Test your EUDI Wallet with real-world verification scenarios</p>
+      </header>
+
+      <section class="use-case-grid">
+        <a href="/alcohol-shop/" class="use-case-card alcohol">
+          <div class="use-case-icon">🍷</div>
+          <h2>Vineyard Select</h2>
+          <p>
+            Age verification for online alcohol purchases. Customer proves
+            they're 18+ without revealing exact birthdate.
+          </p>
+          <div class="use-case-meta">
+            <span class="use-case-badge">Age 18+</span>
+            <span class="use-case-arrow">→</span>
+          </div>
+        </a>
+
+        <a href="/bank-onboarding/" class="use-case-card bank">
+          <div class="use-case-icon">🏦</div>
+          <h2>Nordic Digital Bank</h2>
+          <p>
+            Complete KYC identity verification for account opening. Full PID
+            request with name, address, and national ID.
+          </p>
+          <div class="use-case-meta">
+            <span class="use-case-badge">Full PID</span>
+            <span class="use-case-arrow">→</span>
+          </div>
+        </a>
+
+        <a href="/car-rental/" class="use-case-card car">
+          <div class="use-case-icon">🚗</div>
+          <h2>EuroDrive Car Rental</h2>
+          <p>
+            Driving license verification for vehicle rental. Verify license
+            categories and validity before booking.
+          </p>
+          <div class="use-case-meta">
+            <span class="use-case-badge">License</span>
+            <span class="use-case-arrow">→</span>
+          </div>
+        </a>
+      </section>
+
+      <footer>
+        <p style="margin-bottom: 1rem">
+          Powered by
+          <a
+            href="https://github.com/openwallet-foundation-labs/eudiplo"
+            target="_blank"
+            >EUDIPLO</a
+          >
+        </p>
+        <div class="footer-links">
+          <a
+            href="https://github.com/openwallet-foundation-labs/eudiplo"
+            target="_blank"
+            >GitHub</a
+          >
+          <span>•</span>
+          <a
+            href="https://openwallet-foundation-labs.github.io/eudiplo/latest/"
+            target="_blank"
+            >Documentation</a
+          >
+          <span>•</span>
+          <a
+            href="https://openwallet-foundation-labs.github.io/eudiplo/latest/api/"
+            target="_blank"
+            >API Reference</a
+          >
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>

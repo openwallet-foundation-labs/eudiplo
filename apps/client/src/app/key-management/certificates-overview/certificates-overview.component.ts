@@ -7,7 +7,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { certControllerGetCertificates, type CertEntity } from '@eudiplo/sdk';
+import { certControllerGetCertificates, type CertEntity } from '@eudiplo/sdk-angular';
 
 @Component({
   selector: 'app-certificates-overview',

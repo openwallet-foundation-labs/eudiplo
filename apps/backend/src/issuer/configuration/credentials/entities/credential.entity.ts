@@ -101,6 +101,7 @@ export class IssuerMetadataCredentialConfig {
     NoneTrustPolicy,
     AllowListPolicy,
     RootOfTrustPolicy,
+    VCT,
 )
 @Entity()
 export class CredentialConfig {
@@ -157,10 +158,17 @@ export class CredentialConfig {
     disclosureFrame?: Record<string, any> | null;
 
     @IsOptional()
-    @ValidateNested()
-    @Type(() => VCT)
+    @ApiProperty({
+        description:
+            "VCT as a URI string (e.g., urn:eudi:pid:de:1) or as an object for EUDIPLO-hosted VCT",
+        nullable: true,
+        oneOf: [
+            { type: "string", description: "VCT URI string" },
+            { $ref: getSchemaPath(VCT) },
+        ],
+    })
     @Column("json", { nullable: true })
-    vct?: VCT | null;
+    vct?: string | VCT | null;
 
     @IsOptional()
     @Column("boolean", { default: false })

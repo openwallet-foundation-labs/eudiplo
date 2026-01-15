@@ -245,7 +245,6 @@ export class PresentationsService implements OnApplicationBootstrap {
                 };
 
                 const type = this.getType(session.requestObject!, attId);
-
                 const values = await Promise.all(
                     credentials.map(async (cred) => {
                         if (type === "mso_mdoc") {

@@ -1,0 +1,23 @@
+{
+    "name": "@eudiplo/playground",
+    "version": "0.0.0",
+    "license": "Apache-2.0",
+    "scripts": {
+        "dev": "concurrently \"pnpm run dev:client\" \"pnpm run dev:worker\"",
+        "dev:client": "esbuild src/client/*/app.ts --bundle --outdir=public/js --watch --sourcemap",
+        "dev:worker": "wrangler dev",
+        "build": "pnpm run build:client",
+        "build:client": "esbuild src/client/*/app.ts --bundle --outdir=public/js --minify",
+        "deploy": "pnpm run build && wrangler deploy",
+        "start": "pnpm run dev"
+    },
+    "dependencies": {
+        "@eudiplo/sdk-core": "workspace:*"
+    },
+    "devDependencies": {
+        "@cloudflare/workers-types": "^4.20250109.0",
+        "concurrently": "^9.0.0",
+        "esbuild": "^0.24.0",
+        "wrangler": "^4.52.1"
+    }
+}

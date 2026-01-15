@@ -1,9 +1,14 @@
 @if (tenant) {
   <div fxLayout="row" fxLayoutAlign="space-between center">
     <h2>Tenant {{ tenant.id }}</h2>
-    <button matIconButton [routerLink]="['../']" matTooltip="Back to Tenants">
-      <mat-icon>arrow_back</mat-icon>
-    </button>
+    <div>
+      <button mat-icon-button [routerLink]="['../']" matTooltip="Back to Tenants">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <button mat-icon-button [routerLink]="['edit']" matTooltip="Edit Tenant">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </div>
   </div>
   <mat-list>
     <mat-list-item>Name: {{ tenant.name }}</mat-list-item>

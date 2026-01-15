@@ -12,7 +12,7 @@ import {
   clientControllerCreateClient,
   clientControllerGetClient,
   clientControllerUpdateClient,
-} from '@eudiplo/sdk';
+} from '@eudiplo/sdk-angular';
 import { roles } from '../../../services/jwt.service';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';

@@ -15,7 +15,7 @@ import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { JwtService, Role } from './services/jwt.service';
-import { ApiService } from '@eudiplo/sdk';
+import { ApiService } from '@eudiplo/sdk-angular';
 
 @Component({
   selector: 'app-root',

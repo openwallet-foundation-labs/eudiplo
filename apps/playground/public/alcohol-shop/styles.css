@@ -1,0 +1,186 @@
+/* Alcohol Shop specific styles */
+
+/* Brand colors */
+:root {
+  --shop-primary: #7c2d12;
+  --shop-accent: #dc2626;
+  --shop-bg: #fef2f2;
+}
+
+.product-card {
+  display: flex;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: var(--shop-bg);
+  border-radius: var(--radius);
+  margin-bottom: 1.5rem;
+  border: 1px solid #fecaca;
+}
+
+@media (max-width: 480px) {
+  .product-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+    padding: 1.25rem;
+  }
+}
+
+.product-image {
+  font-size: 4rem;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%);
+  border-radius: var(--radius);
+  flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  .product-image {
+    width: 80px;
+    height: 80px;
+    font-size: 3rem;
+    margin: 0 auto;
+  }
+}
+
+.product-info {
+  flex: 1;
+}
+
+.product-info h2 {
+  margin-bottom: 0.5rem;
+  color: var(--shop-primary);
+}
+
+.product-description {
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  font-style: italic;
+}
+
+.product-price {
+  font-size: 1.75rem;
+  font-weight: bold;
+  color: var(--shop-accent);
+}
+
+.cart-summary {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border);
+}
+
+@media (max-width: 640px) {
+  .cart-summary {
+    padding: 1rem;
+  }
+}
+
+.cart-summary h3 {
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.cart-total {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 0.75rem;
+  font-weight: bold;
+  font-size: 1.125rem;
+  color: var(--shop-accent);
+}
+
+.checkout-note {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  margin-top: 0.75rem;
+}
+
+/* Custom buttons for alcohol shop */
+#checkoutSection .btn-primary,
+#successSection .btn-secondary {
+  display: block;
+  width: 100%;
+}
+
+#checkoutSection .btn-primary {
+  background: var(--shop-accent);
+}
+
+#checkoutSection .btn-primary:hover {
+  background: #b91c1c;
+}
+
+.qr-instruction {
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.steps-list {
+  margin: 1rem 0 1.5rem 1.25rem;
+  color: var(--text-muted);
+}
+
+.steps-list li {
+  margin-bottom: 0.5rem;
+}
+
+.privacy-note {
+  background: var(--shop-bg);
+  border: 1px solid #fecaca;
+}
+
+.privacy-note strong {
+  color: var(--shop-primary);
+}
+
+#infoSection h2 {
+  margin-bottom: 1rem;
+  color: var(--shop-primary);
+}
+
+#infoSection h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+#infoSection p {
+  color: var(--text-muted);
+}
+
+/* Age verification badge */
+.age-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--shop-accent);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+/* Demo header styling */
+.demo-header h1 {
+  color: var(--shop-primary);
+}

@@ -72,8 +72,19 @@ export class CredentialsService {
         };
 
         for (const value of configs) {
-            (value.config as unknown as CredentialConfigurationSupported).vct =
-                `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${tenantId}/credentials-metadata/vct/${value.id}`;
+            // vct can be a string URI, an object, or null (for mDOC)
+            if (value.vct && typeof value.vct === "object") {
+                // Generate URL for object-based vct
+                (
+                    value.config as unknown as CredentialConfigurationSupported
+                ).vct =
+                    `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${tenantId}/credentials-metadata/vct/${value.id}`;
+            } else if (typeof value.vct === "string") {
+                // Use the string URI directly
+                (
+                    value.config as unknown as CredentialConfigurationSupported
+                ).vct = value.vct;
+            }
 
             if (value.embeddedDisclosurePolicy) {
                 delete (value.embeddedDisclosurePolicy as any).$schema;
@@ -283,6 +294,12 @@ export class CredentialsService {
         if (!credentialConfig.vct) {
             throw new ConflictException(
                 `VCT for credential configuration with id ${credentialId} not found`,
+            );
+        }
+        // If vct is a string URI, this endpoint doesn't apply
+        if (typeof credentialConfig.vct === "string") {
+            throw new ConflictException(
+                `VCT for credential configuration with id ${credentialId} is a URI, not hosted by this server`,
             );
         }
         const host = this.configService.getOrThrow<string>("PUBLIC_URL");

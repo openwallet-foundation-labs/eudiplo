@@ -13,7 +13,7 @@ import { FlexLayoutModule } from 'ngx-flexible-layout';
 import {
   PresentationConfig,
   presentationManagementControllerUpdateConfiguration,
-} from '@eudiplo/sdk';
+} from '@eudiplo/sdk-angular';
 import { PresentationManagementService } from '../presentation-management.service';
 import { MatDialog } from '@angular/material/dialog';
 import { JsonViewDialogComponent } from '../../../issuance/credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
@@ -57,6 +57,7 @@ import { CredentialIdsComponent } from '../../credential-ids/credential-ids.comp
 export class PresentationCreateComponent implements OnInit {
   public form: FormGroup;
   public create = true;
+  public copyMode = false;
 
   registrationCertificateRequestSchema = registrationCertificateRequestSchema;
 
@@ -94,6 +95,9 @@ export class PresentationCreateComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.route.snapshot.params['id']) {
+      // Check if this is a copy operation
+      this.copyMode = this.route.snapshot.url.some((segment) => segment.path === 'copy');
+
       this.presentationService
         .getPresentationById(this.route.snapshot.params['id'])
         .then((config) => {
@@ -117,9 +121,17 @@ export class PresentationCreateComponent implements OnInit {
 
           (formData.attached || []).forEach(() => this.addAttachment());
 
-          this.form.patchValue(formData);
-          this.form.get('id')?.disable(); // Disable ID field in edit mode
-          this.create = false;
+          if (this.copyMode) {
+            // Copy mode: clear ID and keep it editable, set create mode
+            formData.id = `${config.id}-copy`;
+            this.form.patchValue(formData);
+            this.create = true;
+          } else {
+            // Edit mode: disable ID field
+            this.form.patchValue(formData);
+            this.form.get('id')?.disable();
+            this.create = false;
+          }
         });
     }
   }
@@ -151,43 +163,46 @@ export class PresentationCreateComponent implements OnInit {
   }
 
   createOrUpdatePresentation(): void {
-    if (this.form.valid) {
-      // Parse the JSON string to an object for dcql_query
-      const formValue = { ...this.form.value };
+    // Parse the JSON string to an object for dcql_query
+    const formValue = { ...this.form.value };
 
-      // Convert dcql_query from string to object
-      if (formValue.dcql_query) {
-        try {
-          formValue.dcql_query = extractSchema(formValue.dcql_query);
-          formValue.registrationCert = extractSchema(formValue.registrationCert);
-        } catch (error) {
-          console.error('Error parsing DCQL Query JSON:', error);
-          return;
-        }
+    // Convert dcql_query from string to object
+    if (formValue.dcql_query) {
+      try {
+        formValue.dcql_query = extractSchema(formValue.dcql_query);
+        formValue.registrationCert = extractSchema(formValue.registrationCert);
+      } catch (error) {
+        console.error('Error parsing DCQL Query JSON:', error);
+        return;
       }
+    }
 
-      if (!formValue.webhook.url) {
-        formValue.webhook = null; // Set to null to clear the webhook
-      }
+    if (!formValue.webhook.url) {
+      formValue.webhook = null; // Set to null to clear the webhook
+    }
 
-      if (!formValue.registrationCert) {
-        formValue.registrationCert = null; // Set to null to clear registrationCert
-      }
+    if (!formValue.registrationCert) {
+      formValue.registrationCert = null; // Set to null to clear registrationCert
+    }
 
-      formValue.id = this.route.snapshot.params['id'] || formValue.id;
+    // In copy mode or new creation, use form ID; in edit mode, use route param ID
+    if (!this.copyMode && this.route.snapshot.params['id']) {
+      formValue.id = this.route.snapshot.params['id'];
+    }
 
-      if (this.create) {
-        this.presentationService.createConfiguration(formValue).then(
-          (res: any) => {
-            this.router.navigate(['../', res.id], { relativeTo: this.route });
-            this.snackBar.open('Presentation created successfully', 'Close', {
-              duration: 3000,
-            });
-          },
-          (err: any) => this.snackBar.open(err.message, 'Close')
-        );
-      }
-
+    if (this.create) {
+      this.presentationService.createConfiguration(formValue).then(
+        (res: any) => {
+          // In copy mode, navigate up two levels (past :id/copy), otherwise one level
+          const navigatePath = this.copyMode ? ['../../', res.id] : ['../', res.id];
+          this.router.navigate(navigatePath, { relativeTo: this.route });
+          this.snackBar.open('Presentation created successfully', 'Close', {
+            duration: 3000,
+          });
+        },
+        (err: any) => this.snackBar.open(err.message, 'Close')
+      );
+    } else {
       presentationManagementControllerUpdateConfiguration({
         body: formValue,
         path: { id: formValue.id },

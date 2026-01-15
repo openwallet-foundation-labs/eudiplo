@@ -258,17 +258,16 @@ export class TrustListService implements OnApplicationBootstrap {
         const entries: TrustedEntity[] = [];
         for (const entity of config.entities || []) {
             if (entity.type === "internal") {
-                // Internal: fetch certificates from database
-                const issuerCert = await this.certService.find({
-                    tenantId: tenant.id,
-                    type: CertUsage.Signing,
-                    id: entity.issuerCertId,
-                });
-                const revocationCert = await this.certService.find({
-                    tenantId: tenant.id,
-                    type: CertUsage.StatusList,
-                    id: entity.revocationCertId,
-                });
+                // Internal: fetch certificates from database by ID
+                const issuerCert = await this.certService.getCertificateById(
+                    tenant.id,
+                    entity.issuerCertId,
+                );
+                const revocationCert =
+                    await this.certService.getCertificateById(
+                        tenant.id,
+                        entity.revocationCertId,
+                    );
                 entries.push(
                     this.createEntityFromCert(
                         issuerCert,

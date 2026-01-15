@@ -1,0 +1,20 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "eudiplo-playground",
+  "compatibility_date": "2025-01-13",
+  "main": "src/worker.ts",
+  "assets": {
+    "directory": "./public",
+  },
+  "observability": {
+    "enabled": true,
+  },
+  "routes": [
+    { "pattern": "playground.eudi-wallet.dev", "custom_domain": true },
+  ],
+  "vars": {
+    "CLIENT_ID": "test-client",
+    "CLIENT_SECRET": "test-secret",
+    "EUDIPLO_URL": "https://eudiplo.eudi-wallet.dev",
+  },
+}

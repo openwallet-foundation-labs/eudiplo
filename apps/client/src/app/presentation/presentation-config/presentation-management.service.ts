@@ -7,7 +7,7 @@ import {
   presentationManagementControllerDeleteConfiguration,
   presentationManagementControllerStorePresentationConfig,
   verifierOfferControllerGetOffer,
-} from '@eudiplo/sdk';
+} from '@eudiplo/sdk-angular';
 
 @Injectable({
   providedIn: 'root',

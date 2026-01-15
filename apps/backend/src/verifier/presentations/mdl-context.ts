@@ -1,4 +1,3 @@
-import crypto from "node:crypto";
 import {
     CoseKey,
     hex,
@@ -16,6 +15,9 @@ import * as x509 from "@peculiar/x509";
 import { X509Certificate } from "@peculiar/x509";
 import { exportJWK, importX509 } from "jose";
 
+// Use global Web Crypto API (available in Node.js 19+)
+const webCrypto = globalThis.crypto;
+
 /**
  * Helper to convert Uint8Array<ArrayBufferLike> to Uint8Array<ArrayBuffer>
  * This is needed due to TypeScript version differences where newer TS versions
@@ -29,14 +31,14 @@ const toBuffer = (bytes: Uint8Array): Uint8Array<ArrayBuffer> => {
 export const mdocContext: MdocContext = {
     crypto: {
         digest: async ({ digestAlgorithm, bytes }) => {
-            const digest = await crypto.subtle.digest(
+            const digest = await webCrypto.subtle.digest(
                 digestAlgorithm,
                 toBuffer(bytes),
             );
             return new Uint8Array(digest);
         },
         random: (length: number) => {
-            return crypto.getRandomValues(new Uint8Array(length));
+            return webCrypto.getRandomValues(new Uint8Array(length));
         },
         calculateEphemeralMacKey: async (input) => {
             const { privateKey, publicKey, sessionTranscriptBytes, info } =
@@ -45,7 +47,7 @@ export const mdocContext: MdocContext = {
                 .getSharedSecret(privateKey, publicKey, true)
                 .slice(1);
             const salt = new Uint8Array(
-                await crypto.subtle.digest(
+                await webCrypto.subtle.digest(
                     "SHA-256",
                     toBuffer(sessionTranscriptBytes),
                 ),

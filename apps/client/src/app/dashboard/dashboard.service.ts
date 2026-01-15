@@ -6,7 +6,7 @@ import {
   keyControllerGetKeys,
   issuanceConfigControllerGetIssuanceConfigurations,
   certControllerGetCertificates,
-} from '@eudiplo/sdk';
+} from '@eudiplo/sdk-angular';
 import { JwtService } from '../services/jwt.service';
 
 export interface DashboardStats {
