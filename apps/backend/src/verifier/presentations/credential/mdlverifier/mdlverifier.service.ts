@@ -84,8 +84,6 @@ export class MdlverifierService {
             const trustedCertificates =
                 await this.getTrustedCertificates(options);
 
-            console.log(trustedCertificates);
-
             if (trustedCertificates.length === 0) {
                 this.logger.warn(
                     "No trusted certificates found in trust store",
