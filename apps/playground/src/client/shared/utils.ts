@@ -57,11 +57,14 @@ function extractErrorMessage(error: unknown, fallback: string): string {
 /**
  * Create a presentation request and get the QR code URI
  */
-export async function createVerificationRequest(useCase: string): Promise<VerificationResult> {
+export async function createVerificationRequest(
+  useCase: string,
+  redirectUri?: string
+): Promise<VerificationResult> {
   const response = await fetch('/api/verify', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ useCase }),
+    body: JSON.stringify({ useCase, redirectUri }),
   });
 
   if (!response.ok) {
@@ -186,4 +189,31 @@ export function getElement<T extends HTMLElement>(id: string): T {
     throw new Error(`Element #${id} not found`);
   }
   return element as T;
+}
+
+/**
+ * Get session ID from URL query parameter
+ */
+export function getSessionFromUrl(): string | null {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('session');
+}
+
+/**
+ * Build redirect URL with session parameter
+ */
+export function buildRedirectUrl(sessionId: string): string {
+  const url = new URL(window.location.href);
+  url.search = ''; // Clear existing params
+  url.searchParams.set('session', sessionId);
+  return url.toString();
+}
+
+/**
+ * Clear session from URL (replace state without reload)
+ */
+export function clearSessionFromUrl(): void {
+  const url = new URL(window.location.href);
+  url.search = '';
+  window.history.replaceState({}, '', url.toString());
 }

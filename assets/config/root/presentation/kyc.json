@@ -1,6 +1,6 @@
 {
-    "id": "age-over-18-de-mdoc",
-    "description": "Age Over 18 Presentation Definition",
+    "id": "kyc",
+    "description": "KYC Presentation Definition with German PID MSO mDoc",
     "dcql_query": {
         "credentials": [
             {

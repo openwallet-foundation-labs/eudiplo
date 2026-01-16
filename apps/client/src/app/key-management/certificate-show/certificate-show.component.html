@@ -43,6 +43,16 @@
                 <span class="value">{{ certificate.description }}</span>
               </div>
             }
+
+            <div class="info-row">
+              <span class="label">Key:</span>
+              <a class="value" [routerLink]="['/keys', certificate.keyId]">
+                {{ certificate.keyId }}
+                @if (key?.description) {
+                  ({{ key!.description }})
+                }
+              </a>
+            </div>
           </div>
         </div>
 

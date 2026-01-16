@@ -383,6 +383,8 @@ export type CertResponseDto = {
    * The ID of the created self-signed certificate.
    */
   id: string;
+
+  [key: string]: unknown;
 };
 
 export type CertUpdateDto = {
@@ -1206,8 +1208,14 @@ export type PresentationConfig = {
   attached?: Array<PresentationAttachment>;
   /**
    * Redirect URI to which the user-agent should be redirected after the presentation is completed.
+   * You can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.
    */
   redirectUri?: string;
+  /**
+   * Optional ID of the access certificate to use for signing the presentation request.
+   * If not provided, the default access certificate for the tenant will be used.
+   */
+  accessCertId?: string;
 };
 
 export type PresentationConfigCreateDto = {
@@ -1241,8 +1249,14 @@ export type PresentationConfigCreateDto = {
   attached?: Array<PresentationAttachment>;
   /**
    * Redirect URI to which the user-agent should be redirected after the presentation is completed.
+   * You can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.
    */
   redirectUri?: string;
+  /**
+   * Optional ID of the access certificate to use for signing the presentation request.
+   * If not provided, the default access certificate for the tenant will be used.
+   */
+  accessCertId?: string;
 };
 
 export type PresentationConfigUpdateDto = {
@@ -1276,8 +1290,14 @@ export type PresentationConfigUpdateDto = {
   attached?: Array<PresentationAttachment>;
   /**
    * Redirect URI to which the user-agent should be redirected after the presentation is completed.
+   * You can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.
    */
   redirectUri?: string;
+  /**
+   * Optional ID of the access certificate to use for signing the presentation request.
+   * If not provided, the default access certificate for the tenant will be used.
+   */
+  accessCertId?: string;
 };
 
 export type TrustListCreateDto = {
@@ -1383,6 +1403,7 @@ export type PresentationRequest = {
   webhook?: WebhookConfig;
   /**
    * Optional redirect URI to which the user-agent should be redirected after the presentation is completed.
+   * You can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.
    */
   redirectUri?: string;
 };

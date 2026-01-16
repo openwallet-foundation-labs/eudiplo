@@ -2324,7 +2324,14 @@ export const PresentationConfigSchema = {
       type: "string",
       nullable: true,
       description:
-        "Redirect URI to which the user-agent should be redirected after the presentation is completed.",
+        "Redirect URI to which the user-agent should be redirected after the presentation is completed.\nYou can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.",
+      example: "https://example.com/callback?session={sessionId}",
+    },
+    accessCertId: {
+      type: "string",
+      nullable: true,
+      description:
+        "Optional ID of the access certificate to use for signing the presentation request.\nIf not provided, the default access certificate for the tenant will be used.",
     },
   },
   required: ["id", "tenant", "dcql_query", "createdAt", "updatedAt"],
@@ -2386,7 +2393,14 @@ export const PresentationConfigCreateDtoSchema = {
       type: "string",
       nullable: true,
       description:
-        "Redirect URI to which the user-agent should be redirected after the presentation is completed.",
+        "Redirect URI to which the user-agent should be redirected after the presentation is completed.\nYou can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.",
+      example: "https://example.com/callback?session={sessionId}",
+    },
+    accessCertId: {
+      type: "string",
+      nullable: true,
+      description:
+        "Optional ID of the access certificate to use for signing the presentation request.\nIf not provided, the default access certificate for the tenant will be used.",
     },
   },
   required: ["id", "dcql_query"],
@@ -2448,7 +2462,14 @@ export const PresentationConfigUpdateDtoSchema = {
       type: "string",
       nullable: true,
       description:
-        "Redirect URI to which the user-agent should be redirected after the presentation is completed.",
+        "Redirect URI to which the user-agent should be redirected after the presentation is completed.\nYou can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.",
+      example: "https://example.com/callback?session={sessionId}",
+    },
+    accessCertId: {
+      type: "string",
+      nullable: true,
+      description:
+        "Optional ID of the access certificate to use for signing the presentation request.\nIf not provided, the default access certificate for the tenant will be used.",
     },
   },
 } as const;
@@ -2625,7 +2646,8 @@ export const PresentationRequestSchema = {
     redirectUri: {
       type: "string",
       description:
-        "Optional redirect URI to which the user-agent should be redirected after the presentation is completed.",
+        "Optional redirect URI to which the user-agent should be redirected after the presentation is completed.\nYou can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.",
+      example: "https://example.com/callback?session={sessionId}",
     },
   },
   required: ["response_type", "requestId"],

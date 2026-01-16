@@ -75,6 +75,17 @@
               <span matListItemLine>{{ config.redirectUri }}</span>
             </mat-list-item>
           }
+          <mat-list-item>
+            <mat-icon matListItemIcon>badge</mat-icon>
+            <span matListItemTitle>Access Certificate</span>
+            @if (config.accessCertId) {
+              <a matListItemLine [routerLink]="['/certificates', config.accessCertId]">{{
+                config.accessCertId
+              }}</a>
+            } @else {
+              <span matListItemLine>Default</span>
+            }
+          </mat-list-item>
         </mat-list>
       </mat-card-content>
     </mat-card>

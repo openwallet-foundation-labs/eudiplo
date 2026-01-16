@@ -64,7 +64,7 @@ export class CertificateCreateComponent implements OnInit {
       this.snackBar.open('No key selected. Please select a key first.', 'Close', {
         duration: 3000,
       });
-      this.router.navigate(['/key-management']);
+      this.router.navigate(['/keys']);
       return;
     }
 
@@ -120,7 +120,7 @@ export class CertificateCreateComponent implements OnInit {
       });
 
       // Navigate back to the key detail page
-      this.router.navigate(['/key-management', this.keyId]);
+      this.router.navigate(['/keys', this.keyId]);
     } catch (error: any) {
       console.error('Failed to add certificate:', error);
       this.snackBar.open(error?.message || 'Failed to add certificate', 'Close', {
@@ -130,7 +130,7 @@ export class CertificateCreateComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.router.navigate(['/key-management', this.keyId]);
+    this.router.navigate(['/keys', this.keyId]);
   }
 
   async onGenerateSelfSigned(): Promise<void> {
@@ -159,7 +159,7 @@ export class CertificateCreateComponent implements OnInit {
       });
 
       // Navigate back to the key detail page
-      this.router.navigate(['/key-management', this.keyId]);
+      this.router.navigate(['/keys', this.keyId]);
     } catch (error: any) {
       console.error('Failed to generate certificate:', error);
       this.snackBar.open(error?.message || 'Failed to generate certificate', 'Close', {

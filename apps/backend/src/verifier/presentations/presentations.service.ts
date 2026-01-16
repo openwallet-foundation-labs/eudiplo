@@ -12,6 +12,10 @@ import { Repository } from "typeorm";
 import { ServiceTypeIdentifier } from "../../issuer/trust-list/trustlist.service";
 import { Session } from "../../session/entities/session.entity";
 import { ConfigImportService } from "../../shared/utils/config-import/config-import.service";
+import {
+    ConfigImportOrchestratorService,
+    ImportPhase,
+} from "../../shared/utils/config-import/config-import-orchestrator.service";
 import { VerifierOptions } from "../resolver/trust/types";
 import { MdlverifierService } from "./credential/mdlverifier/mdlverifier.service";
 import { SdjwtvcverifierService } from "./credential/sdjwtvcverifier/sdjwtvcverifier.service";
@@ -40,16 +44,26 @@ export class PresentationsService implements OnApplicationBootstrap {
         @InjectRepository(PresentationConfig)
         private readonly vpRequestRepository: Repository<PresentationConfig>,
         private readonly configImportService: ConfigImportService,
+        private readonly configImportOrchestrator: ConfigImportOrchestratorService,
         private readonly sdjwtvcverifierService: SdjwtvcverifierService,
         private readonly mdlverifierService: MdlverifierService,
         private readonly configService: ConfigService,
-    ) {}
+    ) {
+        // Register presentation config import in REFERENCES phase
+        // This runs after CORE (keys, certs) and CONFIGURATION phases
+        this.configImportOrchestrator.register(
+            "presentation-configs",
+            ImportPhase.REFERENCES,
+            () => this.import(),
+        );
+    }
 
     /**
-     * Imports presentation configurations from a predefined directory structure.
+     * Triggers the import orchestration.
+     * The actual import order is managed by the orchestrator.
      */
     async onApplicationBootstrap() {
-        await this.import();
+        await this.configImportOrchestrator.runImports();
     }
 
     /**

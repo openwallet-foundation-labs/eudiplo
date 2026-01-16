@@ -7,6 +7,10 @@ import { Repository } from "typeorm";
 import { CertService } from "../../../crypto/key/cert/cert.service";
 import { KeyService } from "../../../crypto/key/key.service";
 import { ConfigImportService } from "../../../shared/utils/config-import/config-import.service";
+import {
+    ConfigImportOrchestratorService,
+    ImportPhase,
+} from "../../../shared/utils/config-import/config-import-orchestrator.service";
 import { FilesService } from "../../../storage/files.service";
 import { StatusListService } from "../../lifecycle/status/status-list.service";
 import { CredentialConfigService } from "../credentials/credential-config/credential-config.service";
@@ -33,21 +37,41 @@ export class IssuanceService implements OnApplicationBootstrap {
         private readonly logger: PinoLogger,
         private readonly filesService: FilesService,
         private readonly configImportService: ConfigImportService,
+        private readonly configImportOrchestrator: ConfigImportOrchestratorService,
         private readonly certService: CertService,
         @Inject("KeyService") public readonly keyService: KeyService,
-    ) {}
+    ) {
+        // Register imports with the orchestrator in the correct order
+        this.configImportOrchestrator.register("keys", ImportPhase.CORE, () =>
+            this.keyService.importKeys(),
+        );
+        this.configImportOrchestrator.register(
+            "certificates",
+            ImportPhase.CORE,
+            () => this.certService.importCerts(),
+        );
+        this.configImportOrchestrator.register(
+            "issuance",
+            ImportPhase.CONFIGURATION,
+            () => this.import(),
+        );
+        this.configImportOrchestrator.register(
+            "credentials",
+            ImportPhase.CONFIGURATION,
+            () => this.credentialsConfigService.import(),
+        );
+        this.configImportOrchestrator.register(
+            "status-lists",
+            ImportPhase.FINAL,
+            () => this.statusListService.import(),
+        );
+    }
 
     /**
      * Import issuance configurations and the credential configurations from the configured folder.
      */
     async onApplicationBootstrap() {
-        await this.keyService.importKeys();
-        await this.certService.importCerts();
-        // import first the issuance config to make sure it exists when credentials should be imported
-        await this.import();
-        await this.credentialsConfigService.import();
-        // import status lists after credentials (they may reference credential config IDs)
-        await this.statusListService.import();
+        await this.configImportOrchestrator.runImports();
     }
 
     /**

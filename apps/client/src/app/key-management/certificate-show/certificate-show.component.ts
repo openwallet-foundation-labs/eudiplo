@@ -11,7 +11,9 @@ import {
   certControllerDeleteCertificate,
   certControllerGetCertificate,
   certControllerExportConfig,
+  keyControllerGetKey,
   type CertEntity,
+  type KeyEntity,
 } from '@eudiplo/sdk-angular';
 import { X509Certificate, SubjectAlternativeNameExtension } from '@peculiar/x509';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -53,6 +55,7 @@ export class CertificateShowComponent implements OnInit {
   pemBase64?: string;
   keyId?: string;
   certId?: string;
+  key?: KeyEntity;
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -60,7 +63,11 @@ export class CertificateShowComponent implements OnInit {
     private readonly snackBar: MatSnackBar
   ) {}
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit(): void {
+    this.loadData();
+  }
+
+  private async loadData(): Promise<void> {
     // Try to get keyId from route (legacy key-scoped route)
     this.keyId = this.route.snapshot.paramMap.get('keyId') || undefined;
     this.certId = this.route.snapshot.paramMap.get('certId') || undefined;
@@ -75,6 +82,18 @@ export class CertificateShowComponent implements OnInit {
         // Get keyId from certificate if not from route
         if (!this.keyId && this.certificate?.keyId) {
           this.keyId = this.certificate.keyId;
+        }
+
+        // Fetch key details
+        if (this.keyId) {
+          try {
+            const keyResponse = await keyControllerGetKey({
+              path: { id: this.keyId },
+            });
+            this.key = keyResponse.data;
+          } catch (error) {
+            console.error('Error loading key:', error);
+          }
         }
 
         if (this.certificate?.crt) {
@@ -179,7 +198,7 @@ export class CertificateShowComponent implements OnInit {
 
   navigateToKey(): void {
     if (this.keyId) {
-      this.router.navigate(['/key-management', this.keyId]);
+      this.router.navigate(['/keys', this.keyId]);
     }
   }
 

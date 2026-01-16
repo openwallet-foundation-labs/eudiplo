@@ -4,7 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import {
   clientControllerGetClients,
@@ -45,8 +45,9 @@ export class ClientListComponent implements OnInit {
   ];
 
   constructor(
-    private snackBar: MatSnackBar,
-    private apiService: ApiService
+    private readonly snackBar: MatSnackBar,
+    private readonly apiService: ApiService,
+    private readonly router: Router
   ) {}
   ngOnInit(): void {
     if (this.loadedClients) {
@@ -93,5 +94,40 @@ export class ClientListComponent implements OnInit {
     navigator.clipboard.writeText(loginUrl).then(() => {
       this.snackBar.open('Login URL copied to clipboard', 'Close', { duration: 3000 });
     });
+  }
+
+  async loginAsClient(client: ClientEntity): Promise<void> {
+    try {
+      const apiUrl = this.apiService.getBaseUrl() as string;
+
+      // Fetch the client secret if not available
+      let clientSecret = client.secret;
+      if (!clientSecret) {
+        const secretResponse = await import('@eudiplo/sdk-angular').then((m) =>
+          m.clientControllerGetClientSecret({ path: { id: client.clientId } })
+        );
+        clientSecret = secretResponse.data?.secret;
+      }
+
+      if (!clientSecret) {
+        this.snackBar.open('Could not retrieve client secret', 'Close', { duration: 3000 });
+        return;
+      }
+
+      // Logout current user
+      this.apiService.logout();
+
+      // Navigate to login with pre-filled credentials
+      this.router.navigate(['/login'], {
+        queryParams: {
+          clientId: client.clientId,
+          clientSecret: clientSecret,
+          apiUrl: apiUrl,
+        },
+      });
+    } catch (error) {
+      console.error('Error logging in as client:', error);
+      this.snackBar.open('Failed to login as client', 'Close', { duration: 3000 });
+    }
   }
 }

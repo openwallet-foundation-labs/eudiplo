@@ -150,7 +150,7 @@ export const routes: Routes = [
     ],
   },
   {
-    path: 'key-management',
+    path: 'keys',
     canActivate: [AuthGuard],
     children: [
       {

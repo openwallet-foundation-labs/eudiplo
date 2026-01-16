@@ -202,7 +202,7 @@ export class CertificateEditComponent implements OnInit {
       }
 
       // Navigate back to the certificate detail page
-      this.router.navigate(['/key-management', targetKeyId, 'certificate', this.certId]);
+      this.router.navigate(['/keys', targetKeyId, 'certificate', this.certId]);
     } catch (error: any) {
       console.error('Failed to save certificate:', error);
       this.snackBar.open(error?.message || 'Failed to save certificate', 'Close', {
@@ -215,9 +215,9 @@ export class CertificateEditComponent implements OnInit {
     if (this.isStandaloneMode) {
       this.router.navigate(['/certificates']);
     } else if (this.certId) {
-      this.router.navigate(['/key-management', this.keyId, 'certificate', this.certId]);
+      this.router.navigate(['/keys', this.keyId, 'certificate', this.certId]);
     } else {
-      this.router.navigate(['/key-management', this.keyId]);
+      this.router.navigate(['/keys', this.keyId]);
     }
   }
 }
