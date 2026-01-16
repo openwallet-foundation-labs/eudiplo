@@ -814,6 +814,7 @@ export class Oid4vpService {
             const cert &#x3D; await this.certService.find({
                 tenantId: session.tenantId,
                 type: CertUsage.Access,
+                id: presentationConfig.accessCertId ?? undefined,
             });
 
             const certHash &#x3D; this.certService.getCertHash(cert);
@@ -840,10 +841,9 @@ export class Oid4vpService {
                             ],
                         },
                         vp_formats_supported: {
-                            //MDOC not supported yet
-                            /* mso_mdoc: {
+                            mso_mdoc: {
                                 alg: [&quot;ES256&quot;, &quot;Ed25519&quot;],
-                            }, */
+                            },
                             &quot;dc+sd-jwt&quot;: {
                                 &quot;kb-jwt_alg_values&quot;:
                                     this.cryptoImplementationService.getSupportedAlgorithms(),
@@ -1086,8 +1086,14 @@ export class Oid4vpService {
 
             //check if a redirect URI is defined and return it to the caller. If so, sendResponse is ignored
             if (session.redirectUri) {
+                // Replace {sessionId} placeholder with actual session ID
+                const processedRedirectUri &#x3D; session.redirectUri.replaceAll(
+                    &quot;{sessionId}&quot;,
+                    session.id,
+                );
+                console.log(&quot;Redirecting to URI:&quot;, processedRedirectUri);
                 return {
-                    redirect_uri: session.redirectUri,
+                    redirect_uri: processedRedirectUri,
                 };
             }
 

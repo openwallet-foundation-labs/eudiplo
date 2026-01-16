@@ -596,8 +596,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="262"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:262</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="264"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:264</a></div>
                         </td>
                     </tr>
 
@@ -690,8 +690,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="281"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:281</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="283"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:283</a></div>
                         </td>
                     </tr>
 
@@ -767,8 +767,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="299"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:299</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="301"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:301</a></div>
                         </td>
                     </tr>
 
@@ -913,8 +913,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="353"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:353</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="355"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:355</a></div>
                         </td>
                     </tr>
 
@@ -990,8 +990,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="382"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:382</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="384"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:384</a></div>
                         </td>
                     </tr>
 
@@ -1340,8 +1340,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="332"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:332</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="334"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:334</a></div>
                         </td>
                     </tr>
 
@@ -1437,8 +1437,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="398"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:398</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="400"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:400</a></div>
                         </td>
                     </tr>
 
@@ -1478,8 +1478,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="367"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:367</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="369"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:369</a></div>
                         </td>
                     </tr>
 
@@ -1590,8 +1590,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="344"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:344</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="346"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:346</a></div>
                         </td>
                     </tr>
 
@@ -1704,8 +1704,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="224"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:224</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="226"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:226</a></div>
                         </td>
                     </tr>
 
@@ -2074,9 +2074,11 @@ export class CertService {
                     new x509.SubjectAlternativeNameExtension([
                         { type: &quot;dns&quot;, value: hostname },
                     ]),
+                    new x509.BasicConstraintsExtension(true, undefined, true), // CA:TRUE, critical
                     new x509.KeyUsagesExtension(
                         x509.KeyUsageFlags.digitalSignature |
-                            x509.KeyUsageFlags.keyEncipherment,
+                            x509.KeyUsageFlags.keyEncipherment |
+                            x509.KeyUsageFlags.keyCertSign, // Allow signing other certificates
                         true,
                     ),
                     await x509.SubjectKeyIdentifierExtension.create(publicKey),

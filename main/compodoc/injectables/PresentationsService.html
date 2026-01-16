@@ -216,12 +216,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(vpRequestRepository: <a href="../entitys/PresentationConfig.html" target="_self">Repository&lt;PresentationConfig&gt;</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, sdjwtvcverifierService: <a href="../injectables/SdjwtvcverifierService.html" target="_self">SdjwtvcverifierService</a>, mdlverifierService: <a href="../injectables/MdlverifierService.html" target="_self">MdlverifierService</a>, configService: ConfigService)</code>
+<code>constructor(vpRequestRepository: <a href="../entitys/PresentationConfig.html" target="_self">Repository&lt;PresentationConfig&gt;</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, configImportOrchestrator: <a href="../injectables/ConfigImportOrchestratorService.html" target="_self">ConfigImportOrchestratorService</a>, sdjwtvcverifierService: <a href="../injectables/SdjwtvcverifierService.html" target="_self">SdjwtvcverifierService</a>, mdlverifierService: <a href="../injectables/MdlverifierService.html" target="_self">MdlverifierService</a>, configService: ConfigService)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="32" class="link-to-prism">src/verifier/presentations/presentations.service.ts:32</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/verifier/presentations/presentations.service.ts:36</a></div>
                             </td>
                         </tr>
 
@@ -264,6 +264,20 @@
                                                   
                                                         <td>
                                                                         <code><a href="../injectables/ConfigImportService.html" target="_self" >ConfigImportService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                        <td>
+                                                        </td>
+                                                </tr>
+                                                <tr>
+                                                        <td>configImportOrchestrator</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/ConfigImportOrchestratorService.html" target="_self" >ConfigImportOrchestratorService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -349,8 +363,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="151"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:151</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="165"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:165</a></div>
                         </td>
                     </tr>
 
@@ -444,8 +458,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="161"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:161</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="175"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:175</a></div>
                         </td>
                     </tr>
 
@@ -539,8 +553,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="97"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:97</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="111"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:111</a></div>
                         </td>
                     </tr>
 
@@ -616,8 +630,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="300"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:300</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="314"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:314</a></div>
                         </td>
                     </tr>
 
@@ -700,8 +714,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="58"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:58</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="72"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:72</a></div>
                         </td>
                     </tr>
 
@@ -741,15 +755,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="51"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:51</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="65"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:65</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Imports presentation configurations from a predefined directory structure.</p>
+                        <div class="io-description"><p>Triggers the import orchestration.
+The actual import order is managed by the orchestrator.</p>
 </div>
 
                         <div class="io-description">
@@ -782,8 +797,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="200"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:200</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="214"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:214</a></div>
                         </td>
                     </tr>
 
@@ -875,8 +890,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="110"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:110</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="124"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:124</a></div>
                         </td>
                     </tr>
 
@@ -973,8 +988,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="182"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:182</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="196"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:196</a></div>
                         </td>
                     </tr>
 
@@ -1087,8 +1102,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="127"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:127</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="141"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:141</a></div>
                         </td>
                     </tr>
 
@@ -1180,6 +1195,10 @@ import { Repository } from &quot;typeorm&quot;;
 import { ServiceTypeIdentifier } from &quot;../../issuer/trust-list/trustlist.service&quot;;
 import { Session } from &quot;../../session/entities/session.entity&quot;;
 import { ConfigImportService } from &quot;../../shared/utils/config-import/config-import.service&quot;;
+import {
+    ConfigImportOrchestratorService,
+    ImportPhase,
+} from &quot;../../shared/utils/config-import/config-import-orchestrator.service&quot;;
 import { VerifierOptions } from &quot;../resolver/trust/types&quot;;
 import { MdlverifierService } from &quot;./credential/mdlverifier/mdlverifier.service&quot;;
 import { SdjwtvcverifierService } from &quot;./credential/sdjwtvcverifier/sdjwtvcverifier.service&quot;;
@@ -1208,16 +1227,26 @@ export class PresentationsService implements OnApplicationBootstrap {
         @InjectRepository(PresentationConfig)
         private readonly vpRequestRepository: Repository&lt;PresentationConfig&gt;,
         private readonly configImportService: ConfigImportService,
+        private readonly configImportOrchestrator: ConfigImportOrchestratorService,
         private readonly sdjwtvcverifierService: SdjwtvcverifierService,
         private readonly mdlverifierService: MdlverifierService,
         private readonly configService: ConfigService,
-    ) {}
+    ) {
+        // Register presentation config import in REFERENCES phase
+        // This runs after CORE (keys, certs) and CONFIGURATION phases
+        this.configImportOrchestrator.register(
+            &quot;presentation-configs&quot;,
+            ImportPhase.REFERENCES,
+            () &#x3D;&gt; this.import(),
+        );
+    }
 
     /**
-     * Imports presentation configurations from a predefined directory structure.
+     * Triggers the import orchestration.
+     * The actual import order is managed by the orchestrator.
      */
     async onApplicationBootstrap() {
-        await this.import();
+        await this.configImportOrchestrator.runImports();
     }
 
     /**

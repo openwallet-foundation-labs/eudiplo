@@ -2090,7 +2090,7 @@ be requested from users.</p>
 <li><code>dcql_query</code>: <strong>REQUIRED</strong> - DCQL query defining the requested credentials and claims following the <a href="https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-digital-credentials-query-l">DCQL specification</a></li>
 <li><code>registrationCert</code>: <strong>OPTIONAL</strong> - Registration certificate containing legal and privacy information about the verifier. See <a href="../../registrar/#registration-certificate">Registration Certificate</a> for details.</li>
 <li><code>webhook</code>: <strong>OPTIONAL</strong> - Webhook configuration for receiving verified presentations asynchronously. See <a href="../../../architecture/webhooks/#presentation-webhook">Webhook Integration</a> for details.</li>
-<li><code>redirectUri</code>: <strong>OPTIONAL</strong> - URI to redirect the user to after completing the presentation. This is useful for web applications that need to return the user to a specific page after verification.</li>
+<li><code>redirectUri</code>: <strong>OPTIONAL</strong> - URI to redirect the user to after completing the presentation. This is useful for web applications that need to return the user to a specific page after verification. You can use the <code>{sessionId}</code> placeholder in the URI, which will be replaced with the actual session ID (e.g., <code>https://example.com/callback?session={sessionId}</code>).</li>
 </ul>
 <div class="admonition info">
 <p class="admonition-title">Info</p>

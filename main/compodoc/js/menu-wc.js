@@ -113,13 +113,16 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="modules/ConfigImportModule.html" data-type="entity-link" >ConfigImportModule</a>
                                 <li class="chapter inner">
                                     <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ?
-                                        'data-bs-target="#injectables-links-module-ConfigImportModule-a58da5084ea3b4c8ffbabb6c5536606dd213b0e625ce7c2af15978e314f4839a4d2e0577b254687a0d7251c2dca9e831f06413c11a752982f161fb5962c7e927"' : 'data-bs-target="#xs-injectables-links-module-ConfigImportModule-a58da5084ea3b4c8ffbabb6c5536606dd213b0e625ce7c2af15978e314f4839a4d2e0577b254687a0d7251c2dca9e831f06413c11a752982f161fb5962c7e927"' }>
+                                        'data-bs-target="#injectables-links-module-ConfigImportModule-062933d4eb6d6385f367a96e5813e48b10d74c88cda57856927f7494c6c23f3bce19e29815aee0b1b3b5c68670b001dba70cd6bc22ff97f26a069ce7e24c8885"' : 'data-bs-target="#xs-injectables-links-module-ConfigImportModule-062933d4eb6d6385f367a96e5813e48b10d74c88cda57856927f7494c6c23f3bce19e29815aee0b1b3b5c68670b001dba70cd6bc22ff97f26a069ce7e24c8885"' }>
                                         <span class="icon ion-md-arrow-round-down"></span>
                                         <span>Injectables</span>
                                         <span class="icon ion-ios-arrow-down"></span>
                                     </div>
-                                    <ul class="links collapse" ${ isNormalMode ? 'id="injectables-links-module-ConfigImportModule-a58da5084ea3b4c8ffbabb6c5536606dd213b0e625ce7c2af15978e314f4839a4d2e0577b254687a0d7251c2dca9e831f06413c11a752982f161fb5962c7e927"' :
-                                        'id="xs-injectables-links-module-ConfigImportModule-a58da5084ea3b4c8ffbabb6c5536606dd213b0e625ce7c2af15978e314f4839a4d2e0577b254687a0d7251c2dca9e831f06413c11a752982f161fb5962c7e927"' }>
+                                    <ul class="links collapse" ${ isNormalMode ? 'id="injectables-links-module-ConfigImportModule-062933d4eb6d6385f367a96e5813e48b10d74c88cda57856927f7494c6c23f3bce19e29815aee0b1b3b5c68670b001dba70cd6bc22ff97f26a069ce7e24c8885"' :
+                                        'id="xs-injectables-links-module-ConfigImportModule-062933d4eb6d6385f367a96e5813e48b10d74c88cda57856927f7494c6c23f3bce19e29815aee0b1b3b5c68670b001dba70cd6bc22ff97f26a069ce7e24c8885"' }>
+                                        <li class="link">
+                                            <a href="injectables/ConfigImportOrchestratorService.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >ConfigImportOrchestratorService</a>
+                                        </li>
                                         <li class="link">
                                             <a href="injectables/ConfigImportService.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >ConfigImportService</a>
                                         </li>
@@ -1082,6 +1085,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="interfaces/GenerateTokenOptions.html" data-type="entity-link" >GenerateTokenOptions</a>
                             </li>
                             <li class="link">
+                                <a href="interfaces/ImportableService.html" data-type="entity-link" >ImportableService</a>
+                            </li>
+                            <li class="link">
                                 <a href="interfaces/ImportOptions.html" data-type="entity-link" >ImportOptions</a>
                             </li>
                             <li class="link">
@@ -1140,6 +1146,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             </li>
                             <li class="link">
                                 <a href="interfaces/PresentationRequestOptions.html" data-type="entity-link" >PresentationRequestOptions</a>
+                            </li>
+                            <li class="link">
+                                <a href="interfaces/RegisteredImporter.html" data-type="entity-link" >RegisteredImporter</a>
                             </li>
                             <li class="link">
                                 <a href="interfaces/SchemeOperatorAddress.html" data-type="entity-link" >SchemeOperatorAddress</a>

@@ -235,14 +235,15 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="51" class="link-to-prism">src/verifier/oid4vp/dto/presentation-request.dto.ts:51</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="53" class="link-to-prism">src/verifier/oid4vp/dto/presentation-request.dto.ts:53</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><p>Optional redirect URI to which the user-agent should be redirected after the presentation is completed.</p>
-</div>
+                    <div class="io-description"><p>Optional redirect URI to which the user-agent should be redirected after the presentation is completed.
+You can use the <code>{sessionId}</code> placeholder in the URI, which will be replaced with the actual session ID.</p>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-html"></code></pre></div></div>
                 </td>
             </tr>
 
@@ -436,6 +437,8 @@ export class PresentationRequest {
 
     /**
      * Optional redirect URI to which the user-agent should be redirected after the presentation is completed.
+     * You can use the &#x60;{sessionId}&#x60; placeholder in the URI, which will be replaced with the actual session ID.
+     * @example &quot;https://example.com/callback?session&#x3D;{sessionId}&quot;
      */
     @IsOptional()
     @IsString()
