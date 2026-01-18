@@ -4,6 +4,7 @@ import { getRepositoryToken, TypeOrmModule } from "@nestjs/typeorm";
 import { makeGaugeProvider } from "@willsoto/nestjs-prometheus";
 import { Repository } from "typeorm";
 import { ConfigImportService } from "../../shared/utils/config-import/config-import.service";
+import { ConfigImportOrchestratorService } from "../../shared/utils/config-import/config-import-orchestrator.service";
 import { InternalClientsProvider } from "./adapters/internal-clients.service";
 import { KeycloakClientsProvider } from "./adapters/keycloak-clients.service";
 import { ClientController } from "./client.controller";
@@ -19,19 +20,26 @@ import { ClientEntity } from "./entities/client.entity";
                 ConfigService,
                 getRepositoryToken(ClientEntity),
                 ConfigImportService,
+                ConfigImportOrchestratorService,
             ],
             useFactory: (
-                cfg: ConfigService,
+                configService: ConfigService,
                 repo: Repository<ClientEntity>,
                 configImportService: ConfigImportService,
+                configImportOrchestrator: ConfigImportOrchestratorService,
             ): ClientsProvider => {
-                const useKeycloak = !!cfg.get<string>("OIDC"); // if OIDC base/realm is configured, pick KC
+                const useKeycloak = !!configService.get<string>("OIDC"); // if OIDC base/realm is configured, pick KC
                 return useKeycloak
-                    ? new KeycloakClientsProvider(cfg, repo)
+                    ? new KeycloakClientsProvider(
+                          configService,
+                          repo,
+                          configImportOrchestrator,
+                      )
                     : new InternalClientsProvider(
-                          cfg,
+                          configService,
                           repo,
                           configImportService,
+                          configImportOrchestrator,
                       );
             },
         },

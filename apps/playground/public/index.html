@@ -137,8 +137,17 @@
       .use-case-card.bank {
         --card-accent: #2563eb;
       }
-      .use-case-card.car {
-        --card-accent: #22c55e;
+      .use-case-card.sim {
+        --card-accent: #df0000;
+      }
+      .use-case-card.museum {
+        --card-accent: #1e3a5f;
+      }
+      .use-case-card.hotel {
+        --card-accent: #1e4a3c;
+      }
+      .use-case-card.parcel {
+        --card-accent: #ff6b00;
       }
 
       .use-case-icon {
@@ -246,15 +255,54 @@
           </div>
         </a>
 
-        <a href="/car-rental/" class="use-case-card car">
-          <div class="use-case-icon">🚗</div>
-          <h2>EuroDrive Car Rental</h2>
+        <a href="/sim-activation/" class="use-case-card sim">
+          <div class="use-case-icon">📱</div>
+          <h2>TechMarkt SIM-Activation</h2>
           <p>
-            Driving license verification for vehicle rental. Verify license
-            categories and validity before booking.
+            Identity verification for prepaid SIM card activation per German
+            telecommunications law (TKG §172). Replaces video-ident.
           </p>
           <div class="use-case-meta">
-            <span class="use-case-badge">License</span>
+            <span class="use-case-badge">Full PID</span>
+            <span class="use-case-arrow">→</span>
+          </div>
+        </a>
+
+        <a href="/museum-discount/" class="use-case-card museum">
+          <div class="use-case-icon">🏛️</div>
+          <h2>Berlin History Museum</h2>
+          <p>
+            Resident discount verification. Prove Berlin residency to receive
+            50% off museum admission without revealing other personal data.
+          </p>
+          <div class="use-case-meta">
+            <span class="use-case-badge">City Only</span>
+            <span class="use-case-arrow">→</span>
+          </div>
+        </a>
+
+        <a href="/hotel-checkin/" class="use-case-card hotel">
+          <div class="use-case-icon">🏨</div>
+          <h2>Alpine Grand Hotel</h2>
+          <p>
+            Digital hotel check-in for guest registration. EU regulations
+            require name, birthdate, and nationality – no address needed.
+          </p>
+          <div class="use-case-meta">
+            <span class="use-case-badge">Guest Info</span>
+            <span class="use-case-arrow">→</span>
+          </div>
+        </a>
+
+        <a href="/parcel-pickup/" class="use-case-card parcel">
+          <div class="use-case-icon">📦</div>
+          <h2>SwiftBox Parcel Locker</h2>
+          <p>
+            Minimal disclosure for parcel pickup. Only verify your name matches
+            the recipient – no birthdate, address, or ID required.
+          </p>
+          <div class="use-case-meta">
+            <span class="use-case-badge">Name Only</span>
             <span class="use-case-arrow">→</span>
           </div>
         </a>

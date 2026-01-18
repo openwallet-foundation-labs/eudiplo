@@ -8,6 +8,10 @@
       "type": "string",
       "description": "The unique identifier for the client."
     },
+    "secret": {
+      "type": "string",
+      "description": "The secret key for the client."
+    },
     "description": {
       "type": "string",
       "description": "The description of the client."

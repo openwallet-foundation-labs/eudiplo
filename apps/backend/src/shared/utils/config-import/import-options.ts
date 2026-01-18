@@ -47,3 +47,9 @@ export interface ImportOptions<T extends object> {
      */
     resourceType: string;
 }
+
+/**
+ * Import options for tenant-specific imports (without tenantId parameter in callbacks).
+ * Used with importConfigsForTenant where tenantId is passed separately.
+ */
+export type TenantImportOptions<T extends object> = ImportOptions<T>;

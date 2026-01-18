@@ -1,9 +1,5 @@
 import { readFileSync } from "node:fs";
-import {
-    ConflictException,
-    Injectable,
-    OnApplicationBootstrap,
-} from "@nestjs/common";
+import { ConflictException, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
@@ -33,7 +29,7 @@ type CredentialType = "dc+sd-jwt" | "mso_mdoc";
  * Service for managing Verifiable Presentations (VPs) and handling SD-JWT-VCs.
  */
 @Injectable()
-export class PresentationsService implements OnApplicationBootstrap {
+export class PresentationsService {
     /**
      * Constructor for the PresentationsService.
      * @param httpService - Instance of HttpService for making HTTP requests.
@@ -54,23 +50,16 @@ export class PresentationsService implements OnApplicationBootstrap {
         this.configImportOrchestrator.register(
             "presentation-configs",
             ImportPhase.REFERENCES,
-            () => this.import(),
+            (tenantId) => this.importForTenant(tenantId),
         );
     }
 
     /**
-     * Triggers the import orchestration.
-     * The actual import order is managed by the orchestrator.
+     * Imports presentation configurations for a specific tenant.
      */
-    async onApplicationBootstrap() {
-        await this.configImportOrchestrator.runImports();
-    }
-
-    /**
-     * Imports presentation configurations from a predefined directory structure.
-     */
-    private async import() {
-        await this.configImportService.importConfigs<PresentationConfigCreateDto>(
+    private async importForTenant(tenantId: string) {
+        await this.configImportService.importConfigsForTenant<PresentationConfigCreateDto>(
+            tenantId,
             {
                 subfolder: "presentation",
                 fileExtension: ".json",
@@ -85,19 +74,19 @@ export class PresentationsService implements OnApplicationBootstrap {
                     payload.id = id;
                     return plainToClass(PresentationConfigCreateDto, payload);
                 },
-                checkExists: (tenantId, data) => {
-                    return this.getPresentationConfig(data.id, tenantId)
+                checkExists: (tid, data) => {
+                    return this.getPresentationConfig(data.id, tid)
                         .then(() => true)
                         .catch(() => false);
                 },
-                deleteExisting: async (tenantId, data) => {
+                deleteExisting: async (tid, data) => {
                     await this.vpRequestRepository.delete({
                         id: data.id,
-                        tenantId,
+                        tenantId: tid,
                     });
                 },
-                processItem: async (tenantId, config) => {
-                    await this.storePresentationConfig(tenantId, config);
+                processItem: async (tid, config) => {
+                    await this.storePresentationConfig(tid, config);
                 },
             },
         );

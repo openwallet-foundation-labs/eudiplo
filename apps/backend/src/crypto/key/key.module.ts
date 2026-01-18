@@ -6,6 +6,7 @@ import { PinoLogger } from "nestjs-pino/PinoLogger";
 import { Repository } from "typeorm";
 import { TenantEntity } from "../../auth/tenant/entitites/tenant.entity";
 import { ConfigImportService } from "../../shared/utils/config-import/config-import.service";
+import { ConfigImportOrchestratorService } from "../../shared/utils/config-import/config-import-orchestrator.service";
 import { DBKeyService } from "./adapters/db-key.service";
 import { VaultKeyService } from "./adapters/vault-key.service";
 import { CertService } from "./cert/cert.service";
@@ -45,6 +46,7 @@ export class KeyModule {
                         certRepository: Repository<CertEntity>,
                         tenantRepository: Repository<TenantEntity>,
                         logger: PinoLogger,
+                        configImportOrchestrator: ConfigImportOrchestratorService,
                     ) => {
                         const kmType = configService.get<"vault" | "file">(
                             "KM_TYPE",
@@ -59,6 +61,7 @@ export class KeyModule {
                                 certRepository,
                                 tenantRepository,
                                 logger,
+                                configImportOrchestrator,
                             );
                         }
 
@@ -70,6 +73,7 @@ export class KeyModule {
                             certRepository,
                             tenantRepository,
                             logger,
+                            configImportOrchestrator,
                         );
                     },
                     inject: [
@@ -81,6 +85,7 @@ export class KeyModule {
                         getRepositoryToken(CertEntity),
                         getRepositoryToken(TenantEntity),
                         PinoLogger,
+                        ConfigImportOrchestratorService,
                     ],
                 },
             ],

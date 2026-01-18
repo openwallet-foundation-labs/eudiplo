@@ -12,9 +12,4 @@
   "routes": [
     { "pattern": "playground.eudi-wallet.dev", "custom_domain": true },
   ],
-  "vars": {
-    "CLIENT_ID": "test-client",
-    "CLIENT_SECRET": "test-client-secret",
-    "EUDIPLO_URL": "https://service.eudi-wallet.dev",
-  },
 }

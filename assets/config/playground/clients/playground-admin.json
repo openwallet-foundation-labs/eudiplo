@@ -1,0 +1,10 @@
+{
+    "clientId": "playground-admin",
+    "secret": "309sdvkjn23r908dkjbeqf",
+    "description": "Admin account",
+    "roles": [
+        "clients:manage",
+        "issuance:manage",
+        "presentation:manage"
+    ]
+}

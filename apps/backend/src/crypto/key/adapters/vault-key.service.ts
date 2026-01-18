@@ -8,6 +8,7 @@ import { Repository } from "typeorm";
 import { v4 } from "uuid";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
 import { ConfigImportService } from "../../../shared/utils/config-import/config-import.service";
+import { ConfigImportOrchestratorService } from "../../../shared/utils/config-import/config-import-orchestrator.service";
 import {
     CryptoImplementationService,
     CryptoType,
@@ -19,19 +20,20 @@ import { KeyService } from "../key.service";
 
 export class VaultKeyService extends KeyService {
     // url to the vault instance
-    private vaultUrl: string;
+    private readonly vaultUrl: string;
     // headers for the vault api
-    private headers: { headers: { "X-Vault-Token": string } };
+    private readonly headers: { headers: { "X-Vault-Token": string } };
 
     constructor(
-        private httpService: HttpService,
+        private readonly httpService: HttpService,
         configService: ConfigService,
-        private cryptoService: CryptoImplementationService,
+        private readonly cryptoService: CryptoImplementationService,
         keyRepository: Repository<KeyEntity>,
         configImportService: ConfigImportService,
         certRepository: Repository<CertEntity>,
         tenantRepository: Repository<TenantEntity>,
         logger: PinoLogger,
+        configImportOrchestrator: ConfigImportOrchestratorService,
     ) {
         super(
             configService,
@@ -40,6 +42,7 @@ export class VaultKeyService extends KeyService {
             certRepository,
             tenantRepository,
             logger,
+            configImportOrchestrator,
         );
         this.vaultUrl = this.configService.get<string>("VAULT_URL") as string;
         this.headers = {

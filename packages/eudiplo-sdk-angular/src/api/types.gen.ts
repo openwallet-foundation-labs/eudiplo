@@ -30,6 +30,17 @@ export type TokenResponse = {
   expires_in: number;
 };
 
+export type ImportTenantDto = {
+  /**
+   * The name of the tenant.
+   */
+  name: string;
+  /**
+   * The description of the tenant.
+   */
+  description?: string;
+};
+
 export type SessionStorageConfig = {
   /**
    * Time-to-live for sessions in seconds. If not set, uses global SESSION_TTL.
@@ -215,6 +226,10 @@ export type CreateClientDto = {
    */
   clientId: string;
   /**
+   * The secret key for the client.
+   */
+  secret?: string;
+  /**
    * The description of the client.
    */
   description?: string;
@@ -383,8 +398,6 @@ export type CertResponseDto = {
    * The ID of the created self-signed certificate.
    */
   id: string;
-
-  [key: string]: unknown;
 };
 
 export type CertUpdateDto = {
@@ -1214,6 +1227,11 @@ export type PresentationConfig = {
   /**
    * Optional ID of the access certificate to use for signing the presentation request.
    * If not provided, the default access certificate for the tenant will be used.
+   *
+   * Note: This is intentionally NOT a TypeORM relationship because CertEntity uses
+   * a composite primary key (id + tenantId), and SQLite cannot create foreign keys
+   * that reference only part of a composite primary key. The relationship is handled
+   * at the application level in the service layer.
    */
   accessCertId?: string;
 };
@@ -1255,6 +1273,11 @@ export type PresentationConfigCreateDto = {
   /**
    * Optional ID of the access certificate to use for signing the presentation request.
    * If not provided, the default access certificate for the tenant will be used.
+   *
+   * Note: This is intentionally NOT a TypeORM relationship because CertEntity uses
+   * a composite primary key (id + tenantId), and SQLite cannot create foreign keys
+   * that reference only part of a composite primary key. The relationship is handled
+   * at the application level in the service layer.
    */
   accessCertId?: string;
 };
@@ -1296,6 +1319,11 @@ export type PresentationConfigUpdateDto = {
   /**
    * Optional ID of the access certificate to use for signing the presentation request.
    * If not provided, the default access certificate for the tenant will be used.
+   *
+   * Note: This is intentionally NOT a TypeORM relationship because CertEntity uses
+   * a composite primary key (id + tenantId), and SQLite cannot create foreign keys
+   * that reference only part of a composite primary key. The relationship is handled
+   * at the application level in the service layer.
    */
   accessCertId?: string;
 };

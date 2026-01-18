@@ -24,6 +24,10 @@ import { CertUsage } from "../../../crypto/key/entities/cert-usage.entity";
 import { KeyService } from "../../../crypto/key/key.service";
 import { Session } from "../../../session/entities/session.entity";
 import { ConfigImportService } from "../../../shared/utils/config-import/config-import.service";
+import {
+    ConfigImportOrchestratorService,
+    ImportPhase,
+} from "../../../shared/utils/config-import/config-import-orchestrator.service";
 import { StatusListImportDto } from "./dto/status-list-import.dto";
 import { StatusUpdateDto } from "./dto/status-update.dto";
 import { StatusListEntity } from "./entities/status-list.entity";
@@ -46,7 +50,14 @@ export class StatusListService {
         private readonly logger: PinoLogger,
         @Inject(forwardRef(() => StatusListConfigService))
         private readonly statusListConfigService: StatusListConfigService,
-    ) {}
+        readonly configImportOrchestrator: ConfigImportOrchestratorService,
+    ) {
+        configImportOrchestrator.register(
+            "status-lists",
+            ImportPhase.FINAL,
+            (tenantId) => this.importForTenant(tenantId),
+        );
+    }
 
     /**
      * Get the effective status list capacity for a tenant.
@@ -560,89 +571,93 @@ export class StatusListService {
     }
 
     /**
-     * Import status list configurations from JSON files.
-     * This enables "config as code" for status lists.
+     * Import status list configurations for a specific tenant.
      */
-    async import(): Promise<void> {
-        await this.configImportService.importConfigs<StatusListImportDto>({
-            subfolder: "issuance/status-lists",
-            fileExtension: ".json",
-            validationClass: StatusListImportDto,
-            resourceType: "status list",
-            checkExists: async (tenantId, data) => {
-                // Check if a list with this ID already exists
-                const existing = await this.statusListRepository.findOneBy({
-                    id: data.id,
-                    tenantId,
-                });
-                return existing !== null;
-            },
-            deleteExisting: async (tenantId, data) => {
-                // Check if the list has any mappings before deleting
-                const mappingsCount =
-                    await this.statusMappingRepository.countBy({
-                        tenantId,
-                        statusListId: data.id,
+    async importForTenant(tenantId: string): Promise<void> {
+        await this.configImportService.importConfigsForTenant<StatusListImportDto>(
+            tenantId,
+            {
+                subfolder: "issuance/status-lists",
+                fileExtension: ".json",
+                validationClass: StatusListImportDto,
+                resourceType: "status list",
+                checkExists: async (tid, data) => {
+                    // Check if a list with this ID already exists
+                    const existing = await this.statusListRepository.findOneBy({
+                        id: data.id,
+                        tenantId: tid,
                     });
-                if (mappingsCount > 0) {
-                    this.logger.warn(
-                        {
-                            event: "ImportWarning",
-                            tenant: tenantId,
-                            listId: data.id,
-                        },
-                        `Cannot reimport status list ${data.id}: ${mappingsCount} credentials are using it`,
-                    );
-                    return;
-                }
-                await this.statusListRepository.delete({
-                    id: data.id,
-                    tenantId,
-                });
-            },
-            processItem: async (tenantId, config) => {
-                // Get effective size and bits (from config, tenant defaults, or global defaults)
-                const size =
-                    config.capacity ??
-                    (await this.getEffectiveCapacity(tenantId));
-                const bits =
-                    config.bits ?? (await this.getEffectiveBits(tenantId));
-
-                // Create the shuffled stack
-                const elements = new Array(size).fill(0).map(() => 0);
-                const stack = this.shuffleArray(
-                    new Array(size).fill(0).map((_, i) => i),
-                );
-
-                // Validate certId if provided
-                if (config.certId) {
-                    const cert = await this.certService.find({
-                        tenantId,
-                        type: CertUsage.StatusList,
-                        id: config.certId,
-                    });
-                    if (!cert) {
-                        throw new Error(
-                            `Certificate ${config.certId} not found for tenant ${tenantId}`,
+                    return existing !== null;
+                },
+                deleteExisting: async (tid, data) => {
+                    // Check if the list has any mappings before deleting
+                    const mappingsCount =
+                        await this.statusMappingRepository.countBy({
+                            tenantId: tid,
+                            statusListId: data.id,
+                        });
+                    if (mappingsCount > 0) {
+                        this.logger.warn(
+                            `[${tid}] Cannot reimport status list ${data.id}: ${mappingsCount} credentials are using it`,
                         );
+                        return;
                     }
-                }
-
-                // Save with the provided ID
-                const entry = await this.statusListRepository.save({
-                    id: config.id,
-                    tenantId,
-                    credentialConfigurationId:
-                        config.credentialConfigurationId ?? null,
-                    certId: config.certId ?? null,
-                    elements,
-                    stack,
-                    bits,
-                });
-
-                // Generate the JWT
-                await this.createListJWT(entry);
+                    await this.statusListRepository.delete({
+                        id: data.id,
+                        tenantId: tid,
+                    });
+                },
+                processItem: async (tid, config) => {
+                    await this.processStatusListConfig(tid, config);
+                },
             },
+        );
+    }
+
+    /**
+     * Process a status list config for import.
+     */
+    private async processStatusListConfig(
+        tenantId: string,
+        config: StatusListImportDto,
+    ) {
+        // Get effective size and bits (from config, tenant defaults, or global defaults)
+        const size =
+            config.capacity ?? (await this.getEffectiveCapacity(tenantId));
+        const bits = config.bits ?? (await this.getEffectiveBits(tenantId));
+
+        // Create the shuffled stack
+        const elements = new Array(size).fill(0).map(() => 0);
+        const stack = this.shuffleArray(
+            new Array(size).fill(0).map((_, i) => i),
+        );
+
+        // Validate certId if provided
+        if (config.certId) {
+            const cert = await this.certService.find({
+                tenantId,
+                type: CertUsage.StatusList,
+                id: config.certId,
+            });
+            if (!cert) {
+                throw new Error(
+                    `Certificate ${config.certId} not found for tenant ${tenantId}`,
+                );
+            }
+        }
+
+        // Save with the provided ID
+        const entry = await this.statusListRepository.save({
+            id: config.id,
+            tenantId,
+            credentialConfigurationId: config.credentialConfigurationId ?? null,
+            certId: config.certId ?? null,
+            elements,
+            stack,
+            bits,
         });
+
+        // Generate the JWT
+        await this.createListJWT(entry);
     }
 }

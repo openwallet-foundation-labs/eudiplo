@@ -14,18 +14,21 @@ import {
     MatchedTrustedEntity,
     X509ValidationService,
 } from "../../../resolver/trust/x509-validation.service";
+import { BaseVerifierService } from "../base-verifier.service";
 
 @Injectable()
-export class SdjwtvcverifierService {
-    private readonly logger = new Logger(SdjwtvcverifierService.name);
+export class SdjwtvcverifierService extends BaseVerifierService {
+    protected readonly logger = new Logger(SdjwtvcverifierService.name);
 
     constructor(
         private readonly resolverService: ResolverService,
         private readonly cryptoService: CryptoImplementationService,
         private readonly httpService: HttpService,
-        private readonly trustStore: TrustStoreService,
+        trustStore: TrustStoreService,
         private readonly x509v: X509ValidationService,
-    ) {}
+    ) {
+        super(trustStore);
+    }
 
     /**
      * Verifies an SD-JWT-VC credential.
@@ -122,18 +125,16 @@ export class SdjwtvcverifierService {
             }
 
             // 3) Build trust store with TrustedEntities from LoTE
-            const store = await this.trustStore.getTrustStore(
+            // If no trust list source is configured, skip trust validation (like mDOC)
+            const store = await this.getTrustStoreIfConfigured(
                 options.trustListSource,
             );
-            // optionally enforce NextUpdate freshness if present
-            if (store.nextUpdate) {
-                const nu = new Date(store.nextUpdate);
-                if (!Number.isNaN(nu.getTime()) && nu.getTime() < Date.now()) {
-                    this.logger.warn(
-                        `Trust list NextUpdate is in the past: ${store.nextUpdate}`,
-                    );
-                    return { verified: false, matchedEntity: null };
-                }
+            if (!store) {
+                // No trust list configured - signature is valid, skip trust validation
+                this.logger.debug(
+                    "No trust list source configured, returning verified without trust validation",
+                );
+                return { verified: true, matchedEntity: null };
             }
 
             // 4) Build a validated path
@@ -262,9 +263,14 @@ export class SdjwtvcverifierService {
             }
 
             // 5) Build and verify the status list's certificate chain
-            const store = await this.trustStore.getTrustStore(
+            const store = await this.getTrustStoreIfConfigured(
                 options.trustListSource,
             );
+            if (!store) {
+                // No trust list configured - accept if signature is valid
+                return true;
+            }
+
             const presented = this.x509v.parseX5c(x5c);
             const leaf = presented[0];
 
@@ -332,16 +338,6 @@ export class SdjwtvcverifierService {
             );
             return false;
         }
-    }
-
-    /**
-     * Get the hex thumbprint of a certificate.
-     */
-    private async getThumbprint(cert: x509.X509Certificate): Promise<string> {
-        const buffer = await cert.getThumbprint();
-        return Array.from(new Uint8Array(buffer))
-            .map((b) => b.toString(16).padStart(2, "0"))
-            .join("");
     }
 
     /**

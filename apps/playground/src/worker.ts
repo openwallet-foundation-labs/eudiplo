@@ -24,9 +24,21 @@ const USE_CASES: Record<string, { presentationConfigId: string; name: string }> 
     presentationConfigId: 'playground-pid',
     name: 'Bank Onboarding - Identity Verification',
   },
-  'car-rental': {
-    presentationConfigId: 'driving-license',
-    name: 'Car Rental - License Verification',
+  'sim-activation': {
+    presentationConfigId: 'playground-pid',
+    name: 'SIM Activation - Identity Verification (TKG §172)',
+  },
+  'museum-discount': {
+    presentationConfigId: 'resident-city',
+    name: 'Museum Discount - Berlin Residency Verification',
+  },
+  'hotel-checkin': {
+    presentationConfigId: 'hotel-guest',
+    name: 'Hotel Check-in - Guest Registration',
+  },
+  'parcel-pickup': {
+    presentationConfigId: 'name-only',
+    name: 'Parcel Pickup - Recipient Verification',
   },
 };
 

@@ -1,12 +1,16 @@
+import { readFileSync } from "node:fs";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
-import { readFileSync } from "fs";
 import { PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm";
 import { CertService } from "../../../../crypto/key/cert/cert.service";
 import { CertUsage } from "../../../../crypto/key/entities/cert-usage.entity";
 import { ConfigImportService } from "../../../../shared/utils/config-import/config-import.service";
+import {
+    ConfigImportOrchestratorService,
+    ImportPhase,
+} from "../../../../shared/utils/config-import/config-import-orchestrator.service";
 import { FilesService } from "../../../../storage/files.service";
 import { StatusListService } from "../../../lifecycle/status/status-list.service";
 import { CredentialConfigCreate } from "../dto/credential-config-create.dto";
@@ -30,109 +34,116 @@ export class CredentialConfigService {
         private readonly filesService: FilesService,
         private readonly configImportService: ConfigImportService,
         private readonly statusListService: StatusListService,
-    ) {}
+        private readonly configImportOrchestrator: ConfigImportOrchestratorService,
+    ) {
+        this.configImportOrchestrator.register(
+            "credentials",
+            ImportPhase.CONFIGURATION,
+            (tenantId) => this.importForTenant(tenantId),
+        );
+    }
 
     /**
-     * Imports the configs
+     * Imports credential configs for a specific tenant.
      */
-    public async import() {
-        await this.configImportService.importConfigs<CredentialConfigCreate>({
-            subfolder: "issuance/credentials",
-            fileExtension: ".json",
-            validationClass: CredentialConfigCreate,
-            resourceType: "credential config",
-            checkExists: (tenantId, data) =>
-                this.getById(tenantId, data.id)
-                    .then(() => true)
-                    .catch(() => false),
-            deleteExisting: (tenantId, data) =>
-                this.credentialConfigRepository
-                    .delete({
-                        id: data.id,
-                        tenantId,
-                    })
-                    .then(() => undefined),
-            loadData: (filePath) => {
-                const payload = JSON.parse(readFileSync(filePath, "utf8"));
-                return plainToClass(CredentialConfigCreate, payload);
+    public async importForTenant(tenantId: string) {
+        await this.configImportService.importConfigsForTenant<CredentialConfigCreate>(
+            tenantId,
+            {
+                subfolder: "issuance/credentials",
+                fileExtension: ".json",
+                validationClass: CredentialConfigCreate,
+                resourceType: "credential config",
+                checkExists: (tid, data) =>
+                    this.getById(tid, data.id)
+                        .then(() => true)
+                        .catch(() => false),
+                deleteExisting: (tid, data) =>
+                    this.credentialConfigRepository
+                        .delete({
+                            id: data.id,
+                            tenantId: tid,
+                        })
+                        .then(() => undefined),
+                loadData: (filePath) => {
+                    const payload = JSON.parse(readFileSync(filePath, "utf8"));
+                    return plainToClass(CredentialConfigCreate, payload);
+                },
+                processItem: async (tid, config) => {
+                    await this.processCredentialConfig(tid, config);
+                },
             },
-            processItem: async (tenantId, config) => {
-                // Replace image references with actual URLs
-                config.config.display = await Promise.all(
-                    config.config.display.map(async (display) => {
-                        if (display.background_image?.uri) {
-                            const url =
-                                await this.filesService.replaceUriWithPublicUrl(
-                                    tenantId,
-                                    display.background_image.uri,
-                                );
-                            if (url) {
-                                display.background_image.uri = url;
-                            } else {
-                                this.logger.warn(
-                                    {
-                                        event: "ImportWarning",
-                                        tenant: tenantId,
-                                        uri: display.background_image.uri,
-                                    },
-                                    `Could not find image ${display.background_image.uri} for credentials config in tenant ${tenantId}`,
-                                );
-                            }
-                        }
-                        if (display.logo?.uri) {
-                            const url =
-                                await this.filesService.replaceUriWithPublicUrl(
-                                    tenantId,
-                                    display.logo.uri,
-                                );
-                            if (url) {
-                                display.logo.uri = url;
-                            } else {
-                                this.logger.warn(
-                                    {
-                                        event: "ImportWarning",
-                                        tenant: tenantId,
-                                        uri: display.logo.uri,
-                                    },
-                                    `Could not find image ${display.logo.uri} for credentials config in tenant ${tenantId}`,
-                                );
-                            }
-                        }
-                        return display;
-                    }),
+        );
+    }
+
+    /**
+     * Process a credential config for import.
+     */
+    private async processCredentialConfig(
+        tenantId: string,
+        config: CredentialConfigCreate,
+    ) {
+        // Replace image references with actual URLs
+        config.config.display = await Promise.all(
+            config.config.display.map(async (display) => {
+                if (display.background_image?.uri) {
+                    const url = await this.filesService.replaceUriWithPublicUrl(
+                        tenantId,
+                        display.background_image.uri,
+                    );
+                    if (url) {
+                        display.background_image.uri = url;
+                    } else {
+                        this.logger.warn(
+                            `[${tenantId}] Could not find image ${display.background_image.uri} for credentials config`,
+                        );
+                    }
+                }
+                if (display.logo?.uri) {
+                    const url = await this.filesService.replaceUriWithPublicUrl(
+                        tenantId,
+                        display.logo.uri,
+                    );
+                    if (url) {
+                        display.logo.uri = url;
+                    } else {
+                        this.logger.warn(
+                            `[${tenantId}] Could not find image ${display.logo.uri} for credentials config`,
+                        );
+                    }
+                }
+                return display;
+            }),
+        );
+
+        // Check if cetId is provided and if the certificate exists.
+        if (config.certId) {
+            const cert = await this.certService.find({
+                tenantId,
+                type: CertUsage.Signing,
+                id: config.certId,
+            });
+            if (!cert) {
+                throw new Error(
+                    `Cert ID ${config.certId} must be defined in the crypto service`,
                 );
+            }
+            (config as CredentialConfig).cert = cert;
+        }
 
-                // Check if cetId is provided and if the certificate exists.
-                if (config.certId) {
-                    const cert = await this.certService.find({
-                        tenantId,
-                        type: CertUsage.Signing,
-                        id: config.certId,
-                    });
-                    if (!cert) {
-                        throw new Error(
-                            `Cert ID ${config.certId} must be defined in the crypto service`,
-                        );
-                    }
-                    (config as CredentialConfig).cert = cert;
-                }
+        //check if status revocation is enabled and if yes, ensure a status list is available
+        if (config.statusManagement) {
+            const hasEntries = await this.statusListService.hasStillFreeEntries(
+                tenantId,
+                config.id,
+            );
+            if (!hasEntries) {
+                // Create a new shared list if no available list exists
+                await this.statusListService.createNewList(tenantId);
+            }
+        }
 
-                //check if status revocation is enabled and if yes, ensure a status list is available
-                if (config.statusManagement) {
-                    const hasEntries =
-                        await this.statusListService.hasStillFreeEntries(
-                            tenantId,
-                            config.id,
-                        );
-                    if (!hasEntries) {
-                        // Create a new shared list if no available list exists
-                        await this.statusListService.createNewList(tenantId);
-                    }
-                }
-
-                await this.store(tenantId, config);
-            },
-        });
+        await this.store(tenantId, config);
     }
 
     /**
