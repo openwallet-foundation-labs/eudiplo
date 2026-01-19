@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { TenantEntity } from "../../../../auth/tenant/entitites/tenant.entity";
 import { StatusListEntity } from "./status-list.entity";
 
@@ -26,6 +26,10 @@ export class StatusMapping {
      * The status list entity.
      */
     @ManyToOne(() => StatusListEntity, { onDelete: "CASCADE" })
+    @JoinColumn([
+        { name: "statusListId", referencedColumnName: "id" },
+        { name: "tenantId", referencedColumnName: "tenantId" },
+    ])
     statusList!: StatusListEntity;
 
     /**

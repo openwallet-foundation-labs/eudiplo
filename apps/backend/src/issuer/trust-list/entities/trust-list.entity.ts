@@ -1,10 +1,10 @@
-import { IsObject, IsOptional, IsString, IsUUID } from "class-validator";
+import { IsObject, IsOptional, IsString } from "class-validator";
 import {
     Column,
     CreateDateColumn,
     Entity,
+    JoinColumn,
     ManyToOne,
-    PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from "typeorm";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
@@ -19,10 +19,9 @@ export class TrustList {
     /**
      * Unique identifier for the trust list
      * */
-    @IsUUID()
-    @IsOptional()
-    @PrimaryGeneratedColumn("uuid")
-    id?: string;
+    @IsString()
+    @Column("varchar", { primary: true })
+    id: string;
 
     @IsString()
     @IsOptional()
@@ -48,6 +47,10 @@ export class TrustList {
         cascade: true,
         onDelete: "CASCADE",
     })
+    @JoinColumn([
+        { name: "certId", referencedColumnName: "id" },
+        { name: "tenantId", referencedColumnName: "tenantId" },
+    ])
     cert!: CertEntity;
 
     /**

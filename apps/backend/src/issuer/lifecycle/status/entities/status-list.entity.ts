@@ -1,11 +1,5 @@
 import { BitsPerStatus } from "@sd-jwt/jwt-status-list";
-import {
-    Column,
-    CreateDateColumn,
-    Entity,
-    ManyToOne,
-    PrimaryGeneratedColumn,
-} from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne } from "typeorm";
 import { TenantEntity } from "../../../../auth/tenant/entitites/tenant.entity";
 
 /**
@@ -17,13 +11,13 @@ export class StatusListEntity {
     /**
      * Unique identifier for the status list.
      */
-    @PrimaryGeneratedColumn("uuid")
+    @Column("varchar", { primary: true })
     id!: string;
 
     /**
      * The ID of the tenant to which the status list belongs.
      */
-    @Column("varchar")
+    @Column("varchar", { primary: true })
     tenantId!: string;
 
     /**

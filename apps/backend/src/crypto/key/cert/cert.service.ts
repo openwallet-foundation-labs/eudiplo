@@ -81,7 +81,7 @@ export class CertService {
         return this.certRepository.find({
             where: {
                 tenantId,
-                key: { id: keyId },
+                key: { id: keyId, tenantId },
             },
             relations: ["key"],
         });

@@ -691,7 +691,7 @@ export const StatusListImportDtoSchema = {
     id: {
       type: "string",
       description: "Unique identifier for the status list",
-      example: "mdl-status-list",
+      format: "uuid",
     },
     credentialConfigurationId: {
       type: "string",
@@ -2496,6 +2496,10 @@ export const PresentationConfigUpdateDtoSchema = {
 export const TrustListCreateDtoSchema = {
   type: "object",
   properties: {
+    id: {
+      type: "string",
+      format: "uuid",
+    },
     certId: {
       type: "string",
     },
@@ -2504,11 +2508,6 @@ export const TrustListCreateDtoSchema = {
       items: {
         type: "object",
       },
-    },
-    id: {
-      type: "string",
-      description: "Unique identifier for the trust list",
-      format: "uuid",
     },
     description: {
       type: "string",
@@ -2581,6 +2580,7 @@ export const TrustListSchema = {
     },
   },
   required: [
+    "id",
     "tenantId",
     "tenant",
     "certId",
