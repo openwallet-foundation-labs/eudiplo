@@ -10,6 +10,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
 import { JWTHeaderParameters } from "jose";
 import { Repository } from "typeorm";
+import { v4 } from "uuid";
 import { TenantEntity } from "../../auth/tenant/entitites/tenant.entity";
 import { CertService } from "../../crypto/key/cert/cert.service";
 import { CertEntity } from "../../crypto/key/entities/cert.entity";
@@ -248,7 +249,8 @@ export class TrustListService {
 
         // Use existing trust list or create new
         const trustList =
-            existing ?? this.trustListRepo.create({ tenant, id: config.id });
+            existing ??
+            this.trustListRepo.create({ tenant, id: config.id ?? v4() });
 
         // Update properties
         trustList.description = config.description;

@@ -1329,14 +1329,11 @@ export type PresentationConfigUpdateDto = {
 };
 
 export type TrustListCreateDto = {
+  id?: string;
   certId?: string;
   entities: Array<{
     [key: string]: unknown;
   }>;
-  /**
-   * Unique identifier for the trust list
-   */
-  id?: string;
   description?: string;
   /**
    * The full trust list JSON (generated LoTE structure)
@@ -1350,7 +1347,7 @@ export type TrustList = {
   /**
    * Unique identifier for the trust list
    */
-  id?: string;
+  id: string;
   description?: string;
   /**
    * The tenant ID for which the VP request is made.

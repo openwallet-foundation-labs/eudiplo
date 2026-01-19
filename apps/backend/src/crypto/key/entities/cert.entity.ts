@@ -4,6 +4,7 @@ import {
     Column,
     CreateDateColumn,
     Entity,
+    JoinColumn,
     ManyToOne,
     OneToMany,
     UpdateDateColumn,
@@ -20,7 +21,7 @@ export class CertEntity {
     /**
      * Unique identifier for the key.
      */
-    @IsUUID()
+    @IsString()
     @Column("varchar", { primary: true })
     id!: string;
 
@@ -68,7 +69,7 @@ export class CertEntity {
         description: "The key ID this certificate is associated with",
         example: "039af178-3ca0-48f4-a2e4-7b1209f30376",
     })
-    @IsUUID()
+    @IsString()
     @Column("varchar")
     keyId!: string;
 
@@ -77,6 +78,10 @@ export class CertEntity {
         (key) => key.certificates,
         { onDelete: "CASCADE" },
     )
+    @JoinColumn([
+        { name: "keyId", referencedColumnName: "id" },
+        { name: "tenantId", referencedColumnName: "tenantId" },
+    ])
     key!: KeyEntity;
 
     /**

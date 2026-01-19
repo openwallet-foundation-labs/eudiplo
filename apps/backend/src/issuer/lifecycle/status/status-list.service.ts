@@ -18,6 +18,7 @@ import {
 import { JwtPayload } from "@sd-jwt/types";
 import { PinoLogger } from "nestjs-pino";
 import { IsNull, Repository } from "typeorm";
+import { v4 } from "uuid";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
 import { CertService } from "../../../crypto/key/cert/cert.service";
 import { CertUsage } from "../../../crypto/key/entities/cert-usage.entity";
@@ -152,6 +153,7 @@ export class StatusListService {
         }
 
         const entry = await this.statusListRepository.save({
+            id: v4(),
             tenantId,
             credentialConfigurationId:
                 options?.credentialConfigurationId ?? null,

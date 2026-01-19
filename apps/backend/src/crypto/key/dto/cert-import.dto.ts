@@ -1,5 +1,5 @@
 import { OmitType } from "@nestjs/swagger";
-import { IsEnum, IsOptional, IsString, IsUUID } from "class-validator";
+import { IsEnum, IsOptional, IsString } from "class-validator";
 import { CertEntity } from "../entities/cert.entity";
 import { CertUsage } from "../entities/cert-usage.entity";
 
@@ -17,7 +17,7 @@ export class CertImportDto extends OmitType(CertEntity, [
     "id",
 ] as const) {
     @IsOptional()
-    @IsUUID()
+    @IsString()
     id?: string;
 
     /**

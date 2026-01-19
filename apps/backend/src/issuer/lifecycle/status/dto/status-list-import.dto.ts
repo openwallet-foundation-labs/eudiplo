@@ -20,7 +20,6 @@ export class StatusListImportDto {
      */
     @ApiProperty({
         description: "Unique identifier for the status list",
-        example: "mdl-status-list",
     })
     @IsString()
     id!: string;

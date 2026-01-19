@@ -56,6 +56,21 @@ export const TokenResponseSchema = {
   required: ["access_token", "token_type", "expires_in"],
 } as const;
 
+export const ImportTenantDtoSchema = {
+  type: "object",
+  properties: {
+    name: {
+      type: "string",
+      description: "The name of the tenant.",
+    },
+    description: {
+      type: "string",
+      description: "The description of the tenant.",
+    },
+  },
+  required: ["name"],
+} as const;
+
 export const SessionStorageConfigSchema = {
   type: "object",
   properties: {
@@ -353,6 +368,10 @@ export const CreateClientDtoSchema = {
     clientId: {
       type: "string",
       description: "The unique identifier for the client.",
+    },
+    secret: {
+      type: "string",
+      description: "The secret key for the client.",
     },
     description: {
       type: "string",
@@ -672,7 +691,7 @@ export const StatusListImportDtoSchema = {
     id: {
       type: "string",
       description: "Unique identifier for the status list",
-      example: "mdl-status-list",
+      format: "uuid",
     },
     credentialConfigurationId: {
       type: "string",
@@ -2331,7 +2350,7 @@ export const PresentationConfigSchema = {
       type: "string",
       nullable: true,
       description:
-        "Optional ID of the access certificate to use for signing the presentation request.\nIf not provided, the default access certificate for the tenant will be used.",
+        "Optional ID of the access certificate to use for signing the presentation request.\nIf not provided, the default access certificate for the tenant will be used.\n\nNote: This is intentionally NOT a TypeORM relationship because CertEntity uses\na composite primary key (id + tenantId), and SQLite cannot create foreign keys\nthat reference only part of a composite primary key. The relationship is handled\nat the application level in the service layer.",
     },
   },
   required: ["id", "tenant", "dcql_query", "createdAt", "updatedAt"],
@@ -2400,7 +2419,7 @@ export const PresentationConfigCreateDtoSchema = {
       type: "string",
       nullable: true,
       description:
-        "Optional ID of the access certificate to use for signing the presentation request.\nIf not provided, the default access certificate for the tenant will be used.",
+        "Optional ID of the access certificate to use for signing the presentation request.\nIf not provided, the default access certificate for the tenant will be used.\n\nNote: This is intentionally NOT a TypeORM relationship because CertEntity uses\na composite primary key (id + tenantId), and SQLite cannot create foreign keys\nthat reference only part of a composite primary key. The relationship is handled\nat the application level in the service layer.",
     },
   },
   required: ["id", "dcql_query"],
@@ -2469,7 +2488,7 @@ export const PresentationConfigUpdateDtoSchema = {
       type: "string",
       nullable: true,
       description:
-        "Optional ID of the access certificate to use for signing the presentation request.\nIf not provided, the default access certificate for the tenant will be used.",
+        "Optional ID of the access certificate to use for signing the presentation request.\nIf not provided, the default access certificate for the tenant will be used.\n\nNote: This is intentionally NOT a TypeORM relationship because CertEntity uses\na composite primary key (id + tenantId), and SQLite cannot create foreign keys\nthat reference only part of a composite primary key. The relationship is handled\nat the application level in the service layer.",
     },
   },
 } as const;
@@ -2499,7 +2518,7 @@ export const TrustListCreateDtoSchema = {
       description: "The full trust list JSON (generated LoTE structure)",
     },
   },
-  required: ["entities"],
+  required: ["entities", "id"],
 } as const;
 
 export const TrustListSchema = {
@@ -2562,6 +2581,7 @@ export const TrustListSchema = {
     },
   },
   required: [
+    "id",
     "tenantId",
     "tenant",
     "certId",

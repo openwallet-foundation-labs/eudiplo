@@ -2,6 +2,7 @@ import {
     Column,
     CreateDateColumn,
     Entity,
+    JoinColumn,
     ManyToOne,
     PrimaryGeneratedColumn,
 } from "typeorm";
@@ -12,13 +13,17 @@ import { TrustList } from "./trust-list.entity";
  */
 @Entity()
 export class TrustListVersion {
-    @PrimaryGeneratedColumn("uuid")
+    @PrimaryGeneratedColumn()
     id: string;
 
     @Column("varchar")
     trustListId: string;
 
     @ManyToOne(() => TrustList, { onDelete: "CASCADE" })
+    @JoinColumn([
+        { name: "trustListId", referencedColumnName: "id" },
+        { name: "tenantId", referencedColumnName: "tenantId" },
+    ])
     trustList: TrustList;
 
     @Column("varchar")
