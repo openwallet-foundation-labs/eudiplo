@@ -46,7 +46,7 @@ describe("Key (e2e)", () => {
         };
 
         const payload: KeyImportDto = {
-            id: privateKey.kid!,
+            id: privateKey.kid,
             key: privateKey,
         };
         const creationResponse = await request(app.getHttpServer())

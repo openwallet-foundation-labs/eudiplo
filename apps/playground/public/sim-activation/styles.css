@@ -1,0 +1,540 @@
+/* TechMarkt SIM Activation Demo Styles */
+
+/* Override primary color to TechMarkt red */
+:root {
+  --primary: #df0000;
+  --primary-hover: #b30000;
+}
+
+/* Red header background */
+header {
+  background: var(--primary) !important;
+  border-bottom: none !important;
+}
+
+header .badge {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+}
+
+/* Slogan styling */
+.slogan {
+  color: white;
+  font-weight: 700;
+  font-size: 1.25rem;
+  font-style: italic;
+  margin-left: auto;
+  margin-right: 1rem;
+}
+
+@media (max-width: 640px) {
+  .slogan {
+    display: none;
+  }
+}
+
+/* Header logo styling */
+header .logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+.logo-box {
+  background: white;
+  color: var(--primary);
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+}
+
+/* Product Card */
+.product-card {
+  display: flex;
+  gap: 2rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: var(--radius);
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .product-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+  }
+}
+
+.product-image {
+  flex-shrink: 0;
+}
+
+.sim-card-visual {
+  width: 120px;
+  height: 80px;
+  background: linear-gradient(145deg, #ffd700, #ffaa00);
+  border-radius: 8px;
+  position: relative;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.sim-chip {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  width: 40px;
+  height: 30px;
+  background: linear-gradient(145deg, #c9a227, #a08020);
+  border-radius: 4px;
+}
+
+.sim-chip::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+}
+
+.sim-label {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Hidden Saturn in the SIM card - click to reveal! */
+.sim-card-visual {
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.sim-card-visual:hover {
+  transform: scale(1.05);
+}
+
+.sim-card-visual::after {
+  content: '🪐';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  font-size: 2rem;
+  opacity: 0;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.sim-card-visual:active::after,
+.sim-card-visual.saturn-revealed::after {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+}
+
+.product-info {
+  flex: 1;
+}
+
+.product-brand {
+  display: inline-block;
+  background: var(--primary);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.product-info h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.product-price {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 1rem;
+}
+
+.product-price span {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.product-features {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.product-features li {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+/* Activation Steps Preview */
+.activation-steps-preview {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.activation-steps-preview h3 {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+
+.steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.step-num {
+  width: 32px;
+  height: 32px;
+  background: var(--border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.step-item.completed .step-num {
+  background: var(--success);
+  color: white;
+}
+
+.step-item.current .step-num {
+  background: var(--primary);
+  color: white;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(223, 0, 0, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(223, 0, 0, 0); }
+}
+
+.step-item strong {
+  font-size: 0.95rem;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.step-item p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Legal Notice */
+.legal-notice {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: var(--radius);
+  margin-bottom: 1.5rem;
+}
+
+.notice-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.legal-notice strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.legal-notice p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* EUDI Badge */
+.eudi-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #003399, #0055cc);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.eu-flag {
+  font-size: 1.25rem;
+}
+
+/* Data Info */
+.data-info {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.data-info h3 {
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.data-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.data-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.data-list li.optional {
+  color: var(--text-muted);
+}
+
+.opt-label {
+  font-size: 0.75rem;
+  background: var(--border);
+  padding: 0.125rem 0.5rem;
+  border-radius: 1rem;
+}
+
+.data-icon {
+  width: 28px;
+  height: 28px;
+  background: white;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  box-shadow: var(--shadow);
+}
+
+/* Privacy Note */
+.privacy-note {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: var(--radius);
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.privacy-note span {
+  font-size: 1rem;
+}
+
+/* Success Section */
+.success-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.success-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, var(--success) 0%, #16a34a 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: white;
+  margin: 0 auto 1rem;
+  box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3);
+}
+
+.success-subtitle {
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+/* Activation Progress */
+.activation-progress {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.progress-bar {
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 60%;
+  background: linear-gradient(90deg, var(--primary) 0%, #ff4444 100%);
+  border-radius: 4px;
+  animation: progress 2s ease-in-out infinite;
+}
+
+@keyframes progress {
+  0% { width: 30%; }
+  50% { width: 80%; }
+  100% { width: 30%; }
+}
+
+.activation-progress p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+/* Verified Data Card */
+.verified-data-card {
+  background: #f0fdf4;
+  border: 2px solid var(--success);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.verified-data-card h3 {
+  font-size: 1rem;
+  color: var(--success);
+  margin-bottom: 1rem;
+}
+
+.verified-data-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.verified-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #bbf7d0;
+  font-size: 0.9rem;
+}
+
+.verified-item:last-child {
+  border-bottom: none;
+}
+
+.verified-item .label {
+  color: var(--text-muted);
+}
+
+.verified-item .value {
+  font-weight: 600;
+}
+
+/* Next Steps */
+.next-steps {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.next-steps h3 {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.next-steps ol {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.next-steps li {
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+/* Confirmation Box */
+.confirmation-box {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.confirmation-box p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+.status-badge {
+  display: inline-block;
+  background: #fef3c7;
+  color: #92400e;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+
+footer a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}

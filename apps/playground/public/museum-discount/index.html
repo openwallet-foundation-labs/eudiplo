@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>
+      Berlin History Museum - Resident Discount | EUDIPLO Playground
+    </title>
+    <link rel="stylesheet" href="/shared/styles.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+  </head>
+  <body>
+    <header>
+      <a href="../" class="logo">
+        <span class="logo-icon">🏛️</span>
+        Berlin History Museum
+      </a>
+      <span class="badge">EUDIPLO Demo</span>
+    </header>
+
+    <main class="container">
+      <!-- Step 1: Ticket Selection -->
+      <section id="ticketSection" class="card">
+        <h1>Purchase Tickets</h1>
+
+        <div class="museum-hero">
+          <div class="museum-image">
+            <div class="building-art">
+              <div class="pillar"></div>
+              <div class="pillar"></div>
+              <div class="pillar"></div>
+              <div class="roof"></div>
+            </div>
+          </div>
+          <div class="museum-info">
+            <span class="museum-badge">Special Exhibition</span>
+            <h2>The Wall & Beyond</h2>
+            <p class="museum-subtitle">35 Years of German Reunification</p>
+            <div class="museum-details">
+              <span>📅 Open Daily 10:00 - 18:00</span>
+              <span>📍 Unter den Linden, Berlin</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ticket-options">
+          <h3>🎫 Select Your Ticket</h3>
+
+          <div class="ticket-card" id="regularTicket">
+            <div class="ticket-info">
+              <span class="ticket-type">Regular Admission</span>
+              <span class="ticket-desc">Full price for all visitors</span>
+            </div>
+            <div class="ticket-price">
+              <span class="price">€16.00</span>
+            </div>
+          </div>
+
+          <div class="ticket-card resident-ticket" id="residentTicket">
+            <div class="resident-badge">🏠 Berlin Residents</div>
+            <div class="ticket-info">
+              <span class="ticket-type">Berlin Resident Discount</span>
+              <span class="ticket-desc">50% off for Berlin citizens</span>
+            </div>
+            <div class="ticket-price">
+              <span class="price-original">€16.00</span>
+              <span class="price discounted">€8.00</span>
+            </div>
+            <div class="savings-tag">Save €8.00!</div>
+          </div>
+        </div>
+
+        <div class="discount-info">
+          <span class="info-icon">💡</span>
+          <div>
+            <strong>Berlin Resident Discount</strong>
+            <p>
+              As a thank you to our local community, Berlin residents enjoy 50%
+              off admission. Verify your residency instantly with your EUDI
+              Wallet – no documents needed!
+            </p>
+          </div>
+        </div>
+
+        <div class="privacy-highlight">
+          <span>🔒</span>
+          <div>
+            <strong>Privacy-First Verification</strong>
+            <p>
+              We only check if you live in Berlin. Your exact address, name, or
+              other personal details are never shared.
+            </p>
+          </div>
+        </div>
+
+        <button id="verifyBtn" class="btn btn-primary btn-large">
+          🪪 Verify Berlin Residency & Get Discount
+        </button>
+
+        <p class="skip-text">
+          <a href="#" id="skipLink">Continue without discount (€16.00) →</a>
+        </p>
+      </section>
+
+      <!-- Step 2: Residency Verification -->
+      <section id="verificationSection" class="card" style="display: none">
+        <h2>🪪 Verify Berlin Residency</h2>
+        <p class="verification-subtitle">
+          Scan the QR code with your EUDI Wallet to prove you live in Berlin.
+        </p>
+
+        <div class="eudi-badge">
+          <span class="eu-flag">🇪🇺</span>
+          EUDI Wallet Verified
+        </div>
+
+        <div class="data-info">
+          <h3>We Will Only Check:</h3>
+          <ul class="data-list">
+            <li>
+              <span class="data-icon">🏙️</span> City of Residence
+              <span class="check-badge">= Berlin</span>
+            </li>
+          </ul>
+          <div class="not-shared">
+            <h4>🚫 We Do NOT Request:</h4>
+            <ul>
+              <li>Your name</li>
+              <li>Your exact address</li>
+              <li>Your date of birth</li>
+              <li>Any other personal data</li>
+            </ul>
+          </div>
+        </div>
+
+        <div id="qrContainer" class="qr-container">
+          <div id="qrCode" class="qr-code"></div>
+          <div class="same-device-section">
+            <span class="divider-text">or on this device</span>
+            <div id="sameDeviceLink" class="hidden"></div>
+          </div>
+          <p id="statusText" class="status-text">
+            Waiting for wallet connection...
+          </p>
+        </div>
+      </section>
+
+      <!-- Step 3: Success -->
+      <section id="successSection" class="card" style="display: none">
+        <div class="success-header">
+          <div class="success-icon">✓</div>
+          <h2>Berlin Residency Verified!</h2>
+          <p class="success-subtitle">
+            Welcome, fellow Berliner! Your discount has been applied.
+          </p>
+        </div>
+
+        <div class="discount-applied">
+          <div class="discount-visual">
+            <div class="bear-icon">🐻</div>
+            <span>Berlin Resident</span>
+          </div>
+          <div class="price-breakdown">
+            <div class="price-row">
+              <span>Regular Price</span>
+              <span class="strikethrough">€16.00</span>
+            </div>
+            <div class="price-row discount-row">
+              <span>Resident Discount (50%)</span>
+              <span class="discount-amount">-€8.00</span>
+            </div>
+            <div class="price-row total-row">
+              <span>Your Price</span>
+              <span class="final-price">€8.00</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="verified-data-card">
+          <h3>✓ Verification Result</h3>
+          <div id="verifiedData" class="verified-data-list">
+            <!-- Filled by JavaScript -->
+          </div>
+        </div>
+
+        <div class="ticket-preview">
+          <div class="ticket-stub">
+            <div class="stub-header">
+              <span class="stub-museum">Berlin History Museum</span>
+              <span class="stub-exhibit">The Wall & Beyond</span>
+            </div>
+            <div class="stub-body">
+              <span class="stub-type">🏠 RESIDENT TICKET</span>
+              <span class="stub-price">€8.00</span>
+            </div>
+            <div class="stub-footer">
+              <span class="stub-id" id="ticketId">BHM-2026-XXXXX</span>
+              <span class="stub-valid">Valid for one entry</span>
+            </div>
+          </div>
+        </div>
+
+        <button id="purchaseBtn" class="btn btn-primary btn-large">
+          🎫 Complete Purchase (€8.00)
+        </button>
+
+        <button id="doneBtn" class="btn btn-secondary">
+          ← Back to Overview
+        </button>
+      </section>
+
+      <!-- Step 4: Not Berlin -->
+      <section id="notBerlinSection" class="card" style="display: none">
+        <div class="info-header">
+          <div class="info-icon">ℹ️</div>
+          <h2>Residency Not Confirmed</h2>
+          <p class="info-subtitle">
+            It looks like you're not currently registered as a Berlin resident.
+          </p>
+        </div>
+
+        <div class="still-welcome">
+          <div class="welcome-icon">🤗</div>
+          <h3>You're Still Welcome!</h3>
+          <p>
+            While the resident discount doesn't apply, we'd love to have you
+            visit our exhibition. All visitors receive the same great
+            experience!
+          </p>
+        </div>
+
+        <div class="regular-ticket-offer">
+          <div class="ticket-mini">
+            <span class="ticket-label">Regular Admission</span>
+            <span class="ticket-price-mini">€16.00</span>
+          </div>
+        </div>
+
+        <button id="buyRegularBtn" class="btn btn-primary btn-large">
+          🎫 Purchase Regular Ticket (€16.00)
+        </button>
+
+        <button id="tryAgainBtn" class="btn btn-secondary">
+          ← Try Different Credential
+        </button>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        Demo application for EUDI Wallet integration •
+        <a
+          href="https://github.com/openwallet-foundation-labs/eudiplo"
+          target="_blank"
+          >Powered by EUDIPLO</a
+        >
+      </p>
+    </footer>
+
+    <script type="module" src="/js/museum-discount/app.js"></script>
+  </body>
+</html>

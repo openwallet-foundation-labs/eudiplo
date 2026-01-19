@@ -1,11 +1,12 @@
+import { randomBytes } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { Injectable, OnApplicationBootstrap } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
-import { randomBytes } from "crypto";
-import { readFileSync } from "fs";
 import { Repository } from "typeorm";
 import { ConfigImportService } from "../../../shared/utils/config-import/config-import.service";
+import { ConfigImportOrchestratorService } from "../../../shared/utils/config-import/config-import-orchestrator.service";
 import { Role } from "../../roles/role.enum";
 import { ClientsProvider } from "../client.provider";
 import { CreateClientDto } from "../dto/create-client.dto";
@@ -14,17 +15,21 @@ import { ClientEntity } from "../entities/client.entity";
 
 @Injectable()
 export class InternalClientsProvider
-    implements ClientsProvider, OnApplicationBootstrap
+    extends ClientsProvider
+    implements OnApplicationBootstrap
 {
     constructor(
-        private configService: ConfigService,
-        @InjectRepository(ClientEntity) private repo: Repository<ClientEntity>,
-        private configImportService: ConfigImportService,
-    ) {}
+        private readonly configService: ConfigService,
+        @InjectRepository(ClientEntity)
+        private readonly repo: Repository<ClientEntity>,
+        private readonly configImportService: ConfigImportService,
+        configImportOrchestrator: ConfigImportOrchestratorService,
+    ) {
+        super(configImportOrchestrator);
+    }
 
     async onApplicationBootstrap() {
         //add the root user
-
         const clientId = this.configService.getOrThrow("AUTH_CLIENT_ID");
         const clientSecret =
             this.configService.getOrThrow("AUTH_CLIENT_SECRET");
@@ -36,37 +41,38 @@ export class InternalClientsProvider
                 roles: [Role.Tenants],
             });
         });
-
-        return this.import();
     }
 
-    async import() {
-        await this.configImportService.importConfigs<ClientEntity>({
-            subfolder: "clients",
-            fileExtension: ".json",
-            validationClass: ClientEntity,
-            resourceType: "client config",
-            loadData: (filePath) => {
-                const payload = JSON.parse(readFileSync(filePath, "utf8"));
-                return plainToClass(ClientEntity, payload);
+    async importForTenant(tenantId: string) {
+        await this.configImportService.importConfigsForTenant<ClientEntity>(
+            tenantId,
+            {
+                subfolder: "clients",
+                fileExtension: ".json",
+                validationClass: ClientEntity,
+                resourceType: "client config",
+                loadData: (filePath) => {
+                    const payload = JSON.parse(readFileSync(filePath, "utf8"));
+                    return plainToClass(ClientEntity, payload);
+                },
+                checkExists: async (tenantId, data) => {
+                    return this.getClient(tenantId, (data as any).clientId)
+                        .then(() => true)
+                        .catch(() => false);
+                },
+                deleteExisting: async (tenantId, data) => {
+                    await this.repo.delete({
+                        clientId: (data as any).clientId,
+                        tenant: { id: tenantId },
+                    });
+                },
+                processItem: async (tenantId, data, file) => {
+                    const secret =
+                        (data as any).secret ?? randomBytes(32).toString("hex");
+                    await this.addClient(tenantId, data as any, secret);
+                },
             },
-            checkExists: async (tenantId, data) => {
-                return this.getClient(tenantId, (data as any).clientId)
-                    .then(() => true)
-                    .catch(() => false);
-            },
-            deleteExisting: async (tenantId, data) => {
-                await this.repo.delete({
-                    clientId: (data as any).clientId,
-                    tenant: { id: tenantId },
-                });
-            },
-            processItem: async (tenantId, data, file) => {
-                const secret =
-                    (data as any).secret ?? randomBytes(32).toString("hex");
-                await this.addClient(tenantId, data as any, secret);
-            },
-        });
+        );
     }
 
     getClients(tenantId: string) {

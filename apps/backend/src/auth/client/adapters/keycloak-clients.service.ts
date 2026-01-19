@@ -5,6 +5,7 @@ import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { decodeJwt } from "jose";
 import { Repository } from "typeorm";
+import { ConfigImportOrchestratorService } from "../../../shared/utils/config-import/config-import-orchestrator.service";
 import { Role } from "../../roles/role.enum";
 import { ClientsProvider } from "../client.provider";
 import { CreateClientDto } from "../dto/create-client.dto";
@@ -12,24 +13,30 @@ import { UpdateClientDto } from "../dto/update-client.dto";
 import { ClientEntity } from "../entities/client.entity";
 
 @Injectable()
-export class KeycloakClientsProvider implements ClientsProvider, OnModuleInit {
+export class KeycloakClientsProvider
+    extends ClientsProvider
+    implements OnModuleInit
+{
     private kc!: KeycloakAdminClient;
 
     constructor(
-        private cfg: ConfigService,
+        private readonly configService: ConfigService,
         @InjectRepository(ClientEntity)
-        private clientRepo: Repository<ClientEntity>,
-    ) {}
+        private readonly clientRepo: Repository<ClientEntity>,
+        configImportOrchestrator: ConfigImportOrchestratorService,
+    ) {
+        super(configImportOrchestrator);
+    }
 
     async onModuleInit() {
-        const oidc = this.cfg.getOrThrow<string>("OIDC");
+        const oidc = this.configService.getOrThrow<string>("OIDC");
         const [baseUrl, realmName] = oidc.split("/realms/");
         this.kc = new KeycloakAdminClient({ baseUrl, realmName });
 
         const creds: Credentials = {
             grantType: "client_credentials",
-            clientId: this.cfg.getOrThrow("OIDC_CLIENT_ID"),
-            clientSecret: this.cfg.getOrThrow("OIDC_CLIENT_SECRET"),
+            clientId: this.configService.getOrThrow("OIDC_CLIENT_ID"),
+            clientSecret: this.configService.getOrThrow("OIDC_CLIENT_SECRET"),
         };
 
         await this.kc.auth(creds);
@@ -41,14 +48,17 @@ export class KeycloakClientsProvider implements ClientsProvider, OnModuleInit {
         setInterval(async () => {
             try {
                 await this.kc.auth(creds);
-            } catch (e) {
+            } catch {
                 // log & keep trying on next tick.
             }
         }, refreshMs);
         await this.init();
     }
 
-    import(): Promise<void> {
+    /**
+     * Imports clients for a tenant. No-op for Keycloak as clients are managed directly in Keycloak.
+     */
+    importForTenant(_tenantId: string): Promise<void> {
         return Promise.resolve();
     }
 
@@ -64,12 +74,12 @@ export class KeycloakClientsProvider implements ClientsProvider, OnModuleInit {
             Role.PresentationOffer,
             Role.Presentations,
         ];
-        this.kc.roles
+        return this.kc.roles
             .find()
             .then((roles) => {
                 // Check if all roles exist
                 const missingRoles = existingRoles.filter(
-                    (role) => !roles.find((r) => r.name === role),
+                    (role) => !roles.some((r) => r.name === role),
                 );
                 if (missingRoles.length) {
                     // Create missing roles
@@ -98,7 +108,7 @@ export class KeycloakClientsProvider implements ClientsProvider, OnModuleInit {
         });
     }
 
-    getClientSecret(sub: string, id: string): Promise<string> {
+    getClientSecret(_sub: string, id: string): Promise<string> {
         return this.kc.clients
             .find({ clientId: id })
             .then((clients) => clients[0].secret!);

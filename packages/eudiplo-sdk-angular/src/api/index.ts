@@ -202,6 +202,7 @@ export type {
   HealthControllerCheckErrors,
   HealthControllerCheckResponse,
   HealthControllerCheckResponses,
+  ImportTenantDto,
   IssuanceConfig,
   IssuanceConfigControllerGetIssuanceConfigurationsData,
   IssuanceConfigControllerGetIssuanceConfigurationsResponse,

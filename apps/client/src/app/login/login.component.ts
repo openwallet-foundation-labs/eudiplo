@@ -59,6 +59,19 @@ export class LoginComponent implements OnInit {
     }
     console.log('Initializing login form');
     this.initializeForm();
+
+    // Auto-login if all required params are provided via URL
+    this.autoLoginIfParamsProvided();
+  }
+
+  private autoLoginIfParamsProvided(): void {
+    const queryParams = this.route.snapshot.queryParams;
+
+    // Check if all required params are in the URL
+    if (queryParams['clientId'] && queryParams['clientSecret'] && queryParams['apiUrl']) {
+      console.log('Auto-login: All credentials provided via URL');
+      this.onSubmit();
+    }
   }
 
   private initializeForm(): void {
@@ -78,8 +91,8 @@ export class LoginComponent implements OnInit {
       }
 
       //check if defined in window
-      if ((window as any).env?.[paramName]) {
-        return (window as any).env[paramName];
+      if ((globalThis as any).env?.[paramName]) {
+        return (globalThis as any).env[paramName];
       }
 
       // Default to empty string
@@ -186,7 +199,7 @@ export class LoginComponent implements OnInit {
    * Excludes clientSecret for security reasons
    */
   generateShareableUrl(): string {
-    const baseUrl = window.location.origin + window.location.pathname;
+    const baseUrl = globalThis.location.origin + globalThis.location.pathname;
     const formValue = this.loginForm.value;
 
     const params = new URLSearchParams();

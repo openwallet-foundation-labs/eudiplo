@@ -17,6 +17,7 @@ import { v4 } from "uuid";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
 import { EC_Public } from "../../../issuer/issuance/oid4vci/well-known/dto/jwks-response.dto";
 import { ConfigImportService } from "../../../shared/utils/config-import/config-import.service";
+import { ConfigImportOrchestratorService } from "../../../shared/utils/config-import/config-import-orchestrator.service";
 import { CryptoImplementation } from "../crypto-implementation/crypto-implementation";
 import { CryptoImplementationService } from "../crypto-implementation/crypto-implementation.service";
 import { KeyImportDto } from "../dto/key-import.dto";
@@ -38,6 +39,7 @@ export class DBKeyService extends KeyService {
         certRepository: Repository<CertEntity>,
         tenantRepository: Repository<TenantEntity>,
         logger: PinoLogger,
+        configImportOrchestrator: ConfigImportOrchestratorService,
     ) {
         super(
             configService,
@@ -46,6 +48,7 @@ export class DBKeyService extends KeyService {
             certRepository,
             tenantRepository,
             logger,
+            configImportOrchestrator,
         );
         this.crypto = cryptoService.getCrypto();
     }

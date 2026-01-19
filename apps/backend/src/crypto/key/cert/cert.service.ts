@@ -10,6 +10,10 @@ import { Repository } from "typeorm";
 import { v4 } from "uuid";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
 import { ConfigImportService } from "../../../shared/utils/config-import/config-import.service";
+import {
+    ConfigImportOrchestratorService,
+    ImportPhase,
+} from "../../../shared/utils/config-import/config-import-orchestrator.service";
 import { CertImportDto } from "../dto/cert-import.dto";
 import { CertUpdateDto } from "../dto/cert-update.dto";
 import { UpdateKeyDto } from "../dto/key-update.dto";
@@ -46,7 +50,14 @@ export class CertService {
         @InjectRepository(TenantEntity)
         private readonly tenantRepository: Repository<TenantEntity>,
         private readonly configImportService: ConfigImportService,
-    ) {}
+        configImportOrchestrator: ConfigImportOrchestratorService,
+    ) {
+        configImportOrchestrator.register(
+            "certificates",
+            ImportPhase.CORE,
+            (tenantId) => this.importForTenant(tenantId),
+        );
+    }
 
     /**
      * Get all certificates for a tenant (across all keys).
@@ -395,58 +406,58 @@ export class CertService {
     }
 
     /**
-     * Imports certificates from the file system.
+     * Imports certificates for a specific tenant from the file system.
      */
-    async importCerts() {
-        await this.configImportService.importConfigs<CertImportDto>({
-            subfolder: "certs",
-            fileExtension: ".json",
-            validationClass: CertImportDto,
-            resourceType: "cert",
-            loadData: (filePath) => {
-                const payload = JSON.parse(readFileSync(filePath, "utf8"));
-                return plainToClass(CertImportDto, payload);
-            },
-            checkExists: (tenantId, data) => {
-                return data.id
-                    ? this.hasEntry(tenantId, data.id)
-                    : Promise.resolve(false);
-            },
-            deleteExisting: async (tenantId, data) => {
-                // Find and delete matching certs
-                const certs = await this.certRepository.findBy({ tenantId });
-                const existingCert = certs.find((c) => c.id === data.id);
-                if (existingCert) {
-                    await this.certRepository
-                        .delete({
-                            id: existingCert.id,
-                            tenantId,
-                        })
-                        .catch((err) => {
-                            this.logger.error(
-                                {
-                                    event: "ImportError",
-                                    tenant: tenantId,
-                                    certId: existingCert.id,
-                                },
-                                `Error deleting existing cert ${existingCert.id} for tenant ${tenantId}: ${err.message}`,
-                            );
-                            throw err;
-                        });
-                }
-            },
-            processItem: async (tenantId, config) => {
-                const tenantEntity =
-                    await this.tenantRepository.findOneByOrFail({
-                        id: tenantId,
+    async importForTenant(tenantId: string) {
+        await this.configImportService.importConfigsForTenant<CertImportDto>(
+            tenantId,
+            {
+                subfolder: "certs",
+                fileExtension: ".json",
+                validationClass: CertImportDto,
+                resourceType: "cert",
+                loadData: (filePath) => {
+                    const payload = JSON.parse(readFileSync(filePath, "utf8"));
+                    return plainToClass(CertImportDto, payload);
+                },
+                checkExists: (tid, data) => {
+                    return data.id
+                        ? this.hasEntry(tid, data.id)
+                        : Promise.resolve(false);
+                },
+                deleteExisting: async (tid, data) => {
+                    // Find and delete matching certs
+                    const certs = await this.certRepository.findBy({
+                        tenantId: tid,
                     });
-                const key = await this.keyService.getKey(
-                    tenantEntity.id,
-                    config.keyId,
-                );
+                    const existingCert = certs.find((c) => c.id === data.id);
+                    if (existingCert) {
+                        await this.certRepository
+                            .delete({
+                                id: existingCert.id,
+                                tenantId: tid,
+                            })
+                            .catch((err) => {
+                                this.logger.error(
+                                    `[${tid}] Error deleting existing cert ${existingCert.id}: ${err.message}`,
+                                );
+                                throw err;
+                            });
+                    }
+                },
+                processItem: async (tid, config) => {
+                    const tenantEntity =
+                        await this.tenantRepository.findOneByOrFail({
+                            id: tid,
+                        });
+                    const key = await this.keyService.getKey(
+                        tenantEntity.id,
+                        config.keyId,
+                    );
 
-                this.addCertificate(tenantId, key.id, config);
+                    this.addCertificate(tid, key.id, config);
+                },
             },
-        });
+        );
     }
 }

@@ -7,21 +7,10 @@ import {
     Verifier,
 } from "@animo-id/mdoc";
 import { Injectable, Logger } from "@nestjs/common";
-import * as x509 from "@peculiar/x509";
 import { TrustStoreService } from "../../../resolver/trust/trust-store.service";
-import {
-    ServiceTypeIdentifiers,
-    VerifierOptions,
-} from "../../../resolver/trust/types";
+import { VerifierOptions } from "../../../resolver/trust/types";
 import { mdocContext } from "../../mdl-context";
-
-/**
- * Helper to convert Uint8Array<ArrayBufferLike> to Uint8Array<ArrayBuffer>
- * This is needed due to TypeScript version differences
- */
-const toBuffer = (bytes: Uint8Array): Uint8Array<ArrayBuffer> => {
-    return new Uint8Array(bytes) as unknown as Uint8Array<ArrayBuffer>;
-};
+import { BaseVerifierService } from "../base-verifier.service";
 
 export type MdlSessionData = {
     protocol: "openid4vp";
@@ -39,13 +28,12 @@ export type MdlVerificationResult = {
 };
 
 @Injectable()
-export class MdlverifierService {
-    private readonly logger = new Logger(MdlverifierService.name);
+export class MdlverifierService extends BaseVerifierService {
+    protected readonly logger = new Logger(MdlverifierService.name);
 
-    constructor(
-        private readonly trustStore: TrustStoreService,
-        //private readonly x509v: X509ValidationService,
-    ) {}
+    constructor(trustStore: TrustStoreService) {
+        super(trustStore);
+    }
 
     /**
      * Verifies an MDL/mDOC credential.
@@ -81,10 +69,25 @@ export class MdlverifierService {
             const claims = issuerSigned.getPrettyClaims(namespace) || {};
 
             // 3) Build the trusted certificates from trust store
-            const trustedCertificates =
-                await this.getTrustedCertificates(options);
+            const trustedCertificates = await this.getTrustedCertificateBuffers(
+                options.trustListSource,
+            );
 
             if (trustedCertificates.length === 0) {
+                // No trust list configured or empty - skip trust validation
+                // but still return verified: true with claims
+                if (!options.trustListSource) {
+                    this.logger.debug(
+                        "No trust list source configured, returning claims without trust validation",
+                    );
+                    return {
+                        verified: true,
+                        claims,
+                        payload: vp,
+                        docType,
+                    };
+                }
+
                 this.logger.warn(
                     "No trusted certificates found in trust store",
                 );
@@ -141,76 +144,6 @@ export class MdlverifierService {
     }
 
     /**
-     * Get trusted certificates from the trust store.
-     * Converts the trust store certificates to Uint8Array format required by the mdoc library.
-     */
-    private async getTrustedCertificates(
-        options: VerifierOptions,
-    ): Promise<Uint8Array[]> {
-        try {
-            const store = await this.trustStore.getTrustStore(
-                options.trustListSource,
-            );
-
-            // Check NextUpdate freshness if present
-            if (store.nextUpdate) {
-                const nu = new Date(store.nextUpdate);
-                if (!Number.isNaN(nu.getTime()) && nu.getTime() < Date.now()) {
-                    this.logger.warn(
-                        `Trust list NextUpdate is in the past: ${store.nextUpdate}`,
-                    );
-                    return [];
-                }
-            }
-
-            // Get issuance certificates from all entities
-            const trustedCertificates: Uint8Array[] = [];
-
-            for (const entity of store.entities) {
-                // Find issuance certificates
-                const issuanceServices = entity.services.filter(
-                    (s) =>
-                        s.serviceTypeIdentifier ===
-                        ServiceTypeIdentifiers.EaaIssuance,
-                );
-
-                for (const svc of issuanceServices) {
-                    try {
-                        const cert = this.parseCertificate(svc.certValue);
-                        // Convert to Uint8Array for the mdoc library
-                        trustedCertificates.push(
-                            toBuffer(new Uint8Array(cert.rawData)),
-                        );
-                    } catch (e: any) {
-                        this.logger.warn(
-                            `Failed to parse certificate from entity ${entity.entityId}: ${e?.message ?? e}`,
-                        );
-                    }
-                }
-            }
-
-            this.logger.debug(
-                `Loaded ${trustedCertificates.length} trusted certificate(s) for MDL verification`,
-            );
-
-            return trustedCertificates;
-        } catch (error: any) {
-            console.log(error);
-            this.logger.error(
-                `Failed to load trust store: ${error?.message ?? error}`,
-            );
-            return [];
-        }
-    }
-
-    /**
-     * Parse a certificate from PEM or base64 DER format.
-     */
-    private parseCertificate(certValue: string): x509.X509Certificate {
-        return new x509.X509Certificate(certValue as any);
-    }
-
-    /**
      * Build a device request based on the docType and received claims.
      * This creates a request that matches what was received for verification.
      */
@@ -242,15 +175,5 @@ export class MdlverifierService {
                 }),
             ],
         });
-    }
-
-    /**
-     * Get the hex thumbprint of a certificate.
-     */
-    private async getThumbprint(cert: x509.X509Certificate): Promise<string> {
-        const buffer = await cert.getThumbprint();
-        return Array.from(new Uint8Array(buffer))
-            .map((b) => b.toString(16).padStart(2, "0"))
-            .join("");
     }
 }

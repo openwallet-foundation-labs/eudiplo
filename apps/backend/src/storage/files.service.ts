@@ -1,10 +1,14 @@
-import { Inject, Injectable, OnApplicationBootstrap } from "@nestjs/common";
+import { randomUUID } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
-import { randomUUID } from "crypto";
-import { readFileSync } from "fs";
 import { Repository } from "typeorm";
 import { ConfigImportService } from "../shared/utils/config-import/config-import.service";
+import {
+    ConfigImportOrchestratorService,
+    ImportPhase,
+} from "../shared/utils/config-import/config-import-orchestrator.service";
 import {
     FILE_STORAGE,
     FileStorage,
@@ -12,64 +16,66 @@ import {
 } from "../storage/storage.types";
 import { FileEntity } from "./entities/files.entity";
 
-@Injectable()
-export class FilesService implements OnApplicationBootstrap {
-    constructor(
-        @Inject(FILE_STORAGE) private storage: FileStorage,
-        @InjectRepository(FileEntity)
-        private fileRepository: Repository<FileEntity>,
-        private configService: ConfigService,
-        private configImportService: ConfigImportService,
-    ) {}
+interface FileImportData {
+    filename: string;
+    content: Buffer;
+}
 
-    /**
-     * On application bootstrap, import images from the config folder
-     * @returns
-     */
-    onApplicationBootstrap() {
-        return this.import();
+@Injectable()
+export class FilesService {
+    constructor(
+        @Inject(FILE_STORAGE) private readonly storage: FileStorage,
+        @InjectRepository(FileEntity)
+        private readonly fileRepository: Repository<FileEntity>,
+        private readonly configService: ConfigService,
+        private readonly configImportService: ConfigImportService,
+        private readonly orchestrator: ConfigImportOrchestratorService,
+    ) {
+        this.orchestrator.register(
+            "images",
+            ImportPhase.CORE,
+            this.importForTenant.bind(this),
+        );
     }
 
     /**
-     * Import images from the config folder
+     * Import images from the config folder for a specific tenant
      */
-    async import() {
-        interface FileImportData {
-            filename: string;
-            content: Buffer;
-        }
-
-        await this.configImportService.importConfigs<FileImportData>({
-            subfolder: "images",
-            resourceType: "image",
-            loadData: (filePath) => {
-                const filename = filePath.split("/").pop() || "";
-                return {
-                    filename,
-                    content: readFileSync(filePath),
-                };
+    async importForTenant(tenantId: string) {
+        await this.configImportService.importConfigsForTenant<FileImportData>(
+            tenantId,
+            {
+                subfolder: "images",
+                resourceType: "image",
+                loadData: (filePath) => {
+                    const filename = filePath.split("/").pop() || "";
+                    return {
+                        filename,
+                        content: readFileSync(filePath),
+                    };
+                },
+                checkExists: async (_tenantId, data) => {
+                    const exists = await this.fileRepository.findOneBy({
+                        filename: data.filename,
+                        tenantId,
+                    });
+                    return !!exists;
+                },
+                processItem: async (_tenantId, data) => {
+                    const key = randomUUID();
+                    await this.storage.put(key, data.content, {
+                        contentType: "application/octet-stream",
+                        acl: "public",
+                        metadata: { originalName: data.filename },
+                    });
+                    await this.fileRepository.save({
+                        id: key,
+                        filename: data.filename,
+                        tenantId,
+                    });
+                },
             },
-            checkExists: async (tenantId, data) => {
-                const exists = await this.fileRepository.findOneBy({
-                    filename: data.filename,
-                    tenantId,
-                });
-                return !!exists;
-            },
-            processItem: async (tenantId, data) => {
-                const key = randomUUID();
-                await this.storage.put(key, data.content, {
-                    contentType: "application/octet-stream",
-                    acl: "public",
-                    metadata: { originalName: data.filename },
-                });
-                await this.fileRepository.save({
-                    id: key,
-                    filename: data.filename,
-                    tenantId,
-                });
-            },
-        });
+        );
     }
 
     /**

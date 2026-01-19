@@ -17,6 +17,10 @@ import { CertUsage } from "../../crypto/key/entities/cert-usage.entity";
 import { KeyService } from "../../crypto/key/key.service";
 import { ConfigImportService } from "../../shared/utils/config-import/config-import.service";
 import {
+    ConfigImportOrchestratorService,
+    ImportPhase,
+} from "../../shared/utils/config-import/config-import-orchestrator.service";
+import {
     TrustListCreateDto,
     TrustListEntityInfo,
 } from "./dto/trust-list-create.dto";
@@ -33,7 +37,7 @@ export enum ServiceTypeIdentifier {
 const DEFAULT_LANG = "en";
 
 @Injectable()
-export class TrustListService implements OnApplicationBootstrap {
+export class TrustListService {
     constructor(
         @InjectRepository(TrustList)
         private readonly trustListRepo: Repository<TrustList>,
@@ -44,13 +48,13 @@ export class TrustListService implements OnApplicationBootstrap {
         private readonly configImportService: ConfigImportService,
         @InjectRepository(TenantEntity)
         private readonly tenantRepository: Repository<TenantEntity>,
-    ) {}
-
-    /**
-     * Imports trust lists from the file system.
-     */
-    async onApplicationBootstrap() {
-        await this.importList();
+        configImportOrchestrator: ConfigImportOrchestratorService,
+    ) {
+        configImportOrchestrator.register(
+            "status-lists",
+            ImportPhase.FINAL,
+            (tenantId) => this.importForTenant(tenantId),
+        );
     }
 
     /**
@@ -169,36 +173,39 @@ export class TrustListService implements OnApplicationBootstrap {
     }
 
     /**
-     * Imports certificates from the file system.
+     * Imports trust lists for a specific tenant from the file system.
      */
-    async importList() {
-        await this.configImportService.importConfigs<TrustListCreateDto>({
-            subfolder: "trust-lists",
-            fileExtension: ".json",
-            validationClass: TrustListCreateDto,
-            resourceType: "trustlist",
-            loadData: (filePath) => {
-                const payload = JSON.parse(readFileSync(filePath, "utf8"));
-                return plainToClass(TrustListCreateDto, payload);
+    async importForTenant(tenantId: string) {
+        await this.configImportService.importConfigsForTenant<TrustListCreateDto>(
+            tenantId,
+            {
+                subfolder: "trust-lists",
+                fileExtension: ".json",
+                validationClass: TrustListCreateDto,
+                resourceType: "trustlist",
+                loadData: (filePath) => {
+                    const payload = JSON.parse(readFileSync(filePath, "utf8"));
+                    return plainToClass(TrustListCreateDto, payload);
+                },
+                checkExists: (tenantId, data) => {
+                    return this.findOne(tenantId, data.id!)
+                        .then(() => true)
+                        .catch(() => false);
+                },
+                deleteExisting: async (tenantId, data) => {
+                    await this.trustListRepo.delete({
+                        id: data.id,
+                        tenantId,
+                    });
+                },
+                processItem: async (tenantId, config) => {
+                    const tenant = await this.tenantRepository.findOneByOrFail({
+                        id: tenantId,
+                    });
+                    await this.buildAndSaveTrustList(config, tenant);
+                },
             },
-            checkExists: (tenantId, data) => {
-                return this.findOne(tenantId, data.id!)
-                    .then(() => true)
-                    .catch(() => false);
-            },
-            deleteExisting: async (tenantId, data) => {
-                await this.trustListRepo.delete({
-                    id: data.id,
-                    tenantId,
-                });
-            },
-            processItem: async (tenantId, config) => {
-                const tenant = await this.tenantRepository.findOneByOrFail({
-                    id: tenantId,
-                });
-                await this.buildAndSaveTrustList(config, tenant);
-            },
-        });
+        );
     }
     /**
      * Shared logic for creating and saving a trust list (used by both API and import)

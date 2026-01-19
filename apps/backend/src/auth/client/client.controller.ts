@@ -24,7 +24,9 @@ import { UpdateClientDto } from "./dto/update-client.dto";
 @Secured([Role.Clients, Role.Tenants])
 @Controller("client")
 export class ClientController {
-    constructor(@Inject(CLIENTS_PROVIDER) private clients: ClientsProvider) {}
+    constructor(
+        @Inject(CLIENTS_PROVIDER) private readonly clients: ClientsProvider,
+    ) {}
 
     /**
      * Get all clients for a user

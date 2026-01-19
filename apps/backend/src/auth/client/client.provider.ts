@@ -1,25 +1,43 @@
+import {
+    ConfigImportOrchestratorService,
+    ImportPhase,
+} from "../../shared/utils/config-import/config-import-orchestrator.service";
 import { CreateClientDto } from "./dto/create-client.dto";
 import { UpdateClientDto } from "./dto/update-client.dto";
 import { ClientEntity } from "./entities/client.entity";
 
 export const CLIENTS_PROVIDER = "CLIENTS_PROVIDER";
 
-export interface ClientsProvider {
-    updateClient(
+export abstract class ClientsProvider {
+    abstract updateClient(
         tenantId: string,
         clientId: string,
         updateClientDto: UpdateClientDto,
     ): unknown;
-    getClientSecret(sub: string, id: string): Promise<string>;
-    getClients(tenantId: string): Promise<ClientEntity[]>;
-    getClient(tenantId: string, clientId: string): Promise<ClientEntity>;
-    addClient(tenantId: string, dto: CreateClientDto): Promise<ClientEntity>;
-    removeClient(tenantId: string, clientId: string): Promise<void>;
-    import(): Promise<void>;
+    abstract getClientSecret(sub: string, id: string): Promise<string>;
+    abstract getClients(tenantId: string): Promise<ClientEntity[]>;
+    abstract getClient(
+        tenantId: string,
+        clientId: string,
+    ): Promise<ClientEntity>;
+    abstract addClient(
+        tenantId: string,
+        dto: CreateClientDto,
+    ): Promise<ClientEntity>;
+    abstract removeClient(tenantId: string, clientId: string): Promise<void>;
+    abstract importForTenant(tenantId: string): Promise<void>;
 
     // Only for internal backend (not used with KC; you’ll validate JWTs instead)
     validateClientCredentials?(
         clientId: string,
         clientSecret: string,
     ): Promise<ClientEntity | null>;
+
+    constructor(configImportOrchestrator: ConfigImportOrchestratorService) {
+        configImportOrchestrator.register(
+            "clients",
+            ImportPhase.CORE,
+            (tenantId) => this.importForTenant(tenantId),
+        );
+    }
 }

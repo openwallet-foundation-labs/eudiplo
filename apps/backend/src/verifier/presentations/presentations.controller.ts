@@ -15,7 +15,6 @@ import { PresentationConfigCreateDto } from "./dto/presentation-config-create.dt
 import { PresentationConfigUpdateDto } from "./dto/presentation-config-update.dto";
 import { PresentationsService } from "./presentations.service";
 
-@Secured([Role.Presentations])
 @ApiTags("Verifier")
 @Controller("verifier/config")
 export class PresentationManagementController {
@@ -25,6 +24,7 @@ export class PresentationManagementController {
      * Returns the presentation request configurations.
      * @returns
      */
+    @Secured([Role.Presentations, Role.PresentationOffer])
     @Get()
     configuration(@Token() user: TokenPayload) {
         return this.presentationsService.getPresentationConfigs(
@@ -37,6 +37,7 @@ export class PresentationManagementController {
      * @param config
      * @returns
      */
+    @Secured([Role.Presentations])
     @Post()
     storePresentationConfig(
         @Body() config: PresentationConfigCreateDto,
@@ -54,6 +55,7 @@ export class PresentationManagementController {
      * @param user
      * @returns
      */
+    @Secured([Role.Presentations, Role.PresentationOffer])
     @Get(":id")
     getConfiguration(@Param("id") id: string, @Token() user: TokenPayload) {
         return this.presentationsService.getPresentationConfig(
@@ -69,6 +71,7 @@ export class PresentationManagementController {
      * @param user
      * @returns
      */
+    @Secured([Role.Presentations])
     @Patch(":id")
     updateConfiguration(
         @Param("id") id: string,
@@ -87,6 +90,7 @@ export class PresentationManagementController {
      * @param id
      * @returns
      */
+    @Secured([Role.Presentations])
     @Delete(":id")
     deleteConfiguration(@Param("id") id: string, @Token() user: TokenPayload) {
         return this.presentationsService.deletePresentationConfig(

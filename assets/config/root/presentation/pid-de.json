@@ -8,7 +8,7 @@
                 "format": "dc+sd-jwt",
                 "meta": {
                     "vct_values": [
-                        "https://demo.pid-provider.bundesdruckerei.de/credentials/pid/1.0"
+                        "urn:eudi:pid:de:1"
                     ]
                 },
                 "claims": [

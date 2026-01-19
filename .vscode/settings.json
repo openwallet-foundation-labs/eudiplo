@@ -34,6 +34,12 @@
   "json.schemas": [
     {
       "fileMatch": [
+        "/assets/config/*/info.json"
+      ],
+      "url": "./schemas/ImportTenantDto.schema.json"
+    },
+    {
+      "fileMatch": [
         "/assets/config/*/issuance/issuance.json"
       ],
       "url": "./schemas/IssuanceDto.schema.json"
@@ -66,7 +72,7 @@
       "fileMatch": [
         "/assets/config/*/clients/*.json"
       ],
-      "url": "./schemas/ClientEntity.schema.json"
+      "url": "./schemas/CreateClientDto.schema.json"
     },
     {
       "fileMatch": [

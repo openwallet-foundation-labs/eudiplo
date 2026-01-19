@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>TechMarkt - Activate SIM Card | EUDIPLO Playground</title>
+    <link rel="stylesheet" href="/shared/styles.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+  </head>
+  <body>
+    <header>
+      <a href="../" class="logo">
+        <span class="logo-box">TECH<br />MARKT</span>
+        TechMarkt
+      </a>
+      <span class="slogan">Let's go!</span>
+      <span class="badge">EUDIPLO Demo</span>
+    </header>
+
+    <main class="container">
+      <!-- Step 1: Product & Activation Start -->
+      <section id="productSection" class="card">
+        <h1>Activate Prepaid SIM Card</h1>
+
+        <div class="product-card">
+          <div class="product-image">
+            <div class="sim-card-visual">
+              <div class="sim-chip"></div>
+              <span class="sim-label">5G</span>
+            </div>
+          </div>
+          <div class="product-info">
+            <span class="product-brand">TechMarkt Mobile</span>
+            <h2>Prepaid Starter Pack</h2>
+            <p class="product-price">
+              €9.99 <span>incl. starting credit</span>
+            </p>
+            <ul class="product-features">
+              <li>✓ 5G-ready on premium network</li>
+              <li>✓ Flexible rate options</li>
+              <li>✓ No contract commitment</li>
+              <li>✓ EU roaming included</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="activation-steps-preview">
+          <h3>📱 How Activation Works</h3>
+          <div class="steps-list">
+            <div class="step-item completed">
+              <span class="step-num">1</span>
+              <div>
+                <strong>Purchase SIM Card</strong>
+                <p>In-store or ordered online</p>
+              </div>
+            </div>
+            <div class="step-item current">
+              <span class="step-num">2</span>
+              <div>
+                <strong>Verify Identity</strong>
+                <p>With your EUDI Wallet in seconds</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">3</span>
+              <div>
+                <strong>Start Surfing!</strong>
+                <p>SIM activates automatically</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="legal-notice">
+          <span class="notice-icon">ℹ️</span>
+          <div>
+            <strong>Identity Verification Required by Law</strong>
+            <p>
+              SIM card activation requires legal identity verification (e.g.,
+              German TKG §172). With EUDI Wallet, it only takes seconds – no
+              video-ident needed!
+            </p>
+          </div>
+        </div>
+
+        <button id="activateBtn" class="btn btn-primary btn-large">
+          🪪 Verify Identity Now
+        </button>
+      </section>
+
+      <!-- Step 2: Identity Verification -->
+      <section id="verificationSection" class="card" style="display: none">
+        <h2>🪪 Identity Verification</h2>
+        <p class="verification-subtitle">
+          Scan the QR code with your EUDI Wallet to verify your identity.
+        </p>
+
+        <div class="eudi-badge">
+          <span class="eu-flag">🇪🇺</span>
+          EUDI Wallet Verified
+        </div>
+
+        <div class="data-info">
+          <h3>Required Data from Your PID:</h3>
+          <ul class="data-list">
+            <li><span class="data-icon">👤</span> Full Name</li>
+            <li><span class="data-icon">🎂</span> Date of Birth</li>
+            <li><span class="data-icon">🏠</span> Residential Address</li>
+            <li class="optional">
+              <span class="data-icon">🌍</span> Nationality
+              <span class="opt-label">(optional)</span>
+            </li>
+          </ul>
+        </div>
+
+        <div id="qrContainer" class="qr-container">
+          <div id="qrCode" class="qr-code"></div>
+          <div class="same-device-section">
+            <span class="divider-text">or on this device</span>
+            <div id="sameDeviceLink" class="hidden"></div>
+          </div>
+          <p id="statusText" class="status-text">
+            Waiting for wallet connection...
+          </p>
+        </div>
+
+        <div class="privacy-note">
+          <span>🔒</span>
+          <p>
+            Your data is only used for activation and processed in accordance
+            with GDPR.
+          </p>
+        </div>
+      </section>
+
+      <!-- Step 3: Success -->
+      <section id="successSection" class="card" style="display: none">
+        <div class="success-header">
+          <div class="success-icon">✓</div>
+          <h2>SIM Card Activating!</h2>
+          <p class="success-subtitle">
+            Your identity has been successfully verified. Activation takes just
+            a few minutes.
+          </p>
+        </div>
+
+        <div class="activation-progress">
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
+          </div>
+          <p>Activation in progress...</p>
+        </div>
+
+        <div class="verified-data-card">
+          <h3>✓ Verified Data</h3>
+          <div id="verifiedData" class="verified-data-list">
+            <!-- Filled by JavaScript -->
+          </div>
+        </div>
+
+        <div class="next-steps">
+          <h3>📱 Next Steps</h3>
+          <ol>
+            <li>Insert the SIM card into your device</li>
+            <li>Wait approximately 5 minutes for activation</li>
+            <li>You'll receive an SMS confirmation</li>
+            <li>Done! Start surfing 🚀</li>
+          </ol>
+        </div>
+
+        <div class="confirmation-box">
+          <p>
+            <strong>Activation ID:</strong>
+            <span id="activationId">TM-2026-XXXXX</span>
+          </p>
+          <p>
+            <strong>Status:</strong>
+            <span class="status-badge">Processing</span>
+          </p>
+        </div>
+
+        <button id="doneBtn" class="btn btn-secondary">
+          ← Back to Overview
+        </button>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        Demo application for EUDI Wallet integration •
+        <a
+          href="https://github.com/openwallet-foundation-labs/eudiplo"
+          target="_blank"
+          >Powered by EUDIPLO</a
+        >
+      </p>
+    </footer>
+
+    <script type="module" src="/js/sim-activation/app.js"></script>
+    <script>
+      // Saturn Easter Egg 🪐
+      let saturnClicks = 0;
+      const simCard = document.querySelector('.sim-card-visual');
+      if (simCard) {
+        simCard.addEventListener('click', () => {
+          saturnClicks++;
+          if (saturnClicks >= 3) {
+            simCard.classList.add('saturn-revealed');
+            // Reset after animation
+            setTimeout(() => {
+              simCard.classList.remove('saturn-revealed');
+              saturnClicks = 0;
+            }, 2000);
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

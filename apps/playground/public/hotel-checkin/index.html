@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>Alpine Grand Hotel - Digital Check-in</title>
+    <meta
+      name="description"
+      content="Contactless hotel check-in using your EUDI Wallet. Skip the queue and go straight to your room."
+    />
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <link rel="stylesheet" href="/shared/styles.css" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <a href="../" class="logo">
+        <span class="logo-box">
+          <span class="mountain-peak">▲</span>
+          <span class="hotel-text">AGH</span>
+        </span>
+        Alpine Grand Hotel
+      </a>
+      <span class="slogan">Where Mountains Meet Luxury</span>
+      <span class="badge">EUDIPLO Demo</span>
+    </header>
+
+    <div class="container">
+      <main>
+        <!-- Reservation Section -->
+        <section id="reservationSection" class="card">
+          <div class="reservation-header">
+            <h2>Welcome Back</h2>
+            <p>
+              Your room is ready. Complete check-in with your digital identity.
+            </p>
+          </div>
+
+          <div class="reservation-details">
+            <div class="reservation-card">
+              <div class="reservation-icon">🛏️</div>
+              <div class="reservation-info">
+                <span class="room-type">Deluxe Mountain View Suite</span>
+                <span class="room-number">Room 412</span>
+              </div>
+            </div>
+
+            <div class="stay-details">
+              <div class="detail">
+                <span class="label">Check-in</span>
+                <span class="value">Today, 15:00</span>
+              </div>
+              <div class="detail">
+                <span class="label">Check-out</span>
+                <span class="value">Jan 19, 11:00</span>
+              </div>
+              <div class="detail">
+                <span class="label">Guests</span>
+                <span class="value">2 Adults</span>
+              </div>
+              <div class="detail">
+                <span class="label">Booking Ref</span>
+                <span class="value">AGH-2026-78432</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="legal-notice">
+            <span class="notice-icon">ℹ️</span>
+            <p>
+              EU regulations require hotels to register guest identity. We'll
+              request your <strong>name</strong>,
+              <strong>date of birth</strong>, and <strong>nationality</strong> –
+              nothing more.
+            </p>
+          </div>
+
+          <button id="checkinBtn" class="btn btn-primary">
+            🪪 Check In with EUDI Wallet
+          </button>
+
+          <p class="alt-option">
+            Prefer traditional check-in?
+            <a href="#" id="frontDeskLink">Visit the front desk</a>
+          </p>
+        </section>
+
+        <!-- Verification Section -->
+        <section id="verificationSection" class="card hidden">
+          <h2>Verify Your Identity</h2>
+          <p class="subtitle">
+            Scan with your EUDI Wallet to complete check-in
+          </p>
+
+          <div id="qrCode" class="qr-container"></div>
+          <div id="sameDeviceLink" class="same-device-link hidden"></div>
+
+          <p id="statusText" class="status-text">
+            Generating secure request...
+          </p>
+
+          <div class="data-request">
+            <span class="request-label">Information requested:</span>
+            <div class="request-items">
+              <span class="request-item">👤 Full Name</span>
+              <span class="request-item">🎂 Date of Birth</span>
+              <span class="request-item">🌍 Nationality</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Success Section -->
+        <section id="successSection" class="card hidden">
+          <div class="success-header">
+            <div class="success-icon">🔑</div>
+            <h2>Check-in Complete!</h2>
+            <p>Welcome to Alpine Grand Hotel</p>
+          </div>
+
+          <div class="room-key-card">
+            <div class="key-card-header">
+              <span class="key-icon">🏔️</span>
+              <span class="hotel-name">Alpine Grand</span>
+            </div>
+            <div class="key-card-room">412</div>
+            <div class="key-card-floor">4th Floor • Mountain View</div>
+            <div id="guestName" class="key-card-guest"></div>
+          </div>
+
+          <div id="verifiedData" class="verified-data"></div>
+
+          <div class="next-steps">
+            <h3>Your Digital Room Key</h3>
+            <p>
+              A digital key has been sent to your EUDI Wallet. Simply hold your
+              phone near the door lock to enter your room.
+            </p>
+
+            <div class="amenities">
+              <span class="amenity">🍳 Breakfast: 7-10 AM</span>
+              <span class="amenity">🏊 Pool: 6 AM - 10 PM</span>
+              <span class="amenity">📶 WiFi: AlpineGuest</span>
+            </div>
+          </div>
+
+          <button id="doneBtn" class="btn btn-primary">
+            Back to Playground
+          </button>
+        </section>
+      </main>
+
+      <footer>
+        <p>
+          Demo powered by
+          <a
+            href="https://github.com/openwallet-foundation-labs/eudiplo"
+            target="_blank"
+            >EUDIPLO</a
+          >
+        </p>
+      </footer>
+    </div>
+
+    <script type="module" src="/js/hotel-checkin/app.js"></script>
+  </body>
+</html>

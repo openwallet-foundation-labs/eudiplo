@@ -59,7 +59,7 @@
 
         <mat-divider></mat-divider>
 
-        @if (hasRole(['presentation:offer', 'issuance:offer'])) {
+        @if (hasRole(['presentation:manage', 'issuance:manage'])) {
           <div mat-subheader>Keys</div>
           <mat-list-item [routerLink]="['/keys']" routerLinkActive="active-link">
             <span matListItemTitle>Key Management</span>

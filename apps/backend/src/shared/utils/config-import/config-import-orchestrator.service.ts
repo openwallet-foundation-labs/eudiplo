@@ -1,4 +1,6 @@
-import { Injectable } from "@nestjs/common";
+import { existsSync, readdirSync } from "node:fs";
+import { Injectable, OnApplicationBootstrap } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { PinoLogger } from "nestjs-pino";
 
 /**
@@ -26,49 +28,92 @@ export enum ImportPhase {
     FINAL = 40,
 }
 
+/**
+ * Type for tenant-aware import functions.
+ * Each function receives the tenant ID and processes imports for that specific tenant.
+ */
+export type TenantImportFn = (tenantId: string) => Promise<void>;
+
 interface RegisteredImporter {
     name: string;
     phase: ImportPhase;
-    import: () => Promise<void>;
+    importForTenant: TenantImportFn;
+}
+
+interface TenantSetupFn {
+    name: string;
+    setup: (tenantId: string) => Promise<boolean>;
 }
 
 /**
  * Centralized orchestrator for configuration imports.
- * Ensures imports happen in the correct order based on dependencies.
+ * Imports are processed tenant-by-tenant to provide better log clarity
+ * and isolation - if one tenant fails, others can still be imported.
  *
- * Services should register their import functions during construction,
- * then call runImports() from onApplicationBootstrap().
- * Only the first call to runImports() will actually execute imports.
+ * Flow:
+ * 1. Discover all tenant folders
+ * 2. For each tenant:
+ *    a. Setup tenant (create if needed)
+ *    b. Run all import phases in order (CORE → CONFIGURATION → REFERENCES → FINAL)
+ * 3. Continue with next tenant even if current tenant fails
+ *
+ * Services should register their import functions during construction.
+ * The orchestrator automatically runs imports during onApplicationBootstrap.
  */
 @Injectable()
-export class ConfigImportOrchestratorService {
+export class ConfigImportOrchestratorService implements OnApplicationBootstrap {
     private readonly importers: RegisteredImporter[] = [];
+    private tenantSetup: TenantSetupFn | null = null;
     private hasRun = false;
     private runPromise: Promise<void> | null = null;
 
-    constructor(private readonly logger: PinoLogger) {}
+    constructor(
+        private readonly logger: PinoLogger,
+        private readonly configService: ConfigService,
+    ) {}
+
+    /**
+     * Lifecycle hook - automatically triggers import orchestration.
+     */
+    async onApplicationBootstrap() {
+        await this.runImports();
+    }
+
+    /**
+     * Register a tenant setup function.
+     * This is called first for each tenant to ensure the tenant exists.
+     * @param name - Human-readable name for logging
+     * @param setupFn - Function that creates/verifies tenant, returns true if tenant is valid
+     */
+    registerTenantSetup(
+        name: string,
+        setupFn: (tenantId: string) => Promise<boolean>,
+    ): void {
+        if (this.hasRun) {
+            this.logger.warn(
+                `Tenant setup "${name}" registered after orchestration already ran`,
+            );
+        }
+        this.tenantSetup = { name, setup: setupFn };
+    }
 
     /**
      * Register an import function for orchestration.
      * @param name - Human-readable name for logging
-     * @param phase - The import phase (determines order)
-     * @param importFn - The import function to call
+     * @param phase - The import phase (determines order within tenant)
+     * @param importFn - The import function to call (receives tenantId)
      */
-    register(
-        name: string,
-        phase: ImportPhase,
-        importFn: () => Promise<void>,
-    ): void {
+    register(name: string, phase: ImportPhase, importFn: TenantImportFn): void {
         if (this.hasRun) {
             this.logger.warn(
                 `Importer "${name}" registered after orchestration already ran`,
             );
         }
-        this.importers.push({ name, phase, import: importFn });
+        this.importers.push({ name, phase, importForTenant: importFn });
     }
 
     /**
-     * Execute all registered imports in phase order.
+     * Execute all registered imports tenant-by-tenant.
      * Safe to call multiple times - only runs once.
      * Returns the same promise if called while running.
      */
@@ -88,30 +133,93 @@ export class ConfigImportOrchestratorService {
         return this.runPromise;
     }
 
-    private async executeImports(): Promise<void> {
-        // Sort by phase
-        const sorted = [...this.importers].sort((a, b) => a.phase - b.phase);
+    /**
+     * Discover all tenant folders in the config directory.
+     */
+    private discoverTenants(): string[] {
+        const configPath = this.configService.get<string>("CONFIG_FOLDER");
+        if (!configPath || !existsSync(configPath)) {
+            return [];
+        }
 
-        this.logger.info(
-            `Starting config import orchestration with ${sorted.length} importers`,
+        return readdirSync(configPath, { withFileTypes: true })
+            .filter((entry) => entry.isDirectory())
+            .map((entry) => entry.name);
+    }
+
+    private async executeImports(): Promise<void> {
+        if (!this.configService.get<boolean>("CONFIG_IMPORT")) {
+            this.hasRun = true;
+            this.logger.info("Config import is disabled");
+            return;
+        }
+
+        // Sort importers by phase
+        const sortedImporters = [...this.importers].sort(
+            (a, b) => a.phase - b.phase,
         );
 
-        for (const importer of sorted) {
-            this.logger.debug(
-                `Running import: ${importer.name} (phase ${importer.phase})`,
-            );
+        // Discover tenants
+        const tenants = this.discoverTenants();
+
+        this.logger.info(
+            `Starting config import for ${tenants.length} tenant(s)`,
+        );
+
+        const failedTenants: string[] = [];
+
+        for (const tenantId of tenants) {
+            this.logger.debug(`[${tenantId}] Starting import`);
+
             try {
-                await importer.import();
-            } catch (error) {
+                // Step 1: Setup tenant (create if needed)
+                if (this.tenantSetup) {
+                    const isValid = await this.tenantSetup.setup(tenantId);
+                    if (!isValid) {
+                        this.logger.warn(
+                            `[${tenantId}] Tenant setup returned invalid, skipping`,
+                        );
+                        continue;
+                    }
+                }
+
+                // Step 2: Run all import phases for this tenant
+                for (const importer of sortedImporters) {
+                    this.logger.debug(
+                        `[${tenantId}] Running ${importer.name} (phase ${importer.phase})`,
+                    );
+                    try {
+                        await importer.importForTenant(tenantId);
+                    } catch (error: any) {
+                        this.logger.error(
+                            { error: error.message },
+                            `[${tenantId}] Failed to import ${importer.name}: ${error.message}`,
+                        );
+                        // Continue with next importer for this tenant
+                    }
+                }
+
+                this.logger.info(`[${tenantId}] Import completed`);
+            } catch (error: any) {
                 this.logger.error(
-                    { error, importer: importer.name },
-                    `Failed to import ${importer.name}`,
+                    { error: error.message },
+                    `[${tenantId}] Failed to import tenant: ${error.message}`,
                 );
-                throw error;
+                failedTenants.push(tenantId);
+                // Continue with next tenant
             }
         }
 
         this.hasRun = true;
-        this.logger.info("Config import orchestration completed");
+
+        if (failedTenants.length > 0) {
+            this.logger.warn(
+                `Config import completed with ${failedTenants.length} failed tenant(s): ${failedTenants.join(", ")}`,
+            );
+        } else {
+            this.logger.info(
+                `Config import completed for ${tenants.length} tenant(s)`,
+            );
+        }
     }
 }
